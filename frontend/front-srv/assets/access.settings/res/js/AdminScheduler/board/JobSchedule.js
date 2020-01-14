@@ -156,36 +156,36 @@ class JobSchedule extends React.Component {
         this.setState({frequency: f, monthday, weekday, daytime, everyminutes});
     }
 
-    readableString(short = false){
-        const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
+    static readableString(state, T, short = false){
+        const {frequency, monthday, weekday, daytime, everyminutes} = state;
         let dTRead = '0:00';
         if(daytime){
             dTRead = moment(daytime).format('h:mm');
         }
         switch (frequency) {
             case "manual":
-                return this.T("trigger.manual");
+                return T("trigger.manual");
             case "monthly":
                 if(short){
-                    return this.T("schedule.monthly.short").replace('%1', monthday);
+                    return T("schedule.monthly.short").replace('%1', monthday);
                 } else {
-                    return this.T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
+                    return T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
                 }
             case "weekly":
                 if(short){
-                    return this.T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
+                    return T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
                 } else {
-                    return this.T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
+                    return T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
                 }
             case "daily":
                 if(short){
-                    return this.T("schedule.daily.short").replace('%1', dTRead);
+                    return T("schedule.daily.short").replace('%1', dTRead);
                 } else {
-                    return this.T("schedule.daily").replace('%1', dTRead);
+                    return T("schedule.daily").replace('%1', dTRead);
                 }
             case "timely":
                 const duration = moment.duration(everyminutes, 'minutes');
-                return this.T("schedule.timely").replace('%1', (duration.hours()?duration.hours()+'h':'') + (duration.minutes()?duration.minutes()+'mn':''));
+                return T("schedule.timely").replace('%1', (duration.hours()?duration.hours()+'h':'') + (duration.minutes()?duration.minutes()+'mn':''));
             default:
                 return "Error"
         }
@@ -194,7 +194,7 @@ class JobSchedule extends React.Component {
     render() {
         const {edit} = this.props;
         if(!edit){
-            return <div>{this.readableString(true)}</div>
+            return <div><span className={"mdi mdi-timer"} style={{color:'rgb(33, 150, 243)'}}/> {JobSchedule.readableString(this.state, this.T, true)}</div>
         }
         const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
         let monthdays = [];
@@ -204,7 +204,7 @@ class JobSchedule extends React.Component {
         }
         return (
             <div>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} label={this.readableString(true)} onTouchTap={()=>{this.setState({open:true})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} label={JobSchedule.readableString(this.state, this.T, true)} onTouchTap={()=>{this.setState({open:true})}}/>
                 <Dialog
                     title="Job Schedule"
                     actions={[
@@ -217,7 +217,7 @@ class JobSchedule extends React.Component {
                 >
                     <div>
                         <div>
-                            <div style={{color: '#212121'}}>{this.readableString()}</div>
+                            <div style={{color: '#212121'}}>{JobSchedule.readableString(this.state, this.T, false)}</div>
                             {frequency !== 'manual' && <div style={{fontSize:11, paddingTop: 5}}>ISO8601: {JobSchedule.makeIso8601FromState(this.state)}</div>}
                         </div>
                         <SelectField

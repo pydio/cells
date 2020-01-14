@@ -24,36 +24,49 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/client"
-
-	service "github.com/pydio/cells/common/service/proto"
 )
 
+var (
+	fieldEvaluators []FieldEvaluator
+)
+
+type FieldEvaluator interface {
+	EvaluateField(ctx context.Context, input ActionMessage, value string) string
+}
+
 type InputSelector interface {
-	Select(cl client.Client, ctx context.Context, objects chan interface{}, done chan bool) error
+	Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
 	MultipleSelection() bool
 }
 
 type InputFilter interface {
-	Filter(input ActionMessage) ActionMessage
+	Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool)
 }
 
-func reduceQueryBooleans(results []bool, operation service.OperationType) bool {
+// RegisterFieldEvaluator adds a new evaluator to internal registry
+func RegisterFieldEvaluator(evaluator FieldEvaluator) {
+	fieldEvaluators = append(fieldEvaluators, evaluator)
+}
 
-	reduced := true
-	if operation == service.OperationType_AND {
-		// If one is false, it's false
-		for _, b := range results {
-			reduced = reduced && b
-		}
-	} else {
-		// At least one must be true
-		reduced = false
-		for _, b := range results {
-			reduced = reduced || b
-			if b {
-				break
-			}
-		}
+// GetFieldEvaluators lists all registered evaluators
+func GetFieldEvaluators() []FieldEvaluator {
+	return fieldEvaluators
+}
+
+// EvaluateFieldStr goes through all registered evaluators to modify string value on the fly
+func EvaluateFieldStr(ctx context.Context, input ActionMessage, value string) string {
+	output := value
+	for _, e := range fieldEvaluators {
+		output = e.EvaluateField(ctx, input, output)
 	}
-	return reduced
+	return output
 }
+
+// EvaluateFieldStr goes through all registered evaluators to modify string value on the fly
+func EvaluateFieldStrSlice(ctx context.Context, input ActionMessage, values []string) []string {
+	for i, v := range values {
+		values[i] = EvaluateFieldStr(ctx, input, v)
+	}
+	return values
+}
+

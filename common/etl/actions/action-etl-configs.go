@@ -3,6 +3,8 @@ package actions
 import (
 	"context"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/pydio/cells/common/etl"
 	"github.com/pydio/cells/common/log"
 
@@ -13,6 +15,39 @@ import (
 
 type SyncConfigAction struct {
 	etlAction
+}
+
+func (c *SyncConfigAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              SyncConfigActionName,
+		Label:           "Sync. Configs",
+		Icon:            "",
+		Description:     "Diff and merge two configuration stores",
+		Category:        actions.ActionCategoryETL,
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *SyncConfigAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "left",
+					Type:        forms.ParamString,
+					Label:       "Left store",
+					Description: "Type of left users store",
+				},
+				&forms.FormField{
+					Name:        "right",
+					Type:        forms.ParamString,
+					Label:       "Right store",
+					Description: "Type of right users store",
+				},
+			},
+		},
+	}}
 }
 
 var (

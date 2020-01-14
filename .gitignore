@@ -24,3 +24,6 @@ discovery/metrics
 # builds
 /cells-*
 /ctl-*
+
+*.ank
+/cmd/jobs-*

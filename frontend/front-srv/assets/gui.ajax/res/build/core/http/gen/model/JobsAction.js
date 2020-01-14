@@ -23,13 +23,21 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _JobsActionOutputFilter = require('./JobsActionOutputFilter');
+
+var _JobsActionOutputFilter2 = _interopRequireDefault(_JobsActionOutputFilter);
+
+var _JobsContextMetaFilter = require('./JobsContextMetaFilter');
+
+var _JobsContextMetaFilter2 = _interopRequireDefault(_JobsContextMetaFilter);
+
+var _JobsIdmSelector = require('./JobsIdmSelector');
+
+var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
+
 var _JobsNodesSelector = require('./JobsNodesSelector');
 
 var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
-
-var _JobsSourceFilter = require('./JobsSourceFilter');
-
-var _JobsSourceFilter2 = _interopRequireDefault(_JobsSourceFilter);
 
 var _JobsUsersSelector = require('./JobsUsersSelector');
 
@@ -56,7 +64,10 @@ var JobsAction = (function () {
         this.UsersSelector = undefined;
         this.NodesFilter = undefined;
         this.UsersFilter = undefined;
-        this.SourceFilter = undefined;
+        this.IdmSelector = undefined;
+        this.IdmFilter = undefined;
+        this.ActionOutputFilter = undefined;
+        this.ContextMetaFilter = undefined;
         this.Parameters = undefined;
         this.ChainedActions = undefined;
     }
@@ -88,8 +99,17 @@ var JobsAction = (function () {
             if (data.hasOwnProperty('UsersFilter')) {
                 obj['UsersFilter'] = _JobsUsersSelector2['default'].constructFromObject(data['UsersFilter']);
             }
-            if (data.hasOwnProperty('SourceFilter')) {
-                obj['SourceFilter'] = _JobsSourceFilter2['default'].constructFromObject(data['SourceFilter']);
+            if (data.hasOwnProperty('IdmSelector')) {
+                obj['IdmSelector'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmSelector']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmFilter']);
+            }
+            if (data.hasOwnProperty('ActionOutputFilter')) {
+                obj['ActionOutputFilter'] = _JobsActionOutputFilter2['default'].constructFromObject(data['ActionOutputFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = _JobsContextMetaFilter2['default'].constructFromObject(data['ContextMetaFilter']);
             }
             if (data.hasOwnProperty('Parameters')) {
                 obj['Parameters'] = _ApiClient2['default'].convertToType(data['Parameters'], { 'String': 'String' });
@@ -127,7 +147,19 @@ module.exports = exports['default'];
 */
 
 /**
-* @member {module:model/JobsSourceFilter} SourceFilter
+* @member {module:model/JobsIdmSelector} IdmSelector
+*/
+
+/**
+* @member {module:model/JobsIdmSelector} IdmFilter
+*/
+
+/**
+* @member {module:model/JobsActionOutputFilter} ActionOutputFilter
+*/
+
+/**
+* @member {module:model/JobsContextMetaFilter} ContextMetaFilter
 */
 
 /**

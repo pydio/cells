@@ -37,6 +37,8 @@ import RestListProcessesResponse from '../model/RestListProcessesResponse';
 import RestListStorageBucketsRequest from '../model/RestListStorageBucketsRequest';
 import RestNodesCollection from '../model/RestNodesCollection';
 import RestOpenApiResponse from '../model/RestOpenApiResponse';
+import RestSchedulerActionFormResponse from '../model/RestSchedulerActionFormResponse';
+import RestSchedulerActionsResponse from '../model/RestSchedulerActionsResponse';
 import RestServiceCollection from '../model/RestServiceCollection';
 import RestVersioningPolicyCollection from '../model/RestVersioningPolicyCollection';
 import TreeVersioningPolicy from '../model/TreeVersioningPolicy';
@@ -52,7 +54,7 @@ export default class ConfigServiceApi {
     * Constructs a new ConfigServiceApi. 
     * @alias module:api/ConfigServiceApi
     * @class
-    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
+    * @param {module:ApiClient} apiClient Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {
@@ -1241,6 +1243,96 @@ export default class ConfigServiceApi {
      */
     putDataSource(name, body) {
       return this.putDataSourceWithHttpInfo(name, body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Publish scheduler action XML form for building screens in frontend
+     * @param {String} actionName 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response
+     */
+    schedulerActionFormDiscoveryWithHttpInfo(actionName) {
+      let postBody = null;
+
+      // verify the required parameter 'actionName' is set
+      if (actionName === undefined || actionName === null) {
+        throw new Error("Missing the required parameter 'actionName' when calling schedulerActionFormDiscovery");
+      }
+
+
+      let pathParams = {
+        'ActionName': actionName
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestSchedulerActionFormResponse;
+
+      return this.apiClient.callApi(
+        '/config/scheduler/actions/{ActionName}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Publish scheduler action XML form for building screens in frontend
+     * @param {String} actionName 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}
+     */
+    schedulerActionFormDiscovery(actionName) {
+      return this.schedulerActionFormDiscoveryWithHttpInfo(actionName)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Publish scheduler registered actions
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response
+     */
+    schedulerActionsDiscoveryWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestSchedulerActionsResponse;
+
+      return this.apiClient.callApi(
+        '/config/scheduler/actions', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Publish scheduler registered actions
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}
+     */
+    schedulerActionsDiscovery() {
+      return this.schedulerActionsDiscoveryWithHttpInfo()
         .then(function(response_and_data) {
           return response_and_data.data;
         });

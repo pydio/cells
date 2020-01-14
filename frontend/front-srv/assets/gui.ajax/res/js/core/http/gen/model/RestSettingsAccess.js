@@ -13,21 +13,21 @@
 
 
 import ApiClient from '../ApiClient';
-import ServiceQuery from './ServiceQuery';
+import RestSettingsAccessRestPolicy from './RestSettingsAccessRestPolicy';
 
 
 
 
 
 /**
-* The JobsSourceFilter model module.
-* @module model/JobsSourceFilter
+* The RestSettingsAccess model module.
+* @module model/RestSettingsAccess
 * @version 1.0
 */
-export default class JobsSourceFilter {
+export default class RestSettingsAccess {
     /**
-    * Constructs a new <code>JobsSourceFilter</code>.
-    * @alias module:model/JobsSourceFilter
+    * Constructs a new <code>RestSettingsAccess</code>.
+    * @alias module:model/RestSettingsAccess
     * @class
     */
 
@@ -43,31 +43,31 @@ export default class JobsSourceFilter {
     }
 
     /**
-    * Constructs a <code>JobsSourceFilter</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>RestSettingsAccess</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/JobsSourceFilter} obj Optional instance to populate.
-    * @return {module:model/JobsSourceFilter} The populated <code>JobsSourceFilter</code> instance.
+    * @param {module:model/RestSettingsAccess} obj Optional instance to populate.
+    * @return {module:model/RestSettingsAccess} The populated <code>RestSettingsAccess</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new JobsSourceFilter();
+            obj = obj || new RestSettingsAccess();
 
             
             
             
 
-            if (data.hasOwnProperty('Query')) {
-                obj['Query'] = ServiceQuery.constructFromObject(data['Query']);
+            if (data.hasOwnProperty('Policies')) {
+                obj['Policies'] = ApiClient.convertToType(data['Policies'], [RestSettingsAccessRestPolicy]);
             }
         }
         return obj;
     }
 
     /**
-    * @member {module:model/ServiceQuery} Query
+    * @member {Array.<module:model/RestSettingsAccessRestPolicy>} Policies
     */
-    Query = undefined;
+    Policies = undefined;
 
 
 

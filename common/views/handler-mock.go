@@ -228,3 +228,7 @@ func (h *HandlerMock) MultipartListObjectParts(ctx context.Context, target *tree
 func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
+
+func (h *HandlerMock) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error {
+	return handlerListNodesWithCallback(h, ctx, request, callback, ignoreCbError, filters...)
+}

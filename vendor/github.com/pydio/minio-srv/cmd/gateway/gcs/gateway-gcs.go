@@ -1463,3 +1463,7 @@ func (l *gcsGateway) IsCompressionSupported() bool {
 func (l *gcsGateway) IsNotificationSupported() bool {
 	return true
 }
+
+func (l *gcsGateway) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, gcsToObjectError(fmt.Errorf("tagging not supported"), bucket)
+}

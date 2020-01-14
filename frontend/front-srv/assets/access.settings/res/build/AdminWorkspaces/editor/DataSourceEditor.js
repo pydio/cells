@@ -238,6 +238,7 @@ var DataSourceEditor = (function (_React$Component) {
             var _props = this.props;
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var model = _state3.model;
             var create = _state3.create;
@@ -250,14 +251,16 @@ var DataSourceEditor = (function (_React$Component) {
             var m = _state3.m;
 
             var titleActionBarButtons = [];
-            if (!create) {
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                    _this6.resetForm();
-                }, !this.state.dirty));
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this6.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this6.saveSource();
+                }, !observable.isValid() || !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                _this6.saveSource();
-            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -330,7 +333,7 @@ var DataSourceEditor = (function (_React$Component) {
                         )
                     )
                 ),
-                !create && _react2['default'].createElement(
+                !create && !readonly && _react2['default'].createElement(
                     'div',
                     null,
                     _react2['default'].createElement(_materialUi.Divider, null),
@@ -513,7 +516,39 @@ var DataSourceEditor = (function (_React$Component) {
                                     model.StorageConfiguration.customRegion = v;
                                 } })
                         ),
-                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            m('storage.s3.legend.tags')
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginRight: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.bucketsTags'),
+                                    value: model.StorageConfiguration.bucketsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.bucketsTags = v;
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginLeft: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    disabled: true,
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
+                                    value: model.StorageConfiguration.objectsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.objectsTags = v;
+                                    } })
+                            )
+                        )
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',

@@ -24,6 +24,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 
@@ -32,16 +34,63 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
+var (
+	rpcActionName = "actions.cmd.rpc"
+)
+
 type RpcAction struct {
 	Client      client.Client
 	ServiceName string
 	MethodName  string
-	JsonRequest interface{}
+	JsonRequest string
 }
 
-var (
-	rpcActionName = "actions.cmd.rpc"
-)
+func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              rpcActionName,
+		Label:           "gRPC Request",
+		Category:        actions.ActionCategoryCmd,
+		Icon:            "code-braces",
+		Description:     "Perform a valid JSON-encoded call to any micro-service",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *RpcAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "service",
+					Type:        "string",
+					Label:       "Service Name",
+					Description: "Full name of the cells micro service",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "method",
+					Type:        "string",
+					Label:       "Method",
+					Description: "Name of the RPC method",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "request",
+					Type:        "string",
+					Label:       "JSON Request",
+					Description: "JSON-encoded body to be sent as request",
+					Default:     "{}",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // Unique identifier
 func (c *RpcAction) GetName() string {
@@ -60,7 +109,7 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 		var jsonData interface{}
 		e := json.Unmarshal([]byte(jsonParams), &jsonData)
 		if e == nil {
-			c.JsonRequest = jsonData
+			c.JsonRequest = jsonParams
 		}
 	}
 	return nil
@@ -69,7 +118,10 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 // Run the actual action code
 func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, c.JsonRequest)
+	var jsonParams interface{}
+	json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams)
+
+	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, &jsonParams)
 	var response json.RawMessage
 	e := c.Client.Call(ctx, req, &response)
 	if e != nil {

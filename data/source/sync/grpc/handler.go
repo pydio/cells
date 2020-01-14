@@ -214,6 +214,22 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			}
 		}
 	}
+	options := model.EndpointOptions{}
+	bucketTags, o1 := syncConfig.StorageConfiguration["bucketsTags"]
+	o1 = o1 && bucketTags != ""
+	objectsTags, o2 := syncConfig.StorageConfiguration["objectsTags"]
+	o2 = o2 && objectsTags != ""
+	var syncMetas bool
+	if o1 || o2 {
+		syncMetas = true
+		options.Properties = make(map[string]string)
+		if o1 {
+			options.Properties["bucketsTags"] = bucketTags
+		}
+		if o2 {
+			options.Properties["objectsTags"] = objectsTags
+		}
+	}
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {
@@ -224,7 +240,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			minioConfig.ApiKey,
 			minioConfig.ApiSecret,
 			false,
-			model.EndpointOptions{},
+			options,
 			bucketsFilter,
 		)
 		if errs3 != nil {
@@ -246,7 +262,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			syncConfig.ObjectsBucket,
 			syncConfig.ObjectsBaseFolder,
 			false,
-			model.EndpointOptions{})
+			options)
 		if errs3 != nil {
 			return errs3
 		}
@@ -263,7 +279,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	indexClientWrite := tree.NewNodeReceiverClient(indexName, indexClient)
 	indexClientRead := tree.NewNodeProviderClient(indexName, indexClient)
 	sessionClient := tree.NewSessionIndexerClient(indexName, indexClient)
-	target := index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	var target model.Endpoint
+	if syncMetas {
+		target = index.NewClientWithMeta(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	} else {
+		target = index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	}
 
 	s.S3client = source
 	s.IndexClient = indexClientRead

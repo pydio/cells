@@ -169,13 +169,20 @@ var DataSourcesBoard = (function (_React$Component) {
                 return;
             }
             var dataSource = dataSources[0];
-            this.props.openRightPane({
+            var _props = this.props;
+            var openRightPane = _props.openRightPane;
+            var accessByName = _props.accessByName;
+            var pydio = _props.pydio;
+            var storageTypes = _props.storageTypes;
+
+            openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
-                    pydio: this.props.pydio,
+                    pydio: pydio,
                     dataSource: dataSource,
-                    storageTypes: this.props.storageTypes,
+                    storageTypes: storageTypes,
+                    readonly: !accessByName('CreateDatasource'),
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -283,14 +290,20 @@ var DataSourcesBoard = (function (_React$Component) {
             } else {
                 versionPolicy = versionPolicies[0];
             }
-            this.props.openRightPane({
+            var _props2 = this.props;
+            var openRightPane = _props2.openRightPane;
+            var pydio = _props2.pydio;
+            var versioningReadonly = _props2.versioningReadonly;
+            var accessByName = _props2.accessByName;
+
+            openRightPane({
                 COMPONENT: _editorVersionPolicyEditor2['default'],
                 PROPS: {
                     ref: "editor",
                     versionPolicy: versionPolicy,
                     create: create,
-                    pydio: this.props.pydio,
-                    readonly: this.props.versioningReadonly,
+                    pydio: pydio,
+                    readonly: versioningReadonly || !accessByName('CreateVersioning'),
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -299,9 +312,9 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'createDataSource',
         value: function createDataSource() {
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var storageTypes = _props.storageTypes;
+            var _props3 = this.props;
+            var pydio = _props3.pydio;
+            var storageTypes = _props3.storageTypes;
 
             this.props.openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
@@ -328,10 +341,11 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
-            var _props2 = this.props;
-            var currentNode = _props2.currentNode;
-            var pydio = _props2.pydio;
-            var versioningReadonly = _props2.versioningReadonly;
+            var _props4 = this.props;
+            var currentNode = _props4.currentNode;
+            var pydio = _props4.pydio;
+            var versioningReadonly = _props4.versioningReadonly;
+            var accessByName = _props4.accessByName;
 
             var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
                     return row.Disabled ? _react2['default'].createElement(
@@ -371,8 +385,11 @@ var DataSourcesBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) })];
-            if (!versioningReadonly) {
+            var buttons = [];
+            if (accessByName('CreateDatasource')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }));
+            }
+            if (!versioningReadonly && accessByName('CreateVersioning')) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
                         _this4.openVersionPolicy();
                     } }));
@@ -423,7 +440,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
-                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys" })
+                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName })
                     )
                 )
             );

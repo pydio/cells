@@ -39,4 +39,8 @@ func init() {
 		return &FakeUsersAction{}
 	})
 
+	actions.GetActionsManager().Register(LogInputActionName, func() actions.ConcreteAction {
+		return &LogInputAction{}
+	})
+
 }

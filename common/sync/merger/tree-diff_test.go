@@ -154,7 +154,7 @@ func TestTreeDiff(t *testing.T) {
 		Convey("Test empty source and target", func() {
 			left = memory.NewMemDB()
 			right = memory.NewMemDB()
-			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
+			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{}, []glob.Glob{})
 			// Trigger printout for test coverage
 			t.Log(t1.PrintTree())
 			diff := newTreeDiff(testCtx, left, right)
@@ -350,8 +350,8 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hasha",
 			}, true)
-			t2, _ := TreeNodeFromSource(right, "/", []glob.Glob{})
-			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
+			t2, _ := TreeNodeFromSource(right, "/", []glob.Glob{}, []glob.Glob{})
+			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{}, []glob.Glob{})
 			h1 := t1.GetHash()
 			h2 := t2.GetHash()
 			So(h1, ShouldNotEqual, h2)
@@ -625,7 +625,7 @@ func TestTreeDiffErrors(t *testing.T) {
 		left = memory.NewMemDB()
 		right = memory.NewMemDB()
 
-		t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
+		t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{}, []glob.Glob{})
 		// Trigger printout for test coverage
 		t.Log(t1.PrintTree())
 		diff := newTreeDiff(testCtx, left, right)
@@ -715,7 +715,84 @@ func TestTreeNodeFromSourceWithGlob(t *testing.T) {
 		left.CreateNode(testCtx, &tree.Node{Path: "/bbb/b", Type: tree.NodeType_LEAF, Etag: "hashme"}, true)
 
 		var ignores []glob.Glob
-		TreeNodeFromSource(left, "/", ignores)
+		TreeNodeFromSource(left, "/", ignores, []glob.Glob{})
+
+	})
+
+}
+
+func TestTreeNodeFromSourceWithMeta(t *testing.T) {
+
+	Convey("Test Loading Meta", t, func() {
+
+		left := memory.NewMemDB()
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1", MetaStore: map[string]string{
+			"pydio:special-meta-1": "value1",
+		}}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha", MetaStore: map[string]string{
+			"pydio:special-meta-1": "value1",
+			"pydio:special-meta-2": "value2",
+		}}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/b", Type: tree.NodeType_LEAF, Etag: "hashme", MetaStore: map[string]string{
+			"other-meta": "other-value",
+		}}, true)
+
+		metaGlobs := []glob.Glob{
+			glob.MustCompile("pydio:special-meta-*"),
+		}
+		_, e := TreeNodeFromSource(left, "/", nil, metaGlobs)
+		So(e, ShouldBeNil)
+
+	})
+
+	Convey("Test Diffing Metas", t, func() {
+
+		left := memory.NewMemDB()
+		left.CreateNode(testCtx, &tree.Node{Path: "aaa", Type: tree.NodeType_COLLECTION, Uuid: "node-1", Etag: "-1", MetaStore: map[string]string{
+			"pydio:special-meta-1": "value1",
+		}}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "aaa/a", Type: tree.NodeType_LEAF, Uuid: "node-2", Etag: "hasha", MetaStore: map[string]string{
+			"pydio:special-meta-1":       "value-similar",
+			"pydio:special-meta-deleted": "value2",
+		}}, true)
+
+		right := memory.NewMemDB()
+		right.CreateNode(testCtx, &tree.Node{Path: "aaa", Type: tree.NodeType_COLLECTION, Uuid: "node-1", Etag: "-1", MetaStore: map[string]string{
+			"pydio:special-meta-1": "value-changed",
+		}}, true)
+		right.CreateNode(testCtx, &tree.Node{Path: "aaa/a", Type: tree.NodeType_LEAF, Uuid: "node-2", Etag: "hasha", MetaStore: map[string]string{
+			"pydio:special-meta-1":       "value-similar",
+			"pydio:special-meta-created": "new-value",
+		}}, true)
+
+		metaGlobs := []glob.Glob{
+			glob.MustCompile("pydio:special-meta-*"),
+		}
+
+		diff := NewTreeDiff(context.Background(), left, right)
+		diff.includeMetas = metaGlobs
+		e := diff.Compute("", nil)
+		So(e, ShouldBeNil)
+		t.Log(diff.String())
+
+		p := newTreePatch(left, right, PatchOptions{})
+		err := diff.ToUnidirectionalPatch(model.DirectionRight, p)
+		So(err, ShouldBeNil)
+		t.Log(p)
+		var i0, i1, i2 int
+		p.WalkOperations([]OperationType{OpCreateMeta, OpDeleteMeta, OpUpdateMeta}, func(operation Operation) {
+			switch operation.Type() {
+			case OpCreateMeta:
+				i0++
+			case OpUpdateMeta:
+				i1++
+			case OpDeleteMeta:
+				i2++
+			}
+		})
+		So(i0, ShouldEqual, 1)
+		So(i1, ShouldEqual, 1)
+		So(i2, ShouldEqual, 1)
 
 	})
 

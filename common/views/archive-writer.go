@@ -28,62 +28,15 @@ import (
 	"io"
 	"path"
 	"strings"
-	"time"
 
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
 type ArchiveWriter struct {
 	Router Handler
-}
-
-type walkFunction func(node *tree.Node) error
-
-func (w *ArchiveWriter) walkObjectsWithCallback(ctx context.Context, nodePath string, cb walkFunction) error {
-
-	r, e := w.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: nodePath}})
-	if e != nil {
-		return e
-	}
-	if r.Node.IsLeaf() {
-		cb(r.Node)
-		return nil
-	}
-	lNodeClient, err := w.Router.ListNodes(ctx, &tree.ListNodesRequest{
-		Node: &tree.Node{
-			Path: nodePath,
-		},
-		Recursive: true,
-		Limit:     0,
-	}, client.WithRequestTimeout(6*time.Hour))
-	if err != nil {
-		return err
-	}
-	defer lNodeClient.Close()
-	for {
-		clientResponse, err := lNodeClient.Recv()
-		if clientResponse == nil || err != nil {
-			break
-		}
-		n := clientResponse.Node
-		// Ignore folders
-		if !n.IsLeaf() || strings.HasSuffix(n.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
-			continue
-		}
-		e := cb(n)
-		if e != nil {
-			log.Logger(ctx).Error("Error trying to add file to archive", zap.String("path", n.Path))
-			return e
-		}
-	}
-
-	return nil
-
 }
 
 func (w *ArchiveWriter) commonRoot(nodes []*tree.Node) string {
@@ -98,6 +51,7 @@ func (w *ArchiveWriter) commonRoot(nodes []*tree.Node) string {
 
 }
 
+// ZipSelection creates a .zip archive from nodes selection
 func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, nodes []*tree.Node, logsChannels ...chan string) (int64, error) {
 
 	z := zip.NewWriter(output)
@@ -110,9 +64,15 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 
 	for _, node := range nodes {
 
-		w.walkObjectsWithCallback(ctx, node.Path, func(n *tree.Node) error {
+		request := &tree.ListNodesRequest{
+			Node:       &tree.Node{Path: node.Path},
+			Recursive:  true,
+			Limit:      0,
+			FilterType: tree.NodeType_LEAF,
+		}
+		err := w.Router.ListNodesWithCallback(ctx, request, func(ctx context.Context, n *tree.Node, err error) error {
 
-			if n.Size <= 0 {
+			if err != nil {
 				return nil
 			}
 			internalPath := strings.TrimPrefix(n.Path, parentRoot)
@@ -149,9 +109,15 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 			if len(logsChannels) > 0 {
 				logsChannels[0] <- "File " + internalPath + " added to archive"
 			}
+
 			return nil
+		}, false, WalkFilterSkipPydioHiddenFile, func(ctx context.Context, node *tree.Node) bool {
+			return node.Size > 0
 		})
 
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	log.Logger(ctx).Debug("Total Size Written", zap.Int64("size", totalSizeWritten))
@@ -159,6 +125,7 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 	return totalSizeWritten, nil
 }
 
+// TarSelection creates a .tar or .tar.gz archive from nodes selection
 func (w *ArchiveWriter) TarSelection(ctx context.Context, output io.Writer, gzipFile bool, nodes []*tree.Node, logsChannel ...chan string) (int64, error) {
 
 	var tw *tar.Writer
@@ -180,12 +147,15 @@ func (w *ArchiveWriter) TarSelection(ctx context.Context, output io.Writer, gzip
 
 	for _, node := range nodes {
 
-		err := w.walkObjectsWithCallback(ctx, node.Path, func(n *tree.Node) error {
+		request := &tree.ListNodesRequest{
+			Node:       &tree.Node{Path: node.Path},
+			Recursive:  true,
+			Limit:      0,
+			FilterType: tree.NodeType_LEAF,
+		}
+		err := w.Router.ListNodesWithCallback(ctx, request, func(ctx context.Context, n *tree.Node, err error) error {
 
 			internalPath := strings.TrimPrefix(n.Path, parentRoot)
-			if n.Size <= 0 {
-				return nil
-			}
 			header := &tar.Header{
 				Name:    internalPath,
 				ModTime: n.GetModTime(),
@@ -204,19 +174,22 @@ func (w *ArchiveWriter) TarSelection(ctx context.Context, output io.Writer, gzip
 				return e
 			}
 			reader, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
-			defer reader.Close()
 			if e1 != nil {
 				log.Logger(ctx).Error("Error while getting object and writing to tarball", zap.String("path", internalPath), zap.Error(e1))
 				return e1
 			}
+			defer reader.Close()
+
 			size, _ := io.Copy(tw, reader)
 			totalSizeWritten += size
 
 			if len(logsChannel) > 0 {
 				logsChannel[0] <- "File " + internalPath + " added to archive"
 			}
-
 			return nil
+
+		}, true, WalkFilterSkipPydioHiddenFile, func(ctx context.Context, node *tree.Node) bool {
+			return node.Size > 0
 		})
 
 		if err != nil {

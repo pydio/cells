@@ -173,6 +173,7 @@ var PluginEditor = _react2['default'].createClass({
         var style = _props.style;
         var rootNode = _props.rootNode;
         var tabs = _props.tabs;
+        var accessByName = _props.accessByName;
         var _state = this.state;
         var documentation = _state.documentation;
         var pluginId = _state.pluginId;
@@ -223,8 +224,10 @@ var PluginEditor = _react2['default'].createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         var actions = [];
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        if (accessByName('Create')) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        }
         actions.push(closeButton);
 
         var icon = rootNode.getMetadata().get('icon_class');

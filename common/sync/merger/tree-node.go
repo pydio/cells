@@ -64,7 +64,7 @@ type TreeNode struct {
 // When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, status ...chan model.Status) (*TreeNode, error) {
+func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, includeMetas []glob.Glob, status ...chan model.Status) (*TreeNode, error) {
 	var statusChan chan model.Status
 	if len(status) > 0 {
 		statusChan = status[0]
@@ -125,13 +125,16 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 						statusChan <- model.NewProcessingStatus(fmt.Sprintf("Could not compute hash for %s", p)).SetEndpoint(uri).SetNode(node).SetError(e)
 					}
 				}
-				parent.AddChild(NewTreeNode(node))
+				childNode := NewTreeNode(node)
+				parent.AddChild(childNode)
+				addMetadataAsChildNodes(childNode, includeMetas)
 			}()
 		} else {
 			parent.AddChild(t)
 			if !t.IsLeaf() {
 				dirs[strings.Trim(t.GetPath(), "/")] = t
 			}
+			addMetadataAsChildNodes(t, includeMetas)
 		}
 	}, root, true)
 	wg.Wait()
@@ -247,15 +250,33 @@ func (t *TreeNode) Label() string {
 // for Folders if it is not already computed, it will compute an etag from
 // the children recursively, using their name and Etag.
 func (t *TreeNode) GetHash() string {
-	if t.IsLeaf() || (t.Etag != "-1" && t.Etag != "") {
+	if t.Type == NodeType_METADATA {
+		return t.Etag
+	} else if t.IsLeaf() {
+		// append t.Etag and metadata
+		sorted := t.SortedChildren()
+		if len(sorted) == 0 {
+			return t.Etag
+		} else {
+			h := md5.New()
+			h.Write([]byte(t.Etag))
+			for _, c := range t.SortedChildren() {
+				h.Write([]byte(c.Label() + c.GetHash()))
+			}
+			return fmt.Sprintf("%x", h.Sum(nil))
+		}
+	} else {
+		// Now Collections
+		if t.Etag != "-1" && t.Etag != "" {
+			return t.Etag
+		}
+		h := md5.New()
+		for _, c := range t.SortedChildren() {
+			h.Write([]byte(c.Label() + c.GetHash()))
+		}
+		t.Etag = fmt.Sprintf("%x", h.Sum(nil))
 		return t.Etag
 	}
-	h := md5.New()
-	for _, c := range t.SortedChildren() {
-		h.Write([]byte(c.Label() + c.GetHash()))
-	}
-	t.Etag = fmt.Sprintf("%x", h.Sum(nil))
-	return t.Etag
 }
 
 func (t *TreeNode) getRoot() *TreeNode {

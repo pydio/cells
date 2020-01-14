@@ -340,12 +340,14 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 				*cursorIndex++
 				continue
 			}
+			metaFilter := tree.NewMetaFilter(node)
+			hasFilter := metaFilter.Parse()
 			outputNode := &tree.Node{
 				Uuid: "DATASOURCE:" + name,
 				Path: name,
 			}
 			outputNode.SetMeta("name", name)
-			if req.FilterType != tree.NodeType_LEAF {
+			if req.FilterType == tree.NodeType_UNKNOWN && (!hasFilter || metaFilter.Match(name, outputNode)) {
 				resp.Send(&tree.ListNodesResponse{
 					Node: outputNode,
 				})
@@ -355,8 +357,11 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 				subNode := node.Clone()
 				subNode.Path = name
 				s.ListNodesWithLimit(ctx, &tree.ListNodesRequest{
-					Node:      subNode,
-					Recursive: true,
+					Node:         subNode,
+					Recursive:    true,
+					WithVersions: req.WithVersions,
+					WithCommits:  req.WithCommits,
+					FilterType:   req.FilterType,
 				}, resp, cursorIndex, numberSent)
 			}
 			if checkLimit() {

@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/cskr/pubsub"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
@@ -260,9 +261,6 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-//	s.jobsLock.Lock()
-//	defer s.jobsLock.Unlock()
-
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
@@ -271,25 +269,6 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		Ctx:             ctx,
 	}
 
-	/*
-		for jobId, jobData := range s.JobsDefinitions {
-			if jobData.Inactive {
-				continue
-			}
-			if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
-				continue
-			}
-			for _, eName := range jobData.EventNames {
-				if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
-					if event.Type == eType {
-						log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
-						task := NewTaskFromEvent(ctx, jobData, event)
-						go task.EnqueueRunnables(s.Client, s.MainQueue)
-					}
-				}
-			}
-		}
-	*/
 	return nil
 }
 
@@ -302,7 +281,10 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
-		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -331,6 +313,12 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		if jobData.Inactive {
 			continue
 		}
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
+			continue
+		}
 		for _, eName := range jobData.EventNames {
 			if jobs.MatchesIdmChangeEvent(eName, event) {
 				log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
@@ -343,7 +331,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 }
 
 // Check if a node must go through jobs at all (if there is a NodesSelector at the job level)
-func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
+func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
 	var refNode *tree.Node
 	if event.Target != nil {
 		refNode = event.Target
@@ -354,9 +342,61 @@ func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *job
 		return true // Ignore
 	}
 	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
-	output := filter.Filter(input)
-	if output.Nodes == nil || len(output.Nodes) == 0 {
-		return false
+	_, pass := filter.Filter(ctx, input)
+	return pass
+}
+
+// Test filter and return false if all input IDM slots are empty
+func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
+	_, pass := filter.Filter(ctx, input)
+	return pass
+}
+
+// Test filter and return false if context is filtered out
+func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
+	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
+	return pass
+}
+
+func createMessageFromEvent(event interface{}) jobs.ActionMessage {
+	initialInput := jobs.ActionMessage{}
+
+	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
+		any, _ := ptypes.MarshalAny(nodeChange)
+		initialInput.Event = any
+		if nodeChange.Target != nil {
+
+			initialInput = initialInput.WithNode(nodeChange.Target)
+
+		} else if nodeChange.Source != nil {
+
+			initialInput = initialInput.WithNode(nodeChange.Source)
+
+		}
+
+	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
+
+		any, _ := ptypes.MarshalAny(triggerEvent)
+		initialInput.Event = any
+
+	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
+
+		any, _ := ptypes.MarshalAny(idmEvent)
+		initialInput.Event = any
+		if idmEvent.User != nil {
+			initialInput = initialInput.WithUser(idmEvent.User)
+		}
+		if idmEvent.Role != nil {
+			initialInput = initialInput.WithRole(idmEvent.Role)
+		}
+		if idmEvent.Workspace != nil {
+			initialInput = initialInput.WithWorkspace(idmEvent.Workspace)
+		}
+		if idmEvent.Acl != nil {
+			initialInput = initialInput.WithAcl(idmEvent.Acl)
+		}
+
 	}
-	return true
+
+	return initialInput
 }

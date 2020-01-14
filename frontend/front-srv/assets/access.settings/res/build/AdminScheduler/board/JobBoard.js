@@ -50,9 +50,13 @@ var _TaskActivity = require('./TaskActivity');
 
 var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
 
-var _JobSchedule = require('./JobSchedule');
+var _JobGraph = require("./JobGraph");
 
-var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
+var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
@@ -74,13 +78,19 @@ var JobBoard = (function (_React$Component) {
             mode: 'log', // 'log' or 'selection'
             selectedRows: [],
             working: false,
-            taskLogs: null
+            taskLogs: null,
+            job: props.job,
+            create: props.create
         };
     }
 
     _createClass(JobBoard, [{
-        key: 'runOnce',
-        value: function runOnce() {}
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+                this.setState({ job: nextProps.job });
+            }
+        }
     }, {
         key: 'renderActions',
         value: function renderActions(row) {
@@ -142,7 +152,7 @@ var JobBoard = (function (_React$Component) {
             var _this = this;
 
             var selectedRows = this.state.selectedRows;
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             this.setState({ working: true });
@@ -156,7 +166,7 @@ var JobBoard = (function (_React$Component) {
             var _this2 = this;
 
             this.setState({ working: true });
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             store.deleteAllTasksForJob(job.ID).then(function () {
@@ -164,13 +174,68 @@ var JobBoard = (function (_React$Component) {
             });
         }
     }, {
-        key: 'render',
-        value: function render() {
-            var _this3 = this;
-
+        key: 'deleteJob',
+        value: function deleteJob() {
             var _props = this.props;
             var pydio = _props.pydio;
-            var jobsEditable = _props.jobsEditable;
+            var onRequestClose = _props.onRequestClose;
+            var _state = this.state;
+            var job = _state.job;
+            var create = _state.create;
+
+            if (create) {
+                return;
+            }
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+            };
+            if (!window.confirm(m('job.delete.confirm'))) {
+                return;
+            }
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(PydioApi.getRestClient());
+                return api.deleteJob(job.ID);
+            }).then(function () {
+                onRequestClose(true);
+            })['catch'](function (e) {});
+        }
+    }, {
+        key: 'onJobSave',
+        value: function onJobSave(job) {
+            this.setState({ job: job, create: false });
+        }
+    }, {
+        key: 'onJsonSave',
+        value: function onJsonSave(job) {
+            var _this3 = this;
+
+            // Artificial redraw : go null and back to job
+            this.setState({ job: null, create: false }, function () {
+                _this3.setState({ job: job });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var jobsEditable = _props2.jobsEditable;
+            var onRequestClose = _props2.onRequestClose;
+            var _state2 = this.state;
+            var selectedRows = _state2.selectedRows;
+            var working = _state2.working;
+            var mode = _state2.mode;
+            var taskLogs = _state2.taskLogs;
+            var create = _state2.create;
+            var job = _state2.job;
+
+            if (!job) {
+                return null;
+            }
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -189,16 +254,6 @@ var JobBoard = (function (_React$Component) {
                         return row.StatusMessage;
                     }
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
-
-            var _props2 = this.props;
-            var job = _props2.job;
-            var onRequestClose = _props2.onRequestClose;
-            var _state = this.state;
-            var selectedRows = _state.selectedRows;
-            var working = _state.working;
-            var mode = _state.mode;
-            var taskLogs = _state.taskLogs;
-
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -210,22 +265,26 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
-            if (!job.EventNames) {
-                if (jobsEditable) {
-                    actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+            if (!create) {
+                if (!job.EventNames) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'RunOnce');
+                        } }));
                 }
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'RunOnce');
-                    } }));
-            }
-            if (job.Inactive) {
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline" }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'Active');
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'Inactive');
-                    } }));
+                if (job.Inactive) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline" }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'Active');
+                        } }));
+                } else {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'Inactive');
+                        } }));
+                }
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
+                            _this4.deleteJob();
+                        } }));
+                }
             }
             var running = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) !== -1;
@@ -247,7 +306,7 @@ var JobBoard = (function (_React$Component) {
                     {
                         title: job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8) : ''),
                         onRequestClose: function () {
-                            _this3.setState({ taskLogs: null });
+                            _this4.setState({ taskLogs: null });
                         },
                         open: taskLogs !== null,
                         autoScrollBodyContent: true,
@@ -277,68 +336,78 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(AdminComponents.SubHeader, {
-                        title: m('tasks.running')
+                    _react2['default'].createElement(_JobGraph2['default'], {
+                        job: job,
+                        random: Math.random(),
+                        jobsEditable: jobsEditable,
+                        create: create,
+                        onJobSave: this.onJobSave.bind(this),
+                        onJsonSave: this.onJsonSave.bind(this)
                     }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(MaterialTable, {
-                            data: running,
-                            columns: keys,
-                            showCheckboxes: false,
-                            emptyStateString: m('tasks.running.empty'),
-                            onSelectRows: function (rows) {
-                                if (rows.length === 1 && running.length) {
-                                    _this3.setState({ taskLogs: rows[0] });
+                    !create && _react2['default'].createElement(
+                        'div',
+                        null,
+                        running.length > 0 && _react2['default'].createElement(AdminComponents.SubHeader, { title: m('tasks.running') }),
+                        running.length > 0 && _react2['default'].createElement(
+                            _materialUi.Paper,
+                            { style: { margin: 20 } },
+                            _react2['default'].createElement(MaterialTable, {
+                                data: running,
+                                columns: keys,
+                                showCheckboxes: false,
+                                emptyStateString: m('tasks.running.empty'),
+                                onSelectRows: function (rows) {
+                                    if (rows.length === 1 && running.length) {
+                                        _this4.setState({ taskLogs: rows[0] });
+                                    }
                                 }
-                            }
-                        })
-                    ),
-                    _react2['default'].createElement(AdminComponents.SubHeader, {
-                        title: _react2['default'].createElement(
-                            'div',
-                            { style: { display: 'flex', width: '100%', alignItems: 'baseline' } },
-                            _react2['default'].createElement(
+                            })
+                        ),
+                        _react2['default'].createElement(AdminComponents.SubHeader, {
+                            title: _react2['default'].createElement(
                                 'div',
-                                { style: { flex: 1 } },
-                                m('tasks.history')
-                            ),
-                            mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial' } },
-                                _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                                        _this3.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
-                                    }, disabled: working })
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+                                { style: { display: 'flex', width: '100%', alignItems: 'baseline' } },
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { flex: 1 } },
+                                    m('tasks.history')
+                                ),
+                                mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial' } },
+                                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
+                                ),
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                                    _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
+                                        }, disabled: working })
+                                ),
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                                    _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+                                )
                             )
-                        )
-                    }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(MaterialTable, {
-                            data: other,
-                            columns: keys,
-                            showCheckboxes: mode === 'selection',
-                            onSelectRows: this.onSelectTaskRows.bind(this),
-                            emptyStateString: m('tasks.history.empty'),
-                            selectedRows: selectedRows,
-                            deselectOnClickAway: true
                         }),
-                        more && _react2['default'].createElement(
-                            'div',
-                            { style: { padding: 20, borderTop: '1px solid #eee' } },
-                            m('tasks.history.more').replace('%s', more)
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            { style: { margin: 20 } },
+                            _react2['default'].createElement(MaterialTable, {
+                                data: other,
+                                columns: keys,
+                                showCheckboxes: mode === 'selection',
+                                onSelectRows: this.onSelectTaskRows.bind(this),
+                                emptyStateString: m('tasks.history.empty'),
+                                selectedRows: selectedRows,
+                                deselectOnClickAway: true
+                            }),
+                            more && _react2['default'].createElement(
+                                'div',
+                                { style: { padding: 20, borderTop: '1px solid #eee' } },
+                                m('tasks.history.more').replace('%s', more)
+                            )
                         )
                     )
                 )

@@ -14,6 +14,8 @@
 
 import ApiClient from '../ApiClient';
 import JobsAction from './JobsAction';
+import JobsContextMetaFilter from './JobsContextMetaFilter';
+import JobsIdmSelector from './JobsIdmSelector';
 import JobsNodesSelector from './JobsNodesSelector';
 import JobsSchedule from './JobsSchedule';
 import JobsTask from './JobsTask';
@@ -106,6 +108,12 @@ export default class JobsJob {
             if (data.hasOwnProperty('UserEventFilter')) {
                 obj['UserEventFilter'] = JobsUsersSelector.constructFromObject(data['UserEventFilter']);
             }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = JobsIdmSelector.constructFromObject(data['IdmFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = JobsContextMetaFilter.constructFromObject(data['ContextMetaFilter']);
+            }
         }
         return obj;
     }
@@ -170,6 +178,14 @@ export default class JobsJob {
     * @member {module:model/JobsUsersSelector} UserEventFilter
     */
     UserEventFilter = undefined;
+    /**
+    * @member {module:model/JobsIdmSelector} IdmFilter
+    */
+    IdmFilter = undefined;
+    /**
+    * @member {module:model/JobsContextMetaFilter} ContextMetaFilter
+    */
+    ContextMetaFilter = undefined;
 
 
 

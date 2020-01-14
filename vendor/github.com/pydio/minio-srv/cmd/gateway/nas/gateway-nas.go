@@ -17,6 +17,7 @@
 package nas
 
 import (
+	"context"
 	"github.com/minio/cli"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/pkg/auth"
@@ -129,4 +130,8 @@ func (l *nasObjects) IsNotificationSupported() bool {
 // IsCompressionSupported returns whether compression is applicable for this layer.
 func (l *nasObjects) IsCompressionSupported() bool {
 	return false
+}
+
+func (l *nasObjects) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, minio.NotImplemented{}
 }

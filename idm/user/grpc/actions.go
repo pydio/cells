@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -26,6 +28,35 @@ var (
 type DeleteUsersAction struct {
 	task   *jobs.Task
 	params map[string]string
+}
+
+func (a *DeleteUsersAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              DeleteUsersActionName,
+		Label:           "Remove Users",
+		Icon:            "account-off",
+		Description:     "Batch-delete users and groups, based on login or group path. Use one of the parameters.",
+		SummaryTemplate: "",
+		Category:        actions.ActionCategoryIDM,
+		HasForm:         true,
+	}
+}
+
+func (a *DeleteUsersAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{{Fields: []forms.Field{
+		&forms.FormField{
+			Name:        "login",
+			Type:        forms.ParamString,
+			Label:       "Login",
+			Description: "Specific user login",
+		},
+		&forms.FormField{
+			Name:        "groupPath",
+			Type:        forms.ParamString,
+			Label:       "groupPath",
+			Description: "Path to group (all users and groups will be deleted)",
+		},
+	}}}}
 }
 
 func (a *DeleteUsersAction) GetName() string {

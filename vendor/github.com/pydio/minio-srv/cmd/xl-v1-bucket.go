@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"sync"
 
@@ -302,4 +303,8 @@ func (xl xlObjects) IsEncryptionSupported() bool {
 // IsCompressionSupported returns whether compression is applicable for this layer.
 func (xl xlObjects) IsCompressionSupported() bool {
 	return true
+}
+
+func (xl xlObjects) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, toObjectErr(fmt.Errorf("tagging not supported"), bucket)
 }

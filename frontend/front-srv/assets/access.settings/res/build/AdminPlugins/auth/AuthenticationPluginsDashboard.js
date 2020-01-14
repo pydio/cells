@@ -48,7 +48,8 @@ var AuthenticationPluginsDashboard = React.createClass({
             filterType: "authfront",
             displaySmall: true,
             openRightPane: this.props.openRightPane,
-            closeRightPane: this.props.closeRightPane
+            closeRightPane: this.props.closeRightPane,
+            accessByName: this.props.accessByName
         });
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
             pluginId: "core.auth",

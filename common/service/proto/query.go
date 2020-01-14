@@ -23,7 +23,6 @@ package service
 import (
 	"encoding/json"
 	"errors"
-
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/protobuf/jsonpb"
 	"github.com/micro/protobuf/proto"
@@ -124,4 +123,25 @@ func (q *Query) UnmarshalJSONPB(unmarshaller *jsonpb.Unmarshaler, data []byte) e
 	}
 
 	return nil
+}
+
+func ReduceQueryBooleans(results []bool, operation OperationType) bool {
+
+	reduced := true
+	if operation == OperationType_AND {
+		// If one is false, it's false
+		for _, b := range results {
+			reduced = reduced && b
+		}
+	} else {
+		// At least one must be true
+		reduced = false
+		for _, b := range results {
+			reduced = reduced || b
+			if b {
+				break
+			}
+		}
+	}
+	return reduced
 }

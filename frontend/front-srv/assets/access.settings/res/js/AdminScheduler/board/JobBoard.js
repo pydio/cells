@@ -24,7 +24,8 @@ import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} 
 const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
-import JobSchedule from './JobSchedule'
+import JobGraph from "./JobGraph";
+import ResourcesManager from 'pydio/http/resources-manager'
 
 class JobBoard extends React.Component {
 
@@ -35,11 +36,15 @@ class JobBoard extends React.Component {
             selectedRows: [],
             working: false,
             taskLogs: null,
+            job: props.job,
+            create: props.create
         }
     }
 
-    runOnce(){
-
+    componentWillReceiveProps(nextProps){
+        if(nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+            this.setState({job: nextProps.job});
+        }
     }
 
     renderActions(row){
@@ -82,7 +87,7 @@ class JobBoard extends React.Component {
 
     deleteSelection(){
         const {selectedRows} = this.state;
-        const {job} = this.props;
+        const {job} = this.state;
         const store = JobsStore.getInstance();
         this.setState({working: true});
         store.deleteTasks(job.ID, selectedRows).then(()=>{
@@ -92,16 +97,54 @@ class JobBoard extends React.Component {
 
     deleteAll(){
         this.setState({working: true});
-        const {job} = this.props;
+        const {job} = this.state;
         const store = JobsStore.getInstance();
         store.deleteAllTasksForJob(job.ID).then(() => {
             this.setState({working: false});
         })
     }
 
+    deleteJob(){
+        const {pydio, onRequestClose} = this.props;
+        const {job, create} = this.state;
+        if(create) {
+            return
+        }
+        const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+        if(!window.confirm(m('job.delete.confirm'))){
+            return
+        }
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const {SchedulerServiceApi} = sdk;
+            const api = new SchedulerServiceApi(PydioApi.getRestClient());
+            return api.deleteJob(job.ID);
+        }).then(()=> {
+            onRequestClose(true);
+        }).catch((e) => {
+
+        })
+    }
+
+    onJobSave(job){
+        this.setState({job: job, create: false});
+    }
+
+    onJsonSave(job){
+        // Artificial redraw : go null and back to job
+        this.setState({job: null, create:false}, ()=>{
+            this.setState({job: job});
+        });
+    }
+
     render(){
 
-        const {pydio, jobsEditable} = this.props;
+        const {pydio, jobsEditable, onRequestClose} = this.props;
+        const {selectedRows, working, mode, taskLogs, create, job} = this.state;
+
+        if(!job){
+            return null;
+        }
+
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
@@ -120,9 +163,6 @@ class JobBoard extends React.Component {
             }},
             {name:'Actions', label:'', style:{textAlign:'right'}, renderCell:this.renderActions.bind(this)}
         ];
-
-        const {job, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs} = this.state;
         const tasks = job.Tasks || [];
         const runningStatus = ['Running', 'Paused'];
 
@@ -134,16 +174,18 @@ class JobBoard extends React.Component {
         });
 
         let actions = [];
-        if(!job.EventNames){
-            if(jobsEditable){
-                actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
+        if(!create){
+            if(!job.EventNames){
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
             }
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
-        }
-        if(job.Inactive) {
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} />);
-        } else {
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} />);
+            if(job.Inactive) {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} />);
+            } else {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} />);
+            }
+            if(jobsEditable) {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}}/>)
+            }
         }
         const running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
         let other = tasks.filter((t) => {return runningStatus.indexOf(t.Status) === -1});
@@ -172,40 +214,56 @@ class JobBoard extends React.Component {
                     loading={working}
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
-                    <AdminComponents.SubHeader
-                        title={m('tasks.running')}
+                    <JobGraph
+                        job={job}
+                        random={Math.random()}
+                        jobsEditable={jobsEditable}
+                        create={create}
+                        onJobSave={this.onJobSave.bind(this)}
+                        onJsonSave={this.onJsonSave.bind(this)}
                     />
-                    <Paper style={{margin: 20}}>
-                        <MaterialTable
-                            data={running}
-                            columns={keys}
-                            showCheckboxes={false}
-                            emptyStateString={m('tasks.running.empty')}
-                            onSelectRows={(rows) => { if(rows.length === 1 && running.length){ this.setState({taskLogs: rows[0]}); }}}
-                        />
-                    </Paper>
-                    <AdminComponents.SubHeader
-                        title={
-                            <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>
-                                <div style={{flex: 1}}>{m('tasks.history')}</div>
-                                {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onTouchTap={this.deleteSelection.bind(this)} disabled={working}/></div>}
-                                {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection'})}} disabled={working}/></div>}
-                                {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>}
-                            </div>
+                    {!create &&
+                    <div>
+                        {running.length > 0 &&  <AdminComponents.SubHeader title={m('tasks.running')} />}
+                        {running.length > 0 &&
+                        <Paper style={{margin: 20}}>
+                            <MaterialTable
+                                data={running}
+                                columns={keys}
+                                showCheckboxes={false}
+                                emptyStateString={m('tasks.running.empty')}
+                                onSelectRows={(rows) => {
+                                    if (rows.length === 1 && running.length) {
+                                        this.setState({taskLogs: rows[0]});
+                                    }
+                                }}
+                            />
+                        </Paper>
                         }
-                    />
-                    <Paper style={{margin: 20}}>
-                        <MaterialTable
-                            data={other}
-                            columns={keys}
-                            showCheckboxes={mode === 'selection'}
-                            onSelectRows={this.onSelectTaskRows.bind(this)}
-                            emptyStateString={m('tasks.history.empty')}
-                            selectedRows={selectedRows}
-                            deselectOnClickAway={true}
+                        <AdminComponents.SubHeader
+                            title={
+                                <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>
+                                    <div style={{flex: 1}}>{m('tasks.history')}</div>
+                                    {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onTouchTap={this.deleteSelection.bind(this)} disabled={working}/></div>}
+                                    {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection'})}} disabled={working}/></div>}
+                                    {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>}
+                                </div>
+                            }
                         />
-                        {more  && <div style={{padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
-                    </Paper>
+                        <Paper style={{margin: 20}}>
+                            <MaterialTable
+                                data={other}
+                                columns={keys}
+                                showCheckboxes={mode === 'selection'}
+                                onSelectRows={this.onSelectTaskRows.bind(this)}
+                                emptyStateString={m('tasks.history.empty')}
+                                selectedRows={selectedRows}
+                                deselectOnClickAway={true}
+                            />
+                            {more  && <div style={{padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
+                        </Paper>
+                    </div>
+                    }
                 </div>
             </div>
         );

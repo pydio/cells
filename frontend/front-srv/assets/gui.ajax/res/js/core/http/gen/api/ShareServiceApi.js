@@ -35,7 +35,7 @@ export default class ShareServiceApi {
     * Constructs a new ShareServiceApi. 
     * @alias module:api/ShareServiceApi
     * @class
-    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
+    * @param {module:ApiClient} apiClient Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {

@@ -80,16 +80,19 @@ import JobsAction from './model/JobsAction';
 import JobsActionLog from './model/JobsActionLog';
 import JobsActionMessage from './model/JobsActionMessage';
 import JobsActionOutput from './model/JobsActionOutput';
+import JobsActionOutputFilter from './model/JobsActionOutputFilter';
 import JobsCommand from './model/JobsCommand';
+import JobsContextMetaFilter from './model/JobsContextMetaFilter';
 import JobsCtrlCommand from './model/JobsCtrlCommand';
 import JobsCtrlCommandResponse from './model/JobsCtrlCommandResponse';
 import JobsDeleteTasksRequest from './model/JobsDeleteTasksRequest';
 import JobsDeleteTasksResponse from './model/JobsDeleteTasksResponse';
+import JobsIdmSelector from './model/JobsIdmSelector';
+import JobsIdmSelectorType from './model/JobsIdmSelectorType';
 import JobsJob from './model/JobsJob';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
 import JobsSchedule from './model/JobsSchedule';
-import JobsSourceFilter from './model/JobsSourceFilter';
 import JobsTask from './model/JobsTask';
 import JobsTaskStatus from './model/JobsTaskStatus';
 import JobsUsersSelector from './model/JobsUsersSelector';
@@ -109,6 +112,7 @@ import PackagePackageStatus from './model/PackagePackageStatus';
 import ProtobufAny from './model/ProtobufAny';
 import ResourcePolicyQueryQueryType from './model/ResourcePolicyQueryQueryType';
 import RestACLCollection from './model/RestACLCollection';
+import RestActionDescription from './model/RestActionDescription';
 import RestBackgroundJobResult from './model/RestBackgroundJobResult';
 import RestBulkMetaResponse from './model/RestBulkMetaResponse';
 import RestCell from './model/RestCell';
@@ -173,12 +177,16 @@ import RestRestoreNodesResponse from './model/RestRestoreNodesResponse';
 import RestRevokeRequest from './model/RestRevokeRequest';
 import RestRevokeResponse from './model/RestRevokeResponse';
 import RestRolesCollection from './model/RestRolesCollection';
+import RestSchedulerActionFormResponse from './model/RestSchedulerActionFormResponse';
+import RestSchedulerActionsResponse from './model/RestSchedulerActionsResponse';
 import RestSearchACLRequest from './model/RestSearchACLRequest';
 import RestSearchResults from './model/RestSearchResults';
 import RestSearchRoleRequest from './model/RestSearchRoleRequest';
 import RestSearchUserRequest from './model/RestSearchUserRequest';
 import RestSearchWorkspaceRequest from './model/RestSearchWorkspaceRequest';
 import RestServiceCollection from './model/RestServiceCollection';
+import RestSettingsAccess from './model/RestSettingsAccess';
+import RestSettingsAccessRestPolicy from './model/RestSettingsAccessRestPolicy';
 import RestSettingsEntry from './model/RestSettingsEntry';
 import RestSettingsEntryMeta from './model/RestSettingsEntryMeta';
 import RestSettingsMenuResponse from './model/RestSettingsMenuResponse';
@@ -694,10 +702,22 @@ export {
     JobsActionOutput,
 
     /**
+     * The JobsActionOutputFilter model constructor.
+     * @property {module:model/JobsActionOutputFilter}
+     */
+    JobsActionOutputFilter,
+
+    /**
      * The JobsCommand model constructor.
      * @property {module:model/JobsCommand}
      */
     JobsCommand,
+
+    /**
+     * The JobsContextMetaFilter model constructor.
+     * @property {module:model/JobsContextMetaFilter}
+     */
+    JobsContextMetaFilter,
 
     /**
      * The JobsCtrlCommand model constructor.
@@ -724,6 +744,18 @@ export {
     JobsDeleteTasksResponse,
 
     /**
+     * The JobsIdmSelector model constructor.
+     * @property {module:model/JobsIdmSelector}
+     */
+    JobsIdmSelector,
+
+    /**
+     * The JobsIdmSelectorType model constructor.
+     * @property {module:model/JobsIdmSelectorType}
+     */
+    JobsIdmSelectorType,
+
+    /**
      * The JobsJob model constructor.
      * @property {module:model/JobsJob}
      */
@@ -746,12 +778,6 @@ export {
      * @property {module:model/JobsSchedule}
      */
     JobsSchedule,
-
-    /**
-     * The JobsSourceFilter model constructor.
-     * @property {module:model/JobsSourceFilter}
-     */
-    JobsSourceFilter,
 
     /**
      * The JobsTask model constructor.
@@ -866,6 +892,12 @@ export {
      * @property {module:model/RestACLCollection}
      */
     RestACLCollection,
+
+    /**
+     * The RestActionDescription model constructor.
+     * @property {module:model/RestActionDescription}
+     */
+    RestActionDescription,
 
     /**
      * The RestBackgroundJobResult model constructor.
@@ -1252,6 +1284,18 @@ export {
     RestRolesCollection,
 
     /**
+     * The RestSchedulerActionFormResponse model constructor.
+     * @property {module:model/RestSchedulerActionFormResponse}
+     */
+    RestSchedulerActionFormResponse,
+
+    /**
+     * The RestSchedulerActionsResponse model constructor.
+     * @property {module:model/RestSchedulerActionsResponse}
+     */
+    RestSchedulerActionsResponse,
+
+    /**
      * The RestSearchACLRequest model constructor.
      * @property {module:model/RestSearchACLRequest}
      */
@@ -1286,6 +1330,18 @@ export {
      * @property {module:model/RestServiceCollection}
      */
     RestServiceCollection,
+
+    /**
+     * The RestSettingsAccess model constructor.
+     * @property {module:model/RestSettingsAccess}
+     */
+    RestSettingsAccess,
+
+    /**
+     * The RestSettingsAccessRestPolicy model constructor.
+     * @property {module:model/RestSettingsAccessRestPolicy}
+     */
+    RestSettingsAccessRestPolicy,
 
     /**
      * The RestSettingsEntry model constructor.

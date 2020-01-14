@@ -1688,6 +1688,13 @@
             "required": true,
             "description": ""
           },
+          "accessByName": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
           "openEditor": {
             "type": {
               "name": "func"
@@ -4036,6 +4043,13 @@
             },
             "required": false,
             "description": ""
+          },
+          "accessByName": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
           }
         }
       }
@@ -4517,13 +4531,6 @@
             "returns": null
           },
           {
-            "name": "showTaskCreator",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
             "name": "extractRowsInfo",
             "docblock": null,
             "modifiers": [],
@@ -4538,6 +4545,13 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "jobPrompted",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -4547,13 +4561,6 @@
         "description": "",
         "displayName": "JobBoard",
         "methods": [
-          {
-            "name": "runOnce",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "renderActions",
             "docblock": null,
@@ -4587,6 +4594,259 @@
           },
           {
             "name": "deleteAll",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "deleteJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onJobSave",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onJsonSave",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/JobGraph.js": [
+      {
+        "description": "",
+        "displayName": "JobGraph",
+        "methods": [
+          {
+            "name": "loadDescriptions",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "chainActions",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "graph",
+                "type": null
+              },
+              {
+                "name": "actions",
+                "type": null
+              },
+              {
+                "name": "inputId",
+                "type": null
+              },
+              {
+                "name": "hasData",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "jobInputCreatesData",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "graphFromJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "reLayout",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "editMode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "callback",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "model",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "insertOutput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "source",
+                "type": null
+              },
+              {
+                "name": "toInsert",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "insertInput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "target",
+                "type": null
+              },
+              {
+                "name": "toInsert",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearHighlight",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "createLinkTool",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "drawGraph",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "isDroppable",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "elementAbove",
+                "type": null
+              },
+              {
+                "name": "elementBelow",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggleEdit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "cleanJsonActions",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actions",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeJSON",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "updateJSON",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "saveJSON",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -4662,8 +4922,18 @@
           {
             "name": "readableString",
             "docblock": null,
-            "modifiers": [],
+            "modifiers": [
+              "static"
+            ],
             "params": [
+              {
+                "name": "state",
+                "type": null
+              },
+              {
+                "name": "T",
+                "type": null
+              },
               {
                 "name": "short",
                 "type": null
@@ -4692,6 +4962,704 @@
             "returns": null
           }
         ]
+      }
+    ],
+    "AdminScheduler/board/builder/Filters.js": [
+      {
+        "description": "",
+        "displayName": "Filters",
+        "methods": [
+          {
+            "name": "removeFilter",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
+                "type": null
+              },
+              {
+                "name": "type",
+                "type": null
+              },
+              {
+                "name": "modelType",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/FormPanel.js": [
+      {
+        "description": "",
+        "displayName": "FormPanel",
+        "methods": [
+          {
+            "name": "getActionInfo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "action",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadForm",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionID",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toStringString",
+            "docblock": "Convert standard json to map[string]string for Parameters field\n@param params",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "params",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": "Convert standard json to map[string]string for Parameters field"
+          },
+          {
+            "name": "fromStringString",
+            "docblock": "Convert map[string]string to form usable parameters\n@param params\n@param map",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "params",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "map",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": "Convert map[string]string to form usable parameters"
+          },
+          {
+            "name": "onFormChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onValidStatusChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "valid",
+                "type": null
+              },
+              {
+                "name": "failing",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onIdChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "actionPicker",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "save",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "revert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/ProtoValue.js": [
+      {
+        "description": "",
+        "displayName": "ProtoValue",
+        "methods": [
+          {
+            "name": "hasNot",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "filterNot",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "protoValueToFormValues",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "fieldName",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              },
+              {
+                "name": "notProps",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "formValuesToProtoValue",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "replicatedValue",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "jsonObject",
+                "type": null
+              },
+              {
+                "name": "fieldName",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onFormChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValues",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onSubmit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/QueryBuilder.js": [
+      {
+        "description": "",
+        "displayName": "QueryBuilder",
+        "methods": [
+          {
+            "name": "detectTypes",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "redraw",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "protoHasChildren",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "p",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "pruneEmpty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sQ",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "buildServiceQuery",
+            "docblock": "@param graph\n@param input\n@param query\n@return Object",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "graph",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "input",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "query",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": "Object",
+              "type": null
+            },
+            "description": null
+          },
+          {
+            "name": "buildGraph",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "buildSpreadOutput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              },
+              {
+                "name": "queryType",
+                "type": null
+              },
+              {
+                "name": "icon",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "remove",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "FormToContextMetaSingleQuery",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "ContextMetaSingleQueryToForm",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "proto",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changeQueryValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newField",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "notProps",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleCollect",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "setDirty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "revert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "save",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/ScheduleForm.js": [
+      {
+        "description": "",
+        "displayName": "ScheduleForm",
+        "methods": [
+          {
+            "name": "onUpdate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "parseIso8601",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "makeIso8601FromState",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "state",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changeFrequency",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "f",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "readableString",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "state",
+                "type": null
+              },
+              {
+                "name": "T",
+                "type": null
+              },
+              {
+                "name": "short",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/Triggers.js": [
+      {
+        "description": "",
+        "displayName": "Events",
+        "methods": [
+          {
+            "name": "eventLabel",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "T",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toObject",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ev",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "remove",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "add",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "flatStruct",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "s",
+                "type": null
+              },
+              {
+                "name": "pref",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Triggers",
+        "methods": [
+          {
+            "name": "onSwitch",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "type",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/styles.js": [
+      {
+        "description": "",
+        "displayName": "RightPanel",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "getCssStyle",
+        "methods": []
       }
     ],
     "AdminServices/board/Dashboard.js": [
@@ -5423,6 +6391,13 @@
             "description": ""
           },
           "closeRightPane": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "accessByName": {
             "type": {
               "name": "func"
             },
@@ -12423,11 +13398,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -12569,11 +13548,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -12715,11 +13698,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -12819,11 +13806,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -13814,6 +14805,74 @@
               }
             },
             "description": "Create or update a datasource"
+          },
+          {
+            "name": "schedulerActionFormDiscoveryWithHttpInfo",
+            "docblock": "Publish scheduler action XML form for building screens in frontend\n@param {String} actionName \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionName",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler action XML form for building screens in frontend"
+          },
+          {
+            "name": "schedulerActionFormDiscovery",
+            "docblock": "Publish scheduler action XML form for building screens in frontend\n@param {String} actionName \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionName",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler action XML form for building screens in frontend"
+          },
+          {
+            "name": "schedulerActionsDiscoveryWithHttpInfo",
+            "docblock": "Publish scheduler registered actions\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler registered actions"
+          },
+          {
+            "name": "schedulerActionsDiscovery",
+            "docblock": "Publish scheduler registered actions\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler registered actions"
           }
         ]
       }
@@ -13825,11 +14884,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14269,11 +15332,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14373,11 +15440,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14529,11 +15600,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14773,11 +15848,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14835,11 +15914,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -14897,11 +15980,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15127,11 +16214,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15189,11 +16280,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15405,11 +16500,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15467,11 +16566,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15823,11 +16926,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -15869,11 +16976,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -16015,11 +17126,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -16287,11 +17402,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -16405,11 +17524,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -16773,11 +17896,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -17045,11 +18172,15 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient"
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
               }
             ],
             "returns": null,
@@ -20090,6 +21221,52 @@
         ]
       }
     ],
+    "core/http/gen/model/JobsActionOutputFilter.js": [
+      {
+        "description": "The JobsActionOutputFilter model module.\n@module model/JobsActionOutputFilter\n@version 1.0",
+        "displayName": "JobsActionOutputFilter",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsActionOutputFilter</code>.\n@alias module:model/JobsActionOutputFilter\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsActionOutputFilter</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsActionOutputFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsActionOutputFilter} obj Optional instance to populate.\n@return {module:model/JobsActionOutputFilter} The populated <code>JobsActionOutputFilter</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsActionOutputFilter"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsActionOutputFilter</code> instance.",
+              "type": {
+                "name": "module:model/JobsActionOutputFilter"
+              }
+            },
+            "description": "Constructs a <code>JobsActionOutputFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/JobsCommand.js": [
       {
         "description": "Enum class JobsCommand.\n@enum {}\n@readonly",
@@ -20113,6 +21290,52 @@
               }
             },
             "description": "Returns a <code>JobsCommand</code> enum value from a Javascript object name."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsContextMetaFilter.js": [
+      {
+        "description": "The JobsContextMetaFilter model module.\n@module model/JobsContextMetaFilter\n@version 1.0",
+        "displayName": "JobsContextMetaFilter",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsContextMetaFilter</code>.\n@alias module:model/JobsContextMetaFilter\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsContextMetaFilter</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsContextMetaFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsContextMetaFilter} obj Optional instance to populate.\n@return {module:model/JobsContextMetaFilter} The populated <code>JobsContextMetaFilter</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsContextMetaFilter"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsContextMetaFilter</code> instance.",
+              "type": {
+                "name": "module:model/JobsContextMetaFilter"
+              }
+            },
+            "description": "Constructs a <code>JobsContextMetaFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -20301,6 +21524,79 @@
         ]
       }
     ],
+    "core/http/gen/model/JobsIdmSelector.js": [
+      {
+        "description": "The JobsIdmSelector model module.\n@module model/JobsIdmSelector\n@version 1.0",
+        "displayName": "JobsIdmSelector",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsIdmSelector</code>.\n@alias module:model/JobsIdmSelector\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsIdmSelector</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsIdmSelector</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsIdmSelector} obj Optional instance to populate.\n@return {module:model/JobsIdmSelector} The populated <code>JobsIdmSelector</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsIdmSelector"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsIdmSelector</code> instance.",
+              "type": {
+                "name": "module:model/JobsIdmSelector"
+              }
+            },
+            "description": "Constructs a <code>JobsIdmSelector</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsIdmSelectorType.js": [
+      {
+        "description": "Enum class JobsIdmSelectorType.\n@enum {}\n@readonly",
+        "displayName": "JobsIdmSelectorType",
+        "methods": [
+          {
+            "name": "constructFromObject",
+            "docblock": "Returns a <code>JobsIdmSelectorType</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/JobsIdmSelectorType} The enum <code>JobsIdmSelectorType</code> value.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "object"
+              }
+            ],
+            "returns": {
+              "description": "The enum <code>JobsIdmSelectorType</code> value.",
+              "type": {
+                "name": "module:model/JobsIdmSelectorType"
+              }
+            },
+            "description": "Returns a <code>JobsIdmSelectorType</code> enum value from a Javascript object name."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/JobsJob.js": [
       {
         "description": "The JobsJob model module.\n@module model/JobsJob\n@version 1.0",
@@ -20481,52 +21777,6 @@
               }
             },
             "description": "Constructs a <code>JobsSchedule</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/JobsSourceFilter.js": [
-      {
-        "description": "The JobsSourceFilter model module.\n@module model/JobsSourceFilter\n@version 1.0",
-        "displayName": "JobsSourceFilter",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>JobsSourceFilter</code>.\n@alias module:model/JobsSourceFilter\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>JobsSourceFilter</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>JobsSourceFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsSourceFilter} obj Optional instance to populate.\n@return {module:model/JobsSourceFilter} The populated <code>JobsSourceFilter</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/JobsSourceFilter"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>JobsSourceFilter</code> instance.",
-              "type": {
-                "name": "module:model/JobsSourceFilter"
-              }
-            },
-            "description": "Constructs a <code>JobsSourceFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -21176,6 +22426,14 @@
               }
             },
             "description": "Constructs a <code>ProtobufAny</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          },
+          {
+            "name": "toJSON",
+            "docblock": "Overrides standard serialization function",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Overrides standard serialization function"
           }
         ]
       }
@@ -21249,6 +22507,52 @@
               }
             },
             "description": "Constructs a <code>RestACLCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestActionDescription.js": [
+      {
+        "description": "The RestActionDescription model module.\n@module model/RestActionDescription\n@version 1.0",
+        "displayName": "RestActionDescription",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestActionDescription</code>.\n@alias module:model/RestActionDescription\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestActionDescription</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestActionDescription</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestActionDescription} obj Optional instance to populate.\n@return {module:model/RestActionDescription} The populated <code>RestActionDescription</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestActionDescription"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestActionDescription</code> instance.",
+              "type": {
+                "name": "module:model/RestActionDescription"
+              }
+            },
+            "description": "Constructs a <code>RestActionDescription</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -24197,6 +25501,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestSchedulerActionFormResponse.js": [
+      {
+        "description": "The RestSchedulerActionFormResponse model module.\n@module model/RestSchedulerActionFormResponse\n@version 1.0",
+        "displayName": "RestSchedulerActionFormResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSchedulerActionFormResponse</code>.\n@alias module:model/RestSchedulerActionFormResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSchedulerActionFormResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSchedulerActionFormResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSchedulerActionFormResponse} obj Optional instance to populate.\n@return {module:model/RestSchedulerActionFormResponse} The populated <code>RestSchedulerActionFormResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSchedulerActionFormResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSchedulerActionFormResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestSchedulerActionFormResponse"
+              }
+            },
+            "description": "Constructs a <code>RestSchedulerActionFormResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSchedulerActionsResponse.js": [
+      {
+        "description": "The RestSchedulerActionsResponse model module.\n@module model/RestSchedulerActionsResponse\n@version 1.0",
+        "displayName": "RestSchedulerActionsResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSchedulerActionsResponse</code>.\n@alias module:model/RestSchedulerActionsResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSchedulerActionsResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSchedulerActionsResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSchedulerActionsResponse} obj Optional instance to populate.\n@return {module:model/RestSchedulerActionsResponse} The populated <code>RestSchedulerActionsResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSchedulerActionsResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSchedulerActionsResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestSchedulerActionsResponse"
+              }
+            },
+            "description": "Constructs a <code>RestSchedulerActionsResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestSearchACLRequest.js": [
       {
         "description": "The RestSearchACLRequest model module.\n@module model/RestSearchACLRequest\n@version 1.0",
@@ -24469,6 +25865,98 @@
               }
             },
             "description": "Constructs a <code>RestServiceCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSettingsAccess.js": [
+      {
+        "description": "The RestSettingsAccess model module.\n@module model/RestSettingsAccess\n@version 1.0",
+        "displayName": "RestSettingsAccess",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSettingsAccess</code>.\n@alias module:model/RestSettingsAccess\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSettingsAccess</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSettingsAccess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSettingsAccess} obj Optional instance to populate.\n@return {module:model/RestSettingsAccess} The populated <code>RestSettingsAccess</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSettingsAccess"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSettingsAccess</code> instance.",
+              "type": {
+                "name": "module:model/RestSettingsAccess"
+              }
+            },
+            "description": "Constructs a <code>RestSettingsAccess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSettingsAccessRestPolicy.js": [
+      {
+        "description": "The RestSettingsAccessRestPolicy model module.\n@module model/RestSettingsAccessRestPolicy\n@version 1.0",
+        "displayName": "RestSettingsAccessRestPolicy",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSettingsAccessRestPolicy</code>.\n@alias module:model/RestSettingsAccessRestPolicy\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSettingsAccessRestPolicy</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSettingsAccessRestPolicy</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSettingsAccessRestPolicy} obj Optional instance to populate.\n@return {module:model/RestSettingsAccessRestPolicy} The populated <code>RestSettingsAccessRestPolicy</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSettingsAccessRestPolicy"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSettingsAccessRestPolicy</code> instance.",
+              "type": {
+                "name": "module:model/RestSettingsAccessRestPolicy"
+              }
+            },
+            "description": "Constructs a <code>RestSettingsAccessRestPolicy</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

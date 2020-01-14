@@ -43,7 +43,7 @@ var PolicyServiceApi = (function () {
   * Constructs a new PolicyServiceApi. 
   * @alias module:api/PolicyServiceApi
   * @class
-  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
+  * @param {module:ApiClient} apiClient Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 

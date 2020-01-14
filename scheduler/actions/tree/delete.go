@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -40,14 +41,45 @@ import (
 	"github.com/pydio/cells/scheduler/lang"
 )
 
+var (
+	deleteActionName = "actions.tree.delete"
+)
+
 type DeleteAction struct {
 	Client             views.Handler
 	deleteChildrenOnly bool
 }
 
-var (
-	deleteActionName = "actions.tree.delete"
-)
+func (c *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:               deleteActionName,
+		Label:            "Delete files",
+		Category:         actions.ActionCategoryTree,
+		Icon:             "delete-forever",
+		Description:      "Recursively delete files or folders passed in input",
+		InputDescription: "Single-selection of file or folder to delete. Folders are deleted recursively",
+		SummaryTemplate:  "",
+		HasForm:          true,
+	}
+}
+
+func (c *DeleteAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "childrenOnly",
+					Type:        "boolean",
+					Label:       "Children Only",
+					Description: "Delete only the children items from the input node",
+					Default:     false,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // GetName returns this action unique identifier
 func (c *DeleteAction) GetName() string {

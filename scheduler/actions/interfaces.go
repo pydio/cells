@@ -27,12 +27,38 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
 type Concrete func() ConcreteAction
+
+const (
+	ActionCategoryTree      = "Files/Folders Operations"
+	ActionCategoryPutGet    = "Upload/Download to External Servers"
+	ActionCategoryCmd       = "Atomic Commands and Scripts"
+	ActionCategoryIDM       = "Identity Management"
+	ActionCategoryETL       = "Extract/Load/Transform"
+	ActionCategoryMedia     = "Media Processing"
+	ActionCategoryArchives  = "Archives Operations"
+	ActionCategoryNotify    = "Notifications and Emails"
+	ActionCategoryScheduler = "Scheduler Tools / Internals"
+)
+
+type ActionDescription struct {
+	ID                string
+	Label             string
+	Icon              string
+	Description       string
+	Category          string
+	InputDescription  string
+	OutputDescription string
+	SummaryTemplate   string
+	HasForm           bool
+}
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
@@ -53,6 +79,12 @@ type TaskUpdaterDelegateAction interface {
 // Actions that implement this interface will publish progress updates on the progress channel.
 type ProgressProviderAction interface {
 	ProvidesProgress() bool
+}
+
+// DescriptionProviderAction has a human-readable label
+type DescriptionProviderAction interface {
+	GetDescription(lang ...string) ActionDescription
+	GetParametersForm() *forms.Form
 }
 
 // Actions that implement this interface can eventually be stopped and/or paused+resumed

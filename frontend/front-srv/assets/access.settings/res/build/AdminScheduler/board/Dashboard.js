@@ -50,6 +50,14 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _builderTriggers = require('./builder/Triggers');
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -59,28 +67,14 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib2.MaterialTable;
 
+var _Pydio$requireLib3 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib3.ModernTextField;
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
-
-    nodeEventsNames: {
-        '0': 'trigger.create.node',
-        '1': 'trigger.read.node',
-        '2': 'trigger.update.path',
-        '3': 'trigger.update.content',
-        '4': 'trigger.update.metadata',
-        '5': 'trigger.delete.node'
-    },
-
-    userEventsNames: {
-        '0': 'trigger.create.user',
-        '1': 'trigger.read.user',
-        '2': 'trigger.update.user',
-        '3': 'trigger.delete.user',
-        '4': 'trigger.bind.user',
-        '5': 'trigger.logout.user'
-    },
 
     getInitialState: function getInitialState() {
         return {
@@ -172,10 +166,7 @@ var Dashboard = _react2['default'].createClass({
         }
     },
 
-    showTaskCreator: function showTaskCreator() {},
-
     extractRowsInfo: function extractRowsInfo(jobs, m) {
-        var _this5 = this;
 
         var system = [];
         var other = [];
@@ -243,24 +234,27 @@ var Dashboard = _react2['default'].createClass({
 
             if (job.Schedule) {
                 data.Trigger = _react2['default'].createElement(_JobSchedule2['default'], { job: job }); // m('trigger.periodic');
-                data.TriggerValue = 1;
+                data.SortValue = '0-' + job.Label;
             } else if (job.EventNames) {
-                data.TriggerValue = 2;
-                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
-                    if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this5.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
-                    } else if (e.indexOf('IDM_CHANGE:USER:') === 0) {
-                        return m(_this5.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
-                    } else {
-                        return e;
-                    }
-                }).join(', ');
-            } else if (job.AutoStart) {
-                data.Trigger = m('trigger.manual');
-                data.TriggerValue = 0;
+                data.SortValue = '1-' + job.Label;
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events'), style: { color: '#4caf50' } }),
+                    ' ',
+                    job.EventNames.map(function (e) {
+                        return _builderTriggers.Events.eventLabel(e, m);
+                    }).join(', ')
+                );
             } else {
-                data.Trigger = '-';
-                data.TriggerValue = 3;
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap", style: { color: '#607d8b' } }),
+                    ' ',
+                    m('trigger.manual')
+                );
+                data.SortValue = '2-' + job.Label;
             }
             if (job.Inactive) {
                 data.Label = _react2['default'].createElement(
@@ -271,6 +265,27 @@ var Dashboard = _react2['default'].createClass({
                     '] ',
                     data.Label
                 );
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.Trigger
+                );
+                data.TaskStartTime = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskStartTime
+                );
+                data.TaskEndTime = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskEndTime
+                );
+                data.TaskStatus = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskStatus
+                );
+                data.SortValue = '3-' + job.Label;
             }
 
             if (job.Owner === 'pydio.system.user') {
@@ -283,8 +298,20 @@ var Dashboard = _react2['default'].createClass({
         return { system: system, other: other };
     },
 
+    jobPrompted: function jobPrompted() {
+        var newJobLabel = this.state.newJobLabel;
+
+        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
+            ID: (0, _uuid42['default'])(),
+            Label: newJobLabel,
+            Owner: 'pydio.system.user',
+            Actions: []
+        });
+        this.setState({ createJob: newJob, promptJob: false, newJobLabel: '' });
+    },
+
     render: function render() {
-        var _this6 = this;
+        var _this5 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -297,19 +324,13 @@ var Dashboard = _react2['default'].createClass({
         var keys = [{
             name: 'Label',
             label: m('job.label'),
-            style: { width: '35%', fontSize: 15 },
-            headerStyle: { width: '35%' }
-        }, {
-            name: 'Owner',
-            label: m('job.owner'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
-            hideSmall: true
+            style: { width: '40%', fontSize: 15 },
+            headerStyle: { width: '40%' }
         }, {
             name: 'Trigger',
             label: m('job.trigger'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
+            style: { width: '20%' },
+            headerStyle: { width: '20%' },
             hideSmall: true
         }, {
             name: 'TaskEndTime',
@@ -326,25 +347,62 @@ var Dashboard = _react2['default'].createClass({
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
-                        _this6.setState({ selectJob: row.ID });
+                        _this5.setState({ selectJob: row.ID });
                     } });
             }
         }];
+
+        var userKeys = [].concat(keys);
+        // Replace Trigger by Owner
+        userKeys[1] = {
+            name: 'Owner',
+            label: m('job.owner'),
+            style: { width: '15%' },
+            headerStyle: { width: '15%' },
+            hideSmall: true
+        };
 
         var _state2 = this.state;
         var result = _state2.result;
         var loading = _state2.loading;
         var selectJob = _state2.selectJob;
+        var createJob = _state2.createJob;
+        var promptJob = _state2.promptJob;
+        var newJobLabel = _state2.newJobLabel;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
-                        return _this6.setState({ selectJob: null });
-                    } });
+                return _react2['default'].createElement(_JobBoard2['default'], {
+                    pydio: pydio,
+                    job: found[0],
+                    jobsEditable: jobsEditable,
+                    onSave: function () {
+                        _this5.load(true);
+                    },
+                    onRequestClose: function (refresh) {
+                        _this5.setState({ selectJob: null });
+                        if (refresh) {
+                            _this5.load();
+                        }
+                    }
+                });
             }
+        } else if (createJob) {
+            return _react2['default'].createElement(_JobBoard2['default'], {
+                pydio: pydio,
+                job: createJob,
+                create: true,
+                jobsEditable: jobsEditable,
+                onSave: function () {
+                    _this5.load(true);
+                },
+                onRequestClose: function () {
+                    return _this5.setState({ createJob: null });
+                }
+            });
         }
 
         var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);
@@ -353,16 +411,53 @@ var Dashboard = _react2['default'].createClass({
         var other = _extractRowsInfo.other;
 
         system.sort(function (a, b) {
-            return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
+            return a.SortValue === b.SortValue ? 0 : a.SortValue > b.SortValue ? 1 : -1;
         });
+        var actions = [];
+        if (jobsEditable) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "+ Job", onTouchTap: function () {
+                    _this5.setState({ promptJob: true });
+                } }));
+        }
 
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
+            _react2['default'].createElement(
+                _materialUi.Dialog,
+                {
+                    title: "Create a new Job",
+                    onRequestClose: function () {
+                        _this5.setState({ promptJob: false });
+                    },
+                    open: promptJob,
+                    contentStyle: { width: 300 },
+                    actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this5.setState({ promptJob: false });
+                        }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
+                            _this5.jobPrompted();
+                        }, disabled: !newJobLabel, label: "Create" })]
+                },
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        hintText: "New Job Label",
+                        value: newJobLabel,
+                        onChange: function (e, v) {
+                            _this5.setState({ newJobLabel: v });
+                        },
+                        onKeyPress: function (e) {
+                            if (e.Key === 'Enter') _this5.jobPrompted();
+                        }
+                    })
+                )
+            ),
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                actions: [],
+                actions: actions,
                 reloadAction: this.load.bind(this),
                 loading: loading
             }),
@@ -380,7 +475,7 @@ var Dashboard = _react2['default'].createClass({
                         data: system,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
@@ -395,9 +490,9 @@ var Dashboard = _react2['default'].createClass({
                     { style: { margin: 20 } },
                     _react2['default'].createElement(MaterialTable, {
                         data: other,
-                        columns: keys,
+                        columns: userKeys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: m('users.empty')

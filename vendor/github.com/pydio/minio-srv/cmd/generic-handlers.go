@@ -459,7 +459,7 @@ var notimplementedBucketResourceNames = map[string]bool{
 	"lifecycle":      true,
 	"logging":        true,
 	"replication":    true,
-	"tagging":        true,
+	//"tagging":        true,
 	"versions":       true,
 	"requestPayment": true,
 	"versioning":     true,

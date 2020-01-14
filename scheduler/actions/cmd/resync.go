@@ -22,16 +22,16 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"time"
-
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/scheduler/actions"
@@ -42,6 +42,54 @@ type ResyncAction struct {
 	Path        string
 	DryRun      bool
 	CrtTask     *jobs.Task
+}
+
+func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              resyncActionName,
+		Label:           "Resynchronize",
+		Category:        actions.ActionCategoryCmd,
+		Icon:            "reload",
+		Description:     "Trigger a Resync command on a SyncProvider microservice endpoint",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *ResyncAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "service",
+					Type:        "string",
+					Label:       "Service Name",
+					Description: "Full name of the cells micro service",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "path",
+					Type:        "string",
+					Label:       "Path",
+					Description: "Internal path on which to trigger the resync",
+					Default:     "/",
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "dry-run",
+					Type:        "boolean",
+					Label:       "Dry Run",
+					Description: "Perform a dry-run sync, i.e. no changes are applied",
+					Default:     nil,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 var (
@@ -79,17 +127,16 @@ func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 // Run the actual action code
 func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(ctx, 1*time.Hour)
-	defer cancel()
-	syncClient := sync.NewSyncEndpointClient(c.ServiceName, defaults.NewClient())
+	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
+	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
+	syncClient := sync.NewSyncEndpointClient(jobs.EvaluateFieldStr(ctx, input, srvName), defaults.NewClient())
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
-		Path:   c.Path,
+		Path:   jobs.EvaluateFieldStr(ctx, input, c.Path),
 		DryRun: c.DryRun,
 		Task:   c.CrtTask,
 	})
 	if e != nil {
-		log.Logger(ctx).Debug("unable to trigger resync for "+c.ServiceName, zap.Error(e))
+		log.Logger(ctx).Debug("unable to trigger resync for "+srvName, zap.Error(e))
 		return input.WithError(e), e
 	}
 	output := input

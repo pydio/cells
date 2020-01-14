@@ -132,6 +132,7 @@ var VirtualNodes = (function (_React$Component) {
             var _props = this.props;
             var readonly = _props.readonly;
             var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
@@ -143,11 +144,11 @@ var VirtualNodes = (function (_React$Component) {
             };
             var vNodes = [];
             nodes.map(function (node) {
-                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly }));
+                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly || !accessByName('Create') }));
             });
 
             var headerActions = [];
-            if (!readonly) {
+            if (!readonly && accessByName('Create')) {
                 headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }));
             }
 
@@ -193,7 +194,7 @@ var VirtualNodes = (function (_React$Component) {
                         { style: { padding: 20, paddingBottom: 0 } },
                         m('legend.1'),
                         _react2['default'].createElement('br', null),
-                        !readonly && _react2['default'].createElement(
+                        !readonly && accessByName('Create') && _react2['default'].createElement(
                             'span',
                             null,
                             m('legend.2')

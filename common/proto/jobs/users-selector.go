@@ -32,21 +32,21 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 )
 
-func (u *UsersSelector) MultipleSelection() bool {
-	return u.Collect
+func (m *UsersSelector) MultipleSelection() bool {
+	return m.Collect
 }
 
-// ENRICH UsersSelector METHODS
-func (u *UsersSelector) Select(client client.Client, ctx context.Context, objects chan interface{}, done chan bool) error {
+// Select performs a query on the User Service to load a list of users. The more generic IdmSelector should be used instead.
+func (m *UsersSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 
 	defer func() {
 		done <- true
 	}()
 	// Push Claims in Context to impersonate this user
 	var query *service.Query
-	if len(u.Users) > 0 {
+	if len(m.Users) > 0 {
 		queries := []*any.Any{}
-		for _, user := range u.Users {
+		for _, user := range m.Users {
 			if user.Login != "" {
 				q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: user.Login})
 				queries = append(queries, q)
@@ -56,15 +56,15 @@ func (u *UsersSelector) Select(client client.Client, ctx context.Context, object
 			}
 		}
 		query = &service.Query{SubQueries: queries}
-	} else if u.Query != nil {
-		query = u.Query
-	} else if u.All {
+	} else if m.Query != nil {
+		query = m.Query
+	} else if m.All {
 		query = &service.Query{SubQueries: []*any.Any{}}
 	}
 	if query == nil {
 		return nil
 	}
-	userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, client)
+	userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, cl)
 	s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 	if e != nil {
 		return e
@@ -84,6 +84,7 @@ func (u *UsersSelector) Select(client client.Client, ctx context.Context, object
 	return nil
 }
 
-func (n *UsersSelector) Filter(input ActionMessage) ActionMessage {
-	return input
+// Filter is not implemented. Use IdmSelector object instead
+func (n *UsersSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+	return input, true
 }

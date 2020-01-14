@@ -1466,3 +1466,7 @@ func (s *xlSets) ListObjectsHeal(ctx context.Context, bucket, prefix, marker, de
 	// Return error at the end.
 	return loi, toObjectErr(err, bucket, prefix)
 }
+
+func (s *xlSets) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, toObjectErr(fmt.Errorf("tagging not supported"), bucket)
+}

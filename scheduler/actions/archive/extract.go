@@ -29,6 +29,7 @@ import (
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -43,6 +44,52 @@ type ExtractAction struct {
 	Router     *views.Router
 	Format     string
 	TargetName string
+}
+
+func (ex *ExtractAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                extractActionName,
+		Label:             "Extract Archive",
+		Icon:              "package-up",
+		Category:          actions.ActionCategoryArchives,
+		Description:       "Extract files and folders from a Zip, Tar or Tar.gz archive",
+		SummaryTemplate:   "",
+		HasForm:           true,
+		InputDescription:  "Single-node selection pointing to an archive to extract",
+		OutputDescription: "One node pointing to the parent folder where all files where extracted.",
+	}
+}
+
+func (ex *ExtractAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "format",
+					Type:        forms.ParamSelect,
+					Label:       "Archive format",
+					Description: "The format of the archive",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{zipFormat: "Zip"},
+						{tarFormat: "Tar"},
+						{tarGzFormat: "TarGz"},
+					},
+				},
+				&forms.FormField{
+					Name:        "target",
+					Type:        "string",
+					Label:       "Archive path",
+					Description: "FullPath to the new archive",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier
@@ -78,7 +125,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if format == "" {
 		format = strings.TrimLeft(ext, ".")
 	}
-	targetName := ex.TargetName
+	targetName := jobs.EvaluateFieldStr(ctx, input, ex.TargetName)
 	if targetName == "" {
 		base := strings.TrimSuffix(filepath.Base(archiveNode.Path), ext)
 		targetName = computeTargetName(ctx, ex.Router, filepath.Dir(archiveNode.Path), base)

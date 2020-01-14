@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -41,6 +43,22 @@ var (
 	MigratePydioMetaActionName = "actions.etl.p8-legacy-meta"
 	phpMetaFileName            = ".ajxp_meta"
 )
+
+func (c *MigratePydioMetaAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              MigratePydioMetaActionName,
+		Label:           "Legacy meta from P8",
+		Icon:            "",
+		Description:     "Pydio 8 migration specific task (do not use manually).",
+		Category:        actions.ActionCategoryETL,
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *MigratePydioMetaAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // Unique identifier
 func (c *MigratePydioMetaAction) GetName() string {

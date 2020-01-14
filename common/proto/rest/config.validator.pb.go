@@ -113,3 +113,19 @@ func (this *ConfigFormRequest) Validate() error {
 func (this *OpenApiResponse) Validate() error {
 	return nil
 }
+func (this *ActionDescription) Validate() error {
+	return nil
+}
+func (this *SchedulerActionsRequest) Validate() error {
+	return nil
+}
+func (this *SchedulerActionsResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *SchedulerActionFormRequest) Validate() error {
+	return nil
+}
+func (this *SchedulerActionFormResponse) Validate() error {
+	return nil
+}

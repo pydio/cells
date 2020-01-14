@@ -18,13 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package grpc
+package tree
 
 import (
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
+	"time"
+)
 
-	"github.com/pydio/cells/common/proto/tree"
+const (
+	MetaFilterGrep = "grep"
+	MetaFilterNoGrep = "no-grep"
+	MetaFilterTime = "time"
+	MetaFilterSize = "size"
 )
 
 var (
@@ -39,21 +47,31 @@ type cmp struct {
 }
 
 type MetaFilter struct {
-	reqNode *tree.Node
+	reqNode *Node
 
 	grep     *regexp.Regexp
+	negativeGrep *regexp.Regexp
 	intComps []cmp
 }
 
-func (m *MetaFilter) parse() bool {
-	if m.reqNode.GetStringMeta("grep") != "" {
-		if g, e := regexp.Compile(m.reqNode.GetStringMeta("grep")); e == nil {
+func NewMetaFilter(node *Node) *MetaFilter {
+	return &MetaFilter{reqNode: node}
+}
+
+func (m *MetaFilter) Parse() bool {
+	if m.reqNode.GetStringMeta(MetaFilterGrep) != "" {
+		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterGrep)); e == nil {
 			m.grep = g
 		}
 	}
-	m.parseIntExpr("time")
-	m.parseIntExpr("size")
-	return m.grep != nil || len(m.intComps) > 0
+	if m.reqNode.GetStringMeta(MetaFilterNoGrep) != "" {
+		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterNoGrep)); e == nil {
+			m.negativeGrep = g
+		}
+	}
+	m.parseIntExpr(MetaFilterTime)
+	m.parseIntExpr(MetaFilterSize)
+	return m.grep != nil || m.negativeGrep != nil || len(m.intComps) > 0
 }
 
 func (m *MetaFilter) parseIntExpr(meta string) bool {
@@ -78,15 +96,18 @@ func (m *MetaFilter) parseIntExpr(meta string) bool {
 	return len(m.intComps) > 0
 }
 
-func (m *MetaFilter) Match(name string, n *tree.Node) bool {
+func (m *MetaFilter) Match(name string, n *Node) bool {
 	if m.grep != nil && !m.grep.MatchString(name) {
+		return false
+	}
+	if m.negativeGrep != nil && m.negativeGrep.MatchString(name) {
 		return false
 	}
 	for _, c := range m.intComps {
 		var ref int64
-		if c.field == "time" {
+		if c.field == MetaFilterTime {
 			ref = n.MTime
-		} else if c.field == "size" {
+		} else if c.field == MetaFilterSize {
 			ref = n.Size
 		}
 		match := false
@@ -108,4 +129,44 @@ func (m *MetaFilter) Match(name string, n *tree.Node) bool {
 		}
 	}
 	return true
+}
+
+type IndexableNode struct {
+	Node
+	ReloadCore bool
+	ReloadNs   bool
+
+	ModifTime   time.Time
+	Basename    string
+	NodeType    string
+	Extension   string
+	TextContent string
+	GeoPoint    map[string]interface{}
+	Meta        map[string]interface{}
+}
+
+func (i *IndexableNode) BleveType() string {
+	return "node"
+}
+
+func (i *IndexableNode) MemLoad() {
+	i.Meta = i.AllMetaDeserialized(nil)
+	i.ModifTime = time.Unix(i.MTime, 0)
+	var basename string
+	i.GetMeta("name", &basename)
+	i.Basename = basename
+	if i.Type == 1 {
+		i.NodeType = "file"
+		i.Extension = strings.ToLower(strings.TrimLeft(filepath.Ext(basename), "."))
+	} else {
+		i.NodeType = "folder"
+	}
+	i.GetMeta("GeoLocation", &i.GeoPoint)
+	i.MetaStore = nil
+}
+
+func NewMemIndexableNode(n *Node) *IndexableNode {
+	i := &IndexableNode{Node: *n}
+	i.MemLoad()
+	return i
 }

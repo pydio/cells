@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gobwas/glob"
+
 	"github.com/pydio/cells/common"
 
 	"github.com/pydio/cells/common/log"
@@ -18,10 +20,13 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+const s3BucketTagPrefix = "pydio:s3-bucket-tag-"
+
 type MultiBucketClient struct {
 	// Global context
 	globalContext context.Context
 	bucketRegexp  *regexp.Regexp
+	bucketMetas   []glob.Glob
 
 	// Connection options
 	host    string
@@ -39,6 +44,7 @@ type MultiBucketClient struct {
 	requiresNormalization bool
 }
 
+// NewMultiBucketClient creates an s3 wrapped client that lists buckets as top level folders
 func NewMultiBucketClient(ctx context.Context, host string, key string, secret string, secure bool, options model.EndpointOptions, bucketsFilter string) (*MultiBucketClient, error) {
 	c, e := NewClient(ctx, host, key, secret, "", "", secure, options)
 	if e != nil {
@@ -60,7 +66,21 @@ func NewMultiBucketClient(ctx context.Context, host string, key string, secret s
 			return nil, e
 		}
 	}
+	if options.Properties != nil {
+		if bucketsTags, o := options.Properties["bucketsTags"]; o {
+			for _, pattern := range strings.Split(bucketsTags, ",") {
+				if gl, e := glob.Compile(s3BucketTagPrefix + pattern); e == nil {
+					m.bucketMetas = append(m.bucketMetas, gl)
+				}
+			}
+		}
+	}
 	return m, nil
+}
+
+// ProvidesMetadataNamespaces implements MetadataProvider interface
+func (m *MultiBucketClient) ProvidesMetadataNamespaces() (out []glob.Glob, o bool) {
+	return m.bucketMetas, len(m.bucketMetas) > 0
 }
 
 func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node *tree.Node, err error) {
@@ -97,6 +117,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		if er != nil {
 			return er
 		}
+		var taggingError error
 		for _, bucket := range bb {
 			if m.bucketRegexp != nil && !m.bucketRegexp.MatchString(bucket.Name) {
 				continue
@@ -104,14 +125,39 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			bC, _, _, _ := m.getClient(bucket.Name)
 			uid, _, _ := bC.readOrCreateFolderId("")
 			// Walk bucket as a folder
-			walknFc(bucket.Name, &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}, nil)
-			// Walk associated .pydio file
-			metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
-			if er != nil {
-				log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
+			// Additional read of bucket tagging if configured
+			if len(m.bucketMetas) > 0 && taggingError == nil {
+				if tags, err := c.Mc.GetBucketTagging(bucket.Name); err == nil {
+					if tags == nil || len(tags) == 0 {
+						log.Logger(context.Background()).Debug("No tags found on bucket " + bucket.Name)
+					} else {
+						for _, t := range tags {
+							tKey := s3BucketTagPrefix + t.Key
+							for _, g := range m.bucketMetas {
+								if g.Match(tKey) {
+									log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.Any(tKey, t.Value))
+									fNode.SetMeta(tKey, t.Value)
+									break
+								}
+							}
+						}
+					}
+				} else {
+					log.Logger(context.Background()).Warn("Cannot read bucket tagging for "+bucket.Name+", will not retry for other buckets", zap.Error(err))
+					taggingError = err
+				}
 			}
-			metaFilePath := path.Join(bucket.Name, common.PYDIO_SYNC_HIDDEN_FILE_META)
-			walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
+			walknFc(bucket.Name, fNode, nil)
+			if !m.options.BrowseOnly {
+				// Walk associated .pydio file
+				metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
+				if er != nil {
+					log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+				}
+				metaFilePath := path.Join(bucket.Name, common.PYDIO_SYNC_HIDDEN_FILE_META)
+				walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
+			}
 			// Walk children
 			if recursive {
 				e := bC.Walk(func(iPath string, node *tree.Node, err error) {

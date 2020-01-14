@@ -45,6 +45,23 @@ func (this *ListNodesResponse) Validate() error {
 	}
 	return nil
 }
+func (this *WrappingStreamerResponse) Validate() error {
+	if oneOfNester, ok := this.GetData().(*WrappingStreamerResponse_ListNodesResponse); ok {
+		if oneOfNester.ListNodesResponse != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ListNodesResponse); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ListNodesResponse", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetData().(*WrappingStreamerResponse_NodeChangeEvent); ok {
+		if oneOfNester.NodeChangeEvent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.NodeChangeEvent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("NodeChangeEvent", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *CreateNodeRequest) Validate() error {
 	if this.Node != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {

@@ -14,7 +14,6 @@
 
 import ApiClient from '../ApiClient';
 import ServiceQuery from './ServiceQuery';
-import TreeNode from './TreeNode';
 
 
 
@@ -64,9 +63,6 @@ export default class JobsNodesSelector {
             if (data.hasOwnProperty('Pathes')) {
                 obj['Pathes'] = ApiClient.convertToType(data['Pathes'], ['String']);
             }
-            if (data.hasOwnProperty('Nodes')) {
-                obj['Nodes'] = ApiClient.convertToType(data['Nodes'], [TreeNode]);
-            }
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = ServiceQuery.constructFromObject(data['Query']);
             }
@@ -85,10 +81,6 @@ export default class JobsNodesSelector {
     * @member {Array.<String>} Pathes
     */
     Pathes = undefined;
-    /**
-    * @member {Array.<module:model/TreeNode>} Nodes
-    */
-    Nodes = undefined;
     /**
     * @member {module:model/ServiceQuery} Query
     */
