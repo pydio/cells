@@ -357,6 +357,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                     className: "row-flex",
                     serviceName: "pydio.grpc.update",
                     ref: "serviceConfigs",
+                    accessByName: accessByName,
                     disabled: !accessByName('Create'),
                     onDirtyChange: function (d) {
                         return _this3.setState({ dirty: d });

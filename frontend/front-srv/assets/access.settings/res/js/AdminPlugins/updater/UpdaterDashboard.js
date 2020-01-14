@@ -243,6 +243,7 @@ let UpdaterDashboard = React.createClass({
                             className={"row-flex"}
                             serviceName={"pydio.grpc.update"}
                             ref={"serviceConfigs"}
+                            accessByName={accessByName}
                             disabled={!accessByName('Create')}
                             onDirtyChange={(d)=>this.setState({dirty: d})}
                         />
