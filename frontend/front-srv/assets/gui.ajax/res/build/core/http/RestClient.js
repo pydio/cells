@@ -90,9 +90,6 @@ var RestClient = (function (_ApiClient) {
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
-        pydioObject.observe('beforeApply-logout', function () {
-            _PydioApi2['default'].JWT_DATA = null;
-        });
     }
 
     /**

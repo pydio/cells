@@ -4366,9 +4366,7 @@
           {
             "name": "requestInterceptor",
             "docblock": null,
-            "modifiers": [
-              "static"
-            ],
+            "modifiers": [],
             "params": [
               {
                 "name": "request",
@@ -13398,15 +13396,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -13548,15 +13542,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -13698,15 +13688,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -13806,15 +13792,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14884,15 +14866,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15332,15 +15310,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15440,15 +15414,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15600,15 +15570,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15848,15 +15814,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15914,15 +15876,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15980,15 +15938,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16214,15 +16168,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16280,15 +16230,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16500,15 +16446,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16566,15 +16508,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16926,15 +16864,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16976,15 +16910,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -17126,15 +17056,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -17402,15 +17328,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -17524,15 +17446,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -17896,15 +17814,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -18172,15 +18086,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
