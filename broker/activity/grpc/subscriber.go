@@ -134,6 +134,22 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	ac, Node := activity.DocumentActivity(author, msg)
 	if Node != nil && Node.Uuid != "" {
 
+		loadedNode, parentUuids := e.ParentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
+		// Use reloaded node
+		if msg.Type == tree.NodeChangeEvent_UPDATE_USER_META {
+			if Node.MetaStore != nil {
+				if loadedNode.MetaStore == nil {
+					loadedNode.MetaStore = make(map[string]string, len(Node.MetaStore))
+				}
+				for k, v := range Node.MetaStore {
+					loadedNode.MetaStore[k] = v
+				}
+			}
+			msg.Target = loadedNode
+			// Rebuild activity
+			ac, Node = activity.DocumentActivity(author, msg)
+		}
+
 		// Ignore hidden files
 		if tree.IgnoreNodeForOutput(ctx, Node) {
 			return nil
@@ -156,7 +172,6 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		//
 		// Post to parents Outbox'es as well
 		//
-		parentUuids := e.ParentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
 		for _, uuid := range parentUuids {
 			dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
 			publishActivityEvent(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
@@ -180,7 +195,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 			if subscription.UserId == author {
 				continue
 			}
-			evread   := false
+			evread := false
 			evchange := false
 			for _, ev := range subscription.Events {
 				if strings.Compare(ev, "read") == 0 {
@@ -222,22 +237,24 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	return nil
 }
 
-func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree.Node, isDel bool) []string {
+func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree.Node, isDel bool) (*tree.Node, []string) {
 
 	e.Lock()
 	defer e.Unlock()
 
 	var parentUuids []string
+	loadedNode := node
+
 	// Current Node
 	// parentUuids = append(parentUuids, node.Uuid)
 	if node.Path == "" && !isDel {
 		// Reload by Uuid
 		if resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
-			node = resp.Node
+			loadedNode = resp.Node
 		}
 	}
 	// Manually load parents from Path
-	parentPath := node.Path
+	parentPath := loadedNode.Path
 	for {
 		parentPath = path.Dir(parentPath)
 		if parentPath == "" || parentPath == "/" || parentPath == "." {
@@ -260,7 +277,7 @@ func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree
 		}
 	}
 
-	return parentUuids
+	return loadedNode, parentUuids
 }
 
 func (e *MicroEventsSubscriber) DebounceAclsEvents() {

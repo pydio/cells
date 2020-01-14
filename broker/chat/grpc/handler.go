@@ -25,12 +25,14 @@ import (
 	"errors"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 
 	chat2 "github.com/pydio/cells/broker/chat"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/chat"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 )
 
@@ -113,11 +115,27 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 			return err
 		}
 		resp.Messages = append(resp.Messages, newMessage)
-		client.Publish(ctx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
-			Message: newMessage,
-		}))
 	}
 	resp.Success = true
+	go func() {
+		for _, m := range resp.Messages {
+			bgCtx := metadata.NewContext(context.Background(), map[string]string{
+				common.PYDIO_CONTEXT_USER_KEY: m.Author,
+			})
+			client.Publish(bgCtx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
+				Message: m,
+			}))
+			// For comments on nodes, publish an UPDATE_USER_META event
+			if room, err := db.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
+				client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+					Type: tree.NodeChangeEvent_UPDATE_USER_META,
+					Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
+						"comments": `"` + m.Message + `"`,
+					}},
+				}))
+			}
+		}
+	}()
 	return nil
 }
 

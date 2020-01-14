@@ -90,6 +90,15 @@ func init() {
 				})); err != nil {
 					return err
 				}
+				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+					if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
+						return nil
+					}
+					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: *msg, Ctx: ctx}
+					return nil
+				})); err != nil {
+					return err
+				}
 
 				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_IDM_EVENT, func(ctx context.Context, msg *idm.ChangeEvent) error {
 					return subscriber.HandleIdmChange(ctx, msg)

@@ -155,6 +155,26 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 			return T("ModifiedObjectBy", templateData)
 		}
 
+	case activity.ObjectType_UpdateMeta:
+
+		if pointOfView == activity.SummaryPointOfView_ACTOR {
+			return T("MetaModifiedObject", templateData)
+		} else if pointOfView == activity.SummaryPointOfView_SUBJECT {
+			return T("MetaModifiedBy", templateData)
+		} else {
+			return T("MetaModifiedObjectBy", templateData)
+		}
+
+	case activity.ObjectType_UpdateComment:
+
+		if pointOfView == activity.SummaryPointOfView_ACTOR {
+			return T("CommentedObject", templateData)
+		} else if pointOfView == activity.SummaryPointOfView_SUBJECT {
+			return T("CommentedBy", templateData)
+		} else {
+			return T("CommentedObjectBy", templateData)
+		}
+
 	case activity.ObjectType_Read:
 
 		if pointOfView == activity.SummaryPointOfView_ACTOR {

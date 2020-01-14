@@ -73,7 +73,7 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 		ac.Object.Name = event.Target.Path
 		ac.Object.Id = event.Target.Uuid
 		detectedNode = event.Target
-		break
+
 	case tree.NodeChangeEvent_READ:
 		// log.Printf("CREATE %v", event.Type)
 		ac.Type = activity.ObjectType_Read
@@ -89,7 +89,7 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 		ac.Object.Name = event.Target.Path
 		ac.Object.Id = event.Target.Uuid
 		detectedNode = event.Target
-		break
+
 	case tree.NodeChangeEvent_DELETE:
 		// log.Printf("DELETE %v", event.Type)
 		ac.Type = activity.ObjectType_Delete
@@ -105,7 +105,7 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 		ac.Object.Name = event.Source.Path
 		ac.Object.Id = event.Source.Uuid
 		detectedNode = event.Source
-		break
+
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		// log.Printf("MOVE %v", event.Type)
 		ac.Type = activity.ObjectType_Move
@@ -125,7 +125,7 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 			Id:   event.Target.Uuid,
 		}
 		detectedNode = event.Target
-		break
+
 	case tree.NodeChangeEvent_UPDATE_CONTENT, tree.NodeChangeEvent_UPDATE_META:
 		// log.Printf("UPDATE %v", event.Type)
 		ac.Type = activity.ObjectType_Update
@@ -135,7 +135,24 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 			Id:   event.Target.Uuid,
 		}
 		detectedNode = event.Target
-		break
+
+	case tree.NodeChangeEvent_UPDATE_USER_META:
+		// log.Printf("UPDATE %v", event.Type)
+		ac.Type = activity.ObjectType_UpdateMeta
+		ac.Object = &activity.Object{
+			Type: activity.ObjectType_Document,
+			Name: event.Target.Path,
+			Id:   event.Target.Uuid,
+		}
+		if event.Target.GetStringMeta("comments") != "" {
+			ac.Type = activity.ObjectType_UpdateComment
+			ac.Items = []*activity.Object{{
+				Type:    activity.ObjectType_Note,
+				Summary: event.Target.GetStringMeta("comments"),
+			}}
+		}
+		detectedNode = event.Target
+
 	}
 
 	ac.Actor = &activity.Object{

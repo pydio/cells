@@ -67,6 +67,8 @@ enum ObjectType{
     Travel = 43;
     Undo = 44;
     Update = 45;
+    UpdateComment = 58;
+    UpdateMeta = 59;
     View = 46;
 
     // Pydio Types
