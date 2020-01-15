@@ -155,7 +155,6 @@ var RestClient = (function (_ApiClient) {
                 window.location.href = response.data.RedirectTo;
             } else if (response.data && response.data.Trigger) {
                 _this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
-                _this.pydio.getController().fire("user_action_triggered");
             } else if (response.data && response.data.Token) {
                 RestClient.store(response.data.Token);
             } else if (request.AuthInfo.type === "logout") {
