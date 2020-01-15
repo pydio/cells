@@ -51,6 +51,7 @@ class Workspace extends Observable{
             this.model.Scope = IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
             this.internalAttributes = {"DEFAULT_RIGHTS": "r"};
+            this.model.PoliciesContextEditable = true;
             this.model.Attributes = JSON.stringify(this.internalAttributes);
         }
         this.observableModel = this.buildProxy(this.model);
