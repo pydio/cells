@@ -2223,6 +2223,12 @@
 			"revisionTime": "2018-10-21T22:38:31Z"
 		},
 		{
+			"checksumSHA1": "gEjGS03N1eysvpQ+FCHTxPcbxXc=",
+			"path": "github.com/kardianos/osext",
+			"revision": "ae77be60afb1dcacde03767a8c37337fad28ac14",
+			"revisionTime": "2017-05-10T13:15:34Z"
+		},
+		{
 			"checksumSHA1": "Thmrezy2+xEG9MhR6TPb3yKvBIQ=",
 			"path": "github.com/karrick/godirwalk",
 			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
