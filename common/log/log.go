@@ -292,7 +292,7 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 		}
 	}
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		uuid, _ := claims.DecodeUserUuid()
+		uuid := claims.Subject
 		logger = logger.With(
 			zap.String(common.KEY_USERNAME, claims.Name),
 			zap.String(common.KEY_USER_UUID, uuid),
