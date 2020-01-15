@@ -235,8 +235,12 @@ var RestClient = (function (_ApiClient) {
             _this3.authentications = { 'oauth2': { type: 'oauth2', accessToken: accessToken } };
 
             return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-        })['catch'](function () {
-            return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
+        })['catch'](function (reason) {
+            if (reason.response && reason.response.status === 401) {
+                return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
+            } else {
+                return Promise.reject(reason);
+            }
         }).then(function (response) {
             return response;
         })['catch'](function (reason) {

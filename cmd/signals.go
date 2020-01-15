@@ -3,12 +3,17 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime/pprof"
+	"strings"
 	"syscall"
 	"time"
+
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/registry"
 
 	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
@@ -42,24 +47,51 @@ func handleSignals() {
 				os.Exit(0)
 
 			case syscall.SIGUSR1:
-				pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 
 				if !profiling {
-					f, err := ioutil.TempFile("/tmp", "pydio-cpu-profile-")
-					if err != nil {
-						log.Fatal("Cannot create cpu profile", zap.Error(err))
+
+					serviceMeta := registry.BuildServiceMeta()
+					startTags := strings.ReplaceAll(serviceMeta["start"], ",", "-")
+					startTags = strings.ReplaceAll(startTags, ":", "-")
+					if startTags == "" {
+						startTags = "main-process"
+					}
+					targetDir := filepath.Join(config.ApplicationWorkingDir(config.ApplicationDirLogs), "profiles", startTags)
+					os.MkdirAll(targetDir, 0755)
+					tStamp := fmt.Sprintf("%d", time.Now().Unix())
+
+					pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+
+					if routinesFile, err := os.OpenFile(filepath.Join(targetDir, "goroutines-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+						pprof.Lookup("goroutine").WriteTo(routinesFile, 1)
+						routinesFile.Close()
 					}
 
-					pprof.StartCPUProfile(f)
-					profile = f
-					profiling = true
-
-					fheap, err := ioutil.TempFile("/tmp", "pydio-cpu-heap-")
-					if err != nil {
-						log.Fatal("Cannot create heap profile", zap.Error(err))
+					if fheap, err := os.OpenFile(filepath.Join(targetDir, "heap-profile-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+						pprof.WriteHeapProfile(fheap)
+						fheap.Close()
 					}
-					pprof.WriteHeapProfile(fheap)
+
+					if fcpu, err := os.OpenFile(filepath.Join(targetDir, "cpu-profile-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+						pprof.StartCPUProfile(fcpu)
+						profile = fcpu
+						profiling = true
+					}
+					// Close profiling session after 30s if user forgot to send a second call
+					go func() {
+						<-time.After(20 * time.Second)
+						if profiling {
+							fmt.Println("Closing CPU Profiling session to avoid growing profile file!")
+							pprof.StopCPUProfile()
+							if err := profile.Close(); err != nil {
+								log.Fatal("Cannot close cpu profile", zap.Error(err))
+							}
+							profiling = false
+						}
+					}()
+
 				} else {
+
 					pprof.StopCPUProfile()
 					if err := profile.Close(); err != nil {
 						log.Fatal("Cannot close cpu profile", zap.Error(err))

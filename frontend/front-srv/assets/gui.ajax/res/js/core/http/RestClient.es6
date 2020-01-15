@@ -185,7 +185,13 @@ class RestClient extends ApiClient{
             
             return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
         })
-        .catch(() => super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType))
+        .catch((reason) => {
+            if(reason.response && reason.response.status === 401){
+                return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType)
+            } else {
+                return Promise.reject(reason);
+            }
+        })
         .then((response) => response)
         .catch((reason) =>{
             this.handleError(reason);
