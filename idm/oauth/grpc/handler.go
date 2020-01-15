@@ -70,6 +70,9 @@ func (h *Handler) GetLogin(ctx context.Context, in *auth.GetLoginRequest, out *a
 	out.SessionID = req.SessionID
 	out.RequestURL = req.RequestURL
 	out.Subject = req.Subject
+	out.RequestedScope = req.RequestedScope
+	out.RequestedAudience = req.RequestedAudience
+	out.ClientID = req.Client.GetID()
 
 	return nil
 }
@@ -84,16 +87,6 @@ func (h *Handler) CreateLogin(ctx context.Context, in *auth.CreateLoginRequest, 
 	// Generate the request URL
 	iu := urlx.AppendPaths(oauth.GetConfigurationProvider().IssuerURL(), oauth.GetConfigurationProvider().OAuth2AuthURL())
 
-	// var idTokenHintClaims jwtgo.MapClaims
-	// if idTokenHint := ar.GetRequestForm().Get("id_token_hint"); len(idTokenHint) > 0 {
-	// 	claims, err := s.getIDTokenHintClaims(r.Context(), idTokenHint)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	idTokenHintClaims = claims
-	// }
-
 	sessionID := uuid.New()
 
 	if err := oauth.GetRegistry().ConsentManager().CreateLoginSession(ctx, &consent.LoginSession{
@@ -105,7 +98,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *auth.CreateLoginRequest, 
 		return err
 	}
 
-	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, DefaultClientID)
+	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.GetClientID())
 	if err != nil {
 		return err
 	}
@@ -118,28 +111,24 @@ func (h *Handler) CreateLogin(ctx context.Context, in *auth.CreateLoginRequest, 
 			Verifier:          verifier,
 			CSRF:              csrf,
 			Skip:              false,
-			RequestedScope:    []string{},
-			RequestedAudience: []string{},
+			RequestedScope:    in.GetScopes(),
+			RequestedAudience: in.GetAudiences(),
 			Subject:           "",
 			Client:            client,
 			RequestURL:        iu.String(),
 			AuthenticatedAt:   time.Time{},
 			RequestedAt:       time.Now().UTC(),
 			SessionID:         sessionID,
-			// OpenIDConnectContext: &consent.OpenIDConnectContext{
-			// 	IDTokenHintClaims: idTokenHintClaims,
-			// 	ACRValues:         stringsx.Splitx(ar.GetRequestForm().Get("acr_values"), " "),
-			// 	UILocales:         stringsx.Splitx(ar.GetRequestForm().Get("ui_locales"), " "),
-			// 	Display:           ar.GetRequestForm().Get("display"),
-			// 	LoginHint:         ar.GetRequestForm().Get("login_hint"),
-			// },
 		},
 	); err != nil {
 		return errors.WithStack(err)
 	}
 
-	out.Challenge = challenge
-	out.Verifier = verifier
+	out.Login = &auth.ID{
+		Challenge: challenge,
+		Verifier:  verifier,
+		CSRF:      csrf,
+	}
 
 	return nil
 }
@@ -217,28 +206,25 @@ func (h *Handler) CreateConsent(ctx context.Context, in *auth.CreateConsentReque
 			Verifier:          verifier,
 			CSRF:              csrf,
 			Skip:              false,
-			RequestedScope:    []string{},
-			RequestedAudience: []string{},
+			RequestedScope:    login.RequestedScope,
+			RequestedAudience: login.RequestedAudience,
 			Subject:           session.Subject,
 			Client:            client,
 			RequestURL:        login.RequestURL,
 			LoginChallenge:    login.Challenge,
 			LoginSessionID:    login.SessionID,
-			AuthenticatedAt:   time.Time{},
+			AuthenticatedAt:   time.Now().UTC(),
 			RequestedAt:       time.Now().UTC(),
-			// OpenIDConnectContext: &consent.OpenIDConnectContext{
-			// 	IDTokenHintClaims: idTokenHintClaims,
-			// 	ACRValues:         stringsx.Splitx(ar.GetRequestForm().Get("acr_values"), " "),
-			// 	UILocales:         stringsx.Splitx(ar.GetRequestForm().Get("ui_locales"), " "),
-			// 	Display:           ar.GetRequestForm().Get("display"),
-			// 	LoginHint:         ar.GetRequestForm().Get("login_hint"),
-			// },
 		},
 	); err != nil {
 		return errors.WithStack(err)
 	}
 
-	out.Challenge = challenge
+	out.Consent = &auth.ID{
+		Challenge: challenge,
+		Verifier:  verifier,
+		CSRF:      csrf,
+	}
 
 	return nil
 }
@@ -250,6 +236,12 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *auth.AcceptConsentReque
 	p.Challenge = in.Challenge
 	p.RequestedAt = time.Now().UTC()
 	p.AuthenticatedAt = p.RequestedAt
+	p.Session = consent.NewConsentRequestSessionData()
+	p.Session.IDToken = map[string]interface{}{
+		"name": "admin",
+	}
+	p.GrantedScope = in.GetScopes()
+	p.GrantedAudience = in.GetAudiences()
 
 	_, err := oauth.GetRegistry().ConsentManager().HandleConsentRequest(ctx, in.Challenge, &p)
 	if err != nil {
@@ -261,25 +253,44 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *auth.AcceptConsentReque
 
 func (h *Handler) CreateAuthCode(ctx context.Context, in *auth.CreateAuthCodeRequest, out *auth.CreateAuthCodeResponse) error {
 
-	ar := fosite.NewAuthorizeRequest()
-	ar.ResponseTypes = []string{"code"}
-	redirectURI, _ := url.Parse(DefaultRedirectURI)
-	ar.RedirectURI = redirectURI
-	ar.GrantScope("openid")
-	ar.GrantScope("pydio")
-	ar.GrantScope("email")
-	ar.GrantScope("profile")
-	ar.GrantScope("offline")
 	values := url.Values{}
-	values.Set("nonce", uuid.New())
-	ar.Request.Form = values
+	values.Set("client_id", in.GetClientID())
+	values.Set("redirect_uri", in.GetRedirectURI())
+	values.Set("response_type", "code")
+	values.Set("consent_verifier", in.GetConsent().GetVerifier())
+	values.Set("state", uuid.New())
 
-	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.ClientID)
+	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	cookieSession, err := oauth.GetRegistry().CookieStore().Get(req, "oauth2_consent_csrf")
+	if err != nil {
+		return err
+	}
+	cookieSession.Values["csrf"] = in.GetConsent().GetCSRF()
+
+	ar, err := oauth.GetRegistry().OAuth2Provider().NewAuthorizeRequest(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	ar.Request.Client = client
+	session, err := oauth.GetRegistry().ConsentStrategy().HandleOAuth2AuthorizationRequest(http.ResponseWriter(nil), req, ar)
+	if errors.Cause(err) == consent.ErrAbortOAuth2Request {
+		// do nothing
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	for _, scope := range session.GrantedScope {
+		ar.GrantScope(scope)
+	}
+
+	for _, audience := range session.GrantedAudience {
+		ar.GrantAudience(audience)
+	}
 
 	openIDKeyID, err := oauth.GetRegistry().OpenIDJWTStrategy().GetPublicKeyID(ctx)
 	if err != nil {
@@ -294,40 +305,32 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *auth.CreateAuthCodeReq
 		}
 	}
 
-	ar.SetID(in.ConsentChallenge)
+	ar.SetID(session.Challenge)
 
 	claims := &jwt.IDTokenClaims{
-		Subject:     in.SubjectIdentifier,
+		Subject:     session.ConsentRequest.SubjectIdentifier,
 		Issuer:      strings.TrimRight(oauth.GetConfigurationProvider().IssuerURL().String(), "/") + "/",
 		IssuedAt:    time.Now().UTC(),
 		AuthTime:    time.Now().UTC(),
 		RequestedAt: time.Now().UTC(),
-		// Extra:       session.Session.IDToken,
-		// AuthenticationContextClassReference: session.ConsentRequest.ACR,
-
-		// We do not need to pass the audience because it's included directly by ORY Fosite
-		// Audience:    []string{authorizeRequest.GetClient().GetID()},
-
-		// This is set by the fosite strategy
-		// ExpiresAt:   time.Now().Add(h.IDTokenLifespan).UTC(),
+		Extra:       session.Session.IDToken,
 	}
 
-	claims.Add("sid", in.LoginSessionID)
+	claims.Add("sid", session.ConsentRequest.LoginSessionID)
 
 	// done
 	response, err := oauth.GetRegistry().OAuth2Provider().NewAuthorizeResponse(ctx, ar, &oauth2.Session{
 		DefaultSession: &openid.DefaultSession{
 			Claims: claims,
 			Headers: &jwt.Headers{Extra: map[string]interface{}{
-				// required for lookup on jwk endpoint
 				"kid": openIDKeyID,
 			}},
-			Subject: in.Subject,
+			Subject: session.ConsentRequest.Subject,
 		},
-		// Extra:            session.Session.AccessToken,
+		Extra:            session.Session.AccessToken,
 		KID:              accessTokenKeyID,
-		ClientID:         client.GetID(),
-		ConsentChallenge: in.ConsentChallenge,
+		ClientID:         ar.GetClient().GetID(),
+		ConsentChallenge: session.Challenge,
 	})
 
 	if err != nil {

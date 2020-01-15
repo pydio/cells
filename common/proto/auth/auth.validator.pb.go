@@ -39,6 +39,9 @@ func (this *PruneTokensRequest) Validate() error {
 func (this *PruneTokensResponse) Validate() error {
 	return nil
 }
+func (this *ID) Validate() error {
+	return nil
+}
 func (this *GetLoginRequest) Validate() error {
 	return nil
 }
@@ -49,6 +52,11 @@ func (this *CreateLoginRequest) Validate() error {
 	return nil
 }
 func (this *CreateLoginResponse) Validate() error {
+	if this.Login != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Login); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Login", err)
+		}
+	}
 	return nil
 }
 func (this *AcceptLoginRequest) Validate() error {
@@ -67,15 +75,27 @@ func (this *CreateConsentRequest) Validate() error {
 	return nil
 }
 func (this *CreateConsentResponse) Validate() error {
+	if this.Consent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Consent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Consent", err)
+		}
+	}
 	return nil
 }
 func (this *AcceptConsentRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AcceptConsentResponse) Validate() error {
 	return nil
 }
 func (this *CreateAuthCodeRequest) Validate() error {
+	if this.Consent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Consent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Consent", err)
+		}
+	}
 	return nil
 }
 func (this *CreateAuthCodeResponse) Validate() error {

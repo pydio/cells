@@ -185,12 +185,16 @@ class Pydio extends Observable{
         };
 
         // Prelogged user
+        console.log(this.Parameters.has("PRELOG_USER"), this.user, this.Parameters.get("PRELOADED_REGISTRY"))
         if(this.Parameters.has("PRELOG_USER") && !this.user) {
             const login = this.Parameters.get("PRELOG_USER");
             const pwd = login + "#$!Az1";
 
+            console.log("Prelogin")
+
             PydioApi.getRestClient().sessionLoginWithCredentials(login, pwd)
                 .then(() => this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY")))
+                .catch(() => this.loadXmlRegistry(null, starterFunc))
         } else {
             PydioApi.getRestClient().getOrUpdateJwt().
                 then(jwt => {
@@ -198,10 +202,14 @@ class Pydio extends Observable{
                     this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
                 }).
                 catch(() => {
-                    // Not logged, used prefeteched registry to speed up login screen
-                    this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
-                    this.Parameters.delete("PRELOADED_REGISTRY");
-                    starterFunc();
+                    if (!this.Parameters.has("PRELOADED_REGISTRY")) {
+                        this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                    } else {
+                        // Not logged, used prefeteched registry to speed up login screen
+                        this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
+                        this.Parameters.delete("PRELOADED_REGISTRY");
+                        starterFunc();
+                    }
                 })
         }
 

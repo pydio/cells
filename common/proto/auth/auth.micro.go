@@ -17,6 +17,7 @@ It has these top-level messages:
 	RevokeTokenResponse
 	PruneTokensRequest
 	PruneTokensResponse
+	ID
 	GetLoginRequest
 	GetLoginResponse
 	CreateLoginRequest

@@ -9,7 +9,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"golang.org/x/oauth2"
 )
@@ -58,14 +58,18 @@ func GetLogin(challenge string) (*auth.GetLoginResponse, error) {
 	return resp, nil
 }
 
-func CreateLogin() (string, error) {
+func CreateLogin(clientID string, scopes, audiences []string) (*auth.ID, error) {
 	c := auth.NewLoginProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.CreateLogin(context.Background(), &auth.CreateLoginRequest{})
+	resp, err := c.CreateLogin(context.Background(), &auth.CreateLoginRequest{
+		ClientID:  clientID,
+		Scopes:    scopes,
+		Audiences: audiences,
+	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resp.Challenge, nil
+	return resp.GetLogin(), nil
 }
 
 func AcceptLogin(challenge string, subject string) (*RedirectResponse, error) {
@@ -103,11 +107,11 @@ func GetConsent(challenge string) (*auth.GetConsentResponse, error) {
 	return resp, nil
 }
 
-func CreateConsent(loginChallenge string) (string, error) {
+func CreateConsent(loginChallenge string) (*auth.ID, error) {
 
 	login, err := GetLogin(loginChallenge)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	c := auth.NewConsentProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
@@ -115,16 +119,20 @@ func CreateConsent(loginChallenge string) (string, error) {
 		LoginChallenge: login.Challenge,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resp.Challenge, nil
+	return resp.GetConsent(), nil
 }
 
-func AcceptConsent(challenge string) (*RedirectResponse, error) {
+func AcceptConsent(challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
 	c := auth.NewConsentProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
 	_, err := c.AcceptConsent(context.Background(), &auth.AcceptConsentRequest{
-		Challenge: challenge,
+		Challenge:   challenge,
+		Scopes:      scopes,
+		Audiences:   audiences,
+		AccessToken: accessToken,
+		IDToken:     idToken,
 	})
 	if err != nil {
 		return nil, err
@@ -143,19 +151,12 @@ func RejectConsent(challenge string, body interface{}) (*RedirectResponse, error
 	return resp, nil
 }
 
-func CreateAuthCode(consentChallenge string) (string, error) {
-	consent, err := GetConsent(consentChallenge)
-	if err != nil {
-		return "", err
-	}
-
+func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, error) {
 	c := auth.NewAuthCodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
 	resp, err := c.CreateAuthCode(context.Background(), &auth.CreateAuthCodeRequest{
-		ConsentChallenge:  consent.Challenge,
-		LoginSessionID:    consent.LoginSessionID,
-		Subject:           consent.Subject,
-		SubjectIdentifier: consent.SubjectIdentifier,
-		ClientID:          consent.ClientID,
+		Consent:     consent,
+		ClientID:    clientID,
+		RedirectURI: redirectURI,
 	})
 	if err != nil {
 		return "", err

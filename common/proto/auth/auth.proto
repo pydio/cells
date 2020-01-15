@@ -55,6 +55,12 @@ service LoginProvider {
     rpc AcceptLogin (AcceptLoginRequest) returns (AcceptLoginResponse) {};
 }
 
+message ID {
+    string Challenge = 1;
+    string Verifier = 2;
+    string CSRF = 3;
+}
+
 message GetLoginRequest {
     string Challenge = 1;
 }
@@ -64,13 +70,19 @@ message GetLoginResponse {
     string Subject = 2;
     string SessionID = 3;
     string RequestURL = 4;
+    repeated string RequestedScope = 5;
+    repeated string RequestedAudience = 6;
+    string ClientID = 7;
 }
 
-message CreateLoginRequest {}
+message CreateLoginRequest {
+    string ClientID = 1;
+    repeated string Scopes = 2;
+    repeated string Audiences = 3;
+}
 
 message CreateLoginResponse {
-    string Challenge = 1;
-    string Verifier = 2;
+    ID Login = 1;
 }
 
 message AcceptLoginRequest {
@@ -104,11 +116,15 @@ message CreateConsentRequest {
 }
 
 message CreateConsentResponse {
-    string Challenge = 1;
+    ID Consent = 1;
 }
 
 message AcceptConsentRequest {
     string Challenge = 1;
+    repeated string Scopes = 2;
+    repeated string Audiences = 3;
+    map<string,string> AccessToken = 4;
+    map<string,string> IDToken = 5;
 }
 
 message AcceptConsentResponse {
@@ -119,11 +135,9 @@ service AuthCodeProvider {
 }
 
 message CreateAuthCodeRequest {
-    string ConsentChallenge = 1;
-    string LoginSessionID = 2;
-    string SubjectIdentifier = 3;
-    string Subject = 4;
-    string ClientID = 5;
+    ID Consent = 1;
+    string ClientID = 2;
+    string RedirectURI = 3;
 }
 
 message CreateAuthCodeResponse {

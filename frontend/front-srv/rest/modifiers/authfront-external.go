@@ -37,7 +37,7 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
-		loginInfo, err := hydra.GetLogin(loginChallenge)
+		login, err := hydra.GetLogin(loginChallenge)
 		if err != nil {
 			return err
 		}
@@ -46,21 +46,25 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
-		consentChallenge, err := hydra.CreateConsent(loginChallenge)
+		consent, err := hydra.CreateConsent(loginChallenge)
 		if err != nil {
 			return err
 		}
 
-		if _, err := hydra.AcceptConsent(consentChallenge); err != nil {
+		if _, err := hydra.AcceptConsent(
+			consent.Challenge,
+			login.GetRequestedScope(),
+			login.GetRequestedAudience(),
+			map[string]string{},
+			map[string]string{
+				"name":  claims.Name,
+				"email": claims.Email,
+			},
+		); err != nil {
 			return err
 		}
 
-		code, err := hydra.CreateAuthCode(consentChallenge)
-		if err != nil {
-			return err
-		}
-
-		requestURL, err := url.Parse(loginInfo.RequestURL)
+		requestURL, err := url.Parse(login.GetRequestURL())
 		if err != nil {
 			return err
 		}
@@ -68,6 +72,11 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		requestURLValues := requestURL.Query()
 
 		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURL.Query())
+		if err != nil {
+			return err
+		}
+
+		code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
 		if err != nil {
 			return err
 		}

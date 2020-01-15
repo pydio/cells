@@ -257,22 +257,31 @@ var Pydio = (function (_Observable) {
         };
 
         // Prelogged user
+        console.log(this.Parameters.has("PRELOG_USER"), this.user, this.Parameters.get("PRELOADED_REGISTRY"));
         if (this.Parameters.has("PRELOG_USER") && !this.user) {
             var login = this.Parameters.get("PRELOG_USER");
             var pwd = login + "#$!Az1";
 
+            console.log("Prelogin");
+
             _httpPydioApi2['default'].getRestClient().sessionLoginWithCredentials(login, pwd).then(function () {
                 return _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+            })['catch'](function () {
+                return _this2.loadXmlRegistry(null, starterFunc);
             });
         } else {
             _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
                 // Logged in
                 _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
             })['catch'](function () {
-                // Not logged, used prefeteched registry to speed up login screen
-                _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
-                _this2.Parameters['delete']("PRELOADED_REGISTRY");
-                starterFunc();
+                if (!_this2.Parameters.has("PRELOADED_REGISTRY")) {
+                    _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+                } else {
+                    // Not logged, used prefeteched registry to speed up login screen
+                    _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
+                    _this2.Parameters['delete']("PRELOADED_REGISTRY");
+                    starterFunc();
+                }
             });
         }
 

@@ -22,25 +22,26 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
-		login := in.AuthInfo["login"]
+		username := in.AuthInfo["login"]
 		password := in.AuthInfo["password"]
 		loginChallenge := in.AuthInfo["challenge"]
 
 		if loginChallenge == "" {
-			if l, err := hydra.CreateLogin(); err != nil {
+			l, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
+			if err != nil {
 				return err
-			} else {
-				loginChallenge = l
 			}
+
+			loginChallenge = l.Challenge
 		}
 
 		c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-		resp, err := c.BindUser(req.Request.Context(), &idm.BindUserRequest{UserName: login, Password: password})
+		resp, err := c.BindUser(req.Request.Context(), &idm.BindUserRequest{UserName: username, Password: password})
 		if err != nil {
 			return err
 		}
 
-		loginInfo, err := hydra.GetLogin(loginChallenge)
+		login, err := hydra.GetLogin(loginChallenge)
 		if err != nil {
 			return err
 		}
@@ -49,21 +50,25 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
-		consentChallenge, err := hydra.CreateConsent(loginChallenge)
+		consent, err := hydra.CreateConsent(loginChallenge)
 		if err != nil {
 			return err
 		}
 
-		if _, err := hydra.AcceptConsent(consentChallenge); err != nil {
+		if _, err := hydra.AcceptConsent(
+			consent.Challenge,
+			login.GetRequestedScope(),
+			login.GetRequestedAudience(),
+			map[string]string{},
+			map[string]string{
+				"name":  resp.GetUser().GetLogin(),
+				"email": resp.GetUser().GetAttributes()["email"],
+			},
+		); err != nil {
 			return err
 		}
 
-		code, err := hydra.CreateAuthCode(consentChallenge)
-		if err != nil {
-			return err
-		}
-
-		requestURL, err := url.Parse(loginInfo.RequestURL)
+		requestURL, err := url.Parse(login.GetRequestURL())
 		if err != nil {
 			return err
 		}
@@ -71,6 +76,11 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		requestURLValues := requestURL.Query()
 
 		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURL.Query())
+		if err != nil {
+			return err
+		}
+
+		code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
 		if err != nil {
 			return err
 		}
