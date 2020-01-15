@@ -243,7 +243,6 @@ var Pydio = (function (_Observable) {
         });
 
         var starterFunc = function starterFunc() {
-            console.log("Starter func");
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], function () {
                 _this2.UI = new window.PydioReactUI.Builder(_this2);
                 _this2.UI.initTemplates();
@@ -257,12 +256,9 @@ var Pydio = (function (_Observable) {
         };
 
         // Prelogged user
-        console.log(this.Parameters.has("PRELOG_USER"), this.user, this.Parameters.get("PRELOADED_REGISTRY"));
         if (this.Parameters.has("PRELOG_USER") && !this.user) {
             var login = this.Parameters.get("PRELOG_USER");
             var pwd = login + "#$!Az1";
-
-            console.log("Prelogin");
 
             _httpPydioApi2['default'].getRestClient().sessionLoginWithCredentials(login, pwd).then(function () {
                 return _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
