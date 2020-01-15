@@ -11,10 +11,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
@@ -263,10 +263,7 @@ func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.
 
 	if ctx.Value(claim.ContextKey) != nil {
 		claims := ctx.Value(claim.ContextKey).(claim.Claims)
-		userId, e := claims.DecodeUserUuid()
-		if e != nil {
-			return e
-		}
+		userId := claims.Subject
 		for _, node := range workspace.RootNodes {
 			// Create ACLs for user id
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{

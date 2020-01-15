@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -60,7 +60,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	var userId string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		admin = claims.Profile == common.PYDIO_PROFILE_ADMIN
-		userId, _ = claims.DecodeUserUuid()
+		userId = claims.Subject
 	}
 	if request.Subject != "" {
 		if !admin {

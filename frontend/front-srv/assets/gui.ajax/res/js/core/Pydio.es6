@@ -173,7 +173,6 @@ class Pydio extends Observable{
         });
 
         const starterFunc = () => {
-            console.log("Starter func")
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
                 this.UI = new window.PydioReactUI.Builder(this);
                 this.UI.initTemplates();
@@ -185,12 +184,9 @@ class Pydio extends Observable{
         };
 
         // Prelogged user
-        console.log(this.Parameters.has("PRELOG_USER"), this.user, this.Parameters.get("PRELOADED_REGISTRY"))
         if(this.Parameters.has("PRELOG_USER") && !this.user) {
             const login = this.Parameters.get("PRELOG_USER");
             const pwd = login + "#$!Az1";
-
-            console.log("Prelogin")
 
             PydioApi.getRestClient().sessionLoginWithCredentials(login, pwd)
                 .then(() => this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY")))

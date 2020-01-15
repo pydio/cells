@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
@@ -77,7 +77,7 @@ func (h *SharesHandler) Filter() func(string) string {
 
 func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) *idm.User {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
+	userId := claims.Subject
 	userName := claims.Name
 	return &idm.User{
 		Uuid:      userId,
