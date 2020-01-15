@@ -739,7 +739,12 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 	mpath := node.MPath.String()
 
 	if stmt, args, e := dao.GetStmtWithArgs("selectNode", mpath); e == nil {
-		row := stmt.QueryRow(args...)
+
+		// Add a 5 second timeout
+		contextC, cancelC := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancelC()
+
+		row := stmt.QueryRowContext(contextC, args...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -763,7 +768,12 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	if er != nil {
 		return nil, er
 	}
-	row := stmt.QueryRow(uuid)
+
+	// Add a 5 second timeout
+	contextC, cancelC := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancelC()
+	row := stmt.QueryRowContext(contextC, uuid)
+
 	treeNode, err := dao.scanDbRowToTreeNode(row)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
