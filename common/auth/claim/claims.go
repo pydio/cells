@@ -52,6 +52,7 @@ type Claims struct {
 
 // Decode Subject field of the claims
 func (c *Claims) DecodeUserUuid() (string, error) {
+
 	sub, err := c.DecodeSubject()
 	if err != nil {
 		return "", err
