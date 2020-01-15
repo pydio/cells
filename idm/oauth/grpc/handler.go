@@ -233,13 +233,23 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *auth.AcceptConsentReque
 
 	var p consent.HandledConsentRequest
 
+	accessToken := make(map[string]interface{})
+	idToken := make(map[string]interface{})
+
+	for k, v := range in.GetAccessToken() {
+		accessToken[k] = v
+	}
+
+	for k, v := range in.GetIDToken() {
+		idToken[k] = v
+	}
+
 	p.Challenge = in.Challenge
 	p.RequestedAt = time.Now().UTC()
 	p.AuthenticatedAt = p.RequestedAt
 	p.Session = consent.NewConsentRequestSessionData()
-	p.Session.IDToken = map[string]interface{}{
-		"name": "admin",
-	}
+	p.Session.AccessToken = accessToken
+	p.Session.IDToken = idToken
 	p.GrantedScope = in.GetScopes()
 	p.GrantedAudience = in.GetAudiences()
 
