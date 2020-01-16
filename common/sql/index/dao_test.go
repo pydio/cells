@@ -245,7 +245,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}, false) {
 			i++
 		}
 
@@ -333,7 +333,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1})
+		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1}, false)
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -886,7 +886,7 @@ func TestMoveNodeTree(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo, false) {
 			i++
 		}
 

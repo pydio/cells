@@ -378,7 +378,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 		if req.Recursive {
-			c = dao.GetNodeTree(path)
+			c = dao.GetNodeTree(path, false)
 		} else {
 			c = dao.GetNodeChildren(path)
 		}
@@ -540,7 +540,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 	var childrenEvents []*tree.NodeChangeEvent
 	if node.Type == tree.NodeType_COLLECTION {
-		c := dao.GetNodeTree(path)
+		c := dao.GetNodeTree(path, false)
 		names := strings.Split(reqPath, "/")
 		for child := range c {
 			if child.Name() == common.PYDIO_SYNC_HIDDEN_FILE_META {
