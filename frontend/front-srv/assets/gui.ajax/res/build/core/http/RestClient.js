@@ -230,17 +230,17 @@ var RestClient = (function (_ApiClient) {
             headerParams["X-Pydio-Language"] = this.pydio.user.getPreference("lang");
         }
 
-        return this.getOrUpdateJwt().then(function (accessToken) {
+        return this.getOrUpdateJwt().then(function (token) {
+            return token;
+        })['catch'](function () {
+            return "";
+        }) // If no user we still want to call the request but with no authentication
+        .then(function (accessToken) {
             var authNames = ['oauth2'];
-            _this3.authentications = { 'oauth2': { type: 'oauth2', accessToken: accessToken } };
-
-            return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-        })['catch'](function (reason) {
-            if (reason.response && reason.response.status === 401) {
-                return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-            } else {
-                return Promise.reject(reason);
+            if (accessToken !== "") {
+                _this3.authentications = { 'oauth2': { type: 'oauth2', accessToken: accessToken } };
             }
+            return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
         }).then(function (response) {
             return response;
         })['catch'](function (reason) {
