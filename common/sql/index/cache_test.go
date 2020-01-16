@@ -299,7 +299,7 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		var i int
-		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}) {
+		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}, false) {
 			i++
 		}
 
@@ -402,7 +402,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeTree(mtree.MPath{1})
+		nodes = getDAO(ctxWithCache).GetNodeTree(mtree.MPath{1}, false)
 		count = 0
 		for c := range nodes {
 			log.Println(c)

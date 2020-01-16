@@ -993,7 +993,7 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath, skipFolderSize bool) chan *mtree.TreeNode {
 
 	dao.Lock()
 
@@ -1029,7 +1029,7 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 				if err != nil {
 					break
 				}
-				if treeNode != nil && !treeNode.IsLeaf() {
+				if !skipFolderSize && treeNode != nil && !treeNode.IsLeaf() {
 					dao.folderSize(treeNode)
 				}
 				c <- treeNode
@@ -1158,7 +1158,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 
 	// Load all children
 	var nodes []*mtree.TreeNode
-	for node := range dao.GetNodeTree(pathFrom) {
+	for node := range dao.GetNodeTree(pathFrom, true) {
 		nodes = append(nodes, node)
 	}
 	log.Logger(ctx).Info("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
