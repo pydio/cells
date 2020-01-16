@@ -87,7 +87,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		if len(q.PresetPaths) > 0 {
 			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
 			for _, p := range q.PresetPaths {
-				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node:&tree.Node{Path:p}}); e == nil {
+				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
 					objects <- r.GetNode()
 				}
 			}
@@ -280,7 +280,7 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 }
 
 var (
-	memBleveIndex bleve.Index
+	memBleveIndex   bleve.Index
 	freeStringCache map[string]query.Query
 )
 
@@ -295,7 +295,7 @@ func getBleveQuery(freeString string) (query.Query, error) {
 	if qu, e := q.Parse(); e == nil {
 		freeStringCache[freeString] = qu
 		return qu, nil
-	}else{
+	} else {
 		return nil, e
 	}
 }
@@ -358,7 +358,7 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 			}
 			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
 			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
-			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.Extension)
+			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
 			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
 			singleQuery.PresetPaths = EvaluateFieldStrSlice(ctx, input, singleQuery.PresetPaths)
 			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
