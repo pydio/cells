@@ -113,6 +113,10 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		}
 		out.Error = ""
 
+		// Legacy
+		out.JWT = token.AccessToken
+		out.ExpireTime = int32(token.Expiry.Unix())
+
 		session.Values["access_token"] = out.GetToken().GetAccessToken()
 		session.Values["id_token"] = out.GetToken().GetIDToken()
 		session.Values["expires_at"] = out.GetToken().GetExpiresAt()

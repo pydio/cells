@@ -57,14 +57,20 @@ export default class RestFrontSessionResponse {
             
             
 
-            if (data.hasOwnProperty('Token')) {
-                obj['Token'] = RestToken.constructFromObject(data['Token']);
+            if (data.hasOwnProperty('JWT')) {
+                obj['JWT'] = ApiClient.convertToType(data['JWT'], 'String');
+            }
+            if (data.hasOwnProperty('ExpireTime')) {
+                obj['ExpireTime'] = ApiClient.convertToType(data['ExpireTime'], 'Number');
             }
             if (data.hasOwnProperty('Trigger')) {
                 obj['Trigger'] = ApiClient.convertToType(data['Trigger'], 'String');
             }
             if (data.hasOwnProperty('TriggerInfo')) {
                 obj['TriggerInfo'] = ApiClient.convertToType(data['TriggerInfo'], {'String': 'String'});
+            }
+            if (data.hasOwnProperty('Token')) {
+                obj['Token'] = RestToken.constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('RedirectTo')) {
                 obj['RedirectTo'] = ApiClient.convertToType(data['RedirectTo'], 'String');
@@ -77,9 +83,13 @@ export default class RestFrontSessionResponse {
     }
 
     /**
-    * @member {module:model/RestToken} Token
+    * @member {String} JWT
     */
-    Token = undefined;
+    JWT = undefined;
+    /**
+    * @member {Number} ExpireTime
+    */
+    ExpireTime = undefined;
     /**
     * @member {String} Trigger
     */
@@ -88,6 +98,10 @@ export default class RestFrontSessionResponse {
     * @member {Object.<String, String>} TriggerInfo
     */
     TriggerInfo = undefined;
+    /**
+    * @member {module:model/RestToken} Token
+    */
+    Token = undefined;
     /**
     * @member {String} RedirectTo
     */

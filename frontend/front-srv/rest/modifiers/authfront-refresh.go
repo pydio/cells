@@ -39,6 +39,10 @@ func RefreshAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 			ExpiresAt:   strconv.Itoa(int(expiry)),
 		}
 
+		// Legacy
+		out.JWT = token.AccessToken
+		out.ExpireTime = int32(expiry)
+
 		session.Values["access_token"] = token.AccessToken
 		session.Values["id_token"] = token.IDToken
 		session.Values["refresh_token"] = token.RefreshToken

@@ -104,12 +104,12 @@ func (this *FrontSessionRequest) Validate() error {
 	return nil
 }
 func (this *FrontSessionResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	if this.Token != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Token", err)
 		}
 	}
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *FrontSessionDelRequest) Validate() error {
