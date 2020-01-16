@@ -24,23 +24,33 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 		username := in.AuthInfo["login"]
 		password := in.AuthInfo["password"]
-		loginChallenge := in.AuthInfo["challenge"]
 
+		clientID := "cells-frontend"
+		scopes := []string{"openid", "profile", "offline"}
+		audiences := []string{}
+
+		// Create a new login challenge
+		loginChallenge := in.AuthInfo["challenge"]
 		if loginChallenge == "" {
-			l, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
+			l, err := hydra.CreateLogin(clientID, scopes, audiences)
 			if err != nil {
 				return err
 			}
 
 			loginChallenge = l.Challenge
+			in.AuthInfo["challenge"] = loginChallenge
 		}
 
+		// Check the user has successfully logged in
 		c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 		resp, err := c.BindUser(req.Request.Context(), &idm.BindUserRequest{UserName: username, Password: password})
 		if err != nil {
-			return err
+			// We carry on with other middlewares
+			out.Error = err.Error()
+			return middleware(req, rsp, in, out, session)
 		}
 
+		// Validate the login, the consent and generate the auth code
 		login, err := hydra.GetLogin(loginChallenge)
 		if err != nil {
 			return err
@@ -101,6 +111,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			IDToken:     token.Extra("id_token").(string),
 			ExpiresAt:   strconv.Itoa(int(token.Expiry.Unix())),
 		}
+		out.Error = ""
 
 		session.Values["access_token"] = out.GetToken().GetAccessToken()
 		session.Values["id_token"] = out.GetToken().GetIDToken()

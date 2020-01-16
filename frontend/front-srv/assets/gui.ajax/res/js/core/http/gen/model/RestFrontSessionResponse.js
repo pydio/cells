@@ -69,6 +69,9 @@ export default class RestFrontSessionResponse {
             if (data.hasOwnProperty('RedirectTo')) {
                 obj['RedirectTo'] = ApiClient.convertToType(data['RedirectTo'], 'String');
             }
+            if (data.hasOwnProperty('Error')) {
+                obj['Error'] = ApiClient.convertToType(data['Error'], 'String');
+            }
         }
         return obj;
     }
@@ -89,6 +92,10 @@ export default class RestFrontSessionResponse {
     * @member {String} RedirectTo
     */
     RedirectTo = undefined;
+    /**
+    * @member {String} Error
+    */
+    Error = undefined;
 
 
 

@@ -22,6 +22,7 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -190,6 +191,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 			log.Logger(ctx).Error("Error saving session", zap.Error(e))
 		}
 		service.RestError401(req, rsp, e)
+		return
+	}
+
+	if response.Error != "" {
+		service.RestError401(req, rsp, errors.New(response.Error))
 		return
 	}
 

@@ -80,13 +80,13 @@ message FrontSessionRequest{
 }
 message FrontSessionResponse {
     Token Token = 1;
-
     // Trigger a specific Auth step
     string Trigger = 2;
     // Additional data for the trigger
     map<string,string> TriggerInfo = 3;
-
+    
     string RedirectTo = 4;
+    string Error = 5;
 }
 
 message FrontSessionDelRequest {}

@@ -6,8 +6,6 @@ Package auth is a generated protocol buffer package.
 
 It is generated from these files:
 	auth.proto
-	ldap.proto
-	oauth.proto
 
 It has these top-level messages:
 	Token
@@ -38,23 +36,6 @@ It has these top-level messages:
 	ExchangeResponse
 	RefreshTokenRequest
 	RefreshTokenResponse
-	LdapSearchFilter
-	LdapMapping
-	LdapMemberOfMapping
-	LdapServerConfig
-	OAuth2ClientConfig
-	OAuth2ConnectorCollection
-	OAuth2ConnectorConfig
-	OAuth2MappingRule
-	OAuth2ConnectorPydioConfig
-	OAuth2ConnectorOIDCConfig
-	OAuth2ConnectorSAMLConfig
-	OAuth2ConnectorBitbucketConfig
-	OAuth2ConnectorGithubConfig
-	OAuth2ConnectorGithubConfigOrg
-	OAuth2ConnectorGitlabConfig
-	OAuth2ConnectorLinkedinConfig
-	OAuth2ConnectorMicrosoftConfig
 */
 package auth
 
