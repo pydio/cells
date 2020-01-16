@@ -95,11 +95,6 @@ var ApiClient = (function () {
         if (typeof window === 'undefined') {
             this.agent = new _superagent2["default"].agent();
         }
-
-        /*
-         * Allow user to override superagent agent
-         */
-        this.requestAgent = null;
     }
 
     /**
@@ -393,11 +388,6 @@ var ApiClient = (function () {
         // set header parameters
         request.set(this.defaultHeaders).set(this.normalizeParams(headerParams));
 
-        // set requestAgent if it is set by user
-        if (this.requestAgent) {
-            request.agent(this.requestAgent);
-        }
-
         // set request timeout
         request.timeout(this.timeout);
 
@@ -476,7 +466,7 @@ var ApiClient = (function () {
     */
 
     ApiClient.parseDate = function parseDate(str) {
-        return new Date(str);
+        return new Date(str.replace(/T/i, ' '));
     };
 
     /**
