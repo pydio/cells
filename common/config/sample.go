@@ -75,46 +75,11 @@ var SampleConfig = `{
         "pydio.grpc.auth":{
             "dsn": "default",
             "dex" : {
-                "issuer": "http://127.0.0.1:5556/dex",
-                "web"   : {
-                    "http": "0.0.0.0:5556"
-                },
-                "frontend" : {
-                    "Dir" : "idm/auth/web"
-                },
-                "logger" : {
-                    "level" : "debug",
-                    "format": "text"
-                },
-				"expiry": {
-					"idTokens": "10m"
-				},
-                "oauth2" : {
-                    "responseTypes": ["code", "token", "id_token"],
-					"skipApprovalScreen": true
-                },
-                "staticClients" : [
-                    {
-                        "id": "example-app",
-                        "redirectURIs" : ["http://127.0.0.1:5555/callback"],
-                        "name" : "Example App",
-                        "secret" : "ZXhhbXBsZS1hcHAtc2VjcmV0"
-                    }
-                ],
                 "connectors": [
                     {
                         "type": "pydio",
                         "id"  : "pydio",
-                        "name": "Pydio Aggregation Connector",
-                        "config": {
-                            "pydioconnectors": [
-                                {
-                                    "type": "pydio-api",
-                                    "name": "pydioapi",
-                                    "id"  : 1
-                                }
-                            ]
-                        }
+                        "name": "Pydio Cells"
                     }
                 ]
             }

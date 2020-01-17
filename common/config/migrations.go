@@ -180,6 +180,8 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		return false, nil
 	}
 
+	external := config.Get("defaults", "url").String("")
+
 	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
 		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",
@@ -198,7 +200,22 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		}
 	}
 
-	external := config.Get("defaults", "url").String("")
+	configSliceKeys := map[string][]string{
+		"services/" + oauthSrv + "/insecureRedirects": []string{external + "/auth/callback"},
+	}
+
+	for path, def := range configSliceKeys {
+		paths := strings.Split(path, "/")
+		val := config.Get(paths...)
+		var data []string
+
+		if val.Scan(&data); !stringSliceEqual(data, def) {
+			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
+			config.Set(def, paths...)
+			save = true
+		}
+	}
+
 	oAuthFrontendConfig := map[string]interface{}{
 		"client_id":                 "cells-frontend",
 		"client_name":               "CellsFrontend Application",
@@ -221,17 +238,26 @@ func forceDefaultConfig(config *Config) (bool, error) {
 					addCellsFrontend = false
 				}
 			}
-			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
-				var newRedirs []string
-				for _, redir := range redirs {
-					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != srvUrl+"/oauth2/oob" {
-						newRedirs = append(newRedirs, srvUrl+"/oauth2/oob")
-						saveStatics = true
-					} else {
-						newRedirs = append(newRedirs, redir.(string))
+
+			for _, n := range []string{"redirect_uris", "post_logout_redirect_uris"} {
+				if redirs, ok := static[n].([]interface{}); ok {
+					var newRedirs []string
+					for _, redir := range redirs {
+						if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != srvUrl+"/oauth2/oob" {
+							newRedirs = append(newRedirs, srvUrl+"/oauth2/oob")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/callback") && redir.(string) != srvUrl+"/auth/callback" {
+							newRedirs = append(newRedirs, srvUrl+"/auth/callback")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/logout") && redir.(string) != srvUrl+"/auth/logout" {
+							newRedirs = append(newRedirs, srvUrl+"/auth/logout")
+							saveStatics = true
+						} else {
+							newRedirs = append(newRedirs, redir.(string))
+						}
 					}
+					static[n] = newRedirs
 				}
-				static["redirect_uris"] = newRedirs
 			}
 		}
 		if addCellsFrontend {
@@ -285,4 +311,16 @@ func migrateVault(vault *Config, defaultConfig *Config) bool {
 	}
 
 	return save
+}
+
+func stringSliceEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
