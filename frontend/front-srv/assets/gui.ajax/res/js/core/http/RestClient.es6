@@ -183,8 +183,9 @@ class RestClient extends ApiClient{
             .then(token => token)
             .catch(() => "") // If no user we still want to call the request but with no authentication
             .then((accessToken) => {
-                const authNames = ['oauth2']
+                const authNames = []
                 if (accessToken !== "") {
+                    authNames.push('oauth2')
                     this.authentications = {'oauth2': {type:'oauth2', accessToken: accessToken}};
                 }
                 return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);

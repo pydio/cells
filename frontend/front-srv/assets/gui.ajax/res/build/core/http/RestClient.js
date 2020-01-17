@@ -236,8 +236,9 @@ var RestClient = (function (_ApiClient) {
             return "";
         }) // If no user we still want to call the request but with no authentication
         .then(function (accessToken) {
-            var authNames = ['oauth2'];
+            var authNames = [];
             if (accessToken !== "") {
+                authNames.push('oauth2');
                 _this3.authentications = { 'oauth2': { type: 'oauth2', accessToken: accessToken } };
             }
             return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
