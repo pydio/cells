@@ -10,15 +10,27 @@ import JobInput from "../graph/JobInput";
 import Action from "../graph/Action";
 import JobGraph from "../JobGraph";
 import {AllowedKeys, linkAttr} from "../graph/Configs";
+import ActionFilter from "../graph/ActionFilter";
 
 
 
 export default function(job = new JobsJob(), action) {
 
-    let linkView, sourceModel, targetModel;
+    let linkView, sourceModel, targetModel, sourceRemoveKey = 'ChainedActions';
     if(action.type === ATTACH_MODEL_ACTION || action.type === DETACH_MODEL_ACTION) {
         linkView = action.linkView;
         sourceModel = linkView.sourceView.model;
+        if(sourceModel instanceof ActionFilter){
+            const sourcePort = linkView.model.attributes.source.port;
+            if(sourcePort === 'negate'){
+                sourceModel = sourceModel.getJobsAction().model;
+                sourceRemoveKey = 'FailedFilterActions';
+            } else {
+                console.error("Cannot break this link!");
+                return job
+            }
+        }
+
         targetModel = linkView.targetView.model;
         if(action.originalTarget){
             targetModel = action.originalTarget.model;
@@ -43,8 +55,30 @@ export default function(job = new JobsJob(), action) {
                     job.Actions = [...job.Actions, targetModel.getJobsAction()];
                 } else if (sourceModel instanceof Action) {
                     const parentAction = sourceModel.getJobsAction();
-                    const orig = parentAction.ChainedActions || [];
-                    parentAction.ChainedActions = [...orig, targetModel.getJobsAction()];
+                    const orig = parentAction[sourceRemoveKey] || [];
+                    parentAction[sourceRemoveKey] = [...orig, targetModel.getJobsAction()];
+                }
+            }
+            return job;
+
+        case DETACH_MODEL_ACTION:
+
+            const {toolView} = action;
+            if (targetModel instanceof Action) {
+                if(sourceModel instanceof  JobInput) {
+                    job.Actions = job.Actions.filter((a => {
+                        return a !== targetModel.getJobsAction();
+                    }));
+                    if(toolView){
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
+                } else if (sourceModel instanceof Action) {
+                    sourceModel.getJobsAction()[sourceRemoveKey] = sourceModel.getJobsAction()[sourceRemoveKey].filter(a => {
+                        return a !== targetModel.getJobsAction();
+                    });
+                    if(toolView){
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
                 }
             }
             return job;
@@ -129,6 +163,12 @@ export default function(job = new JobsJob(), action) {
                             delete removeTarget.NodesFilter;
                             break;
                     }
+                    if(!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
+                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph? 
+                        if(removeTarget.FailedFilterActions){
+                            delete removeTarget.FailedFilterActions;
+                        }
+                    }
                 } else if(removeFilterOrSelector === 'selector') {
                     switch (removeObjectType) {
                         case "user":
@@ -145,28 +185,6 @@ export default function(job = new JobsJob(), action) {
             }
             if(removeTarget.model && removeTarget.model.notifyJobModel){ // REFRESH GRAPH MODEL
                 removeTarget.model.notifyJobModel(removeTarget);
-            }
-            return job;
-
-        case DETACH_MODEL_ACTION:
-
-            const {toolView} = action;
-            if (targetModel instanceof Action) {
-                if(sourceModel instanceof  JobInput) {
-                    job.Actions = job.Actions.filter((a => {
-                        return a !== targetModel.getJobsAction();
-                    }));
-                    if(toolView){
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                } else if (sourceModel instanceof Action) {
-                    sourceModel.getJobsAction().ChainedActions = sourceModel.getJobsAction().ChainedActions.filter(a => {
-                        return a !== targetModel.getJobsAction();
-                    });
-                    if(toolView){
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                }
             }
             return job;
 

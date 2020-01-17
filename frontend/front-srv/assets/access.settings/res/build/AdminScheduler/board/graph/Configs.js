@@ -134,6 +134,61 @@ var PortsConfig = {
     }
 };
 
+var FilterPortsConfig = {
+    groups: {
+        'in': {
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    display: 'none',
+                    fill: White
+                }
+            }
+        },
+        'out': {
+            attrs: {
+                label: 'Yes',
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'Yes',
+                    fill: Grey
+                }
+            }
+        },
+        'negate': {
+            position: {
+                name: 'bottom'
+            },
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'No',
+                    fill: Grey
+                }
+            }
+        }
+    }
+};
+
+exports.FilterPortsConfig = FilterPortsConfig;
 var unicodesCache = {};
 
 /**
@@ -301,3 +356,4 @@ exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
+exports.DropShadow = dropShadow;

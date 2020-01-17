@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.dirty = dirty;
 exports.original = original;
+exports.boundingRef = boundingRef;
+exports.descriptions = descriptions;
 
 var _actionsEditor = require("../actions/editor");
 
@@ -42,6 +44,28 @@ function original(state, action) {
     switch (action.type) {
         case _actionsEditor.EDITOR_SAVE_SUCCESS:
             return _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(action.job)));
+        default:
+            return state;
+    }
+}
+
+function boundingRef(state, action) {
+    if (state === undefined) state = null;
+
+    switch (action.type) {
+        case _actionsEditor.EDITOR_SET_BOUNDING_REF:
+            return action.boundingRef;
+        default:
+            return state;
+    }
+}
+
+function descriptions(state, action) {
+    if (state === undefined) state = {};
+
+    switch (action.type) {
+        case _actionsEditor.EDITOR_ACTIONS_DESCRIPTIONS:
+            return action.descriptions;
         default:
             return state;
     }

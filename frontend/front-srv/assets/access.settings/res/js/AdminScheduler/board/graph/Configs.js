@@ -126,6 +126,60 @@ const PortsConfig = {
     }
 };
 
+export const FilterPortsConfig = {
+    groups: {
+        'in': {
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke:'white',
+                    'stroke-width':1.5,
+                    r:5,
+                    magnet:'passive',
+                },
+                '.port-label': {
+                    display:'none',
+                    fill: White
+                }
+            }
+        },
+        'out': {
+            attrs: {
+                label: 'Yes',
+                '.port-body': {
+                    fill: Blue,
+                    stroke:'white',
+                    'stroke-width':1.5,
+                    r:5,
+                    magnet:'passive',
+                },
+                '.port-label': {
+                    text: 'Yes',
+                    fill: Grey,
+                }
+            }
+        },
+        'negate': {
+            position:{
+                name: 'bottom'
+            },
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke:'white',
+                    'stroke-width':1.5,
+                    r:5,
+                    magnet:'passive',
+                },
+                '.port-label': {
+                    text:'No',
+                    fill: Grey
+                }
+            }
+        }
+    }
+};
+
 const unicodesCache = {};
 
 /**
@@ -284,4 +338,4 @@ const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
 export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, RoundIconMarkup, SimpleIconMarkup, BoxSize, FilterBoxSize, WhiteCircle, BlueRect, LightLabel, LightIcon, DarkIcon,
-    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, Destructive, IconToUnicode, positionFilters, linkAttr, AllowedKeys}
+    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, Destructive, IconToUnicode, positionFilters, linkAttr, AllowedKeys, dropShadow as DropShadow}

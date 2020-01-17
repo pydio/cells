@@ -3,14 +3,16 @@ export const EDITOR_SET_DIRTY = "editor:set-dirty";
 export const EDITOR_SAVE_SUCCESS = "editor:save";
 export const EDITOR_SAVE_ERROR = "editor:save";
 export const EDITOR_REVERT = "editor:revert";
+export const EDITOR_SET_BOUNDING_REF = "editor:boundingRef";
+export const EDITOR_ACTIONS_DESCRIPTIONS = "editor:descriptions";
 
 export const BIND_PAPER_TO_DOM = "editor:bind-paper";
-export const JOB_LOADED = "job:loaded";
 export const SELECTION_CHANGE_ACTION = "selection:change";
 export const SELECTION_CLEAR_ACTION = "selection:clear";
-
 export const RESIZE_PAPER = "editor:resize-paper";
+export const REQUIRE_LAYOUT = "editor:require-layout";
 
+export const JOB_CHANGED = "job:changed";
 export const JOB_SWITCH_TRIGGER = "trigger:switch";
 export const JOB_UPDATE_LABEL = "job:label";
 export const JOB_UPDATE_PROPERTY = "job:property";
@@ -30,6 +32,28 @@ export function toggleEditAction(on = false, layout = () => {}) {
         type: TOGGLE_EDITOR_MODE,
         edit: on,
         layout
+    }
+}
+
+export function attachBoundingRefAction(element) {
+    return {
+        type: EDITOR_SET_BOUNDING_REF,
+        boundingRef: element
+    }
+}
+
+export function attachDescriptions(descriptions) {
+    return {
+        type: EDITOR_ACTIONS_DESCRIPTIONS,
+        descriptions,
+    }
+}
+
+export function requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool){
+    console.log('sending requireLayoutAction');
+    return {
+        type: REQUIRE_LAYOUT,
+        graph,boundingRef,editMode, paper, createLinkTool
     }
 }
 
@@ -93,10 +117,10 @@ export function removeFilterAction(target, filter, filterOrSelector, objectType)
     }
 }
 
-export function jobLoadedAction(job) {
+export function jobChangedAction(job, descriptions, editMode) {
     return {
-        type: JOB_LOADED,
-        job,
+        type: JOB_CHANGED,
+        job, descriptions, editMode
     }
 }
 

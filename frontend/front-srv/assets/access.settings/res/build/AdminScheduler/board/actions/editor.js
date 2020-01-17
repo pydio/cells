@@ -4,6 +4,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.toggleEditAction = toggleEditAction;
+exports.attachBoundingRefAction = attachBoundingRefAction;
+exports.attachDescriptions = attachDescriptions;
+exports.requireLayoutAction = requireLayoutAction;
 exports.bindPaperAction = bindPaperAction;
 exports.resizePaperAction = resizePaperAction;
 exports.emptyModelAction = emptyModelAction;
@@ -11,7 +14,7 @@ exports.attachModelAction = attachModelAction;
 exports.detachModelAction = detachModelAction;
 exports.dropFilterAction = dropFilterAction;
 exports.removeFilterAction = removeFilterAction;
-exports.jobLoadedAction = jobLoadedAction;
+exports.jobChangedAction = jobChangedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.updateLabelAction = updateLabelAction;
@@ -31,20 +34,25 @@ exports.EDITOR_SAVE_SUCCESS = EDITOR_SAVE_SUCCESS;
 var EDITOR_SAVE_ERROR = "editor:save";
 exports.EDITOR_SAVE_ERROR = EDITOR_SAVE_ERROR;
 var EDITOR_REVERT = "editor:revert";
-
 exports.EDITOR_REVERT = EDITOR_REVERT;
+var EDITOR_SET_BOUNDING_REF = "editor:boundingRef";
+exports.EDITOR_SET_BOUNDING_REF = EDITOR_SET_BOUNDING_REF;
+var EDITOR_ACTIONS_DESCRIPTIONS = "editor:descriptions";
+
+exports.EDITOR_ACTIONS_DESCRIPTIONS = EDITOR_ACTIONS_DESCRIPTIONS;
 var BIND_PAPER_TO_DOM = "editor:bind-paper";
 exports.BIND_PAPER_TO_DOM = BIND_PAPER_TO_DOM;
-var JOB_LOADED = "job:loaded";
-exports.JOB_LOADED = JOB_LOADED;
 var SELECTION_CHANGE_ACTION = "selection:change";
 exports.SELECTION_CHANGE_ACTION = SELECTION_CHANGE_ACTION;
 var SELECTION_CLEAR_ACTION = "selection:clear";
-
 exports.SELECTION_CLEAR_ACTION = SELECTION_CLEAR_ACTION;
 var RESIZE_PAPER = "editor:resize-paper";
-
 exports.RESIZE_PAPER = RESIZE_PAPER;
+var REQUIRE_LAYOUT = "editor:require-layout";
+
+exports.REQUIRE_LAYOUT = REQUIRE_LAYOUT;
+var JOB_CHANGED = "job:changed";
+exports.JOB_CHANGED = JOB_CHANGED;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
 var JOB_UPDATE_LABEL = "job:label";
@@ -78,6 +86,28 @@ function toggleEditAction() {
         type: TOGGLE_EDITOR_MODE,
         edit: on,
         layout: layout
+    };
+}
+
+function attachBoundingRefAction(element) {
+    return {
+        type: EDITOR_SET_BOUNDING_REF,
+        boundingRef: element
+    };
+}
+
+function attachDescriptions(descriptions) {
+    return {
+        type: EDITOR_ACTIONS_DESCRIPTIONS,
+        descriptions: descriptions
+    };
+}
+
+function requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool) {
+    console.log('sending requireLayoutAction');
+    return {
+        type: REQUIRE_LAYOUT,
+        graph: graph, boundingRef: boundingRef, editMode: editMode, paper: paper, createLinkTool: createLinkTool
     };
 }
 
@@ -144,10 +174,10 @@ function removeFilterAction(target, filter, filterOrSelector, objectType) {
     };
 }
 
-function jobLoadedAction(job) {
+function jobChangedAction(job, descriptions, editMode) {
     return {
-        type: JOB_LOADED,
-        job: job
+        type: JOB_CHANGED,
+        job: job, descriptions: descriptions, editMode: editMode
     };
 }
 

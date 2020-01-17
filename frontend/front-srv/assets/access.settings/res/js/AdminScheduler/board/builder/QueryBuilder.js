@@ -305,10 +305,15 @@ class QueryBuilder extends React.Component {
             const link2 = new Link(all.id, 'output', output.id, 'input');
             link2.addTo(this.graph);
         }
+
+        this.graph.getLinks().forEach(l => {
+            l.router('normal', {});
+        });
+
         return layout.DirectedGraph.layout(this.graph, {
             nodeSep: 20,
             edgeSep: 20,
-            rankSep: 40,
+            rankSep: 50,
             rankDir: "LR",
             marginX: margin,
             marginY: margin,

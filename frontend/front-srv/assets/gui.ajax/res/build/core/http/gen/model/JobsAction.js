@@ -70,6 +70,7 @@ var JobsAction = (function () {
         this.ContextMetaFilter = undefined;
         this.Parameters = undefined;
         this.ChainedActions = undefined;
+        this.FailedFilterActions = undefined;
     }
 
     /**
@@ -116,6 +117,9 @@ var JobsAction = (function () {
             }
             if (data.hasOwnProperty('ChainedActions')) {
                 obj['ChainedActions'] = _ApiClient2['default'].convertToType(data['ChainedActions'], [JobsAction]);
+            }
+            if (data.hasOwnProperty('FailedFilterActions')) {
+                obj['FailedFilterActions'] = _ApiClient2['default'].convertToType(data['FailedFilterActions'], [JobsAction]);
             }
         }
         return obj;
@@ -168,4 +172,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<module:model/JobsAction>} ChainedActions
+*/
+
+/**
+* @member {Array.<module:model/JobsAction>} FailedFilterActions
 */

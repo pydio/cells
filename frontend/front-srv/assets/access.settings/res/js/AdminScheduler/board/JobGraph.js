@@ -39,13 +39,14 @@ import {
     saveErrorAction,
     revertAction,
     updateLabelAction,
-    updateJobPropertyAction
+    updateJobPropertyAction, jobChangedAction, attachBoundingRefAction, requireLayoutAction, attachDescriptions
 } from "./actions/editor";
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
 import {AllowedKeys, linkAttr} from "./graph/Configs";
 const {ModernTextField} = Pydio.requireLib('hoc');
 import {getCssStyle} from "./builder/styles";
+import ActionFilter from "./graph/ActionFilter";
 
 const mapStateToProps = state => {
     console.debug(state);
@@ -57,7 +58,16 @@ const editWindowHeight = 600;
 const mapDispatchToProps = dispatch => {
     return {
         onToggleEdit : (on = true, layout = () =>{}) => {
-            dispatch(toggleEditAction(on, layout));
+            dispatch((d, getState) => {
+                d(toggleEditAction(on, layout));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+                const {bbox} = getState();
+                d(resizePaperAction(bbox.width, bbox.height))
+            })
+        },
+        onSetBoundingRef:(element) => {
+            dispatch(attachBoundingRefAction(element))
         },
         onSetDirty:(dirty = true) => {
             dispatch(setDirtyAction(dirty));
@@ -65,11 +75,44 @@ const mapDispatchToProps = dispatch => {
         onPaperBind : (element, graph, events) => {
             dispatch(bindPaperAction(element, graph, events));
         },
+        onUpdateDescriptions : (descriptions) => {
+            dispatch((d, getState) => {
+                d(attachDescriptions(descriptions));
+                const {job, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+                const {bbox} = getState();
+                d(resizePaperAction(bbox.width, bbox.height))
+            });
+        },
+        refreshGraph: () => {
+            dispatch((d, getState) => {
+                const {job, descriptions, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+                const {bbox} = getState();
+                d(resizePaperAction(bbox.width, bbox.height))
+            })
+        },
+        requireLayout:() => {
+            dispatch((d, getState) => {
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+                const {bbox} = getState();
+                d(resizePaperAction(bbox.width, bbox.height))
+            })
+        },
         onPaperResize : (width, height) => {
             dispatch(resizePaperAction(width, height))
         },
         onEmptyModel: (model) => {
-            dispatch(emptyModelAction(model))
+            dispatch((d, getState) => {
+                d(emptyModelAction(model));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+            })
         },
         onAttachModel : ( link ) => {
             dispatch((d) => {
@@ -90,15 +133,23 @@ const mapDispatchToProps = dispatch => {
             });
         },
         onDropFilter : (target, dropped, filterOrSelector, objectType) => {
-            dispatch((d) => {
+            dispatch((d, getState) => {
                 d(dropFilterAction(target, dropped, filterOrSelector, objectType));
                 d(setDirtyAction(true));
+                const {job, descriptions} = getState();
+                d(jobChangedAction(job, descriptions));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onRemoveFilter : (target, filter, filterOrSelector, objectType) => {
-            dispatch((d) => {
+            dispatch((d, getState) => {
                 d(removeFilterAction(target, filter, filterOrSelector, objectType));
                 d(setDirtyAction(true));
+                const {job, descriptions} = getState();
+                d(jobChangedAction(job, descriptions));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onTriggerChange : (triggerType, triggerData) => {
@@ -129,8 +180,10 @@ const mapDispatchToProps = dispatch => {
             dispatch((d, getState)=> {
                 d(revertAction(original));
                 d(setDirtyAction(false));
-                const {job} = getState();
-                callback(job);
+                const {job, descriptions} = getState();
+                d(jobChangedAction(job, descriptions));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onSave : (job, onJobSave = null) => {
@@ -169,7 +222,11 @@ class JobGraph extends React.Component {
         super(props);
         const job = JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
         const original = JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
-        this.store = createStore(allReducers, {job, original}, applyMiddleware(thunk));
+        this.store = createStore(allReducers, {
+            job,
+            original,
+            createLinkTool:this.createLinkTool.bind(this),
+        }, applyMiddleware(thunk));
         this.state = storeStateToState(this.store);
         this.store.subscribe(() => {
             this.setState(storeStateToState(this.store));
@@ -177,14 +234,22 @@ class JobGraph extends React.Component {
     }
 
     componentDidMount(){
-        this.loadDescriptions();
-        this.boundingRef = ReactDOM.findDOMNode(this.refs.boundingBox);
+        const {onSetBoundingRef, refreshGraph} = this.state;
+        this.drawGraph();
+        onSetBoundingRef(ReactDOM.findDOMNode(this.refs.boundingBox));
+        refreshGraph();
+        // Load descriptions
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        api.schedulerActionsDiscovery().then(data => {
+            this.state.onUpdateDescriptions(data.Actions);
+        });
+        // Bind window resizer
         this._resizer = ()=> {
-            const {editMode, paper} = this.state;
-            if(editMode && this.boundingRef){
+            const {editMode, paper, boundingRef} = this.state;
+            if(editMode && boundingRef){
                 const graphWidth = paper.model.getBBox().width + 80;
                 const paperHeight = paper.getArea().height;
-                const maxWidth = this.boundingRef.clientWidth;
+                const maxWidth = boundingRef.clientWidth;
                 paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
             }
         };
@@ -194,7 +259,7 @@ class JobGraph extends React.Component {
             if(create){
                 this.toggleEdit();
             }
-        }, 500)
+        }, 500);
     }
 
     componentWillUnmount(){
@@ -208,94 +273,13 @@ class JobGraph extends React.Component {
     loadDescriptions() {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
-            this.setState({descriptions: data.Actions}, () => {
-                this.graphFromJob(this.state.job);
-                this.drawGraph();
-            });
-        }).catch(() => {
-            this.graphFromJob(this.state.job);
-            this.drawGraph();
-        })
-    }
-
-    chainActions(graph, actions, inputId, hasData = true) {
-        const {descriptions} = this.state;
-        actions.forEach(action => {
-            let crtInput = inputId;
-            const hasChain = (action.ChainedActions && action.ChainedActions.length);
-            const shape = new Action(descriptions, action, hasChain);
-            shape.addTo(graph);
-            const link = new Link(crtInput, 'output', shape.id, 'input', hasData);
-            link.addTo(graph);
-            if (hasChain) {
-                this.chainActions(graph, action.ChainedActions, shape.id);
-            }
+            this.state.onUpdateDescriptions(data.Actions);
         });
-
     }
+
 
     static jobInputCreatesData(job){
         return (job.EventNames !== undefined) || !!job.IdmSelector || !!job.NodesSelector || !!job.UsersSelector;
-    }
-
-    graphFromJob(job){
-        const {graph} = this.state;
-
-        graph.getCells().filter(c => !c.isTemplate).forEach(c => c.remove());
-
-        const shapeIn = new JobInput(job);
-        shapeIn.addTo(graph);
-
-        if(!job || !job.Actions || !job.Actions.length){
-            return;
-        }
-
-        let actionsInput = shapeIn.id;
-        let firstLinkHasData = JobGraph.jobInputCreatesData(job);
-
-        this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
-    }
-
-    reLayout(editMode){
-        const {graph, paper, onPaperResize} = this.state;
-        // Relayout graph and return bounding box
-        // Find JobInput and apply graph on this one ?
-        const inputs = graph.getCells().filter(c => !c.isTemplate);
-        const bbox = layout.DirectedGraph.layout(inputs, {
-            nodeSep: 48,
-            edgeSep: 48,
-            rankSep: 128,
-            rankDir: "LR",
-            marginX: editMode ? 160 : 32,
-            marginY: 32,
-            dagre,
-            graphlib
-        });
-        bbox.width += 80;
-        bbox.height+= 80;
-        if (editMode) {
-            bbox.height = Math.max(editWindowHeight, bbox.height);
-            bbox.width += 200;
-            if(this.boundingRef){
-                const maxWidth = this.boundingRef.clientWidth;
-                bbox.width = Math.max(bbox.width, maxWidth);
-            }
-        }
-        if(paper){
-            paper.setDimensions(bbox.width, bbox.height);
-            graph.getLinks().forEach(l => {
-                const linkView = l.findView(paper);
-                if(!linkView.hasTools()){
-                    linkView.addTools(new dia.ToolsView({tools:[this.createLinkTool()]}));
-                    if(!editMode){
-                        linkView.hideTools();
-                    }
-                }
-            })
-        } else {
-            onPaperResize(bbox.width, bbox.height);
-        }
-        this.setState({bbox});
     }
 
     clearSelection(callback = ()=>{}){
@@ -368,7 +352,7 @@ class JobGraph extends React.Component {
 
     drawGraph() {
 
-        const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode} = this.state;
+        const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode, requireLayout} = this.state;
         const removeLinkTool = () => this.createLinkTool();
         const _this = this;
 
@@ -398,7 +382,7 @@ class JobGraph extends React.Component {
                     model.selectFilter();
                     if(model instanceof JobInput){
                         this.setState({selectionModel: job, selectionType:'filter'})
-                    } else if(model instanceof Action){
+                    } else if(model instanceof Action || model instanceof ActionFilter){
                         this.setState({selectionModel: model.getJobsAction(), selectionType:'filter'})
                     }
                     event.stopPropagation();
@@ -484,6 +468,8 @@ class JobGraph extends React.Component {
                 linkView.addTools(new dia.ToolsView({tools:[removeLinkTool()]}));
                 linkView.model.attr(linkAttr(JobGraph.jobInputCreatesData(job)));
                 linkView.model.attr('.link-tool/display', 'none');
+                linkView.model.router('manhattan');
+                linkView.model.connector('rounded');
                 onAttachModel(linkView);
             },
             'link:disconnect':(linkView, event, elementView) => {
@@ -498,10 +484,10 @@ class JobGraph extends React.Component {
             },
             'button:reflow':(elView, evt) => {
                 evt.stopPropagation();
-                this.reLayout(this.state.editMode);
+                requireLayout();
             }
         });
-        this.reLayout(editMode);
+        requireLayout();
     }
 
     isDroppable(elementAbove, elementBelow){
@@ -556,7 +542,7 @@ class JobGraph extends React.Component {
     toggleEdit(){
         const {onToggleEdit, editMode} = this.state;
         this.clearSelection();
-        onToggleEdit(!editMode, this.reLayout.bind(this));
+        onToggleEdit(!editMode);
     }
 
     cleanJsonActions(actions){
@@ -566,6 +552,9 @@ class JobGraph extends React.Component {
             }
             if(a.ChainedActions){
                 this.cleanJsonActions(a.ChainedActions);
+            }
+            if(a.FailedFilterActions) {
+                this.cleanJsonActions(a.FailedFilterActions);
             }
         })
     }
@@ -620,10 +609,7 @@ class JobGraph extends React.Component {
             selBlock = <FormPanel
                 actions={descriptions}
                 action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
-                onChange={(newAction) => {
-                    onEmptyModel(new Action(descriptions, newAction, true));
-                    this.reLayout(true);
-                }}
+                onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
                 create={true}
                 onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
             />
@@ -721,7 +707,7 @@ class JobGraph extends React.Component {
                 <div style={st.header}>
                     {header}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
-                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original, (j)=>{this.graphFromJob(j); this.reLayout(editMode);})}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original)}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?editWindowHeight:null}} ref={"boundingBox"}>

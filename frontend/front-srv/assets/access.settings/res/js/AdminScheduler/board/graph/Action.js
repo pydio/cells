@@ -10,6 +10,7 @@ import {
 } from "./Configs";
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import {JobsAction} from 'pydio/http/rest-api';
+import ActionFilter from "./ActionFilter";
 
 class Action extends shapes.devs.Model{
 
@@ -93,15 +94,10 @@ class Action extends shapes.devs.Model{
 
     notifyJobModel(action){
         this._jobModel = action;
-        this.setFilter(false);
-        this.setSelector(false);
-        if(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter){
-            this.setFilter(true)
-        }
-        if(action.NodesSelector || action.IdmSelector || action.UsersSelector) {
-            this.setSelector(true);
-        }
         action.model = this;
+        this.setFilter(false);
+        //this.setFilter(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter);
+        this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
     }
 
     setFilter(b){
@@ -141,6 +137,14 @@ class Action extends shapes.devs.Model{
      */
     getJobsAction(){
         return this._jobModel;
+    }
+
+    getActionFilter() {
+        if (this._jobModel.NodesFilter || this._jobModel.IdmFilter || this._jobModel.UsersFilter || this._jobModel.ContextMetaFilter || this._jobModel.ActionOutputFilter) {
+            return new ActionFilter(this._jobModel);
+        } else {
+            return null;
+        }
     }
 
 }

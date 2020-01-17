@@ -44029,7 +44029,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44127,6 +44127,10 @@ var _graphConfigs = require("./graph/Configs");
 
 var _builderStyles = require("./builder/styles");
 
+var _graphActionFilter = require("./graph/ActionFilter");
+
+var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -44144,7 +44148,28 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             var on = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
             var layout = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
 
-            dispatch((0, _actionsEditor.toggleEditAction)(on, layout));
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.toggleEditAction)(on, layout));
+
+                var _getState = getState();
+
+                var graph = _getState.graph;
+                var boundingRef = _getState.boundingRef;
+                var editMode = _getState.editMode;
+                var paper = _getState.paper;
+                var createLinkTool = _getState.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState2 = getState();
+
+                var bbox = _getState2.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        onSetBoundingRef: function onSetBoundingRef(element) {
+            dispatch((0, _actionsEditor.attachBoundingRefAction)(element));
         },
         onSetDirty: function onSetDirty() {
             var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
@@ -44154,11 +44179,95 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
         onPaperBind: function onPaperBind(element, graph, events) {
             dispatch((0, _actionsEditor.bindPaperAction)(element, graph, events));
         },
+        onUpdateDescriptions: function onUpdateDescriptions(descriptions) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.attachDescriptions)(descriptions));
+
+                var _getState3 = getState();
+
+                var job = _getState3.job;
+                var editMode = _getState3.editMode;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
+
+                var _getState4 = getState();
+
+                var graph = _getState4.graph;
+                var boundingRef = _getState4.boundingRef;
+                var paper = _getState4.paper;
+                var createLinkTool = _getState4.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState5 = getState();
+
+                var bbox = _getState5.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        refreshGraph: function refreshGraph() {
+            dispatch(function (d, getState) {
+                var _getState6 = getState();
+
+                var job = _getState6.job;
+                var descriptions = _getState6.descriptions;
+                var editMode = _getState6.editMode;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
+
+                var _getState7 = getState();
+
+                var graph = _getState7.graph;
+                var boundingRef = _getState7.boundingRef;
+                var paper = _getState7.paper;
+                var createLinkTool = _getState7.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState8 = getState();
+
+                var bbox = _getState8.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        requireLayout: function requireLayout() {
+            dispatch(function (d, getState) {
+                var _getState9 = getState();
+
+                var graph = _getState9.graph;
+                var boundingRef = _getState9.boundingRef;
+                var editMode = _getState9.editMode;
+                var paper = _getState9.paper;
+                var createLinkTool = _getState9.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState10 = getState();
+
+                var bbox = _getState10.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
         onPaperResize: function onPaperResize(width, height) {
             dispatch((0, _actionsEditor.resizePaperAction)(width, height));
         },
         onEmptyModel: function onEmptyModel(model) {
-            dispatch((0, _actionsEditor.emptyModelAction)(model));
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.emptyModelAction)(model));
+
+                var _getState11 = getState();
+
+                var graph = _getState11.graph;
+                var boundingRef = _getState11.boundingRef;
+                var editMode = _getState11.editMode;
+                var paper = _getState11.paper;
+                var createLinkTool = _getState11.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+            });
         },
         onAttachModel: function onAttachModel(link) {
             dispatch(function (d) {
@@ -44179,15 +44288,49 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onDropFilter: function onDropFilter(target, dropped, filterOrSelector, objectType) {
-            dispatch(function (d) {
+            dispatch(function (d, getState) {
                 d((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
                 d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState12 = getState();
+
+                var job = _getState12.job;
+                var descriptions = _getState12.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState13 = getState();
+
+                var graph = _getState13.graph;
+                var boundingRef = _getState13.boundingRef;
+                var editMode = _getState13.editMode;
+                var paper = _getState13.paper;
+                var createLinkTool = _getState13.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onRemoveFilter: function onRemoveFilter(target, filter, filterOrSelector, objectType) {
-            dispatch(function (d) {
+            dispatch(function (d, getState) {
                 d((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
                 d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState14 = getState();
+
+                var job = _getState14.job;
+                var descriptions = _getState14.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState15 = getState();
+
+                var graph = _getState15.graph;
+                var boundingRef = _getState15.boundingRef;
+                var editMode = _getState15.editMode;
+                var paper = _getState15.paper;
+                var createLinkTool = _getState15.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
@@ -44219,11 +44362,22 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.revertAction)(original));
                 d((0, _actionsEditor.setDirtyAction)(false));
 
-                var _getState = getState();
+                var _getState16 = getState();
 
-                var job = _getState.job;
+                var job = _getState16.job;
+                var descriptions = _getState16.descriptions;
 
-                callback(job);
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState17 = getState();
+
+                var graph = _getState17.graph;
+                var boundingRef = _getState17.boundingRef;
+                var editMode = _getState17.editMode;
+                var paper = _getState17.paper;
+                var createLinkTool = _getState17.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onSave: function onSave(job) {
@@ -44270,7 +44424,11 @@ var JobGraph = (function (_React$Component) {
         _get(Object.getPrototypeOf(JobGraph.prototype), 'constructor', this).call(this, props);
         var job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
         var original = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
-        this.store = (0, _redux.createStore)(_reducers2['default'], { job: job, original: original }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
+        this.store = (0, _redux.createStore)(_reducers2['default'], {
+            job: job,
+            original: original,
+            createLinkTool: this.createLinkTool.bind(this)
+        }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
         this.state = storeStateToState(this.store);
         this.store.subscribe(function () {
             _this2.setState(storeStateToState(_this2.store));
@@ -44284,17 +44442,29 @@ var JobGraph = (function (_React$Component) {
         value: function componentDidMount() {
             var _this3 = this;
 
-            this.loadDescriptions();
-            this.boundingRef = _reactDom2['default'].findDOMNode(this.refs.boundingBox);
-            this._resizer = function () {
-                var _state = _this3.state;
-                var editMode = _state.editMode;
-                var paper = _state.paper;
+            var _state = this.state;
+            var onSetBoundingRef = _state.onSetBoundingRef;
+            var refreshGraph = _state.refreshGraph;
 
-                if (editMode && _this3.boundingRef) {
+            this.drawGraph();
+            onSetBoundingRef(_reactDom2['default'].findDOMNode(this.refs.boundingBox));
+            refreshGraph();
+            // Load descriptions
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.schedulerActionsDiscovery().then(function (data) {
+                _this3.state.onUpdateDescriptions(data.Actions);
+            });
+            // Bind window resizer
+            this._resizer = function () {
+                var _state2 = _this3.state;
+                var editMode = _state2.editMode;
+                var paper = _state2.paper;
+                var boundingRef = _state2.boundingRef;
+
+                if (editMode && boundingRef) {
                     var graphWidth = paper.model.getBBox().width + 80;
                     var paperHeight = paper.getArea().height;
-                    var maxWidth = _this3.boundingRef.clientWidth;
+                    var maxWidth = boundingRef.clientWidth;
                     paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
                 }
             };
@@ -44324,108 +44494,8 @@ var JobGraph = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                _this4.setState({ descriptions: data.Actions }, function () {
-                    _this4.graphFromJob(_this4.state.job);
-                    _this4.drawGraph();
-                });
-            })['catch'](function () {
-                _this4.graphFromJob(_this4.state.job);
-                _this4.drawGraph();
+                _this4.state.onUpdateDescriptions(data.Actions);
             });
-        }
-    }, {
-        key: 'chainActions',
-        value: function chainActions(graph, actions, inputId) {
-            var _this5 = this;
-
-            var hasData = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
-            var descriptions = this.state.descriptions;
-
-            actions.forEach(function (action) {
-                var crtInput = inputId;
-                var hasChain = action.ChainedActions && action.ChainedActions.length;
-                var shape = new _graphAction2['default'](descriptions, action, hasChain);
-                shape.addTo(graph);
-                var link = new _graphLink2['default'](crtInput, 'output', shape.id, 'input', hasData);
-                link.addTo(graph);
-                if (hasChain) {
-                    _this5.chainActions(graph, action.ChainedActions, shape.id);
-                }
-            });
-        }
-    }, {
-        key: 'graphFromJob',
-        value: function graphFromJob(job) {
-            var graph = this.state.graph;
-
-            graph.getCells().filter(function (c) {
-                return !c.isTemplate;
-            }).forEach(function (c) {
-                return c.remove();
-            });
-
-            var shapeIn = new _graphJobInput2['default'](job);
-            shapeIn.addTo(graph);
-
-            if (!job || !job.Actions || !job.Actions.length) {
-                return;
-            }
-
-            var actionsInput = shapeIn.id;
-            var firstLinkHasData = JobGraph.jobInputCreatesData(job);
-
-            this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
-        }
-    }, {
-        key: 'reLayout',
-        value: function reLayout(editMode) {
-            var _this6 = this;
-
-            var _state2 = this.state;
-            var graph = _state2.graph;
-            var paper = _state2.paper;
-            var onPaperResize = _state2.onPaperResize;
-
-            // Relayout graph and return bounding box
-            // Find JobInput and apply graph on this one ?
-            var inputs = graph.getCells().filter(function (c) {
-                return !c.isTemplate;
-            });
-            var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
-                nodeSep: 48,
-                edgeSep: 48,
-                rankSep: 128,
-                rankDir: "LR",
-                marginX: editMode ? 160 : 32,
-                marginY: 32,
-                dagre: _dagre2['default'],
-                graphlib: _graphlib2['default']
-            });
-            bbox.width += 80;
-            bbox.height += 80;
-            if (editMode) {
-                bbox.height = Math.max(editWindowHeight, bbox.height);
-                bbox.width += 200;
-                if (this.boundingRef) {
-                    var maxWidth = this.boundingRef.clientWidth;
-                    bbox.width = Math.max(bbox.width, maxWidth);
-                }
-            }
-            if (paper) {
-                paper.setDimensions(bbox.width, bbox.height);
-                graph.getLinks().forEach(function (l) {
-                    var linkView = l.findView(paper);
-                    if (!linkView.hasTools()) {
-                        linkView.addTools(new _jointjs.dia.ToolsView({ tools: [_this6.createLinkTool()] }));
-                        if (!editMode) {
-                            linkView.hideTools();
-                        }
-                    }
-                });
-            } else {
-                onPaperResize(bbox.width, bbox.height);
-            }
-            this.setState({ bbox: bbox });
         }
     }, {
         key: 'clearSelection',
@@ -44520,7 +44590,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this7 = this;
+            var _this5 = this;
 
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -44530,9 +44600,10 @@ var JobGraph = (function (_React$Component) {
             var onDetachModel = _state4.onDetachModel;
             var onDropFilter = _state4.onDropFilter;
             var editMode = _state4.editMode;
+            var requireLayout = _state4.requireLayout;
 
             var removeLinkTool = function removeLinkTool() {
-                return _this7.createLinkTool();
+                return _this5.createLinkTool();
             };
             var _this = this;
 
@@ -44546,9 +44617,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this7.clearSelection();
+                            _this5.clearSelection();
                             model.select();
-                            _this7.select(model);
+                            _this5.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -44560,12 +44631,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this7.clearSelection();
+                        _this5.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this7.setState({ selectionModel: job, selectionType: 'filter' });
-                        } else if (model instanceof _graphAction2['default']) {
-                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this5.setState({ selectionModel: job, selectionType: 'filter' });
+                        } else if (model instanceof _graphAction2['default'] || model instanceof _graphActionFilter2['default']) {
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -44574,12 +44645,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this7.clearSelection();
+                        _this5.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this7.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this5.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -44659,6 +44730,8 @@ var JobGraph = (function (_React$Component) {
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
                     linkView.model.attr((0, _graphConfigs.linkAttr)(JobGraph.jobInputCreatesData(job)));
                     linkView.model.attr('.link-tool/display', 'none');
+                    linkView.model.router('manhattan');
+                    linkView.model.connector('rounded');
                     onAttachModel(linkView);
                 },
                 'link:disconnect': function linkDisconnect(linkView, event, elementView) {
@@ -44668,15 +44741,15 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool,
                 'button:create-action': function buttonCreateAction(elView, evt) {
                     evt.stopPropagation();
-                    _this7.clearSelection();
-                    _this7.setState({ createNewAction: true });
+                    _this5.clearSelection();
+                    _this5.setState({ createNewAction: true });
                 },
                 'button:reflow': function buttonReflow(elView, evt) {
                     evt.stopPropagation();
-                    _this7.reLayout(_this7.state.editMode);
+                    requireLayout();
                 }
             });
-            this.reLayout(editMode);
+            requireLayout();
         }
     }, {
         key: 'isDroppable',
@@ -44743,19 +44816,22 @@ var JobGraph = (function (_React$Component) {
             var editMode = _state6.editMode;
 
             this.clearSelection();
-            onToggleEdit(!editMode, this.reLayout.bind(this));
+            onToggleEdit(!editMode);
         }
     }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
-            var _this8 = this;
+            var _this6 = this;
 
             actions.forEach(function (a) {
                 if (a.model) {
                     delete a.model;
                 }
                 if (a.ChainedActions) {
-                    _this8.cleanJsonActions(a.ChainedActions);
+                    _this6.cleanJsonActions(a.ChainedActions);
+                }
+                if (a.FailedFilterActions) {
+                    _this6.cleanJsonActions(a.FailedFilterActions);
                 }
             });
         }
@@ -44806,7 +44882,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this9 = this;
+            var _this7 = this;
 
             var selBlock = undefined;
             var _props = this.props;
@@ -44836,7 +44912,7 @@ var JobGraph = (function (_React$Component) {
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this9.clearSelection();
+                    _this7.clearSelection();
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
@@ -44847,11 +44923,10 @@ var JobGraph = (function (_React$Component) {
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
                         onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
-                        _this9.reLayout(true);
                     },
                     create: true,
                     onDismiss: function () {
-                        _this9.setState({ createNewAction: false, fPanelWidthOffset: 0 });
+                        _this7.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
@@ -44864,7 +44939,7 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this9.deleteAction();
+                                _this7.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
@@ -44941,7 +45016,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "Run-On-Save" }),
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
-                            _this9.setState({ showJsonDialog: true });
+                            _this7.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
             }
@@ -44954,15 +45029,15 @@ var JobGraph = (function (_React$Component) {
                     {
                         title: "Import/Export JSON",
                         onRequestClose: function () {
-                            _this9.setState({ showJsonDialog: false });
+                            _this7.setState({ showJsonDialog: false });
                         },
                         open: showJsonDialog,
                         autoDetectWindowHeight: true,
                         autoScrollBodyContent: true,
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                                _this9.setState({ showJsonDialog: false });
+                                _this7.setState({ showJsonDialog: false });
                             }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
-                                _this9.saveJSON();
+                                _this7.saveJSON();
                             }, disabled: jsonJobInvalid, label: "Save" })]
                     },
                     _react2['default'].createElement(
@@ -44971,7 +45046,7 @@ var JobGraph = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
-                                _this9.updateJSON(v);
+                                _this7.updateJSON(v);
                             },
                             mode: "json"
                         })
@@ -44982,15 +45057,13 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this9.props.onJobSave);
+                            onSave(job, _this7.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onRevert(original, function (j) {
-                                _this9.graphFromJob(j);_this9.reLayout(editMode);
-                            });
+                            onRevert(original);
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this9.toggleEdit();
+                            _this7.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
@@ -45006,10 +45079,10 @@ var JobGraph = (function (_React$Component) {
                         { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
-                                _this9.setState({ fPanelWidthOffset: 300 });
+                                _this7.setState({ fPanelWidthOffset: 300 });
                             } }),
                         showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
-                                _this9.setState({ fPanelWidthOffset: 0 });
+                                _this7.setState({ fPanelWidthOffset: 0 });
                             } })
                     )
                 ),
@@ -45030,7 +45103,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":301,"./builder/Filters":302,"./builder/FormPanel":304,"./builder/Triggers":313,"./builder/styles":314,"./graph/Action":315,"./graph/Configs":316,"./graph/Filter":317,"./graph/JobInput":318,"./graph/Link":319,"./graph/Selector":320,"./graph/Templates":321,"./reducers":324,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],299:[function(require,module,exports){
+},{"./actions/editor":301,"./builder/Filters":302,"./builder/FormPanel":304,"./builder/Triggers":313,"./builder/styles":314,"./graph/Action":315,"./graph/ActionFilter":316,"./graph/Configs":317,"./graph/Filter":318,"./graph/JobInput":319,"./graph/Link":320,"./graph/Selector":321,"./graph/Templates":322,"./reducers":325,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],299:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45625,6 +45698,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.toggleEditAction = toggleEditAction;
+exports.attachBoundingRefAction = attachBoundingRefAction;
+exports.attachDescriptions = attachDescriptions;
+exports.requireLayoutAction = requireLayoutAction;
 exports.bindPaperAction = bindPaperAction;
 exports.resizePaperAction = resizePaperAction;
 exports.emptyModelAction = emptyModelAction;
@@ -45632,7 +45708,7 @@ exports.attachModelAction = attachModelAction;
 exports.detachModelAction = detachModelAction;
 exports.dropFilterAction = dropFilterAction;
 exports.removeFilterAction = removeFilterAction;
-exports.jobLoadedAction = jobLoadedAction;
+exports.jobChangedAction = jobChangedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.updateLabelAction = updateLabelAction;
@@ -45652,20 +45728,25 @@ exports.EDITOR_SAVE_SUCCESS = EDITOR_SAVE_SUCCESS;
 var EDITOR_SAVE_ERROR = "editor:save";
 exports.EDITOR_SAVE_ERROR = EDITOR_SAVE_ERROR;
 var EDITOR_REVERT = "editor:revert";
-
 exports.EDITOR_REVERT = EDITOR_REVERT;
+var EDITOR_SET_BOUNDING_REF = "editor:boundingRef";
+exports.EDITOR_SET_BOUNDING_REF = EDITOR_SET_BOUNDING_REF;
+var EDITOR_ACTIONS_DESCRIPTIONS = "editor:descriptions";
+
+exports.EDITOR_ACTIONS_DESCRIPTIONS = EDITOR_ACTIONS_DESCRIPTIONS;
 var BIND_PAPER_TO_DOM = "editor:bind-paper";
 exports.BIND_PAPER_TO_DOM = BIND_PAPER_TO_DOM;
-var JOB_LOADED = "job:loaded";
-exports.JOB_LOADED = JOB_LOADED;
 var SELECTION_CHANGE_ACTION = "selection:change";
 exports.SELECTION_CHANGE_ACTION = SELECTION_CHANGE_ACTION;
 var SELECTION_CLEAR_ACTION = "selection:clear";
-
 exports.SELECTION_CLEAR_ACTION = SELECTION_CLEAR_ACTION;
 var RESIZE_PAPER = "editor:resize-paper";
-
 exports.RESIZE_PAPER = RESIZE_PAPER;
+var REQUIRE_LAYOUT = "editor:require-layout";
+
+exports.REQUIRE_LAYOUT = REQUIRE_LAYOUT;
+var JOB_CHANGED = "job:changed";
+exports.JOB_CHANGED = JOB_CHANGED;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
 var JOB_UPDATE_LABEL = "job:label";
@@ -45699,6 +45780,28 @@ function toggleEditAction() {
         type: TOGGLE_EDITOR_MODE,
         edit: on,
         layout: layout
+    };
+}
+
+function attachBoundingRefAction(element) {
+    return {
+        type: EDITOR_SET_BOUNDING_REF,
+        boundingRef: element
+    };
+}
+
+function attachDescriptions(descriptions) {
+    return {
+        type: EDITOR_ACTIONS_DESCRIPTIONS,
+        descriptions: descriptions
+    };
+}
+
+function requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool) {
+    console.log('sending requireLayoutAction');
+    return {
+        type: REQUIRE_LAYOUT,
+        graph: graph, boundingRef: boundingRef, editMode: editMode, paper: paper, createLinkTool: createLinkTool
     };
 }
 
@@ -45765,10 +45868,10 @@ function removeFilterAction(target, filter, filterOrSelector, objectType) {
     };
 }
 
-function jobLoadedAction(job) {
+function jobChangedAction(job, descriptions, editMode) {
     return {
-        type: JOB_LOADED,
-        job: job
+        type: JOB_CHANGED,
+        job: job, descriptions: descriptions, editMode: editMode
     };
 }
 
@@ -45984,7 +46087,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"../graph/Configs":316,"./QueryBuilder":307,"./styles":314,"react":"react"}],303:[function(require,module,exports){
+},{"../graph/Configs":317,"./QueryBuilder":307,"./styles":314,"react":"react"}],303:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46847,7 +46950,7 @@ var Query = (function (_shapes$devs$Model) {
 exports["default"] = Query;
 module.exports = exports["default"];
 
-},{"../graph/Configs":316,"jointjs":52}],307:[function(require,module,exports){
+},{"../graph/Configs":317,"jointjs":52}],307:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47280,10 +47383,15 @@ var QueryBuilder = (function (_React$Component) {
                 var link2 = new _graphLink2['default'](all.id, 'output', output.id, 'input');
                 link2.addTo(this.graph);
             }
+
+            this.graph.getLinks().forEach(function (l) {
+                l.router('normal', {});
+            });
+
             return _jointjs.layout.DirectedGraph.layout(this.graph, {
                 nodeSep: 20,
                 edgeSep: 20,
-                rankSep: 40,
+                rankSep: 50,
                 rankDir: "LR",
                 marginX: margin,
                 marginY: margin,
@@ -47714,7 +47822,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":319,"./ProtoValue":305,"./Query":306,"./QueryCluster":308,"./QueryConnector":309,"./QueryInput":310,"./QueryOutput":311,"./styles":314,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],308:[function(require,module,exports){
+},{"../graph/Link":320,"./ProtoValue":305,"./Query":306,"./QueryCluster":308,"./QueryConnector":309,"./QueryInput":310,"./QueryOutput":311,"./styles":314,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],308:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47831,7 +47939,7 @@ var QueryCluster = (function (_shapes$basic$Rect) {
 exports['default'] = QueryCluster;
 module.exports = exports['default'];
 
-},{"../graph/Configs":316,"jointjs":52}],309:[function(require,module,exports){
+},{"../graph/Configs":317,"jointjs":52}],309:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47878,7 +47986,7 @@ var QueryConnector = (function (_shapes$devs$Model) {
 exports['default'] = QueryConnector;
 module.exports = exports['default'];
 
-},{"../graph/Configs":316,"jointjs":52}],310:[function(require,module,exports){
+},{"../graph/Configs":317,"jointjs":52}],310:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47928,7 +48036,7 @@ var QueryInput = (function (_shapes$devs$Model) {
 exports['default'] = QueryInput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":316,"jointjs":52}],311:[function(require,module,exports){
+},{"../graph/Configs":317,"jointjs":52}],311:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47973,7 +48081,7 @@ var QueryOutput = (function (_shapes$devs$Model) {
 exports['default'] = QueryOutput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":316,"jointjs":52}],312:[function(require,module,exports){
+},{"../graph/Configs":317,"jointjs":52}],312:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -48354,7 +48462,7 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"../graph/Configs":316,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],313:[function(require,module,exports){
+},{"../graph/Configs":317,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],313:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48630,7 +48738,7 @@ var Triggers = (function (_React$Component2) {
 exports.Triggers = Triggers;
 exports.Events = Events;
 
-},{"../graph/Configs":316,"./ScheduleForm":312,"./styles":314,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],314:[function(require,module,exports){
+},{"../graph/Configs":317,"./ScheduleForm":312,"./styles":314,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],314:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48790,6 +48898,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -48801,6 +48911,10 @@ var _Configs = require("./Configs");
 var _actionsEditor = require("../actions/editor");
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _ActionFilter = require("./ActionFilter");
+
+var _ActionFilter2 = _interopRequireDefault(_ActionFilter);
 
 var Action = (function (_shapes$devs$Model) {
     _inherits(Action, _shapes$devs$Model);
@@ -48894,15 +49008,10 @@ var Action = (function (_shapes$devs$Model) {
         key: "notifyJobModel",
         value: function notifyJobModel(action) {
             this._jobModel = action;
-            this.setFilter(false);
-            this.setSelector(false);
-            if (action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter) {
-                this.setFilter(true);
-            }
-            if (action.NodesSelector || action.IdmSelector || action.UsersSelector) {
-                this.setSelector(true);
-            }
             action.model = this;
+            this.setFilter(false);
+            //this.setFilter(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter);
+            this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
         }
     }, {
         key: "setFilter",
@@ -48950,6 +49059,15 @@ var Action = (function (_shapes$devs$Model) {
         value: function getJobsAction() {
             return this._jobModel;
         }
+    }, {
+        key: "getActionFilter",
+        value: function getActionFilter() {
+            if (this._jobModel.NodesFilter || this._jobModel.IdmFilter || this._jobModel.UsersFilter || this._jobModel.ContextMetaFilter || this._jobModel.ActionOutputFilter) {
+                return new _ActionFilter2["default"](this._jobModel);
+            } else {
+                return null;
+            }
+        }
     }]);
 
     return Action;
@@ -48958,7 +49076,82 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"../actions/editor":301,"./Configs":316,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],316:[function(require,module,exports){
+},{"../actions/editor":301,"./ActionFilter":316,"./Configs":317,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],316:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _jointjs = require('jointjs');
+
+var _Configs = require("./Configs");
+
+var ActionFilter = (function (_shapes$devs$Model) {
+    _inherits(ActionFilter, _shapes$devs$Model);
+
+    function ActionFilter(action) {
+        _classCallCheck(this, ActionFilter);
+
+        _get(Object.getPrototypeOf(ActionFilter.prototype), 'constructor', this).call(this, {
+            size: _extends({}, _Configs.FilterBoxSize),
+            markup: _Configs.TextIconMarkup,
+            attrs: {
+                rect: _extends({}, _Configs.FilterBoxSize, {
+                    rx: 5, ry: 5, fill: 'white', 'stroke-width': 1.5, 'stroke': _Configs.LightGrey,
+                    'style': 'transform: rotate(45deg) translate(19px, -26px) scale(0.8)', filter: _Configs.DropShadow,
+                    event: 'element:filter:pointerdown'
+                }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20, event: 'element:filter:pointerdown' }),
+                text: _extends({ text: 'Conditions' }, _Configs.DarkLabel, { 'font-size': 11, event: 'element:filter:pointerdown' })
+            },
+            inPorts: ['input'],
+            outPorts: ['output'],
+            ports: _Configs.FilterPortsConfig
+        });
+        this.addPort({ group: 'negate', id: 'negate' });
+        this.action = action;
+    }
+
+    _createClass(ActionFilter, [{
+        key: 'selectFilter',
+        value: function selectFilter() {
+            this.select();
+        }
+    }, {
+        key: 'clearSelection',
+        value: function clearSelection() {
+            this.attr('rect/stroke', _Configs.LightGrey);
+        }
+    }, {
+        key: 'select',
+        value: function select() {
+            this.attr('rect/stroke', _Configs.Orange);
+        }
+    }, {
+        key: 'getJobsAction',
+        value: function getJobsAction() {
+            return this.action;
+        }
+    }]);
+
+    return ActionFilter;
+})(_jointjs.shapes.devs.Model);
+
+exports['default'] = ActionFilter;
+module.exports = exports['default'];
+
+},{"./Configs":317,"jointjs":52}],317:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49095,6 +49288,61 @@ var PortsConfig = {
     }
 };
 
+var FilterPortsConfig = {
+    groups: {
+        'in': {
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    display: 'none',
+                    fill: White
+                }
+            }
+        },
+        'out': {
+            attrs: {
+                label: 'Yes',
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'Yes',
+                    fill: Grey
+                }
+            }
+        },
+        'negate': {
+            position: {
+                name: 'bottom'
+            },
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'No',
+                    fill: Grey
+                }
+            }
+        }
+    }
+};
+
+exports.FilterPortsConfig = FilterPortsConfig;
 var unicodesCache = {};
 
 /**
@@ -49262,8 +49510,9 @@ exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
+exports.DropShadow = dropShadow;
 
-},{"pydio/http/rest-api":"pydio/http/rest-api"}],317:[function(require,module,exports){
+},{"pydio/http/rest-api":"pydio/http/rest-api"}],318:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49363,7 +49612,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports["default"] = Filter;
 module.exports = exports["default"];
 
-},{"./Configs":316,"jointjs":52}],318:[function(require,module,exports){
+},{"./Configs":317,"jointjs":52}],319:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49509,12 +49758,14 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":316,"jointjs":52}],319:[function(require,module,exports){
+},{"./Configs":317,"jointjs":52}],320:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
@@ -49545,13 +49796,18 @@ var Link = (function (_shapes$devs$Link) {
             },
             attrs: (0, _Configs.linkAttr)(hasData)
         });
-        /*
-        connector:{
-            name:'smooth'
-        }
-        */
         this.attr('.link-tool/display', 'none');
+        this.router('manhattan');
+        this.connector('rounded');
     }
+
+    _createClass(Link, [{
+        key: 'orthogonal',
+        value: function orthogonal() {
+            this.router('manhattan');
+            this.connector('rounded');
+        }
+    }]);
 
     return Link;
 })(_jointjs.shapes.devs.Link);
@@ -49559,7 +49815,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":316,"jointjs":52}],320:[function(require,module,exports){
+},{"./Configs":317,"jointjs":52}],321:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49652,7 +49908,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":316,"jointjs":52}],321:[function(require,module,exports){
+},{"./Configs":317,"jointjs":52}],322:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49918,7 +50174,7 @@ var Templates = (function (_shapes$standard$Path) {
 exports["default"] = Templates;
 module.exports = exports["default"];
 
-},{"./Configs":316,"./Filter":317,"./Selector":320,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],322:[function(require,module,exports){
+},{"./Configs":317,"./Filter":318,"./Selector":321,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],323:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49926,6 +50182,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.dirty = dirty;
 exports.original = original;
+exports.boundingRef = boundingRef;
+exports.descriptions = descriptions;
 
 var _actionsEditor = require("../actions/editor");
 
@@ -49968,9 +50226,31 @@ function original(state, action) {
     }
 }
 
+function boundingRef(state, action) {
+    if (state === undefined) state = null;
+
+    switch (action.type) {
+        case _actionsEditor.EDITOR_SET_BOUNDING_REF:
+            return action.boundingRef;
+        default:
+            return state;
+    }
+}
+
+function descriptions(state, action) {
+    if (state === undefined) state = {};
+
+    switch (action.type) {
+        case _actionsEditor.EDITOR_ACTIONS_DESCRIPTIONS:
+            return action.descriptions;
+        default:
+            return state;
+    }
+}
+
 exports["default"] = editor;
 
-},{"../actions/editor":301,"pydio/http/rest-api":"pydio/http/rest-api"}],323:[function(require,module,exports){
+},{"../actions/editor":301,"pydio/http/rest-api":"pydio/http/rest-api"}],324:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49987,8 +50267,6 @@ var _graphAction2 = _interopRequireDefault(_graphAction);
 
 var _jointjs = require('jointjs');
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
 var _graphTemplates = require("../graph/Templates");
 
 var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
@@ -49997,11 +50275,145 @@ var _graphJobInput = require("../graph/JobInput");
 
 var _graphJobInput2 = _interopRequireDefault(_graphJobInput);
 
+var _graphLink = require("../graph/Link");
+
+var _graphLink2 = _interopRequireDefault(_graphLink);
+
+var _JobGraph = require("../JobGraph");
+
+var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var _dagre = require("dagre");
+
+var _dagre2 = _interopRequireDefault(_dagre);
+
+var _graphlib = require("graphlib");
+
+var _graphlib2 = _interopRequireDefault(_graphlib);
+
+function chainActions(descriptions, graph, actions, inputId) {
+    var outputPort = arguments.length <= 4 || arguments[4] === undefined ? 'output' : arguments[4];
+    var hasData = arguments.length <= 5 || arguments[5] === undefined ? true : arguments[5];
+
+    actions.forEach(function (action) {
+        var crtInput = inputId;
+        var hasChain = action.ChainedActions && action.ChainedActions.length;
+        var hasNegate = action.FailedFilterActions && action.FailedFilterActions.length;
+        var shape = new _graphAction2["default"](descriptions, action, hasChain);
+        shape.addTo(graph);
+        var filter = shape.getActionFilter();
+        var link = undefined;
+        if (filter) {
+            filter.addTo(graph);
+            link = new _graphLink2["default"](crtInput, outputPort, filter.id, 'input', hasData);
+            link.addTo(graph);
+            var filterToAction = new _graphLink2["default"](filter.id, 'output', shape.id, 'input', hasData);
+            filterToAction.addTo(graph);
+        } else {
+            link = new _graphLink2["default"](crtInput, outputPort, shape.id, 'input', hasData);
+            link.addTo(graph);
+        }
+        if (outputPort === 'negate') {
+            link.orthogonal();
+        }
+        if (hasChain) {
+            chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
+        }
+        if (filter && hasNegate) {
+            chainActions(descriptions, graph, action.FailedFilterActions, filter.id, 'negate');
+        }
+    });
+}
+
+var editWindowHeight = 600;
+
+function layoutReducer(state, action) {
+    if (state === undefined) state = {};
+
+    switch (action.type) {
+
+        case _actionsEditor.REQUIRE_LAYOUT:
+            var paper = action.paper,
+                createLinkTool = action.createLinkTool,
+                graph = action.graph,
+                boundingRef = action.boundingRef,
+                editMode = action.editMode;
+
+            // Relayout graph and return bounding box
+            var inputs = graph.getCells().filter(function (c) {
+                return !c.isTemplate;
+            });
+            var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
+                nodeSep: 48,
+                edgeSep: 48,
+                rankSep: 128,
+                rankDir: "LR",
+                marginX: editMode ? 160 : 32,
+                marginY: 32,
+                dagre: _dagre2["default"],
+                graphlib: _graphlib2["default"]
+            });
+            bbox.width += 80;
+            bbox.height += 80;
+            if (editMode) {
+                bbox.height = Math.max(editWindowHeight, bbox.height);
+                bbox.width += 200;
+                if (boundingRef) {
+                    var maxWidth = boundingRef.clientWidth;
+                    bbox.width = Math.max(bbox.width, maxWidth);
+                }
+            }
+
+            if (paper) {
+                graph.getLinks().forEach(function (l) {
+                    var linkView = l.findView(paper);
+                    if (!linkView.hasTools()) {
+                        linkView.addTools(new _jointjs.dia.ToolsView({ tools: [createLinkTool()] }));
+                        if (!editMode) {
+                            linkView.hideTools();
+                        }
+                    }
+                });
+            }
+
+            return bbox;
+        default:
+            return state;
+    }
+}
+
 function graphReducer(graph, action) {
     if (graph === undefined) {
         graph = new _jointjs.dia.Graph();
     }
     switch (action.type) {
+
+        case _actionsEditor.JOB_CHANGED:
+            var job = action.job,
+                descriptions = action.descriptions;
+
+            graph.getCells().filter(function (c) {
+                return !c.isTemplate;
+            }).forEach(function (c) {
+                return c.remove();
+            });
+
+            var shapeIn = new _graphJobInput2["default"](job);
+            shapeIn.addTo(graph);
+
+            if (!job || !job.Actions || !job.Actions.length) {
+                return;
+            }
+
+            var actionsInput = shapeIn.id;
+            var firstLinkHasData = _JobGraph2["default"].jobInputCreatesData(job);
+
+            chainActions(descriptions, graph, job.Actions, actionsInput, 'output', firstLinkHasData);
+
+            return graph;
+
         case _actionsEditor.TOGGLE_EDITOR_MODE:
             graph.getCells().filter(function (a) {
                 return a.isElement();
@@ -50038,25 +50450,23 @@ function graphReducer(graph, action) {
     }
 }
 
-exports["default"] = graphReducer;
-module.exports = exports["default"];
+exports.graphReducer = graphReducer;
+exports.layoutReducer = layoutReducer;
 
-},{"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":318,"../graph/Templates":321,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],324:[function(require,module,exports){
-'use strict';
+},{"../JobGraph":298,"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":319,"../graph/Link":320,"../graph/Templates":322,"dagre":2,"graphlib":32,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],325:[function(require,module,exports){
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _editor = require('./editor');
 
 var _editor2 = _interopRequireDefault(_editor);
 
-var _graph = require('./graph');
-
-var _graph2 = _interopRequireDefault(_graph);
+var _graph = require("./graph");
 
 var _paper = require("./paper");
 
@@ -50069,18 +50479,24 @@ var _job2 = _interopRequireDefault(_job);
 var _redux = require('redux');
 
 var allReducers = (0, _redux.combineReducers)({
-    editMode: _editor2['default'],
-    graph: _graph2['default'],
-    paper: _paper2['default'],
-    job: _job2['default'],
+    editMode: _editor2["default"],
+    graph: _graph.graphReducer,
+    paper: _paper2["default"],
+    job: _job2["default"],
     dirty: _editor.dirty,
-    original: _editor.original
+    boundingRef: _editor.boundingRef,
+    bbox: _graph.layoutReducer,
+    descriptions: _editor.descriptions,
+    original: _editor.original,
+    createLinkTool: function createLinkTool(s, a) {
+        return s || null;
+    } // identity
 });
 
-exports['default'] = allReducers;
-module.exports = exports['default'];
+exports["default"] = allReducers;
+module.exports = exports["default"];
 
-},{"./editor":322,"./graph":323,"./job":325,"./paper":326,"redux":"redux"}],325:[function(require,module,exports){
+},{"./editor":323,"./graph":324,"./job":326,"./paper":327,"redux":"redux"}],326:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50109,15 +50525,31 @@ var _JobGraph2 = _interopRequireDefault(_JobGraph);
 
 var _graphConfigs = require("../graph/Configs");
 
+var _graphActionFilter = require("../graph/ActionFilter");
+
+var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
 exports["default"] = function (job, action) {
     if (job === undefined) job = new _pydioHttpRestApi.JobsJob();
 
     var linkView = undefined,
         sourceModel = undefined,
-        targetModel = undefined;
+        targetModel = undefined,
+        sourceRemoveKey = 'ChainedActions';
     if (action.type === _actionsEditor.ATTACH_MODEL_ACTION || action.type === _actionsEditor.DETACH_MODEL_ACTION) {
         linkView = action.linkView;
         sourceModel = linkView.sourceView.model;
+        if (sourceModel instanceof _graphActionFilter2["default"]) {
+            var sourcePort = linkView.model.attributes.source.port;
+            if (sourcePort === 'negate') {
+                sourceModel = sourceModel.getJobsAction().model;
+                sourceRemoveKey = 'FailedFilterActions';
+            } else {
+                console.error("Cannot break this link!");
+                return job;
+            }
+        }
+
         targetModel = linkView.targetView.model;
         if (action.originalTarget) {
             targetModel = action.originalTarget.model;
@@ -50142,8 +50574,30 @@ exports["default"] = function (job, action) {
                     job.Actions = [].concat(_toConsumableArray(job.Actions), [targetModel.getJobsAction()]);
                 } else if (sourceModel instanceof _graphAction2["default"]) {
                     var parentAction = sourceModel.getJobsAction();
-                    var orig = parentAction.ChainedActions || [];
-                    parentAction.ChainedActions = [].concat(_toConsumableArray(orig), [targetModel.getJobsAction()]);
+                    var orig = parentAction[sourceRemoveKey] || [];
+                    parentAction[sourceRemoveKey] = [].concat(_toConsumableArray(orig), [targetModel.getJobsAction()]);
+                }
+            }
+            return job;
+
+        case _actionsEditor.DETACH_MODEL_ACTION:
+            var toolView = action.toolView;
+
+            if (targetModel instanceof _graphAction2["default"]) {
+                if (sourceModel instanceof _graphJobInput2["default"]) {
+                    job.Actions = job.Actions.filter(function (a) {
+                        return a !== targetModel.getJobsAction();
+                    });
+                    if (toolView) {
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
+                } else if (sourceModel instanceof _graphAction2["default"]) {
+                    sourceModel.getJobsAction()[sourceRemoveKey] = sourceModel.getJobsAction()[sourceRemoveKey].filter(function (a) {
+                        return a !== targetModel.getJobsAction();
+                    });
+                    if (toolView) {
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
                 }
             }
             return job;
@@ -50238,6 +50692,12 @@ exports["default"] = function (job, action) {
                             delete removeTarget.NodesFilter;
                             break;
                     }
+                    if (!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
+                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph?
+                        if (removeTarget.FailedFilterActions) {
+                            delete removeTarget.FailedFilterActions;
+                        }
+                    }
                 } else if (removeFilterOrSelector === 'selector') {
                     switch (removeObjectType) {
                         case "user":
@@ -50256,28 +50716,6 @@ exports["default"] = function (job, action) {
             if (removeTarget.model && removeTarget.model.notifyJobModel) {
                 // REFRESH GRAPH MODEL
                 removeTarget.model.notifyJobModel(removeTarget);
-            }
-            return job;
-
-        case _actionsEditor.DETACH_MODEL_ACTION:
-            var toolView = action.toolView;
-
-            if (targetModel instanceof _graphAction2["default"]) {
-                if (sourceModel instanceof _graphJobInput2["default"]) {
-                    job.Actions = job.Actions.filter(function (a) {
-                        return a !== targetModel.getJobsAction();
-                    });
-                    if (toolView) {
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                } else if (sourceModel instanceof _graphAction2["default"]) {
-                    sourceModel.getJobsAction().ChainedActions = sourceModel.getJobsAction().ChainedActions.filter(function (a) {
-                        return a !== targetModel.getJobsAction();
-                    });
-                    if (toolView) {
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                }
             }
             return job;
 
@@ -50339,7 +50777,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../JobGraph":298,"../actions/editor":301,"../graph/Action":315,"../graph/Configs":316,"../graph/JobInput":318,"pydio/http/rest-api":"pydio/http/rest-api"}],326:[function(require,module,exports){
+},{"../JobGraph":298,"../actions/editor":301,"../graph/Action":315,"../graph/ActionFilter":316,"../graph/Configs":317,"../graph/JobInput":319,"pydio/http/rest-api":"pydio/http/rest-api"}],327:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50463,7 +50901,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":318,"../graph/Link":319,"jointjs":52}],327:[function(require,module,exports){
+},{"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":319,"../graph/Link":320,"jointjs":52}],328:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -50496,4 +50934,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":296}]},{},[327]);
+},{"./board/Dashboard":296}]},{},[328]);

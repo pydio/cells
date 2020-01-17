@@ -94,6 +94,9 @@ export default class JobsAction {
             if (data.hasOwnProperty('ChainedActions')) {
                 obj['ChainedActions'] = ApiClient.convertToType(data['ChainedActions'], [JobsAction]);
             }
+            if (data.hasOwnProperty('FailedFilterActions')) {
+                obj['FailedFilterActions'] = ApiClient.convertToType(data['FailedFilterActions'], [JobsAction]);
+            }
         }
         return obj;
     }
@@ -142,6 +145,10 @@ export default class JobsAction {
     * @member {Array.<module:model/JobsAction>} ChainedActions
     */
     ChainedActions = undefined;
+    /**
+    * @member {Array.<module:model/JobsAction>} FailedFilterActions
+    */
+    FailedFilterActions = undefined;
 
 
 

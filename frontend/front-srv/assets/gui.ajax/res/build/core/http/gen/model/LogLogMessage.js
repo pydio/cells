@@ -62,6 +62,9 @@ var LogLogMessage = (function () {
         this.SpanRootUuid = undefined;
         this.OperationUuid = undefined;
         this.OperationLabel = undefined;
+        this.SchedulerJobUuid = undefined;
+        this.SchedulerTaskUuid = undefined;
+        this.SchedulerTaskActionPath = undefined;
     }
 
     /**
@@ -141,6 +144,15 @@ var LogLogMessage = (function () {
             }
             if (data.hasOwnProperty('OperationLabel')) {
                 obj['OperationLabel'] = _ApiClient2['default'].convertToType(data['OperationLabel'], 'String');
+            }
+            if (data.hasOwnProperty('SchedulerJobUuid')) {
+                obj['SchedulerJobUuid'] = _ApiClient2['default'].convertToType(data['SchedulerJobUuid'], 'String');
+            }
+            if (data.hasOwnProperty('SchedulerTaskUuid')) {
+                obj['SchedulerTaskUuid'] = _ApiClient2['default'].convertToType(data['SchedulerTaskUuid'], 'String');
+            }
+            if (data.hasOwnProperty('SchedulerTaskActionPath')) {
+                obj['SchedulerTaskActionPath'] = _ApiClient2['default'].convertToType(data['SchedulerTaskActionPath'], 'String');
             }
         }
         return obj;
@@ -237,4 +249,16 @@ module.exports = exports['default'];
 
 /**
 * @member {String} OperationLabel
+*/
+
+/**
+* @member {String} SchedulerJobUuid
+*/
+
+/**
+* @member {String} SchedulerTaskUuid
+*/
+
+/**
+* @member {String} SchedulerTaskActionPath
 */

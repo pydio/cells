@@ -26,15 +26,31 @@ var _JobGraph2 = _interopRequireDefault(_JobGraph);
 
 var _graphConfigs = require("../graph/Configs");
 
+var _graphActionFilter = require("../graph/ActionFilter");
+
+var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
 exports["default"] = function (job, action) {
     if (job === undefined) job = new _pydioHttpRestApi.JobsJob();
 
     var linkView = undefined,
         sourceModel = undefined,
-        targetModel = undefined;
+        targetModel = undefined,
+        sourceRemoveKey = 'ChainedActions';
     if (action.type === _actionsEditor.ATTACH_MODEL_ACTION || action.type === _actionsEditor.DETACH_MODEL_ACTION) {
         linkView = action.linkView;
         sourceModel = linkView.sourceView.model;
+        if (sourceModel instanceof _graphActionFilter2["default"]) {
+            var sourcePort = linkView.model.attributes.source.port;
+            if (sourcePort === 'negate') {
+                sourceModel = sourceModel.getJobsAction().model;
+                sourceRemoveKey = 'FailedFilterActions';
+            } else {
+                console.error("Cannot break this link!");
+                return job;
+            }
+        }
+
         targetModel = linkView.targetView.model;
         if (action.originalTarget) {
             targetModel = action.originalTarget.model;
@@ -59,8 +75,30 @@ exports["default"] = function (job, action) {
                     job.Actions = [].concat(_toConsumableArray(job.Actions), [targetModel.getJobsAction()]);
                 } else if (sourceModel instanceof _graphAction2["default"]) {
                     var parentAction = sourceModel.getJobsAction();
-                    var orig = parentAction.ChainedActions || [];
-                    parentAction.ChainedActions = [].concat(_toConsumableArray(orig), [targetModel.getJobsAction()]);
+                    var orig = parentAction[sourceRemoveKey] || [];
+                    parentAction[sourceRemoveKey] = [].concat(_toConsumableArray(orig), [targetModel.getJobsAction()]);
+                }
+            }
+            return job;
+
+        case _actionsEditor.DETACH_MODEL_ACTION:
+            var toolView = action.toolView;
+
+            if (targetModel instanceof _graphAction2["default"]) {
+                if (sourceModel instanceof _graphJobInput2["default"]) {
+                    job.Actions = job.Actions.filter(function (a) {
+                        return a !== targetModel.getJobsAction();
+                    });
+                    if (toolView) {
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
+                } else if (sourceModel instanceof _graphAction2["default"]) {
+                    sourceModel.getJobsAction()[sourceRemoveKey] = sourceModel.getJobsAction()[sourceRemoveKey].filter(function (a) {
+                        return a !== targetModel.getJobsAction();
+                    });
+                    if (toolView) {
+                        linkView.model.remove({ ui: true, tool: toolView.cid });
+                    }
                 }
             }
             return job;
@@ -155,6 +193,12 @@ exports["default"] = function (job, action) {
                             delete removeTarget.NodesFilter;
                             break;
                     }
+                    if (!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
+                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph?
+                        if (removeTarget.FailedFilterActions) {
+                            delete removeTarget.FailedFilterActions;
+                        }
+                    }
                 } else if (removeFilterOrSelector === 'selector') {
                     switch (removeObjectType) {
                         case "user":
@@ -173,28 +217,6 @@ exports["default"] = function (job, action) {
             if (removeTarget.model && removeTarget.model.notifyJobModel) {
                 // REFRESH GRAPH MODEL
                 removeTarget.model.notifyJobModel(removeTarget);
-            }
-            return job;
-
-        case _actionsEditor.DETACH_MODEL_ACTION:
-            var toolView = action.toolView;
-
-            if (targetModel instanceof _graphAction2["default"]) {
-                if (sourceModel instanceof _graphJobInput2["default"]) {
-                    job.Actions = job.Actions.filter(function (a) {
-                        return a !== targetModel.getJobsAction();
-                    });
-                    if (toolView) {
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                } else if (sourceModel instanceof _graphAction2["default"]) {
-                    sourceModel.getJobsAction().ChainedActions = sourceModel.getJobsAction().ChainedActions.filter(function (a) {
-                        return a !== targetModel.getJobsAction();
-                    });
-                    if (toolView) {
-                        linkView.model.remove({ ui: true, tool: toolView.cid });
-                    }
-                }
             }
             return job;
 

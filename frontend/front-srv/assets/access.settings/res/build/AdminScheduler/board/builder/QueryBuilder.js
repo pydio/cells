@@ -430,10 +430,15 @@ var QueryBuilder = (function (_React$Component) {
                 var link2 = new _graphLink2['default'](all.id, 'output', output.id, 'input');
                 link2.addTo(this.graph);
             }
+
+            this.graph.getLinks().forEach(function (l) {
+                l.router('normal', {});
+            });
+
             return _jointjs.layout.DirectedGraph.layout(this.graph, {
                 nodeSep: 20,
                 edgeSep: 20,
-                rankSep: 40,
+                rankSep: 50,
                 rankDir: "LR",
                 marginX: margin,
                 marginY: margin,

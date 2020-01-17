@@ -123,6 +123,15 @@ export default class LogLogMessage {
             if (data.hasOwnProperty('OperationLabel')) {
                 obj['OperationLabel'] = ApiClient.convertToType(data['OperationLabel'], 'String');
             }
+            if (data.hasOwnProperty('SchedulerJobUuid')) {
+                obj['SchedulerJobUuid'] = ApiClient.convertToType(data['SchedulerJobUuid'], 'String');
+            }
+            if (data.hasOwnProperty('SchedulerTaskUuid')) {
+                obj['SchedulerTaskUuid'] = ApiClient.convertToType(data['SchedulerTaskUuid'], 'String');
+            }
+            if (data.hasOwnProperty('SchedulerTaskActionPath')) {
+                obj['SchedulerTaskActionPath'] = ApiClient.convertToType(data['SchedulerTaskActionPath'], 'String');
+            }
         }
         return obj;
     }
@@ -215,6 +224,18 @@ export default class LogLogMessage {
     * @member {String} OperationLabel
     */
     OperationLabel = undefined;
+    /**
+    * @member {String} SchedulerJobUuid
+    */
+    SchedulerJobUuid = undefined;
+    /**
+    * @member {String} SchedulerTaskUuid
+    */
+    SchedulerTaskUuid = undefined;
+    /**
+    * @member {String} SchedulerTaskActionPath
+    */
+    SchedulerTaskActionPath = undefined;
 
 
 

@@ -15,15 +15,16 @@ class Link extends shapes.devs.Link{
                 port: targetPort
             },
             attrs: linkAttr(hasData),
-            /*
-            connector:{
-                name:'smooth'
-            }
-            */
         });
         this.attr('.link-tool/display', 'none');
+        this.router('manhattan');
+        this.connector('rounded')
     }
 
+    orthogonal(){
+        this.router('manhattan');
+        this.connector('rounded')
+    }
 
 }
 

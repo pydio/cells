@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -104,6 +104,10 @@ var _graphConfigs = require("./graph/Configs");
 
 var _builderStyles = require("./builder/styles");
 
+var _graphActionFilter = require("./graph/ActionFilter");
+
+var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -121,7 +125,28 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             var on = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
             var layout = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
 
-            dispatch((0, _actionsEditor.toggleEditAction)(on, layout));
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.toggleEditAction)(on, layout));
+
+                var _getState = getState();
+
+                var graph = _getState.graph;
+                var boundingRef = _getState.boundingRef;
+                var editMode = _getState.editMode;
+                var paper = _getState.paper;
+                var createLinkTool = _getState.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState2 = getState();
+
+                var bbox = _getState2.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        onSetBoundingRef: function onSetBoundingRef(element) {
+            dispatch((0, _actionsEditor.attachBoundingRefAction)(element));
         },
         onSetDirty: function onSetDirty() {
             var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
@@ -131,11 +156,95 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
         onPaperBind: function onPaperBind(element, graph, events) {
             dispatch((0, _actionsEditor.bindPaperAction)(element, graph, events));
         },
+        onUpdateDescriptions: function onUpdateDescriptions(descriptions) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.attachDescriptions)(descriptions));
+
+                var _getState3 = getState();
+
+                var job = _getState3.job;
+                var editMode = _getState3.editMode;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
+
+                var _getState4 = getState();
+
+                var graph = _getState4.graph;
+                var boundingRef = _getState4.boundingRef;
+                var paper = _getState4.paper;
+                var createLinkTool = _getState4.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState5 = getState();
+
+                var bbox = _getState5.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        refreshGraph: function refreshGraph() {
+            dispatch(function (d, getState) {
+                var _getState6 = getState();
+
+                var job = _getState6.job;
+                var descriptions = _getState6.descriptions;
+                var editMode = _getState6.editMode;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
+
+                var _getState7 = getState();
+
+                var graph = _getState7.graph;
+                var boundingRef = _getState7.boundingRef;
+                var paper = _getState7.paper;
+                var createLinkTool = _getState7.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState8 = getState();
+
+                var bbox = _getState8.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
+        requireLayout: function requireLayout() {
+            dispatch(function (d, getState) {
+                var _getState9 = getState();
+
+                var graph = _getState9.graph;
+                var boundingRef = _getState9.boundingRef;
+                var editMode = _getState9.editMode;
+                var paper = _getState9.paper;
+                var createLinkTool = _getState9.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+
+                var _getState10 = getState();
+
+                var bbox = _getState10.bbox;
+
+                d((0, _actionsEditor.resizePaperAction)(bbox.width, bbox.height));
+            });
+        },
         onPaperResize: function onPaperResize(width, height) {
             dispatch((0, _actionsEditor.resizePaperAction)(width, height));
         },
         onEmptyModel: function onEmptyModel(model) {
-            dispatch((0, _actionsEditor.emptyModelAction)(model));
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.emptyModelAction)(model));
+
+                var _getState11 = getState();
+
+                var graph = _getState11.graph;
+                var boundingRef = _getState11.boundingRef;
+                var editMode = _getState11.editMode;
+                var paper = _getState11.paper;
+                var createLinkTool = _getState11.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+            });
         },
         onAttachModel: function onAttachModel(link) {
             dispatch(function (d) {
@@ -156,15 +265,49 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onDropFilter: function onDropFilter(target, dropped, filterOrSelector, objectType) {
-            dispatch(function (d) {
+            dispatch(function (d, getState) {
                 d((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
                 d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState12 = getState();
+
+                var job = _getState12.job;
+                var descriptions = _getState12.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState13 = getState();
+
+                var graph = _getState13.graph;
+                var boundingRef = _getState13.boundingRef;
+                var editMode = _getState13.editMode;
+                var paper = _getState13.paper;
+                var createLinkTool = _getState13.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onRemoveFilter: function onRemoveFilter(target, filter, filterOrSelector, objectType) {
-            dispatch(function (d) {
+            dispatch(function (d, getState) {
                 d((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
                 d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState14 = getState();
+
+                var job = _getState14.job;
+                var descriptions = _getState14.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState15 = getState();
+
+                var graph = _getState15.graph;
+                var boundingRef = _getState15.boundingRef;
+                var editMode = _getState15.editMode;
+                var paper = _getState15.paper;
+                var createLinkTool = _getState15.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
@@ -196,11 +339,22 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.revertAction)(original));
                 d((0, _actionsEditor.setDirtyAction)(false));
 
-                var _getState = getState();
+                var _getState16 = getState();
 
-                var job = _getState.job;
+                var job = _getState16.job;
+                var descriptions = _getState16.descriptions;
 
-                callback(job);
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState17 = getState();
+
+                var graph = _getState17.graph;
+                var boundingRef = _getState17.boundingRef;
+                var editMode = _getState17.editMode;
+                var paper = _getState17.paper;
+                var createLinkTool = _getState17.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
         onSave: function onSave(job) {
@@ -247,7 +401,11 @@ var JobGraph = (function (_React$Component) {
         _get(Object.getPrototypeOf(JobGraph.prototype), 'constructor', this).call(this, props);
         var job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
         var original = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
-        this.store = (0, _redux.createStore)(_reducers2['default'], { job: job, original: original }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
+        this.store = (0, _redux.createStore)(_reducers2['default'], {
+            job: job,
+            original: original,
+            createLinkTool: this.createLinkTool.bind(this)
+        }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
         this.state = storeStateToState(this.store);
         this.store.subscribe(function () {
             _this2.setState(storeStateToState(_this2.store));
@@ -261,17 +419,29 @@ var JobGraph = (function (_React$Component) {
         value: function componentDidMount() {
             var _this3 = this;
 
-            this.loadDescriptions();
-            this.boundingRef = _reactDom2['default'].findDOMNode(this.refs.boundingBox);
-            this._resizer = function () {
-                var _state = _this3.state;
-                var editMode = _state.editMode;
-                var paper = _state.paper;
+            var _state = this.state;
+            var onSetBoundingRef = _state.onSetBoundingRef;
+            var refreshGraph = _state.refreshGraph;
 
-                if (editMode && _this3.boundingRef) {
+            this.drawGraph();
+            onSetBoundingRef(_reactDom2['default'].findDOMNode(this.refs.boundingBox));
+            refreshGraph();
+            // Load descriptions
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.schedulerActionsDiscovery().then(function (data) {
+                _this3.state.onUpdateDescriptions(data.Actions);
+            });
+            // Bind window resizer
+            this._resizer = function () {
+                var _state2 = _this3.state;
+                var editMode = _state2.editMode;
+                var paper = _state2.paper;
+                var boundingRef = _state2.boundingRef;
+
+                if (editMode && boundingRef) {
                     var graphWidth = paper.model.getBBox().width + 80;
                     var paperHeight = paper.getArea().height;
-                    var maxWidth = _this3.boundingRef.clientWidth;
+                    var maxWidth = boundingRef.clientWidth;
                     paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
                 }
             };
@@ -301,108 +471,8 @@ var JobGraph = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                _this4.setState({ descriptions: data.Actions }, function () {
-                    _this4.graphFromJob(_this4.state.job);
-                    _this4.drawGraph();
-                });
-            })['catch'](function () {
-                _this4.graphFromJob(_this4.state.job);
-                _this4.drawGraph();
+                _this4.state.onUpdateDescriptions(data.Actions);
             });
-        }
-    }, {
-        key: 'chainActions',
-        value: function chainActions(graph, actions, inputId) {
-            var _this5 = this;
-
-            var hasData = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
-            var descriptions = this.state.descriptions;
-
-            actions.forEach(function (action) {
-                var crtInput = inputId;
-                var hasChain = action.ChainedActions && action.ChainedActions.length;
-                var shape = new _graphAction2['default'](descriptions, action, hasChain);
-                shape.addTo(graph);
-                var link = new _graphLink2['default'](crtInput, 'output', shape.id, 'input', hasData);
-                link.addTo(graph);
-                if (hasChain) {
-                    _this5.chainActions(graph, action.ChainedActions, shape.id);
-                }
-            });
-        }
-    }, {
-        key: 'graphFromJob',
-        value: function graphFromJob(job) {
-            var graph = this.state.graph;
-
-            graph.getCells().filter(function (c) {
-                return !c.isTemplate;
-            }).forEach(function (c) {
-                return c.remove();
-            });
-
-            var shapeIn = new _graphJobInput2['default'](job);
-            shapeIn.addTo(graph);
-
-            if (!job || !job.Actions || !job.Actions.length) {
-                return;
-            }
-
-            var actionsInput = shapeIn.id;
-            var firstLinkHasData = JobGraph.jobInputCreatesData(job);
-
-            this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
-        }
-    }, {
-        key: 'reLayout',
-        value: function reLayout(editMode) {
-            var _this6 = this;
-
-            var _state2 = this.state;
-            var graph = _state2.graph;
-            var paper = _state2.paper;
-            var onPaperResize = _state2.onPaperResize;
-
-            // Relayout graph and return bounding box
-            // Find JobInput and apply graph on this one ?
-            var inputs = graph.getCells().filter(function (c) {
-                return !c.isTemplate;
-            });
-            var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
-                nodeSep: 48,
-                edgeSep: 48,
-                rankSep: 128,
-                rankDir: "LR",
-                marginX: editMode ? 160 : 32,
-                marginY: 32,
-                dagre: _dagre2['default'],
-                graphlib: _graphlib2['default']
-            });
-            bbox.width += 80;
-            bbox.height += 80;
-            if (editMode) {
-                bbox.height = Math.max(editWindowHeight, bbox.height);
-                bbox.width += 200;
-                if (this.boundingRef) {
-                    var maxWidth = this.boundingRef.clientWidth;
-                    bbox.width = Math.max(bbox.width, maxWidth);
-                }
-            }
-            if (paper) {
-                paper.setDimensions(bbox.width, bbox.height);
-                graph.getLinks().forEach(function (l) {
-                    var linkView = l.findView(paper);
-                    if (!linkView.hasTools()) {
-                        linkView.addTools(new _jointjs.dia.ToolsView({ tools: [_this6.createLinkTool()] }));
-                        if (!editMode) {
-                            linkView.hideTools();
-                        }
-                    }
-                });
-            } else {
-                onPaperResize(bbox.width, bbox.height);
-            }
-            this.setState({ bbox: bbox });
         }
     }, {
         key: 'clearSelection',
@@ -497,7 +567,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this7 = this;
+            var _this5 = this;
 
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -507,9 +577,10 @@ var JobGraph = (function (_React$Component) {
             var onDetachModel = _state4.onDetachModel;
             var onDropFilter = _state4.onDropFilter;
             var editMode = _state4.editMode;
+            var requireLayout = _state4.requireLayout;
 
             var removeLinkTool = function removeLinkTool() {
-                return _this7.createLinkTool();
+                return _this5.createLinkTool();
             };
             var _this = this;
 
@@ -523,9 +594,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this7.clearSelection();
+                            _this5.clearSelection();
                             model.select();
-                            _this7.select(model);
+                            _this5.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -537,12 +608,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this7.clearSelection();
+                        _this5.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this7.setState({ selectionModel: job, selectionType: 'filter' });
-                        } else if (model instanceof _graphAction2['default']) {
-                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this5.setState({ selectionModel: job, selectionType: 'filter' });
+                        } else if (model instanceof _graphAction2['default'] || model instanceof _graphActionFilter2['default']) {
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -551,12 +622,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this7.clearSelection();
+                        _this5.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this7.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this5.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -636,6 +707,8 @@ var JobGraph = (function (_React$Component) {
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
                     linkView.model.attr((0, _graphConfigs.linkAttr)(JobGraph.jobInputCreatesData(job)));
                     linkView.model.attr('.link-tool/display', 'none');
+                    linkView.model.router('manhattan');
+                    linkView.model.connector('rounded');
                     onAttachModel(linkView);
                 },
                 'link:disconnect': function linkDisconnect(linkView, event, elementView) {
@@ -645,15 +718,15 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool,
                 'button:create-action': function buttonCreateAction(elView, evt) {
                     evt.stopPropagation();
-                    _this7.clearSelection();
-                    _this7.setState({ createNewAction: true });
+                    _this5.clearSelection();
+                    _this5.setState({ createNewAction: true });
                 },
                 'button:reflow': function buttonReflow(elView, evt) {
                     evt.stopPropagation();
-                    _this7.reLayout(_this7.state.editMode);
+                    requireLayout();
                 }
             });
-            this.reLayout(editMode);
+            requireLayout();
         }
     }, {
         key: 'isDroppable',
@@ -720,19 +793,22 @@ var JobGraph = (function (_React$Component) {
             var editMode = _state6.editMode;
 
             this.clearSelection();
-            onToggleEdit(!editMode, this.reLayout.bind(this));
+            onToggleEdit(!editMode);
         }
     }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
-            var _this8 = this;
+            var _this6 = this;
 
             actions.forEach(function (a) {
                 if (a.model) {
                     delete a.model;
                 }
                 if (a.ChainedActions) {
-                    _this8.cleanJsonActions(a.ChainedActions);
+                    _this6.cleanJsonActions(a.ChainedActions);
+                }
+                if (a.FailedFilterActions) {
+                    _this6.cleanJsonActions(a.FailedFilterActions);
                 }
             });
         }
@@ -783,7 +859,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this9 = this;
+            var _this7 = this;
 
             var selBlock = undefined;
             var _props = this.props;
@@ -813,7 +889,7 @@ var JobGraph = (function (_React$Component) {
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this9.clearSelection();
+                    _this7.clearSelection();
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
@@ -824,11 +900,10 @@ var JobGraph = (function (_React$Component) {
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
                         onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
-                        _this9.reLayout(true);
                     },
                     create: true,
                     onDismiss: function () {
-                        _this9.setState({ createNewAction: false, fPanelWidthOffset: 0 });
+                        _this7.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
@@ -841,7 +916,7 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this9.deleteAction();
+                                _this7.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
@@ -918,7 +993,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "Run-On-Save" }),
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
-                            _this9.setState({ showJsonDialog: true });
+                            _this7.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
             }
@@ -931,15 +1006,15 @@ var JobGraph = (function (_React$Component) {
                     {
                         title: "Import/Export JSON",
                         onRequestClose: function () {
-                            _this9.setState({ showJsonDialog: false });
+                            _this7.setState({ showJsonDialog: false });
                         },
                         open: showJsonDialog,
                         autoDetectWindowHeight: true,
                         autoScrollBodyContent: true,
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                                _this9.setState({ showJsonDialog: false });
+                                _this7.setState({ showJsonDialog: false });
                             }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
-                                _this9.saveJSON();
+                                _this7.saveJSON();
                             }, disabled: jsonJobInvalid, label: "Save" })]
                     },
                     _react2['default'].createElement(
@@ -948,7 +1023,7 @@ var JobGraph = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
-                                _this9.updateJSON(v);
+                                _this7.updateJSON(v);
                             },
                             mode: "json"
                         })
@@ -959,15 +1034,13 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this9.props.onJobSave);
+                            onSave(job, _this7.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onRevert(original, function (j) {
-                                _this9.graphFromJob(j);_this9.reLayout(editMode);
-                            });
+                            onRevert(original);
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this9.toggleEdit();
+                            _this7.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
@@ -983,10 +1056,10 @@ var JobGraph = (function (_React$Component) {
                         { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
-                                _this9.setState({ fPanelWidthOffset: 300 });
+                                _this7.setState({ fPanelWidthOffset: 300 });
                             } }),
                         showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
-                                _this9.setState({ fPanelWidthOffset: 0 });
+                                _this7.setState({ fPanelWidthOffset: 0 });
                             } })
                     )
                 ),
