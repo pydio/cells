@@ -16,9 +16,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/proto"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/scheduler/actions"
-	"github.com/pydio/cells/scheduler/tasks"
 )
 
 var (
@@ -91,10 +89,6 @@ func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableC
 		return input.WithError(e), e
 	}
 	q, _ := ptypes.MarshalAny(singleQ)
-	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
-		tasks.ContextJobUuid:  a.task.JobID,
-		tasks.ContextTaskUuid: a.task.ID,
-	})
 	uCl := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
 	_, e := uCl.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}, client.WithRequestTimeout(30*time.Minute))
 	if e != nil {

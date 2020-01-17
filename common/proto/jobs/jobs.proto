@@ -116,6 +116,10 @@ message Action {
     // If there are many, it is considered they can be triggered
     // in parallel
     repeated Action ChainedActions = 8;
+
+    // If any Filter is used, next actions can be triggered on Failure
+    // This adds ability to create conditional Yes/No branches
+    repeated Action FailedFilterActions = 12;
 }
 
 message Job {

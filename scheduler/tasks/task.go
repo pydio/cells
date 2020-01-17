@@ -35,11 +35,6 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-var (
-	ContextJobUuid  = "X-Pydio-Job-Uuid"
-	ContextTaskUuid = "X-Pydio-Task-Uuid"
-)
-
 type Task struct {
 	*jobs.Job
 	context        context.Context
@@ -47,6 +42,7 @@ type Task struct {
 	lockedTask     *jobs.Task
 	lock           *sync.RWMutex
 	RC             int
+	RunUUID        string
 }
 
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
@@ -57,6 +53,7 @@ func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Ta
 	t := &Task{
 		context: c,
 		Job:     job,
+		RunUUID: taskID,
 		lockedTask: &jobs.Task{
 			ID:            taskID,
 			JobID:         job.ID,

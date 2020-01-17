@@ -243,6 +243,12 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.OperationUuid = val
 		case common.KEY_OPERATION_LABEL:
 			msg.OperationLabel = val
+		case common.KEY_SCHEDULER_JOB_ID:
+			msg.SchedulerJobUuid = val
+		case common.KEY_SCHEDULER_TASK_ID:
+			msg.SchedulerTaskUuid = val
+		case common.KEY_SCHEDULER_ACTION_PATH:
+			msg.SchedulerTaskActionPath = val
 		default:
 			break
 		}
@@ -283,60 +289,69 @@ func UnmarshallLogMsgFromDoc(doc *document.Document, msg *log.LogMessage) {
 		msg.Msg = val.(string)
 	}
 
-	if val, ok := m["MsgId"]; ok {
+	if val, ok := m["MsgId"]; ok && val.(string) != "" {
 		msg.MsgId = val.(string)
 	}
 
-	if val, ok := m["UserName"]; ok {
+	if val, ok := m["UserName"]; ok && val.(string) != "" {
 		msg.UserName = val.(string)
 	}
 
-	if val, ok := m["UserUuid"]; ok {
+	if val, ok := m["UserUuid"]; ok && val.(string) != "" {
 		msg.UserUuid = val.(string)
 	}
 
-	if val, ok := m["GroupPath"]; ok {
+	if val, ok := m["GroupPath"]; ok && val.(string) != "" {
 		msg.GroupPath = val.(string)
 	}
 
-	if val, ok := m["RemoteAddress"]; ok {
+	if val, ok := m["RemoteAddress"]; ok && val.(string) != "" {
 		msg.RemoteAddress = val.(string)
 	}
 
-	if val, ok := m["UserAgent"]; ok {
+	if val, ok := m["UserAgent"]; ok && val.(string) != "" {
 		msg.UserAgent = val.(string)
 	}
 
-	if val, ok := m["HttpProtocol"]; ok {
+	if val, ok := m["HttpProtocol"]; ok && val.(string) != "" {
 		msg.HttpProtocol = val.(string)
 	}
 
-	if val, ok := m["NodeUuid"]; ok {
+	if val, ok := m["NodeUuid"]; ok && val.(string) != "" {
 		msg.NodeUuid = val.(string)
 	}
 
-	if val, ok := m["NodePath"]; ok {
+	if val, ok := m["NodePath"]; ok && val.(string) != "" {
 		msg.NodePath = val.(string)
 	}
 
-	if val, ok := m["WsUuid"]; ok {
+	if val, ok := m["WsUuid"]; ok && val.(string) != "" {
 		msg.WsUuid = val.(string)
 	}
 
-	if val, ok := m[common.KEY_SPAN_UUID]; ok {
+	if val, ok := m[common.KEY_SPAN_UUID]; ok && val.(string) != "" {
 		msg.SpanUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_ROOT_UUID]; ok {
+	if val, ok := m[common.KEY_SPAN_ROOT_UUID]; ok && val.(string) != "" {
 		msg.SpanRootUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_PARENT_UUID]; ok {
+	if val, ok := m[common.KEY_SPAN_PARENT_UUID]; ok && val.(string) != "" {
 		msg.SpanParentUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_UUID]; ok {
+	if val, ok := m[common.KEY_OPERATION_UUID]; ok && val.(string) != "" {
 		msg.OperationUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_LABEL]; ok {
+	if val, ok := m[common.KEY_OPERATION_LABEL]; ok && val.(string) != "" {
 		msg.OperationLabel = val.(string)
+	}
+	if val, ok := m[common.KEY_SCHEDULER_JOB_ID]; ok && val.(string) != "" {
+		msg.SchedulerJobUuid = val.(string)
+	}
+	if val, ok := m[common.KEY_SCHEDULER_TASK_ID]; ok && val.(string) != "" {
+		msg.SchedulerTaskUuid = val.(string)
+	}
+	if val, ok := m[common.KEY_SCHEDULER_ACTION_PATH]; ok && val.(string) != "" {
+		msg.SchedulerTaskActionPath = val.(string)
 	}
 
 }

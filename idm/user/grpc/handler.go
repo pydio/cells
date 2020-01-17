@@ -218,8 +218,8 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 	var task *jobs.Task
 	var taskChan chan interface{}
 	uName, _ := permissions.FindUserNameInContext(ctx)
-	if tU, ok := context2.CanonicalMeta(ctx, tasks.ContextTaskUuid); ok {
-		jU, _ := context2.CanonicalMeta(ctx, tasks.ContextJobUuid)
+	if tU, ok := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); ok {
+		jU, _ := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid)
 		task = &jobs.Task{
 			JobID:        jU,
 			ID:           tU,

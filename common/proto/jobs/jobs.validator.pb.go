@@ -125,6 +125,13 @@ func (this *Action) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.FailedFilterActions {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("FailedFilterActions", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *Job) Validate() error {

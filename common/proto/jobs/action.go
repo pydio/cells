@@ -33,11 +33,11 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
+func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, failedFilter, done chan bool) {
 
 	startMessage, pass := a.ApplyFilters(ctx, startMessage)
 	if !pass {
-		done <- true
+		failedFilter <- true // This will close (done) as well
 		return
 	}
 	if a.HasSelectors() {

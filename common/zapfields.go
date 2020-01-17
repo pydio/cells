@@ -147,6 +147,10 @@ const (
 	KEY_ACTION_ID = "ActionId"
 	KEY_TASK      = "Task"
 	KEY_TASK_ID   = "TaskId"
+	// Running tasks in scheduler
+	KEY_SCHEDULER_JOB_ID      = "SchedulerJobUuid"
+	KEY_SCHEDULER_TASK_ID     = "SchedulerTaskUuid"
+	KEY_SCHEDULER_ACTION_PATH = "SchedulerTaskActionPath"
 
 	// Cells
 	KEY_CELL      = "Cell"
