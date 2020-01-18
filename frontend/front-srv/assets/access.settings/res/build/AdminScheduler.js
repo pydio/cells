@@ -44333,6 +44333,29 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
+        onToggleFilterAsCondition: function onToggleFilterAsCondition(toggle, action) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.toggleFilterAsConditionAction)(toggle, action));
+                d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState16 = getState();
+
+                var job = _getState16.job;
+                var descriptions = _getState16.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState17 = getState();
+
+                var graph = _getState17.graph;
+                var boundingRef = _getState17.boundingRef;
+                var editMode = _getState17.editMode;
+                var paper = _getState17.paper;
+                var createLinkTool = _getState17.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+            });
+        },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
             dispatch(function (d) {
                 d((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
@@ -44362,20 +44385,20 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.revertAction)(original));
                 d((0, _actionsEditor.setDirtyAction)(false));
 
-                var _getState16 = getState();
+                var _getState18 = getState();
 
-                var job = _getState16.job;
-                var descriptions = _getState16.descriptions;
+                var job = _getState18.job;
+                var descriptions = _getState18.descriptions;
 
                 d((0, _actionsEditor.jobChangedAction)(job, descriptions));
 
-                var _getState17 = getState();
+                var _getState19 = getState();
 
-                var graph = _getState17.graph;
-                var boundingRef = _getState17.boundingRef;
-                var editMode = _getState17.editMode;
-                var paper = _getState17.paper;
-                var createLinkTool = _getState17.createLinkTool;
+                var graph = _getState19.graph;
+                var boundingRef = _getState19.boundingRef;
+                var editMode = _getState19.editMode;
+                var paper = _getState19.paper;
+                var createLinkTool = _getState19.createLinkTool;
 
                 d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
@@ -44666,11 +44689,15 @@ var JobGraph = (function (_React$Component) {
                     var elementBelow = this.model.findModelsFromPoint(coordinates).find(function (el) {
                         return el.id !== elementAbove.id;
                     });
-                    // If the two elements are connected already, don't
-                    // connect them again (this is application-specific though).
-                    if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        // Move the element to the position before dragging.
-                        // elementAbove.position(evt.data.x, evt.data.y);
+                    if (!elementBelow && elementAbove instanceof _graphFilter2['default']) {
+                        var linkBelow = this.model.getLinks().find(function (el) {
+                            return el.getBBox().containsPoint(coordinates);
+                        });
+                        if (linkBelow) {
+                            elementBelow = linkBelow.getTargetCell();
+                        }
+                    }
+                    if (isFilter && elementBelow) {
                         if (_this.isDroppable(elementAbove, elementBelow)) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
@@ -44678,7 +44705,7 @@ var JobGraph = (function (_React$Component) {
                                     _this.clearSelection(function () {
                                         _this.setState({ selectionModel: job, selectionType: 'filter' });
                                     });
-                                } else if (elementBelow instanceof _graphAction2['default']) {
+                                } else if (elementBelow instanceof _graphAction2['default'] || elementBelow instanceof _graphActionFilter2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
                                     _this.clearSelection(function () {
                                         _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
@@ -44720,9 +44747,15 @@ var JobGraph = (function (_React$Component) {
                     });
                     // If the two elements are connected already, don't
                     // connect them again (this is application-specific though).
-                    if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        if (_this.isDroppable(elementAbove, elementBelow)) {
-                            elementBelow.findView(this).highlight();
+                    if (elementBelow && _this.isDroppable(elementAbove, elementBelow)) {
+                        elementBelow.findView(this).highlight();
+                    } else if (elementAbove instanceof _graphFilter2['default']) {
+                        // Filters can be dropped on links ? => use link.getTargetCell() as drop target
+                        var linkBelow = this.model.getLinks().find(function (el) {
+                            return el.getBBox().containsPoint(coordinates);
+                        });
+                        if (linkBelow && linkBelow.getTargetCell() instanceof _graphAction2['default'] && _this.isDroppable(elementAbove, linkBelow.getTargetCell())) {
+                            linkBelow.findView(this).highlight();
                         }
                     }
                 },
@@ -44754,6 +44787,10 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'isDroppable',
         value: function isDroppable(elementAbove, elementBelow) {
+            if (elementAbove instanceof _graphFilter2['default'] && elementBelow instanceof _graphActionFilter2['default']) {
+                // Replace with parent action Action model
+                elementBelow = elementBelow.getJobsAction().model;
+            }
             if (!(elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default'])) {
                 return false;
             }
@@ -44819,6 +44856,16 @@ var JobGraph = (function (_React$Component) {
             onToggleEdit(!editMode);
         }
     }, {
+        key: 'revertAction',
+        value: function revertAction() {
+            var _state7 = this.state;
+            var onRevert = _state7.onRevert;
+            var original = _state7.original;
+
+            this.clearSelection();
+            onRevert(original);
+        }
+    }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
             var _this6 = this;
@@ -44838,9 +44885,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'computeJSON',
         value: function computeJSON() {
-            var _state7 = this.state;
-            var jsonJob = _state7.jsonJob;
-            var job = _state7.job;
+            var _state8 = this.state;
+            var jsonJob = _state8.jsonJob;
+            var job = _state8.job;
 
             var j = jsonJob ? jsonJob : job;
             var cleanJsonStruct = JSON.parse(JSON.stringify(j));
@@ -44873,9 +44920,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'saveJSON',
         value: function saveJSON() {
-            var _state8 = this.state;
-            var jsonJob = _state8.jsonJob;
-            var onSave = _state8.onSave;
+            var _state9 = this.state;
+            var jsonJob = _state9.jsonJob;
+            var onSave = _state9.onSave;
 
             onSave(jsonJob, this.props.onJsonSave);
         }
@@ -44888,26 +44935,27 @@ var JobGraph = (function (_React$Component) {
             var _props = this.props;
             var jobsEditable = _props.jobsEditable;
             var create = _props.create;
-            var _state9 = this.state;
-            var onEmptyModel = _state9.onEmptyModel;
-            var editMode = _state9.editMode;
-            var bbox = _state9.bbox;
-            var selectionType = _state9.selectionType;
-            var descriptions = _state9.descriptions;
-            var selectionModel = _state9.selectionModel;
-            var onTriggerChange = _state9.onTriggerChange;
-            var onLabelChange = _state9.onLabelChange;
-            var onJobPropertyChange = _state9.onJobPropertyChange;
-            var createNewAction = _state9.createNewAction;
-            var onRemoveFilter = _state9.onRemoveFilter;
-            var dirty = _state9.dirty;
-            var onSetDirty = _state9.onSetDirty;
-            var onRevert = _state9.onRevert;
-            var onSave = _state9.onSave;
-            var original = _state9.original;
-            var job = _state9.job;
-            var showJsonDialog = _state9.showJsonDialog;
-            var jsonJobInvalid = _state9.jsonJobInvalid;
+            var _state10 = this.state;
+            var onEmptyModel = _state10.onEmptyModel;
+            var editMode = _state10.editMode;
+            var bbox = _state10.bbox;
+            var selectionType = _state10.selectionType;
+            var descriptions = _state10.descriptions;
+            var selectionModel = _state10.selectionModel;
+            var onTriggerChange = _state10.onTriggerChange;
+            var onLabelChange = _state10.onLabelChange;
+            var onJobPropertyChange = _state10.onJobPropertyChange;
+            var createNewAction = _state10.createNewAction;
+            var onToggleFilterAsCondition = _state10.onToggleFilterAsCondition;
+            var onRemoveFilter = _state10.onRemoveFilter;
+            var dirty = _state10.dirty;
+            var onSetDirty = _state10.onSetDirty;
+            var onRevert = _state10.onRevert;
+            var onSave = _state10.onSave;
+            var original = _state10.original;
+            var job = _state10.job;
+            var showJsonDialog = _state10.showJsonDialog;
+            var jsonJobInvalid = _state10.jsonJobInvalid;
 
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
@@ -44950,15 +44998,23 @@ var JobGraph = (function (_React$Component) {
                     })();
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     rightWidth = 600;
+                    var filtersProps = _extends({
+                        type: selectionType
+                    }, blockProps, {
+                        onRemoveFilter: onRemoveFilter,
+                        onSave: function onSave() {
+                            onSetDirty(true);
+                        }
+                    });
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
-                                onSetDirty(true);
-                            } }));
+                        filtersProps.job = selectionModel;
                     } else {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
-                                onSetDirty(true);
-                            } }));
+                        filtersProps.action = selectionModel;
+                        if (selectionType === 'filter') {
+                            filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
+                        }
                     }
+                    selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
                 } else if (selectionType === 'trigger') {
                     var _job = this.state.job;
 
@@ -45043,7 +45099,7 @@ var JobGraph = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                        showJsonDialog && _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
                                 _this7.updateJSON(v);
@@ -45060,7 +45116,7 @@ var JobGraph = (function (_React$Component) {
                             onSave(job, _this7.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onRevert(original);
+                            _this7.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this7.toggleEdit();
@@ -45708,6 +45764,7 @@ exports.attachModelAction = attachModelAction;
 exports.detachModelAction = detachModelAction;
 exports.dropFilterAction = dropFilterAction;
 exports.removeFilterAction = removeFilterAction;
+exports.toggleFilterAsConditionAction = toggleFilterAsConditionAction;
 exports.jobChangedAction = jobChangedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
@@ -45766,8 +45823,10 @@ exports.REMOVE_MODEL_ACTION = REMOVE_MODEL_ACTION;
 var DROP_FILTER_ACTION = "filter:drop";
 exports.DROP_FILTER_ACTION = DROP_FILTER_ACTION;
 var REMOVE_FILTER_ACTION = "filter:remove";
-
 exports.REMOVE_FILTER_ACTION = REMOVE_FILTER_ACTION;
+var TOGGLE_FILTER_AS_CONDITION = "filter:condition";
+
+exports.TOGGLE_FILTER_AS_CONDITION = TOGGLE_FILTER_AS_CONDITION;
 var JOB_ACTION_EMPTY = "EMPTY";
 
 exports.JOB_ACTION_EMPTY = JOB_ACTION_EMPTY;
@@ -45865,6 +45924,14 @@ function removeFilterAction(target, filter, filterOrSelector, objectType) {
         filter: filter,
         filterOrSelector: filterOrSelector,
         objectType: objectType
+    };
+}
+
+function toggleFilterAsConditionAction(toggle, action) {
+    return {
+        type: TOGGLE_FILTER_AS_CONDITION,
+        toggle: toggle,
+        action: action
     };
 }
 
@@ -45978,6 +46045,8 @@ var _QueryBuilder2 = _interopRequireDefault(_QueryBuilder);
 
 var _graphConfigs = require("../graph/Configs");
 
+var _materialUi = require('material-ui');
+
 var Filters = (function (_React$Component) {
     _inherits(Filters, _React$Component);
 
@@ -46022,6 +46091,7 @@ var Filters = (function (_React$Component) {
             var type = _props2.type;
             var onDismiss = _props2.onDismiss;
             var onSave = _props2.onSave;
+            var onToggleFilterAsCondition = _props2.onToggleFilterAsCondition;
 
             var target = job || action;
             var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
@@ -46040,6 +46110,7 @@ var Filters = (function (_React$Component) {
                 var constructor = _ref.constructor;
 
                 return _react2["default"].createElement(_QueryBuilder2["default"], {
+                    key: key,
                     cloner: function (d) {
                         return constructor.constructFromObject(JSON.parse(JSON.stringify(d)));
                     },
@@ -46056,6 +46127,19 @@ var Filters = (function (_React$Component) {
                 });
             });
 
+            var toggle = undefined;
+            if (onToggleFilterAsCondition) {
+                toggle = _react2["default"].createElement(_materialUi.Toggle, {
+                    style: { minWidth: 256, flex: 1 },
+                    toggled: target.FailedFilterActions !== undefined,
+                    onToggle: function (e, v) {
+                        onToggleFilterAsCondition(v, target);
+                    },
+                    labelPosition: "left",
+                    label: "Conditional expression",
+                    labelStyle: { textAlign: 'right' }
+                });
+            }
             var title = undefined;
             if (job) {
                 title = 'Input > ';
@@ -46074,6 +46158,7 @@ var Filters = (function (_React$Component) {
                     width: 600,
                     onDismiss: onDismiss,
                     title: title,
+                    titleAdditional: toggle,
                     icon: type === 'filter' ? 'filter' : 'magnify'
                 },
                 stack
@@ -46087,7 +46172,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"../graph/Configs":317,"./QueryBuilder":307,"./styles":314,"react":"react"}],303:[function(require,module,exports){
+},{"../graph/Configs":317,"./QueryBuilder":307,"./styles":314,"material-ui":"material-ui","react":"react"}],303:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48022,7 +48107,7 @@ var QueryInput = (function (_shapes$devs$Model) {
                 icon: _extends({
                     text: (0, _graphConfigs.IconToUnicode)(icon)
                 }, _graphConfigs.DarkIcon, {
-                    fill: icon === 'database' ? _graphConfigs.Orange : _graphConfigs.Blue,
+                    fill: icon === 'database' ? _graphConfigs.Stale : _graphConfigs.Blue,
                     magnet: false
                 })
             },
@@ -48833,6 +48918,7 @@ var RightPanel = (function (_React$Component) {
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
+            var titleAdditional = _props.titleAdditional;
             var children = _props.children;
 
             var bStyles = styles.button;
@@ -48851,6 +48937,7 @@ var RightPanel = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
+                    titleAdditional,
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
                     onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),
@@ -48963,7 +49050,7 @@ var Action = (function (_shapes$devs$Model) {
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
                 'selector-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
-                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Stale, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
                 'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle' }
             },
             ports: _Configs.PortsConfig
@@ -49100,27 +49187,66 @@ var _Configs = require("./Configs");
 var ActionFilter = (function (_shapes$devs$Model) {
     _inherits(ActionFilter, _shapes$devs$Model);
 
+    /**
+     * @param action {JobsAction}
+     */
+
     function ActionFilter(action) {
         _classCallCheck(this, ActionFilter);
+
+        var filterKeys = Object.keys(_Configs.AllowedKeys.filter.action);
+        var filtersCount = filterKeys.reduce(function (i, key) {
+            return i + (action[key] ? 1 : 0);
+        }, 0);
+        var single = 'Filter';
+        var plural = 'Filters';
+        var icon = 'filter-outline';
+        var style = {};
+        if (action.FailedFilterActions !== undefined) {
+            single = 'Condition';
+            plural = 'Conditions';
+            icon = 'call-split';
+            style = { style: 'transform: rotate(45deg) translate(19px, -26px) scale(0.8)' };
+        }
+        var label = single;
+        if (filtersCount > 1) {
+            label = plural + ' (' + filtersCount + ')';
+        } else {
+            var cName = filterKeys.reduce(function (s, key) {
+                return action[key] ? key : s;
+            }, '');
+            if (cName) {
+                if (cName === 'IdmFilter') {
+                    cName = action[cName].Type || 'User';
+                } else {
+                    cName = cName.replace('Filter', '');
+                }
+                label = cName + ' ' + single.toLowerCase();
+            }
+        }
 
         _get(Object.getPrototypeOf(ActionFilter.prototype), 'constructor', this).call(this, {
             size: _extends({}, _Configs.FilterBoxSize),
             markup: _Configs.TextIconMarkup,
             attrs: {
-                rect: _extends({}, _Configs.FilterBoxSize, {
-                    rx: 5, ry: 5, fill: 'white', 'stroke-width': 1.5, 'stroke': _Configs.LightGrey,
-                    'style': 'transform: rotate(45deg) translate(19px, -26px) scale(0.8)', filter: _Configs.DropShadow,
+                rect: _extends({}, _Configs.FilterBoxSize, style, {
+                    rx: 5, ry: 5, fill: 'white', 'stroke-width': 1.5, 'stroke': _Configs.LightGrey, filter: _Configs.DropShadow,
                     event: 'element:filter:pointerdown'
                 }),
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20, event: 'element:filter:pointerdown' }),
-                text: _extends({ text: 'Conditions' }, _Configs.DarkLabel, { 'font-size': 11, event: 'element:filter:pointerdown' })
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(icon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 32, event: 'element:filter:pointerdown' }),
+                text: _extends({ text: label }, _Configs.DarkLabel, { refY: 0, refY2: -22, 'font-size': 13, event: 'element:filter:pointerdown' })
             },
             inPorts: ['input'],
-            outPorts: ['output'],
+            //outPorts: ['output'],
             ports: _Configs.FilterPortsConfig
         });
-        this.addPort({ group: 'negate', id: 'negate' });
         this.action = action;
+        if (this.action.FailedFilterActions !== undefined) {
+            this.addPort({ group: 'outx', id: 'output' });
+            this.addPort({ group: 'negate', id: 'negate' });
+        } else {
+            this.addPort({ group: 'out', id: 'output' });
+        }
     }
 
     _createClass(ActionFilter, [{
@@ -49307,7 +49433,6 @@ var FilterPortsConfig = {
         },
         'out': {
             attrs: {
-                label: 'Yes',
                 '.port-body': {
                     fill: Blue,
                     stroke: 'white',
@@ -49316,8 +49441,33 @@ var FilterPortsConfig = {
                     magnet: 'passive'
                 },
                 '.port-label': {
-                    text: 'Yes',
-                    fill: Grey
+                    display: 'none',
+                    fill: White
+                }
+            }
+        },
+        'outx': {
+            position: {
+                name: 'right'
+            },
+            label: {
+                position: {
+                    name: 'right',
+                    args: { y: -12, x: 4 }
+                }
+            },
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'PASS',
+                    fill: LightGrey,
+                    fontWeight: 500
                 }
             }
         },
@@ -49334,8 +49484,9 @@ var FilterPortsConfig = {
                     magnet: 'passive'
                 },
                 '.port-label': {
-                    text: 'No',
-                    fill: Grey
+                    text: 'FAIL',
+                    fill: LightGrey,
+                    fontWeight: 500
                 }
             }
         }
@@ -49434,7 +49585,7 @@ function linkAttr() {
     if (hasData) {
         conn = {
             stroke: Blue,
-            'stroke-width': 2,
+            'stroke-width': 1.5,
             targetMarker: {
                 'type': 'path',
                 'd': 'M 8 -4 0 0 8 4 z'
@@ -49442,8 +49593,8 @@ function linkAttr() {
         };
     } else {
         conn = {
-            stroke: Stale,
-            'stroke-width': 2,
+            stroke: DarkGrey,
+            'stroke-width': 1.5,
             targetMarker: {
                 'type': 'path',
                 'd': 'M 8 -4 0 0 8 4 z'
@@ -49565,7 +49716,7 @@ var Filter = (function (_shapes$devs$Model) {
             typeLabel = 'Output';
             typeIcon = 'message';
         } else {
-            typeLabel = 'Node';
+            typeLabel = 'File/Folder';
         }
 
         _get(Object.getPrototypeOf(Filter.prototype), "constructor", this).call(this, {
@@ -49765,8 +49916,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -49800,14 +49949,6 @@ var Link = (function (_shapes$devs$Link) {
         this.router('manhattan');
         this.connector('rounded');
     }
-
-    _createClass(Link, [{
-        key: 'orthogonal',
-        value: function orthogonal() {
-            this.router('manhattan');
-            this.connector('rounded');
-        }
-    }]);
 
     return Link;
 })(_jointjs.shapes.devs.Link);
@@ -49862,14 +50003,14 @@ var Selector = (function (_shapes$devs$Model) {
             typeLabel = 'Users';
             typeIcon = 'account';
         } else {
-            typeLabel = 'Nodes';
+            typeLabel = 'Files/Folders';
         }
 
         _get(Object.getPrototypeOf(Selector.prototype), 'constructor', this).call(this, {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
-                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Stale, refY: 20 }),
                 'type-icon-outline': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22, stroke: "#fafafa", 'stroke-width': 4 }),
                 'type-icon': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22 }),
                 text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })
@@ -49950,23 +50091,25 @@ var Templates = (function (_shapes$standard$Path) {
         var bbox = { width: 128, height: '100%' };
 
         _get(Object.getPrototypeOf(Templates.prototype), "constructor", this).call(this, {
-            markup: [{ tagName: 'rect', selector: 'rect' }, { tagName: 'line', selector: 'line' }, { tagName: 'line', selector: 'separator' }, { tagName: 'rect', selector: 'action-button' }, { tagName: 'text', selector: 'action-text' }, { tagName: 'rect', selector: 'reflow-button' }, { tagName: 'text', selector: 'reflow-text' }, { tagName: 'text', selector: 'filters-legend' }],
+            markup: [{ tagName: 'rect', selector: 'rect' }, { tagName: 'line', selector: 'line' }, { tagName: 'line', selector: 'separator' }, { tagName: 'line', selector: 'separator1' }, { tagName: 'rect', selector: 'action-button' }, { tagName: 'text', selector: 'action-text' }, { tagName: 'rect', selector: 'reflow-button' }, { tagName: 'text', selector: 'reflow-text' }, { tagName: 'text', selector: 'filters-legend' }, { tagName: 'text', selector: 'selectors-legend' }],
             size: _extends({}, bbox),
             attrs: {
                 rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none', cursor: 'default', event: 'element:nomove' }),
                 line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
                 separator: { x1: 0, y1: 112, x2: bbox.width, y2: 112, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
+                separator1: { x1: 0, y1: 386, x2: bbox.width, y2: 386, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
                 'action-button': { x: 16, y: 16, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Blue, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:create-action' },
                 'action-text': { refX: '50%', y: 36, text: 'Create Action', 'cursor': 'pointer', fill: _Configs.Blue, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:create-action' },
                 'reflow-button': { x: 16, y: 64, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Grey, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:reflow' },
                 'reflow-text': { refX: '50%', y: 85, title: 'Reflow graph layout automatically', text: 'Redraw', 'cursor': 'pointer', fill: _Configs.Grey, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:reflow' },
-                'filters-legend': { text: 'Filters/Selectors', x: 8, y: 132, width: bbox.width - 16, fill: _Configs.LightGrey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' }
+                'filters-legend': { text: 'Filters/Conditions', x: 8, y: 132, width: bbox.width - 16, fill: _Configs.Grey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' },
+                'selectors-legend': { text: 'Data Selectors', x: 8, y: 406, width: bbox.width - 16, fill: _Configs.Grey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' }
             }
         });
 
         this.isTemplatesContainer = true;
         this.isTemplate = true;
-        this.toggleableComponents = ['line', 'rect', 'separator', 'action-button', 'action-text', 'reflow-button', 'reflow-text', 'filters-legend'];
+        this.toggleableComponents = ['line', 'rect', 'separator', 'separator1', 'action-button', 'action-text', 'reflow-button', 'reflow-text', 'filters-legend', 'selectors-legend'];
     }
 
     _createClass(Templates, [{
@@ -49983,32 +50126,29 @@ var Templates = (function (_shapes$standard$Path) {
             });
 
             var start = 140;
+            var col1 = 4;
+            var col2 = 60;
+            var edgeY = 60;
             var y = start;
-            this.newNodesFilter(graph, y);
-            y += 64;
-            this.newUsersFilter(graph, y);
-            y += 64;
-            this.newWorkspacesFilter(graph, y);
-            y += 64;
-            this.newRolesFilter(graph, y);
-            y += 64;
-            this.newAclFilter(graph, y);
-            y += 64;
-            this.newActionOutputFilter(graph, y);
-            y += 64;
-            this.newContextMetaFilter(graph, y);
+            this.newNodesFilter(graph, col1, y);
+            this.newUsersFilter(graph, col2, y);
+            y += edgeY;
+            this.newWorkspacesFilter(graph, col1, y);
+            this.newRolesFilter(graph, col2, y);
+            y += edgeY;
+            this.newAclFilter(graph, col1, y);
+            this.newContextMetaFilter(graph, col2, y);
+            y += edgeY;
+            this.newActionOutputFilter(graph, col1, y);
 
-            // Reset Y
-            y = start;
-            this.newNodesSelector(graph, y);
-            y += 64;
-            this.newUsersSelector(graph, y);
-            y += 64;
-            this.newWorkspacesSelector(graph, y);
-            y += 64;
-            this.newRolesSelector(graph, y);
-            y += 64;
-            this.newAclSelector(graph, y);
+            y += edgeY + 34;
+            this.newNodesSelector(graph, col1, y);
+            this.newUsersSelector(graph, col2, y);
+            y += edgeY;
+            this.newWorkspacesSelector(graph, col1, y);
+            this.newRolesSelector(graph, col2, y);
+            y += edgeY;
+            this.newAclSelector(graph, col1, y);
 
             this._show = true;
         }
@@ -50044,125 +50184,130 @@ var Templates = (function (_shapes$standard$Path) {
     }, {
         key: "replicate",
         value: function replicate(el, graph) {
+            var _el$position = el.position();
+
+            var x = _el$position.x;
+            var y = _el$position.y;
+
             if (el === this.modelFilter) {
-                this.newNodesFilter(graph, el.position().y);
+                this.newNodesFilter(graph, x, y);
             } else if (el === this.usersFilter) {
-                this.newUsersFilter(graph, el.position().y);
+                this.newUsersFilter(graph, x, y);
             } else if (el === this.wsFilter) {
-                this.newWorkspacesFilter(graph, el.position().y);
+                this.newWorkspacesFilter(graph, x, y);
             } else if (el === this.rolesFilter) {
-                this.newRolesFilter(graph, el.position().y);
+                this.newRolesFilter(graph, x, y);
             } else if (el === this.contextMetaFilter) {
-                this.newContextMetaFilter(graph, el.position().y);
+                this.newContextMetaFilter(graph, x, y);
             } else if (el === this.actionOutputFilter) {
-                this.newActionOutputFilter(graph, el.position().y);
+                this.newActionOutputFilter(graph, x, y);
             } else if (el === this.aclFilter) {
-                this.newAclFilter(graph, el.position().y);
+                this.newAclFilter(graph, x, y);
             } else if (el === this.modelSelector) {
-                this.newNodesSelector(graph, el.position().y);
+                this.newNodesSelector(graph, x, y);
             } else if (el === this.usersSelector) {
-                this.newUsersSelector(graph, el.position().y);
+                this.newUsersSelector(graph, x, y);
             } else if (el === this.wsSelector) {
-                this.newWorkspacesSelector(graph, el.position().y);
+                this.newWorkspacesSelector(graph, x, y);
             } else if (el === this.rolesSelector) {
-                this.newRolesSelector(graph, el.position().y);
+                this.newRolesSelector(graph, x, y);
             } else if (el === this.aclSelector) {
-                this.newAclSelector(graph, el.position().y);
+                this.newAclSelector(graph, x, y);
             }
         }
     }, {
         key: "newNodesFilter",
-        value: function newNodesFilter(graph, y) {
+        value: function newNodesFilter(graph, x, y) {
             this.modelFilter = new _Filter2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
-            this.modelFilter.position(0, y);
+            this.modelFilter.position(x, y);
             this.modelFilter.isTemplate = true;
             this.modelFilter.addTo(graph);
         }
     }, {
         key: "newUsersFilter",
-        value: function newUsersFilter(graph, y) {
+        value: function newUsersFilter(graph, x, y) {
             this.usersFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), 'idm');
-            this.usersFilter.position(0, y);
+            this.usersFilter.position(x, y);
             this.usersFilter.isTemplate = true;
             this.usersFilter.addTo(graph);
         }
     }, {
         key: "newWorkspacesFilter",
-        value: function newWorkspacesFilter(graph, y) {
+        value: function newWorkspacesFilter(graph, x, y) {
             this.wsFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), 'idm');
-            this.wsFilter.position(0, y);
+            this.wsFilter.position(x, y);
             this.wsFilter.isTemplate = true;
             this.wsFilter.addTo(graph);
         }
     }, {
         key: "newRolesFilter",
-        value: function newRolesFilter(graph, y) {
+        value: function newRolesFilter(graph, x, y) {
             this.rolesFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), 'idm');
-            this.rolesFilter.position(0, y);
+            this.rolesFilter.position(x, y);
             this.rolesFilter.isTemplate = true;
             this.rolesFilter.addTo(graph);
         }
     }, {
         key: "newAclFilter",
-        value: function newAclFilter(graph, y) {
+        value: function newAclFilter(graph, x, y) {
             this.aclFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl' }), 'idm');
-            this.aclFilter.position(0, y);
+            this.aclFilter.position(x, y);
             this.aclFilter.isTemplate = true;
             this.aclFilter.addTo(graph);
         }
     }, {
         key: "newNodesSelector",
-        value: function newNodesSelector(graph, y) {
+        value: function newNodesSelector(graph, x, y) {
             this.modelSelector = new _Selector2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({ All: true }));
-            this.modelSelector.position(64, y);
+            this.modelSelector.position(x, y);
             this.modelSelector.isTemplate = true;
             this.modelSelector.addTo(graph);
         }
     }, {
         key: "newUsersSelector",
-        value: function newUsersSelector(graph, y) {
+        value: function newUsersSelector(graph, x, y) {
             this.usersSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User', All: true }), 'idm');
-            this.usersSelector.position(64, y);
+            this.usersSelector.position(x, y);
             this.usersSelector.isTemplate = true;
             this.usersSelector.addTo(graph);
         }
     }, {
         key: "newWorkspacesSelector",
-        value: function newWorkspacesSelector(graph, y) {
+        value: function newWorkspacesSelector(graph, x, y) {
             this.wsSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace', All: true }), 'idm');
-            this.wsSelector.position(64, y);
+            this.wsSelector.position(x, y);
             this.wsSelector.isTemplate = true;
             this.wsSelector.addTo(graph);
         }
     }, {
         key: "newRolesSelector",
-        value: function newRolesSelector(graph, y) {
+        value: function newRolesSelector(graph, x, y) {
             this.rolesSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role', All: true }), 'idm');
-            this.rolesSelector.position(64, y);
+            this.rolesSelector.position(x, y);
             this.rolesSelector.isTemplate = true;
             this.rolesSelector.addTo(graph);
         }
     }, {
         key: "newAclSelector",
-        value: function newAclSelector(graph, y) {
+        value: function newAclSelector(graph, x, y) {
             this.aclSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl', All: true }), 'idm');
-            this.aclSelector.position(64, y);
+            this.aclSelector.position(x, y);
             this.aclSelector.isTemplate = true;
             this.aclSelector.addTo(graph);
         }
     }, {
         key: "newContextMetaFilter",
-        value: function newContextMetaFilter(graph, y) {
+        value: function newContextMetaFilter(graph, x, y) {
             this.contextMetaFilter = new _Filter2["default"](_pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({}), 'context');
-            this.contextMetaFilter.position(0, y);
+            this.contextMetaFilter.position(x, y);
             this.contextMetaFilter.isTemplate = true;
             this.contextMetaFilter.addTo(graph);
         }
     }, {
         key: "newActionOutputFilter",
-        value: function newActionOutputFilter(graph, y) {
+        value: function newActionOutputFilter(graph, x, y) {
             this.actionOutputFilter = new _Filter2["default"](_pydioHttpRestApi.JobsActionOutputFilter.constructFromObject({}), 'output');
-            this.actionOutputFilter.position(0, y);
+            this.actionOutputFilter.position(x, y);
             this.actionOutputFilter.isTemplate = true;
             this.actionOutputFilter.addTo(graph);
         }
@@ -50315,9 +50460,6 @@ function chainActions(descriptions, graph, actions, inputId) {
             link = new _graphLink2["default"](crtInput, outputPort, shape.id, 'input', hasData);
             link.addTo(graph);
         }
-        if (outputPort === 'negate') {
-            link.orthogonal();
-        }
         if (hasChain) {
             chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
         }
@@ -50404,7 +50546,7 @@ function graphReducer(graph, action) {
             shapeIn.addTo(graph);
 
             if (!job || !job.Actions || !job.Actions.length) {
-                return;
+                return graph;
             }
 
             var actionsInput = shapeIn.id;
@@ -50602,6 +50744,18 @@ exports["default"] = function (job, action) {
             }
             return job;
 
+        case _actionsEditor.TOGGLE_FILTER_AS_CONDITION:
+            var toggle = action.toggle,
+                action = action.action;
+
+            if (toggle && !action.FailedFilterActions) {
+                action.FailedFilterActions = [];
+            } else if (!toggle && action.FailedFilterActions) {
+                // TODO MOVE ACTIONS IN EMPTY GRAPH IF THERE ARE ANY?
+                action.FailedFilterActions = undefined;
+            }
+            return job;
+
         case _actionsEditor.DROP_FILTER_ACTION:
             var target = action.target,
                 dropped = action.dropped,
@@ -50693,7 +50847,8 @@ exports["default"] = function (job, action) {
                             break;
                     }
                     if (!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
-                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph?
+                        // There is no more filters, make sure to clear the FailedFilters branch as well
+                        // TODO Store them in a tmp graph?
                         if (removeTarget.FailedFilterActions) {
                             delete removeTarget.FailedFilterActions;
                         }

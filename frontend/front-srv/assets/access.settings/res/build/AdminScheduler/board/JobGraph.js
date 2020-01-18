@@ -310,6 +310,29 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
+        onToggleFilterAsCondition: function onToggleFilterAsCondition(toggle, action) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.toggleFilterAsConditionAction)(toggle, action));
+                d((0, _actionsEditor.setDirtyAction)(true));
+
+                var _getState16 = getState();
+
+                var job = _getState16.job;
+                var descriptions = _getState16.descriptions;
+
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+
+                var _getState17 = getState();
+
+                var graph = _getState17.graph;
+                var boundingRef = _getState17.boundingRef;
+                var editMode = _getState17.editMode;
+                var paper = _getState17.paper;
+                var createLinkTool = _getState17.createLinkTool;
+
+                d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
+            });
+        },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
             dispatch(function (d) {
                 d((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
@@ -339,20 +362,20 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.revertAction)(original));
                 d((0, _actionsEditor.setDirtyAction)(false));
 
-                var _getState16 = getState();
+                var _getState18 = getState();
 
-                var job = _getState16.job;
-                var descriptions = _getState16.descriptions;
+                var job = _getState18.job;
+                var descriptions = _getState18.descriptions;
 
                 d((0, _actionsEditor.jobChangedAction)(job, descriptions));
 
-                var _getState17 = getState();
+                var _getState19 = getState();
 
-                var graph = _getState17.graph;
-                var boundingRef = _getState17.boundingRef;
-                var editMode = _getState17.editMode;
-                var paper = _getState17.paper;
-                var createLinkTool = _getState17.createLinkTool;
+                var graph = _getState19.graph;
+                var boundingRef = _getState19.boundingRef;
+                var editMode = _getState19.editMode;
+                var paper = _getState19.paper;
+                var createLinkTool = _getState19.createLinkTool;
 
                 d((0, _actionsEditor.requireLayoutAction)(graph, boundingRef, editMode, paper, createLinkTool));
             });
@@ -643,11 +666,15 @@ var JobGraph = (function (_React$Component) {
                     var elementBelow = this.model.findModelsFromPoint(coordinates).find(function (el) {
                         return el.id !== elementAbove.id;
                     });
-                    // If the two elements are connected already, don't
-                    // connect them again (this is application-specific though).
-                    if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        // Move the element to the position before dragging.
-                        // elementAbove.position(evt.data.x, evt.data.y);
+                    if (!elementBelow && elementAbove instanceof _graphFilter2['default']) {
+                        var linkBelow = this.model.getLinks().find(function (el) {
+                            return el.getBBox().containsPoint(coordinates);
+                        });
+                        if (linkBelow) {
+                            elementBelow = linkBelow.getTargetCell();
+                        }
+                    }
+                    if (isFilter && elementBelow) {
                         if (_this.isDroppable(elementAbove, elementBelow)) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
@@ -655,7 +682,7 @@ var JobGraph = (function (_React$Component) {
                                     _this.clearSelection(function () {
                                         _this.setState({ selectionModel: job, selectionType: 'filter' });
                                     });
-                                } else if (elementBelow instanceof _graphAction2['default']) {
+                                } else if (elementBelow instanceof _graphAction2['default'] || elementBelow instanceof _graphActionFilter2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
                                     _this.clearSelection(function () {
                                         _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
@@ -697,9 +724,15 @@ var JobGraph = (function (_React$Component) {
                     });
                     // If the two elements are connected already, don't
                     // connect them again (this is application-specific though).
-                    if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        if (_this.isDroppable(elementAbove, elementBelow)) {
-                            elementBelow.findView(this).highlight();
+                    if (elementBelow && _this.isDroppable(elementAbove, elementBelow)) {
+                        elementBelow.findView(this).highlight();
+                    } else if (elementAbove instanceof _graphFilter2['default']) {
+                        // Filters can be dropped on links ? => use link.getTargetCell() as drop target
+                        var linkBelow = this.model.getLinks().find(function (el) {
+                            return el.getBBox().containsPoint(coordinates);
+                        });
+                        if (linkBelow && linkBelow.getTargetCell() instanceof _graphAction2['default'] && _this.isDroppable(elementAbove, linkBelow.getTargetCell())) {
+                            linkBelow.findView(this).highlight();
                         }
                     }
                 },
@@ -731,6 +764,10 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'isDroppable',
         value: function isDroppable(elementAbove, elementBelow) {
+            if (elementAbove instanceof _graphFilter2['default'] && elementBelow instanceof _graphActionFilter2['default']) {
+                // Replace with parent action Action model
+                elementBelow = elementBelow.getJobsAction().model;
+            }
             if (!(elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default'])) {
                 return false;
             }
@@ -796,6 +833,16 @@ var JobGraph = (function (_React$Component) {
             onToggleEdit(!editMode);
         }
     }, {
+        key: 'revertAction',
+        value: function revertAction() {
+            var _state7 = this.state;
+            var onRevert = _state7.onRevert;
+            var original = _state7.original;
+
+            this.clearSelection();
+            onRevert(original);
+        }
+    }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
             var _this6 = this;
@@ -815,9 +862,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'computeJSON',
         value: function computeJSON() {
-            var _state7 = this.state;
-            var jsonJob = _state7.jsonJob;
-            var job = _state7.job;
+            var _state8 = this.state;
+            var jsonJob = _state8.jsonJob;
+            var job = _state8.job;
 
             var j = jsonJob ? jsonJob : job;
             var cleanJsonStruct = JSON.parse(JSON.stringify(j));
@@ -850,9 +897,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'saveJSON',
         value: function saveJSON() {
-            var _state8 = this.state;
-            var jsonJob = _state8.jsonJob;
-            var onSave = _state8.onSave;
+            var _state9 = this.state;
+            var jsonJob = _state9.jsonJob;
+            var onSave = _state9.onSave;
 
             onSave(jsonJob, this.props.onJsonSave);
         }
@@ -865,26 +912,27 @@ var JobGraph = (function (_React$Component) {
             var _props = this.props;
             var jobsEditable = _props.jobsEditable;
             var create = _props.create;
-            var _state9 = this.state;
-            var onEmptyModel = _state9.onEmptyModel;
-            var editMode = _state9.editMode;
-            var bbox = _state9.bbox;
-            var selectionType = _state9.selectionType;
-            var descriptions = _state9.descriptions;
-            var selectionModel = _state9.selectionModel;
-            var onTriggerChange = _state9.onTriggerChange;
-            var onLabelChange = _state9.onLabelChange;
-            var onJobPropertyChange = _state9.onJobPropertyChange;
-            var createNewAction = _state9.createNewAction;
-            var onRemoveFilter = _state9.onRemoveFilter;
-            var dirty = _state9.dirty;
-            var onSetDirty = _state9.onSetDirty;
-            var onRevert = _state9.onRevert;
-            var onSave = _state9.onSave;
-            var original = _state9.original;
-            var job = _state9.job;
-            var showJsonDialog = _state9.showJsonDialog;
-            var jsonJobInvalid = _state9.jsonJobInvalid;
+            var _state10 = this.state;
+            var onEmptyModel = _state10.onEmptyModel;
+            var editMode = _state10.editMode;
+            var bbox = _state10.bbox;
+            var selectionType = _state10.selectionType;
+            var descriptions = _state10.descriptions;
+            var selectionModel = _state10.selectionModel;
+            var onTriggerChange = _state10.onTriggerChange;
+            var onLabelChange = _state10.onLabelChange;
+            var onJobPropertyChange = _state10.onJobPropertyChange;
+            var createNewAction = _state10.createNewAction;
+            var onToggleFilterAsCondition = _state10.onToggleFilterAsCondition;
+            var onRemoveFilter = _state10.onRemoveFilter;
+            var dirty = _state10.dirty;
+            var onSetDirty = _state10.onSetDirty;
+            var onRevert = _state10.onRevert;
+            var onSave = _state10.onSave;
+            var original = _state10.original;
+            var job = _state10.job;
+            var showJsonDialog = _state10.showJsonDialog;
+            var jsonJobInvalid = _state10.jsonJobInvalid;
 
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
@@ -927,15 +975,23 @@ var JobGraph = (function (_React$Component) {
                     })();
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     rightWidth = 600;
+                    var filtersProps = _extends({
+                        type: selectionType
+                    }, blockProps, {
+                        onRemoveFilter: onRemoveFilter,
+                        onSave: function onSave() {
+                            onSetDirty(true);
+                        }
+                    });
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
-                                onSetDirty(true);
-                            } }));
+                        filtersProps.job = selectionModel;
                     } else {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
-                                onSetDirty(true);
-                            } }));
+                        filtersProps.action = selectionModel;
+                        if (selectionType === 'filter') {
+                            filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
+                        }
                     }
+                    selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
                 } else if (selectionType === 'trigger') {
                     var _job = this.state.job;
 
@@ -1020,7 +1076,7 @@ var JobGraph = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                        showJsonDialog && _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
                                 _this7.updateJSON(v);
@@ -1037,7 +1093,7 @@ var JobGraph = (function (_React$Component) {
                             onSave(job, _this7.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onRevert(original);
+                            _this7.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this7.toggleEdit();

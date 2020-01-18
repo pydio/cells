@@ -1,10 +1,11 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {RightPanel} from './styles'
-import {Paper, List, ListItem, MenuItem, IconButton, FontIcon, Divider} from 'material-ui'
+import {Divider, FontIcon, IconButton, List, ListItem, MenuItem, Paper} from 'material-ui'
 import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
 import {LightGrey} from "../graph/Configs";
+
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 const eventMessages = {

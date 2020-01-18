@@ -24,6 +24,7 @@ export const REMOVE_MODEL_ACTION = "model:remove";
 
 export const DROP_FILTER_ACTION = "filter:drop";
 export const REMOVE_FILTER_ACTION = "filter:remove";
+export const TOGGLE_FILTER_AS_CONDITION = "filter:condition";
 
 export const JOB_ACTION_EMPTY = "EMPTY";
 
@@ -114,6 +115,14 @@ export function removeFilterAction(target, filter, filterOrSelector, objectType)
         filter,
         filterOrSelector,
         objectType
+    }
+}
+
+export function toggleFilterAsConditionAction(toggle, action) {
+    return {
+        type: TOGGLE_FILTER_AS_CONDITION,
+        toggle,
+        action
     }
 }
 

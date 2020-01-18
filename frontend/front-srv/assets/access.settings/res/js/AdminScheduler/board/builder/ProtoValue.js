@@ -1,7 +1,8 @@
 import React from 'react'
-import {Paper, FlatButton, Toggle} from 'material-ui'
+import {FlatButton, Paper, Toggle} from 'material-ui'
 import FormLoader from "./FormLoader";
 import Pydio from 'pydio'
+
 const PydioForm = Pydio.requireLib('form');
 
 class ProtoValue extends React.Component {

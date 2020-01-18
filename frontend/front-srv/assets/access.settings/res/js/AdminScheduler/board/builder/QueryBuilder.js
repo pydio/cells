@@ -1,12 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Paper, FlatButton, Toggle} from 'material-ui'
-import {dia, layout, shapes} from 'jointjs'
+import {FlatButton, Paper, Toggle} from 'material-ui'
+import {dia, layout} from 'jointjs'
 import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Query from "./Query";
 import Link from "../graph/Link";
-import {ServiceQuery, JobsNodesSelector, JobsIdmSelector, JobsUsersSelector, ProtobufAny, JobsContextMetaFilter, JobsActionOutputFilter} from 'pydio/http/rest-api';
+import {
+    JobsActionOutputFilter,
+    JobsContextMetaFilter,
+    JobsIdmSelector,
+    JobsNodesSelector,
+    JobsUsersSelector,
+    ProtobufAny,
+    ServiceQuery
+} from 'pydio/http/rest-api';
 import QueryConnector from "./QueryConnector";
 import QueryCluster from "./QueryCluster";
 import QueryInput from "./QueryInput";

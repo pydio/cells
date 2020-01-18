@@ -103,6 +103,18 @@ exports["default"] = function (job, action) {
             }
             return job;
 
+        case _actionsEditor.TOGGLE_FILTER_AS_CONDITION:
+            var toggle = action.toggle,
+                action = action.action;
+
+            if (toggle && !action.FailedFilterActions) {
+                action.FailedFilterActions = [];
+            } else if (!toggle && action.FailedFilterActions) {
+                // TODO MOVE ACTIONS IN EMPTY GRAPH IF THERE ARE ANY?
+                action.FailedFilterActions = undefined;
+            }
+            return job;
+
         case _actionsEditor.DROP_FILTER_ACTION:
             var target = action.target,
                 dropped = action.dropped,
@@ -194,7 +206,8 @@ exports["default"] = function (job, action) {
                             break;
                     }
                     if (!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
-                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph?
+                        // There is no more filters, make sure to clear the FailedFilters branch as well
+                        // TODO Store them in a tmp graph?
                         if (removeTarget.FailedFilterActions) {
                             delete removeTarget.FailedFilterActions;
                         }

@@ -1,11 +1,12 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, MenuItem, SelectField, RaisedButton, Subheader} from 'material-ui'
-const PydioForm = Pydio.requireLib('form');
+import {MenuItem, Paper, RaisedButton, SelectField, Subheader} from 'material-ui'
 import {RightPanel} from './styles'
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import FormLoader from './FormLoader'
-import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
+import {ConfigServiceApi, JobsAction, JobsJob, RestConfiguration} from 'pydio/http/rest-api'
+
+const PydioForm = Pydio.requireLib('form');
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 class FormPanel extends React.Component {

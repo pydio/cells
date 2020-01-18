@@ -3,7 +3,7 @@ import {
     DETACH_MODEL_ACTION,
     DROP_FILTER_ACTION, EDITOR_REVERT,
     JOB_LOADED, JOB_SWITCH_TRIGGER, JOB_UPDATE_LABEL, JOB_UPDATE_PROPERTY, REMOVE_FILTER_ACTION,
-    REMOVE_MODEL_ACTION
+    REMOVE_MODEL_ACTION, TOGGLE_FILTER_AS_CONDITION
 } from "../actions/editor";
 import {JobsJob} from 'pydio/http/rest-api';
 import JobInput from "../graph/JobInput";
@@ -80,6 +80,16 @@ export default function(job = new JobsJob(), action) {
                         linkView.model.remove({ ui: true, tool: toolView.cid });
                     }
                 }
+            }
+            return job;
+
+        case TOGGLE_FILTER_AS_CONDITION:
+            const {toggle, action} = action;
+            if(toggle && !action.FailedFilterActions){
+                action.FailedFilterActions = [];
+            } else if(!toggle && action.FailedFilterActions) {
+                // TODO MOVE ACTIONS IN EMPTY GRAPH IF THERE ARE ANY?
+                action.FailedFilterActions = undefined;
             }
             return job;
 
@@ -164,7 +174,8 @@ export default function(job = new JobsJob(), action) {
                             break;
                     }
                     if(!removeTarget.UsersFilter && !removeTarget.IdmFilter && !removeTarget.ContextMetaFilter && !removeTarget.ActionOutputFilter && !removeTarget.NodesFilter) {
-                        // There is no more filters, make sure to clear the FailedFilters branch as well - or store them in a tmp graph? 
+                        // There is no more filters, make sure to clear the FailedFilters branch as well
+                        // TODO Store them in a tmp graph?
                         if(removeTarget.FailedFilterActions){
                             delete removeTarget.FailedFilterActions;
                         }

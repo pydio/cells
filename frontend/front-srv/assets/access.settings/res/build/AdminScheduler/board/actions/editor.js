@@ -14,6 +14,7 @@ exports.attachModelAction = attachModelAction;
 exports.detachModelAction = detachModelAction;
 exports.dropFilterAction = dropFilterAction;
 exports.removeFilterAction = removeFilterAction;
+exports.toggleFilterAsConditionAction = toggleFilterAsConditionAction;
 exports.jobChangedAction = jobChangedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
@@ -72,8 +73,10 @@ exports.REMOVE_MODEL_ACTION = REMOVE_MODEL_ACTION;
 var DROP_FILTER_ACTION = "filter:drop";
 exports.DROP_FILTER_ACTION = DROP_FILTER_ACTION;
 var REMOVE_FILTER_ACTION = "filter:remove";
-
 exports.REMOVE_FILTER_ACTION = REMOVE_FILTER_ACTION;
+var TOGGLE_FILTER_AS_CONDITION = "filter:condition";
+
+exports.TOGGLE_FILTER_AS_CONDITION = TOGGLE_FILTER_AS_CONDITION;
 var JOB_ACTION_EMPTY = "EMPTY";
 
 exports.JOB_ACTION_EMPTY = JOB_ACTION_EMPTY;
@@ -171,6 +174,14 @@ function removeFilterAction(target, filter, filterOrSelector, objectType) {
         filter: filter,
         filterOrSelector: filterOrSelector,
         objectType: objectType
+    };
+}
+
+function toggleFilterAsConditionAction(toggle, action) {
+    return {
+        type: TOGGLE_FILTER_AS_CONDITION,
+        toggle: toggle,
+        action: action
     };
 }
 

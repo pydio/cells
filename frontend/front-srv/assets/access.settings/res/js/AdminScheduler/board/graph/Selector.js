@@ -1,14 +1,14 @@
 import {shapes} from 'jointjs'
 import {
-    PortsConfig,
-    WhiteRect,
-    DarkLabel,
-    TextIconMarkup,
+    Blue,
     DarkIcon,
-    BoxSize,
-    Orange,
+    DarkLabel,
+    FilterBoxSize,
     IconToUnicode,
-    LightGrey, FilterBoxSize, RoundIconMarkup, WhiteCircle, DarkGrey, Blue
+    LightGrey,
+    Orange,
+    PortsConfig,
+    RoundIconMarkup, Stale
 } from "./Configs";
 
 
@@ -36,14 +36,14 @@ class Selector extends shapes.devs.Model{
             typeLabel = 'Users';
             typeIcon = 'account';
         } else {
-            typeLabel = 'Nodes'
+            typeLabel = 'Files/Folders'
         }
 
         super({
             size: { ...FilterBoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
             markup: RoundIconMarkup,
             attrs: {
-                icon : { text: IconToUnicode(typeIcon), ...DarkIcon, fill: Orange, refY: 20},
+                icon : { text: IconToUnicode(typeIcon), ...DarkIcon, fill: Stale, refY: 20},
                 'type-icon-outline': { text: IconToUnicode('magnify'), ...DarkIcon, fill: Blue, refX: 40, refY: 22, stroke:"#fafafa", 'stroke-width': 4},
                 'type-icon': { text: IconToUnicode('magnify'), ...DarkIcon, fill: Blue, refX: 40, refY: 22},
                 text: { text: typeLabel, ...DarkLabel, magnet: 'passive', 'font-size': 11}

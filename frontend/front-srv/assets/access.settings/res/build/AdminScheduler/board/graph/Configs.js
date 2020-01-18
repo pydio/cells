@@ -153,7 +153,6 @@ var FilterPortsConfig = {
         },
         'out': {
             attrs: {
-                label: 'Yes',
                 '.port-body': {
                     fill: Blue,
                     stroke: 'white',
@@ -162,8 +161,33 @@ var FilterPortsConfig = {
                     magnet: 'passive'
                 },
                 '.port-label': {
-                    text: 'Yes',
-                    fill: Grey
+                    display: 'none',
+                    fill: White
+                }
+            }
+        },
+        'outx': {
+            position: {
+                name: 'right'
+            },
+            label: {
+                position: {
+                    name: 'right',
+                    args: { y: -12, x: 4 }
+                }
+            },
+            attrs: {
+                '.port-body': {
+                    fill: Blue,
+                    stroke: 'white',
+                    'stroke-width': 1.5,
+                    r: 5,
+                    magnet: 'passive'
+                },
+                '.port-label': {
+                    text: 'PASS',
+                    fill: LightGrey,
+                    fontWeight: 500
                 }
             }
         },
@@ -180,8 +204,9 @@ var FilterPortsConfig = {
                     magnet: 'passive'
                 },
                 '.port-label': {
-                    text: 'No',
-                    fill: Grey
+                    text: 'FAIL',
+                    fill: LightGrey,
+                    fontWeight: 500
                 }
             }
         }
@@ -280,7 +305,7 @@ function linkAttr() {
     if (hasData) {
         conn = {
             stroke: Blue,
-            'stroke-width': 2,
+            'stroke-width': 1.5,
             targetMarker: {
                 'type': 'path',
                 'd': 'M 8 -4 0 0 8 4 z'
@@ -288,8 +313,8 @@ function linkAttr() {
         };
     } else {
         conn = {
-            stroke: Stale,
-            'stroke-width': 2,
+            stroke: DarkGrey,
+            'stroke-width': 1.5,
             targetMarker: {
                 'type': 'path',
                 'd': 'M 8 -4 0 0 8 4 z'

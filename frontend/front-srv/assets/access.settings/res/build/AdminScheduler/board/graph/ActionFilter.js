@@ -21,27 +21,66 @@ var _Configs = require("./Configs");
 var ActionFilter = (function (_shapes$devs$Model) {
     _inherits(ActionFilter, _shapes$devs$Model);
 
+    /**
+     * @param action {JobsAction}
+     */
+
     function ActionFilter(action) {
         _classCallCheck(this, ActionFilter);
+
+        var filterKeys = Object.keys(_Configs.AllowedKeys.filter.action);
+        var filtersCount = filterKeys.reduce(function (i, key) {
+            return i + (action[key] ? 1 : 0);
+        }, 0);
+        var single = 'Filter';
+        var plural = 'Filters';
+        var icon = 'filter-outline';
+        var style = {};
+        if (action.FailedFilterActions !== undefined) {
+            single = 'Condition';
+            plural = 'Conditions';
+            icon = 'call-split';
+            style = { style: 'transform: rotate(45deg) translate(19px, -26px) scale(0.8)' };
+        }
+        var label = single;
+        if (filtersCount > 1) {
+            label = plural + ' (' + filtersCount + ')';
+        } else {
+            var cName = filterKeys.reduce(function (s, key) {
+                return action[key] ? key : s;
+            }, '');
+            if (cName) {
+                if (cName === 'IdmFilter') {
+                    cName = action[cName].Type || 'User';
+                } else {
+                    cName = cName.replace('Filter', '');
+                }
+                label = cName + ' ' + single.toLowerCase();
+            }
+        }
 
         _get(Object.getPrototypeOf(ActionFilter.prototype), 'constructor', this).call(this, {
             size: _extends({}, _Configs.FilterBoxSize),
             markup: _Configs.TextIconMarkup,
             attrs: {
-                rect: _extends({}, _Configs.FilterBoxSize, {
-                    rx: 5, ry: 5, fill: 'white', 'stroke-width': 1.5, 'stroke': _Configs.LightGrey,
-                    'style': 'transform: rotate(45deg) translate(19px, -26px) scale(0.8)', filter: _Configs.DropShadow,
+                rect: _extends({}, _Configs.FilterBoxSize, style, {
+                    rx: 5, ry: 5, fill: 'white', 'stroke-width': 1.5, 'stroke': _Configs.LightGrey, filter: _Configs.DropShadow,
                     event: 'element:filter:pointerdown'
                 }),
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20, event: 'element:filter:pointerdown' }),
-                text: _extends({ text: 'Conditions' }, _Configs.DarkLabel, { 'font-size': 11, event: 'element:filter:pointerdown' })
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(icon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 32, event: 'element:filter:pointerdown' }),
+                text: _extends({ text: label }, _Configs.DarkLabel, { refY: 0, refY2: -22, 'font-size': 13, event: 'element:filter:pointerdown' })
             },
             inPorts: ['input'],
-            outPorts: ['output'],
+            //outPorts: ['output'],
             ports: _Configs.FilterPortsConfig
         });
-        this.addPort({ group: 'negate', id: 'negate' });
         this.action = action;
+        if (this.action.FailedFilterActions !== undefined) {
+            this.addPort({ group: 'outx', id: 'output' });
+            this.addPort({ group: 'negate', id: 'negate' });
+        } else {
+            this.addPort({ group: 'out', id: 'output' });
+        }
     }
 
     _createClass(ActionFilter, [{

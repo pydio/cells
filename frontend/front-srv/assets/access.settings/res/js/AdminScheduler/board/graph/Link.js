@@ -21,11 +21,6 @@ class Link extends shapes.devs.Link{
         this.connector('rounded')
     }
 
-    orthogonal(){
-        this.router('manhattan');
-        this.connector('rounded')
-    }
-
 }
 
 export default Link

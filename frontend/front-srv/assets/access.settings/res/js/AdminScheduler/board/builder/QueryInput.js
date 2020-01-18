@@ -1,11 +1,5 @@
 import {shapes} from 'jointjs'
-import {
-    PortsConfig,
-    WhiteRect,
-    IconToUnicode,
-    DarkIcon,
-    Orange, SimpleIconMarkup, Blue
-} from "../graph/Configs";
+import {Blue, DarkIcon, IconToUnicode, Stale, PortsConfig, SimpleIconMarkup, WhiteRect} from "../graph/Configs";
 
 
 class QueryInput extends shapes.devs.Model{
@@ -23,7 +17,7 @@ class QueryInput extends shapes.devs.Model{
                 icon: {
                     text: IconToUnicode(icon),
                     ...DarkIcon,
-                    fill:icon === 'database' ? Orange : Blue,
+                    fill:icon === 'database' ? Stale : Blue,
                     magnet: false
                 },
             },

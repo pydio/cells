@@ -92,6 +92,7 @@ var RightPanel = (function (_React$Component) {
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
+            var titleAdditional = _props.titleAdditional;
             var children = _props.children;
 
             var bStyles = styles.button;
@@ -110,6 +111,7 @@ var RightPanel = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
+                    titleAdditional,
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
                     onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),

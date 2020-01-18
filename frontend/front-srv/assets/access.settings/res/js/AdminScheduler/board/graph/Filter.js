@@ -1,9 +1,14 @@
 import {shapes} from 'jointjs'
 import {
-    PortsConfig,
-    IconToUnicode,
+    Blue,
     DarkIcon,
-    Orange, Blue, DarkLabel, LightGrey, RoundIconMarkup, FilterBoxSize, WhiteCircle
+    DarkLabel,
+    FilterBoxSize,
+    IconToUnicode,
+    LightGrey,
+    Orange,
+    PortsConfig,
+    RoundIconMarkup
 } from "./Configs";
 
 
@@ -38,7 +43,7 @@ class Filter extends shapes.devs.Model{
             typeLabel = 'Output';
             typeIcon = 'message';
         } else {
-            typeLabel = 'Node'
+            typeLabel = 'File/Folder'
         }
 
         super({

@@ -26,6 +26,8 @@ var _QueryBuilder2 = _interopRequireDefault(_QueryBuilder);
 
 var _graphConfigs = require("../graph/Configs");
 
+var _materialUi = require('material-ui');
+
 var Filters = (function (_React$Component) {
     _inherits(Filters, _React$Component);
 
@@ -70,6 +72,7 @@ var Filters = (function (_React$Component) {
             var type = _props2.type;
             var onDismiss = _props2.onDismiss;
             var onSave = _props2.onSave;
+            var onToggleFilterAsCondition = _props2.onToggleFilterAsCondition;
 
             var target = job || action;
             var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
@@ -88,6 +91,7 @@ var Filters = (function (_React$Component) {
                 var constructor = _ref.constructor;
 
                 return _react2["default"].createElement(_QueryBuilder2["default"], {
+                    key: key,
                     cloner: function (d) {
                         return constructor.constructFromObject(JSON.parse(JSON.stringify(d)));
                     },
@@ -104,6 +108,19 @@ var Filters = (function (_React$Component) {
                 });
             });
 
+            var toggle = undefined;
+            if (onToggleFilterAsCondition) {
+                toggle = _react2["default"].createElement(_materialUi.Toggle, {
+                    style: { minWidth: 256, flex: 1 },
+                    toggled: target.FailedFilterActions !== undefined,
+                    onToggle: function (e, v) {
+                        onToggleFilterAsCondition(v, target);
+                    },
+                    labelPosition: "left",
+                    label: "Conditional expression",
+                    labelStyle: { textAlign: 'right' }
+                });
+            }
             var title = undefined;
             if (job) {
                 title = 'Input > ';
@@ -122,6 +139,7 @@ var Filters = (function (_React$Component) {
                     width: 600,
                     onDismiss: onDismiss,
                     title: title,
+                    titleAdditional: toggle,
                     icon: type === 'filter' ? 'filter' : 'magnify'
                 },
                 stack

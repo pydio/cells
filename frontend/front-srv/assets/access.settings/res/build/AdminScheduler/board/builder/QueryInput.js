@@ -33,7 +33,7 @@ var QueryInput = (function (_shapes$devs$Model) {
                 icon: _extends({
                     text: (0, _graphConfigs.IconToUnicode)(icon)
                 }, _graphConfigs.DarkIcon, {
-                    fill: icon === 'database' ? _graphConfigs.Orange : _graphConfigs.Blue,
+                    fill: icon === 'database' ? _graphConfigs.Stale : _graphConfigs.Blue,
                     magnet: false
                 })
             },

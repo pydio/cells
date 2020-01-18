@@ -44,14 +44,14 @@ var Selector = (function (_shapes$devs$Model) {
             typeLabel = 'Users';
             typeIcon = 'account';
         } else {
-            typeLabel = 'Nodes';
+            typeLabel = 'Files/Folders';
         }
 
         _get(Object.getPrototypeOf(Selector.prototype), 'constructor', this).call(this, {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
-                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Stale, refY: 20 }),
                 'type-icon-outline': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22, stroke: "#fafafa", 'stroke-width': 4 }),
                 'type-icon': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22 }),
                 text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })

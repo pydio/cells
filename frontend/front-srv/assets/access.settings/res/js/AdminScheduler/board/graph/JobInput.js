@@ -1,13 +1,18 @@
 import {shapes} from 'jointjs'
 import {
-    PortsConfig,
-    WhiteRect,
-    DarkLabel,
-    TextIconMarkup,
-    DarkIcon,
     BoxSize,
+    DarkGrey,
+    DarkIcon,
+    DarkLabel,
+    Grey,
     IconToUnicode,
-    positionFilters, TextIconFilterMarkup, LightIcon, Orange, LightGrey, Blue, Grey, DarkGrey
+    LightGrey,
+    LightIcon,
+    Orange,
+    PortsConfig,
+    positionFilters,
+    TextIconFilterMarkup,
+    WhiteRect
 } from "./Configs";
 
 class JobInput extends shapes.devs.Model {

@@ -28,9 +28,6 @@ function chainActions(descriptions, graph, actions, inputId, outputPort='output'
             link = new Link(crtInput, outputPort, shape.id, 'input', hasData);
             link.addTo(graph);
         }
-        if(outputPort === 'negate'){
-            link.orthogonal();
-        }
         if (hasChain) {
             chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
         }
@@ -106,7 +103,7 @@ function graphReducer(graph, action) {
             shapeIn.addTo(graph);
 
             if(!job || !job.Actions || !job.Actions.length){
-                return;
+                return graph;
             }
 
             let actionsInput = shapeIn.id;

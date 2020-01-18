@@ -50,7 +50,7 @@ var Filter = (function (_shapes$devs$Model) {
             typeLabel = 'Output';
             typeIcon = 'message';
         } else {
-            typeLabel = 'Node';
+            typeLabel = 'File/Folder';
         }
 
         _get(Object.getPrototypeOf(Filter.prototype), "constructor", this).call(this, {

@@ -39,23 +39,25 @@ var Templates = (function (_shapes$standard$Path) {
         var bbox = { width: 128, height: '100%' };
 
         _get(Object.getPrototypeOf(Templates.prototype), "constructor", this).call(this, {
-            markup: [{ tagName: 'rect', selector: 'rect' }, { tagName: 'line', selector: 'line' }, { tagName: 'line', selector: 'separator' }, { tagName: 'rect', selector: 'action-button' }, { tagName: 'text', selector: 'action-text' }, { tagName: 'rect', selector: 'reflow-button' }, { tagName: 'text', selector: 'reflow-text' }, { tagName: 'text', selector: 'filters-legend' }],
+            markup: [{ tagName: 'rect', selector: 'rect' }, { tagName: 'line', selector: 'line' }, { tagName: 'line', selector: 'separator' }, { tagName: 'line', selector: 'separator1' }, { tagName: 'rect', selector: 'action-button' }, { tagName: 'text', selector: 'action-text' }, { tagName: 'rect', selector: 'reflow-button' }, { tagName: 'text', selector: 'reflow-text' }, { tagName: 'text', selector: 'filters-legend' }, { tagName: 'text', selector: 'selectors-legend' }],
             size: _extends({}, bbox),
             attrs: {
                 rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none', cursor: 'default', event: 'element:nomove' }),
                 line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
                 separator: { x1: 0, y1: 112, x2: bbox.width, y2: 112, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
+                separator1: { x1: 0, y1: 386, x2: bbox.width, y2: 386, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
                 'action-button': { x: 16, y: 16, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Blue, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:create-action' },
                 'action-text': { refX: '50%', y: 36, text: 'Create Action', 'cursor': 'pointer', fill: _Configs.Blue, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:create-action' },
                 'reflow-button': { x: 16, y: 64, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Grey, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:reflow' },
                 'reflow-text': { refX: '50%', y: 85, title: 'Reflow graph layout automatically', text: 'Redraw', 'cursor': 'pointer', fill: _Configs.Grey, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:reflow' },
-                'filters-legend': { text: 'Filters/Selectors', x: 8, y: 132, width: bbox.width - 16, fill: _Configs.LightGrey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' }
+                'filters-legend': { text: 'Filters/Conditions', x: 8, y: 132, width: bbox.width - 16, fill: _Configs.Grey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' },
+                'selectors-legend': { text: 'Data Selectors', x: 8, y: 406, width: bbox.width - 16, fill: _Configs.Grey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' }
             }
         });
 
         this.isTemplatesContainer = true;
         this.isTemplate = true;
-        this.toggleableComponents = ['line', 'rect', 'separator', 'action-button', 'action-text', 'reflow-button', 'reflow-text', 'filters-legend'];
+        this.toggleableComponents = ['line', 'rect', 'separator', 'separator1', 'action-button', 'action-text', 'reflow-button', 'reflow-text', 'filters-legend', 'selectors-legend'];
     }
 
     _createClass(Templates, [{
@@ -72,32 +74,29 @@ var Templates = (function (_shapes$standard$Path) {
             });
 
             var start = 140;
+            var col1 = 4;
+            var col2 = 60;
+            var edgeY = 60;
             var y = start;
-            this.newNodesFilter(graph, y);
-            y += 64;
-            this.newUsersFilter(graph, y);
-            y += 64;
-            this.newWorkspacesFilter(graph, y);
-            y += 64;
-            this.newRolesFilter(graph, y);
-            y += 64;
-            this.newAclFilter(graph, y);
-            y += 64;
-            this.newActionOutputFilter(graph, y);
-            y += 64;
-            this.newContextMetaFilter(graph, y);
+            this.newNodesFilter(graph, col1, y);
+            this.newUsersFilter(graph, col2, y);
+            y += edgeY;
+            this.newWorkspacesFilter(graph, col1, y);
+            this.newRolesFilter(graph, col2, y);
+            y += edgeY;
+            this.newAclFilter(graph, col1, y);
+            this.newContextMetaFilter(graph, col2, y);
+            y += edgeY;
+            this.newActionOutputFilter(graph, col1, y);
 
-            // Reset Y
-            y = start;
-            this.newNodesSelector(graph, y);
-            y += 64;
-            this.newUsersSelector(graph, y);
-            y += 64;
-            this.newWorkspacesSelector(graph, y);
-            y += 64;
-            this.newRolesSelector(graph, y);
-            y += 64;
-            this.newAclSelector(graph, y);
+            y += edgeY + 34;
+            this.newNodesSelector(graph, col1, y);
+            this.newUsersSelector(graph, col2, y);
+            y += edgeY;
+            this.newWorkspacesSelector(graph, col1, y);
+            this.newRolesSelector(graph, col2, y);
+            y += edgeY;
+            this.newAclSelector(graph, col1, y);
 
             this._show = true;
         }
@@ -133,125 +132,130 @@ var Templates = (function (_shapes$standard$Path) {
     }, {
         key: "replicate",
         value: function replicate(el, graph) {
+            var _el$position = el.position();
+
+            var x = _el$position.x;
+            var y = _el$position.y;
+
             if (el === this.modelFilter) {
-                this.newNodesFilter(graph, el.position().y);
+                this.newNodesFilter(graph, x, y);
             } else if (el === this.usersFilter) {
-                this.newUsersFilter(graph, el.position().y);
+                this.newUsersFilter(graph, x, y);
             } else if (el === this.wsFilter) {
-                this.newWorkspacesFilter(graph, el.position().y);
+                this.newWorkspacesFilter(graph, x, y);
             } else if (el === this.rolesFilter) {
-                this.newRolesFilter(graph, el.position().y);
+                this.newRolesFilter(graph, x, y);
             } else if (el === this.contextMetaFilter) {
-                this.newContextMetaFilter(graph, el.position().y);
+                this.newContextMetaFilter(graph, x, y);
             } else if (el === this.actionOutputFilter) {
-                this.newActionOutputFilter(graph, el.position().y);
+                this.newActionOutputFilter(graph, x, y);
             } else if (el === this.aclFilter) {
-                this.newAclFilter(graph, el.position().y);
+                this.newAclFilter(graph, x, y);
             } else if (el === this.modelSelector) {
-                this.newNodesSelector(graph, el.position().y);
+                this.newNodesSelector(graph, x, y);
             } else if (el === this.usersSelector) {
-                this.newUsersSelector(graph, el.position().y);
+                this.newUsersSelector(graph, x, y);
             } else if (el === this.wsSelector) {
-                this.newWorkspacesSelector(graph, el.position().y);
+                this.newWorkspacesSelector(graph, x, y);
             } else if (el === this.rolesSelector) {
-                this.newRolesSelector(graph, el.position().y);
+                this.newRolesSelector(graph, x, y);
             } else if (el === this.aclSelector) {
-                this.newAclSelector(graph, el.position().y);
+                this.newAclSelector(graph, x, y);
             }
         }
     }, {
         key: "newNodesFilter",
-        value: function newNodesFilter(graph, y) {
+        value: function newNodesFilter(graph, x, y) {
             this.modelFilter = new _Filter2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
-            this.modelFilter.position(0, y);
+            this.modelFilter.position(x, y);
             this.modelFilter.isTemplate = true;
             this.modelFilter.addTo(graph);
         }
     }, {
         key: "newUsersFilter",
-        value: function newUsersFilter(graph, y) {
+        value: function newUsersFilter(graph, x, y) {
             this.usersFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), 'idm');
-            this.usersFilter.position(0, y);
+            this.usersFilter.position(x, y);
             this.usersFilter.isTemplate = true;
             this.usersFilter.addTo(graph);
         }
     }, {
         key: "newWorkspacesFilter",
-        value: function newWorkspacesFilter(graph, y) {
+        value: function newWorkspacesFilter(graph, x, y) {
             this.wsFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), 'idm');
-            this.wsFilter.position(0, y);
+            this.wsFilter.position(x, y);
             this.wsFilter.isTemplate = true;
             this.wsFilter.addTo(graph);
         }
     }, {
         key: "newRolesFilter",
-        value: function newRolesFilter(graph, y) {
+        value: function newRolesFilter(graph, x, y) {
             this.rolesFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), 'idm');
-            this.rolesFilter.position(0, y);
+            this.rolesFilter.position(x, y);
             this.rolesFilter.isTemplate = true;
             this.rolesFilter.addTo(graph);
         }
     }, {
         key: "newAclFilter",
-        value: function newAclFilter(graph, y) {
+        value: function newAclFilter(graph, x, y) {
             this.aclFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl' }), 'idm');
-            this.aclFilter.position(0, y);
+            this.aclFilter.position(x, y);
             this.aclFilter.isTemplate = true;
             this.aclFilter.addTo(graph);
         }
     }, {
         key: "newNodesSelector",
-        value: function newNodesSelector(graph, y) {
+        value: function newNodesSelector(graph, x, y) {
             this.modelSelector = new _Selector2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({ All: true }));
-            this.modelSelector.position(64, y);
+            this.modelSelector.position(x, y);
             this.modelSelector.isTemplate = true;
             this.modelSelector.addTo(graph);
         }
     }, {
         key: "newUsersSelector",
-        value: function newUsersSelector(graph, y) {
+        value: function newUsersSelector(graph, x, y) {
             this.usersSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User', All: true }), 'idm');
-            this.usersSelector.position(64, y);
+            this.usersSelector.position(x, y);
             this.usersSelector.isTemplate = true;
             this.usersSelector.addTo(graph);
         }
     }, {
         key: "newWorkspacesSelector",
-        value: function newWorkspacesSelector(graph, y) {
+        value: function newWorkspacesSelector(graph, x, y) {
             this.wsSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace', All: true }), 'idm');
-            this.wsSelector.position(64, y);
+            this.wsSelector.position(x, y);
             this.wsSelector.isTemplate = true;
             this.wsSelector.addTo(graph);
         }
     }, {
         key: "newRolesSelector",
-        value: function newRolesSelector(graph, y) {
+        value: function newRolesSelector(graph, x, y) {
             this.rolesSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role', All: true }), 'idm');
-            this.rolesSelector.position(64, y);
+            this.rolesSelector.position(x, y);
             this.rolesSelector.isTemplate = true;
             this.rolesSelector.addTo(graph);
         }
     }, {
         key: "newAclSelector",
-        value: function newAclSelector(graph, y) {
+        value: function newAclSelector(graph, x, y) {
             this.aclSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl', All: true }), 'idm');
-            this.aclSelector.position(64, y);
+            this.aclSelector.position(x, y);
             this.aclSelector.isTemplate = true;
             this.aclSelector.addTo(graph);
         }
     }, {
         key: "newContextMetaFilter",
-        value: function newContextMetaFilter(graph, y) {
+        value: function newContextMetaFilter(graph, x, y) {
             this.contextMetaFilter = new _Filter2["default"](_pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({}), 'context');
-            this.contextMetaFilter.position(0, y);
+            this.contextMetaFilter.position(x, y);
             this.contextMetaFilter.isTemplate = true;
             this.contextMetaFilter.addTo(graph);
         }
     }, {
         key: "newActionOutputFilter",
-        value: function newActionOutputFilter(graph, y) {
+        value: function newActionOutputFilter(graph, x, y) {
             this.actionOutputFilter = new _Filter2["default"](_pydioHttpRestApi.JobsActionOutputFilter.constructFromObject({}), 'output');
-            this.actionOutputFilter.position(0, y);
+            this.actionOutputFilter.position(x, y);
             this.actionOutputFilter.isTemplate = true;
             this.actionOutputFilter.addTo(graph);
         }

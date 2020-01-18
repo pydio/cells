@@ -1,12 +1,17 @@
 import {shapes} from 'jointjs'
 import {
-    LightLabel,
-    PortsConfig,
+    Blue,
     BlueRect,
-    LightIcon,
     BoxSize,
+    DarkGrey,
+    Grey,
     IconToUnicode,
-    TextIconFilterMarkup, Orange, positionFilters, Blue, Grey, DarkGrey
+    LightIcon,
+    LightLabel,
+    Orange,
+    PortsConfig,
+    positionFilters, Stale,
+    TextIconFilterMarkup
 } from "./Configs";
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import {JobsAction} from 'pydio/http/rest-api';
@@ -55,7 +60,7 @@ class Action extends shapes.devs.Model{
                 'filter-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},
                 'selector-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:selector:pointerdown'},
-                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'},
+                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: Stale, refX: 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'},
                 'legend':{display: 'none', fill: Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle'}
             },
             ports:PortsConfig

@@ -21,9 +21,10 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {JobsJob} from 'pydio/http/rest-api'
-const {moment} = Pydio.requireLib('boot');
-import {Dialog, FlatButton, SelectField, MenuItem, TimePicker, TextField, FontIcon} from 'material-ui'
+import {Dialog, FlatButton, FontIcon, MenuItem, SelectField, TextField, TimePicker} from 'material-ui'
 import {Blue, LightGrey} from "../graph/Configs";
+
+const {moment} = Pydio.requireLib('boot');
 const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 class ScheduleForm extends React.Component {

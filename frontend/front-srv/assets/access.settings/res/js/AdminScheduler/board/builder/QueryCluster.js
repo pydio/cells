@@ -1,9 +1,5 @@
-import {shapes, dia} from 'jointjs'
-import {
-    PortsConfig,
-    WhiteRect,
-    SimpleIconMarkup, IconToUnicode, DarkIcon, Orange, Blue, ClusterConfig, LightGrey, DarkGrey, Destructive, Grey
-} from "../graph/Configs";
+import {shapes} from 'jointjs'
+import {Blue, Destructive, Grey, IconToUnicode, LightGrey} from "../graph/Configs";
 
 
 class QueryCluster extends shapes.basic.Rect{

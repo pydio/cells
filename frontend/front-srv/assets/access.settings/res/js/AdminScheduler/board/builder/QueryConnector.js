@@ -1,9 +1,5 @@
 import {shapes} from 'jointjs'
-import {
-    PortsConfig,
-    WhiteRect,
-    SimpleIconMarkup, IconToUnicode, DarkIcon, Orange, Blue
-} from "../graph/Configs";
+import {PortsConfig} from "../graph/Configs";
 
 
 class QueryConnector extends shapes.devs.Model{

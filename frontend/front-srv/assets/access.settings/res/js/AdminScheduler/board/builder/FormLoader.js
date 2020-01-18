@@ -1,6 +1,7 @@
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
 import XMLUtils from 'pydio/util/xml';
+
 const PydioForm = Pydio.requireLib('form');
 
 class FormLoader {

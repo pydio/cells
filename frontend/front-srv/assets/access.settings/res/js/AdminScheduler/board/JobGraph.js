@@ -39,7 +39,12 @@ import {
     saveErrorAction,
     revertAction,
     updateLabelAction,
-    updateJobPropertyAction, jobChangedAction, attachBoundingRefAction, requireLayoutAction, attachDescriptions
+    updateJobPropertyAction,
+    jobChangedAction,
+    attachBoundingRefAction,
+    requireLayoutAction,
+    attachDescriptions,
+    toggleFilterAsConditionAction
 } from "./actions/editor";
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
@@ -151,6 +156,16 @@ const mapDispatchToProps = dispatch => {
                 const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
                 d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
+        },
+        onToggleFilterAsCondition: (toggle, action) => {
+            dispatch((d, getState) => {
+                d(toggleFilterAsConditionAction(toggle, action));
+                d(setDirtyAction(true));
+                const {job, descriptions} = getState();
+                d(jobChangedAction(job, descriptions));
+                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
+            })
         },
         onTriggerChange : (triggerType, triggerData) => {
             dispatch((d) => {
@@ -409,20 +424,22 @@ class JobGraph extends React.Component {
                 const isFilter = (elementAbove instanceof Filter || elementAbove instanceof Selector);
                 _this.clearHighlight();
                 const coordinates = new g.Point(x, y);
-                const elementBelow = this.model.findModelsFromPoint(coordinates).find(function(el) {
+                let elementBelow = this.model.findModelsFromPoint(coordinates).find(function(el) {
                     return (el.id !== elementAbove.id);
                 });
-                // If the two elements are connected already, don't
-                // connect them again (this is application-specific though).
-                if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                    // Move the element to the position before dragging.
-                    // elementAbove.position(evt.data.x, evt.data.y);
+                if(!elementBelow && elementAbove instanceof Filter){
+                    const linkBelow = this.model.getLinks().find(function(el) { return el.getBBox().containsPoint(coordinates); });
+                    if(linkBelow){
+                        elementBelow = linkBelow.getTargetCell();
+                    }
+                }
+                if (isFilter && elementBelow) {
                     if(_this.isDroppable(elementAbove, elementBelow)) {
                         if(elementAbove instanceof Filter){
                             if(elementBelow instanceof JobInput){
                                 onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
                                 _this.clearSelection(()=>{_this.setState({selectionModel: job, selectionType:'filter'});});
-                            } else if(elementBelow instanceof Action){
+                            } else if(elementBelow instanceof Action || elementBelow instanceof ActionFilter){
                                 onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
                                 _this.clearSelection(()=>{_this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'filter'});});
                             }
@@ -458,9 +475,13 @@ class JobGraph extends React.Component {
                 });
                 // If the two elements are connected already, don't
                 // connect them again (this is application-specific though).
-                if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                    if(_this.isDroppable(elementAbove, elementBelow)) {
-                        elementBelow.findView(this).highlight();
+                if (elementBelow && _this.isDroppable(elementAbove, elementBelow)){
+                    elementBelow.findView(this).highlight();
+                } else if(elementAbove instanceof Filter) {
+                    // Filters can be dropped on links ? => use link.getTargetCell() as drop target
+                    const linkBelow = this.model.getLinks().find(function(el) { return el.getBBox().containsPoint(coordinates); });
+                    if(linkBelow && linkBelow.getTargetCell() instanceof Action && _this.isDroppable(elementAbove, linkBelow.getTargetCell())){
+                        linkBelow.findView(this).highlight();
                     }
                 }
             },
@@ -491,6 +512,10 @@ class JobGraph extends React.Component {
     }
 
     isDroppable(elementAbove, elementBelow){
+        if (elementAbove instanceof Filter && elementBelow instanceof ActionFilter){
+            // Replace with parent action Action model
+            elementBelow = elementBelow.getJobsAction().model;
+        }
         if (!(elementBelow instanceof JobInput || elementBelow instanceof Action)){
             return false;
         }
@@ -545,6 +570,12 @@ class JobGraph extends React.Component {
         onToggleEdit(!editMode);
     }
 
+    revertAction(){
+        const {onRevert, original} = this.state;
+        this.clearSelection();
+        onRevert(original);
+    }
+
     cleanJsonActions(actions){
         actions.forEach(a => {
             if(a.model){
@@ -597,7 +628,8 @@ class JobGraph extends React.Component {
 
         let selBlock;
         const {jobsEditable, create} = this.props;
-        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, onLabelChange, onJobPropertyChange, createNewAction,
+        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange,
+            onLabelChange, onJobPropertyChange, createNewAction, onToggleFilterAsCondition,
             onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid} = this.state;
         let fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
@@ -630,11 +662,21 @@ class JobGraph extends React.Component {
                 />
             } else if(selectionType === 'selector' || selectionType === 'filter') {
                 rightWidth = 600;
+                const filtersProps = {
+                    type: selectionType,
+                    ...blockProps,
+                    onRemoveFilter,
+                    onSave : () => {onSetDirty(true)}
+                };
                 if(selectionModel instanceof JobsJob){
-                    selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter} onSave={()=>{onSetDirty(true)}}/>
+                    filtersProps.job = selectionModel;
                 } else {
-                    selBlock = <Filters action={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter} onSave={()=>{onSetDirty(true)}}/>
+                    filtersProps.action = selectionModel;
+                    if(selectionType === 'filter'){
+                        filtersProps.onToggleFilterAsCondition=onToggleFilterAsCondition
+                    }
                 }
+                selBlock = <Filters {...filtersProps}/>
             } else if(selectionType === 'trigger') {
                 const {job} = this.state;
                 selBlock = <Triggers job={job} {...blockProps} onChange={onTriggerChange}/>
@@ -695,19 +737,21 @@ class JobGraph extends React.Component {
                     ]}
                 >
                     <div>
-                        <AdminComponents.CodeMirrorField
-                            value={this.computeJSON()}
-                            onChange={(e, v) => {
-                                this.updateJSON(v);
-                            }}
-                            mode={"json"}
-                        />
+                        {showJsonDialog &&
+                            <AdminComponents.CodeMirrorField
+                                value={this.computeJSON()}
+                                onChange={(e, v) => {
+                                    this.updateJSON(v);
+                                }}
+                                mode={"json"}
+                            />
+                        }
                     </div>
                 </Dialog>
                 <div style={st.header}>
                     {header}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
-                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original)}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {this.revertAction()}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?editWindowHeight:null}} ref={"boundingBox"}>
