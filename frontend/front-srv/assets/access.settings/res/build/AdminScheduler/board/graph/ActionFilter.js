@@ -52,6 +52,8 @@ var ActionFilter = (function (_shapes$devs$Model) {
             if (cName) {
                 if (cName === 'IdmFilter') {
                     cName = action[cName].Type || 'User';
+                } else if (cName === 'ContextMetaFilter') {
+                    cName = action[cName].Type === 'ContextUser' ? 'Context User' : 'Request';
                 } else {
                     cName = cName.replace('Filter', '');
                 }

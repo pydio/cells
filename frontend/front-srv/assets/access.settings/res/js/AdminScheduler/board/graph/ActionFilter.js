@@ -38,8 +38,10 @@ class ActionFilter extends shapes.devs.Model{
         } else {
             let cName = filterKeys.reduce((s, key) => {return action[key] ? key : s}, '');
             if(cName){
-                if(cName === 'IdmFilter'){
+                if(cName === 'IdmFilter') {
                     cName = action[cName].Type || 'User';
+                } else if (cName === 'ContextMetaFilter') {
+                    cName = action[cName].Type === 'ContextUser' ? 'Context User' : 'Request'
                 } else {
                     cName = cName.replace('Filter', '');
                 }

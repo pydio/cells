@@ -37,11 +37,16 @@ class Filter extends shapes.devs.Model{
             typeLabel = 'User';
             typeIcon = "account";
         } else if(filterType === 'context') {
-            typeLabel = 'Request';
-            typeIcon = 'tag';
+            if(filterDefinition.Type === 'ContextUser'){
+                typeLabel = 'Context User';
+                typeIcon = 'account-network';
+            } else {
+                typeLabel = 'Request';
+                typeIcon = 'tag';
+            }
         } else if(filterType === 'output') {
-            typeLabel = 'Output';
-            typeIcon = 'message';
+            typeLabel = 'Task Message';
+            typeIcon = 'code-braces';
         } else {
             typeLabel = 'File/Folder'
         }

@@ -79,8 +79,17 @@ class QueryBuilder extends React.Component {
             objectType = 'user';
             singleQuery = 'idm.UserSingleQuery';
         } else if (query instanceof JobsContextMetaFilter){
-            objectType = 'context';
-            singleQuery = 'jobs.ContextMetaSingleQuery'
+            switch (query.Type) {
+                case "ContextUser":
+                    objectType = 'context user';
+                    singleQuery = 'idm.UserSingleQuery';
+                    uniqueSingleOnly = true;
+                    break;
+                default:
+                    objectType = 'context';
+                    singleQuery = 'jobs.ContextMetaSingleQuery';
+                    break;
+            }
         } else if (query instanceof JobsActionOutputFilter){
             objectType = 'output';
             singleQuery = 'jobs.ActionOutputSingleQuery'
@@ -88,7 +97,10 @@ class QueryBuilder extends React.Component {
         let modelType = objectType;
         if(query instanceof JobsIdmSelector) {
             modelType = 'idm'; // Generic Type
+        } else if(objectType === 'context user'){
+            modelType = 'context';
         }
+
 
         if(queryType === 'selector') {
             inputIcon = 'database';
@@ -138,9 +150,13 @@ class QueryBuilder extends React.Component {
                     inputIcon = 'tag';
                     outputIcon = 'tag';
                     break;
+                case "context user":
+                    inputIcon = 'account-network';
+                    outputIcon = 'account-network';
+                    break;
                 case "output":
-                    inputIcon = 'message';
-                    outputIcon = 'message';
+                    inputIcon = 'code-braces';
+                    outputIcon = 'code-braces';
                     break;
                 default:
                     break;

@@ -47172,8 +47172,17 @@ var QueryBuilder = (function (_React$Component) {
                 objectType = 'user';
                 singleQuery = 'idm.UserSingleQuery';
             } else if (query instanceof _pydioHttpRestApi.JobsContextMetaFilter) {
-                objectType = 'context';
-                singleQuery = 'jobs.ContextMetaSingleQuery';
+                switch (query.Type) {
+                    case "ContextUser":
+                        objectType = 'context user';
+                        singleQuery = 'idm.UserSingleQuery';
+                        uniqueSingleOnly = true;
+                        break;
+                    default:
+                        objectType = 'context';
+                        singleQuery = 'jobs.ContextMetaSingleQuery';
+                        break;
+                }
             } else if (query instanceof _pydioHttpRestApi.JobsActionOutputFilter) {
                 objectType = 'output';
                 singleQuery = 'jobs.ActionOutputSingleQuery';
@@ -47181,7 +47190,9 @@ var QueryBuilder = (function (_React$Component) {
             var modelType = objectType;
             if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
                 modelType = 'idm'; // Generic Type
-            }
+            } else if (objectType === 'context user') {
+                    modelType = 'context';
+                }
 
             if (queryType === 'selector') {
                 inputIcon = 'database';
@@ -47231,9 +47242,13 @@ var QueryBuilder = (function (_React$Component) {
                         inputIcon = 'tag';
                         outputIcon = 'tag';
                         break;
+                    case "context user":
+                        inputIcon = 'account-network';
+                        outputIcon = 'account-network';
+                        break;
                     case "output":
-                        inputIcon = 'message';
-                        outputIcon = 'message';
+                        inputIcon = 'code-braces';
+                        outputIcon = 'code-braces';
                         break;
                     default:
                         break;
@@ -49026,7 +49041,9 @@ var Action = (function (_shapes$devs$Model) {
         _classCallCheck(this, Action);
 
         var aName = undefined;
-        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+        if (action.Label) {
+            aName = action.Label;
+        } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
             aName = descriptions[action.ID].Label;
         } else {
             var parts = action.ID.split(".");
@@ -49218,6 +49235,8 @@ var ActionFilter = (function (_shapes$devs$Model) {
             if (cName) {
                 if (cName === 'IdmFilter') {
                     cName = action[cName].Type || 'User';
+                } else if (cName === 'ContextMetaFilter') {
+                    cName = action[cName].Type === 'ContextUser' ? 'Context User' : 'Request';
                 } else {
                     cName = cName.replace('Filter', '');
                 }
@@ -49710,11 +49729,16 @@ var Filter = (function (_shapes$devs$Model) {
             typeLabel = 'User';
             typeIcon = "account";
         } else if (filterType === 'context') {
-            typeLabel = 'Request';
-            typeIcon = 'tag';
+            if (filterDefinition.Type === 'ContextUser') {
+                typeLabel = 'Context User';
+                typeIcon = 'account-network';
+            } else {
+                typeLabel = 'Request';
+                typeIcon = 'tag';
+            }
         } else if (filterType === 'output') {
-            typeLabel = 'Output';
-            typeIcon = 'message';
+            typeLabel = 'Task Message';
+            typeIcon = 'code-braces';
         } else {
             typeLabel = 'File/Folder';
         }
@@ -50137,9 +50161,10 @@ var Templates = (function (_shapes$standard$Path) {
             this.newRolesFilter(graph, col2, y);
             y += edgeY;
             this.newAclFilter(graph, col1, y);
-            this.newContextMetaFilter(graph, col2, y);
+            this.newActionOutputFilter(graph, col2, y);
             y += edgeY;
-            this.newActionOutputFilter(graph, col1, y);
+            this.newContextUserFilter(graph, col1, y);
+            this.newContextMetaFilter(graph, col2, y);
 
             y += edgeY + 34;
             this.newNodesSelector(graph, col1, y);
@@ -50171,6 +50196,7 @@ var Templates = (function (_shapes$standard$Path) {
             this.rolesFilter.remove();
             this.aclFilter.remove();
             this.contextMetaFilter.remove();
+            this.contextUserFilter.remove();
             this.actionOutputFilter.remove();
 
             this.modelSelector.remove();
@@ -50213,6 +50239,8 @@ var Templates = (function (_shapes$standard$Path) {
                 this.newRolesSelector(graph, x, y);
             } else if (el === this.aclSelector) {
                 this.newAclSelector(graph, x, y);
+            } else if (el === this.contextUserFilter) {
+                this.newContextUserFilter(graph, x, y);
             }
         }
     }, {
@@ -50302,6 +50330,14 @@ var Templates = (function (_shapes$standard$Path) {
             this.contextMetaFilter.position(x, y);
             this.contextMetaFilter.isTemplate = true;
             this.contextMetaFilter.addTo(graph);
+        }
+    }, {
+        key: "newContextUserFilter",
+        value: function newContextUserFilter(graph, x, y) {
+            this.contextUserFilter = new _Filter2["default"](_pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({ Type: 'ContextUser' }), 'context');
+            this.contextUserFilter.position(x, y);
+            this.contextUserFilter.isTemplate = true;
+            this.contextUserFilter.addTo(graph);
         }
     }, {
         key: "newActionOutputFilter",

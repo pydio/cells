@@ -74,9 +74,10 @@ class Templates extends shapes.standard.Path{
         this.newRolesFilter(graph, col2, y);
         y += edgeY;
         this.newAclFilter(graph, col1, y);
-        this.newContextMetaFilter(graph, col2, y);
+        this.newActionOutputFilter(graph, col2, y);
         y += edgeY;
-        this.newActionOutputFilter(graph, col1, y);
+        this.newContextUserFilter(graph, col1, y);
+        this.newContextMetaFilter(graph, col2, y);
 
         y += edgeY + 34;
         this.newNodesSelector(graph, col1, y);
@@ -106,6 +107,7 @@ class Templates extends shapes.standard.Path{
         this.rolesFilter.remove();
         this.aclFilter.remove();
         this.contextMetaFilter.remove();
+        this.contextUserFilter.remove();
         this.actionOutputFilter.remove();
 
         this.modelSelector.remove();
@@ -143,6 +145,8 @@ class Templates extends shapes.standard.Path{
             this.newRolesSelector(graph, x, y);
         } else if (el === this.aclSelector){
             this.newAclSelector(graph, x, y);
+        } else if(el === this.contextUserFilter) {
+            this.newContextUserFilter(graph, x, y)
         }
     }
 
@@ -221,6 +225,13 @@ class Templates extends shapes.standard.Path{
         this.contextMetaFilter.position(x, y);
         this.contextMetaFilter.isTemplate = true;
         this.contextMetaFilter.addTo(graph);
+    }
+
+    newContextUserFilter(graph, x, y) {
+        this.contextUserFilter = new Filter(JobsContextMetaFilter.constructFromObject({Type:'ContextUser'}),'context');
+        this.contextUserFilter.position(x, y);
+        this.contextUserFilter.isTemplate = true;
+        this.contextUserFilter.addTo(graph);
     }
 
     newActionOutputFilter(graph, x, y) {

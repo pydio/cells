@@ -36,7 +36,9 @@ class Action extends shapes.devs.Model{
     constructor(descriptions, action, edit = false){
 
         let aName;
-        if(descriptions && descriptions[action.ID] && descriptions[action.ID].Label){
+        if(action.Label){
+            aName = action.Label;
+        } else if(descriptions && descriptions[action.ID] && descriptions[action.ID].Label){
             aName = descriptions[action.ID].Label
         } else {
             const parts = action.ID.split(".");

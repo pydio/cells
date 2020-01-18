@@ -51,7 +51,9 @@ var Action = (function (_shapes$devs$Model) {
         _classCallCheck(this, Action);
 
         var aName = undefined;
-        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+        if (action.Label) {
+            aName = action.Label;
+        } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
             aName = descriptions[action.ID].Label;
         } else {
             var parts = action.ID.split(".");
