@@ -4644,30 +4644,6 @@
             "returns": null
           },
           {
-            "name": "chainActions",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "graph",
-                "type": null
-              },
-              {
-                "name": "actions",
-                "type": null
-              },
-              {
-                "name": "inputId",
-                "type": null
-              },
-              {
-                "name": "hasData",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "jobInputCreatesData",
             "docblock": null,
             "modifiers": [
@@ -4676,30 +4652,6 @@
             "params": [
               {
                 "name": "job",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "graphFromJob",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "job",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "reLayout",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "editMode",
                 "type": null
               }
             ],
@@ -4807,6 +4759,13 @@
           },
           {
             "name": "toggleEdit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "revertAction",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -21334,6 +21293,33 @@
               }
             },
             "description": "Constructs a <code>JobsContextMetaFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsContextMetaFilterType.js": [
+      {
+        "description": "Enum class JobsContextMetaFilterType.\n@enum {}\n@readonly",
+        "displayName": "JobsContextMetaFilterType",
+        "methods": [
+          {
+            "name": "constructFromObject",
+            "docblock": "Returns a <code>JobsContextMetaFilterType</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/JobsContextMetaFilterType} The enum <code>JobsContextMetaFilterType</code> value.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "object"
+              }
+            ],
+            "returns": {
+              "description": "The enum <code>JobsContextMetaFilterType</code> value.",
+              "type": {
+                "name": "module:model/JobsContextMetaFilterType"
+              }
+            },
+            "description": "Returns a <code>JobsContextMetaFilterType</code> enum value from a Javascript object name."
           }
         ]
       }

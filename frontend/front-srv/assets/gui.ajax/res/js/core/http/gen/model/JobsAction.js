@@ -64,6 +64,12 @@ export default class JobsAction {
             if (data.hasOwnProperty('ID')) {
                 obj['ID'] = ApiClient.convertToType(data['ID'], 'String');
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
+            }
             if (data.hasOwnProperty('NodesSelector')) {
                 obj['NodesSelector'] = JobsNodesSelector.constructFromObject(data['NodesSelector']);
             }
@@ -105,6 +111,14 @@ export default class JobsAction {
     * @member {String} ID
     */
     ID = undefined;
+    /**
+    * @member {String} Label
+    */
+    Label = undefined;
+    /**
+    * @member {String} Description
+    */
+    Description = undefined;
     /**
     * @member {module:model/JobsNodesSelector} NodesSelector
     */

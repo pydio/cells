@@ -60,6 +60,8 @@ var JobsAction = (function () {
         _classCallCheck(this, JobsAction);
 
         this.ID = undefined;
+        this.Label = undefined;
+        this.Description = undefined;
         this.NodesSelector = undefined;
         this.UsersSelector = undefined;
         this.NodesFilter = undefined;
@@ -87,6 +89,12 @@ var JobsAction = (function () {
 
             if (data.hasOwnProperty('ID')) {
                 obj['ID'] = _ApiClient2['default'].convertToType(data['ID'], 'String');
+            }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = _ApiClient2['default'].convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = _ApiClient2['default'].convertToType(data['Description'], 'String');
             }
             if (data.hasOwnProperty('NodesSelector')) {
                 obj['NodesSelector'] = _JobsNodesSelector2['default'].constructFromObject(data['NodesSelector']);
@@ -133,6 +141,14 @@ var JobsAction = (function () {
 
 exports['default'] = JobsAction;
 module.exports = exports['default'];
+
+/**
+* @member {String} Label
+*/
+
+/**
+* @member {String} Description
+*/
 
 /**
 * @member {module:model/JobsNodesSelector} NodesSelector

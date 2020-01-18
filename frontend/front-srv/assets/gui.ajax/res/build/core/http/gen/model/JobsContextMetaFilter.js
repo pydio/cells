@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _JobsContextMetaFilterType = require('./JobsContextMetaFilterType');
+
+var _JobsContextMetaFilterType2 = _interopRequireDefault(_JobsContextMetaFilterType);
+
 var _ServiceQuery = require('./ServiceQuery');
 
 var _ServiceQuery2 = _interopRequireDefault(_ServiceQuery);
@@ -43,6 +47,7 @@ var JobsContextMetaFilter = (function () {
     function JobsContextMetaFilter() {
         _classCallCheck(this, JobsContextMetaFilter);
 
+        this.Type = undefined;
         this.Query = undefined;
     }
 
@@ -58,6 +63,9 @@ var JobsContextMetaFilter = (function () {
         if (data) {
             obj = obj || new JobsContextMetaFilter();
 
+            if (data.hasOwnProperty('Type')) {
+                obj['Type'] = _JobsContextMetaFilterType2['default'].constructFromObject(data['Type']);
+            }
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = _ServiceQuery2['default'].constructFromObject(data['Query']);
             }
@@ -66,10 +74,14 @@ var JobsContextMetaFilter = (function () {
     };
 
     /**
-    * @member {module:model/ServiceQuery} Query
+    * @member {module:model/JobsContextMetaFilterType} Type
     */
     return JobsContextMetaFilter;
 })();
 
 exports['default'] = JobsContextMetaFilter;
 module.exports = exports['default'];
+
+/**
+* @member {module:model/ServiceQuery} Query
+*/

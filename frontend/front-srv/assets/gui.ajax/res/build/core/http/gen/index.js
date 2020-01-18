@@ -301,6 +301,10 @@ var _modelJobsContextMetaFilter = require('./model/JobsContextMetaFilter');
 
 var _modelJobsContextMetaFilter2 = _interopRequireDefault(_modelJobsContextMetaFilter);
 
+var _modelJobsContextMetaFilterType = require('./model/JobsContextMetaFilterType');
+
+var _modelJobsContextMetaFilterType2 = _interopRequireDefault(_modelJobsContextMetaFilterType);
+
 var _modelJobsCtrlCommand = require('./model/JobsCtrlCommand');
 
 var _modelJobsCtrlCommand2 = _interopRequireDefault(_modelJobsCtrlCommand);
@@ -1532,6 +1536,13 @@ exports.
  * @property {module:model/JobsContextMetaFilter}
  */
 JobsContextMetaFilter = _modelJobsContextMetaFilter2['default'];
+exports.
+
+/**
+ * The JobsContextMetaFilterType model constructor.
+ * @property {module:model/JobsContextMetaFilterType}
+ */
+JobsContextMetaFilterType = _modelJobsContextMetaFilterType2['default'];
 exports.
 
 /**

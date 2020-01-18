@@ -13,6 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
+import JobsContextMetaFilterType from './JobsContextMetaFilterType';
 import ServiceQuery from './ServiceQuery';
 
 
@@ -57,6 +58,9 @@ export default class JobsContextMetaFilter {
             
             
 
+            if (data.hasOwnProperty('Type')) {
+                obj['Type'] = JobsContextMetaFilterType.constructFromObject(data['Type']);
+            }
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = ServiceQuery.constructFromObject(data['Query']);
             }
@@ -64,6 +68,10 @@ export default class JobsContextMetaFilter {
         return obj;
     }
 
+    /**
+    * @member {module:model/JobsContextMetaFilterType} Type
+    */
+    Type = undefined;
     /**
     * @member {module:model/ServiceQuery} Query
     */
