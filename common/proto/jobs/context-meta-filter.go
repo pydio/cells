@@ -4,17 +4,18 @@ import (
 	"context"
 	"strings"
 
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/micro/go-micro/metadata"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy"
 )
 
@@ -22,6 +23,17 @@ func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (Ac
 	if len(m.Query.SubQueries) == 0 {
 		return input, true
 	}
+	if m.Type == ContextMetaFilterType_ContextUser {
+		// Switch an IdmSelector with ContextUser as input
+		return m.filterContextUserQueries(ctx, input)
+	} else {
+		// Apply Policy filter
+		return m.filterPolicyQueries(ctx, input)
+	}
+}
+
+func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+
 	policyContext := make(map[string]interface{})
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{
@@ -68,4 +80,28 @@ func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (Ac
 		return input, false
 	}
 	return input, true
+}
+
+func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+	selector := &IdmSelector{
+		Type:  IdmSelectorType_User,
+		Query: m.Query,
+	}
+	username, _ := permissions.FindUserNameInContext(ctx)
+	var user *idm.User
+	if username == "" {
+		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in context")
+		return input, false
+	}
+	if username == common.PYDIO_SYSTEM_USERNAME {
+		user = &idm.User{Login: username}
+	} else if u, err := permissions.SearchUniqueUser(ctx, username, "", &idm.UserSingleQuery{Login: username}); err == nil {
+		user = u
+	} else {
+		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in the system")
+		return input, false
+	}
+	tmpInput := ActionMessage{Users: []*idm.User{user}}
+	_, pass := selector.Filter(ctx, tmpInput)
+	return input, pass
 }

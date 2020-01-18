@@ -4670,6 +4670,14 @@ var SwaggerJson = `{
           "type": "string",
           "title": "String Identifier for specific action"
         },
+        "Label": {
+          "type": "string",
+          "title": "User-defined label for this action"
+        },
+        "Description": {
+          "type": "string",
+          "title": "User-defined comment for this action"
+        },
         "NodesSelector": {
           "$ref": "#/definitions/jobsNodesSelector",
           "title": "Nodes Selector"
@@ -4864,12 +4872,24 @@ var SwaggerJson = `{
     "jobsContextMetaFilter": {
       "type": "object",
       "properties": {
+        "Type": {
+          "$ref": "#/definitions/jobsContextMetaFilterType",
+          "title": "Type of context filter"
+        },
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Can be built with ContextMetaSingleQuery"
         }
       },
       "title": "PolicyContextFilter can be used to filter request metadata"
+    },
+    "jobsContextMetaFilterType": {
+      "type": "string",
+      "enum": [
+        "RequestMeta",
+        "ContextUser"
+      ],
+      "default": "RequestMeta"
     },
     "jobsCtrlCommand": {
       "type": "object",
