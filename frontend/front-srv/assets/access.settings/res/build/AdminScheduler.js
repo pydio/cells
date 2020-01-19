@@ -44991,6 +44991,8 @@ var JobGraph = (function (_React$Component) {
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
+                                action.Label = newAction.Label;
+                                action.Description = newAction.Description;
                                 selectionModel.notifyJobModel(action);
                                 onSetDirty(true);
                             }
@@ -46290,6 +46292,7 @@ var PydioForm = _pydio2['default'].requireLib('form');
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var FormPanel = (function (_React$Component) {
     _inherits(FormPanel, _React$Component);
@@ -46302,7 +46305,8 @@ var FormPanel = (function (_React$Component) {
 
         this.state = {
             action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
-            actionInfo: this.getActionInfo(action)
+            actionInfo: this.getActionInfo(action),
+            valid: true
         };
     }
 
@@ -46322,7 +46326,7 @@ var FormPanel = (function (_React$Component) {
                     Name: _actionsEditor.JOB_ACTION_EMPTY,
                     Label: 'Create Action',
                     Icon: 'chip',
-                    Description: 'Pick an action'
+                    Description: ''
                 };
             } else {
                 actionInfo = {
@@ -46437,6 +46441,22 @@ var FormPanel = (function (_React$Component) {
             this.setState({ action: action, dirty: true });
         }
     }, {
+        key: 'onLabelChange',
+        value: function onLabelChange(value) {
+            var action = this.state.action;
+
+            action.Label = value ? value.substr(0, 20) : undefined;
+            this.setState({ action: action, dirty: true });
+        }
+    }, {
+        key: 'onDescriptionChange',
+        value: function onDescriptionChange(value) {
+            var action = this.state.action;
+
+            action.Description = value;
+            this.setState({ action: action, dirty: true });
+        }
+    }, {
         key: 'onValidStatusChange',
         value: function onValidStatusChange(valid, failing) {
             this.setState({ valid: valid });
@@ -46541,7 +46561,7 @@ var FormPanel = (function (_React$Component) {
 
             var save = undefined,
                 revert = undefined;
-            if (!create && formParams && dirty && valid) {
+            if (!create && dirty && valid) {
                 save = function () {
                     return _this3.save();
                 };
@@ -46589,22 +46609,32 @@ var FormPanel = (function (_React$Component) {
                     title: actionInfo.Label,
                     icon: actionInfo.Icon,
                     onDismiss: onDismiss,
-                    saveButtons: !!formParams,
+                    saveButtons: !create,
                     onSave: save,
                     onRevert: revert,
                     onRemove: onRemove
                 },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    actionInfo.Description
-                ),
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
                     this.actionPicker()
                 ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 10 } },
+                    actionInfo.Description
+                ),
                 form,
+                action.ID !== _actionsEditor.JOB_ACTION_EMPTY && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 12px', marginTop: -6 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
+                            _this3.onLabelChange(v);
+                        }, fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { hintText: "Comment (optional)", style: { marginTop: -2 }, multiLine: true, value: action.Description, onChange: function (e, v) {
+                            _this3.onDescriptionChange(v);
+                        }, fullWidth: true })
+                ),
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
@@ -46615,11 +46645,6 @@ var FormPanel = (function (_React$Component) {
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })
-                ),
-                !create && !formParams && _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10, color: '#9E9E9E' } },
-                    'There are no parameters for this action'
                 )
             );
         }
@@ -48691,6 +48716,9 @@ var Events = (function (_React$Component) {
 
             var data = [];
             Object.keys(s).forEach(function (k) {
+                if (isNaN(k) && k !== 'IDM_CHANGE') {
+                    data.push({ header: k });
+                }
                 var v = s[k];
                 if (typeof v === 'string') {
                     data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
@@ -48731,7 +48759,19 @@ var Events = (function (_React$Component) {
                         } },
                     _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
                     flat.map(function (f) {
-                        return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                        if (f.header) {
+                            return _react2['default'].createElement(
+                                _materialUi.Subheader,
+                                null,
+                                f.header
+                            );
+                        } else {
+                            if (objEvents[f]) {
+                                // already registered
+                                return null;
+                            }
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                        }
                     })
                 ),
                 _react2['default'].createElement(
@@ -48972,7 +49012,7 @@ var RightPanel = (function (_React$Component) {
     return RightPanel;
 })(_react2['default'].Component);
 
-var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n.right-panel-expand-button{\n    position: absolute;\n    bottom: 7px;\n    left: -9px;\n    cursor: pointer;\n    display: block;\n    background-color: #f5f5f5;\n    width: 20px;\n    height: 20px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: 50%;\n    border: 1px solid #e0e0e0;\n    font-size: 18px;\n}\n';
+var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n.right-panel-expand-button{\n    position: absolute;\n    bottom: 7px;\n    left: -9px;\n    cursor: pointer;\n    display: block;\n    background-color: #f5f5f5;\n    width: 20px;\n    height: 20px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: 50%;\n    border: 1px solid #e0e0e0;\n    font-size: 18px;\n}\ng.marker-arrowhead-group-source{\n    display: none;\n}\npath.marker-arrowhead[end="target"] {\n    transform: scale(0.5) translateY(12px) translateX(-8px);\n    fill: #455A64;\n}\n.marker-vertices{\n    display: none;\n}\n';
 
 var cssReadonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -49040,16 +49080,6 @@ var Action = (function (_shapes$devs$Model) {
 
         _classCallCheck(this, Action);
 
-        var aName = undefined;
-        if (action.Label) {
-            aName = action.Label;
-        } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
-            aName = descriptions[action.ID].Label;
-        } else {
-            var parts = action.ID.split(".");
-            aName = parts.pop();
-        }
-
         var iconCode = (0, _Configs.IconToUnicode)("chip");
         if (descriptions && descriptions[action.ID] && descriptions[action.ID].Icon) {
             iconCode = (0, _Configs.IconToUnicode)(descriptions[action.ID].Icon);
@@ -49062,7 +49092,7 @@ var Action = (function (_shapes$devs$Model) {
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
                 icon: _extends({ text: iconCode }, _Configs.LightIcon),
-                text: _extends({ text: aName }, _Configs.LightLabel),
+                text: _extends({ text: Action.computeLabel(action, descriptions) }, _Configs.LightLabel),
                 'separator': { display: 'none', x1: 44, y1: 0, x2: 44, y2: _Configs.BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
@@ -49079,6 +49109,7 @@ var Action = (function (_shapes$devs$Model) {
 
         _get(Object.getPrototypeOf(Action.prototype), "constructor", this).call(this, config);
         this._edit = edit;
+        this._descriptions = descriptions;
         this.notifyJobModel(action);
     }
 
@@ -49114,8 +49145,8 @@ var Action = (function (_shapes$devs$Model) {
             this._jobModel = action;
             action.model = this;
             this.setFilter(false);
-            //this.setFilter(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter);
             this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
+            this.attr('text/text', Action.computeLabel(action, this._descriptions));
         }
     }, {
         key: "setFilter",
@@ -49171,6 +49202,20 @@ var Action = (function (_shapes$devs$Model) {
             } else {
                 return null;
             }
+        }
+    }], [{
+        key: "computeLabel",
+        value: function computeLabel(action, descriptions) {
+            var aName = undefined;
+            if (action.Label) {
+                aName = action.Label;
+            } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+                aName = descriptions[action.ID].Label;
+            } else {
+                var parts = action.ID.split(".");
+                aName = parts.pop();
+            }
+            return aName;
         }
     }]);
 
@@ -51013,11 +51058,10 @@ function paperReducer(paper, action) {
                 linkPinning: false,
                 interactive: false,
                 validateConnection: function validateConnection(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
-                    //console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if (cellViewS === cellViewT) {
                         return false;
                     }
-                    if (!cellViewT.model instanceof _graphAction2["default"] || !cellViewT.model instanceof _graphJobInput2["default"]) {
+                    if (!(cellViewT.model instanceof _graphAction2["default"]) && !(cellViewT.model instanceof _graphJobInput2["default"])) {
                         return false;
                     }
                     var hasInput = action.graph.getConnectedLinks(cellViewT.model).filter(function (link) {

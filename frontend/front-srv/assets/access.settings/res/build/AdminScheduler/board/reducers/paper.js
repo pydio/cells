@@ -42,11 +42,10 @@ function paperReducer(paper, action) {
                 linkPinning: false,
                 interactive: false,
                 validateConnection: function validateConnection(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
-                    //console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if (cellViewS === cellViewT) {
                         return false;
                     }
-                    if (!cellViewT.model instanceof _graphAction2["default"] || !cellViewT.model instanceof _graphJobInput2["default"]) {
+                    if (!(cellViewT.model instanceof _graphAction2["default"]) && !(cellViewT.model instanceof _graphJobInput2["default"])) {
                         return false;
                     }
                     var hasInput = action.graph.getConnectedLinks(cellViewT.model).filter(function (link) {

@@ -126,6 +126,9 @@ var Events = (function (_React$Component) {
 
             var data = [];
             Object.keys(s).forEach(function (k) {
+                if (isNaN(k) && k !== 'IDM_CHANGE') {
+                    data.push({ header: k });
+                }
                 var v = s[k];
                 if (typeof v === 'string') {
                     data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
@@ -166,7 +169,19 @@ var Events = (function (_React$Component) {
                         } },
                     _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
                     flat.map(function (f) {
-                        return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                        if (f.header) {
+                            return _react2['default'].createElement(
+                                _materialUi.Subheader,
+                                null,
+                                f.header
+                            );
+                        } else {
+                            if (objEvents[f]) {
+                                // already registered
+                                return null;
+                            }
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                        }
                     })
                 ),
                 _react2['default'].createElement(

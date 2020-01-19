@@ -656,6 +656,8 @@ class JobGraph extends React.Component {
                     onRemove={()=>{this.deleteAction()}}
                     onChange={(newAction) => {
                         action.Parameters = newAction.Parameters;
+                        action.Label = newAction.Label;
+                        action.Description = newAction.Description;
                         selectionModel.notifyJobModel(action);
                         onSetDirty(true);
                     }}

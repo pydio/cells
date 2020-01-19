@@ -142,6 +142,16 @@ text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"]
     border: 1px solid #e0e0e0;
     font-size: 18px;
 }
+g.marker-arrowhead-group-source{
+    display: none;
+}
+path.marker-arrowhead[end="target"] {
+    transform: scale(0.5) translateY(12px) translateX(-8px);
+    fill: #455A64;
+}
+.marker-vertices{
+    display: none;
+}
 `;
 
 const cssReadonlyStyle = `

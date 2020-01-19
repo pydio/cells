@@ -39,6 +39,7 @@ var PydioForm = _pydio2['default'].requireLib('form');
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var FormPanel = (function (_React$Component) {
     _inherits(FormPanel, _React$Component);
@@ -51,7 +52,8 @@ var FormPanel = (function (_React$Component) {
 
         this.state = {
             action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
-            actionInfo: this.getActionInfo(action)
+            actionInfo: this.getActionInfo(action),
+            valid: true
         };
     }
 
@@ -71,7 +73,7 @@ var FormPanel = (function (_React$Component) {
                     Name: _actionsEditor.JOB_ACTION_EMPTY,
                     Label: 'Create Action',
                     Icon: 'chip',
-                    Description: 'Pick an action'
+                    Description: ''
                 };
             } else {
                 actionInfo = {
@@ -186,6 +188,22 @@ var FormPanel = (function (_React$Component) {
             this.setState({ action: action, dirty: true });
         }
     }, {
+        key: 'onLabelChange',
+        value: function onLabelChange(value) {
+            var action = this.state.action;
+
+            action.Label = value ? value.substr(0, 20) : undefined;
+            this.setState({ action: action, dirty: true });
+        }
+    }, {
+        key: 'onDescriptionChange',
+        value: function onDescriptionChange(value) {
+            var action = this.state.action;
+
+            action.Description = value;
+            this.setState({ action: action, dirty: true });
+        }
+    }, {
         key: 'onValidStatusChange',
         value: function onValidStatusChange(valid, failing) {
             this.setState({ valid: valid });
@@ -290,7 +308,7 @@ var FormPanel = (function (_React$Component) {
 
             var save = undefined,
                 revert = undefined;
-            if (!create && formParams && dirty && valid) {
+            if (!create && dirty && valid) {
                 save = function () {
                     return _this3.save();
                 };
@@ -338,22 +356,32 @@ var FormPanel = (function (_React$Component) {
                     title: actionInfo.Label,
                     icon: actionInfo.Icon,
                     onDismiss: onDismiss,
-                    saveButtons: !!formParams,
+                    saveButtons: !create,
                     onSave: save,
                     onRevert: revert,
                     onRemove: onRemove
                 },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    actionInfo.Description
-                ),
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
                     this.actionPicker()
                 ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 10 } },
+                    actionInfo.Description
+                ),
                 form,
+                action.ID !== _actionsEditor.JOB_ACTION_EMPTY && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 12px', marginTop: -6 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
+                            _this3.onLabelChange(v);
+                        }, fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { hintText: "Comment (optional)", style: { marginTop: -2 }, multiLine: true, value: action.Description, onChange: function (e, v) {
+                            _this3.onDescriptionChange(v);
+                        }, fullWidth: true })
+                ),
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
@@ -364,11 +392,6 @@ var FormPanel = (function (_React$Component) {
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })
-                ),
-                !create && !formParams && _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10, color: '#9E9E9E' } },
-                    'There are no parameters for this action'
                 )
             );
         }

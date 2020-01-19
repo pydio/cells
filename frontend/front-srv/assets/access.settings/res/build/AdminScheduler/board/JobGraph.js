@@ -968,6 +968,8 @@ var JobGraph = (function (_React$Component) {
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
+                                action.Label = newAction.Label;
+                                action.Description = newAction.Description;
                                 selectionModel.notifyJobModel(action);
                                 onSetDirty(true);
                             }

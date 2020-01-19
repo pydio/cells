@@ -20,11 +20,10 @@ export default function paperReducer(paper = null, action) {
                 linkPinning: false,
                 interactive: false,
                 validateConnection: (cellViewS, magnetS, cellViewT, magnetT, end, linkView) => {
-                    //console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if(cellViewS === cellViewT) {
                         return false;
                     }
-                    if(!cellViewT.model instanceof Action || !cellViewT.model instanceof JobInput){
+                    if(!(cellViewT.model instanceof Action) && !(cellViewT.model instanceof JobInput)){
                         return false;
                     }
                     const hasInput = action.graph.getConnectedLinks(cellViewT.model).filter(link => link.getTargetCell() === cellViewT.model).length;

@@ -1,7 +1,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {RightPanel} from './styles'
-import {Divider, FontIcon, IconButton, List, ListItem, MenuItem, Paper} from 'material-ui'
+import {Divider, FontIcon, IconButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
 import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
 import {LightGrey} from "../graph/Configs";
@@ -92,6 +92,9 @@ class Events extends React.Component{
     flatStruct(s, pref = []) {
         const data = [];
         Object.keys(s).forEach((k) => {
+            if(isNaN(k) && k !== 'IDM_CHANGE'){
+                data.push({header: k});
+            }
             const v = s[k];
             if (typeof v === 'string') {
                 data.push([...pref, k].join(':'))
@@ -120,7 +123,16 @@ class Events extends React.Component{
             <div>
                 <ModernSelectField fullWidth={true} value={-1} onChange={(e,i,v) => {this.add(v)}}>
                     <MenuItem value={-1} primaryText={"Add an event type..."}/>
-                    {flat.map(f => <MenuItem value={f} primaryText={Events.eventLabel(f, Events.T)}/>)}
+                    {flat.map(f =>{
+                        if(f.header){
+                            return <Subheader>{f.header}</Subheader>
+                        } else {
+                            if(objEvents[f]){ // already registered
+                                return null;
+                            }
+                            return <MenuItem value={f} primaryText={Events.eventLabel(f, Events.T)}/>
+                        }
+                    })}
                 </ModernSelectField>
                 <List>{list}</List>
             </div>

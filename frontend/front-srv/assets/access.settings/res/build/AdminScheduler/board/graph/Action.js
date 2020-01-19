@@ -50,16 +50,6 @@ var Action = (function (_shapes$devs$Model) {
 
         _classCallCheck(this, Action);
 
-        var aName = undefined;
-        if (action.Label) {
-            aName = action.Label;
-        } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
-            aName = descriptions[action.ID].Label;
-        } else {
-            var parts = action.ID.split(".");
-            aName = parts.pop();
-        }
-
         var iconCode = (0, _Configs.IconToUnicode)("chip");
         if (descriptions && descriptions[action.ID] && descriptions[action.ID].Icon) {
             iconCode = (0, _Configs.IconToUnicode)(descriptions[action.ID].Icon);
@@ -72,7 +62,7 @@ var Action = (function (_shapes$devs$Model) {
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
                 icon: _extends({ text: iconCode }, _Configs.LightIcon),
-                text: _extends({ text: aName }, _Configs.LightLabel),
+                text: _extends({ text: Action.computeLabel(action, descriptions) }, _Configs.LightLabel),
                 'separator': { display: 'none', x1: 44, y1: 0, x2: 44, y2: _Configs.BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
@@ -89,6 +79,7 @@ var Action = (function (_shapes$devs$Model) {
 
         _get(Object.getPrototypeOf(Action.prototype), "constructor", this).call(this, config);
         this._edit = edit;
+        this._descriptions = descriptions;
         this.notifyJobModel(action);
     }
 
@@ -124,8 +115,8 @@ var Action = (function (_shapes$devs$Model) {
             this._jobModel = action;
             action.model = this;
             this.setFilter(false);
-            //this.setFilter(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter);
             this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
+            this.attr('text/text', Action.computeLabel(action, this._descriptions));
         }
     }, {
         key: "setFilter",
@@ -181,6 +172,20 @@ var Action = (function (_shapes$devs$Model) {
             } else {
                 return null;
             }
+        }
+    }], [{
+        key: "computeLabel",
+        value: function computeLabel(action, descriptions) {
+            var aName = undefined;
+            if (action.Label) {
+                aName = action.Label;
+            } else if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+                aName = descriptions[action.ID].Label;
+            } else {
+                var parts = action.ID.split(".");
+                aName = parts.pop();
+            }
+            return aName;
         }
     }]);
 

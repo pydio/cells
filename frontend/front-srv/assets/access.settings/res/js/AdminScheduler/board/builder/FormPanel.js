@@ -7,7 +7,7 @@ import FormLoader from './FormLoader'
 import {ConfigServiceApi, JobsAction, JobsJob, RestConfiguration} from 'pydio/http/rest-api'
 
 const PydioForm = Pydio.requireLib('form');
-const {ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernTextField} = Pydio.requireLib('hoc');
 
 class FormPanel extends React.Component {
 
@@ -17,6 +17,7 @@ class FormPanel extends React.Component {
         this.state = {
             action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
             actionInfo: this.getActionInfo(action),
+            valid: true
         };
     }
 
@@ -33,7 +34,7 @@ class FormPanel extends React.Component {
                 Name: JOB_ACTION_EMPTY,
                 Label: 'Create Action',
                 Icon: 'chip',
-                Description:'Pick an action'
+                Description:''
             }
         } else {
             actionInfo = {
@@ -131,6 +132,18 @@ class FormPanel extends React.Component {
         this.setState({action, dirty: true});
     }
 
+    onLabelChange(value){
+        const {action} = this.state;
+        action.Label = value ? value.substr(0, 20) : undefined;
+        this.setState({action, dirty: true});
+    }
+
+    onDescriptionChange(value){
+        const {action} = this.state;
+        action.Description = value;
+        this.setState({action, dirty: true});
+    }
+
     onValidStatusChange(valid, failing){
         this.setState({valid});
     }
@@ -204,7 +217,7 @@ class FormPanel extends React.Component {
         const {onDismiss, onRemove, create} = this.props;
         const {actionInfo, action, formParams, dirty, valid} = this.state;
         let save, revert;
-        if(!create && formParams && dirty && valid) {
+        if(!create && dirty && valid) {
             save = () => this.save();
             revert = () => this.revert();
         }
@@ -248,24 +261,28 @@ class FormPanel extends React.Component {
                 title={actionInfo.Label}
                 icon={actionInfo.Icon}
                 onDismiss={onDismiss}
-                saveButtons={!!formParams}
+                saveButtons={!create}
                 onSave={save}
                 onRevert={revert}
                 onRemove={onRemove}
             >
-                <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
+                <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {form}
-                {create && <div style={{padding: 10, textAlign:'right'}}>
-                    <RaisedButton
-                        primary={true}
-                        label={"Create Action"}
-                        disabled={action.ID === JOB_ACTION_EMPTY || !valid}
-                        onTouchTap={() => {this.save(); onDismiss()}}/>
-                </div>
+                {action.ID !== JOB_ACTION_EMPTY &&
+                    <div style={{padding: '0 12px', marginTop: -6}}>
+                        <ModernTextField hintText={"Custom label (optional - 20 chars max)"} value={action.Label} onChange={(e,v) => {this.onLabelChange(v)}} fullWidth={true}/>
+                        <ModernTextField hintText={"Comment (optional)"} style={{marginTop: -2 }} multiLine={true} value={action.Description} onChange={(e,v) => {this.onDescriptionChange(v)}} fullWidth={true}/>
+                    </div>
                 }
-                {!create && !formParams &&
-                    <div style={{padding: 10, color: '#9E9E9E'}}>There are no parameters for this action</div>
+                {create &&
+                    <div style={{padding: 10, textAlign:'right'}}>
+                        <RaisedButton
+                            primary={true}
+                            label={"Create Action"}
+                            disabled={action.ID === JOB_ACTION_EMPTY || !valid}
+                            onTouchTap={() => {this.save(); onDismiss()}}/>
+                    </div>
                 }
             </RightPanel>
         )

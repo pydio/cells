@@ -35,16 +35,6 @@ class Action extends shapes.devs.Model{
      */
     constructor(descriptions, action, edit = false){
 
-        let aName;
-        if(action.Label){
-            aName = action.Label;
-        } else if(descriptions && descriptions[action.ID] && descriptions[action.ID].Label){
-            aName = descriptions[action.ID].Label
-        } else {
-            const parts = action.ID.split(".");
-            aName = parts.pop();
-        }
-
         let iconCode = IconToUnicode("chip");
         if(descriptions && descriptions[action.ID] && descriptions[action.ID].Icon){
             iconCode = IconToUnicode(descriptions[action.ID].Icon);
@@ -57,7 +47,7 @@ class Action extends shapes.devs.Model{
             attrs: {
                 rect: { ...BoxSize, ...BlueRect},
                 icon: {text: iconCode, ...LightIcon},
-                text: { text: aName , ...LightLabel},
+                text: { text: Action.computeLabel(action, descriptions) , ...LightLabel},
                 'separator': {display:'none', x1:44, y1:0, x2: 44, y2:BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'},
                 'filter-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},
@@ -74,6 +64,7 @@ class Action extends shapes.devs.Model{
 
         super(config);
         this._edit = edit;
+        this._descriptions = descriptions;
         this.notifyJobModel(action);
     }
 
@@ -103,8 +94,21 @@ class Action extends shapes.devs.Model{
         this._jobModel = action;
         action.model = this;
         this.setFilter(false);
-        //this.setFilter(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter);
         this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
+        this.attr('text/text', Action.computeLabel(action, this._descriptions))
+    }
+
+    static computeLabel(action, descriptions){
+        let aName;
+        if(action.Label){
+            aName = action.Label;
+        } else if(descriptions && descriptions[action.ID] && descriptions[action.ID].Label){
+            aName = descriptions[action.ID].Label
+        } else {
+            const parts = action.ID.split(".");
+            aName = parts.pop();
+        }
+        return aName
     }
 
     setFilter(b){
