@@ -91,18 +91,18 @@ var ConfirmExists = function (_React$Component) {
                         _react2.default.createElement(
                             _materialUi.RadioButtonGroup,
                             { ref: 'group', name: 'shipSpeed', defaultSelected: value, onChange: this.radioChange.bind(this) },
-                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename-folders', label: "Rename folders then files", style: { paddingBottom: 8 } }),
-                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename', label: "Rename files only (merge folders)", style: { paddingBottom: 8 } }),
-                            _react2.default.createElement(_materialUi.RadioButton, { value: 'overwrite', label: pydio.MessageHash['html_uploader.21'] })
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename-folders', label: pydio.MessageHash['html_uploader.confirm.rename.all'], style: { paddingBottom: 8 } }),
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename', label: pydio.MessageHash['html_uploader.confirm.rename.merge'], style: { paddingBottom: 8 } }),
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'overwrite', label: pydio.MessageHash['html_uploader.confirm.overwrite'] })
                         )
                     ),
                     _react2.default.createElement(
                         'div',
                         { style: { display: 'flex', marginTop: 30, alignItems: 'center' } },
-                        _react2.default.createElement(_materialUi.Checkbox, { label: "Save choice for next uploads", checked: saveValue, onCheck: this.checkChange.bind(this) }),
+                        _react2.default.createElement(_materialUi.Checkbox, { label: pydio.MessageHash['html_uploader.confirm.save.choice'], checked: saveValue, onCheck: this.checkChange.bind(this) }),
                         _react2.default.createElement('span', { style: { flex: 1 } }),
-                        _react2.default.createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: this.cancel.bind(this) }),
-                        _react2.default.createElement(_materialUi.RaisedButton, { primary: true, label: "OK", onTouchTap: this.submit.bind(this) })
+                        _react2.default.createElement(_materialUi.FlatButton, { label: pydio.MessageHash[54], onTouchTap: this.cancel.bind(this) }),
+                        _react2.default.createElement(_materialUi.RaisedButton, { primary: true, label: pydio.MessageHash[48], onTouchTap: this.submit.bind(this) })
                     )
                 )
             );
