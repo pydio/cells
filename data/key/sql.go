@@ -22,7 +22,6 @@ package key
 
 import (
 	"context"
-	"sync/atomic"
 
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/log"
@@ -59,7 +58,6 @@ var (
 		"node_legacy_block_delete":      `DELETE FROM enc_legacy_nodes WHERE node_id=?;`,
 		"node_legacy_part_block_delete": `DELETE FROM enc_legacy_nodes WHERE node_id=? and part_id=?;`,
 	}
-	mu atomic.Value
 )
 
 type sqlimpl struct {
@@ -67,20 +65,20 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (h *sqlimpl) Init(options common.ConfigValues) error {
 	// super
-	if err := s.DAO.Init(options); err != nil {
+	if err := h.DAO.Init(options); err != nil {
 		return err
 	}
 
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../data/key/migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
+		Dir:         h.Driver(),
+		TablePrefix: h.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, s.Prefix()+"_data-key.")
+	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, h.Prefix()+"_data-key.")
 	if err != nil {
 		return err
 	}
@@ -88,7 +86,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := h.Prepare(key, query); err != nil {
 				log.Logger(context.Background()).Error("failed to prepare statement", zap.String("name", key), zap.Error(err))
 				return err
 			}
@@ -170,7 +168,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		return err
 	}
 
-	log.Logger(ctx).Info("Copying all node keys")
 	keysCursor, err := h.GetAllNodeKey(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source key list", zap.Error(err))
@@ -188,7 +185,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		nodeKey := ki.(*encryption.NodeKey)
 		nodeKey.NodeId = targetUuid
 
-		log.Logger(ctx).Info("Saving", zap.Any("key", nodeKey))
 		err = h.SaveNodeKey(nodeKey)
 		if err != nil {
 			log.Logger(ctx).Error("failed to save key", zap.Any("key", nodeKey), zap.Error(err))
@@ -197,7 +193,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		}
 	}
 
-	log.Logger(ctx).Info("Copying all node blocks")
 	cursor, err := h.ListEncryptedBlockInfo(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source block list", zap.Error(err))
@@ -218,7 +213,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		}
 
 		b := bi.(*RangedBlocks)
-		log.Logger(ctx).Info("Saving", zap.Any("block", b))
 		_, err = stmt.Exec(targetUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.HeaderSize)
 		if err != nil {
 			log.Logger(ctx).Error("failed to save block", zap.Any("block", b), zap.Error(err))
@@ -227,7 +221,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		}
 	}
 
-	log.Logger(ctx).Info("node copy done!")
 	return nil
 }
 
