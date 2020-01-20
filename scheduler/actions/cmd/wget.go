@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -34,12 +35,11 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/proto/tree"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -134,6 +134,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		targetNode = input.Nodes[0]
 	}
 
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Downloading file to %s from URL %s", targetNode.GetPath(), w.SourceUrl.String()))
 	httpResponse, err := http.Get(w.SourceUrl.String())
 	if err != nil {
 		return input.WithError(err), err
@@ -151,7 +152,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	} else {
 		written, er = w.Router.PutObject(ctx, targetNode, httpResponse.Body, &views.PutRequestData{Size: httpResponse.ContentLength})
 	}
-	log.Logger(ctx).Info("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
+	log.Logger(ctx).Debug("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
 	if er != nil {
 		return input.WithError(er), err
 	}

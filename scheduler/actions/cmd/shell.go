@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -237,6 +238,7 @@ func (c *ShellAction) Run(ctx context.Context, channels *actions.RunnableChannel
 	}
 
 	log.Logger(ctx).Debug("Running command:", zap.String("bin", c.CmdBin), zap.Strings("params", params))
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Running shell command %s", c.CmdBin))
 
 	command := exec.Command(c.CmdBin, params...)
 

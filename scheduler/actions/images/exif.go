@@ -156,7 +156,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	e.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 
 	output.Nodes[0] = node
-	log.TasksLogger(ctx).Info("Extracted EXIF data from image", node.Zap())
+	log.TasksLogger(ctx).Info("Extracted EXIF data from "+node.GetPath(), node.ZapPath())
 	output.AppendOutput(&jobs.ActionOutput{
 		Success: true,
 	})

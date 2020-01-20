@@ -64,8 +64,8 @@ func (l *LogInputAction) GetParametersForm() *forms.Form {
 				&forms.FormField{
 					Name:        "debug",
 					Type:        forms.ParamBool,
-					Label:       "Use DEBUG level (info by default)",
-					Description: "Use DEBUG level (info by default)",
+					Label:       "Logger Debug level",
+					Description: "Logger Debug level",
 					Default:     false,
 					Mandatory:   false,
 					Editable:    true,

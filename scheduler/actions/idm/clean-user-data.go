@@ -100,7 +100,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
 			targetNode, _ := vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
 			log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())
-			log.TasksLogger(ctx).Info("Copy/Delete personal folder to " + targetNode.Path)
+			log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
 			// Make a Copy then Delete, to make sure UUID are changed and references are cleared
 			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, true, false, status, progress); e != nil {
 				done <- true

@@ -428,6 +428,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	bg = context2.WithUserNameMetadata(bg, common.PYDIO_SYSTEM_USERNAME)
 	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
 	bg = servicecontext.WithServiceColor(bg, servicecontext.GetServiceColor(c))
+	if s, o := servicecontext.SpanFromContext(c); o {
+		bg = servicecontext.WithSpan(bg, s)
+	}
 	result, e := s.syncTask.Run(bg, req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {

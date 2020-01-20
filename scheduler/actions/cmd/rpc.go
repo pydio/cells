@@ -24,12 +24,12 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/pydio/cells/common/forms"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -121,6 +121,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	var jsonParams interface{}
 	json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams)
 
+	log.TasksLogger(ctx).Info("Sending json+grpc request to " + c.ServiceName + "." + c.MethodName)
 	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, &jsonParams)
 	var response json.RawMessage
 	e := c.Client.Call(ctx, req, &response)
@@ -129,6 +130,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	}
 	output := input
 	jsonData, _ := response.MarshalJSON()
+	log.TasksLogger(ctx).Info("Request Success, appending data to action output (JsonBody)")
 	output.AppendOutput(&jobs.ActionOutput{
 		Success:  true,
 		JsonBody: jsonData,

@@ -130,13 +130,14 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
 	syncClient := sync.NewSyncEndpointClient(jobs.EvaluateFieldStr(ctx, input, srvName), defaults.NewClient())
+	log.TasksLogger(ctx).Info("Sending Resync command to " + srvName)
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
 		Path:   jobs.EvaluateFieldStr(ctx, input, c.Path),
 		DryRun: c.DryRun,
 		Task:   c.CrtTask,
 	})
 	if e != nil {
-		log.Logger(ctx).Debug("unable to trigger resync for "+srvName, zap.Error(e))
+		log.TasksLogger(ctx).Error("Unable to trigger resync for "+srvName, zap.Error(e))
 		return input.WithError(e), e
 	}
 	output := input

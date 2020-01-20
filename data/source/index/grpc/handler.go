@@ -387,7 +387,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		metaFilter := tree.NewMetaFilter(reqNode)
 		hasFilter := metaFilter.Parse()
 
-		log.Logger(ctx).Info("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
+		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
 
 		names := strings.Split(reqPath, "/")
 		for node := range c {

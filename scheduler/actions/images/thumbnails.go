@@ -167,7 +167,7 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	output := input
 	output.Nodes[0] = node
-	log.TasksLogger(ctx).Info("Created thumbnails for image", node.Zap())
+	log.TasksLogger(ctx).Info("Created thumbnails for "+node.GetPath(), node.ZapPath())
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
 	return output, nil

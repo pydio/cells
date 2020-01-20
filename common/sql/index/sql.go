@@ -1148,7 +1148,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	defer func() {
 		if errTx == nil {
 			tx.Commit()
-			log.Logger(ctx).Info("[MoveNodeTree] Finished committing transaction", zap.Duration("duration", time.Now().Sub(t1)))
+			log.Logger(ctx).Debug("[MoveNodeTree] Finished committing transaction", zap.Duration("duration", time.Now().Sub(t1)))
 		} else {
 			tx.Rollback()
 			log.Logger(ctx).Error("[MoveNodeTree] Rollback transaction", zap.Duration("duration", time.Now().Sub(t1)))
@@ -1161,7 +1161,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	for node := range dao.GetNodeTree(pathFrom, true) {
 		nodes = append(nodes, node)
 	}
-	log.Logger(ctx).Info("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
+	log.Logger(ctx).Debug("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
 	t1 = time.Now()
 
 	// Update all children in transaction
@@ -1171,7 +1171,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		}
 	}
 
-	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int("nodes", len(nodes)+1), zap.Duration("duration", time.Now().Sub(t1)))
+	log.Logger(ctx).Debug("[MoveNodeTree] Finished moving", zap.Int("nodes", len(nodes)+1), zap.Duration("duration", time.Now().Sub(t1)))
 	return
 }
 
