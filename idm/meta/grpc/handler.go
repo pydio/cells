@@ -65,6 +65,11 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	for _, metaData := range request.MetaDatas {
 		h.clearCacheForNode(metaData.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
+			// Check JsonValue is valid json
+			var data interface{}
+			if er := json.Unmarshal([]byte(metaData.GetJsonValue()), &data); er != nil {
+				return fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
+			}
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metaData); err == nil {
 				nodeUuids = append(nodeUuids, metaData.NodeUuid)
