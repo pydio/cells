@@ -401,9 +401,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					theTask.HasProgress = true
 					theTask.Progress = status.Progress()
 					theTask.Status = jobs.TaskStatus_Running
-					if status.IsError() {
+					if status.IsError() && status.Error() != nil {
 						log.TasksLogger(c).Error(status.String(), zap.Error(status.Error()))
-					} else {
+					} else if status.String() != "" {
 						log.TasksLogger(c).Info(status.String())
 					}
 					taskChan <- theTask
@@ -423,7 +423,12 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}()
 	}
 	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
-	result, e := s.syncTask.Run(context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME), req.DryRun, false)
+	// Copy context
+	bg := context.Background()
+	bg = context2.WithUserNameMetadata(bg, common.PYDIO_SYSTEM_USERNAME)
+	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
+	bg = servicecontext.WithServiceColor(bg, servicecontext.GetServiceColor(c))
+	result, e := s.syncTask.Run(bg, req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
