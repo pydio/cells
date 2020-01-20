@@ -179,24 +179,22 @@ class RestClient extends ApiClient{
             headerParams["X-Pydio-Language"] = this.pydio.user.getPreference("lang");
         }
 
-        return this.getOrUpdateJwt().then((accessToken) => {
-            const authNames = ['oauth2']
-            this.authentications = {'oauth2': {type:'oauth2', accessToken: accessToken}};
-            
-            return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-        })
-        .catch((reason) => {
-            if(reason.response && reason.response.status === 401){
-                return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType)
-            } else {
+        return this.getOrUpdateJwt()
+            .then(token => token)
+            .catch(() => "") // If no user we still want to call the request but with no authentication
+            .then((accessToken) => {
+                const authNames = []
+                if (accessToken !== "") {
+                    authNames.push('oauth2')
+                    this.authentications = {'oauth2': {type:'oauth2', accessToken: accessToken}};
+                }
+                return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
+            })
+            .then((response) => response)
+            .catch((reason) =>{
+                this.handleError(reason);
                 return Promise.reject(reason);
-            }
-        })
-        .then((response) => response)
-        .catch((reason) =>{
-            this.handleError(reason);
-            return Promise.reject(reason);
-        });
+            });
     }
 
     handleError(reason) {

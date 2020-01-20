@@ -79,14 +79,16 @@ message FrontSessionRequest{
     bool Logout = 3;
 }
 message FrontSessionResponse {
-    Token Token = 1;
+    // Legacy information (now in token)
+    string JWT = 1;
+    int32 ExpireTime = 2;
     // Trigger a specific Auth step
-    string Trigger = 2;
+    string Trigger = 3;
     // Additional data for the trigger
-    map<string,string> TriggerInfo = 3;
-    
-    string RedirectTo = 4;
-    string Error = 5;
+    map<string,string> TriggerInfo = 4;
+    Token Token = 5;
+    string RedirectTo = 6;
+    string Error = 7;
 }
 
 message FrontSessionDelRequest {}

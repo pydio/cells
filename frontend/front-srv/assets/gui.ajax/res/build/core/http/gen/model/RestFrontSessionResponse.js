@@ -43,9 +43,11 @@ var RestFrontSessionResponse = (function () {
     function RestFrontSessionResponse() {
         _classCallCheck(this, RestFrontSessionResponse);
 
-        this.Token = undefined;
+        this.JWT = undefined;
+        this.ExpireTime = undefined;
         this.Trigger = undefined;
         this.TriggerInfo = undefined;
+        this.Token = undefined;
         this.RedirectTo = undefined;
         this.Error = undefined;
     }
@@ -62,14 +64,20 @@ var RestFrontSessionResponse = (function () {
         if (data) {
             obj = obj || new RestFrontSessionResponse();
 
-            if (data.hasOwnProperty('Token')) {
-                obj['Token'] = _RestToken2['default'].constructFromObject(data['Token']);
+            if (data.hasOwnProperty('JWT')) {
+                obj['JWT'] = _ApiClient2['default'].convertToType(data['JWT'], 'String');
+            }
+            if (data.hasOwnProperty('ExpireTime')) {
+                obj['ExpireTime'] = _ApiClient2['default'].convertToType(data['ExpireTime'], 'Number');
             }
             if (data.hasOwnProperty('Trigger')) {
                 obj['Trigger'] = _ApiClient2['default'].convertToType(data['Trigger'], 'String');
             }
             if (data.hasOwnProperty('TriggerInfo')) {
                 obj['TriggerInfo'] = _ApiClient2['default'].convertToType(data['TriggerInfo'], { 'String': 'String' });
+            }
+            if (data.hasOwnProperty('Token')) {
+                obj['Token'] = _RestToken2['default'].constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('RedirectTo')) {
                 obj['RedirectTo'] = _ApiClient2['default'].convertToType(data['RedirectTo'], 'String');
@@ -82,7 +90,7 @@ var RestFrontSessionResponse = (function () {
     };
 
     /**
-    * @member {module:model/RestToken} Token
+    * @member {String} JWT
     */
     return RestFrontSessionResponse;
 })();
@@ -91,11 +99,19 @@ exports['default'] = RestFrontSessionResponse;
 module.exports = exports['default'];
 
 /**
+* @member {Number} ExpireTime
+*/
+
+/**
 * @member {String} Trigger
 */
 
 /**
 * @member {Object.<String, String>} TriggerInfo
+*/
+
+/**
+* @member {module:model/RestToken} Token
 */
 
 /**

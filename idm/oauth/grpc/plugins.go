@@ -66,7 +66,23 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	oauth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+	auth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+	watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		defer watcher.Stop()
+		for {
+			_, err := watcher.Next()
+			if err != nil {
+				break
+			}
+
+			auth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+		}
+	}()
 
 	return nil
 }

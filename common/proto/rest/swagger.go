@@ -6141,8 +6141,13 @@ var SwaggerJson = `{
     "restFrontSessionResponse": {
       "type": "object",
       "properties": {
-        "Token": {
-          "$ref": "#/definitions/restToken"
+        "JWT": {
+          "type": "string",
+          "title": "Legacy information (now in token)"
+        },
+        "ExpireTime": {
+          "type": "integer",
+          "format": "int32"
         },
         "Trigger": {
           "type": "string",
@@ -6154,6 +6159,9 @@ var SwaggerJson = `{
             "type": "string"
           },
           "title": "Additional data for the trigger"
+        },
+        "Token": {
+          "$ref": "#/definitions/restToken"
         },
         "RedirectTo": {
           "type": "string"
