@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/dexidp/dex/connector"
+	dlog "github.com/dexidp/dex/pkg/log"
 	"github.com/golang/protobuf/proto"
-	"github.com/sirupsen/logrus"
 )
 
 type Connector interface {
@@ -19,7 +19,7 @@ type Connector interface {
 type OpenerFunc func(proto.Message) (Opener, error)
 
 type Opener interface {
-	Open(logrus.FieldLogger) (connector.Connector, error)
+	Open(string, dlog.Logger) (connector.Connector, error)
 }
 
 var (
@@ -36,7 +36,6 @@ func RegisterConnectorType(connType string, openerFunc OpenerFunc) {
 func RegisterConnector(id, name, connectorType string, data proto.Message) {
 	openerFunc, ok := connectorTypes[connectorType]
 	if !ok {
-		fmt.Println("Unknown type ", connectorType)
 		return
 	}
 
@@ -46,7 +45,7 @@ func RegisterConnector(id, name, connectorType string, data proto.Message) {
 		return
 	}
 
-	c, err := opener.Open(nil)
+	c, err := opener.Open(id, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

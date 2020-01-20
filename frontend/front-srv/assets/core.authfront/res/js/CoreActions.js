@@ -74,7 +74,7 @@ let LoginDialogMixin = {
 
         restClient.sessionLoginWithCredentials(login, this.refs.password.getValue())
             .then(() => this.dismiss())
-            .then(() => pydio.loadXmlRegistry(null, null, null))
+            .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
             .catch(e => {
                 if (e && e.response && e.response.body) {
                     this.setState({errorId: e.response.body.Title});

@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/dexidp/dex/connector"
+	dlog "github.com/dexidp/dex/pkg/log"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
-	"github.com/sirupsen/logrus"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -41,7 +41,7 @@ func init() {
 
 type pydioconfig struct{}
 
-func (c *pydioconfig) Open(logrus.FieldLogger) (connector.Connector, error) {
+func (c *pydioconfig) Open(string, dlog.Logger) (connector.Connector, error) {
 	return &pydioconnector{}, nil
 }
 

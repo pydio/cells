@@ -203,6 +203,17 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		log.Logger(ctx).Error("Error saving session", zap.Error(e))
 	}
 
+	// Legacy code
+	if accessToken, ok := session.Values["access_token"]; ok {
+		response.JWT = accessToken.(string)
+	}
+
+	if expiry, ok := session.Values["expires_at"]; ok {
+		if expiryInt, err := strconv.Atoi(expiry.(string)); err == nil {
+			response.ExpireTime = int32(expiryInt)
+		}
+	}
+
 	rsp.WriteEntity(response)
 }
 
