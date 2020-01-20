@@ -22,6 +22,7 @@ package log
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +38,7 @@ import (
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods
 type IndexableLog struct {
+	Nano int
 	log.LogMessage
 }
 
@@ -105,18 +107,14 @@ func BleveDuplicateIndex(from bleve.Index, to bleve.Index) error {
 // Results are ordered by descending timestamp rather than by score.
 func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan log.ListLogResponse, error) {
 
-	//fmt.Printf("## [DEBUG] ## Query [%s] should execute \n", str)
-
 	var q query.Query
 	if str == "" {
 		q = bleve.NewMatchAllQuery()
 	} else {
-		// re := regexp.MustCompile("\\+msg\\:")
-		// str = re.ReplaceAllString(str, "")
 		q = bleve.NewQueryStringQuery(str)
 	}
 	req := bleve.NewSearchRequest(q)
-	req.SortBy([]string{"-" + common.KEY_TS})
+	req.SortBy([]string{"-" + common.KEY_TS, "-" + common.KEY_NANO})
 	req.Size = int(size)
 	req.From = int(page * size)
 
@@ -131,12 +129,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	go func() {
 		defer close(res)
 
-		//fmt.Printf("## [DEBUG] ## Query [%s] successfully executed: found %d matches in %s\n", str, sr.Total, sr.Took)
-
 		for _, hit := range sr.Hits {
-			// fmt.Printf("## Hit#%d:\n", i)
-			// fmt.Printf("%v\n", *hit)
-
 			doc, err := idx.Document(hit.ID)
 			if err != nil {
 				continue
@@ -198,6 +191,8 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 				return nil, err
 			}
 			msg.Ts = convertTimeToTs(t)
+		case "nano":
+			msg.Nano, _ = strconv.Atoi(val)
 		case "level":
 			msg.Level = val
 		case common.KEY_MSG_ID:

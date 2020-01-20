@@ -23,6 +23,7 @@ package log
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"sync"
 	"time"
 
@@ -111,6 +112,8 @@ func (l *LogSyncer) Write(p []byte) (n int, err error) {
 			m[key] = value
 		}
 	}
+	// Add nano time for better sorting
+	m["nano"] = strconv.Itoa(time.Now().Nanosecond())
 
 	go func() {
 		l.logSyncerMessages <- m

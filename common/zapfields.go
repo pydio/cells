@@ -24,6 +24,7 @@ package common
 const (
 	KEY_MSG_ID = "MsgId"
 	KEY_TS     = "Ts"
+	KEY_NANO   = "Nano"
 	KEY_LEVEL  = "Level"
 	KEY_LOGGER = "Logger"
 	KEY_MSG    = "Msg"
