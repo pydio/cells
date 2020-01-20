@@ -157,7 +157,7 @@ var Renderer = (function () {
                 marginRight: 6
             };
             var value = node.getMetadata().get(column.name);
-            if (!value) return null;
+            if (!value || !value.split) return null;
             return _react2['default'].createElement(
                 'span',
                 null,
@@ -573,7 +573,7 @@ var TagsCloud = _react2['default'].createClass({
             return;
         }
         var tags = [];
-        if (this.state.tags) {
+        if (this.state.tags && this.state.tags.split) {
             tags = this.state.tags.split(',');
         }
         tags.push(this.state.searchText);
@@ -613,7 +613,7 @@ var TagsCloud = _react2['default'].createClass({
         var _this8 = this;
 
         var tags = undefined;
-        if (this.state.tags) {
+        if (this.state.tags && this.state.tags.split) {
             tags = this.state.tags.split(",").map((function (tag) {
                 tag = LangUtils.trim(tag, ' ');
                 if (!tag) return null;

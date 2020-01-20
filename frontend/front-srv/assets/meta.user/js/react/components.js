@@ -106,7 +106,7 @@ class Renderer{
             marginRight: 6
         };
         const value = node.getMetadata().get(column.name);
-        if(!value) return null;
+        if(!value || !value.split) return null;
         return <span>{value.split(',').map(tag => <span style={{...tagStyle, ...colorsFromString(tag)}}>{tag}</span>)}</span>
     }
 
@@ -435,7 +435,7 @@ let TagsCloud = React.createClass({
             return
         }
         let tags = [];
-        if (this.state.tags) {
+        if (this.state.tags && this.state.tags.split) {
             tags = this.state.tags.split(',');
         }
         tags.push(this.state.searchText);
@@ -462,7 +462,7 @@ let TagsCloud = React.createClass({
 
     render(){
         let tags;
-        if (this.state.tags) {
+        if (this.state.tags && this.state.tags.split) {
             tags = this.state.tags.split(",").map(function(tag){
                 tag = LangUtils.trim(tag, ' ');
                 if(!tag) return null;
