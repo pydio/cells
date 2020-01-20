@@ -85,15 +85,18 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 		login, err := hydra.GetLogin(loginChallenge)
 		if err != nil {
+			log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
 			return err
 		}
 
 		if _, err := hydra.AcceptLogin(loginChallenge, identity.UserID); err != nil {
+			log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 			return err
 		}
 
 		consent, err := hydra.CreateConsent(loginChallenge)
 		if err != nil {
+			log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 			return err
 		}
 
@@ -107,6 +110,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 				"email": identity.Email,
 			},
 		); err != nil {
+			log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
 			return err
 		}
 
@@ -124,6 +128,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 		code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
 		if err != nil {
+			log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
 			return err
 		}
 
@@ -134,6 +139,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 		token, err := hydra.Exchange(code)
 		if err != nil {
+			log.Logger(ctx).Error("Failed to exchange code ", zap.Error(err))
 			return err
 		}
 

@@ -64,7 +64,8 @@ func actionConfigsSet(c *install.InstallConfig) error {
 
 	// OAuth web
 	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
-	config.Set(fmt.Sprintf("%s/oidc/", url), "services", oauthWeb, "issuer")
+	config.Set(url+"/oidc/", "services", oauthWeb, "issuer")
+	config.Set([]string{url + "/auth/callback"}, "services", oauthWeb, "insecureRedirects")
 
 	secret, err := x.GenerateSecret(32)
 	if err != nil {
@@ -78,17 +79,25 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	if err := statics.Scan(&data); err == nil {
 		var saveStatics bool
 		for _, static := range data {
-			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
-				var newRedirs []string
-				for _, redir := range redirs {
-					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
-						newRedirs = append(newRedirs, url+"/oauth2/oob")
-						saveStatics = true
-					} else {
-						newRedirs = append(newRedirs, redir.(string))
+			for _, n := range []string{"redirect_uris", "post_logout_redirect_uris"} {
+				if redirs, ok := static[n].([]interface{}); ok {
+					var newRedirs []string
+					for _, redir := range redirs {
+						if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
+							newRedirs = append(newRedirs, url+"/oauth2/oob")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/callback") && redir.(string) != url+"/auth/callback" {
+							newRedirs = append(newRedirs, url+"/auth/callback")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/logout") && redir.(string) != url+"/auth/logout" {
+							newRedirs = append(newRedirs, url+"/auth/logout")
+							saveStatics = true
+						} else {
+							newRedirs = append(newRedirs, redir.(string))
+						}
 					}
+					static[n] = newRedirs
 				}
-				static["redirect_uris"] = newRedirs
 			}
 		}
 		if saveStatics {

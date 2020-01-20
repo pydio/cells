@@ -1,4 +1,4 @@
-package oauth
+package auth
 
 import (
 	"context"
@@ -18,7 +18,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/sql"
 )
@@ -65,12 +64,12 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 		store := oauth2.NewFositeSQLStore(db, r, conf)
 		store.CreateSchemas(dao.Driver())
 
-		auth.RegisterOryProvider(r.OAuth2Provider())
-
-		if err := syncClients(context.Background(), r.ClientManager(), c.Array("staticClients")); err != nil {
-			return
-		}
+		RegisterOryProvider(r.OAuth2Provider())
 	})
+
+	if err := syncClients(context.Background(), reg.ClientManager(), c.Array("staticClients")); err != nil {
+		return
+	}
 }
 
 func GetRegistry() driver.Registry {

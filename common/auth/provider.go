@@ -1,4 +1,4 @@
-package oauth
+package auth
 
 import (
 	"net/url"
@@ -12,7 +12,7 @@ import (
 	"github.com/pydio/cells/common"
 )
 
-type Provider struct {
+type ConfigurationProvider struct {
 	// rootURL
 	r string
 
@@ -29,7 +29,7 @@ type Provider struct {
 
 func NewProvider(rootURL string, values common.ConfigValues) configuration.Provider {
 	drv, dsn := values.Database("dsn")
-	return &Provider{
+	return &ConfigurationProvider{
 		r:    rootURL,
 		v:    values,
 		cors: values.Values("cors"),
@@ -40,11 +40,11 @@ func NewProvider(rootURL string, values common.ConfigValues) configuration.Provi
 	}
 }
 
-func (v *Provider) InsecureRedirects() []string {
+func (v *ConfigurationProvider) InsecureRedirects() []string {
 	return v.v.StringArray("insecureRedirects", []string{})
 }
 
-func (v *Provider) WellKnownKeys(include ...string) []string {
+func (v *ConfigurationProvider) WellKnownKeys(include ...string) []string {
 	if v.AccessTokenStrategy() == "jwt" {
 		include = append(include, x.OAuth2JWTKeyName)
 	}
@@ -54,27 +54,27 @@ func (v *Provider) WellKnownKeys(include ...string) []string {
 	return include
 }
 
-func (v *Provider) ServesHTTPS() bool {
+func (v *ConfigurationProvider) ServesHTTPS() bool {
 	return v.v.Bool("https", false)
 }
 
-func (v *Provider) IsUsingJWTAsAccessTokens() bool {
+func (v *ConfigurationProvider) IsUsingJWTAsAccessTokens() bool {
 	return v.AccessTokenStrategy() != "opaque"
 }
 
-func (v *Provider) SubjectTypesSupported() []string {
+func (v *ConfigurationProvider) SubjectTypesSupported() []string {
 	return v.v.StringArray("subjectTypesSupported", []string{"public"})
 }
 
-func (v *Provider) DefaultClientScope() []string {
+func (v *ConfigurationProvider) DefaultClientScope() []string {
 	return v.v.StringArray("defaultClientScope", []string{"offline_access", "offline", "openid", "pydio", "email"})
 }
 
-func (v *Provider) CORSEnabled(iface string) bool {
+func (v *ConfigurationProvider) CORSEnabled(iface string) bool {
 	return v.cors.Values(iface).IsEmpty()
 }
 
-func (v *Provider) CORSOptions(iface string) cors.Options {
+func (v *ConfigurationProvider) CORSOptions(iface string) cors.Options {
 	return cors.Options{
 		AllowedOrigins:     v.cors.Values(iface).StringArray("allowedOrigins"),
 		AllowedMethods:     v.cors.Values(iface).StringArray("allowedMethods"),
@@ -87,77 +87,77 @@ func (v *Provider) CORSOptions(iface string) cors.Options {
 	}
 }
 
-func (v *Provider) DSN() string {
+func (v *ConfigurationProvider) DSN() string {
 	return v.drv + "://" + v.dsn
 }
 
-func (v *Provider) DataSourcePlugin() string {
+func (v *ConfigurationProvider) DataSourcePlugin() string {
 	return v.drv + "://" + v.dsn
 }
 
-func (v *Provider) BCryptCost() int {
+func (v *ConfigurationProvider) BCryptCost() int {
 	return 10
 }
 
-func (v *Provider) AdminListenOn() string {
+func (v *ConfigurationProvider) AdminListenOn() string {
 	return ":0"
 }
 
-func (v *Provider) AdminDisableHealthAccessLog() bool {
+func (v *ConfigurationProvider) AdminDisableHealthAccessLog() bool {
 	return false
 }
 
-func (v *Provider) PublicListenOn() string {
+func (v *ConfigurationProvider) PublicListenOn() string {
 	return ":0"
 }
 
-func (v *Provider) PublicDisableHealthAccessLog() bool {
+func (v *ConfigurationProvider) PublicDisableHealthAccessLog() bool {
 	return v.v.Bool("publicDisabledHealthAccessLog", false)
 }
 
-func (v *Provider) ConsentRequestMaxAge() time.Duration {
+func (v *ConfigurationProvider) ConsentRequestMaxAge() time.Duration {
 	return v.v.Duration("consentRequestMaxAge", "30m")
 }
 
-func (v *Provider) AccessTokenLifespan() time.Duration {
+func (v *ConfigurationProvider) AccessTokenLifespan() time.Duration {
 	return v.v.Duration("accessTokenLifespan", "10m")
 }
 
-func (v *Provider) RefreshTokenLifespan() time.Duration {
+func (v *ConfigurationProvider) RefreshTokenLifespan() time.Duration {
 	return v.v.Duration("refreshTokenLifespan", "1h")
 }
 
-func (v *Provider) IDTokenLifespan() time.Duration {
+func (v *ConfigurationProvider) IDTokenLifespan() time.Duration {
 	return v.v.Duration("idTokenLifespan", "1h")
 }
 
-func (v *Provider) AuthCodeLifespan() time.Duration {
+func (v *ConfigurationProvider) AuthCodeLifespan() time.Duration {
 	return v.v.Duration("authCodeLifespan", "10m")
 }
 
-func (v *Provider) ScopeStrategy() string {
+func (v *ConfigurationProvider) ScopeStrategy() string {
 	return ""
 }
 
-func (v *Provider) TracingServiceName() string {
+func (v *ConfigurationProvider) TracingServiceName() string {
 	return "ORY Hydra"
 }
 
-func (v *Provider) TracingProvider() string {
+func (v *ConfigurationProvider) TracingProvider() string {
 	return ""
 }
 
-func (v *Provider) TracingJaegerConfig() *tracing.JaegerConfig {
+func (v *ConfigurationProvider) TracingJaegerConfig() *tracing.JaegerConfig {
 	return &tracing.JaegerConfig{}
 }
 
-func (v *Provider) GetCookieSecrets() [][]byte {
+func (v *ConfigurationProvider) GetCookieSecrets() [][]byte {
 	return [][]byte{
 		v.GetSystemSecret(),
 	}
 }
 
-func (v *Provider) GetRotatedSystemSecrets() [][]byte {
+func (v *ConfigurationProvider) GetRotatedSystemSecrets() [][]byte {
 	secrets := [][]byte{v.GetSystemSecret()}
 
 	if len(secrets) < 2 {
@@ -172,78 +172,78 @@ func (v *Provider) GetRotatedSystemSecrets() [][]byte {
 	return rotated
 }
 
-func (v *Provider) GetSystemSecret() []byte {
+func (v *ConfigurationProvider) GetSystemSecret() []byte {
 	return v.v.Bytes("secret", []byte{})
 }
 
-func (v *Provider) LogoutRedirectURL() *url.URL {
+func (v *ConfigurationProvider) LogoutRedirectURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("logoutRedirectURL", "/oauth2/logout/callback"))
 	return u
 }
 
-func (v *Provider) LoginURL() *url.URL {
+func (v *ConfigurationProvider) LoginURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("loginURL", "/oauth2/login"))
 	return u
 }
 
-func (v *Provider) LogoutURL() *url.URL {
+func (v *ConfigurationProvider) LogoutURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("logoutURL", "/oauth2/logout"))
 	return u
 }
 
-func (v *Provider) ConsentURL() *url.URL {
+func (v *ConfigurationProvider) ConsentURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("consentURL", "/oauth2/consent"))
 	return u
 }
 
-func (v *Provider) ErrorURL() *url.URL {
+func (v *ConfigurationProvider) ErrorURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("errorURL", "/oauth2/fallbacks/error"))
 	return u
 }
 
-func (v *Provider) PublicURL() *url.URL {
+func (v *ConfigurationProvider) PublicURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("publicURL", "/oidc/"))
 	return u
 }
 
-func (v *Provider) IssuerURL() *url.URL {
+func (v *ConfigurationProvider) IssuerURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("issuerURL", "/oidc/"))
 	return u
 }
 
-func (v *Provider) OAuth2AuthURL() string {
+func (v *ConfigurationProvider) OAuth2AuthURL() string {
 	return v.urls.String("oauth2AuthURL", "/oauth2/auth") // this should not have the host etc prepended...
 }
 
-func (v *Provider) OAuth2ClientRegistrationURL() *url.URL {
+func (v *ConfigurationProvider) OAuth2ClientRegistrationURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("loginURL", ""))
 	return u
 }
 
-func (v *Provider) AllowTLSTerminationFrom() []string {
+func (v *ConfigurationProvider) AllowTLSTerminationFrom() []string {
 	return v.v.StringArray("allowTLSTerminationFrom", []string{})
 }
 
-func (v *Provider) AccessTokenStrategy() string {
+func (v *ConfigurationProvider) AccessTokenStrategy() string {
 	return v.v.String("accessTokenStrategy", "opaque")
 }
 
-func (v *Provider) SubjectIdentifierAlgorithmSalt() string {
+func (v *ConfigurationProvider) SubjectIdentifierAlgorithmSalt() string {
 	return v.v.String("subjectIdentifierAlgorithmSalt", "")
 }
 
-func (v *Provider) OIDCDiscoverySupportedClaims() []string {
+func (v *ConfigurationProvider) OIDCDiscoverySupportedClaims() []string {
 	return v.oidc.StringArray("supportedClaims", []string{})
 }
 
-func (v *Provider) OIDCDiscoverySupportedScope() []string {
+func (v *ConfigurationProvider) OIDCDiscoverySupportedScope() []string {
 	return v.oidc.StringArray("supportedScope", []string{})
 }
 
-func (v *Provider) OIDCDiscoveryUserinfoEndpoint() string {
+func (v *ConfigurationProvider) OIDCDiscoveryUserinfoEndpoint() string {
 	return v.oidc.String("userInfoEndpoint", "/oauth2/userinfo")
 }
 
-func (v *Provider) ShareOAuth2Debug() bool {
+func (v *ConfigurationProvider) ShareOAuth2Debug() bool {
 	return v.v.Bool("shareOAuth2Debug", false)
 }
