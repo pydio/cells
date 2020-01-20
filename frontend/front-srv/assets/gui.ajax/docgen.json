@@ -5024,6 +5024,30 @@
             "returns": null
           },
           {
+            "name": "onLabelChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onDescriptionChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "onValidStatusChange",
             "docblock": null,
             "modifiers": [],
