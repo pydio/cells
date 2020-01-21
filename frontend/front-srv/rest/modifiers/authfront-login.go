@@ -1,12 +1,15 @@
 package modifiers
 
 import (
-	"github.com/dexidp/dex/connector"
+	"net/url"
+	"strconv"
+
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
-	"github.com/micro/go-micro/errors"
+	"github.com/ory/fosite"
 
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/auth/hydra"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -20,40 +23,49 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		username := in.AuthInfo["login"]
 		password := in.AuthInfo["password"]
 
-		// Making sure user_id is not passed in directly
-		delete(in.AuthInfo, "user_id")
-
-		// Loop through the different password connectors
-		var identity connector.Identity
-		var valid bool
-		var err error
-		connectors := auth.GetConnectors()
-		for _, c := range connectors {
-			cc, ok := c.Conn().(connector.PasswordConnector)
-			if !ok {
-				continue
-			}
-
-			identity, valid, err = cc.Login(req.Request.Context(), connector.Scopes{}, username, password)
-			// Error means the user is unknwown to the system, we contine to the next round
+		if challenge, ok := in.AuthInfo["challenge"]; ok {
+			// If we do have a challenge, then we're comming from an external source and
+			code, err := auth.DefaultJWTVerifier().PasswordCredentialsCode(req.Request.Context(), username, password, auth.SetChallenge(challenge))
 			if err != nil {
-				continue
+				return err
 			}
 
-			// Invalid means we found the user but did not match the password
-			if !valid {
-				err = errors.Forbidden("password", "password does not match")
-				continue
+			login, err := hydra.GetLogin(challenge)
+			if err != nil {
+				return err
+			}
+			requestURL, err := url.Parse(login.GetRequestURL())
+			if err != nil {
+				return err
 			}
 
-			in.AuthInfo["user_id"] = identity.UserID
-			in.AuthInfo["source"] = c.ID()
+			requestURLValues := requestURL.Query()
 
-			break
+			redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+			if err != nil {
+				return err
+			}
+
+			out.RedirectTo = redirectURL + "?code=" + code + "&state=" + requestURLValues.Get("state")
+
+			return middleware(req, rsp, in, out, session)
 		}
 
+		// If we don't have a challenge then we proceed with a normal login
+		token, err := auth.DefaultJWTVerifier().PasswordCredentialsToken(req.Request.Context(), username, password)
 		if err != nil {
 			return err
+		}
+
+		session.Values["access_token"] = token.AccessToken
+		session.Values["id_token"] = token.Extra("id_token").(string)
+		session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))
+		session.Values["refresh_token"] = token.RefreshToken
+
+		out.Token = &rest.Token{
+			AccessToken: session.Values["access_token"].(string),
+			IDToken:     session.Values["id_token"].(string),
+			ExpiresAt:   session.Values["expires_at"].(string),
 		}
 
 		return middleware(req, rsp, in, out, session)

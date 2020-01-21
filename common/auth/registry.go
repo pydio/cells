@@ -11,7 +11,6 @@ import (
 	"github.com/ory/hydra/client"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/driver"
-	"github.com/ory/hydra/driver/configuration"
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
 	"github.com/ory/x/sqlcon"
@@ -24,7 +23,7 @@ import (
 
 var (
 	reg  driver.Registry
-	conf configuration.Provider
+	conf ConfigurationProvider
 	once = &sync.Once{}
 )
 
@@ -76,7 +75,7 @@ func GetRegistry() driver.Registry {
 	return reg
 }
 
-func GetConfigurationProvider() configuration.Provider {
+func GetConfigurationProvider() ConfigurationProvider {
 	return conf
 }
 

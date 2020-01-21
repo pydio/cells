@@ -91,10 +91,10 @@ func init() {
 
 		frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
 		frontend.WrapAuthMiddleware(modifiers.LoginExternalAuth)
+		frontend.WrapAuthMiddleware(modifiers.AuthorizationCodeAuth)
+
 		frontend.WrapAuthMiddleware(modifiers.LoginSuccessWrapper)
 		frontend.WrapAuthMiddleware(modifiers.LoginFailedWrapper)
-		frontend.WrapAuthMiddleware(modifiers.LoginConsentChallengeWrapper)
-		frontend.WrapAuthMiddleware(modifiers.AuthorizationCodeAuth)
 
 		s := service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),

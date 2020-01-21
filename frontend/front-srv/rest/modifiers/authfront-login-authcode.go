@@ -15,6 +15,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
 	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -31,30 +32,11 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
 
-		// BEFORE MIDDLEWARE
-
-		// MIDDLEWARE
-		if err := middleware(req, rsp, in, out, session); err != nil {
-			return err
-		}
-
-		// AFTER MIDDLEWARE
 		if a, ok := in.AuthInfo["type"]; !ok || a != "authorization_code" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
 
-		code, ok := in.AuthInfo["code"]
-		if !ok {
-			return errors.New("code.not_found", "Missing code", http.StatusNotFound)
-		}
-
-		// Special case for redirections
-		if redirectURL, ok := in.AuthInfo["redirect_url"]; ok && redirectURL != "" {
-			out.RedirectTo = redirectURL + "?code=" + code + "&state=" + in.AuthInfo["state"]
-			return middleware(req, rsp, in, out, session)
-		}
-
-		token, err := tokenFromAuthCode(in.AuthInfo["code"])
+		token, err := auth.DefaultJWTVerifier().Exchange(req.Request.Context(), in.AuthInfo["code"])
 		if err != nil {
 			return err
 		}
@@ -70,7 +52,31 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 			ExpiresAt:   session.Values["expires_at"].(string),
 		}
 
-		return middleware(req, rsp, in, out, session)
+		return middleware(req, rsp, in, out, session) // BEFORE MIDDLEWARE
+
+		// // Special case for redirections
+		// if redirectURL, ok := in.AuthInfo["redirect_url"]; ok && redirectURL != "" {
+		// 	out.RedirectTo = redirectURL + "?code=" + code + "&state=" + in.AuthInfo["state"]
+		// 	return middleware(req, rsp, in, out, session)
+		// }
+
+		// token, err := tokenFromAuthCode(in.AuthInfo["code"])
+		// if err != nil {
+		// 	return err
+		// }
+
+		// session.Values["access_token"] = token.AccessToken
+		// session.Values["id_token"] = token.Extra("id_token").(string)
+		// session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))
+		// session.Values["refresh_token"] = token.RefreshToken
+
+		// out.Token = &rest.Token{
+		// 	AccessToken: session.Values["access_token"].(string),
+		// 	IDToken:     session.Values["id_token"].(string),
+		// 	ExpiresAt:   session.Values["expires_at"].(string),
+		// }
+
+		// return middleware(req, rsp, in, out, session)
 	}
 }
 

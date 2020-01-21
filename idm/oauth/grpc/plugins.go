@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"log"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -67,6 +69,21 @@ func initialize(s service.Service) error {
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
 	auth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+
+	var m []struct {
+		ID   string `"json:id"`
+		Name string `"json:id"`
+		Type string `"json:type"`
+	}
+
+	if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
+		log.Fatal("Wrong configuration ", err)
+	}
+
+	for _, mm := range m {
+		auth.RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
+	}
+
 	watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
 	if err != nil {
 		return err

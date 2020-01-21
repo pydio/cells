@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"github.com/dexidp/dex/connector"
@@ -11,7 +10,6 @@ import (
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 )
@@ -24,19 +22,6 @@ func init() {
 	RegisterConnectorType("pydio", func(_ proto.Message) (Opener, error) {
 		return new(pydioconfig), nil
 	})
-
-	var m []struct {
-		ID   string `"json:id"`
-		Name string `"json:id"`
-		Type string `"json:type"`
-	}
-	if err := config.Values("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex").Array("connectors").Scan(&m); err != nil {
-		log.Fatal("Wrong configuration ", err)
-	}
-
-	for _, mm := range m {
-		RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
-	}
 }
 
 type pydioconfig struct{}

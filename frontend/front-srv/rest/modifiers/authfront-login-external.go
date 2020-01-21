@@ -1,10 +1,15 @@
 package modifiers
 
 import (
+	"errors"
+	"net/url"
+
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
+	"github.com/ory/fosite"
 
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/auth/hydra"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -16,12 +21,14 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
-		// Making sure user_id is not passed in directly
-		delete(in.AuthInfo, "user_id")
+		challenge, ok := in.AuthInfo["challenge"]
+		if !ok {
+			return errors.New("Challenge is required")
+		}
 
 		accessToken, ok := session.Values["access_token"]
 		if !ok {
-			return middleware(req, rsp, in, out, session)
+			return errors.New("Access token is required")
 		}
 
 		_, claims, err := auth.DefaultJWTVerifier().Verify(req.Request.Context(), accessToken.(string))
@@ -29,7 +36,28 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
-		in.AuthInfo["user_id"] = claims.Subject
+		code, err := auth.DefaultJWTVerifier().LoginChallengeCode(req.Request.Context(), claims, auth.SetChallenge(challenge))
+		if err != nil {
+			return err
+		}
+
+		login, err := hydra.GetLogin(challenge)
+		if err != nil {
+			return err
+		}
+		requestURL, err := url.Parse(login.GetRequestURL())
+		if err != nil {
+			return err
+		}
+
+		requestURLValues := requestURL.Query()
+
+		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+		if err != nil {
+			return err
+		}
+
+		out.RedirectTo = redirectURL + "?code=" + code + "&state=" + requestURLValues.Get("state")
 
 		return middleware(req, rsp, in, out, session)
 	}

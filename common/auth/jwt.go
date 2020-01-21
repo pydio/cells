@@ -23,6 +23,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -64,9 +65,31 @@ type Exchanger interface {
 	Exchange(context.Context, string) (*oauth2.Token, error)
 }
 
+// An AuthCodeOption is passed to Config.AuthCodeURL.
+type TokenOption interface {
+	setValue(url.Values)
+}
+
+type setParam struct{ k, v string }
+
+func (p setParam) setValue(m url.Values) { m.Set(p.k, p.v) }
+
+// SetChallenge builds a TokenOption which passes key/value parameters
+// to a provider's token exchange endpoint.
+func SetChallenge(value string) TokenOption {
+	return setParam{"challenge", value}
+}
+
 type PasswordCredentialsTokenExchanger interface {
 	PasswordCredentialsToken(context.Context, string, string) (*oauth2.Token, error)
-	PasswordCredentialsTokenVerify(context.Context, string) (IDToken, error)
+}
+
+type PasswordCredentialsCodeExchanger interface {
+	PasswordCredentialsCode(context.Context, string, string, ...TokenOption) (string, error)
+}
+
+type LoginChallengeCodeExchanger interface {
+	LoginChallengeCode(context.Context, claim.Claims, ...TokenOption) (string, error)
 }
 
 type IDToken interface {
@@ -272,10 +295,9 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 // PasswordCredentialsToken will perform a call to the OIDC service with grantType "password"
 // to get a valid token from a given user/pass credentials
-func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error) {
+func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (*oauth2.Token, error) {
 
 	var token *oauth2.Token
-	var idToken IDToken
 	var err error
 
 	for _, provider := range providers {
@@ -286,33 +308,55 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 
 		token, err = recl.PasswordCredentialsToken(ctx, userName, password)
 		if err == nil {
-			idToken, err = recl.PasswordCredentialsTokenVerify(ctx, token.Extra("id_token").(string))
-
 			break
 		}
 	}
 
-	if err != nil {
-		return ctx, claim.Claims{}, err
-	}
+	return token, err
+}
 
-	claims := &claim.Claims{}
-	if err := j.loadClaims(ctx, idToken, claims); err != nil {
-		return ctx, *claims, err
-	}
+// LoginChallengeCode will perform an implicit flow
+// to get a valid code from given claims and challenge
+func (j *JWTVerifier) LoginChallengeCode(ctx context.Context, claims claim.Claims, opts ...TokenOption) (string, error) {
 
-	ctx = context.WithValue(ctx, claim.ContextKey, *claims)
+	var code string
+	var err error
 
-	md := make(map[string]string)
-	if existing, ok := metadata.FromContext(ctx); ok {
-		for k, v := range existing {
-			md[k] = v
+	for _, provider := range providers {
+		p, ok := provider.(LoginChallengeCodeExchanger)
+		if !ok {
+			continue
+		}
+
+		code, err = p.LoginChallengeCode(ctx, claims, opts...)
+		if err == nil {
+			break
 		}
 	}
-	md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
-	ctx = metadata.NewContext(ctx, md)
 
-	return ctx, *claims, nil
+	return code, err
+}
+
+// PasswordCredentialsCode will perform an implicit flow
+// to get a valid code from given claims and challenge
+func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, password string, opts ...TokenOption) (string, error) {
+
+	var code string
+	var err error
+
+	for _, provider := range providers {
+		p, ok := provider.(PasswordCredentialsCodeExchanger)
+		if !ok {
+			continue
+		}
+
+		code, err = p.PasswordCredentialsCode(ctx, username, password, opts...)
+		if err == nil {
+			break
+		}
+	}
+
+	return code, err
 }
 
 // Add a fake Claims in context to impersonate user
