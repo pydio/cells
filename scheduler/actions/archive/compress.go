@@ -55,6 +55,13 @@ type CompressAction struct {
 	Format     string
 	TargetName string
 	Date       string
+
+	filter *jobs.NodesSelector
+}
+
+// SetNodeFilterAsWalkFilter declares this action as RecursiveNodeWalkerAction
+func (c *CompressAction) SetNodeFilterAsWalkFilter (f *jobs.NodesSelector) {
+	c.filter = f
 }
 
 func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -145,6 +152,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
 		Router: c.Router,
+		NodesFilter:c.filter, // may be nil
 	}
 
 	dir := path.Dir(nodes[0].Path)

@@ -84,6 +84,9 @@ func NewRunnable(ctx context.Context, parentPath string, chainIndex int, cl clie
 		r.Implementation = impl
 		r.Implementation.Init(task.Job, cl, action)
 	}
+	if walker, ok := impl.(actions.RecursiveNodeWalkerAction); ok && action.NodesFilter != nil {
+		walker.SetNodeFilterAsWalkFilter(action.NodesFilter)
+	}
 	return r
 }
 
