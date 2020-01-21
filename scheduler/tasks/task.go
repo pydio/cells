@@ -176,7 +176,7 @@ func (t *Task) GlobalError(e error) {
 func (t *Task) EnqueueRunnables(c client.Client, output chan Runnable) {
 
 	r := RootRunnable(t.context, c, t)
-	r.Dispatch(t.initialMessage, t.Actions, output)
+	r.Dispatch(r.ActionPath, t.initialMessage, t.Actions, output)
 
 }
 
