@@ -1,9 +1,17 @@
 package common
 
-import "time"
+import (
+	"time"
+
+	"github.com/pydio/go-os/config"
+)
 
 type Scanner interface {
 	Scan(val interface{}) error
+}
+
+type Watcher interface {
+	Watch() (config.Watcher, error)
 }
 
 type ConfigValues interface {

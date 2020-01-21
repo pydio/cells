@@ -19,19 +19,23 @@ type (
 var (
 	configsMigrations []configMigration
 	configKeysRenames = map[string]string{
-		"services/pydio.api.websocket":      "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
-		"services/pydio.grpc.gateway.data":  "services/" + common.SERVICE_GATEWAY_DATA,
-		"services/pydio.grpc.gateway.proxy": "services/" + common.SERVICE_GATEWAY_PROXY,
-		"services/pydio.rest.gateway.dav":   "services/" + common.SERVICE_GATEWAY_DAV,
-		"services/pydio.rest.gateway.wopi":  "services/" + common.SERVICE_GATEWAY_WOPI,
-		"ports/micro.api":                   "ports/" + common.SERVICE_MICRO_API,
-		"services/micro.api":                "services/" + common.SERVICE_MICRO_API,
-		"services/pydio.api.front-plugins":  "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
+		"services/pydio.api.websocket":            "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
+		"services/pydio.grpc.gateway.data":        "services/" + common.SERVICE_GATEWAY_DATA,
+		"services/pydio.grpc.gateway.proxy":       "services/" + common.SERVICE_GATEWAY_PROXY,
+		"services/pydio.rest.gateway.dav":         "services/" + common.SERVICE_GATEWAY_DAV,
+		"services/pydio.rest.gateway.wopi":        "services/" + common.SERVICE_GATEWAY_WOPI,
+		"ports/micro.api":                         "ports/" + common.SERVICE_MICRO_API,
+		"services/micro.api":                      "services/" + common.SERVICE_MICRO_API,
+		"services/pydio.api.front-plugins":        "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
+		"services/pydio.grpc.auth/dex/connectors": "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors",
+	}
+	configKeysDeletes = []string{
+		"services/pydio.grpc.auth/dex",
 	}
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL)
+	configsMigrations = append(configsMigrations, renameServices1, deleteConfigKeys, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -59,6 +63,21 @@ func renameServices1(config *Config) (bool, error) {
 		if e := val.Scan(&data); e == nil && data != nil {
 			fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
 			config.Set(val, strings.Split(newPath, "/")...)
+			config.Del(oldPaths...)
+			save = true
+		}
+	}
+	return save, nil
+}
+
+func deleteConfigKeys(config *Config) (bool, error) {
+	var save bool
+	for _, oldPath := range configKeysDeletes {
+		oldPaths := strings.Split(oldPath, "/")
+		val := config.Get(oldPaths...)
+		var data interface{}
+		if e := val.Scan(&data); e == nil && data != nil {
+			fmt.Printf("[Configs] Upgrading: deleting key %s\n", oldPath)
 			config.Del(oldPaths...)
 			save = true
 		}
@@ -173,7 +192,6 @@ func updateLeCaURL(config *Config) (bool, error) {
 
 func forceDefaultConfig(config *Config) (bool, error) {
 	var save bool
-	authSrv := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	srvUrl := config.Get("defaults", "url").String("")
 	if srvUrl == "" {
@@ -184,9 +202,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 
 	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
-		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",
-		"services/" + authSrv + "/dex/web/http": srvUrl + "/auth/dex",
-		"services/" + oauthSrv + "/issuer":      srvUrl + "/oidc/",
+		"services/" + oauthSrv + "/issuer": srvUrl + "/oidc/",
 	}
 
 	for path, def := range configKeys {

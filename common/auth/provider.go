@@ -12,39 +12,49 @@ import (
 	"github.com/pydio/cells/common"
 )
 
-type ConfigurationProvider struct {
+type ConfigurationProvider interface {
+	configuration.Provider
+	Clients() common.Scanner
+	Connectors() common.Scanner
+}
+
+type configurationProvider struct {
 	// rootURL
 	r string
 
 	// values
 	v common.ConfigValues
 
-	cors common.ConfigValues
-	urls common.ConfigValues
-	oidc common.ConfigValues
+	cors       common.ConfigValues
+	urls       common.ConfigValues
+	oidc       common.ConfigValues
+	clients    common.Scanner
+	connectors common.Scanner
 
 	drv string
 	dsn string
 }
 
-func NewProvider(rootURL string, values common.ConfigValues) configuration.Provider {
+func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvider {
 	drv, dsn := values.Database("dsn")
-	return &ConfigurationProvider{
-		r:    rootURL,
-		v:    values,
-		cors: values.Values("cors"),
-		urls: values.Values("urls"),
-		oidc: values.Values("oidc"),
-		drv:  drv,
-		dsn:  dsn,
+	return &configurationProvider{
+		r:          rootURL,
+		v:          values,
+		cors:       values.Values("cors"),
+		urls:       values.Values("urls"),
+		oidc:       values.Values("oidc"),
+		clients:    values.Array("clients"),
+		connectors: values.Array("connectors"),
+		drv:        drv,
+		dsn:        dsn,
 	}
 }
 
-func (v *ConfigurationProvider) InsecureRedirects() []string {
+func (v *configurationProvider) InsecureRedirects() []string {
 	return v.v.StringArray("insecureRedirects", []string{})
 }
 
-func (v *ConfigurationProvider) WellKnownKeys(include ...string) []string {
+func (v *configurationProvider) WellKnownKeys(include ...string) []string {
 	if v.AccessTokenStrategy() == "jwt" {
 		include = append(include, x.OAuth2JWTKeyName)
 	}
@@ -54,27 +64,27 @@ func (v *ConfigurationProvider) WellKnownKeys(include ...string) []string {
 	return include
 }
 
-func (v *ConfigurationProvider) ServesHTTPS() bool {
+func (v *configurationProvider) ServesHTTPS() bool {
 	return v.v.Bool("https", false)
 }
 
-func (v *ConfigurationProvider) IsUsingJWTAsAccessTokens() bool {
+func (v *configurationProvider) IsUsingJWTAsAccessTokens() bool {
 	return v.AccessTokenStrategy() != "opaque"
 }
 
-func (v *ConfigurationProvider) SubjectTypesSupported() []string {
+func (v *configurationProvider) SubjectTypesSupported() []string {
 	return v.v.StringArray("subjectTypesSupported", []string{"public"})
 }
 
-func (v *ConfigurationProvider) DefaultClientScope() []string {
+func (v *configurationProvider) DefaultClientScope() []string {
 	return v.v.StringArray("defaultClientScope", []string{"offline_access", "offline", "openid", "pydio", "email"})
 }
 
-func (v *ConfigurationProvider) CORSEnabled(iface string) bool {
+func (v *configurationProvider) CORSEnabled(iface string) bool {
 	return v.cors.Values(iface).IsEmpty()
 }
 
-func (v *ConfigurationProvider) CORSOptions(iface string) cors.Options {
+func (v *configurationProvider) CORSOptions(iface string) cors.Options {
 	return cors.Options{
 		AllowedOrigins:     v.cors.Values(iface).StringArray("allowedOrigins"),
 		AllowedMethods:     v.cors.Values(iface).StringArray("allowedMethods"),
@@ -87,77 +97,77 @@ func (v *ConfigurationProvider) CORSOptions(iface string) cors.Options {
 	}
 }
 
-func (v *ConfigurationProvider) DSN() string {
+func (v *configurationProvider) DSN() string {
 	return v.drv + "://" + v.dsn
 }
 
-func (v *ConfigurationProvider) DataSourcePlugin() string {
+func (v *configurationProvider) DataSourcePlugin() string {
 	return v.drv + "://" + v.dsn
 }
 
-func (v *ConfigurationProvider) BCryptCost() int {
+func (v *configurationProvider) BCryptCost() int {
 	return 10
 }
 
-func (v *ConfigurationProvider) AdminListenOn() string {
+func (v *configurationProvider) AdminListenOn() string {
 	return ":0"
 }
 
-func (v *ConfigurationProvider) AdminDisableHealthAccessLog() bool {
+func (v *configurationProvider) AdminDisableHealthAccessLog() bool {
 	return false
 }
 
-func (v *ConfigurationProvider) PublicListenOn() string {
+func (v *configurationProvider) PublicListenOn() string {
 	return ":0"
 }
 
-func (v *ConfigurationProvider) PublicDisableHealthAccessLog() bool {
+func (v *configurationProvider) PublicDisableHealthAccessLog() bool {
 	return v.v.Bool("publicDisabledHealthAccessLog", false)
 }
 
-func (v *ConfigurationProvider) ConsentRequestMaxAge() time.Duration {
+func (v *configurationProvider) ConsentRequestMaxAge() time.Duration {
 	return v.v.Duration("consentRequestMaxAge", "30m")
 }
 
-func (v *ConfigurationProvider) AccessTokenLifespan() time.Duration {
+func (v *configurationProvider) AccessTokenLifespan() time.Duration {
 	return v.v.Duration("accessTokenLifespan", "10m")
 }
 
-func (v *ConfigurationProvider) RefreshTokenLifespan() time.Duration {
+func (v *configurationProvider) RefreshTokenLifespan() time.Duration {
 	return v.v.Duration("refreshTokenLifespan", "1h")
 }
 
-func (v *ConfigurationProvider) IDTokenLifespan() time.Duration {
+func (v *configurationProvider) IDTokenLifespan() time.Duration {
 	return v.v.Duration("idTokenLifespan", "1h")
 }
 
-func (v *ConfigurationProvider) AuthCodeLifespan() time.Duration {
+func (v *configurationProvider) AuthCodeLifespan() time.Duration {
 	return v.v.Duration("authCodeLifespan", "10m")
 }
 
-func (v *ConfigurationProvider) ScopeStrategy() string {
+func (v *configurationProvider) ScopeStrategy() string {
 	return ""
 }
 
-func (v *ConfigurationProvider) TracingServiceName() string {
+func (v *configurationProvider) TracingServiceName() string {
 	return "ORY Hydra"
 }
 
-func (v *ConfigurationProvider) TracingProvider() string {
+func (v *configurationProvider) TracingProvider() string {
 	return ""
 }
 
-func (v *ConfigurationProvider) TracingJaegerConfig() *tracing.JaegerConfig {
+func (v *configurationProvider) TracingJaegerConfig() *tracing.JaegerConfig {
 	return &tracing.JaegerConfig{}
 }
 
-func (v *ConfigurationProvider) GetCookieSecrets() [][]byte {
+func (v *configurationProvider) GetCookieSecrets() [][]byte {
 	return [][]byte{
 		v.GetSystemSecret(),
 	}
 }
 
-func (v *ConfigurationProvider) GetRotatedSystemSecrets() [][]byte {
+func (v *configurationProvider) GetRotatedSystemSecrets() [][]byte {
 	secrets := [][]byte{v.GetSystemSecret()}
 
 	if len(secrets) < 2 {
@@ -172,78 +182,86 @@ func (v *ConfigurationProvider) GetRotatedSystemSecrets() [][]byte {
 	return rotated
 }
 
-func (v *ConfigurationProvider) GetSystemSecret() []byte {
+func (v *configurationProvider) GetSystemSecret() []byte {
 	return v.v.Bytes("secret", []byte{})
 }
 
-func (v *ConfigurationProvider) LogoutRedirectURL() *url.URL {
+func (v *configurationProvider) LogoutRedirectURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("logoutRedirectURL", "/oauth2/logout/callback"))
 	return u
 }
 
-func (v *ConfigurationProvider) LoginURL() *url.URL {
+func (v *configurationProvider) LoginURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("loginURL", "/oauth2/login"))
 	return u
 }
 
-func (v *ConfigurationProvider) LogoutURL() *url.URL {
+func (v *configurationProvider) LogoutURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("logoutURL", "/oauth2/logout"))
 	return u
 }
 
-func (v *ConfigurationProvider) ConsentURL() *url.URL {
+func (v *configurationProvider) ConsentURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("consentURL", "/oauth2/consent"))
 	return u
 }
 
-func (v *ConfigurationProvider) ErrorURL() *url.URL {
+func (v *configurationProvider) ErrorURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("errorURL", "/oauth2/fallbacks/error"))
 	return u
 }
 
-func (v *ConfigurationProvider) PublicURL() *url.URL {
+func (v *configurationProvider) PublicURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("publicURL", "/oidc/"))
 	return u
 }
 
-func (v *ConfigurationProvider) IssuerURL() *url.URL {
+func (v *configurationProvider) IssuerURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("issuerURL", "/oidc/"))
 	return u
 }
 
-func (v *ConfigurationProvider) OAuth2AuthURL() string {
+func (v *configurationProvider) OAuth2AuthURL() string {
 	return v.urls.String("oauth2AuthURL", "/oauth2/auth") // this should not have the host etc prepended...
 }
 
-func (v *ConfigurationProvider) OAuth2ClientRegistrationURL() *url.URL {
+func (v *configurationProvider) OAuth2ClientRegistrationURL() *url.URL {
 	u, _ := url.Parse(v.r + v.urls.String("loginURL", ""))
 	return u
 }
 
-func (v *ConfigurationProvider) AllowTLSTerminationFrom() []string {
+func (v *configurationProvider) AllowTLSTerminationFrom() []string {
 	return v.v.StringArray("allowTLSTerminationFrom", []string{})
 }
 
-func (v *ConfigurationProvider) AccessTokenStrategy() string {
+func (v *configurationProvider) AccessTokenStrategy() string {
 	return v.v.String("accessTokenStrategy", "opaque")
 }
 
-func (v *ConfigurationProvider) SubjectIdentifierAlgorithmSalt() string {
+func (v *configurationProvider) SubjectIdentifierAlgorithmSalt() string {
 	return v.v.String("subjectIdentifierAlgorithmSalt", "")
 }
 
-func (v *ConfigurationProvider) OIDCDiscoverySupportedClaims() []string {
+func (v *configurationProvider) OIDCDiscoverySupportedClaims() []string {
 	return v.oidc.StringArray("supportedClaims", []string{})
 }
 
-func (v *ConfigurationProvider) OIDCDiscoverySupportedScope() []string {
+func (v *configurationProvider) OIDCDiscoverySupportedScope() []string {
 	return v.oidc.StringArray("supportedScope", []string{})
 }
 
-func (v *ConfigurationProvider) OIDCDiscoveryUserinfoEndpoint() string {
+func (v *configurationProvider) OIDCDiscoveryUserinfoEndpoint() string {
 	return v.oidc.String("userInfoEndpoint", "/oauth2/userinfo")
 }
 
-func (v *ConfigurationProvider) ShareOAuth2Debug() bool {
+func (v *configurationProvider) ShareOAuth2Debug() bool {
 	return v.v.Bool("shareOAuth2Debug", false)
+}
+
+func (v *configurationProvider) Clients() common.Scanner {
+	return v.clients
+}
+
+func (v *configurationProvider) Connectors() common.Scanner {
+	return v.connectors
 }

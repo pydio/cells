@@ -4,17 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/errors"
-	"github.com/ory/fosite"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/hydra"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -23,110 +20,110 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
-func LoginConsentChallengeWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
-	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
-		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "external" { // Ignore this middleware
-			return middleware(req, rsp, in, out, session)
-		}
+// func LoginConsentChallengeWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
+// 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+// 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "external" { // Ignore this middleware
+// 			return middleware(req, rsp, in, out, session)
+// 		}
 
-		// BEFORE MIDDLEWARE
-		challenge, ok := in.AuthInfo["challenge"]
+// 		// BEFORE MIDDLEWARE
+// 		challenge, ok := in.AuthInfo["challenge"]
 
-		if !ok {
-			l, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
-			if err != nil {
-				return err
-			}
-			challenge = l.Challenge
-		}
+// 		if !ok {
+// 			l, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
+// 			if err != nil {
+// 				return err
+// 			}
+// 			challenge = l.Challenge
+// 		}
 
-		// MIDDLEWARE
-		err := middleware(req, rsp, in, out, session)
-		if err != nil {
-			return err
-		}
+// 		// MIDDLEWARE
+// 		err := middleware(req, rsp, in, out, session)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		// AFTER MIDDLEWARE
-		userID, ok := in.AuthInfo["user_id"]
-		if !ok {
-			return middleware(req, rsp, in, out, session)
-		}
+// 		// AFTER MIDDLEWARE
+// 		userID, ok := in.AuthInfo["user_id"]
+// 		if !ok {
+// 			return middleware(req, rsp, in, out, session)
+// 		}
 
-		ctx := req.Request.Context()
+// 		ctx := req.Request.Context()
 
-		// Searching user for attributes
-		user, err := permissions.SearchUniqueUser(ctx, "", userID)
-		if err != nil {
-			return err
-		}
+// 		// Searching user for attributes
+// 		user, err := permissions.SearchUniqueUser(ctx, "", userID)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		if user == nil {
-			return errors.New("user.not_found", "User not found", http.StatusNotFound)
-		}
+// 		if user == nil {
+// 			return errors.New("user.not_found", "User not found", http.StatusNotFound)
+// 		}
 
-		// Searching login challenge
-		login, err := hydra.GetLogin(challenge)
-		if err != nil {
-			log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
-			return err
-		}
+// 		// Searching login challenge
+// 		login, err := hydra.GetLogin(challenge)
+// 		if err != nil {
+// 			log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
+// 			return err
+// 		}
 
-		// Accepting login challenge
-		if _, err := hydra.AcceptLogin(challenge, userID); err != nil {
-			log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
-			return err
-		}
+// 		// Accepting login challenge
+// 		if _, err := hydra.AcceptLogin(challenge, userID); err != nil {
+// 			log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
+// 			return err
+// 		}
 
-		// Creating consent
-		consent, err := hydra.CreateConsent(challenge)
-		if err != nil {
-			log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
-			return err
-		}
+// 		// Creating consent
+// 		consent, err := hydra.CreateConsent(challenge)
+// 		if err != nil {
+// 			log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
+// 			return err
+// 		}
 
-		// Accepting consent
-		if _, err := hydra.AcceptConsent(
-			consent.Challenge,
-			login.GetRequestedScope(),
-			login.GetRequestedAudience(),
-			map[string]string{},
-			map[string]string{
-				"name":  user.GetLogin(),
-				"email": user.GetAttributes()["email"],
-			},
-		); err != nil {
-			log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
-			return err
-		}
+// 		// Accepting consent
+// 		if _, err := hydra.AcceptConsent(
+// 			consent.Challenge,
+// 			login.GetRequestedScope(),
+// 			login.GetRequestedAudience(),
+// 			map[string]string{},
+// 			map[string]string{
+// 				"name":  user.GetLogin(),
+// 				"email": user.GetAttributes()["email"],
+// 			},
+// 		); err != nil {
+// 			log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
+// 			return err
+// 		}
 
-		requestURL, err := url.Parse(login.GetRequestURL())
-		if err != nil {
-			return err
-		}
+// 		requestURL, err := url.Parse(login.GetRequestURL())
+// 		if err != nil {
+// 			return err
+// 		}
 
-		requestURLValues := requestURL.Query()
+// 		requestURLValues := requestURL.Query()
 
-		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
-		if err != nil {
-			return err
-		}
+// 		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
-		if err != nil {
-			log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
-			return err
-		}
+// 		code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
+// 		if err != nil {
+// 			log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
+// 			return err
+// 		}
 
-		// Changing auth info type to go into the new scenario
-		in.AuthInfo["type"] = "authorization_code"
-		in.AuthInfo["code"] = code
-		in.AuthInfo["redirect_url"] = redirectURL
-		in.AuthInfo["state"] = requestURLValues.Get("state")
+// 		// Changing auth info type to go into the new scenario
+// 		in.AuthInfo["type"] = "authorization_code"
+// 		in.AuthInfo["code"] = code
+// 		in.AuthInfo["redirect_url"] = redirectURL
+// 		in.AuthInfo["state"] = requestURLValues.Get("state")
 
-		// Re-launching next middleware as we've changed type
-		return middleware(req, rsp, in, out, session)
-	}
-}
+// 		// Re-launching next middleware as we've changed type
+// 		return middleware(req, rsp, in, out, session)
+// 	}
+// }
 
 func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
