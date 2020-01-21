@@ -102,7 +102,7 @@ func (r *Runnable) Dispatch(input jobs.ActionMessage, actions []*jobs.Action, Qu
 		act := action
 		chainIndex := i
 		messagesOutput := make(chan jobs.ActionMessage)
-		failedFilter := make(chan bool, 1)
+		failedFilter := make(chan jobs.ActionMessage)
 		done := make(chan bool, 1)
 		go func() {
 			defer func() {
@@ -116,12 +116,11 @@ func (r *Runnable) Dispatch(input jobs.ActionMessage, actions []*jobs.Action, Qu
 					// Build runnable and enqueue
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					Queue <- r.CreateChild(chainIndex, act, *m)
-				case <-failedFilter:
+				case failed := <-failedFilter:
 					// Filter failed
 					if len(act.FailedFilterActions) > 0 {
-						r.Dispatch(input, act.FailedFilterActions, Queue)
+						r.Dispatch(failed, act.FailedFilterActions, Queue)
 					}
-					return
 				case <-done:
 					return
 				}

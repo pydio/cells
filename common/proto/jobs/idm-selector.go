@@ -130,10 +130,12 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 }
 
 // Filter IDM objects by a query
-func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+
+	var opposite *ActionMessage
 
 	if m.All && (m.Query == nil || len(m.Query.SubQueries) == 0) {
-		return input, true
+		return input, nil, true
 	}
 	var matchers []idm.Matcher
 	var pass bool
@@ -141,97 +143,130 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 	switch m.Type {
 	case IdmSelectorType_User:
 		if len(input.Users) == 0 {
-			return input, false // break!
+			return input, nil, false // break!
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.UserSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Users = []*idm.User{}
-				return input, false
+				return input, nil, false
 			} else {
 				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var uu []*idm.User
+		var xx []*idm.User
 		for _, u := range input.Users {
 			if m.matchQueries(u, matchers) {
 				uu = append(uu, u)
+			} else {
+				xx = append(xx, u)
 			}
 		}
 		input.Users = uu
 		pass = len(input.Users) > 0
+		if len(xx) > 0 {
+			op := input
+			op.Users = xx
+			opposite = &op
+		}
 
 	case IdmSelectorType_Role:
 		if len(input.Roles) == 0 {
-			return input, false
+			return input, nil, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.RoleSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Roles = []*idm.Role{}
-				return input, false
+				return input, nil, false
 			} else {
 				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var rr []*idm.Role
+		var xx []*idm.Role
 		for _, r := range input.Roles {
 			if m.matchQueries(r, matchers) {
 				rr = append(rr, r)
+			} else {
+				xx = append(xx, r)
 			}
 		}
 		input.Roles = rr
 		pass = len(input.Roles) > 0
+		if len(xx) > 0 {
+			op := input
+			op.Roles = xx
+			opposite = &op
+		}
 
 	case IdmSelectorType_Workspace:
 		if len(input.Workspaces) == 0 {
-			return input, false
+			return input, nil, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.WorkspaceSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Workspaces = []*idm.Workspace{}
-				return input, false
+				return input, nil, false
 			} else {
 				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var ww []*idm.Workspace
+		var xx []*idm.Workspace
 		for _, w := range input.Workspaces {
 			if m.matchQueries(w, matchers) {
 				ww = append(ww, w)
+			} else {
+				xx = append(xx, w)
 			}
 		}
 		input.Workspaces = ww
 		pass = len(input.Workspaces) > 0
+		if len(xx) > 0 {
+			op := input
+			op.Workspaces = xx
+			opposite = &op
+		}
 
 	case IdmSelectorType_Acl:
 		if len(input.Acls) == 0 {
-			return input, false
+			return input, nil, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.ACLSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Acls = []*idm.ACL{}
-				return input, false
+				return input, nil, false
 			} else {
 				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var aa []*idm.ACL
+		var xx []*idm.ACL
 		for _, a := range input.Acls {
 			if m.matchQueries(a, matchers) {
 				aa = append(aa, a)
+			} else {
+				xx = append(xx, a)
 			}
 		}
 		input.Acls = aa
 		pass = len(input.Acls) > 0
+		if len(xx) > 0 {
+			op := input
+			op.Acls = xx
+			opposite = &op
+		}
 
 	default:
 		break
 	}
 
-	return input, pass
+
+	return input, opposite, pass
 }
 
 func (m *IdmSelector) matchQueries(object interface{}, matchers []idm.Matcher) bool {

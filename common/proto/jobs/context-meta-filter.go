@@ -102,6 +102,6 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		return input, false
 	}
 	tmpInput := ActionMessage{Users: []*idm.User{user}}
-	_, pass := selector.Filter(ctx, tmpInput)
+	_, _, pass := selector.Filter(ctx, tmpInput)
 	return input, pass
 }

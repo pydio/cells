@@ -342,13 +342,13 @@ func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeCha
 		return true // Ignore
 	}
 	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
-	_, pass := filter.Filter(ctx, input)
+	_, _, pass := filter.Filter(ctx, input)
 	return pass
 }
 
 // Test filter and return false if all input IDM slots are empty
 func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
-	_, pass := filter.Filter(ctx, input)
+	_, _, pass := filter.Filter(ctx, input)
 	return pass
 }
 

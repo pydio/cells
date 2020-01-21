@@ -33,12 +33,20 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, failedFilter, done chan bool) {
+func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output, failedFilter chan ActionMessage, done chan bool) {
 
-	startMessage, pass := a.ApplyFilters(ctx, startMessage)
+	startMessage, excluded, pass := a.ApplyFilters(ctx, startMessage)
 	if !pass {
-		failedFilter <- true // This will close (done) as well
+		if excluded != nil {
+			failedFilter <- *excluded
+		} else {
+			failedFilter <- startMessage
+		}
+		done <- true
 		return
+	}
+	if excluded != nil {
+		failedFilter <- *excluded
 	}
 	if a.HasSelectors() {
 		a.ResolveSelectors(startMessage, c, ctx, output, done)
@@ -66,24 +74,25 @@ func (a *Action) getSelectors() []InputSelector {
 	return selectors
 }
 
-func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
-	passThrough := true
+func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output ActionMessage, excluded *ActionMessage, passThrough bool) {
+	passThrough = true
+	output = input
 	if a.NodesFilter != nil {
-		input, passThrough = a.NodesFilter.Filter(ctx, input)
+		output, excluded, passThrough = a.NodesFilter.Filter(ctx, output)
 	}
 	if a.IdmFilter != nil {
-		input, passThrough = a.IdmFilter.Filter(ctx, input)
+		output, excluded, passThrough = a.IdmFilter.Filter(ctx, output)
 	}
 	if a.UsersFilter != nil {
-		input, passThrough = a.UsersFilter.Filter(ctx, input)
+		output, passThrough = a.UsersFilter.Filter(ctx, output)
 	}
 	if a.ActionOutputFilter != nil {
-		input, passThrough = a.ActionOutputFilter.Filter(ctx, input)
+		output, passThrough = a.ActionOutputFilter.Filter(ctx, output)
 	}
 	if a.ContextMetaFilter != nil {
-		input, passThrough = a.ContextMetaFilter.Filter(ctx, input)
+		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
 	}
-	return input, passThrough
+	return
 }
 
 func (a *Action) ResolveSelectors(startMessage ActionMessage, cl client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {

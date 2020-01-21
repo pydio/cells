@@ -107,6 +107,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		if eR != nil {
 			return eR
 		}
+		defer sStream.Close()
 		for {
 			resp, rE := sStream.Recv()
 			if rE != nil {
@@ -114,6 +115,12 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			}
 			if resp == nil {
 				continue
+			}
+			if q.PathDepth > 0 {
+				depth := int32(len(strings.Split(strings.Trim(resp.GetNode().GetPath(), "/"), "/")))
+				if depth != q.PathDepth {
+					continue
+				}
 			}
 			log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
 			objects <- resp.Node
@@ -123,15 +130,16 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 	return nil
 }
 
-func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
 
+	var excluded []*tree.Node
 	if len(input.Nodes) == 0 {
-		return input, false
+		return input, nil, false
+	}
+	if n.All {
+		return input, nil, true
 	}
 	selector := n.evaluatedClone(ctx, input)
-	if selector.All {
-		return input, true
-	}
 
 	var newNodes []*tree.Node
 
@@ -139,6 +147,7 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 
 		if len(selector.Pathes) > 0 {
 			if !contains(selector.Pathes, node.Path, false, false) {
+				excluded = append(excluded, node)
 				continue
 			}
 		}
@@ -160,6 +169,7 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 				results = append(results, res)
 			}
 			if !service.ReduceQueryBooleans(results, selector.Query.Operation) {
+				excluded = append(excluded, node)
 				continue
 			}
 		}
@@ -168,7 +178,13 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 	}
 	output := input
 	output.Nodes = newNodes
-	return output, len(newNodes) > 0
+	var xx *ActionMessage
+	if len(excluded) > 0 {
+		filteredOutput := input
+		filteredOutput.Nodes = excluded
+		xx = &filteredOutput
+	}
+	return output, xx, len(newNodes) > 0
 
 }
 
