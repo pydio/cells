@@ -48,7 +48,7 @@ class MaterialTable extends React.Component{
 
     render(){
 
-        const {columns, data, deselectOnClickAway, emptyStateString, onSelectRows, computeRowStyle} = this.props;
+        const {columns, data, deselectOnClickAway, emptyStateString, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
         let {showCheckboxes} = this.props;
 
         let rows = data.map((model) => {
@@ -68,6 +68,13 @@ class MaterialTable extends React.Component{
                         </TableRowColumn>
                     </TableRow>
                 );
+            }
+            if(model.colSpan){
+                return (
+                    <TableRow style={model.rowStyle}>
+                        <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.element}</TableRowColumn>
+                    </TableRow>
+                )
             }
             return (
                 <TableRow selectable={onSelectRows !== undefined} style={rowStyle}>
@@ -89,7 +96,7 @@ class MaterialTable extends React.Component{
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
             rows = [
-                <TableRow><TableRowColumn colSpan={columns.length}>{emptyStateString}</TableRowColumn></TableRow>
+                <TableRow><TableRowColumn colSpan={columns.length} style={emptyStateStyle}>{emptyStateString}</TableRowColumn></TableRow>
             ];
         }
         if((data.length && data[0].Subheader) || (emptyStateString && !rows.length)){
@@ -104,13 +111,17 @@ class MaterialTable extends React.Component{
             );
         }
 
+        const {hideHeaders} = this.props;
+
         return (
-            <Table onRowSelection={this.onRowSelection.bind(this)} multiSelectable={showCheckboxes} >
-                <TableHeader displaySelectAll={showCheckboxes} adjustForCheckbox={showCheckboxes} enableSelectAll={showCheckboxes}>
-                    <TableRow>
-                        {headers}
-                    </TableRow>
-                </TableHeader>
+            <Table onRowSelection={this.onRowSelection.bind(this)} multiSelectable={showCheckboxes}>
+                {!hideHeaders &&
+                    <TableHeader displaySelectAll={showCheckboxes} adjustForCheckbox={showCheckboxes} enableSelectAll={showCheckboxes}>
+                        <TableRow>
+                            {headers}
+                        </TableRow>
+                    </TableHeader>
+                }
                 <TableBody deselectOnClickaway={deselectOnClickAway} displayRowCheckbox={showCheckboxes}>
                     {rows}
                 </TableBody>

@@ -30,6 +30,8 @@ var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_ag
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -119,36 +121,120 @@ var TaskActivity = (function (_React$Component) {
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
             request.Page = 0;
-            request.Size = 100;
+            request.Size = 200;
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
-                _this2.setState({ activity: response.Logs || [], loading: false });
+                var ll = response.Logs || [];
+                // Logs are reverse sorted on time
+                ll.reverse();
+                _this2.setState({ activity: ll, loading: false });
             })["catch"](function () {
                 _this2.setState({ activity: [], loading: false });
             });
         }
     }, {
-        key: "render",
-        value: function render() {
+        key: "computeTag",
+        value: function computeTag(row) {
             var _props = this.props;
-            var pydio = _props.pydio;
-            var task = _props.task;
-            var _state = this.state;
-            var activity = _state.activity;
-            var loading = _state.loading;
+            var job = _props.job;
+            var descriptions = _props.descriptions;
 
-            var columns = [{ name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    return moment(row.Ts * 1000).fromNow();
-                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'] }];
+            var pathTag = {
+                backgroundColor: '#1e96f3',
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'white',
+                padding: '0 8px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                borderRadius: 4,
+                textAlign: 'center'
+            };
+            var path = row.SchedulerTaskActionPath;
+            if (!path) {
+                return null;
+            }
+            var action = undefined;
+            try {
+                action = this.findAction(path, job.Actions);
+            } catch (e) {
+                //console.error(e);
+            }
+            if (action) {
+                if (action.Label) {
+                    path = action.Label;
+                } else if (descriptions && descriptions[action.ID]) {
+                    path = descriptions[action.ID].Label;
+                }
+            } else {
+                var last = path.split('/').pop();
+                var actionId = last.split('$').shift();
+                if (descriptions && descriptions[actionId]) {
+                    path = descriptions[actionId].Label;
+                }
+            }
             return _react2["default"].createElement(
                 "div",
-                { style: { height: 400 } },
+                { style: pathTag },
+                path
+            );
+        }
+    }, {
+        key: "findAction",
+        value: function findAction(path, actions) {
+            var parts = path.split('/');
+            var first = parts.shift();
+            var actionId = [].concat(_toConsumableArray(parts)).shift();
+            var chainIndex = parseInt(actionId.split('$')[1]);
+            var action = actions[chainIndex];
+            var nextActions = undefined;
+            if (actionId.indexOf('$FAIL') === -1) {
+                nextActions = action.ChainedActions;
+            } else {
+                nextActions = action.FailedFilterActions;
+            }
+            if (parts.length > 1) {
+                // Move on step forward
+                return this.findAction(parts.join('/'), nextActions);
+            } else {
+                return action;
+            }
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this3 = this;
+
+            var pydio = this.props.pydio;
+            var activity = this.state.activity;
+
+            var cellBg = "#f5f5f5";
+            var lineHeight = 32;
+            var columns = [{ name: 'SchedulerTaskActionPath', label: '', hideSmall: true, style: { width: 110, height: lineHeight, backgroundColor: cellBg, paddingLeft: 12, paddingRight: 0 }, headerStyle: { width: 110, paddingLeft: 12, paddingRight: 0 }, renderCell: function renderCell(row) {
+                    return _this3.computeTag(row);
+                } }, { name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: 100, height: lineHeight, backgroundColor: cellBg, paddingRight: 10 }, headerStyle: { width: 100, paddingRight: 10 }, renderCell: function renderCell(row) {
+                    var m = moment(row.Ts * 1000);
+                    return m.format('HH:mm:ss');
+                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'], style: { height: lineHeight, backgroundColor: cellBg } }];
+            return _react2["default"].createElement(
+                "div",
+                { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
+                _react2["default"].createElement(
+                    "div",
+                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg } },
+                    "Tasks Logs"
+                ),
                 _react2["default"].createElement(MaterialTable, {
+                    hideHeaders: true,
                     columns: columns,
                     data: activity,
                     showCheckboxes: false,
-                    emptyStateString: 'No activity found'
+                    emptyStateString: 'No activity found',
+                    emptyStateStyle: { backgroundColor: cellBg },
+                    computeRowStyle: function (row) {
+                        return { borderBottomColor: '#fff', height: lineHeight };
+                    }
                 })
             );
         }

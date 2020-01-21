@@ -72,33 +72,105 @@ class TaskActivity extends React.Component{
         let request = new LogListLogRequest();
         request.Query = "+OperationUuid:\"" + operationId + "\"";
         request.Page = 0;
-        request.Size = 100;
+        request.Size = 200;
         request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
         this.setState({loading: true});
         api.listTasksLogs(request).then(response => {
-            this.setState({activity:response.Logs || [], loading: false})
+            const ll = response.Logs || [];
+            // Logs are reverse sorted on time
+            ll.reverse();
+            this.setState({activity:ll, loading: false})
         }).catch(()=>{
             this.setState({activity:[], loading: false})
         });
 
     }
 
+    computeTag(row) {
+        const {job, descriptions} = this.props;
+        const pathTag = {
+            backgroundColor: '#1e96f3',
+            fontSize: 11,
+            fontWeight: 500,
+            color: 'white',
+            padding: '0 8px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            borderRadius: 4,
+            textAlign: 'center'
+        };
+        let path = row.SchedulerTaskActionPath;
+        if(!path){
+            return null;
+        }
+        let action;
+        try{
+            action = this.findAction(path, job.Actions);
+        } catch (e) {
+            //console.error(e);
+        }
+        if (action){
+            if(action.Label){
+                path = action.Label
+            } else if(descriptions && descriptions[action.ID]){
+                path = descriptions[action.ID].Label;
+            }
+        } else {
+            const last = path.split('/').pop();
+            const actionId = last.split('$').shift();
+            if(descriptions && descriptions[actionId]){
+                path = descriptions[actionId].Label;
+            }
+        }
+        return <div style={pathTag}>{path}</div>
+    }
+
+    findAction(path, actions) {
+        const parts = path.split('/');
+        const first = parts.shift();
+        const actionId = [...parts].shift();
+        const chainIndex = parseInt(actionId.split('$')[1]);
+        const action = actions[chainIndex];
+        let nextActions;
+        if (actionId.indexOf('$FAIL') === -1) {
+            nextActions = action.ChainedActions;
+        } else {
+            nextActions = action.FailedFilterActions;
+        }
+        if(parts.length > 1) {
+            // Move on step forward
+            return this.findAction(parts.join('/'), nextActions);
+        } else {
+            return action;
+        }
+    }
+
     render(){
-        const {pydio, task} = this.props;
-        const {activity, loading} = this.state;
+        const {pydio} = this.props;
+        const {activity} = this.state;
+        const cellBg = "#f5f5f5";
+        const lineHeight = 32;
         const columns = [
-            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: '25%'}, headerStyle:{width: '25%'}, renderCell:(row=>{
-                    return moment(row.Ts * 1000).fromNow();
+            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{width:110, height: lineHeight, backgroundColor:cellBg, paddingLeft: 12, paddingRight: 0}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
+                return this.computeTag(row)
+            }},
+            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: 100, height: lineHeight, backgroundColor:cellBg, paddingRight: 10}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
+                    const m = moment(row.Ts * 1000);
+                    return m.format('HH:mm:ss');
                 })},
-            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message']}
+            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg}}
         ];
         return (
-            <div style={{height:400}}>
+            <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>
+                <div style={{padding:'0 24px 10px', fontWeight:500, backgroundColor:cellBg}}>Tasks Logs</div>
                 <MaterialTable
+                    hideHeaders={true}
                     columns={columns}
                     data={activity}
                     showCheckboxes={false}
                     emptyStateString={'No activity found'}
+                    emptyStateStyle={{backgroundColor: cellBg}}
+                    computeRowStyle={(row) => {return {borderBottomColor: '#fff', height: lineHeight}}}
                 />
             </div>
         )

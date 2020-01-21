@@ -62,6 +62,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
 var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
+var moment = _Pydio$requireLib.moment;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
@@ -80,7 +81,8 @@ var JobBoard = (function (_React$Component) {
             working: false,
             taskLogs: null,
             job: props.job,
-            create: props.create
+            create: props.create,
+            descriptions: {}
         };
     }
 
@@ -142,7 +144,7 @@ var JobBoard = (function (_React$Component) {
 
             if (mode === 'selection') {
                 this.setState({ selectedRows: rows });
-            } else if (rows.length === 1) {
+            } else if (rows.length === 1 && !rows[0].colSpan) {
                 this.setState({ taskLogs: rows[0] });
             }
         }
@@ -165,13 +167,15 @@ var JobBoard = (function (_React$Component) {
         value: function deleteAll() {
             var _this2 = this;
 
-            this.setState({ working: true });
-            var job = this.state.job;
+            if (window.confirm('Are you sure?')) {
+                this.setState({ working: true });
+                var job = this.state.job;
 
-            var store = JobsStore.getInstance();
-            store.deleteAllTasksForJob(job.ID).then(function () {
-                _this2.setState({ working: false });
-            });
+                var store = JobsStore.getInstance();
+                store.deleteAllTasksForJob(job.ID).then(function () {
+                    _this2.setState({ working: false });
+                });
+            }
         }
     }, {
         key: 'deleteJob',
@@ -232,16 +236,50 @@ var JobBoard = (function (_React$Component) {
             var taskLogs = _state2.taskLogs;
             var create = _state2.create;
             var job = _state2.job;
+            var descriptions = _state2.descriptions;
+            var showAll = _state2.showAll;
 
             if (!job) {
                 return null;
             }
-
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
             };
 
-            var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var actionsHeader = _react2['default'].createElement(
+                'div',
+                { style: { lineHeight: 'initial', marginLeft: 5 } },
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+            );
+            var idHeader = _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', marginLeft: -20 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
+                        }, disabled: working })
+                ),
+                _react2['default'].createElement(
+                    'span',
+                    null,
+                    m('task.id')
+                )
+            );
+
+            var keys = [{ name: 'ID', label: idHeader, hideSmall: true, style: { width: 110, fontSize: 15, paddingLeft: 20 }, headerStyle: { width: 110, paddingLeft: 20 }, renderCell: function renderCell(row) {
+                    return row.ID.substr(0, 8);
+                } }, { name: 'StartTime', style: { width: 100, paddingRight: 10 }, headerStyle: { width: 100, paddingRight: 10 }, label: m('task.start'), renderCell: function renderCell(row) {
+                    var m = moment(row.StartTime * 1000);
+                    var dateString = undefined;
+                    if (m.isSame(Date.now(), 'day')) {
+                        dateString = m.format('HH:mm:ss');
+                    } else {
+                        dateString = m.fromNow();
+                    }
+                    return dateString;
+                } }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, renderCell: function renderCell(row) {
                     if (row.Status === 'Error') {
                         return _react2['default'].createElement(
                             'span',
@@ -253,7 +291,31 @@ var JobBoard = (function (_React$Component) {
                     } else {
                         return row.StatusMessage;
                     }
-                } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
+                } }, { name: 'EndTime', style: { width: 100 }, headerStyle: { width: 100 }, label: m('task.duration'), hideSmall: true, renderCell: function renderCell(row) {
+                    var e = moment(Date.now());
+                    if (row.EndTime) {
+                        e = moment(row.EndTime * 1000);
+                    }
+                    var d = e.diff(moment(row.StartTime * 1000));
+                    var f = moment.utc(d);
+                    var h = f.format('H');
+                    var mn = f.format('m');
+                    var ss = f.format('s');
+                    if (h === '0' && mn === '0' && ss === '0') {
+                        return '< 1s';
+                    }
+                    return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's';
+                } }, { name: 'Actions', label: actionsHeader, style: { textAlign: 'right', width: 120, paddingLeft: 0 }, headerStyle: { width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
+            var computeRowStyle = function computeRowStyle(row) {
+                if (taskLogs && taskLogs.ID === row.ID) {
+                    return {
+                        backgroundColor: '#e0e0e0',
+                        fontWeight: 500,
+                        borderLeft: '2px solid #1e96f3'
+                    };
+                }
+                return null;
+            };
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -293,28 +355,32 @@ var JobBoard = (function (_React$Component) {
                 return runningStatus.indexOf(t.Status) === -1;
             });
             var more = undefined;
-            if (other.length > 20) {
-                more = other.length - 20;
-                other = other.slice(0, 20);
+            if (!showAll && other.length > 10) {
+                more = other.length - 10;
+                other = other.slice(0, 10);
+            }
+
+            // Insert task logs
+            if (taskLogs) {
+                (function () {
+                    var insert = [];
+                    other.forEach(function (t) {
+                        insert.push(t);
+                        if (t.ID === taskLogs.ID) {
+                            insert.push({
+                                colSpan: true,
+                                rowStyle: { borderLeft: '2px solid #1e96f3' },
+                                element: _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: taskLogs, job: job, descriptions: descriptions })
+                            });
+                        }
+                    });
+                    other = insert;
+                })();
             }
 
             return _react2['default'].createElement(
                 'div',
                 { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        title: job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8) : ''),
-                        onRequestClose: function () {
-                            _this4.setState({ taskLogs: null });
-                        },
-                        open: taskLogs !== null,
-                        autoScrollBodyContent: true,
-                        autoDetectWindowHeight: true,
-                        bodyStyle: { padding: 0 }
-                    },
-                    taskLogs && _react2['default'].createElement(_TaskActivity2['default'], { pydio: this.props.pydio, task: taskLogs })
-                ),
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: _react2['default'].createElement(
                         'span',
@@ -342,7 +408,10 @@ var JobBoard = (function (_React$Component) {
                         jobsEditable: jobsEditable,
                         create: create,
                         onJobSave: this.onJobSave.bind(this),
-                        onJsonSave: this.onJsonSave.bind(this)
+                        onJsonSave: this.onJsonSave.bind(this),
+                        onUpdateDescriptions: function (desc) {
+                            _this4.setState({ descriptions: desc });
+                        }
                     }),
                     !create && _react2['default'].createElement(
                         'div',
@@ -376,18 +445,6 @@ var JobBoard = (function (_React$Component) {
                                     'div',
                                     { style: { lineHeight: 'initial' } },
                                     _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                    _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
-                                        }, disabled: working })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                    _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
                                 )
                             )
                         }),
@@ -401,11 +458,14 @@ var JobBoard = (function (_React$Component) {
                                 onSelectRows: this.onSelectTaskRows.bind(this),
                                 emptyStateString: m('tasks.history.empty'),
                                 selectedRows: selectedRows,
-                                deselectOnClickAway: true
+                                deselectOnClickAway: true,
+                                computeRowStyle: computeRowStyle
                             }),
                             more && _react2['default'].createElement(
                                 'div',
-                                { style: { padding: 20, borderTop: '1px solid #eee' } },
+                                { onClick: function () {
+                                        _this4.setState({ showAll: true });
+                                    }, style: { cursor: 'pointer', textDecoration: 'underline', padding: 20, borderTop: '1px solid #eee' } },
                                 m('tasks.history.more').replace('%s', more)
                             )
                         )
