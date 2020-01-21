@@ -103,7 +103,9 @@ var LoginDialogMixin = {
         restClient.sessionLoginWithCredentials(login, this.refs.password.getValue()).then(function () {
             return _this.dismiss();
         }).then(function () {
-            return pydio.loadXmlRegistry(null, null, null);
+            return restClient.getOrUpdateJwt().then(function () {
+                return pydio.loadXmlRegistry(null, null, null);
+            })['catch'](function () {});
         })['catch'](function (e) {
             if (e && e.response && e.response.body) {
                 _this.setState({ errorId: e.response.body.Title });

@@ -32,21 +32,16 @@ func RefreshAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 
 		expiry := time.Now().Add(time.Duration(token.ExpiresIn) * time.Second).Unix()
 
-		// Do not show the refresh token here
-		out.Token = &rest.Token{
-			AccessToken: token.AccessToken,
-			IDToken:     token.IDToken,
-			ExpiresAt:   strconv.Itoa(int(expiry)),
-		}
-
-		// Legacy
-		out.JWT = token.AccessToken
-		out.ExpireTime = int32(expiry)
-
 		session.Values["access_token"] = token.AccessToken
 		session.Values["id_token"] = token.IDToken
 		session.Values["refresh_token"] = token.RefreshToken
 		session.Values["expires_at"] = strconv.Itoa(int(expiry))
+
+		out.Token = &rest.Token{
+			AccessToken: session.Values["access_token"].(string),
+			IDToken:     session.Values["id_token"].(string),
+			ExpiresAt:   session.Values["expires_at"].(string),
+		}
 
 		return middleware(req, rsp, in, out, session)
 	}
