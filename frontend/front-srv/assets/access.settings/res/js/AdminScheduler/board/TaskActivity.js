@@ -21,7 +21,7 @@
 import React from "react"
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
-import {Paper} from 'material-ui'
+import {FontIcon} from 'material-ui'
 import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
 
 const {MaterialTable} = Pydio.requireLib('components');
@@ -103,6 +103,10 @@ class TaskActivity extends React.Component{
         if(!path){
             return null;
         }
+        if (path === 'ROOT') {
+            // Special case for trigger
+            return <div style={{...pathTag, backgroundColor:'white', color:'rgba(0,0,0,.87)', border: '1px solid #e0e0e0'}}>Trigger</div>
+        }
         let action;
         try{
             action = this.findAction(path, job.Actions);
@@ -146,7 +150,7 @@ class TaskActivity extends React.Component{
     }
 
     render(){
-        const {pydio} = this.props;
+        const {pydio, onRequestClose} = this.props;
         const {activity} = this.state;
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
@@ -162,7 +166,12 @@ class TaskActivity extends React.Component{
         ];
         return (
             <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>
-                <div style={{padding:'0 24px 10px', fontWeight:500, backgroundColor:cellBg}}>Tasks Logs</div>
+                <div style={{padding:'0 24px 10px', fontWeight:500, backgroundColor:cellBg, display:'flex', alignItems:'center'}}>
+                    <div style={{flex: 1}}>Tasks Logs</div>
+                    <div style={{paddingRight: 15, cursor: "pointer"}} onClick={onRequestClose}>
+                        <FontIcon className={"mdi mdi-close"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
+                    </div>
+                </div>
                 <MaterialTable
                     hideHeaders={true}
                     columns={columns}

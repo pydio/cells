@@ -43820,23 +43820,57 @@ var JobBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'insertTaskLogRow',
+        value: function insertTaskLogRow(rows) {
+            var _this4 = this;
+
+            var pydio = this.props.pydio;
+            var _state2 = this.state;
+            var job = _state2.job;
+            var descriptions = _state2.descriptions;
+            var taskLogs = _state2.taskLogs;
+
+            if (!taskLogs) {
+                return rows;
+            }
+            var insert = [];
+            rows.forEach(function (t) {
+                insert.push(t);
+                if (t.ID === taskLogs.ID) {
+                    insert.push({
+                        colSpan: true,
+                        rowStyle: { borderLeft: '2px solid #1e96f3' },
+                        element: _react2['default'].createElement(_TaskActivity2['default'], {
+                            pydio: pydio,
+                            task: taskLogs,
+                            job: job,
+                            descriptions: descriptions,
+                            onRequestClose: function () {
+                                return _this4.setState({ taskLogs: null });
+                            }
+                        })
+                    });
+                }
+            });
+            return insert;
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
             var onRequestClose = _props2.onRequestClose;
-            var _state2 = this.state;
-            var selectedRows = _state2.selectedRows;
-            var working = _state2.working;
-            var mode = _state2.mode;
-            var taskLogs = _state2.taskLogs;
-            var create = _state2.create;
-            var job = _state2.job;
-            var descriptions = _state2.descriptions;
-            var showAll = _state2.showAll;
+            var _state3 = this.state;
+            var selectedRows = _state3.selectedRows;
+            var working = _state3.working;
+            var mode = _state3.mode;
+            var taskLogs = _state3.taskLogs;
+            var create = _state3.create;
+            var job = _state3.job;
+            var showAll = _state3.showAll;
 
             if (!job) {
                 return null;
@@ -43857,7 +43891,7 @@ var JobBoard = (function (_React$Component) {
                     'div',
                     { style: { lineHeight: 'initial', marginLeft: 5 } },
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
+                            _this5.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
                         }, disabled: working })
                 ),
                 _react2['default'].createElement(
@@ -43943,13 +43977,14 @@ var JobBoard = (function (_React$Component) {
                 }
                 if (jobsEditable) {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
-                            _this4.deleteJob();
+                            _this5.deleteJob();
                         } }));
                 }
             }
             var running = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) !== -1;
             });
+            running = this.insertTaskLogRow(running);
             var other = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) === -1;
             });
@@ -43958,24 +43993,7 @@ var JobBoard = (function (_React$Component) {
                 more = other.length - 10;
                 other = other.slice(0, 10);
             }
-
-            // Insert task logs
-            if (taskLogs) {
-                (function () {
-                    var insert = [];
-                    other.forEach(function (t) {
-                        insert.push(t);
-                        if (t.ID === taskLogs.ID) {
-                            insert.push({
-                                colSpan: true,
-                                rowStyle: { borderLeft: '2px solid #1e96f3' },
-                                element: _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: taskLogs, job: job, descriptions: descriptions })
-                            });
-                        }
-                    });
-                    other = insert;
-                })();
-            }
+            other = this.insertTaskLogRow(other);
 
             return _react2['default'].createElement(
                 'div',
@@ -44009,7 +44027,7 @@ var JobBoard = (function (_React$Component) {
                         onJobSave: this.onJobSave.bind(this),
                         onJsonSave: this.onJsonSave.bind(this),
                         onUpdateDescriptions: function (desc) {
-                            _this4.setState({ descriptions: desc });
+                            _this5.setState({ descriptions: desc });
                         }
                     }),
                     !create && _react2['default'].createElement(
@@ -44022,11 +44040,12 @@ var JobBoard = (function (_React$Component) {
                             _react2['default'].createElement(MaterialTable, {
                                 data: running,
                                 columns: keys,
+                                hideHeaders: true,
                                 showCheckboxes: false,
                                 emptyStateString: m('tasks.running.empty'),
                                 onSelectRows: function (rows) {
                                     if (rows.length === 1 && running.length) {
-                                        _this4.setState({ taskLogs: rows[0] });
+                                        _this5.setState({ taskLogs: rows[0] });
                                     }
                                 }
                             })
@@ -44063,7 +44082,7 @@ var JobBoard = (function (_React$Component) {
                             more && _react2['default'].createElement(
                                 'div',
                                 { onClick: function () {
-                                        _this4.setState({ showAll: true });
+                                        _this5.setState({ showAll: true });
                                     }, style: { cursor: 'pointer', textDecoration: 'underline', padding: 20, borderTop: '1px solid #eee' } },
                                 m('tasks.history.more').replace('%s', more)
                             )
@@ -45666,6 +45685,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -45797,6 +45818,14 @@ var TaskActivity = (function (_React$Component) {
             if (!path) {
                 return null;
             }
+            if (path === 'ROOT') {
+                // Special case for trigger
+                return _react2["default"].createElement(
+                    "div",
+                    { style: _extends({}, pathTag, { backgroundColor: 'white', color: 'rgba(0,0,0,.87)', border: '1px solid #e0e0e0' }) },
+                    "Trigger"
+                );
+            }
             var action = undefined;
             try {
                 action = this.findAction(path, job.Actions);
@@ -45848,7 +45877,9 @@ var TaskActivity = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var pydio = this.props.pydio;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var onRequestClose = _props2.onRequestClose;
             var activity = this.state.activity;
 
             var cellBg = "#f5f5f5";
@@ -45864,8 +45895,17 @@ var TaskActivity = (function (_React$Component) {
                 { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
                 _react2["default"].createElement(
                     "div",
-                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg } },
-                    "Tasks Logs"
+                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg, display: 'flex', alignItems: 'center' } },
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { flex: 1 } },
+                        "Tasks Logs"
+                    ),
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { paddingRight: 15, cursor: "pointer" }, onClick: onRequestClose },
+                        _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-close", color: "rgba(0,0,0,.3)", style: { fontSize: 16 } })
+                    )
                 ),
                 _react2["default"].createElement(MaterialTable, {
                     hideHeaders: true,

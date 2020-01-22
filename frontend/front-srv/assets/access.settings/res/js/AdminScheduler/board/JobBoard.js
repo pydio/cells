@@ -139,10 +139,36 @@ class JobBoard extends React.Component {
         });
     }
 
+    insertTaskLogRow(rows){
+        const {pydio} = this.props;
+        const {job, descriptions, taskLogs} = this.state;
+        if(!taskLogs){
+            return rows;
+        }
+        const insert = [];
+        rows.forEach((t) => {
+            insert.push(t);
+            if(t.ID === taskLogs.ID){
+                insert.push({
+                    colSpan: true,
+                    rowStyle: {borderLeft: '2px solid #1e96f3'},
+                    element: <TaskActivity
+                        pydio={pydio}
+                        task={taskLogs}
+                        job={job}
+                        descriptions={descriptions}
+                        onRequestClose={()=>this.setState({taskLogs: null})}
+                    />
+                })
+            }
+        });
+        return insert;
+    }
+
     render(){
 
         const {pydio, jobsEditable, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs, create, job, descriptions, showAll} = this.state;
+        const {selectedRows, working, mode, taskLogs, create, job, showAll} = this.state;
 
         if(!job){
             return null;
@@ -231,29 +257,15 @@ class JobBoard extends React.Component {
                 actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}}/>)
             }
         }
-        const running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
+        let running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
+        running = this.insertTaskLogRow(running);
         let other = tasks.filter((t) => {return runningStatus.indexOf(t.Status) === -1});
         let more;
         if(!showAll && other.length > 10) {
             more = other.length - 10;
             other = other.slice(0, 10);
         }
-
-        // Insert task logs
-        if(taskLogs){
-            const insert = [];
-            other.forEach((t) => {
-                insert.push(t);
-                if(t.ID === taskLogs.ID){
-                    insert.push({
-                        colSpan: true,
-                        rowStyle: {borderLeft: '2px solid #1e96f3'},
-                        element: <TaskActivity pydio={pydio} task={taskLogs} job={job} descriptions={descriptions}/>
-                    })
-                }
-            });
-            other = insert;
-        }
+        other = this.insertTaskLogRow(other);
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
@@ -281,6 +293,7 @@ class JobBoard extends React.Component {
                             <MaterialTable
                                 data={running}
                                 columns={keys}
+                                hideHeaders={true}
                                 showCheckboxes={false}
                                 emptyStateString={m('tasks.running.empty')}
                                 onSelectRows={(rows) => {

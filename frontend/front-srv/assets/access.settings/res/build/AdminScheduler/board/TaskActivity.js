@@ -24,6 +24,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -155,6 +157,14 @@ var TaskActivity = (function (_React$Component) {
             if (!path) {
                 return null;
             }
+            if (path === 'ROOT') {
+                // Special case for trigger
+                return _react2["default"].createElement(
+                    "div",
+                    { style: _extends({}, pathTag, { backgroundColor: 'white', color: 'rgba(0,0,0,.87)', border: '1px solid #e0e0e0' }) },
+                    "Trigger"
+                );
+            }
             var action = undefined;
             try {
                 action = this.findAction(path, job.Actions);
@@ -206,7 +216,9 @@ var TaskActivity = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var pydio = this.props.pydio;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var onRequestClose = _props2.onRequestClose;
             var activity = this.state.activity;
 
             var cellBg = "#f5f5f5";
@@ -222,8 +234,17 @@ var TaskActivity = (function (_React$Component) {
                 { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
                 _react2["default"].createElement(
                     "div",
-                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg } },
-                    "Tasks Logs"
+                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg, display: 'flex', alignItems: 'center' } },
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { flex: 1 } },
+                        "Tasks Logs"
+                    ),
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { paddingRight: 15, cursor: "pointer" }, onClick: onRequestClose },
+                        _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-close", color: "rgba(0,0,0,.3)", style: { fontSize: 16 } })
+                    )
                 ),
                 _react2["default"].createElement(MaterialTable, {
                     hideHeaders: true,
