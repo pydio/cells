@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/merger"
@@ -340,7 +341,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Creating folder"
 		complete = "Created folder"
 		error = "Error while creating folder"
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
 	case merger.OpCreateFile, merger.OpUpdateFile:
 		cb = pr.processCreateFile
 		if p.HasTransfers() {
@@ -352,21 +353,21 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 			complete = "Indexed file"
 			error = "Error while indexing file"
 		}
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
 	case merger.OpMoveFolder:
 		cb = pr.processMove
 		progress = "Moving folder"
 		complete = "Moved folder"
 		error = "Error while moving folder"
-		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
-		fields = append(fields, zap.String("to", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpMoveFile:
 		cb = pr.processMove
 		progress = "Moving file"
 		complete = "Moved file"
 		error = "Error while moving file"
-		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
-		fields = append(fields, zap.String("to", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpDelete:
 		cb = pr.processDelete
 		nS := "folder"
@@ -376,7 +377,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Deleting " + nS
 		complete = "Deleted " + nS
 		error = "Error while deleting " + nS
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
 	case merger.OpCreateMeta:
 		cb = pr.processMetadata
 		progress = "Creating metadata"

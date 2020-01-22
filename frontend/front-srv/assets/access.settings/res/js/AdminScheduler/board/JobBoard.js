@@ -20,8 +20,8 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} from 'material-ui'
-const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
+import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
+const {JobsStore, SingleJobProgress, moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
 import JobGraph from "./JobGraph";
@@ -37,12 +37,13 @@ class JobBoard extends React.Component {
             working: false,
             taskLogs: null,
             job: props.job,
-            create: props.create
+            create: props.create,
+            descriptions: {},
         }
     }
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+        if(nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
             this.setState({job: nextProps.job});
         }
     }
@@ -80,7 +81,7 @@ class JobBoard extends React.Component {
         const {mode} = this.state;
         if(mode === 'selection'){
             this.setState({selectedRows: rows});
-        } else if(rows.length === 1){
+        } else if(rows.length === 1 && !rows[0].colSpan){
             this.setState({taskLogs: rows[0]});
         }
     }
@@ -96,12 +97,14 @@ class JobBoard extends React.Component {
     }
 
     deleteAll(){
-        this.setState({working: true});
-        const {job} = this.state;
-        const store = JobsStore.getInstance();
-        store.deleteAllTasksForJob(job.ID).then(() => {
-            this.setState({working: false});
-        })
+        if(window.confirm('Are you sure?')){
+            this.setState({working: true});
+            const {job} = this.state;
+            const store = JobsStore.getInstance();
+            store.deleteAllTasksForJob(job.ID).then(() => {
+                this.setState({working: false});
+            })
+        }
     }
 
     deleteJob(){
@@ -136,23 +139,65 @@ class JobBoard extends React.Component {
         });
     }
 
+    insertTaskLogRow(rows){
+        const {pydio} = this.props;
+        const {job, descriptions, taskLogs} = this.state;
+        if(!taskLogs){
+            return rows;
+        }
+        const insert = [];
+        rows.forEach((t) => {
+            insert.push(t);
+            if(t.ID === taskLogs.ID){
+                insert.push({
+                    colSpan: true,
+                    rowStyle: {borderLeft: '2px solid #1e96f3'},
+                    element: <TaskActivity
+                        pydio={pydio}
+                        task={taskLogs}
+                        job={job}
+                        descriptions={descriptions}
+                        onRequestClose={()=>this.setState({taskLogs: null})}
+                    />
+                })
+            }
+        });
+        return insert;
+    }
+
     render(){
 
         const {pydio, jobsEditable, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs, create, job} = this.state;
+        const {selectedRows, working, mode, taskLogs, create, job, showAll} = this.state;
 
         if(!job){
             return null;
         }
-
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
+        const actionsHeader = (
+            <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-delete-sweep"} iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>
+        );
+        const idHeader = (
+            <div style={{display:'flex', alignItems:'center', marginLeft: -20}}>
+                <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-checkbox-multiple-"+(mode === 'selection'?'marked':'blank')+"-outline"}  iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection', taskLogs: null})}} disabled={working}/></div>
+                <span>{m('task.id')}</span>
+            </div>
+        );
+
         const keys = [
-            {name:'ID', label:m('task.id'), hideSmall: true},
-            {name:'StartTime', label:m('task.start'), useMoment:true},
-            {name:'EndTime', label:m('task.end'), useMoment:true, hideSmall: true},
-            {name:'Status', label:m('task.status')},
-            {name:'StatusMessage', label:m('task.message'), hideSmall: true, style:{width: '25%'}, headerStyle:{width:'25%'}, renderCell:(row)=>{
+            {name:'ID', label:idHeader, hideSmall: true, style:{width: 110, fontSize: 15, paddingLeft: 20}, headerStyle:{width: 110, paddingLeft: 20}, renderCell:(row)=>row.ID.substr(0,8)},
+            {name:'StartTime', style:{width: 100, paddingRight: 10}, headerStyle:{width: 100, paddingRight: 10}, label:m('task.start'), renderCell:(row)=>{
+                const m = moment(row.StartTime * 1000);
+                let dateString;
+                if (m.isSame(Date.now(), 'day')){
+                    dateString = m.format('HH:mm:ss');
+                } else {
+                    dateString = m.fromNow();
+                }
+                return dateString;
+            }},
+            {name:'StatusMessage', label:m('task.message'), hideSmall: true, renderCell:(row)=>{
                 if(row.Status === 'Error') {
                     return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
                 } else if (row.Status === 'Running') {
@@ -161,8 +206,33 @@ class JobBoard extends React.Component {
                     return row.StatusMessage;
                 }
             }},
-            {name:'Actions', label:'', style:{textAlign:'right'}, renderCell:this.renderActions.bind(this)}
+            {name:'EndTime', style:{width: 100}, headerStyle:{width: 100}, label:m('task.duration'), hideSmall: true, renderCell: (row) => {
+                    let e = moment(Date.now());
+                    if(row.EndTime){
+                        e = moment(row.EndTime * 1000);
+                    }
+                    const d = e.diff(moment(row.StartTime * 1000));
+                    const f = moment.utc(d);
+                    const h = f.format('H') ;
+                    const mn = f.format('m');
+                    const ss = f.format('s');
+                    if(h === '0' && mn === '0' && ss === '0'){
+                        return '< 1s';
+                    }
+                    return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's'
+                }},
+            {name:'Actions', label:actionsHeader, style:{textAlign:'right', width: 120, paddingLeft:0}, headerStyle:{width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right'}, renderCell:this.renderActions.bind(this)}
         ];
+        const computeRowStyle = (row) => {
+            if(taskLogs && taskLogs.ID === row.ID){
+                return {
+                    backgroundColor:'#e0e0e0',
+                    fontWeight: 500,
+                    borderLeft: '2px solid #1e96f3'
+                };
+            }
+            return null;
+        };
         const tasks = job.Tasks || [];
         const runningStatus = ['Running', 'Paused'];
 
@@ -187,26 +257,18 @@ class JobBoard extends React.Component {
                 actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}}/>)
             }
         }
-        const running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
+        let running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
+        running = this.insertTaskLogRow(running);
         let other = tasks.filter((t) => {return runningStatus.indexOf(t.Status) === -1});
         let more;
-        if(other.length > 20) {
-            more = other.length - 20;
-            other = other.slice(0, 20);
+        if(!showAll && other.length > 10) {
+            more = other.length - 10;
+            other = other.slice(0, 10);
         }
+        other = this.insertTaskLogRow(other);
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
-                <Dialog
-                    title={job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8)  : '')}
-                    onRequestClose={()=>{this.setState({taskLogs: null})}}
-                    open={taskLogs !== null}
-                    autoScrollBodyContent={true}
-                    autoDetectWindowHeight={true}
-                    bodyStyle={{padding:0}}
-                >
-                    {taskLogs && <TaskActivity pydio={this.props.pydio} task={taskLogs}/>}
-                </Dialog>
                 <AdminComponents.Header
                     title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
                     backButtonAction={onRequestClose}
@@ -221,6 +283,7 @@ class JobBoard extends React.Component {
                         create={create}
                         onJobSave={this.onJobSave.bind(this)}
                         onJsonSave={this.onJsonSave.bind(this)}
+                        onUpdateDescriptions={(desc) => {this.setState({descriptions: desc})}}
                     />
                     {!create &&
                     <div>
@@ -230,6 +293,7 @@ class JobBoard extends React.Component {
                             <MaterialTable
                                 data={running}
                                 columns={keys}
+                                hideHeaders={true}
                                 showCheckboxes={false}
                                 emptyStateString={m('tasks.running.empty')}
                                 onSelectRows={(rows) => {
@@ -245,8 +309,6 @@ class JobBoard extends React.Component {
                                 <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>
                                     <div style={{flex: 1}}>{m('tasks.history')}</div>
                                     {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onTouchTap={this.deleteSelection.bind(this)} disabled={working}/></div>}
-                                    {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection'})}} disabled={working}/></div>}
-                                    {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>}
                                 </div>
                             }
                         />
@@ -259,8 +321,9 @@ class JobBoard extends React.Component {
                                 emptyStateString={m('tasks.history.empty')}
                                 selectedRows={selectedRows}
                                 deselectOnClickAway={true}
+                                computeRowStyle={computeRowStyle}
                             />
-                            {more  && <div style={{padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
+                            {more  && <div onClick={()=>{this.setState({showAll:true})}} style={{cursor: 'pointer', textDecoration:'underline', padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
                         </Paper>
                     </div>
                     }

@@ -22,6 +22,8 @@ package tasks
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,6 +32,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
+	context2 "github.com/pydio/cells/common/utils/context"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -399,4 +402,42 @@ func createMessageFromEvent(event interface{}) jobs.ActionMessage {
 	}
 
 	return initialInput
+}
+
+func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}) {
+	var msg string
+	if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
+		if triggerEvent.Schedule == nil {
+			msg = "Starting job manually"
+		} else {
+			msg = "Starting job on schedule " + strings.ReplaceAll(triggerEvent.Schedule.String(), "Iso8601Schedule:", "")
+		}
+	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
+		eT := strings.ToLower(idmEvent.GetType().String())
+		var oT string
+		if idmEvent.User != nil {
+			oT = "user"
+		} else if idmEvent.Role != nil {
+			oT = "role"
+		} else if idmEvent.Workspace != nil {
+			oT = "workspace"
+		} else if idmEvent.Acl != nil {
+			oT = "acl"
+		}
+		msg = fmt.Sprintf("Starting job on %s %s event", oT, eT)
+	} else if nodeEvent, ok := event.(*tree.NodeChangeEvent); ok {
+		eT := strings.ToLower(nodeEvent.GetType().String())
+		msg = fmt.Sprintf("Starting job on %s node event", eT)
+	}
+	// Append user login
+	user, _ := permissions.FindUserNameInContext(ctx)
+	if user != "" && user != common.PYDIO_SYSTEM_USERNAME {
+		msg += " (triggered by user " + user + ")"
+	}
+	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+		servicecontext.ContextMetaJobUuid:        task.Job.ID,
+		servicecontext.ContextMetaTaskUuid:       task.RunUUID,
+		servicecontext.ContextMetaTaskActionPath: "ROOT",
+	})
+	log.TasksLogger(ctx).Info(msg)
 }

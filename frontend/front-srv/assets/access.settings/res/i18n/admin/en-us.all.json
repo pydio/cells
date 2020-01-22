@@ -1751,6 +1751,9 @@
   "scheduler.task.end":{
     "other": "End"
   },
+  "scheduler.task.duration":{
+    "other": "Duration"
+  },
   "scheduler.task.status":{
     "other": "Status"
   },

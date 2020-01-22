@@ -155,7 +155,7 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithError(writeErr), writeErr
 	}
 
-	log.Logger(ctx).Info("Tree snapshot written to " + c.Target)
+	log.TasksLogger(ctx).Info("Tree snapshot written to " + c.Target)
 	output := input.WithNode(nil)
 	output.AppendOutput(&jobs.ActionOutput{
 		Success:    true,

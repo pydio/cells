@@ -51,7 +51,6 @@ export function attachDescriptions(descriptions) {
 }
 
 export function requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool){
-    console.log('sending requireLayoutAction');
     return {
         type: REQUIRE_LAYOUT,
         graph,boundingRef,editMode, paper, createLinkTool

@@ -257,6 +257,9 @@ class JobGraph extends React.Component {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
             this.state.onUpdateDescriptions(data.Actions);
+            if(this.props.onUpdateDescriptions){
+                this.props.onUpdateDescriptions(data.Actions);
+            }
         });
         // Bind window resizer
         this._resizer = ()=> {
@@ -283,13 +286,6 @@ class JobGraph extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState){
         return nextProps.random === this.props.random;
-    }
-
-    loadDescriptions() {
-        const api = new ConfigServiceApi(PydioApi.getRestClient());
-        api.schedulerActionsDiscovery().then(data => {
-            this.state.onUpdateDescriptions(data.Actions);
-        });
     }
 
 

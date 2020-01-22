@@ -83,10 +83,6 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
 		return input.WithError(e), e
 	}
-	if e != nil {
-		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
-		return input.WithError(e), e
-	}
 	nodeUuid := input.Nodes[0].Uuid
 	// List all thumbs starting with node Uuid
 	listRes, err := thumbsClient.ListObjectsWithContext(ctx, thumbsBucket, nodeUuid+"-", "", "", 0)

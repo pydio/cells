@@ -32,6 +32,7 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/endpoints/memory"
@@ -149,7 +150,7 @@ func (i *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	})
 
 	if session == "" {
-		log.Logger(ctx).Info("CreateNode", zap.Any("node", node), zap.Error(err))
+		log.Logger(ctx).Info("CreateNode", node.Zap(), zap.Error(err))
 	}
 
 	return err
@@ -160,7 +161,7 @@ func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 	session := i.indexationSession()
 
 	if session == "" {
-		log.Logger(ctx).Info("DeleteNode", zap.String("path", path))
+		log.Logger(ctx).Info("DeleteNode", zap.String(common.KEY_NODE_PATH, path))
 	}
 
 	_, err = i.writerClient.DeleteNode(ctx, &tree.DeleteNodeRequest{
@@ -174,7 +175,7 @@ func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 
 func (i *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
-	log.Logger(ctx).Info("MoveNode", zap.String("oldPath", oldPath), zap.String("newPath", newPath))
+	log.Logger(ctx).Info("MoveNode", zap.String(common.KEY_NODE_PATH, oldPath), zap.String("newPath", newPath))
 
 	_, err = i.writerClient.UpdateNode(ctx, &tree.UpdateNodeRequest{
 		From: &tree.Node{

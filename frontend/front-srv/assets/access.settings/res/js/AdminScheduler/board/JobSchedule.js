@@ -194,7 +194,7 @@ class JobSchedule extends React.Component {
     render() {
         const {edit} = this.props;
         if(!edit){
-            return <div><span className={"mdi mdi-timer"} style={{color:'rgb(33, 150, 243)'}}/> {JobSchedule.readableString(this.state, this.T, true)}</div>
+            return <span>{JobSchedule.readableString(this.state, this.T, true)}</span>
         }
         const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
         let monthdays = [];

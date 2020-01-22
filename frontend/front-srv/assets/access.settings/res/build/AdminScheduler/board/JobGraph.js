@@ -453,6 +453,9 @@ var JobGraph = (function (_React$Component) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this3.state.onUpdateDescriptions(data.Actions);
+                if (_this3.props.onUpdateDescriptions) {
+                    _this3.props.onUpdateDescriptions(data.Actions);
+                }
             });
             // Bind window resizer
             this._resizer = function () {
@@ -486,16 +489,6 @@ var JobGraph = (function (_React$Component) {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps, nextState) {
             return nextProps.random === this.props.random;
-        }
-    }, {
-        key: 'loadDescriptions',
-        value: function loadDescriptions() {
-            var _this4 = this;
-
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.schedulerActionsDiscovery().then(function (data) {
-                _this4.state.onUpdateDescriptions(data.Actions);
-            });
         }
     }, {
         key: 'clearSelection',
@@ -590,7 +583,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this5 = this;
+            var _this4 = this;
 
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -603,7 +596,7 @@ var JobGraph = (function (_React$Component) {
             var requireLayout = _state4.requireLayout;
 
             var removeLinkTool = function removeLinkTool() {
-                return _this5.createLinkTool();
+                return _this4.createLinkTool();
             };
             var _this = this;
 
@@ -617,9 +610,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this5.clearSelection();
+                            _this4.clearSelection();
                             model.select();
-                            _this5.select(model);
+                            _this4.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -631,12 +624,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this4.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'filter' });
+                            _this4.setState({ selectionModel: job, selectionType: 'filter' });
                         } else if (model instanceof _graphAction2['default'] || model instanceof _graphActionFilter2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this4.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -645,12 +638,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this4.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this4.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this4.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -751,8 +744,8 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool,
                 'button:create-action': function buttonCreateAction(elView, evt) {
                     evt.stopPropagation();
-                    _this5.clearSelection();
-                    _this5.setState({ createNewAction: true });
+                    _this4.clearSelection();
+                    _this4.setState({ createNewAction: true });
                 },
                 'button:reflow': function buttonReflow(elView, evt) {
                     evt.stopPropagation();
@@ -845,17 +838,17 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
-            var _this6 = this;
+            var _this5 = this;
 
             actions.forEach(function (a) {
                 if (a.model) {
                     delete a.model;
                 }
                 if (a.ChainedActions) {
-                    _this6.cleanJsonActions(a.ChainedActions);
+                    _this5.cleanJsonActions(a.ChainedActions);
                 }
                 if (a.FailedFilterActions) {
-                    _this6.cleanJsonActions(a.FailedFilterActions);
+                    _this5.cleanJsonActions(a.FailedFilterActions);
                 }
             });
         }
@@ -906,7 +899,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this6 = this;
 
             var selBlock = undefined;
             var _props = this.props;
@@ -937,7 +930,7 @@ var JobGraph = (function (_React$Component) {
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this7.clearSelection();
+                    _this6.clearSelection();
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
@@ -951,7 +944,7 @@ var JobGraph = (function (_React$Component) {
                     },
                     create: true,
                     onDismiss: function () {
-                        _this7.setState({ createNewAction: false, fPanelWidthOffset: 0 });
+                        _this6.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
@@ -964,7 +957,7 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this7.deleteAction();
+                                _this6.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
@@ -1051,7 +1044,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "Run-On-Save" }),
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
-                            _this7.setState({ showJsonDialog: true });
+                            _this6.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
             }
@@ -1064,15 +1057,15 @@ var JobGraph = (function (_React$Component) {
                     {
                         title: "Import/Export JSON",
                         onRequestClose: function () {
-                            _this7.setState({ showJsonDialog: false });
+                            _this6.setState({ showJsonDialog: false });
                         },
                         open: showJsonDialog,
                         autoDetectWindowHeight: true,
                         autoScrollBodyContent: true,
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                                _this7.setState({ showJsonDialog: false });
+                                _this6.setState({ showJsonDialog: false });
                             }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
-                                _this7.saveJSON();
+                                _this6.saveJSON();
                             }, disabled: jsonJobInvalid, label: "Save" })]
                     },
                     _react2['default'].createElement(
@@ -1081,7 +1074,7 @@ var JobGraph = (function (_React$Component) {
                         showJsonDialog && _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
-                                _this7.updateJSON(v);
+                                _this6.updateJSON(v);
                             },
                             mode: "json"
                         })
@@ -1092,13 +1085,13 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this7.props.onJobSave);
+                            onSave(job, _this6.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this7.revertAction();
+                            _this6.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this7.toggleEdit();
+                            _this6.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
@@ -1114,10 +1107,10 @@ var JobGraph = (function (_React$Component) {
                         { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
-                                _this7.setState({ fPanelWidthOffset: 300 });
+                                _this6.setState({ fPanelWidthOffset: 300 });
                             } }),
                         showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
-                                _this7.setState({ fPanelWidthOffset: 0 });
+                                _this6.setState({ fPanelWidthOffset: 0 });
                             } })
                     )
                 ),

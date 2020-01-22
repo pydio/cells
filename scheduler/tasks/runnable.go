@@ -84,19 +84,22 @@ func NewRunnable(ctx context.Context, parentPath string, chainIndex int, cl clie
 		r.Implementation = impl
 		r.Implementation.Init(task.Job, cl, action)
 	}
+	if walker, ok := impl.(actions.RecursiveNodeWalkerAction); ok && action.NodesFilter != nil {
+		walker.SetNodeFilterAsWalkFilter(action.NodesFilter)
+	}
 	return r
 }
 
 // CreateChild replicates a runnable for child action
-func (r *Runnable) CreateChild(chainIndex int, action *jobs.Action, message jobs.ActionMessage) Runnable {
+func (r *Runnable) CreateChild(parentPath string, chainIndex int, action *jobs.Action, message jobs.ActionMessage) Runnable {
 
 	r.Task.Add(1)
-	return NewRunnable(r.Context, r.ActionPath, chainIndex, r.Client, r.Task, action, message)
+	return NewRunnable(r.Context, parentPath, chainIndex, r.Client, r.Task, action, message)
 }
 
 // Dispatch gets next runnable from Action and enqueues it to the Queue
 // Todo - Check that done channel is working correctly with chained actions
-func (r *Runnable) Dispatch(input jobs.ActionMessage, actions []*jobs.Action, Queue chan Runnable) {
+func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, actions []*jobs.Action, Queue chan Runnable) {
 
 	for i, action := range actions {
 		act := action
@@ -115,11 +118,11 @@ func (r *Runnable) Dispatch(input jobs.ActionMessage, actions []*jobs.Action, Qu
 				case message := <-messagesOutput:
 					// Build runnable and enqueue
 					m := proto.Clone(&message).(*jobs.ActionMessage)
-					Queue <- r.CreateChild(chainIndex, act, *m)
+					Queue <- r.CreateChild(parentPath, chainIndex, act, *m)
 				case failed := <-failedFilter:
 					// Filter failed
 					if len(act.FailedFilterActions) > 0 {
-						r.Dispatch(failed, act.FailedFilterActions, Queue)
+						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), failed, act.FailedFilterActions, Queue)
 					}
 				case <-done:
 					return
@@ -179,7 +182,7 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	}
 	r.Task.AppendLog(r.Action, r.Message, outputMessage)
 
-	r.Dispatch(outputMessage, r.ChainedActions, Queue)
+	r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, Queue)
 
 	if !taskUpdateDelegated {
 		r.Task.SetStatus(jobs.TaskStatus_Finished, "Complete")

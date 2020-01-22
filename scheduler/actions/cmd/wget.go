@@ -161,6 +161,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		"Size": written,
 		"Time": last,
 	})
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Downloaded %d bytes in %s", written, last.String()))
 	request := &tree.ReadNodeRequest{Node: &tree.Node{Path: targetNode.Path}}
 	resp, err := w.Router.ReadNode(ctx, request)
 	if err != nil {

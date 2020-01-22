@@ -22,6 +22,10 @@ package tree
 
 import (
 	"context"
+	"fmt"
+	"path"
+
+	"github.com/pydio/cells/common/log"
 
 	"github.com/micro/go-micro/client"
 
@@ -107,11 +111,14 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 
 	// Update Metadata
 	for _, n := range input.Nodes {
-		n.SetMeta(jobs.EvaluateFieldStr(ctx, input, c.MetaNamespace), jobs.EvaluateFieldStr(ctx, input, c.MetaValue))
+		ns := jobs.EvaluateFieldStr(ctx, input, c.MetaNamespace)
+		val := jobs.EvaluateFieldStr(ctx, input, c.MetaValue)
+		n.SetMeta(ns, val)
 		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
 		if err != nil {
 			return input.WithError(err), err
 		}
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Updated metadata %s (value %s) on %s", ns, val, path.Base(n.GetPath())))
 	}
 
 	input.AppendOutput(&jobs.ActionOutput{Success: true})

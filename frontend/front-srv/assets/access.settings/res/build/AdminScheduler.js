@@ -43257,6 +43257,14 @@ var Dashboard = _react2['default'].createClass({
 
     extractRowsInfo: function extractRowsInfo(jobs, m) {
 
+        var tagStyle = {
+            color: 'white',
+            borderRadius: 4,
+            textAlign: 'center',
+            padding: 4,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        };
         var system = [];
         var other = [];
         if (jobs === undefined) {
@@ -43320,16 +43328,24 @@ var Dashboard = _react2['default'].createClass({
                 data.TaskEndTime = "-";
                 data.TaskStartTime = "-";
             }
-
+            var tagOpacity = undefined;
+            if (job.Inactive) {
+                tagOpacity = { opacity: .43 };
+            }
             if (job.Schedule) {
-                data.Trigger = _react2['default'].createElement(_JobSchedule2['default'], { job: job }); // m('trigger.periodic');
+                data.Trigger = _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#03A9F4' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-timer" }),
+                    _react2['default'].createElement(_JobSchedule2['default'], { job: job })
+                );
                 data.SortValue = '0-' + job.Label;
             } else if (job.EventNames) {
                 data.SortValue = '1-' + job.Label;
                 data.Trigger = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events'), style: { color: '#4caf50' } }),
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#43a047' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events') }),
                     ' ',
                     job.EventNames.map(function (e) {
                         return _builderTriggers.Events.eventLabel(e, m);
@@ -43337,9 +43353,9 @@ var Dashboard = _react2['default'].createClass({
                 );
             } else {
                 data.Trigger = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap", style: { color: '#607d8b' } }),
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#607d8b' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap" }),
                     ' ',
                     m('trigger.manual')
                 );
@@ -43353,11 +43369,6 @@ var Dashboard = _react2['default'].createClass({
                     m('job.disabled'),
                     '] ',
                     data.Label
-                );
-                data.Trigger = _react2['default'].createElement(
-                    'span',
-                    { style: { opacity: 0.43 } },
-                    data.Trigger
                 );
                 data.TaskStartTime = _react2['default'].createElement(
                     'span',
@@ -43411,16 +43422,16 @@ var Dashboard = _react2['default'].createClass({
         };
 
         var keys = [{
+            name: 'Trigger',
+            label: m('job.trigger'),
+            style: { width: 180, textAlign: 'left', paddingRight: 0 },
+            headerStyle: { width: 180, paddingRight: 0 },
+            hideSmall: true
+        }, {
             name: 'Label',
             label: m('job.label'),
             style: { width: '40%', fontSize: 15 },
             headerStyle: { width: '40%' }
-        }, {
-            name: 'Trigger',
-            label: m('job.trigger'),
-            style: { width: '20%' },
-            headerStyle: { width: '20%' },
-            hideSmall: true
         }, {
             name: 'TaskEndTime',
             label: m('job.endTime'),
@@ -43661,6 +43672,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
 var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
+var moment = _Pydio$requireLib.moment;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
@@ -43679,14 +43691,15 @@ var JobBoard = (function (_React$Component) {
             working: false,
             taskLogs: null,
             job: props.job,
-            create: props.create
+            create: props.create,
+            descriptions: {}
         };
     }
 
     _createClass(JobBoard, [{
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+            if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
                 this.setState({ job: nextProps.job });
             }
         }
@@ -43741,7 +43754,7 @@ var JobBoard = (function (_React$Component) {
 
             if (mode === 'selection') {
                 this.setState({ selectedRows: rows });
-            } else if (rows.length === 1) {
+            } else if (rows.length === 1 && !rows[0].colSpan) {
                 this.setState({ taskLogs: rows[0] });
             }
         }
@@ -43764,13 +43777,15 @@ var JobBoard = (function (_React$Component) {
         value: function deleteAll() {
             var _this2 = this;
 
-            this.setState({ working: true });
-            var job = this.state.job;
+            if (window.confirm('Are you sure?')) {
+                this.setState({ working: true });
+                var job = this.state.job;
 
-            var store = JobsStore.getInstance();
-            store.deleteAllTasksForJob(job.ID).then(function () {
-                _this2.setState({ working: false });
-            });
+                var store = JobsStore.getInstance();
+                store.deleteAllTasksForJob(job.ID).then(function () {
+                    _this2.setState({ working: false });
+                });
+            }
         }
     }, {
         key: 'deleteJob',
@@ -43816,31 +43831,99 @@ var JobBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'insertTaskLogRow',
+        value: function insertTaskLogRow(rows) {
+            var _this4 = this;
+
+            var pydio = this.props.pydio;
+            var _state2 = this.state;
+            var job = _state2.job;
+            var descriptions = _state2.descriptions;
+            var taskLogs = _state2.taskLogs;
+
+            if (!taskLogs) {
+                return rows;
+            }
+            var insert = [];
+            rows.forEach(function (t) {
+                insert.push(t);
+                if (t.ID === taskLogs.ID) {
+                    insert.push({
+                        colSpan: true,
+                        rowStyle: { borderLeft: '2px solid #1e96f3' },
+                        element: _react2['default'].createElement(_TaskActivity2['default'], {
+                            pydio: pydio,
+                            task: taskLogs,
+                            job: job,
+                            descriptions: descriptions,
+                            onRequestClose: function () {
+                                return _this4.setState({ taskLogs: null });
+                            }
+                        })
+                    });
+                }
+            });
+            return insert;
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
             var onRequestClose = _props2.onRequestClose;
-            var _state2 = this.state;
-            var selectedRows = _state2.selectedRows;
-            var working = _state2.working;
-            var mode = _state2.mode;
-            var taskLogs = _state2.taskLogs;
-            var create = _state2.create;
-            var job = _state2.job;
+            var _state3 = this.state;
+            var selectedRows = _state3.selectedRows;
+            var working = _state3.working;
+            var mode = _state3.mode;
+            var taskLogs = _state3.taskLogs;
+            var create = _state3.create;
+            var job = _state3.job;
+            var showAll = _state3.showAll;
 
             if (!job) {
                 return null;
             }
-
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
             };
 
-            var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var actionsHeader = _react2['default'].createElement(
+                'div',
+                { style: { lineHeight: 'initial', marginLeft: 5 } },
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+            );
+            var idHeader = _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', marginLeft: -20 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                            _this5.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
+                        }, disabled: working })
+                ),
+                _react2['default'].createElement(
+                    'span',
+                    null,
+                    m('task.id')
+                )
+            );
+
+            var keys = [{ name: 'ID', label: idHeader, hideSmall: true, style: { width: 110, fontSize: 15, paddingLeft: 20 }, headerStyle: { width: 110, paddingLeft: 20 }, renderCell: function renderCell(row) {
+                    return row.ID.substr(0, 8);
+                } }, { name: 'StartTime', style: { width: 100, paddingRight: 10 }, headerStyle: { width: 100, paddingRight: 10 }, label: m('task.start'), renderCell: function renderCell(row) {
+                    var m = moment(row.StartTime * 1000);
+                    var dateString = undefined;
+                    if (m.isSame(Date.now(), 'day')) {
+                        dateString = m.format('HH:mm:ss');
+                    } else {
+                        dateString = m.fromNow();
+                    }
+                    return dateString;
+                } }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, renderCell: function renderCell(row) {
                     if (row.Status === 'Error') {
                         return _react2['default'].createElement(
                             'span',
@@ -43852,7 +43935,31 @@ var JobBoard = (function (_React$Component) {
                     } else {
                         return row.StatusMessage;
                     }
-                } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
+                } }, { name: 'EndTime', style: { width: 100 }, headerStyle: { width: 100 }, label: m('task.duration'), hideSmall: true, renderCell: function renderCell(row) {
+                    var e = moment(Date.now());
+                    if (row.EndTime) {
+                        e = moment(row.EndTime * 1000);
+                    }
+                    var d = e.diff(moment(row.StartTime * 1000));
+                    var f = moment.utc(d);
+                    var h = f.format('H');
+                    var mn = f.format('m');
+                    var ss = f.format('s');
+                    if (h === '0' && mn === '0' && ss === '0') {
+                        return '< 1s';
+                    }
+                    return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's';
+                } }, { name: 'Actions', label: actionsHeader, style: { textAlign: 'right', width: 120, paddingLeft: 0 }, headerStyle: { width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
+            var computeRowStyle = function computeRowStyle(row) {
+                if (taskLogs && taskLogs.ID === row.ID) {
+                    return {
+                        backgroundColor: '#e0e0e0',
+                        fontWeight: 500,
+                        borderLeft: '2px solid #1e96f3'
+                    };
+                }
+                return null;
+            };
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -43881,39 +43988,27 @@ var JobBoard = (function (_React$Component) {
                 }
                 if (jobsEditable) {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
-                            _this4.deleteJob();
+                            _this5.deleteJob();
                         } }));
                 }
             }
             var running = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) !== -1;
             });
+            running = this.insertTaskLogRow(running);
             var other = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) === -1;
             });
             var more = undefined;
-            if (other.length > 20) {
-                more = other.length - 20;
-                other = other.slice(0, 20);
+            if (!showAll && other.length > 10) {
+                more = other.length - 10;
+                other = other.slice(0, 10);
             }
+            other = this.insertTaskLogRow(other);
 
             return _react2['default'].createElement(
                 'div',
                 { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        title: job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8) : ''),
-                        onRequestClose: function () {
-                            _this4.setState({ taskLogs: null });
-                        },
-                        open: taskLogs !== null,
-                        autoScrollBodyContent: true,
-                        autoDetectWindowHeight: true,
-                        bodyStyle: { padding: 0 }
-                    },
-                    taskLogs && _react2['default'].createElement(_TaskActivity2['default'], { pydio: this.props.pydio, task: taskLogs })
-                ),
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: _react2['default'].createElement(
                         'span',
@@ -43941,7 +44036,10 @@ var JobBoard = (function (_React$Component) {
                         jobsEditable: jobsEditable,
                         create: create,
                         onJobSave: this.onJobSave.bind(this),
-                        onJsonSave: this.onJsonSave.bind(this)
+                        onJsonSave: this.onJsonSave.bind(this),
+                        onUpdateDescriptions: function (desc) {
+                            _this5.setState({ descriptions: desc });
+                        }
                     }),
                     !create && _react2['default'].createElement(
                         'div',
@@ -43953,11 +44051,12 @@ var JobBoard = (function (_React$Component) {
                             _react2['default'].createElement(MaterialTable, {
                                 data: running,
                                 columns: keys,
+                                hideHeaders: true,
                                 showCheckboxes: false,
                                 emptyStateString: m('tasks.running.empty'),
                                 onSelectRows: function (rows) {
                                     if (rows.length === 1 && running.length) {
-                                        _this4.setState({ taskLogs: rows[0] });
+                                        _this5.setState({ taskLogs: rows[0] });
                                     }
                                 }
                             })
@@ -43975,18 +44074,6 @@ var JobBoard = (function (_React$Component) {
                                     'div',
                                     { style: { lineHeight: 'initial' } },
                                     _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                    _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
-                                        }, disabled: working })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                    _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
                                 )
                             )
                         }),
@@ -44000,11 +44087,14 @@ var JobBoard = (function (_React$Component) {
                                 onSelectRows: this.onSelectTaskRows.bind(this),
                                 emptyStateString: m('tasks.history.empty'),
                                 selectedRows: selectedRows,
-                                deselectOnClickAway: true
+                                deselectOnClickAway: true,
+                                computeRowStyle: computeRowStyle
                             }),
                             more && _react2['default'].createElement(
                                 'div',
-                                { style: { padding: 20, borderTop: '1px solid #eee' } },
+                                { onClick: function () {
+                                        _this5.setState({ showAll: true });
+                                    }, style: { cursor: 'pointer', textDecoration: 'underline', padding: 20, borderTop: '1px solid #eee' } },
                                 m('tasks.history.more').replace('%s', more)
                             )
                         )
@@ -44476,6 +44566,9 @@ var JobGraph = (function (_React$Component) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this3.state.onUpdateDescriptions(data.Actions);
+                if (_this3.props.onUpdateDescriptions) {
+                    _this3.props.onUpdateDescriptions(data.Actions);
+                }
             });
             // Bind window resizer
             this._resizer = function () {
@@ -44509,16 +44602,6 @@ var JobGraph = (function (_React$Component) {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps, nextState) {
             return nextProps.random === this.props.random;
-        }
-    }, {
-        key: 'loadDescriptions',
-        value: function loadDescriptions() {
-            var _this4 = this;
-
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.schedulerActionsDiscovery().then(function (data) {
-                _this4.state.onUpdateDescriptions(data.Actions);
-            });
         }
     }, {
         key: 'clearSelection',
@@ -44613,7 +44696,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this5 = this;
+            var _this4 = this;
 
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -44626,7 +44709,7 @@ var JobGraph = (function (_React$Component) {
             var requireLayout = _state4.requireLayout;
 
             var removeLinkTool = function removeLinkTool() {
-                return _this5.createLinkTool();
+                return _this4.createLinkTool();
             };
             var _this = this;
 
@@ -44640,9 +44723,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this5.clearSelection();
+                            _this4.clearSelection();
                             model.select();
-                            _this5.select(model);
+                            _this4.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -44654,12 +44737,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this4.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'filter' });
+                            _this4.setState({ selectionModel: job, selectionType: 'filter' });
                         } else if (model instanceof _graphAction2['default'] || model instanceof _graphActionFilter2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this4.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -44668,12 +44751,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this4.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this4.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this4.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -44774,8 +44857,8 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool,
                 'button:create-action': function buttonCreateAction(elView, evt) {
                     evt.stopPropagation();
-                    _this5.clearSelection();
-                    _this5.setState({ createNewAction: true });
+                    _this4.clearSelection();
+                    _this4.setState({ createNewAction: true });
                 },
                 'button:reflow': function buttonReflow(elView, evt) {
                     evt.stopPropagation();
@@ -44868,17 +44951,17 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'cleanJsonActions',
         value: function cleanJsonActions(actions) {
-            var _this6 = this;
+            var _this5 = this;
 
             actions.forEach(function (a) {
                 if (a.model) {
                     delete a.model;
                 }
                 if (a.ChainedActions) {
-                    _this6.cleanJsonActions(a.ChainedActions);
+                    _this5.cleanJsonActions(a.ChainedActions);
                 }
                 if (a.FailedFilterActions) {
-                    _this6.cleanJsonActions(a.FailedFilterActions);
+                    _this5.cleanJsonActions(a.FailedFilterActions);
                 }
             });
         }
@@ -44929,7 +45012,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this6 = this;
 
             var selBlock = undefined;
             var _props = this.props;
@@ -44960,7 +45043,7 @@ var JobGraph = (function (_React$Component) {
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this7.clearSelection();
+                    _this6.clearSelection();
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
@@ -44974,7 +45057,7 @@ var JobGraph = (function (_React$Component) {
                     },
                     create: true,
                     onDismiss: function () {
-                        _this7.setState({ createNewAction: false, fPanelWidthOffset: 0 });
+                        _this6.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
@@ -44987,7 +45070,7 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this7.deleteAction();
+                                _this6.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
@@ -45074,7 +45157,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "Run-On-Save" }),
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
-                            _this7.setState({ showJsonDialog: true });
+                            _this6.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
             }
@@ -45087,15 +45170,15 @@ var JobGraph = (function (_React$Component) {
                     {
                         title: "Import/Export JSON",
                         onRequestClose: function () {
-                            _this7.setState({ showJsonDialog: false });
+                            _this6.setState({ showJsonDialog: false });
                         },
                         open: showJsonDialog,
                         autoDetectWindowHeight: true,
                         autoScrollBodyContent: true,
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                                _this7.setState({ showJsonDialog: false });
+                                _this6.setState({ showJsonDialog: false });
                             }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
-                                _this7.saveJSON();
+                                _this6.saveJSON();
                             }, disabled: jsonJobInvalid, label: "Save" })]
                     },
                     _react2['default'].createElement(
@@ -45104,7 +45187,7 @@ var JobGraph = (function (_React$Component) {
                         showJsonDialog && _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                             value: this.computeJSON(),
                             onChange: function (e, v) {
-                                _this7.updateJSON(v);
+                                _this6.updateJSON(v);
                             },
                             mode: "json"
                         })
@@ -45115,13 +45198,13 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this7.props.onJobSave);
+                            onSave(job, _this6.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this7.revertAction();
+                            _this6.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this7.toggleEdit();
+                            _this6.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
@@ -45137,10 +45220,10 @@ var JobGraph = (function (_React$Component) {
                         { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
-                                _this7.setState({ fPanelWidthOffset: 300 });
+                                _this6.setState({ fPanelWidthOffset: 300 });
                             } }),
                         showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
-                                _this7.setState({ fPanelWidthOffset: 0 });
+                                _this6.setState({ fPanelWidthOffset: 0 });
                             } })
                     )
                 ),
@@ -45320,10 +45403,8 @@ var JobSchedule = (function (_React$Component) {
 
             if (!edit) {
                 return _react2['default'].createElement(
-                    'div',
+                    'span',
                     null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-timer", style: { color: 'rgb(33, 150, 243)' } }),
-                    ' ',
                     JobSchedule.readableString(this.state, this.T, true)
                 );
             }
@@ -45613,11 +45694,15 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -45708,36 +45793,139 @@ var TaskActivity = (function (_React$Component) {
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
             request.Page = 0;
-            request.Size = 100;
+            request.Size = 200;
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
-                _this2.setState({ activity: response.Logs || [], loading: false });
+                var ll = response.Logs || [];
+                // Logs are reverse sorted on time
+                ll.reverse();
+                _this2.setState({ activity: ll, loading: false });
             })["catch"](function () {
                 _this2.setState({ activity: [], loading: false });
             });
         }
     }, {
-        key: "render",
-        value: function render() {
+        key: "computeTag",
+        value: function computeTag(row) {
             var _props = this.props;
-            var pydio = _props.pydio;
-            var task = _props.task;
-            var _state = this.state;
-            var activity = _state.activity;
-            var loading = _state.loading;
+            var job = _props.job;
+            var descriptions = _props.descriptions;
 
-            var columns = [{ name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    return moment(row.Ts * 1000).fromNow();
-                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'] }];
+            var pathTag = {
+                backgroundColor: '#1e96f3',
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'white',
+                padding: '0 8px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                borderRadius: 4,
+                textAlign: 'center'
+            };
+            var path = row.SchedulerTaskActionPath;
+            if (!path) {
+                return null;
+            }
+            if (path === 'ROOT') {
+                // Special case for trigger
+                return _react2["default"].createElement(
+                    "div",
+                    { style: _extends({}, pathTag, { backgroundColor: 'white', color: 'rgba(0,0,0,.87)', border: '1px solid #e0e0e0' }) },
+                    "Trigger"
+                );
+            }
+            var action = undefined;
+            try {
+                action = this.findAction(path, job.Actions);
+            } catch (e) {
+                //console.error(e);
+            }
+            if (action) {
+                if (action.Label) {
+                    path = action.Label;
+                } else if (descriptions && descriptions[action.ID]) {
+                    path = descriptions[action.ID].Label;
+                }
+            } else {
+                var last = path.split('/').pop();
+                var actionId = last.split('$').shift();
+                if (descriptions && descriptions[actionId]) {
+                    path = descriptions[actionId].Label;
+                }
+            }
             return _react2["default"].createElement(
                 "div",
-                { style: { height: 400 } },
+                { style: pathTag },
+                path
+            );
+        }
+    }, {
+        key: "findAction",
+        value: function findAction(path, actions) {
+            var parts = path.split('/');
+            var first = parts.shift();
+            var actionId = [].concat(_toConsumableArray(parts)).shift();
+            var chainIndex = parseInt(actionId.split('$')[1]);
+            var action = actions[chainIndex];
+            var nextActions = undefined;
+            if (actionId.indexOf('$FAIL') === -1) {
+                nextActions = action.ChainedActions;
+            } else {
+                nextActions = action.FailedFilterActions;
+            }
+            if (parts.length > 1) {
+                // Move on step forward
+                return this.findAction(parts.join('/'), nextActions);
+            } else {
+                return action;
+            }
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this3 = this;
+
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var onRequestClose = _props2.onRequestClose;
+            var activity = this.state.activity;
+
+            var cellBg = "#f5f5f5";
+            var lineHeight = 32;
+            var columns = [{ name: 'SchedulerTaskActionPath', label: '', hideSmall: true, style: { width: 110, height: lineHeight, backgroundColor: cellBg, paddingLeft: 12, paddingRight: 0, userSelect: 'text' }, headerStyle: { width: 110, paddingLeft: 12, paddingRight: 0 }, renderCell: function renderCell(row) {
+                    return _this3.computeTag(row);
+                } }, { name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: 100, height: lineHeight, backgroundColor: cellBg, paddingRight: 10, userSelect: 'text' }, headerStyle: { width: 100, paddingRight: 10 }, renderCell: function renderCell(row) {
+                    var m = moment(row.Ts * 1000);
+                    return m.format('HH:mm:ss');
+                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'], style: { height: lineHeight, backgroundColor: cellBg, userSelect: 'text' } }];
+            return _react2["default"].createElement(
+                "div",
+                { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
+                _react2["default"].createElement(
+                    "div",
+                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg, display: 'flex', alignItems: 'center' } },
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { flex: 1 } },
+                        "Tasks Logs"
+                    ),
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { paddingRight: 15, cursor: "pointer" }, onClick: onRequestClose },
+                        _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-close", color: "rgba(0,0,0,.3)", style: { fontSize: 16 } })
+                    )
+                ),
                 _react2["default"].createElement(MaterialTable, {
+                    hideHeaders: true,
                     columns: columns,
                     data: activity,
                     showCheckboxes: false,
-                    emptyStateString: 'No activity found'
+                    emptyStateString: 'No activity found',
+                    emptyStateStyle: { backgroundColor: cellBg },
+                    computeRowStyle: function (row) {
+                        return { borderBottomColor: '#fff', height: lineHeight };
+                    }
                 })
             );
         }
@@ -45859,7 +46047,6 @@ function attachDescriptions(descriptions) {
 }
 
 function requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool) {
-    console.log('sending requireLayoutAction');
     return {
         type: REQUIRE_LAYOUT,
         graph: graph, boundingRef: boundingRef, editMode: editMode, paper: paper, createLinkTool: createLinkTool

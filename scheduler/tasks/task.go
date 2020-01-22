@@ -65,6 +65,7 @@ func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Ta
 	}
 	t.lock = &sync.RWMutex{}
 	t.initialMessage = createMessageFromEvent(event)
+	logStartMessageFromEvent(c, t, event)
 	return t
 }
 
@@ -176,7 +177,7 @@ func (t *Task) GlobalError(e error) {
 func (t *Task) EnqueueRunnables(c client.Client, output chan Runnable) {
 
 	r := RootRunnable(t.context, c, t)
-	r.Dispatch(t.initialMessage, t.Actions, output)
+	r.Dispatch(r.ActionPath, t.initialMessage, t.Actions, output)
 
 }
 

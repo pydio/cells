@@ -86,6 +86,7 @@ var MaterialTable = (function (_React$Component) {
         var data = _props2.data;
         var deselectOnClickAway = _props2.deselectOnClickAway;
         var emptyStateString = _props2.emptyStateString;
+        var emptyStateStyle = _props2.emptyStateStyle;
         var onSelectRows = _props2.onSelectRows;
         var computeRowStyle = _props2.computeRowStyle;
         var showCheckboxes = this.props.showCheckboxes;
@@ -106,6 +107,17 @@ var MaterialTable = (function (_React$Component) {
                         _materialUi.TableRowColumn,
                         { colSpan: columns.length, style: headerStyle },
                         model.Subheader
+                    )
+                );
+            }
+            if (model.colSpan) {
+                return _react2['default'].createElement(
+                    _materialUi.TableRow,
+                    { style: model.rowStyle },
+                    _react2['default'].createElement(
+                        _materialUi.TableRowColumn,
+                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        model.element
                     )
                 );
             }
@@ -141,7 +153,7 @@ var MaterialTable = (function (_React$Component) {
                 null,
                 _react2['default'].createElement(
                     _materialUi.TableRowColumn,
-                    { colSpan: columns.length },
+                    { colSpan: columns.length, style: emptyStateStyle },
                     emptyStateString
                 )
             )];
@@ -158,10 +170,12 @@ var MaterialTable = (function (_React$Component) {
             ));
         }
 
+        var hideHeaders = this.props.hideHeaders;
+
         return _react2['default'].createElement(
             _materialUi.Table,
             { onRowSelection: this.onRowSelection.bind(this), multiSelectable: showCheckboxes },
-            _react2['default'].createElement(
+            !hideHeaders && _react2['default'].createElement(
                 _materialUi.TableHeader,
                 { displaySelectAll: showCheckboxes, adjustForCheckbox: showCheckboxes, enableSelectAll: showCheckboxes },
                 _react2['default'].createElement(

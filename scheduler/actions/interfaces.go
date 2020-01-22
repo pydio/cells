@@ -93,6 +93,13 @@ type ControllableAction interface {
 	CanStop() bool
 }
 
+// Actions that implement this interface may perform some recursive nodes listing internally.
+// If the action definition has a NodeFilter set, pass this along to the running instance to
+// filter nodes on the go.
+type RecursiveNodeWalkerAction interface {
+	SetNodeFilterAsWalkFilter (*jobs.NodesSelector)
+}
+
 // RunnableChannels defines the API to communicate with a Runnable via Channels
 type RunnableChannels struct {
 	// Input Channels
