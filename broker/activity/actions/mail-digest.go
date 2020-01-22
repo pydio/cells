@@ -139,7 +139,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		collection = append(collection, resp.Activity)
 	}
 	if len(collection) == 0 {
-		log.TasksLogger(ctx).Info("Nothing to do")
+		log.TasksLogger(ctx).Info("No new activities detected for user " + userObject.Login)
 		return input, nil
 	}
 
@@ -172,7 +172,6 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		},
 	})
 	if err != nil {
-		log.TasksLogger(ctx).Error("could not send digest email", zap.Error(err))
 		return input.WithError(err), err
 	}
 

@@ -211,6 +211,11 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		output = output.WithError(e)
 		return output, e
 	} else {
+		if c.Move {
+			log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully moved %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+		} else {
+			log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully copied %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+		}
 		output = output.WithNode(targetNode)
 		output.AppendOutput(&jobs.ActionOutput{
 			Success: true,

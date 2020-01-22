@@ -22,6 +22,7 @@ package tree
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 	"sync"
@@ -164,6 +165,8 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			return input.WithError(delErr), delErr
 		}
 	}
+
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully deleted %s", sourceNode.GetPath()))
 
 	output := input.WithNode(nil)
 	output.AppendOutput(&jobs.ActionOutput{

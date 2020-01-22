@@ -22,8 +22,12 @@ package archive
 
 import (
 	"context"
+	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/pydio/cells/common/log"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -158,6 +162,8 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 		// ex.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: targetNode})
 		return input.WithError(err), err
 	}
+
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Archive %s was extracted in %s", path.Base(archiveNode.Path), targetNode.GetPath()))
 
 	output := input.WithNode(targetNode)
 
