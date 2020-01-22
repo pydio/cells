@@ -117,7 +117,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	reqUUID := req.GetNode().GetUuid()
 	updateIfExists := req.GetUpdateIfExists() || !req.GetNode().IsLeaf()
 
-	log.Logger(ctx).Info("CreateNode", zap.Any("request", req))
+	log.Logger(ctx).Debug("CreateNode", req.GetNode().Zap())
 
 	// Updating node based on UUID
 	if reqUUID != "" {
