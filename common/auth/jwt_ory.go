@@ -23,13 +23,13 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/url"
 
 	"github.com/dexidp/dex/connector"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/oauth2"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	goauth "golang.org/x/oauth2"
 
@@ -246,7 +246,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	// Getting or creating challenge
 	c, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "PasswordCredentialsToken")
 	}
 	challenge := c.Challenge
 
@@ -254,11 +254,14 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	var valid bool
 
 	connectors := GetConnectors()
+	attempt := 0
 	for _, c := range connectors {
 		cc, ok := c.Conn().(connector.PasswordConnector)
 		if !ok {
 			continue
 		}
+
+		attempt++
 
 		identity, valid, err = cc.Login(ctx, connector.Scopes{}, userName, password)
 		// Error means the user is unknwown to the system, we contine to the next round
@@ -273,6 +276,10 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 		}
 
 		break
+	}
+
+	if attempt == 0 {
+		return nil, errors.New("No password connector found")
 	}
 
 	if err != nil {
@@ -328,7 +335,8 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 	code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
 	if err != nil {
-		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
+		e := fosite.ErrorToRFC6749Error(err)
+		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(e))
 		return nil, err
 	}
 

@@ -1,12 +1,12 @@
 package auth
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/dexidp/dex/connector"
 	dlog "github.com/dexidp/dex/pkg/log"
 	"github.com/golang/protobuf/proto"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
 )
 
 type Connector interface {
@@ -36,18 +36,20 @@ func RegisterConnectorType(connType string, openerFunc OpenerFunc) {
 func RegisterConnector(id, name, connectorType string, data proto.Message) {
 	openerFunc, ok := connectorTypes[connectorType]
 	if !ok {
+		log.Warn("Could not retrieve opener func", zap.String("type", connectorType))
 		return
 	}
 
 	opener, err := openerFunc(data)
 	if err != nil {
-		fmt.Println("Could not retrieve opener")
+		log.Warn("Could not retrieve opener")
 		return
 	}
 
 	c, err := opener.Open(id, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Warn("Could not open connector", zap.Error(err))
+		return
 	}
 
 	connectors = append(connectors, &conn{

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"strconv"
 	"sync"
@@ -15,25 +14,22 @@ import (
 	"github.com/ory/hydra/oauth2"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sql"
 )
 
 var (
 	reg  driver.Registry
-	conf ConfigurationProvider
 	once = &sync.Once{}
+
+	onRegistryInits []func()
 )
 
-func InitRegistry(c common.ConfigValues, dao sql.DAO) {
+func InitRegistry(dao sql.DAO) {
 	once.Do(func() {
-		//var err error
-
-		externalURL := config.Get("defaults", "url").String("")
-
-		conf = NewProvider(externalURL, c)
 
 		db := sqlx.NewDb(dao.DB(), dao.Driver())
 
@@ -46,17 +42,17 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 			sql.UnlockMigratePackage()
 		}()
 		if _, err := r.ClientManager().(*client.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			fmt.Println(err)
+			log.Warn("Failed to create client schemas", zap.Error(err))
 			return
 		}
 
 		if _, err := r.KeyManager().(*jwk.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			fmt.Println(err)
+			log.Warn("Failed to create key schemas", zap.Error(err))
 			return
 		}
 
 		if _, err := r.ConsentManager().(*consent.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			fmt.Println(err)
+			log.Warn("Failed to create consent schemas", zap.Error(err))
 			return
 		}
 
@@ -66,17 +62,21 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 		RegisterOryProvider(r.OAuth2Provider())
 	})
 
-	if err := syncClients(context.Background(), reg.ClientManager(), c.Array("staticClients")); err != nil {
+	if err := syncClients(context.Background(), reg.ClientManager(), conf.Clients()); err != nil {
 		return
 	}
+
+	for _, onRegistryInit := range onRegistryInits {
+		onRegistryInit()
+	}
+}
+
+func OnRegistryInit(f func()) {
+	onRegistryInits = append(onRegistryInits, f)
 }
 
 func GetRegistry() driver.Registry {
 	return reg
-}
-
-func GetConfigurationProvider() ConfigurationProvider {
-	return conf
 }
 
 func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error {

@@ -40,6 +40,10 @@ import (
 func init() {
 
 	plugins.Register(func() {
+		// Configuration
+		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
+
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
@@ -58,8 +62,6 @@ func init() {
 			service.BeforeStart(initialize),
 		)
 	})
-
-	auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
 }
 
 func initialize(s service.Service) error {
@@ -68,21 +70,27 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	auth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+	auth.OnConfigurationInit(func() {
+		var m []struct {
+			ID   string `"json:id"`
+			Name string `"json:id"`
+			Type string `"json:type"`
+		}
 
-	var m []struct {
-		ID   string `"json:id"`
-		Name string `"json:id"`
-		Type string `"json:type"`
-	}
+		if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
+			log.Fatal("Wrong configuration ", err)
+		}
 
-	if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
-		log.Fatal("Wrong configuration ", err)
-	}
+		for _, mm := range m {
+			if mm.Type == "pydio" {
+				// Registering the first connector
+				auth.RegisterConnector(m[0].ID, m[0].Name, m[0].Type, nil)
+			}
+		}
+	})
 
-	for _, mm := range m {
-		auth.RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
-	}
+	// Registry
+	auth.InitRegistry(dao)
 
 	watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
 	if err != nil {
@@ -97,7 +105,7 @@ func initialize(s service.Service) error {
 				break
 			}
 
-			auth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+			auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 		}
 	}()
 
