@@ -155,14 +155,14 @@ class TaskActivity extends React.Component{
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
         const columns = [
-            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{width:110, height: lineHeight, backgroundColor:cellBg, paddingLeft: 12, paddingRight: 0}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
+            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{width:110, height: lineHeight, backgroundColor:cellBg, paddingLeft: 12, paddingRight: 0, userSelect:'text'}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
                 return this.computeTag(row)
             }},
-            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: 100, height: lineHeight, backgroundColor:cellBg, paddingRight: 10}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
+            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: 100, height: lineHeight, backgroundColor:cellBg, paddingRight: 10, userSelect:'text'}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
                     const m = moment(row.Ts * 1000);
                     return m.format('HH:mm:ss');
                 })},
-            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg}}
+            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg, userSelect:'text'}}
         ];
         return (
             <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>

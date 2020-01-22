@@ -45884,12 +45884,12 @@ var TaskActivity = (function (_React$Component) {
 
             var cellBg = "#f5f5f5";
             var lineHeight = 32;
-            var columns = [{ name: 'SchedulerTaskActionPath', label: '', hideSmall: true, style: { width: 110, height: lineHeight, backgroundColor: cellBg, paddingLeft: 12, paddingRight: 0 }, headerStyle: { width: 110, paddingLeft: 12, paddingRight: 0 }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'SchedulerTaskActionPath', label: '', hideSmall: true, style: { width: 110, height: lineHeight, backgroundColor: cellBg, paddingLeft: 12, paddingRight: 0, userSelect: 'text' }, headerStyle: { width: 110, paddingLeft: 12, paddingRight: 0 }, renderCell: function renderCell(row) {
                     return _this3.computeTag(row);
-                } }, { name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: 100, height: lineHeight, backgroundColor: cellBg, paddingRight: 10 }, headerStyle: { width: 100, paddingRight: 10 }, renderCell: function renderCell(row) {
+                } }, { name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: 100, height: lineHeight, backgroundColor: cellBg, paddingRight: 10, userSelect: 'text' }, headerStyle: { width: 100, paddingRight: 10 }, renderCell: function renderCell(row) {
                     var m = moment(row.Ts * 1000);
                     return m.format('HH:mm:ss');
-                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'], style: { height: lineHeight, backgroundColor: cellBg } }];
+                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'], style: { height: lineHeight, backgroundColor: cellBg, userSelect: 'text' } }];
             return _react2["default"].createElement(
                 "div",
                 { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
