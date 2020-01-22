@@ -65,6 +65,7 @@ func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Ta
 	}
 	t.lock = &sync.RWMutex{}
 	t.initialMessage = createMessageFromEvent(event)
+	logStartMessageFromEvent(c, t, event)
 	return t
 }
 
