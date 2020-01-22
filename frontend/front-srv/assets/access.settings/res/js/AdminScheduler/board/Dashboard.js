@@ -110,7 +110,14 @@ const Dashboard = React.createClass({
 
     extractRowsInfo(jobs, m){
 
-
+        const tagStyle = {
+            color: 'white',
+            borderRadius: 4,
+            textAlign: 'center',
+            padding: 4,
+            overflow:'hidden',
+            textOverflow: 'ellipsis'
+        };
         let system = [];
         let other = [];
         if (jobs === undefined) {
@@ -152,20 +159,22 @@ const Dashboard = React.createClass({
                 data.TaskEndTime = "-";
                 data.TaskStartTime = "-";
             }
-
+            let tagOpacity;
+            if(job.Inactive){
+                tagOpacity = {opacity: .43}
+            }
             if(job.Schedule) {
-                data.Trigger = <JobSchedule job={job}/>;// m('trigger.periodic');
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#03A9F4'}}><span className={"mdi mdi-timer"}/><JobSchedule job={job}/></div>;
                 data.SortValue = '0-' + job.Label;
             } else if(job.EventNames) {
                 data.SortValue = '1-' + job.Label;
-                data.Trigger = <span><span className={"mdi mdi-pulse"} title={m('trigger.events')} style={{color:'#4caf50'}}/> {job.EventNames.map(e => Events.eventLabel(e, m)).join(', ')}</span>;
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#43a047'}}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {job.EventNames.map(e => Events.eventLabel(e, m)).join(', ')}</div>;
             } else {
-                data.Trigger = <span><span className={"mdi mdi-gesture-tap"} style={{color:'#607d8b'}}/> {m('trigger.manual')}</span>;
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#607d8b'}}><span className={"mdi mdi-gesture-tap"}/> {m('trigger.manual')}</div>;
                 data.SortValue = '2-' + job.Label;
             }
             if (job.Inactive) {
                 data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
-                data.Trigger = <span style={{opacity: 0.43}}>{data.Trigger}</span>;
                 data.TaskStartTime = <span style={{opacity: 0.43}}>{data.TaskStartTime}</span>;
                 data.TaskEndTime = <span style={{opacity: 0.43}}>{data.TaskEndTime}</span>;
                 data.TaskStatus = <span style={{opacity: 0.43}}>{data.TaskStatus}</span>;
@@ -201,17 +210,17 @@ const Dashboard = React.createClass({
 
         const keys = [
             {
+                name:'Trigger',
+                label:m('job.trigger'),
+                style:{width:180, textAlign:'left', paddingRight: 0},
+                headerStyle:{width:180, paddingRight: 0},
+                hideSmall: true
+            },
+            {
                 name:'Label',
                 label:m('job.label'),
                 style:{width:'40%', fontSize: 15},
                 headerStyle:{width:'40%'},
-            },
-            {
-                name:'Trigger',
-                label:m('job.trigger'),
-                style:{width:'20%'},
-                headerStyle:{width:'20%'},
-                hideSmall: true
             },
             {
                 name:'TaskEndTime',

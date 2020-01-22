@@ -156,10 +156,8 @@ var JobSchedule = (function (_React$Component) {
 
             if (!edit) {
                 return _react2['default'].createElement(
-                    'div',
+                    'span',
                     null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-timer", style: { color: 'rgb(33, 150, 243)' } }),
-                    ' ',
                     JobSchedule.readableString(this.state, this.T, true)
                 );
             }

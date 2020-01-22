@@ -89,7 +89,7 @@ var JobBoard = (function (_React$Component) {
     _createClass(JobBoard, [{
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+            if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
                 this.setState({ job: nextProps.job });
             }
         }

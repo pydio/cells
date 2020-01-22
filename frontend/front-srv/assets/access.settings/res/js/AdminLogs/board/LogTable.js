@@ -43,7 +43,7 @@ class LogTable extends React.Component {
                 l.SpanUuid = 'span-' + i;
             }
             if (!l.SpanRootUuid) {
-                rootSpans[l.SpanUuid] = {open: false, children: []};
+                rootSpans[l.SpanUuid] = {open: true, children: []};
             }
             return l;
         });
@@ -60,7 +60,7 @@ class LogTable extends React.Component {
                 let root = {...l};
                 root.SpanUuid = l.SpanRootUuid;
                 l.HasRoot = true;
-                rootSpans[l.SpanRootUuid] = {open:false, children: [l]};
+                rootSpans[l.SpanRootUuid] = {open:true, children: [l]};
                 result.push(root);
                 continue;
             }
@@ -178,9 +178,16 @@ class LogTable extends React.Component {
                 }
                 return dateString;
             }, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 110, padding: '12px 0'}, headerStyle:{width: 110, padding: '12px 0'}},
-            {name:'UserName', label: pydio.MessageHash["settings.20"], hideSmall:true, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Msg', label:MessageHash['ajxp_admin.logs.message']},
+            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 130, padding: '12px 0'}, headerStyle:{width: 130, padding: '12px 0'}},
+            {name:'Msg', label:MessageHash['ajxp_admin.logs.message'], renderCell:(row)=>{
+                let msg = row.Msg;
+                if(row.NodePath){
+                    msg += ` [${row.NodePath}]`;
+                } else if(row.NodeUuid){
+                    msg += ` [${row.NodeUuid}]`;
+                }
+                return msg;
+            }},
         ];
 
         return (

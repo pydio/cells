@@ -43,7 +43,7 @@ class JobBoard extends React.Component {
     }
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+        if(nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
             this.setState({job: nextProps.job});
         }
     }

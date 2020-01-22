@@ -43257,6 +43257,14 @@ var Dashboard = _react2['default'].createClass({
 
     extractRowsInfo: function extractRowsInfo(jobs, m) {
 
+        var tagStyle = {
+            color: 'white',
+            borderRadius: 4,
+            textAlign: 'center',
+            padding: 4,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        };
         var system = [];
         var other = [];
         if (jobs === undefined) {
@@ -43320,16 +43328,24 @@ var Dashboard = _react2['default'].createClass({
                 data.TaskEndTime = "-";
                 data.TaskStartTime = "-";
             }
-
+            var tagOpacity = undefined;
+            if (job.Inactive) {
+                tagOpacity = { opacity: .43 };
+            }
             if (job.Schedule) {
-                data.Trigger = _react2['default'].createElement(_JobSchedule2['default'], { job: job }); // m('trigger.periodic');
+                data.Trigger = _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#03A9F4' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-timer" }),
+                    _react2['default'].createElement(_JobSchedule2['default'], { job: job })
+                );
                 data.SortValue = '0-' + job.Label;
             } else if (job.EventNames) {
                 data.SortValue = '1-' + job.Label;
                 data.Trigger = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events'), style: { color: '#4caf50' } }),
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#43a047' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events') }),
                     ' ',
                     job.EventNames.map(function (e) {
                         return _builderTriggers.Events.eventLabel(e, m);
@@ -43337,9 +43353,9 @@ var Dashboard = _react2['default'].createClass({
                 );
             } else {
                 data.Trigger = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap", style: { color: '#607d8b' } }),
+                    'div',
+                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#607d8b' }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap" }),
                     ' ',
                     m('trigger.manual')
                 );
@@ -43353,11 +43369,6 @@ var Dashboard = _react2['default'].createClass({
                     m('job.disabled'),
                     '] ',
                     data.Label
-                );
-                data.Trigger = _react2['default'].createElement(
-                    'span',
-                    { style: { opacity: 0.43 } },
-                    data.Trigger
                 );
                 data.TaskStartTime = _react2['default'].createElement(
                     'span',
@@ -43411,16 +43422,16 @@ var Dashboard = _react2['default'].createClass({
         };
 
         var keys = [{
+            name: 'Trigger',
+            label: m('job.trigger'),
+            style: { width: 180, textAlign: 'left', paddingRight: 0 },
+            headerStyle: { width: 180, paddingRight: 0 },
+            hideSmall: true
+        }, {
             name: 'Label',
             label: m('job.label'),
             style: { width: '40%', fontSize: 15 },
             headerStyle: { width: '40%' }
-        }, {
-            name: 'Trigger',
-            label: m('job.trigger'),
-            style: { width: '20%' },
-            headerStyle: { width: '20%' },
-            hideSmall: true
         }, {
             name: 'TaskEndTime',
             label: m('job.endTime'),
@@ -43688,7 +43699,7 @@ var JobBoard = (function (_React$Component) {
     _createClass(JobBoard, [{
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+            if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
                 this.setState({ job: nextProps.job });
             }
         }
@@ -45392,10 +45403,8 @@ var JobSchedule = (function (_React$Component) {
 
             if (!edit) {
                 return _react2['default'].createElement(
-                    'div',
+                    'span',
                     null,
-                    _react2['default'].createElement('span', { className: "mdi mdi-timer", style: { color: 'rgb(33, 150, 243)' } }),
-                    ' ',
                     JobSchedule.readableString(this.state, this.T, true)
                 );
             }
