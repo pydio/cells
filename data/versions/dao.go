@@ -31,5 +31,6 @@ type DAO interface {
 	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
 	StoreVersion(nodeUuid string, log *tree.ChangeLog) error
 	DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error
+	DeleteVersionsForNodes(nodeUuid []string) error
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
 }
