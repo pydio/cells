@@ -50,7 +50,10 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
 
             PydioApi.getRestClient().sessionLoginWithAuthCode(values.code).then(function () {
                 _reactRouterLibBrowserHistory2['default'].replace("/");
-                pydio.loadXmlRegistry(null, null, null);
+
+                PydioApi.getRestClient().getOrUpdateJwt().then(function () {
+                    return pydio.loadXmlRegistry(null, null, null);
+                })['catch'](function () {});
             });
 
             return React.createElement('div', null);
