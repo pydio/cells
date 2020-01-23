@@ -251,6 +251,10 @@ func Debug(msg string, fields ...zapcore.Field) {
 	logger.Debug(msg, fields...)
 }
 
+func Warn(msg string, fields ...zapcore.Field) {
+	logger.Warn(msg, fields...)
+}
+
 func Error(msg string, fields ...zapcore.Field) {
 	logger.Error(msg, fields...)
 }

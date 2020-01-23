@@ -10,6 +10,7 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 )
 
 type ConfigurationProvider interface {
@@ -35,6 +36,36 @@ type configurationProvider struct {
 	dsn string
 }
 
+var (
+	conf                 ConfigurationProvider
+	onConfigurationInits []func()
+	confInit             bool
+)
+
+func InitConfiguration(values common.ConfigValues) {
+	externalURL := config.Get("defaults", "url").String("")
+
+	conf = NewProvider(externalURL, values)
+
+	for _, onConfigurationInit := range onConfigurationInits {
+		onConfigurationInit()
+	}
+
+	confInit = true
+}
+
+func OnConfigurationInit(f func()) {
+	onConfigurationInits = append(onConfigurationInits, f)
+
+	if confInit == true {
+		f()
+	}
+}
+
+func GetConfigurationProvider() ConfigurationProvider {
+	return conf
+}
+
 func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvider {
 	drv, dsn := values.Database("dsn")
 	return &configurationProvider{
@@ -43,7 +74,7 @@ func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvid
 		cors:       values.Values("cors"),
 		urls:       values.Values("urls"),
 		oidc:       values.Values("oidc"),
-		clients:    values.Array("clients"),
+		clients:    values.Array("staticClients"),
 		connectors: values.Array("connectors"),
 		drv:        drv,
 		dsn:        dsn,
