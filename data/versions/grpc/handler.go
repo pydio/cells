@@ -173,6 +173,21 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	if request.AllDeletedNodes {
 
+		// Load whole tree in memory
+		existingIds := make(map[string]struct{})
+		streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
+		if sErr != nil {
+			return sErr
+		}
+		defer streamer.Close()
+		for {
+			r, e := streamer.Recv()
+			if e != nil {
+				break
+			}
+			existingIds[r.Node.GetUuid()] = struct{}{}
+		}
+
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		runner := func() error {
@@ -181,8 +196,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 			for {
 				select {
 				case id := <-uuids:
-					_, readErr := cl.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: id}})
-					if readErr != nil && errors.Parse(readErr.Error()).Code == 404 {
+					if _, o := existingIds[id]; !o {
 						idsToDelete = append(idsToDelete, id)
 					}
 				case e := <-errs:
@@ -225,9 +239,10 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 			}
 		}()
 		wg.Wait()
-		if e := h.db.DeleteVersionsForNode(i); e != nil {
-			return e
-		}
+	}
+
+	if e := h.db.DeleteVersionsForNodes(idsToDelete); e != nil {
+		return e
 	}
 
 	log.Logger(ctx).Debug("Responding to Prune with these versions", zap.Any("versions", resp.DeletedVersions))

@@ -245,6 +245,18 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 	})
 }
 
+// DeleteVersionsForNodes delete versions in a batch
+func (b *BoltStore) DeleteVersionsForNodes(nodeUuid []string) error {
+	er := b.db.Batch(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(bucketName)
+		for _, uuid := range nodeUuid {
+			bucket.DeleteBucket([]byte(uuid))
+		}
+		return nil
+	})
+	return er
+}
+
 // ListAllVersionedNodesUuids lists all nodes uuids
 func (b *BoltStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan error) {
 	idsChan := make(chan string)
