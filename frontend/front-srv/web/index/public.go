@@ -50,6 +50,9 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 		Version:          common.Version().String(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
 	}
+	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
+		tplConf.CustomHTMLHeader = template.HTML(customHeader)
+	}
 
 	tplConf = FilterTplConf(tplConf)
 

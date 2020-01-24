@@ -78,6 +78,9 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}
+	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
+		tplConf.CustomHTMLHeader = template.HTML(customHeader)
+	}
 
 	tplConf = FilterTplConf(tplConf)
 

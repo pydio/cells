@@ -1,5 +1,7 @@
 package index
 
+import "html/template"
+
 // TplConfFilterFunc takes a TplConf and modifies it
 type TplConfFilterFunc func(in *TplConf) *TplConf
 
@@ -31,6 +33,7 @@ type TplConf struct {
 	ErrorMessage     string
 	Debug            bool
 	LoadingString    string
+	CustomHTMLHeader template.HTML
 	StartParameters  map[string]interface{}
 }
 
@@ -77,6 +80,7 @@ var loading = `<!DOCTYPE html>
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 	</head>
 	<body style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center; background-color:#424242;" class="react-mui-context">
 		<script type="text/javascript">
@@ -103,6 +107,7 @@ var page = `<!DOCTYPE html>
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
+{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
 		<script type="text/javascript">
@@ -132,6 +137,7 @@ var public = `<!DOCTYPE html>
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
+{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
 		<script type="text/javascript">
@@ -153,6 +159,7 @@ var errorTpl = `<!DOCTYPE html>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
+{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 	</head>
 	<body style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center;" class="react-mui-context">
 		<div>{{.ErrorMessage}}</div>
