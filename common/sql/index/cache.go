@@ -619,8 +619,9 @@ func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
 
-	//resync should not be necessary, as operations are all grouped by type and we call Flush between each group
-	//d.resync()
+	// resync is necessary although operations are grouped by type and we call Flush between each group
+	// otherwise move inside move can fail
+	d.Flush(false)
 
 	return err
 }
