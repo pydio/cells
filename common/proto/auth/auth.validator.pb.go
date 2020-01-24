@@ -90,6 +90,23 @@ func (this *AcceptConsentRequest) Validate() error {
 func (this *AcceptConsentResponse) Validate() error {
 	return nil
 }
+func (this *CreateLogoutRequest) Validate() error {
+	return nil
+}
+func (this *CreateLogoutResponse) Validate() error {
+	if this.Logout != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Logout); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Logout", err)
+		}
+	}
+	return nil
+}
+func (this *AcceptLogoutRequest) Validate() error {
+	return nil
+}
+func (this *AcceptLogoutResponse) Validate() error {
+	return nil
+}
 func (this *CreateAuthCodeRequest) Validate() error {
 	if this.Consent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Consent); err != nil {

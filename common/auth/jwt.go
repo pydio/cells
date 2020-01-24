@@ -80,6 +80,16 @@ func SetChallenge(value string) TokenOption {
 	return setParam{"challenge", value}
 }
 
+// SetAccesToken builds a TokenOption for passing the access tokens
+func SetAccessToken(value string) TokenOption {
+	return setParam{"access_token", value}
+}
+
+// SetAccesToken builds a TokenOption for passing the refresh tokens
+func SetRefreshToken(value string) TokenOption {
+	return setParam{"refresh_token", value}
+}
+
 type PasswordCredentialsTokenExchanger interface {
 	PasswordCredentialsToken(context.Context, string, string) (*oauth2.Token, error)
 }
@@ -90,6 +100,10 @@ type PasswordCredentialsCodeExchanger interface {
 
 type LoginChallengeCodeExchanger interface {
 	LoginChallengeCode(context.Context, claim.Claims, ...TokenOption) (string, error)
+}
+
+type LogoutProvider interface {
+	Logout(context.Context, string, string, string, ...TokenOption) error
 }
 
 type IDToken interface {
@@ -357,6 +371,22 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 	}
 
 	return code, err
+}
+
+// Logout
+func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string, opts ...TokenOption) error {
+	for _, provider := range providers {
+		p, ok := provider.(LogoutProvider)
+		if !ok {
+			continue
+		}
+
+		if err := p.Logout(ctx, url, subject, sessionID, opts...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Add a fake Claims in context to impersonate user

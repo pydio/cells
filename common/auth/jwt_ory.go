@@ -347,6 +347,24 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	return hydra.Exchange(code)
 }
 
+func (c *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
+	v := url.Values{}
+	for _, opt := range opts {
+		opt.setValue(v)
+	}
+
+	logout, err := hydra.CreateLogout(requestUrl, username, sessionID)
+	if err != nil {
+		return err
+	}
+
+	if err := hydra.AcceptLogout(logout.Challenge, v.Get("access_token"), v.Get("refresh_token")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *oryprovider) Verify(ctx context.Context, accessToken string) (IDToken, error) {
 
 	session := oauth2.NewSession("")

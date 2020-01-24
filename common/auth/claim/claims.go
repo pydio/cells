@@ -37,6 +37,7 @@ const (
 type Claims struct {
 	ClientApp   interface{} `json:"aud" mapstructure:"aud"`
 	Issuer      string      `json:"iss" mapstructure:"iss"`
+	SessionID   string      `json:"sid" mapstructure:"sid"`
 	Subject     string      `json:"sub" mapstructure:"sub"`
 	Nonce       string      `json:"nonce" mapstructure:"nonce"`
 	Name        string      `json:"name" mapstructure:"name"`

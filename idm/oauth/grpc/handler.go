@@ -360,6 +360,69 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	return nil
 }
 
+func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutRequest, out *pauth.CreateLogoutResponse) error {
+
+	challenge := strings.Replace(uuid.New(), "-", "", -1)
+
+	// Set the session
+	if err := auth.GetRegistry().ConsentManager().CreateLogoutRequest(
+		ctx,
+		&consent.LogoutRequest{
+			RequestURL:  in.RequestURL,
+			Challenge:   challenge,
+			Subject:     in.Subject,
+			SessionID:   in.SessionID,
+			Verifier:    uuid.New(),
+			RPInitiated: false,
+
+			PostLogoutRedirectURI: auth.GetConfigurationProvider().LogoutRedirectURL().String(),
+		},
+	); err != nil {
+		return errors.WithStack(err)
+	}
+
+	out.Logout = &pauth.ID{
+		Challenge: challenge,
+	}
+
+	return nil
+}
+
+func (h *Handler) AcceptLogout(ctx context.Context, in *pauth.AcceptLogoutRequest, out *pauth.AcceptLogoutResponse) error {
+
+	// Accept the logout
+	logout, err := auth.GetRegistry().ConsentManager().AcceptLogoutRequest(ctx, in.GetChallenge())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Validating directly the logout
+	if _, err := auth.GetRegistry().ConsentManager().VerifyAndInvalidateLogoutRequest(ctx, logout.Verifier); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := auth.GetRegistry().ConsentManager().DeleteLoginSession(ctx, logout.SessionID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	accessSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().AccessTokenSignature(in.GetAccessToken())
+	refreshSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().RefreshTokenSignature(in.GetRefreshToken())
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteAccessTokenSession(ctx, accessSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteRefreshTokenSession(ctx, refreshSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteOpenIDConnectSession(ctx, refreshSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
 // Verify checks if the token is valid for hydra
 func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest, out *pauth.VerifyTokenResponse) error {
 	session := oauth2.NewSession("")
@@ -447,7 +510,6 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	}
 
 	out.AccessToken = resp.GetAccessToken()
-	// out.IDToken = resp.GetExtra("id_token").(string)
 	out.RefreshToken = resp.GetExtra("refresh_token").(string)
 	out.Expiry = resp.GetExtra("expires_in").(int64)
 

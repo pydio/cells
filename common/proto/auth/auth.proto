@@ -130,6 +130,30 @@ message AcceptConsentRequest {
 message AcceptConsentResponse {
 }
 
+service LogoutProvider {
+    rpc CreateLogout (CreateLogoutRequest) returns (CreateLogoutResponse) {};
+    rpc AcceptLogout (AcceptLogoutRequest) returns (AcceptLogoutResponse) {};
+}
+
+message CreateLogoutRequest {
+    string RequestURL = 1;
+    string Subject = 2;
+    string SessionID = 3;
+}
+
+message CreateLogoutResponse {
+    ID Logout = 1;
+}
+
+message AcceptLogoutRequest {
+    string Challenge = 1;
+    string AccessToken = 2;
+    string RefreshToken = 3;
+}
+
+message AcceptLogoutResponse {
+}
+
 service AuthCodeProvider {
     rpc CreateAuthCode (CreateAuthCodeRequest) returns (CreateAuthCodeResponse) {};
 }

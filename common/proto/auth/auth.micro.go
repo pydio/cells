@@ -28,6 +28,10 @@ It has these top-level messages:
 	CreateConsentResponse
 	AcceptConsentRequest
 	AcceptConsentResponse
+	CreateLogoutRequest
+	CreateLogoutResponse
+	AcceptLogoutRequest
+	AcceptLogoutResponse
 	CreateAuthCodeRequest
 	CreateAuthCodeResponse
 	VerifyTokenRequest
@@ -321,6 +325,74 @@ func (h *ConsentProvider) CreateConsent(ctx context.Context, in *CreateConsentRe
 
 func (h *ConsentProvider) AcceptConsent(ctx context.Context, in *AcceptConsentRequest, out *AcceptConsentResponse) error {
 	return h.ConsentProviderHandler.AcceptConsent(ctx, in, out)
+}
+
+// Client API for LogoutProvider service
+
+type LogoutProviderClient interface {
+	CreateLogout(ctx context.Context, in *CreateLogoutRequest, opts ...client.CallOption) (*CreateLogoutResponse, error)
+	AcceptLogout(ctx context.Context, in *AcceptLogoutRequest, opts ...client.CallOption) (*AcceptLogoutResponse, error)
+}
+
+type logoutProviderClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewLogoutProviderClient(serviceName string, c client.Client) LogoutProviderClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &logoutProviderClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *logoutProviderClient) CreateLogout(ctx context.Context, in *CreateLogoutRequest, opts ...client.CallOption) (*CreateLogoutResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LogoutProvider.CreateLogout", in)
+	out := new(CreateLogoutResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logoutProviderClient) AcceptLogout(ctx context.Context, in *AcceptLogoutRequest, opts ...client.CallOption) (*AcceptLogoutResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LogoutProvider.AcceptLogout", in)
+	out := new(AcceptLogoutResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for LogoutProvider service
+
+type LogoutProviderHandler interface {
+	CreateLogout(context.Context, *CreateLogoutRequest, *CreateLogoutResponse) error
+	AcceptLogout(context.Context, *AcceptLogoutRequest, *AcceptLogoutResponse) error
+}
+
+func RegisterLogoutProviderHandler(s server.Server, hdlr LogoutProviderHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&LogoutProvider{hdlr}, opts...))
+}
+
+type LogoutProvider struct {
+	LogoutProviderHandler
+}
+
+func (h *LogoutProvider) CreateLogout(ctx context.Context, in *CreateLogoutRequest, out *CreateLogoutResponse) error {
+	return h.LogoutProviderHandler.CreateLogout(ctx, in, out)
+}
+
+func (h *LogoutProvider) AcceptLogout(ctx context.Context, in *AcceptLogoutRequest, out *AcceptLogoutResponse) error {
+	return h.LogoutProviderHandler.AcceptLogout(ctx, in, out)
 }
 
 // Client API for AuthCodeProvider service

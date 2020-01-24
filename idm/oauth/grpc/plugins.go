@@ -52,6 +52,7 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				proto.RegisterLoginProviderHandler(m.Options().Server, &Handler{})
 				proto.RegisterConsentProviderHandler(m.Options().Server, &Handler{})
+				proto.RegisterLogoutProviderHandler(m.Options().Server, &Handler{})
 				proto.RegisterAuthCodeProviderHandler(m.Options().Server, &Handler{})
 				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, &Handler{})
 				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, &Handler{})

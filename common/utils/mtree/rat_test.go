@@ -21,21 +21,18 @@
 package mtree
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	mockRat *Rat
+	mockRat = NewRat()
 )
 
 func init() {
-
 	// 48 / 17 corresponds to the node 2.4.2 in materialized path
-	mockRat = NewRat()
-	mockRat.Rat = big.NewRat(48, 17)
+	mockRat.SetFrac64(48, 17)
 }
 
 func TestRat(t *testing.T) {
