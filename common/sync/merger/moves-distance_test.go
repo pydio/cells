@@ -21,9 +21,11 @@
 package merger
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/pydio/cells/common/proto/tree"
 
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/smartystreets/goconvey/convey"
@@ -460,20 +462,28 @@ func TestSortClosestMove2(t *testing.T) {
 func TestSortClosestMovePerfs(t *testing.T) {
 
 	convey.Convey("Test func performances - TODO", t, func() {
-		var max = 10
+		var max = 100
 		var closes []*Move
 		for i := 0; i < max; i++ {
 			for j := 0; j < max; j++ {
+				p1 := "/source/file-" + strconv.Itoa(max-1-i) + ".png"
+				p2 := "/target/a/file-" + strconv.Itoa(j) + ".png"
+				if j > max/2 {
+					p2 = "/target/b/file-" + strconv.Itoa(j) + ".png"
+				}
 				closes = append(closes, &Move{
 					deleteOp: &patchOperation{
-						EventInfo: model.EventInfo{Path: fmt.Sprintf("/source/file-%d.png", i)},
+						Node:      &tree.Node{Path: p1},
+						EventInfo: model.EventInfo{Path: p1, ScanEvent: true},
 					},
 					createOp: &patchOperation{
-						EventInfo: model.EventInfo{Path: fmt.Sprintf("/target/file-%d.png", j)},
+						Node:      &tree.Node{Path: p2},
+						EventInfo: model.EventInfo{Path: p2, ScanEvent: true},
 					},
 				})
 			}
 		}
+
 		moves := sortClosestMoves(closes)
 		convey.So(moves, convey.ShouldHaveLength, max)
 	})

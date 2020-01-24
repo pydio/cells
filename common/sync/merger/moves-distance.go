@@ -41,11 +41,11 @@ type Move struct {
 	createOp Operation
 	dbNode   *tree.Node
 
-	source   string
-	target   string
-	depth    int
-	distance int
-	sameBase bool
+	source     string
+	target     string
+	depth      int
+	similarity int
+	sameBase   bool
 }
 
 func (m *Move) folderDepth() int {
@@ -56,7 +56,7 @@ func (m *Move) prepare() {
 	m.source = m.deleteOp.GetRefPath()
 	m.target = m.createOp.GetRefPath()
 	m.depth = m.folderDepth()
-	m.distance = m.closeness()
+	m.similarity = m.closeness()
 }
 
 func (m *Move) closeness() int {
@@ -109,31 +109,37 @@ func (m *Move) SameBase() bool {
 func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 
 	l := len(possibleMoves)
+	bySources := make(map[string][]*Move)
 	for _, m := range possibleMoves {
 		m.prepare()
+		bySources[m.source] = append(bySources[m.source], m)
+	}
+	for _, mm := range bySources {
+		sort.Slice(mm, func(i, j int) bool {
+			return mm[i].depth > mm[j].depth
+		})
 	}
 
 	// Dedup by source
 	greatestSource := make(map[string]*Move, l)
-	targets := make(map[string]bool, l)
+	targets := make(map[string]struct{}, l)
 	sort.Slice(possibleMoves, func(i, j int) bool {
 		return possibleMoves[i].depth > possibleMoves[j].depth
 	})
 	for _, m := range possibleMoves {
-		for _, m2 := range possibleMoves {
-			byT, ok := greatestSource[m.source]
-			if m2.source != m.source {
-				continue
-			}
+		var pickedTarget string
+		for _, m2 := range bySources[m.source] {
 			if _, alreadyUsed := targets[m2.target]; alreadyUsed {
 				continue
 			}
-			if !ok || m2.distance > byT.distance || m2.sameBase && !byT.sameBase {
+			byT, ok := greatestSource[m.source]
+			if !ok || m2.similarity > byT.similarity {
 				greatestSource[m.source] = m2
+				pickedTarget = m2.target
 			}
 		}
-		if m, ok := greatestSource[m.source]; ok {
-			targets[m.target] = true
+		if len(pickedTarget) > 0 {
+			targets[pickedTarget] = struct{}{}
 		}
 	}
 
@@ -141,7 +147,7 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 	greatestTarget := make(map[string]*Move, l)
 	for _, m := range greatestSource {
 		byT, ok := greatestTarget[m.target]
-		if !ok || m.distance > byT.distance {
+		if !ok || m.similarity > byT.similarity {
 			greatestTarget[m.target] = m
 		}
 	}
