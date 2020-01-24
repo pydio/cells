@@ -405,6 +405,21 @@ func (h *Handler) AcceptLogout(ctx context.Context, in *pauth.AcceptLogoutReques
 		return errors.WithStack(err)
 	}
 
+	accessSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().AccessTokenSignature(in.GetAccessToken())
+	refreshSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().RefreshTokenSignature(in.GetRefreshToken())
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteAccessTokenSession(ctx, accessSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteRefreshTokenSession(ctx, refreshSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().DeleteOpenIDConnectSession(ctx, refreshSignature); err != nil {
+		return errors.WithStack(err)
+	}
+
 	return nil
 }
 
@@ -495,7 +510,6 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	}
 
 	out.AccessToken = resp.GetAccessToken()
-	// out.IDToken = resp.GetExtra("id_token").(string)
 	out.RefreshToken = resp.GetExtra("refresh_token").(string)
 	out.Expiry = resp.GetExtra("expires_in").(int64)
 

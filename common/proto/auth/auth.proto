@@ -147,6 +147,8 @@ message CreateLogoutResponse {
 
 message AcceptLogoutRequest {
     string Challenge = 1;
+    string AccessToken = 2;
+    string RefreshToken = 3;
 }
 
 message AcceptLogoutResponse {

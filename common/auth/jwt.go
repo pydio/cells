@@ -80,6 +80,16 @@ func SetChallenge(value string) TokenOption {
 	return setParam{"challenge", value}
 }
 
+// SetAccesToken builds a TokenOption for passing the access tokens
+func SetAccessToken(value string) TokenOption {
+	return setParam{"access_token", value}
+}
+
+// SetAccesToken builds a TokenOption for passing the refresh tokens
+func SetRefreshToken(value string) TokenOption {
+	return setParam{"refresh_token", value}
+}
+
 type PasswordCredentialsTokenExchanger interface {
 	PasswordCredentialsToken(context.Context, string, string) (*oauth2.Token, error)
 }
@@ -93,7 +103,7 @@ type LoginChallengeCodeExchanger interface {
 }
 
 type LogoutProvider interface {
-	Logout(context.Context, string, string, string) error
+	Logout(context.Context, string, string, string, ...TokenOption) error
 }
 
 type IDToken interface {
@@ -364,14 +374,14 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 }
 
 // Logout
-func (j *JWTVerifier) Logout(ctx context.Context, url, username, sessionID string) error {
+func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string, opts ...TokenOption) error {
 	for _, provider := range providers {
 		p, ok := provider.(LogoutProvider)
 		if !ok {
 			continue
 		}
 
-		if err := p.Logout(ctx, url, username, sessionID); err != nil {
+		if err := p.Logout(ctx, url, subject, sessionID, opts...); err != nil {
 			return err
 		}
 	}

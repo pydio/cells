@@ -165,10 +165,12 @@ func CreateLogout(url, subject, sessionID string) (*auth.ID, error) {
 	return resp.GetLogout(), nil
 }
 
-func AcceptLogout(challenge string) error {
+func AcceptLogout(challenge string, accessToken string, refreshToken string) error {
 	c := auth.NewLogoutProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
 	_, err := c.AcceptLogout(context.Background(), &auth.AcceptLogoutRequest{
-		Challenge: challenge,
+		Challenge:    challenge,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	})
 	if err != nil {
 		return err

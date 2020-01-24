@@ -20,23 +20,30 @@ func LogoutAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 
 		ctx := req.Request.Context()
 
-		if t, o := session.Values["access_token"]; o {
-			v := auth.DefaultJWTVerifier()
-			_, cl, err := v.Verify(ctx, t.(string))
-			if err != nil {
-				return err
-			}
+		accessToken, ok := session.Values["access_token"]
+		if !ok {
+			return middleware(req, rsp, in, out, session)
+		}
 
-			// Send Event
-			client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-				Type: idm.ChangeEventType_LOGOUT,
-				User: &idm.User{Login: cl.Name},
-			}))
+		refreshToken, ok := session.Values["refresh_token"]
+		if !ok {
+			return middleware(req, rsp, in, out, session)
+		}
 
-			if err := v.Logout(ctx, "", cl.Subject, ""); err != nil {
-				return err
-			}
+		v := auth.DefaultJWTVerifier()
+		_, cl, err := v.Verify(ctx, accessToken.(string))
+		if err != nil {
+			return err
+		}
 
+		// Send Event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_LOGOUT,
+			User: &idm.User{Login: cl.Name},
+		}))
+
+		if err := v.Logout(ctx, req.Request.URL.String(), cl.Subject, cl.SessionID, auth.SetAccessToken(accessToken.(string)), auth.SetRefreshToken(refreshToken.(string))); err != nil {
+			return err
 		}
 
 		// TODO - need to properly logout in hydra

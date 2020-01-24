@@ -79,6 +79,10 @@ func GetRegistry() driver.Registry {
 	return reg
 }
 
+func GetRegistrySQL() *driver.RegistrySQL {
+	return reg.(*driver.RegistrySQL)
+}
+
 func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error {
 	var clients []*client.Client
 
