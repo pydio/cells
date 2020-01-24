@@ -92,6 +92,10 @@ type LoginChallengeCodeExchanger interface {
 	LoginChallengeCode(context.Context, claim.Claims, ...TokenOption) (string, error)
 }
 
+type LogoutProvider interface {
+	Logout(context.Context, string, string, string) error
+}
+
 type IDToken interface {
 	Claims(interface{}) error
 }
@@ -357,6 +361,22 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 	}
 
 	return code, err
+}
+
+// Logout
+func (j *JWTVerifier) Logout(ctx context.Context, url, username, sessionID string) error {
+	for _, provider := range providers {
+		p, ok := provider.(LogoutProvider)
+		if !ok {
+			continue
+		}
+
+		if err := p.Logout(ctx, url, username, sessionID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Add a fake Claims in context to impersonate user

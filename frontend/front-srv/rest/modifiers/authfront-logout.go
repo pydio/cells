@@ -1,8 +1,6 @@
 package modifiers
 
 import (
-	"context"
-
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/client"
@@ -20,15 +18,25 @@ func LogoutAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 			return middleware(req, rsp, in, out, session)
 		}
 
+		ctx := req.Request.Context()
+
 		if t, o := session.Values["access_token"]; o {
 			v := auth.DefaultJWTVerifier()
-			if ctx, cl, e := v.Verify(context.Background(), t.(string)); e == nil {
-				// Send Event
-				client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-					Type: idm.ChangeEventType_LOGOUT,
-					User: &idm.User{Login: cl.Name},
-				}))
+			_, cl, err := v.Verify(ctx, t.(string))
+			if err != nil {
+				return err
 			}
+
+			// Send Event
+			client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+				Type: idm.ChangeEventType_LOGOUT,
+				User: &idm.User{Login: cl.Name},
+			}))
+
+			if err := v.Logout(ctx, "", cl.Subject, ""); err != nil {
+				return err
+			}
+
 		}
 
 		// TODO - need to properly logout in hydra

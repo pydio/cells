@@ -151,6 +151,32 @@ func RejectConsent(challenge string, body interface{}) (*RedirectResponse, error
 	return resp, nil
 }
 
+func CreateLogout(url, subject, sessionID string) (*auth.ID, error) {
+	c := auth.NewLogoutProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
+	resp, err := c.CreateLogout(context.Background(), &auth.CreateLogoutRequest{
+		RequestURL: url,
+		Subject:    subject,
+		SessionID:  sessionID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetLogout(), nil
+}
+
+func AcceptLogout(challenge string) error {
+	c := auth.NewLogoutProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
+	_, err := c.AcceptLogout(context.Background(), &auth.AcceptLogoutRequest{
+		Challenge: challenge,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, error) {
 	c := auth.NewAuthCodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
 	resp, err := c.CreateAuthCode(context.Background(), &auth.CreateAuthCodeRequest{
@@ -163,36 +189,6 @@ func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, err
 	}
 
 	return resp.Code, nil
-}
-
-func GetLogout(challenge string) (*LogoutResponse, error) {
-	resp := new(LogoutResponse)
-
-	if err := get("logout", challenge, resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func AcceptLogout(challenge string, body interface{}) (*RedirectResponse, error) {
-	resp := new(RedirectResponse)
-
-	if err := put("logout", "accept", challenge, body, resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func RejectLogout(challenge string, body interface{}) (*RedirectResponse, error) {
-	resp := new(RedirectResponse)
-
-	if err := put("logout", "reject", challenge, body, resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }
 
 func get(flow string, challenge string, res interface{}) error {

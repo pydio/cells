@@ -26,8 +26,10 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/pydio/cells/common"
+	cauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	proto "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/idm/auth"
@@ -72,6 +74,9 @@ func (h *TokenRevokerHandler) Revoke(ctx context.Context, in *proto.RevokeTokenR
 
 // PruneTokens garbage collect expired IdTokens and Tokens
 func (h *TokenRevokerHandler) PruneTokens(ctx context.Context, in *proto.PruneTokensRequest, out *proto.PruneTokensResponse) error {
+
+	cauth.GetRegistry().OAuth2Storage().FlushInactiveAccessTokens(ctx, time.Now())
+
 	return nil
 }
 
