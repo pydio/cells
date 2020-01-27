@@ -9,8 +9,6 @@ It is generated from these files:
 
 It has these top-level messages:
 	Token
-	MatchInvalidTokenRequest
-	MatchInvalidTokenResponse
 	RevokeTokenRequest
 	RevokeTokenResponse
 	PruneTokensRequest
@@ -72,8 +70,6 @@ var _ server.Option
 // Client API for AuthTokenRevoker service
 
 type AuthTokenRevokerClient interface {
-	// Look for an invalid token entry in the store that match the current one
-	MatchInvalid(ctx context.Context, in *MatchInvalidTokenRequest, opts ...client.CallOption) (*MatchInvalidTokenResponse, error)
 	// Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
 	Revoke(ctx context.Context, in *RevokeTokenRequest, opts ...client.CallOption) (*RevokeTokenResponse, error)
 	// PruneTokens clear revoked tokens
@@ -96,16 +92,6 @@ func NewAuthTokenRevokerClient(serviceName string, c client.Client) AuthTokenRev
 		c:           c,
 		serviceName: serviceName,
 	}
-}
-
-func (c *authTokenRevokerClient) MatchInvalid(ctx context.Context, in *MatchInvalidTokenRequest, opts ...client.CallOption) (*MatchInvalidTokenResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "AuthTokenRevoker.MatchInvalid", in)
-	out := new(MatchInvalidTokenResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *authTokenRevokerClient) Revoke(ctx context.Context, in *RevokeTokenRequest, opts ...client.CallOption) (*RevokeTokenResponse, error) {
@@ -131,8 +117,6 @@ func (c *authTokenRevokerClient) PruneTokens(ctx context.Context, in *PruneToken
 // Server API for AuthTokenRevoker service
 
 type AuthTokenRevokerHandler interface {
-	// Look for an invalid token entry in the store that match the current one
-	MatchInvalid(context.Context, *MatchInvalidTokenRequest, *MatchInvalidTokenResponse) error
 	// Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
 	Revoke(context.Context, *RevokeTokenRequest, *RevokeTokenResponse) error
 	// PruneTokens clear revoked tokens
@@ -145,10 +129,6 @@ func RegisterAuthTokenRevokerHandler(s server.Server, hdlr AuthTokenRevokerHandl
 
 type AuthTokenRevoker struct {
 	AuthTokenRevokerHandler
-}
-
-func (h *AuthTokenRevoker) MatchInvalid(ctx context.Context, in *MatchInvalidTokenRequest, out *MatchInvalidTokenResponse) error {
-	return h.AuthTokenRevokerHandler.MatchInvalid(ctx, in, out)
 }
 
 func (h *AuthTokenRevoker) Revoke(ctx context.Context, in *RevokeTokenRequest, out *RevokeTokenResponse) error {

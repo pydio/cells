@@ -188,8 +188,8 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
-		Watch(func(ctx context.Context, v common.ConfigValues) {
-			ctx = servicecontext.WithConfig(ctx, v)
+		Watch(func(v common.ConfigValues) {
+			ctx = servicecontext.WithConfig(s.Options().Context, v)
 
 			s.Init(Context(ctx))
 		}),
@@ -238,30 +238,32 @@ var mandatoryOptions = []ServiceOption{
 			return nil
 		}
 
-		w, err := config.Watch("services", s.Name())
-		if err != nil {
-			return err
-		}
+		registerWatchers(s.Name(), watchers)
 
-		go func() {
-			defer w.Stop()
+		// w, err := config.Watch("services", s.Name())
+		// if err != nil {
+		// 	return err
+		// }
 
-			for {
-				ch, err := w.Next()
-				if err != nil {
-					break
-				}
+		// go func() {
+		// 	defer w.Stop()
 
-				var c config.Map
-				if err := ch.Scan(&c); err != nil {
-					continue
-				}
+		// 	for {
+		// 		ch, err := w.Next()
+		// 		if err != nil {
+		// 			break
+		// 		}
 
-				for _, watcher := range watchers {
-					watcher(s.Options().Context, c)
-				}
-			}
-		}()
+		// 		var c config.Map
+		// 		if err := ch.Scan(&c); err != nil {
+		// 			continue
+		// 		}
+
+		// 		for _, watcher := range watchers {
+		// 			watcher(s.Options().Context, c)
+		// 		}
+		// 	}
+		// }()
 
 		return nil
 	}),

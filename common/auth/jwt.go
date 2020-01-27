@@ -35,8 +35,6 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -270,21 +268,6 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 	if err != nil {
 		log.Logger(ctx).Debug("error verifying token", zap.String("token", rawIDToken), zap.Error(err))
 		return ctx, claim.Claims{}, err
-	}
-
-	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
-	rsp, err := cli.MatchInvalid(ctx, &auth.MatchInvalidTokenRequest{
-		Token: rawIDToken,
-	})
-
-	if err != nil {
-		log.Logger(ctx).Error("error matching token in auth-token service", zap.Error(err))
-		return ctx, claim.Claims{}, err
-	}
-
-	if rsp.State == auth.State_REVOKED {
-		log.Logger(ctx).Error("jwt is verified but it is revoked")
-		return ctx, claim.Claims{}, errors.New("jwt was Revoked")
 	}
 
 	claims := &claim.Claims{}

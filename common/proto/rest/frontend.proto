@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package rest;
 
+import "github.com/pydio/cells/common/proto/auth/auth.proto";
+
 message SettingsMenuRequest{}
 
 message SettingsEntryMeta{
@@ -58,16 +60,11 @@ message FrontMessagesResponse{
     map<string,string> Messages = 1;
 }
 
-message Token {
-    string AccessToken = 1;
-    string IDToken = 2;
-    string RefreshToken = 3;
-    string ExpiresAt = 4;
-}
+
 message FrontSessionGetRequest {}
 
 message FrontSessionGetResponse {
-    Token Token = 1;
+    auth.Token Token = 1;
 }
 
 message FrontSessionRequest{
@@ -86,7 +83,7 @@ message FrontSessionResponse {
     string Trigger = 3;
     // Additional data for the trigger
     map<string,string> TriggerInfo = 4;
-    Token Token = 5;
+    auth.Token Token = 5;
     string RedirectTo = 6;
     string Error = 7;
 }

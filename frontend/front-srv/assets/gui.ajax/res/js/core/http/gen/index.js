@@ -21,6 +21,7 @@ import ActivityStreamActivitiesRequest from './model/ActivityStreamActivitiesReq
 import ActivityStreamContext from './model/ActivityStreamContext';
 import ActivitySubscription from './model/ActivitySubscription';
 import ActivitySummaryPointOfView from './model/ActivitySummaryPointOfView';
+import AuthToken from './model/AuthToken';
 import CtlPeer from './model/CtlPeer';
 import CtlService from './model/CtlService';
 import CtlServiceCommand from './model/CtlServiceCommand';
@@ -198,7 +199,6 @@ import RestShareLinkTargetUser from './model/RestShareLinkTargetUser';
 import RestSubscriptionsCollection from './model/RestSubscriptionsCollection';
 import RestTemplate from './model/RestTemplate';
 import RestTemplateNode from './model/RestTemplateNode';
-import RestToken from './model/RestToken';
 import RestUpdateSharePoliciesRequest from './model/RestUpdateSharePoliciesRequest';
 import RestUpdateSharePoliciesResponse from './model/RestUpdateSharePoliciesResponse';
 import RestUserBookmarksRequest from './model/RestUserBookmarksRequest';
@@ -347,6 +347,12 @@ export {
      * @property {module:model/ActivitySummaryPointOfView}
      */
     ActivitySummaryPointOfView,
+
+    /**
+     * The AuthToken model constructor.
+     * @property {module:model/AuthToken}
+     */
+    AuthToken,
 
     /**
      * The CtlPeer model constructor.
@@ -1409,12 +1415,6 @@ export {
      * @property {module:model/RestTemplateNode}
      */
     RestTemplateNode,
-
-    /**
-     * The RestToken model constructor.
-     * @property {module:model/RestToken}
-     */
-    RestToken,
 
     /**
      * The RestUpdateSharePoliciesRequest model constructor.

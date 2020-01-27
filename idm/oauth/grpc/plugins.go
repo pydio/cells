@@ -57,6 +57,7 @@ func init() {
 				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, &Handler{})
 				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, &Handler{})
 				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, &Handler{})
 
 				return nil
 			}),

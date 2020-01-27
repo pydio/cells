@@ -10,6 +10,7 @@ import (
 
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/hydra"
+	pauth "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -62,7 +63,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))
 		session.Values["refresh_token"] = token.RefreshToken
 
-		out.Token = &rest.Token{
+		out.Token = &pauth.Token{
 			AccessToken: session.Values["access_token"].(string),
 			IDToken:     session.Values["id_token"].(string),
 			ExpiresAt:   session.Values["expires_at"].(string),

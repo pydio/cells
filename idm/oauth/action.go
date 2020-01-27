@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package auth
+package oauth
 
 import (
 	"context"
@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/idm/auth/lang"
+	"github.com/pydio/cells/idm/oauth/lang"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -113,7 +113,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	output := input
 
 	// Prune revoked tokens
-	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.SERVICE_AUTH))
+	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.SERVICE_OAUTH))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {

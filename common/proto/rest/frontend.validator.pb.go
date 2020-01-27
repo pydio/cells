@@ -7,6 +7,7 @@ import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-valid
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/pydio/cells/common/proto/auth"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -83,9 +84,6 @@ func (this *FrontMessagesRequest) Validate() error {
 }
 func (this *FrontMessagesResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *Token) Validate() error {
 	return nil
 }
 func (this *FrontSessionGetRequest) Validate() error {

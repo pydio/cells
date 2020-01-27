@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	pauth "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -151,7 +152,7 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 
 	response := &rest.FrontSessionGetResponse{}
 	if len(session.Values) > 0 {
-		response.Token = &rest.Token{
+		response.Token = &pauth.Token{
 			AccessToken: session.Values["access_token"].(string),
 			IDToken:     session.Values["id_token"].(string),
 			ExpiresAt:   session.Values["expires_at"].(string),

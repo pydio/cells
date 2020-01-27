@@ -55,6 +55,7 @@ var (
 	_ pauth.AuthCodeExchangerHandler  = (*Handler)(nil)
 	_ pauth.AuthTokenVerifierHandler  = (*Handler)(nil)
 	_ pauth.AuthTokenRefresherHandler = (*Handler)(nil)
+	_ pauth.AuthTokenRevokerHandler   = (*Handler)(nil)
 )
 
 var (
@@ -512,6 +513,41 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	out.AccessToken = resp.GetAccessToken()
 	out.RefreshToken = resp.GetExtra("refresh_token").(string)
 	out.Expiry = resp.GetExtra("expires_in").(int64)
+
+	return nil
+}
+
+// Revoke adds token to revocation list and eventually clear RefreshToken as well (directly inside Dex)
+func (h *Handler) Revoke(ctx context.Context, in *pauth.RevokeTokenRequest, out *pauth.RevokeTokenResponse) error {
+
+	accessSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().AccessTokenSignature(in.GetToken().GetAccessToken())
+	refreshSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().RefreshTokenSignature(in.GetToken().GetRefreshToken())
+
+	accessTokenSession, err := auth.GetRegistry().OAuth2Storage().GetAccessTokenSession(ctx, accessSignature, nil)
+	if err != nil {
+		return err
+	}
+
+	refreshTokenSession, err := auth.GetRegistry().OAuth2Storage().GetRefreshTokenSession(ctx, refreshSignature, nil)
+	if err != nil {
+		return err
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().RevokeAccessToken(ctx, accessTokenSession.GetID()); err != nil {
+		return err
+	}
+
+	if err := auth.GetRegistry().OAuth2Storage().RevokeRefreshToken(ctx, refreshTokenSession.GetID()); err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+// PruneTokens garbage collect expired IdTokens and Tokens
+func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest, out *pauth.PruneTokensResponse) error {
+	auth.GetRegistry().OAuth2Storage().FlushInactiveAccessTokens(ctx, time.Now())
 
 	return nil
 }

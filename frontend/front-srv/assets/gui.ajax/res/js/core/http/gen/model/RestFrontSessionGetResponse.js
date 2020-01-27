@@ -13,7 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
-import RestToken from './RestToken';
+import AuthToken from './AuthToken';
 
 
 
@@ -58,14 +58,14 @@ export default class RestFrontSessionGetResponse {
             
 
             if (data.hasOwnProperty('Token')) {
-                obj['Token'] = RestToken.constructFromObject(data['Token']);
+                obj['Token'] = AuthToken.constructFromObject(data['Token']);
             }
         }
         return obj;
     }
 
     /**
-    * @member {module:model/RestToken} Token
+    * @member {module:model/AuthToken} Token
     */
     Token = undefined;
 
