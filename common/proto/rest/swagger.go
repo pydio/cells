@@ -3513,6 +3513,23 @@ var SwaggerJson = `{
       ],
       "default": "GENERIC"
     },
+    "authToken": {
+      "type": "object",
+      "properties": {
+        "AccessToken": {
+          "type": "string"
+        },
+        "IDToken": {
+          "type": "string"
+        },
+        "RefreshToken": {
+          "type": "string"
+        },
+        "ExpiresAt": {
+          "type": "string"
+        }
+      }
+    },
     "ctlPeer": {
       "type": "object",
       "properties": {
@@ -5612,7 +5629,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name whose content describes the type of the\nserialized protocol buffer message.\n\nFor URLs which use the scheme http, https, or no scheme, the\nfollowing restrictions and interpretations apply:\n\n* If no scheme is provided, https is assumed.\n* The last segment of the URL's path must represent the fully\n  qualified name of the type (as in path/google.protobuf.Duration).\n  The name should be in a canonical form (e.g., leading \".\" is\n  not accepted).\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -6112,7 +6129,7 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Token": {
-          "$ref": "#/definitions/restToken"
+          "$ref": "#/definitions/authToken"
         }
       }
     },
@@ -6161,7 +6178,7 @@ var SwaggerJson = `{
           "title": "Additional data for the trigger"
         },
         "Token": {
-          "$ref": "#/definitions/restToken"
+          "$ref": "#/definitions/authToken"
         },
         "RedirectTo": {
           "type": "string"
@@ -7200,23 +7217,6 @@ var SwaggerJson = `{
         }
       },
       "title": "A template node is representing a file or a folder"
-    },
-    "restToken": {
-      "type": "object",
-      "properties": {
-        "AccessToken": {
-          "type": "string"
-        },
-        "IDToken": {
-          "type": "string"
-        },
-        "RefreshToken": {
-          "type": "string"
-        },
-        "ExpiresAt": {
-          "type": "string"
-        }
-      }
     },
     "restUpdateSharePoliciesRequest": {
       "type": "object",

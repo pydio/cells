@@ -19,14 +19,14 @@ import ApiClient from '../ApiClient';
 
 
 /**
-* The RestToken model module.
-* @module model/RestToken
+* The AuthToken model module.
+* @module model/AuthToken
 * @version 1.0
 */
-export default class RestToken {
+export default class AuthToken {
     /**
-    * Constructs a new <code>RestToken</code>.
-    * @alias module:model/RestToken
+    * Constructs a new <code>AuthToken</code>.
+    * @alias module:model/AuthToken
     * @class
     */
 
@@ -42,15 +42,15 @@ export default class RestToken {
     }
 
     /**
-    * Constructs a <code>RestToken</code> from a plain JavaScript object, optionally creating a new instance.
+    * Constructs a <code>AuthToken</code> from a plain JavaScript object, optionally creating a new instance.
     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
     * @param {Object} data The plain JavaScript object bearing properties of interest.
-    * @param {module:model/RestToken} obj Optional instance to populate.
-    * @return {module:model/RestToken} The populated <code>RestToken</code> instance.
+    * @param {module:model/AuthToken} obj Optional instance to populate.
+    * @return {module:model/AuthToken} The populated <code>AuthToken</code> instance.
     */
     static constructFromObject(data, obj) {
         if (data) {
-            obj = obj || new RestToken();
+            obj = obj || new AuthToken();
 
             
             

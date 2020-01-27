@@ -38,10 +38,10 @@ import (
 	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
@@ -192,14 +192,9 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	}
 }
 
-// WithWebAuth adds dependencies to the web services and auth wrappers to auth handlers
+// WithWebAuth adds auth wrappers to auth handlers
 func WithWebAuth() ServiceOption {
 	return func(o *ServiceOptions) {
-
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, []string{}})
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
-
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
 			wrapped := servicecontext.NewMetricsHttpWrapper(handler)
 			wrapped = PolicyHttpWrapper(wrapped)

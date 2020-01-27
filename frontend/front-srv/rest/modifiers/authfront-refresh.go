@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 
 	"github.com/pydio/cells/common/auth/hydra"
+	pauth "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -37,7 +38,7 @@ func RefreshAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 		session.Values["refresh_token"] = token.RefreshToken
 		session.Values["expires_at"] = strconv.Itoa(int(expiry))
 
-		out.Token = &rest.Token{
+		out.Token = &pauth.Token{
 			AccessToken: session.Values["access_token"].(string),
 			IDToken:     session.Values["id_token"].(string),
 			ExpiresAt:   session.Values["expires_at"].(string),

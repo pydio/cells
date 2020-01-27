@@ -13,7 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
-import RestToken from './RestToken';
+import AuthToken from './AuthToken';
 
 
 
@@ -70,7 +70,7 @@ export default class RestFrontSessionResponse {
                 obj['TriggerInfo'] = ApiClient.convertToType(data['TriggerInfo'], {'String': 'String'});
             }
             if (data.hasOwnProperty('Token')) {
-                obj['Token'] = RestToken.constructFromObject(data['Token']);
+                obj['Token'] = AuthToken.constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('RedirectTo')) {
                 obj['RedirectTo'] = ApiClient.convertToType(data['RedirectTo'], 'String');
@@ -99,7 +99,7 @@ export default class RestFrontSessionResponse {
     */
     TriggerInfo = undefined;
     /**
-    * @member {module:model/RestToken} Token
+    * @member {module:model/AuthToken} Token
     */
     Token = undefined;
     /**

@@ -30,8 +30,7 @@ import (
 	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
@@ -57,12 +56,6 @@ func (a *TokenHandler) Filter() func(string) string {
 func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || !claims.Verified {
-		e := errors.Forbidden(common.SERVICE_AUTH, "invalid token")
-		service.RestError403(req, resp, e)
-		return
-	}
 
 	var input rest.RevokeRequest
 	e := req.ReadEntity(&input)
@@ -72,20 +65,8 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	}
 
 	revokeRequest := &auth.RevokeTokenRequest{}
-	if input.TokenId != "" {
-		// Revoke a specific token
-		info := map[string]interface{}{
-			"revoker": claims.Name,
-		}
-		infoBytes, _ := json.Marshal(&info)
-
-		revokeRequest.Token = &auth.Token{Value: input.TokenId, AdditionalInfo: string(infoBytes)}
-	} else {
-		// Revoke current user token
-		claimsBytes, _ := json.Marshal(claims)
-		revokeRequest.Token = &auth.Token{Value: string(claimsBytes)}
-	}
-	revokerClient := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
+	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
+	revokerClient := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return

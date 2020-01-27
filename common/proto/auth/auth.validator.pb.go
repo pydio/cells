@@ -16,12 +16,6 @@ var _ = math.Inf
 func (this *Token) Validate() error {
 	return nil
 }
-func (this *MatchInvalidTokenRequest) Validate() error {
-	return nil
-}
-func (this *MatchInvalidTokenResponse) Validate() error {
-	return nil
-}
 func (this *RevokeTokenRequest) Validate() error {
 	if this.Token != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {

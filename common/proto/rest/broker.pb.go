@@ -84,7 +84,6 @@ It has these top-level messages:
 	FrontPluginsResponse
 	FrontMessagesRequest
 	FrontMessagesResponse
-	Token
 	FrontSessionGetRequest
 	FrontSessionGetResponse
 	FrontSessionRequest
