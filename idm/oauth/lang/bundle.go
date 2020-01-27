@@ -32,7 +32,7 @@ var (
 
 func Bundle() *i18n.I18nBundle {
 	if bundle == nil {
-		bundle = i18n.NewI18nBundle(packr.NewBox("../../../idm/auth/lang/box"))
+		bundle = i18n.NewI18nBundle(packr.NewBox("../../../idm/oauth/lang/box"))
 	}
 	return bundle
 }
