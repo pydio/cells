@@ -24,31 +24,23 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
-	"sync"
 	"time"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"
 )
 
 type LogSyncer struct {
 	serverServiceName string
 
-	logSyncerMutex    *sync.Mutex
-	logSyncerClient   log.LogRecorder_PutLogClient
 	logSyncerMessages chan map[string]string
-	logSyncerErrors   chan error
 }
 
 func NewLogSyncer(serviceName string) *LogSyncer {
 
 	syncer := LogSyncer{serverServiceName: serviceName}
 
-	syncer.logSyncerMutex = &sync.Mutex{}
-	syncer.logSyncerMessages = make(chan map[string]string)
-	syncer.logSyncerErrors = make(chan error)
+	syncer.logSyncerMessages = make(chan map[string]string, 1000)
 
 	initLogSyncer(&syncer)
 
@@ -57,46 +49,23 @@ func NewLogSyncer(serviceName string) *LogSyncer {
 
 func initLogSyncer(syncer *LogSyncer) {
 	go logSyncerWatch(syncer)
-	go logSyncerSync(syncer)
 }
 
 func logSyncerWatch(syncer *LogSyncer) {
-	syncer.logSyncerMutex.Lock()
-
 	for {
-		//<-time.After(2 * time.Second)
 		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(context.Background(), client.WithRequestTimeout(1*time.Hour))
-
+		cli, err := c.PutLog(context.Background())
 		if err != nil {
+			<-time.After(1 * time.Second)
 			continue
 		}
 
-		syncer.logSyncerClient = cli
-		syncer.logSyncerMutex.Unlock()
-
-		for err := range syncer.logSyncerErrors {
-			if err == nil {
-				continue
+		for m := range syncer.logSyncerMessages {
+			err := cli.Send(&log.Log{Message: m})
+			if err != nil {
+				break
 			}
-			if cli != nil {
-				cli.Close()
-			}
-			break
 		}
-
-		syncer.logSyncerMutex.Lock()
-	}
-}
-
-func logSyncerSync(syncer *LogSyncer) {
-
-	for m := range syncer.logSyncerMessages {
-		syncer.logSyncerMutex.Lock()
-		syncer.logSyncerErrors <- syncer.logSyncerClient.Send(&log.Log{
-			Message: m,
-		})
-		syncer.logSyncerMutex.Unlock()
 	}
 }
 
@@ -115,8 +84,6 @@ func (l *LogSyncer) Write(p []byte) (n int, err error) {
 	// Add nano time for better sorting
 	m["nano"] = strconv.Itoa(time.Now().Nanosecond())
 
-	go func() {
-		l.logSyncerMessages <- m
-	}()
+	l.logSyncerMessages <- m
 	return len(p), nil
 }
