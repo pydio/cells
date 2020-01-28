@@ -22,8 +22,9 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"fmt"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
@@ -42,7 +43,7 @@ Use this command to manually grant a permission on a given node for a given role
 
 		client := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 
-		if response, err := client.CreateACL(context.Background(), &idm.CreateACLRequest{
+		response, err := client.CreateACL(context.Background(), &idm.CreateACLRequest{
 			ACL: &idm.ACL{
 				Action: &idm.ACLAction{
 					Name:  action,
@@ -51,13 +52,18 @@ Use this command to manually grant a permission on a given node for a given role
 				RoleID:      roleID,
 				WorkspaceID: workspaceID,
 				NodeID:      nodeID,
-			},
-		}); err != nil {
-			log.Println(err)
-		} else {
-			log.Println(response)
+			}})
+
+		if err != nil {
+			fmt.Println("Error while creating ACL", err.Error())
+			return
 		}
 
+		fmt.Println("Successfully created ACL")
+		table := tablewriter.NewWriter(cmd.OutOrStdout())
+		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
+		table.Append([]string{response.ACL.ID, response.ACL.Action.String(), response.ACL.NodeID, response.ACL.RoleID, response.ACL.WorkspaceID})
+		table.Render()
 	},
 }
 
