@@ -94,7 +94,7 @@ type ServiceOptions struct {
 	webHandlerWraps []func(http.Handler) http.Handler
 
 	// Watcher
-	Watchers []func(context.Context, common.ConfigValues)
+	Watchers []func(common.ConfigValues)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -261,7 +261,7 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
-func Watch(fn func(context.Context, common.ConfigValues)) ServiceOption {
+func Watch(fn func(common.ConfigValues)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Watchers = append(o.Watchers, fn)
 	}
