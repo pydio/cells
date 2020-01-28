@@ -28,6 +28,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -116,7 +117,19 @@ func GetDAOCache(session string) DAO {
 func (d *daocache) resync() {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
-
+	t1 := time.Now()
+	defer func() {
+		fmt.Println("Finished resync", time.Now().Sub(t1))
+	}()
+	for k, _ := range d.cache {
+		delete(d.cache, k)
+	}
+	for k, _ := range d.childCache {
+		delete(d.childCache, k)
+	}
+	for k, _ := range d.nameCache {
+		delete(d.nameCache, k)
+	}
 	d.cache = make(map[string]*mtree.TreeNode)
 	d.childCache = make(map[string][]*mtree.TreeNode)
 	d.nameCache = make(map[string][]*mtree.TreeNode)
@@ -278,7 +291,9 @@ func (d *daocache) Flush(final bool) error {
 		// If this isn't the final flush, then we reopen a new cache
 		newCache := NewDAOCache(d.session, d.DAO).(*daocache)
 		*d = *newCache
-		//d.resync() // Not necessary, resync() is already called inside NewDAOCache
+	} else {
+		// Remove from global cache
+		delete(cache, d.session)
 	}
 
 	return err
