@@ -28,6 +28,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -116,7 +117,19 @@ func GetDAOCache(session string) DAO {
 func (d *daocache) resync() {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
-
+	t1 := time.Now()
+	defer func() {
+		fmt.Println("Finished resync", time.Now().Sub(t1))
+	}()
+	for k, _ := range d.cache {
+		delete(d.cache, k)
+	}
+	for k, _ := range d.childCache {
+		delete(d.childCache, k)
+	}
+	for k, _ := range d.nameCache {
+		delete(d.nameCache, k)
+	}
 	d.cache = make(map[string]*mtree.TreeNode)
 	d.childCache = make(map[string][]*mtree.TreeNode)
 	d.nameCache = make(map[string][]*mtree.TreeNode)
@@ -278,7 +291,9 @@ func (d *daocache) Flush(final bool) error {
 		// If this isn't the final flush, then we reopen a new cache
 		newCache := NewDAOCache(d.session, d.DAO).(*daocache)
 		*d = *newCache
-		//d.resync() // Not necessary, resync() is already called inside NewDAOCache
+	} else {
+		// Remove from global cache
+		delete(cache, d.session)
 	}
 
 	return err
@@ -619,8 +634,9 @@ func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
 
-	//resync should not be necessary, as operations are all grouped by type and we call Flush between each group
-	//d.resync()
+	// resync is necessary although operations are grouped by type and we call Flush between each group
+	// otherwise move inside move can fail
+	d.Flush(false)
 
 	return err
 }
