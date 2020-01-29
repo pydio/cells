@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React, {Component} from 'react'
+import Pydio from 'pydio'
 
 const RoleMessagesConsumerMixin = {
     contextTypes: {
@@ -54,4 +56,37 @@ const RoleMessagesProviderMixin = {
 
 };
 
-export {RoleMessagesConsumerMixin, RoleMessagesProviderMixin}
+function withRoleMessages(PydioComponent){
+
+    return class WithRoleMessages extends Component {
+        render(){
+            let {pydio} = this.props;
+            if(!pydio){
+                pydio = Pydio.getInstance();
+            }
+            const messages = pydio.MessageHash;
+            const getMessage = (messageId, namespace='pydio_role') => {
+                return messages[namespace + (namespace?".":"") + messageId] || messageId;
+            };
+            const getPydioRoleMessage = (messageId) => {
+                return messages['role_editor.' + messageId] || messageId;
+            };
+            const getAdminMessage = (messageId) => {
+                return messages['ajxp_admin.' + messageId] || messageId;
+            };
+            const getRootMessage = (messageId) => {
+                return messages[messageId] || messageId;
+            };
+
+            return <PydioComponent
+                {...this.props}
+                getMessage={getMessage}
+                getPydioRoleMessage={getPydioRoleMessage}
+                getRootMessage={getRootMessage}
+                getAdminMessage={getAdminMessage}
+            />
+        }
+    }
+}
+
+export {RoleMessagesConsumerMixin, RoleMessagesProviderMixin, withRoleMessages}

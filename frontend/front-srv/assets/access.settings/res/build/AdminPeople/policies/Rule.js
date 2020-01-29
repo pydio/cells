@@ -42,9 +42,15 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _editorRuleEditor = require('./editor/RuleEditor');
+var _pydioUtilFunc = require('pydio/util/func');
 
-var _editorRuleEditor2 = _interopRequireDefault(_editorRuleEditor);
+var _pydioUtilFunc2 = _interopRequireDefault(_pydioUtilFunc);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _editorUtilClassLoader = require("../editor/util/ClassLoader");
 
 var Rule = (function (_React$Component) {
     _inherits(Rule, _React$Component);
@@ -65,30 +71,37 @@ var Rule = (function (_React$Component) {
     }, {
         key: 'openEditor',
         value: function openEditor() {
+            var _this = this;
+
             var _props = this.props;
             var pydio = _props.pydio;
             var policy = _props.policy;
             var rule = _props.rule;
             var openRightPane = _props.openRightPane;
+            var rulesEditorClass = _props.rulesEditorClass;
 
             if (this.refs.editor && this.refs.editor.isDirty()) {
                 if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
                     return false;
                 }
             }
-            var editorData = {
-                COMPONENT: _editorRuleEditor2['default'],
-                PROPS: {
-                    ref: "editor",
-                    policy: policy,
-                    rule: rule,
-                    pydio: pydio,
-                    saveRule: this.props.onRuleChange,
-                    create: this.props.create,
-                    onRequestTabClose: this.closeEditor.bind(this)
-                }
-            };
-            openRightPane(editorData);
+            if (!rulesEditorClass) {
+                return false;
+            }
+            (0, _editorUtilClassLoader.loadEditorClass)(rulesEditorClass, null).then(function (component) {
+                openRightPane({
+                    COMPONENT: component,
+                    PROPS: {
+                        ref: "editor",
+                        policy: policy,
+                        rule: rule,
+                        pydio: pydio,
+                        saveRule: _this.props.onRuleChange,
+                        create: _this.props.create,
+                        onRequestTabClose: _this.closeEditor.bind(_this)
+                    }
+                });
+            });
             return true;
         }
     }, {

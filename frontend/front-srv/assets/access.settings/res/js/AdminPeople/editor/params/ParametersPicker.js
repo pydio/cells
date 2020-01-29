@@ -23,44 +23,30 @@ import LangUtils from "pydio/util/lang";
 import XMLUtils from 'pydio/util/xml';
 import {TextField} from 'material-ui';
 
-const ParametersPicker = React.createClass({
+class ParametersPicker extends React.Component {
 
-    propTypes:{
-        allParameters:React.PropTypes.object.isRequired,
-        allActions:React.PropTypes.object.isRequired,
-        onSelection:React.PropTypes.func.isRequired,
-        getMessage:React.PropTypes.func,
-        actionsPrefix:React.PropTypes.string,
-        parametersPrefix:React.PropTypes.string,
-        initialSelection:React.PropTypes.object
-    },
-
-    getDefaultProps(){
-        return {actionsPrefix:'[a] ',parametersPrefix:''};
-    },
-
-    getInitialState(){
-        let s = {filter: null};
+    constructor(props){
+        super({actionsPrefix:'[a] ',parametersPrefix:'', ...props});
+        this.state = {filter: null};
         if(this.props.initialSelection){
-            s = LangUtils.mergeObjectsRecursive({filter:this.props.initialSelection.paramName}, this.props.initialSelection);
+            this.state = {filter:this.props.initialSelection.paramName, ...this.props.initialSelection};
         }
-        return s;
-    },
+    }
 
     filter(event){
         this.setState({filter:event.target.value.toLowerCase()});
-    },
+    }
 
     select(plugin, type, param, attributes){
         this.props.onSelection(plugin, type, param, attributes);
         this.setState({pluginName:plugin, type:type, paramName:param});
-    },
+    }
 
     componentDidMount(){
         setTimeout( () => {
             this.refs.input.focus();
         }, 150);
-    },
+    }
 
     render(){
 
@@ -106,7 +92,7 @@ const ParametersPicker = React.createClass({
 
         const allData = LangUtils.objectValues(merge);
 
-        allData.map(function(plugin){
+        allData.map((plugin) => {
             let params = [];
             let pluginMatch = false;
             let pluginLabel = plugin.label || plugin.name;
@@ -120,7 +106,7 @@ const ParametersPicker = React.createClass({
             }
 
 
-            plugin.params.concat(plugin.actions).map(function(param){
+            plugin.params.concat(plugin.actions).map((param) =>  {
                 const name = param.action || param.parameter;
                 let label = param.label || name;
                 let prefix = '';
@@ -139,7 +125,7 @@ const ParametersPicker = React.createClass({
                 const filterLabel = filter(label);
                 const filterName = filter(name);
                 if(filterLabel || filterName || pluginMatch){
-                    const click = function(){this.select(plugin.name, param.action?'action':'parameter', name, param);}.bind(this);
+                    const click = () => this.select(plugin.name, param.action?'action':'parameter', name, param);
                     const selected = ((selectedPlugin === '*' || selectedPlugin === plugin.name) && param[selectionType] && selection === name);
                     let highlighted = label;
                     if(filterLabel){
@@ -153,17 +139,17 @@ const ParametersPicker = React.createClass({
                             className={(selected ? "selected ": "") + "parameters-param"}
                             key={plugin.name + '-'+ (param.action?'action':'parameter') + '-' + name}>{prefix} {highlighted}</li>);
                 }
-            }.bind(this));
+            });
 
             if(params.length){
                 entries.push(<li className="parameters-plugin" key={plugin.name}>{pluginLabel}<ul>{params}</ul></li>);
             }
-        }.bind(this));
+        });
 
         return (
             <div>
                 <div style={{padding: '0 24px', borderBottom: '1px solid #e0e0e0'}}>
-                    <TextField ref={"input"} floatingLabelText={this.props.getMessage('13')} onChange={this.filter} fullWidth={true} underlineShow={false}/>
+                    <TextField ref={"input"} floatingLabelText={this.props.getMessage('13')} onChange={this.filter.bind(this)} fullWidth={true} underlineShow={false}/>
                 </div>
                 <div className="parameters-tree-scroller">
                     <ul className="parameters-tree">
@@ -175,7 +161,6 @@ const ParametersPicker = React.createClass({
 
     }
 
-
-});
+}
 
 export {ParametersPicker as default}

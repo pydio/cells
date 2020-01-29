@@ -45,7 +45,7 @@ class UserInfo extends React.Component {
     buttonCallback(action){
         const {user} = this.props;
         if(action === "update_user_pwd"){
-            this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', {user: user});
+            this.props.pydio.UI.openComponentInModal('AdminPeople', 'Editor.User.UserPasswordDialog', {user: user});
         }else{
             const idmUser = user.getIdmUser();
             const lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';

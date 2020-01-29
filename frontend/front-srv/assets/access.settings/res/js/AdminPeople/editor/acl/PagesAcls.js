@@ -37,15 +37,7 @@ class PagesAcls extends React.Component{
             return <div></div>
         }
         return (
-            <div className={"material-list"}>{workspaces.map(
-                ws => {return (
-                    <WorkspaceAcl
-                        workspace={ws}
-                        role={role}
-                        advancedAcl={false}
-                    />
-                )}
-            )}</div>
+            <div className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
         );
 
     }

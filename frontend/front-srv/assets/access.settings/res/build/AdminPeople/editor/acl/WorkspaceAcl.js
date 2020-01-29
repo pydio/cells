@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,14 +17,25 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _utilMessagesMixin = require('../util/MessagesMixin');
 
@@ -32,140 +43,71 @@ var _RightsSelector = require('./RightsSelector');
 
 var _RightsSelector2 = _interopRequireDefault(_RightsSelector);
 
-var _PermissionMaskEditor = require('./PermissionMaskEditor');
-
-var _PermissionMaskEditor2 = _interopRequireDefault(_PermissionMaskEditor);
-
-var _modelRole = require('../model/Role');
-
-var _modelRole2 = _interopRequireDefault(_modelRole);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _materialUi = require('material-ui');
 
-exports['default'] = React.createClass({
-    displayName: 'WorkspaceAcl',
+var WorkspaceAcl = (function (_React$Component) {
+    _inherits(WorkspaceAcl, _React$Component);
 
-    mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
+    function WorkspaceAcl() {
+        _classCallCheck(this, WorkspaceAcl);
 
-    propTypes: {
-        role: React.PropTypes.instanceOf(_modelRole2['default']),
-        workspace: React.PropTypes.instanceOf(_pydioHttpRestApi.IdmWorkspace),
-
-        wsId: React.PropTypes.string,
-        label: React.PropTypes.string,
-        roleParent: React.PropTypes.object,
-
-        showModal: React.PropTypes.func,
-        hideModal: React.PropTypes.func,
-        Controller: React.PropTypes.object,
-        advancedAcl: React.PropTypes.bool,
-        supportsFolderBrowsing: React.PropTypes.bool
-    },
-
-    onAclChange: function onAclChange(newValue, oldValue) {
-        var _props = this.props;
-        var role = _props.role;
-        var workspace = _props.workspace;
-
-        role.updateAcl(workspace, null, newValue);
-    },
-
-    onNodesChange: function onNodesChange(nodeUuid, checkboxName, value) {
-        var _props2 = this.props;
-        var role = _props2.role;
-        var workspace = _props2.workspace;
-
-        role.updateAcl(null, nodeUuid, checkboxName, workspace);
-    },
-
-    getInitialState: function getInitialState() {
-        return { displayMask: false };
-    },
-
-    toggleDisplayMask: function toggleDisplayMask() {
-        this.setState({ displayMask: !this.state.displayMask });
-    },
-
-    render: function render() {
-        var _props3 = this.props;
-        var workspace = _props3.workspace;
-        var role = _props3.role;
-        var advancedAcl = _props3.advancedAcl;
-
-        if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length) {
-            // This is not normal, a workspace should always have a root node!
-            return React.createElement(PydioComponents.ListEntry, {
-                className: "workspace-acl-entry",
-                firstLine: React.createElement(
-                    'span',
-                    { style: { textDecoration: 'line-through', color: '#ef9a9a' } },
-                    workspace.Label + ' (' + this.context.getPydioRoleMessage('workspace.roots.invalid') + ')'
-                )
-            });
-        }
-
-        var _role$getAclString = role.getAclString(workspace);
-
-        var aclString = _role$getAclString.aclString;
-        var inherited = _role$getAclString.inherited;
-
-        var action = React.createElement(_RightsSelector2['default'], {
-            acl: aclString,
-            onChange: this.onAclChange,
-            hideLabels: true,
-            advancedAcl: advancedAcl
-        });
-
-        var label = workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : '');
-        var secondLine = undefined;
-
-        if (advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1)) {
-
-            label = React.createElement(
-                'div',
-                null,
-                label,
-                React.createElement(_materialUi.FontIcon, {
-                    className: "mdi mdi-" + (this.state.displayMask ? "minus" : "plus"),
-                    onClick: this.toggleDisplayMask,
-                    style: { cursor: 'pointer', padding: '0 8px', fontSize: 16 }
-                })
-            );
-            if (this.state.displayMask) {
-                var aclObject = undefined;
-                if (aclString) {
-                    aclObject = {
-                        read: aclString.indexOf('read') !== -1,
-                        write: aclString.indexOf('write') !== -1
-                    };
-                }
-
-                secondLine = React.createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { margin: '30px 3px 3px' } },
-                    React.createElement(_PermissionMaskEditor2['default'], {
-                        workspace: workspace,
-                        role: role,
-                        nodes: {},
-                        parentNodes: {},
-                        onNodesChange: this.onNodesChange,
-                        showModal: this.props.showModal,
-                        hideModal: this.props.hideModal,
-                        globalWorkspacePermissions: aclObject
-                    })
-                );
-            }
-        }
-
-        return React.createElement(PydioComponents.ListEntry, {
-            className: (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry",
-            firstLine: label,
-            secondLine: secondLine,
-            actions: action
-        });
+        _get(Object.getPrototypeOf(WorkspaceAcl.prototype), 'constructor', this).apply(this, arguments);
     }
 
-});
+    _createClass(WorkspaceAcl, [{
+        key: 'onAclChange',
+        value: function onAclChange(newValue, oldValue) {
+            var _props = this.props;
+            var role = _props.role;
+            var workspace = _props.workspace;
+
+            role.updateAcl(workspace, null, newValue);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var workspace = _props2.workspace;
+            var role = _props2.role;
+            var getPydioRoleMessage = _props2.getPydioRoleMessage;
+
+            if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length) {
+                // This is not normal, a workspace should always have a root node!
+                return _react2['default'].createElement(PydioComponents.ListEntry, {
+                    className: "workspace-acl-entry",
+                    firstLine: _react2['default'].createElement(
+                        'span',
+                        { style: { textDecoration: 'line-through', color: '#ef9a9a' } },
+                        workspace.Label + ' (' + getPydioRoleMessage('workspace.roots.invalid') + ')'
+                    )
+                });
+            }
+
+            var _role$getAclString = role.getAclString(workspace);
+
+            var aclString = _role$getAclString.aclString;
+            var inherited = _role$getAclString.inherited;
+
+            var action = _react2['default'].createElement(_RightsSelector2['default'], {
+                acl: aclString,
+                onChange: this.onAclChange.bind(this),
+                hideLabels: true
+            });
+
+            var label = workspace.Label + (inherited ? ' (' + getPydioRoleMessage('38') + ')' : '');
+
+            return _react2['default'].createElement(PydioComponents.ListEntry, {
+                className: (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry",
+                firstLine: label,
+                actions: action
+            });
+        }
+    }]);
+
+    return WorkspaceAcl;
+})(_react2['default'].Component);
+
+exports['default'] = (0, _utilMessagesMixin.withRoleMessages)(WorkspaceAcl);
 module.exports = exports['default'];

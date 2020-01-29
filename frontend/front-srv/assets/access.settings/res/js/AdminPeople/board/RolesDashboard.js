@@ -23,6 +23,7 @@ const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
+import {loadEditorClass} from "../editor/util/ClassLoader";
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -63,24 +64,24 @@ let RolesDashboard = React.createClass({
     },
 
     openRoleEditor(idmRole, initialSection = 'activity'){
-        const {advancedAcl, pydio} = this.props;
+        const {pydio, rolesEditorClass} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        const editorData = {
-            COMPONENT:Editor,
-            PROPS:{
-                ref:"editor",
-                idmRole:idmRole,
-                pydio: pydio,
-                initialEditSection:initialSection,
-                onRequestTabClose:this.closeRoleEditor,
-                advancedAcl:advancedAcl,
-            }
-        };
-        this.props.openRightPane(editorData);
+        loadEditorClass(rolesEditorClass, Editor).then(component => {
+            this.props.openRightPane({
+                COMPONENT:component,
+                PROPS:{
+                    ref:"editor",
+                    idmRole:idmRole,
+                    pydio: pydio,
+                    initialEditSection:initialSection,
+                    onRequestTabClose:this.closeRoleEditor
+                }
+            });
+        });
         return true;
 
     },
@@ -109,7 +110,7 @@ let RolesDashboard = React.createClass({
     },
 
     createRoleAction(){
-        pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {
+        pydio.UI.openComponentInModal('AdminPeople','Forms.CreateRoleOrGroupForm', {
             type:'role',
             roleNode:this.state.currentNode,
             openRoleEditor:this.openRoleEditor.bind(this),
@@ -151,8 +152,8 @@ let RolesDashboard = React.createClass({
                 desktop={true}
                 onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
             >
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={showTechnical ? null : <FontIcon className={"mdi mdi-check"}/>}/>
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
             </IconMenu>
         ];
 

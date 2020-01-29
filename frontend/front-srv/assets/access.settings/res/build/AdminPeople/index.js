@@ -46,40 +46,42 @@ var _formsCreateRoleOrGroupForm = require('./forms/CreateRoleOrGroupForm');
 
 var _formsCreateRoleOrGroupForm2 = _interopRequireDefault(_formsCreateRoleOrGroupForm);
 
-var _editorEditor = require('./editor/Editor');
+var _editorACL = require('./editor/ACL');
 
-var _editorEditor2 = _interopRequireDefault(_editorEditor);
+var _editorACL2 = _interopRequireDefault(_editorACL);
 
-var _editorUserUserPasswordDialog = require('./editor/user/UserPasswordDialog');
+var _editorInfo = require('./editor/Info');
 
-var _editorUserUserPasswordDialog2 = _interopRequireDefault(_editorUserUserPasswordDialog);
+var _editorInfo2 = _interopRequireDefault(_editorInfo);
 
-var _editorUserUserRolesPicker = require('./editor/user/UserRolesPicker');
+var _editorModel = require('./editor/Model');
 
-var _editorUserUserRolesPicker2 = _interopRequireDefault(_editorUserUserRolesPicker);
+var _editorModel2 = _interopRequireDefault(_editorModel);
 
-var _editorPanelSharesList = require('./editor/panel/SharesList');
+var _editorParams = require('./editor/Params');
 
-var _editorPanelSharesList2 = _interopRequireDefault(_editorPanelSharesList);
+var _editorParams2 = _interopRequireDefault(_editorParams);
 
-var _editorUtilMessagesMixin = require('./editor/util/MessagesMixin');
+var _editorUser = require('./editor/User');
 
-var _editorParamsParameterCreate = require('./editor/params/ParameterCreate');
+var _editorUser2 = _interopRequireDefault(_editorUser);
 
-var _editorParamsParameterCreate2 = _interopRequireDefault(_editorParamsParameterCreate);
+var _editorUtil = require('./editor/Util');
+
+var _editorUtil2 = _interopRequireDefault(_editorUtil);
 
 window.AdminPeople = {
-  RoleEditor: _editorEditor2['default'],
-  RoleMessagesConsumerMixin: _editorUtilMessagesMixin.RoleMessagesConsumerMixin,
-  UserPasswordDialog: _editorUserUserPasswordDialog2['default'],
-  UserRolesPicker: _editorUserUserRolesPicker2['default'],
-  SharesList: _editorPanelSharesList2['default'],
-  CreateUserForm: _formsCreateUserForm2['default'],
-  CreateRoleOrGroupForm: _formsCreateRoleOrGroupForm2['default'],
-  ParameterCreate: _editorParamsParameterCreate2['default'],
-  Callbacks: _boardCallbacks2['default'],
+    Callbacks: _boardCallbacks2['default'],
 
-  Dashboard: _boardDashboard2['default'],
-  RolesDashboard: _boardRolesDashboard2['default'],
-  PoliciesBoard: _boardPoliciesBoard2['default']
+    Dashboard: _boardDashboard2['default'],
+    RolesDashboard: _boardRolesDashboard2['default'],
+    PoliciesBoard: _boardPoliciesBoard2['default'],
+
+    Editor: {
+        Model: _editorModel2['default'], Info: _editorInfo2['default'], ACL: _editorACL2['default'], Params: _editorParams2['default'], User: _editorUser2['default'], Util: _editorUtil2['default']
+    },
+    Forms: {
+        CreateUserForm: _formsCreateUserForm2['default'], CreateRoleOrGroupForm: _formsCreateRoleOrGroupForm2['default']
+    }
+
 };

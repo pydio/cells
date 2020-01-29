@@ -25,25 +25,26 @@ import Callbacks from './board/Callbacks'
 
 import CreateUserForm from './forms/CreateUserForm'
 import CreateRoleOrGroupForm from './forms/CreateRoleOrGroupForm'
-import Editor from './editor/Editor'
-import UserPasswordDialog from './editor/user/UserPasswordDialog'
-import UserRolesPicker from './editor/user/UserRolesPicker'
-import SharesList from './editor/panel/SharesList'
-import {RoleMessagesConsumerMixin} from './editor/util/MessagesMixin'
-import ParameterCreate from './editor/params/ParameterCreate'
+
+import ACL from './editor/ACL'
+import Info from './editor/Info'
+import Model from './editor/Model'
+import Params from './editor/Params'
+import User from './editor/User'
+import Util from './editor/Util'
 
 window.AdminPeople = {
-    RoleEditor              : Editor,
-    RoleMessagesConsumerMixin,
-    UserPasswordDialog,
-    UserRolesPicker,
-    SharesList,
-    CreateUserForm,
-    CreateRoleOrGroupForm,
-    ParameterCreate,
     Callbacks,
 
     Dashboard,
     RolesDashboard,
-    PoliciesBoard
+    PoliciesBoard,
+
+    Editor: {
+        Model, Info, ACL, Params, User, Util
+    },
+    Forms: {
+        CreateUserForm, CreateRoleOrGroupForm
+    }
+
 };
