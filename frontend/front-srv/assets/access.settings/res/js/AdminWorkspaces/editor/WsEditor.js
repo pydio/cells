@@ -24,6 +24,7 @@ import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 const {PaperEditorLayout} = Pydio.requireLib('components');
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {QuotaField} = AdminComponents;
 
 class WsEditor extends React.Component {
 
@@ -268,6 +269,17 @@ class WsEditor extends React.Component {
                                 {...ModernStyles.toggleField}
                             />
                         </div>
+
+                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.quota')}</div>
+                        <QuotaField value={workspace.Attributes['QUOTA'] || 0} onChange={(e,v) => {
+                            if(v > 0){
+                                workspace.Attributes['QUOTA'] = v + '';
+                            } else {
+                                workspace.Attributes['QUOTA'] = '0';
+                                delete(workspace.Attributes['QUOTA']);
+                            }
+                        } }/>
+
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
                         <ModernSelectField fullWidth={true} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
                             <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>

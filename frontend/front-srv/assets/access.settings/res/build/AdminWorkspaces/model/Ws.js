@@ -158,7 +158,6 @@ var Workspace = (function (_Observable) {
             var _this4 = this;
 
             // If Policies are not set, REST service will add default policies
-            console.log('Saving model', this.model);
             this.model.Attributes = JSON.stringify(this.internalAttributes);
             var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {

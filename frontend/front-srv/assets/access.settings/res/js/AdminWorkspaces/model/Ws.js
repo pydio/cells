@@ -105,7 +105,6 @@ class Workspace extends Observable{
      */
     save(){
         // If Policies are not set, REST service will add default policies
-        console.log('Saving model', this.model);
         this.model.Attributes = JSON.stringify(this.internalAttributes);
         const api = new WorkspaceServiceApi(PydioApi.getRestClient());
         return api.putWorkspace(this.model.Slug, this.model).then(ws => {

@@ -31,6 +31,7 @@ import MenuItemListener from './util/MenuItemListener'
 import DNDActionsManager from './util/DNDActionsManager'
 import CodeMirrorField from './util/CodeMirrorField'
 import PluginsLoader from './util/PluginsLoader'
+import QuotaField from './util/QuotaField'
 
 import GraphBadge from './cards/GraphBadge'
 import GraphCard from './cards/GraphCard'
@@ -55,6 +56,7 @@ window.AdminComponents = {
     SubHeader,
     CodeMirrorField,
     TabBoard,
+    QuotaField,
 
     GraphCard,
     GraphBadge,
