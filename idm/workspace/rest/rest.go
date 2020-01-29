@@ -106,7 +106,7 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		h.deduplicateSlug(ctx, &inputWorkspace, cli)
 	}
 
-	defaultRights := h.extractDefaultRights(ctx, &inputWorkspace)
+	defaultRights, quotaValue := h.extractDefaultRights(ctx, &inputWorkspace)
 
 	response, er := cli.CreateWorkspace(req.Request.Context(), &idm.CreateWorkspaceRequest{
 		Workspace: &inputWorkspace,
@@ -119,13 +119,13 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		service2.RestError500(req, rsp, e)
 		return
 	}
-	if e := h.manageDefaultRights(ctx, &inputWorkspace, false, defaultRights); e != nil {
+	if e := h.manageDefaultRights(ctx, &inputWorkspace, false, defaultRights, quotaValue); e != nil {
 		service2.RestError500(req, rsp, e)
 		return
 	}
 
 	u := response.Workspace
-	h.manageDefaultRights(ctx, u, true, "")
+	h.manageDefaultRights(ctx, u, true, "", "")
 	rsp.WriteEntity(u)
 	if update {
 		log.Auditer(ctx).Info(
@@ -243,7 +243,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		if er := h.loadRootNodesForWorkspace(ctx, resp.Workspace); er != nil {
 			log.Logger(ctx).Error("Could not load root nodes for workspace", zap.Error(er))
 		}
-		if er := h.manageDefaultRights(ctx, resp.Workspace, true, ""); er != nil {
+		if er := h.manageDefaultRights(ctx, resp.Workspace, true, "", ""); er != nil {
 			log.Logger(ctx).Error("Could not load default rights workspace", zap.Error(er))
 		}
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
