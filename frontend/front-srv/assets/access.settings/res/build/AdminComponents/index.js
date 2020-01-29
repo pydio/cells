@@ -72,6 +72,10 @@ var _utilPluginsLoader = require('./util/PluginsLoader');
 
 var _utilPluginsLoader2 = _interopRequireDefault(_utilPluginsLoader);
 
+var _utilQuotaField = require('./util/QuotaField');
+
+var _utilQuotaField2 = _interopRequireDefault(_utilQuotaField);
+
 var _cardsGraphBadge = require('./cards/GraphBadge');
 
 var _cardsGraphBadge2 = _interopRequireDefault(_cardsGraphBadge);
@@ -116,6 +120,7 @@ window.AdminComponents = {
     SubHeader: _boardSubHeader2['default'],
     CodeMirrorField: _utilCodeMirrorField2['default'],
     TabBoard: _boardTabBoard2['default'],
+    QuotaField: _utilQuotaField2['default'],
 
     GraphCard: _cardsGraphCard2['default'],
     GraphBadge: _cardsGraphBadge2['default'],

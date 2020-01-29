@@ -21706,6 +21706,8 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 var ModernTextField = _Pydio$requireLib2.ModernTextField;
 var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
 var ModernStyles = _Pydio$requireLib2.ModernStyles;
+var _AdminComponents = AdminComponents;
+var QuotaField = _AdminComponents.QuotaField;
 
 var WsEditor = (function (_React$Component) {
     _inherits(WsEditor, _React$Component);
@@ -22063,6 +22065,19 @@ var WsEditor = (function (_React$Component) {
                             }
                         }, ModernStyles.toggleField))
                     ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.quota')
+                    ),
+                    _react2['default'].createElement(QuotaField, { value: workspace.Attributes['QUOTA'] || 0, onChange: function (e, v) {
+                            if (v > 0) {
+                                workspace.Attributes['QUOTA'] = v + '';
+                            } else {
+                                workspace.Attributes['QUOTA'] = '0';
+                                delete workspace.Attributes['QUOTA'];
+                            }
+                        } }),
                     _react2['default'].createElement(
                         'div',
                         { style: _extends({}, styles.legend, { marginTop: 8 }) },
@@ -23066,7 +23081,6 @@ var Workspace = (function (_Observable) {
             var _this4 = this;
 
             // If Policies are not set, REST service will add default policies
-            console.log('Saving model', this.model);
             this.model.Attributes = JSON.stringify(this.internalAttributes);
             var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
