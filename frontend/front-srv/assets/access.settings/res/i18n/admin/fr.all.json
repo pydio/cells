@@ -1508,6 +1508,12 @@
   "ws.editor.sync.warning.disable": {
     "other": "Si des personnes synchronisent ce workspace, leur application n'y aura plus accès! Etes-vous sûr de vouloir changer ça?"
   },
+  "ws.editor.other.quota": {
+    "other": "Quota d'utilisation du disque (laisser 0 pour pas de limite). Ce quota est calculé sur tous les fichiers de ce workspace. Pour les workspaces type \"Mes Fichiers\", vous pouvez adapter cette valeur en fonction des utilisateurs, groupes ou rôles."
+  },
+  "ws.editor.other.quota.noquota": {
+    "other": "Pas de quota"
+  },
   "ws.editor.path.folder": {
     "other": "Chemin du dossier"
   },
