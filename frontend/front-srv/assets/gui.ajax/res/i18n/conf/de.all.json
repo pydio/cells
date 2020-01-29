@@ -274,5 +274,11 @@
   },
   "Warning Before Session Expiration": {
     "other": "Warnung vor Sitzungs-Timeout"
+  },
+  "Custom HTML Header": {
+    "other": "Custom HTML Header"
+  },
+  "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
+    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
   }
 }

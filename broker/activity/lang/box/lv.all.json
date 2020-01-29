@@ -53,6 +53,24 @@
   "ModifiedObjectBy": {
     "other": "{{.Object}} laboja {{.Actor}}"
   },
+  "MetaModifiedBy": {
+    "other": "Metadata modified by {{.Actor}}"
+  },
+  "MetaModifiedObject": {
+    "other": "Modified metadata on {{.Object}}"
+  },
+  "MetaModifiedObjectBy": {
+    "other": "{{.Actor}} modified metadata on {{.Object}}"
+  },
+  "CommentedBy": {
+    "other": "Commented by {{.Actor}}"
+  },
+  "CommentedObject": {
+    "other": "Commented {{.Object}}"
+  },
+  "CommentedObjectBy": {
+    "other": "{{.Actor}} published new comment on {{.Object}}"
+  },
   "MovedBy": {
     "other": "Pārvietoja {{.Actor}}"
   },

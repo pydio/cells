@@ -44,6 +44,18 @@
   "options.existing.overwrite": {
     "other": "Mặc định ghi đè tập tin nếu đã tồn tại"
   },
+  "confirm.rename.all": {
+    "other": "Rename folders, then conflicting files"
+  },
+  "confirm.rename.merge": {
+    "other": "Rename files only (merge folders)"
+  },
+  "confirm.overwrite": {
+    "other": "Merge folders and overwrite files"
+  },
+  "confirm.save.choice": {
+    "other": "Save choice for next uploads"
+  },
   "22": {
     "other": "Tùy chọn"
   },
