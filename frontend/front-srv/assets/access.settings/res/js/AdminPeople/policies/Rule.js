@@ -20,7 +20,9 @@
 
 import React from 'react'
 import {ListItem, FontIcon, IconButton} from 'material-ui'
-import RuleEditor from './editor/RuleEditor'
+import FuncUtils from 'pydio/util/func'
+import ResourcesManager from 'pydio/http/resources-manager'
+import {loadEditorClass} from "../editor/util/ClassLoader";
 
 class Rule extends React.Component{
 
@@ -32,26 +34,30 @@ class Rule extends React.Component{
 
     openEditor(){
 
-        const {pydio, policy, rule, openRightPane} = this.props;
+        const {pydio, policy, rule, openRightPane, rulesEditorClass} = this.props;
 
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        const editorData = {
-            COMPONENT:RuleEditor,
-            PROPS:{
-                ref:"editor",
-                policy:policy,
-                rule:rule,
-                pydio: pydio,
-                saveRule:this.props.onRuleChange,
-                create:this.props.create,
-                onRequestTabClose:this.closeEditor.bind(this)
-            }
-        };
-        openRightPane(editorData);
+        if(!rulesEditorClass){
+            return false;
+        }
+        loadEditorClass(rulesEditorClass, null).then(component => {
+            openRightPane({
+                COMPONENT: component,
+                PROPS: {
+                    ref:"editor",
+                    policy:policy,
+                    rule:rule,
+                    pydio: pydio,
+                    saveRule:this.props.onRuleChange,
+                    create:this.props.create,
+                    onRequestTabClose:this.closeEditor.bind(this)
+                }
+            });
+        });
         return true;
 
     }

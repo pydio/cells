@@ -29,6 +29,8 @@ import AjxpNode from 'pydio/model/node'
 import Callbacks from './Callbacks'
 import Pydio from 'pydio'
 const {JobsStore} = Pydio.requireLib('boot');
+import FuncUtils from 'pydio/util/func'
+import {loadEditorClass} from "../editor/util/ClassLoader";
 
 let Dashboard = React.createClass({
 
@@ -191,11 +193,11 @@ let Dashboard = React.createClass({
     },
 
     createUserAction(){
-        pydio.UI.openComponentInModal('AdminPeople','CreateUserForm', {dataModel: this.props.dataModel, openRoleEditor:this.openRoleEditor.bind(this)});
+        pydio.UI.openComponentInModal('AdminPeople','Forms.CreateUserForm', {dataModel: this.props.dataModel, openRoleEditor:this.openRoleEditor.bind(this)});
     },
 
     createGroupAction(){
-        pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {type:'group', openRoleEditor:this.openRoleEditor.bind(this)});
+        pydio.UI.openComponentInModal('AdminPeople','Forms.CreateRoleOrGroupForm', {type:'group', openRoleEditor:this.openRoleEditor.bind(this)});
     },
 
     openUsersImporter(){
@@ -203,25 +205,27 @@ let Dashboard = React.createClass({
     },
 
     openRoleEditor(node, initialSection = 'activity'){
-        const {advancedAcl, pydio} = this.props;
+        const {pydio, rolesEditorClass} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        const editorData = {
-            COMPONENT:Editor,
-            PROPS:{
-                ref:"editor",
-                node:node,
-                pydio: pydio,
-                initialEditSection:initialSection,
-                onRequestTabClose:this.closeRoleEditor,
-                advancedAcl:advancedAcl,
-                afterSave:()=>{this.reloadList()}
-            }
+        const editorProps =  {
+            ref:"editor",
+            node:node,
+            pydio: pydio,
+            initialEditSection:initialSection,
+            onRequestTabClose:this.closeRoleEditor,
+            afterSave:()=>{this.reloadList()}
         };
-        this.props.openRightPane(editorData);
+
+        loadEditorClass(rolesEditorClass, Editor).then(component => {
+            this.props.openRightPane({
+                COMPONENT: component,
+                PROPS: editorProps
+            });
+        });
 
     },
 

@@ -17,36 +17,35 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react'
+import {withRoleMessages} from '../util/MessagesMixin'
 
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+class RightsSummary extends React.Component{
 
-export default React.createClass({
-
-    mixins:[RoleMessagesConsumerMixin],
-
-    render: function(){
-        var acl;
+    render(){
+        const {getMessage} = this.props;
+        let acl;
         switch(this.props.acl){
             case 'read,write':
-                acl = this.context.getMessage('8');
+                acl = getMessage('8');
                 break;
             case 'read':
-                acl = this.context.getMessage('9');
+                acl = getMessage('9');
                 break;
             case 'write':
-                acl = this.context.getMessage('10');
+                acl = getMessage('10');
                 break;
             case 'PYDIO_VALUE_CLEAR':
-                acl = this.context.getMessage('11');
+                acl = getMessage('11');
                 break;
             default:
-                acl = this.context.getMessage('12');
+                acl = getMessage('12');
         }
         return (
-            <span className={'summary-rights summary'}>
-                    {acl}
-                </span>
+            <span className={'summary-rights summary'}>{acl}</span>
         );
     }
 
-});
+}
+
+export default withRoleMessages(RightsSummary)

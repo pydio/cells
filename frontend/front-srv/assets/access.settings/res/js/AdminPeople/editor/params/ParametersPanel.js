@@ -52,7 +52,7 @@ export default class ParametersPanel extends React.Component {
     addParameter(scope){
         const {pydio, roleType} = this.props;
         const {actions, parameters} = this.state;
-        pydio.UI.openComponentInModal('AdminPeople', 'ParameterCreate', {
+        pydio.UI.openComponentInModal('AdminPeople', 'Editor.Params.ParameterCreate', {
             pydio: pydio,
             actions: actions,
             parameters: parameters,

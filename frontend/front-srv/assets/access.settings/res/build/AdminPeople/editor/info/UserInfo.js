@@ -95,7 +95,7 @@ var UserInfo = (function (_React$Component) {
             var user = this.props.user;
 
             if (action === "update_user_pwd") {
-                this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', { user: user });
+                this.props.pydio.UI.openComponentInModal('AdminPeople', 'Editor.User.UserPasswordDialog', { user: user });
             } else {
                 (function () {
                     var idmUser = user.getIdmUser();

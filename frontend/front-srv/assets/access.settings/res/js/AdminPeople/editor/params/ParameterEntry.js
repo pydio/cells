@@ -19,7 +19,7 @@
  */
 
 import React from 'react';
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin';
+import {RoleMessagesConsumerMixin, withRoleMessages} from '../util/MessagesMixin';
 import {IdmACL} from 'pydio/http/rest-api';
 import XMLUtils from 'pydio/util/xml';
 import {Role} from '../model/Role';
@@ -27,35 +27,26 @@ import {IconButton, Toggle} from 'material-ui';
 import Pydio from 'pydio';
 const PydioForm = Pydio.requireLib("form");
 
-export default React.createClass({
+class ParameterEntry extends React.Component{
 
-    mixins:[RoleMessagesConsumerMixin],
-
-    propTypes:{
-        acl: React.PropTypes.instanceOf(IdmACL),
-        role: React.PropTypes.instanceOf(Role),
-
-        actions: React.PropTypes.object,
-        parameters: React.PropTypes.object,
-
-        inherited:React.PropTypes.bool,
-    },
-
-    getInitialState(){
-        return {editMode:false};
-    },
+    constructor(props){
+        super(props);
+        this.state = {editMode:false};
+    }
 
     onChangeParameter(newValue, oldValue, additionalFormData=null){
-        if(newValue === oldValue) return;
+        if(newValue === oldValue) {
+            return;
+        }
         const {role, acl} = this.props;
         const aclKey = acl.Action.Name;
         role.setParameter(aclKey, newValue, acl.WorkspaceID);
-    },
+    }
 
     deleteParameter(){
         const {role, acl} = this.props;
         role.deleteParameter(acl);
-    },
+    }
 
     overrideParameter(){
         const {role, acl} = this.props;
@@ -67,25 +58,25 @@ export default React.createClass({
         }
         role.setParameter(aclKey, value, acl.WorkspaceID);
 
-    },
+    }
 
     onInputEditMode(editMode){
         this.setState({editMode:editMode});
-    },
+    }
 
     toggleEditMode(){
         if(this.refs.formElement) {
             this.refs.formElement.toggleEditMode();
         }
-    },
+    }
 
     toggleActionStatus(event, status){
         const {role, acl} = this.props;
         role.setParameter(acl.Action.Name, status, acl.WorkspaceID);
-    },
+    }
 
     render(){
-        const {acl, actions, parameters, pydio} = this.props;
+        const {acl, actions, parameters, pydio, getMessage, getPydioRoleMessage} = this.props;
         const [type, pluginId, name] = acl.Action.Name.split(":");
         let value;
         if(name === 'DEFAULT_START_REPOSITORY'){
@@ -122,9 +113,9 @@ export default React.createClass({
                 attributes:attributes,
                 name:name,
                 value:value,
-                onChange:this.onChangeParameter,
+                onChange:this.onChangeParameter.bind(this),
                 disabled:inherited,
-                onChangeEditMode:this.onInputEditMode,
+                onChangeEditMode:this.onInputEditMode.bind(this),
                 displayContext:'grid'
             });
         }else{
@@ -140,7 +131,7 @@ export default React.createClass({
                         name={this.props.name}
                         onToggle={this.toggleActionStatus.bind(this)}
                         toggled={!!value}
-                        label={this.context.getMessage(value?'2':'3')}
+                        label={getMessage(value?'2':'3')}
                         labelPosition={"right"}
                     />
                 </div>
@@ -153,22 +144,22 @@ export default React.createClass({
             if (this.state.editMode) {
                 actionButtons = <IconButton
                     iconClassName="mdi mdi-content-save"
-                    tooltip={this.context.getMessage('6')}
-                    onClick={this.toggleEditMode}
+                    tooltip={getMessage('6')}
+                    onClick={this.toggleEditMode.bind(this)}
                     {...buttonStyle}
                 />;
             } else {
                 actionButtons = <IconButton
                     iconClassName="mdi mdi-close"
-                    tooltip={this.context.getMessage('4')}
-                    onClick={this.deleteParameter}
+                    tooltip={getMessage('4')}
+                    onClick={this.deleteParameter.bind(this)}
                     {...buttonStyle}
                 />;
                 if (inherited) {
                     actionButtons = <IconButton
                         iconClassName="mdi mdi-content-copy"
-                        tooltip={this.context.getMessage('5')}
-                        onClick={this.overrideParameter}
+                        tooltip={getMessage('5')}
+                        onClick={this.overrideParameter.bind(this)}
                         {...buttonStyle}
                     />;
                 }
@@ -176,8 +167,8 @@ export default React.createClass({
         }else if(!inherited){
             actionButtons = <IconButton
                 iconClassName="mdi mdi-close"
-                tooltip={this.context.getMessage('4')}
-                onClick={this.deleteParameter}
+                tooltip={getMessage('4')}
+                onClick={this.deleteParameter.bind(this)}
                 {...buttonStyle}
             />;
         } else {
@@ -186,11 +177,13 @@ export default React.createClass({
         return (
             <tr className={(inherited?'inherited':'') + (this.state.editMode?' edit-mode':'')} style={{...this.props.style}}>
                 <td style={{width: '40%', fontWeight: 500}}>
-                    {inherited?'['+this.context.getPydioRoleMessage('38')+']':''} {label}
+                    {inherited?'['+getPydioRoleMessage('38')+']':''} {label}
                 </td>
                 <td style={{wordBreak:'break-all'}}>{element}</td>
                 <td style={{width: 50}}>{actionButtons}</td>
             </tr>
         );
     }
-});
+}
+
+export  default withRoleMessages(ParameterEntry)

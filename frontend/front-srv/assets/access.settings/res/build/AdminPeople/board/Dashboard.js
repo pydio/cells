@@ -64,6 +64,12 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _pydioUtilFunc = require('pydio/util/func');
+
+var _pydioUtilFunc2 = _interopRequireDefault(_pydioUtilFunc);
+
+var _editorUtilClassLoader = require("../editor/util/ClassLoader");
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -239,11 +245,11 @@ var Dashboard = _react2['default'].createClass({
     },
 
     createUserAction: function createUserAction() {
-        pydio.UI.openComponentInModal('AdminPeople', 'CreateUserForm', { dataModel: this.props.dataModel, openRoleEditor: this.openRoleEditor.bind(this) });
+        pydio.UI.openComponentInModal('AdminPeople', 'Forms.CreateUserForm', { dataModel: this.props.dataModel, openRoleEditor: this.openRoleEditor.bind(this) });
     },
 
     createGroupAction: function createGroupAction() {
-        pydio.UI.openComponentInModal('AdminPeople', 'CreateRoleOrGroupForm', { type: 'group', openRoleEditor: this.openRoleEditor.bind(this) });
+        pydio.UI.openComponentInModal('AdminPeople', 'Forms.CreateRoleOrGroupForm', { type: 'group', openRoleEditor: this.openRoleEditor.bind(this) });
     },
 
     openUsersImporter: function openUsersImporter() {
@@ -255,29 +261,31 @@ var Dashboard = _react2['default'].createClass({
 
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props2 = this.props;
-        var advancedAcl = _props2.advancedAcl;
         var pydio = _props2.pydio;
+        var rolesEditorClass = _props2.rolesEditorClass;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        var editorData = {
-            COMPONENT: _editorEditor2['default'],
-            PROPS: {
-                ref: "editor",
-                node: node,
-                pydio: pydio,
-                initialEditSection: initialSection,
-                onRequestTabClose: this.closeRoleEditor,
-                advancedAcl: advancedAcl,
-                afterSave: function afterSave() {
-                    _this2.reloadList();
-                }
+        var editorProps = {
+            ref: "editor",
+            node: node,
+            pydio: pydio,
+            initialEditSection: initialSection,
+            onRequestTabClose: this.closeRoleEditor,
+            afterSave: function afterSave() {
+                _this2.reloadList();
             }
         };
-        this.props.openRightPane(editorData);
+
+        (0, _editorUtilClassLoader.loadEditorClass)(rolesEditorClass, _editorEditor2['default']).then(function (component) {
+            _this2.props.openRightPane({
+                COMPONENT: component,
+                PROPS: editorProps
+            });
+        });
     },
 
     closeRoleEditor: function closeRoleEditor() {

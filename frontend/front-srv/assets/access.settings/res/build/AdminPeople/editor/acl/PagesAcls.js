@@ -73,11 +73,7 @@ var PagesAcls = (function (_React$Component) {
                 'div',
                 { className: "material-list" },
                 workspaces.map(function (ws) {
-                    return _react2['default'].createElement(_WorkspaceAcl2['default'], {
-                        workspace: ws,
-                        role: role,
-                        advancedAcl: false
-                    });
+                    return _react2['default'].createElement(_WorkspaceAcl2['default'], { workspace: ws, role: role });
                 })
             );
         }

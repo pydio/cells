@@ -98,7 +98,7 @@ var ParametersPanel = (function (_React$Component) {
             var actions = _state.actions;
             var parameters = _state.parameters;
 
-            pydio.UI.openComponentInModal('AdminPeople', 'ParameterCreate', {
+            pydio.UI.openComponentInModal('AdminPeople', 'Editor.Params.ParameterCreate', {
                 pydio: pydio,
                 actions: actions,
                 parameters: parameters,
