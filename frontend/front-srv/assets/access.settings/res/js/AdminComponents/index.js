@@ -24,6 +24,7 @@ import GroupAdminDashboard from './board/GroupAdminDashboard'
 import TabBoard from './board/TabBoard'
 import Header from './board/Header'
 import SubHeader from './board/SubHeader'
+import AdminStyles from './board/AdminStyles'
 
 import {MessagesConsumerMixin, PydioConsumerMixin} from './util/Mixins'
 import NavigationHelper from './util/NavigationHelper'
@@ -47,6 +48,7 @@ window.AdminComponents = {
     MenuItemListener,
     DNDActionsManager,
     PluginsLoader,
+    AdminStyles,
 
     AdminDashboard,
     SimpleDashboard,

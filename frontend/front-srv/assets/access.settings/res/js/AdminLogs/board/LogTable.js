@@ -190,6 +190,9 @@ class LogTable extends React.Component {
             }},
         ];
 
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+
         return (
             <MaterialTable
                 data={logs}
@@ -208,6 +211,7 @@ class LogTable extends React.Component {
                     }
                     return style;
                 }}
+                masterStyles={tableMaster}
             />
         );
     }

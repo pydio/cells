@@ -17200,6 +17200,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -17257,6 +17259,8 @@ var _editorVersionPolicyPeriods2 = _interopRequireDefault(_editorVersionPolicyPe
 var _EncryptionKeys = require('./EncryptionKeys');
 
 var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -17517,6 +17521,13 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var body = adminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             var _props4 = this.props;
             var currentNode = _props4.currentNode;
             var pydio = _props4.pydio;
@@ -17563,12 +17574,12 @@ var DataSourcesBoard = (function (_React$Component) {
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
             if (accessByName('CreateDatasource')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }));
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
             }
             if (!versioningReadonly && accessByName('CreateVersioning')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
                         _this4.openVersionPolicy();
-                    } }));
+                    } }, adminStyles.props.header.flatButton)));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
@@ -17593,26 +17604,28 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: dataSources,
                                 columns: dsColumns,
                                 onSelectRows: this.openDataSource.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No datasources created yet"
+                                emptyStateString: "No datasources created yet",
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: versioningPolicies,
                                 columns: policiesColumns,
                                 onSelectRows: this.openVersionPolicy.bind(this),
                                 deselectOnClickAway: true,
-                                showCheckboxes: false
+                                showCheckboxes: false,
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
@@ -17637,10 +17650,12 @@ DataSourcesBoard.propTypes = {
     versioningReadonly: _react2['default'].PropTypes.bool
 };
 
+exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
+
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":10,"../editor/VersionPolicyEditor":14,"../editor/VersionPolicyPeriods":15,"../model/DataSource":21,"./EncryptionKeys":4,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":2}],4:[function(require,module,exports){
+},{"../editor/DataSourceEditor":10,"../editor/VersionPolicyEditor":14,"../editor/VersionPolicyPeriods":15,"../model/DataSource":21,"./EncryptionKeys":4,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":2}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17666,6 +17681,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -17944,9 +17961,17 @@ var EncryptionKeys = (function (_React$Component) {
                     } })];
             }
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             return _react2['default'].createElement(
                 'div',
-                { zDepth: 0, style: { margin: 16 } },
+                null,
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -17973,13 +17998,14 @@ var EncryptionKeys = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1 },
+                    _extends({}, blockProps, { style: blockStyle }),
                     _react2['default'].createElement(MaterialTable, {
                         data: keys,
                         columns: columns,
                         onSelectRows: function () {},
                         showCheckboxes: false,
-                        emptyStateString: m('key.emptyState')
+                        emptyStateString: m('key.emptyState'),
+                        masterStyles: tableMaster
                     })
                 )
             );
@@ -18578,6 +18604,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -18606,7 +18633,8 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            masterStyles: tableStyles
         });
     }
 
@@ -18640,6 +18668,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -18660,10 +18690,12 @@ var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
 
+var _materialUiStyles = require('material-ui/styles');
+
 var PydioDataModel = require('pydio/model/data-model');
 var AjxpNode = require('pydio/model/node');
 
-exports['default'] = _react2['default'].createClass({
+var WsDashboard = _react2['default'].createClass({
     displayName: 'WsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
@@ -18786,14 +18818,17 @@ exports['default'] = _react2['default'].createClass({
         var advanced = _props3.advanced;
         var currentNode = _props3.currentNode;
         var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var buttons = [];
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
+        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
             primary: true,
             label: this.context.getMessage('ws.3'),
             onTouchTap: this.showWorkspaceCreator,
             disabled: !accessByName('Create')
-        }));
+        }, adminStyles.props.header.flatButton)));
 
         return _react2['default'].createElement(
             'div',
@@ -18814,7 +18849,7 @@ exports['default'] = _react2['default'].createClass({
                     { className: 'layout-fill' },
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16 } },
+                        _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
                         _react2['default'].createElement(_WorkspaceList2['default'], {
                             ref: 'workspacesList',
                             pydio: pydio,
@@ -18822,7 +18857,8 @@ exports['default'] = _react2['default'].createClass({
                             rootNode: rootNode,
                             currentNode: currentNode,
                             openSelection: this.openWorkspace,
-                            advanced: advanced
+                            advanced: advanced,
+                            tableStyles: adminStyles.body.tableMaster
                         })
                     )
                 )
@@ -18831,9 +18867,11 @@ exports['default'] = _react2['default'].createClass({
     }
 
 });
+
+exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
 module.exports = exports['default'];
 
-},{"../editor/WsEditor":17,"./WorkspaceList":7,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],9:[function(require,module,exports){
+},{"../editor/WsEditor":17,"./WorkspaceList":7,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

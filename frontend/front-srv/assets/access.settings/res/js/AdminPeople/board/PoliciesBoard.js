@@ -176,8 +176,8 @@ let PoliciesBoard = React.createClass({
         const {policies} = this.state;
         const {primary1Color} = muiTheme.palette;
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        //let items = [];
 
         const subheaderStyle = {
             textTransform: 'uppercase',
@@ -205,16 +205,20 @@ let PoliciesBoard = React.createClass({
                         deletePolicy={this.deletePolicy.bind(this)}
                         newPolicyWithRule={this.state.newPolicyId === policy.Uuid ? policy.Name : null}
                     />);
-                items.push(<Divider/>);
+                items.push(<Divider style={{backgroundColor:adminStyles.body.lineColor}}/>);
             });
             items.pop();
             return (
                 <div>
-                    <Subheader style={subheaderStyle}>{title}</Subheader>
-                    <div style={{padding: '0 20px'}}>{legend}</div>
-                    <Paper zDepth={1} style={{margin: 16}}>
+                    <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
+                        <div style={{
+                            ...adminStyles.body.block.header,
+                            borderBottom:'1px solid ' + adminStyles.body.tableMaster.row.borderBottomColor,
+                            height: 48, lineHeight:'48px', fontWeight:500, paddingLeft: 16
+                        }}>{title}</div>
                         <List>{items}</List>
                     </Paper>
+                    <div style={{padding: '0 24px', marginTop: -6, marginBottom: 24, ...adminStyles.body.legend}}>{legend}</div>
                 </div>
             );
         });
@@ -222,6 +226,7 @@ let PoliciesBoard = React.createClass({
         const action = (
             <div>
                 <FlatButton
+                    {...adminStyles.props.header.flatButton}
                     primary={true}
                     onTouchTap={this.openPopover.bind(this)}
                     label={m('policy.new')}

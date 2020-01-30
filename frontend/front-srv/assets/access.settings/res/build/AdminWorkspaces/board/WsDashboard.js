@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -44,10 +46,12 @@ var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
 
+var _materialUiStyles = require('material-ui/styles');
+
 var PydioDataModel = require('pydio/model/data-model');
 var AjxpNode = require('pydio/model/node');
 
-exports['default'] = _react2['default'].createClass({
+var WsDashboard = _react2['default'].createClass({
     displayName: 'WsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
@@ -170,14 +174,17 @@ exports['default'] = _react2['default'].createClass({
         var advanced = _props3.advanced;
         var currentNode = _props3.currentNode;
         var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var buttons = [];
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
+        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
             primary: true,
             label: this.context.getMessage('ws.3'),
             onTouchTap: this.showWorkspaceCreator,
             disabled: !accessByName('Create')
-        }));
+        }, adminStyles.props.header.flatButton)));
 
         return _react2['default'].createElement(
             'div',
@@ -198,7 +205,7 @@ exports['default'] = _react2['default'].createClass({
                     { className: 'layout-fill' },
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16 } },
+                        _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
                         _react2['default'].createElement(_WorkspaceList2['default'], {
                             ref: 'workspacesList',
                             pydio: pydio,
@@ -206,7 +213,8 @@ exports['default'] = _react2['default'].createClass({
                             rootNode: rootNode,
                             currentNode: currentNode,
                             openSelection: this.openWorkspace,
-                            advanced: advanced
+                            advanced: advanced,
+                            tableStyles: adminStyles.body.tableMaster
                         })
                     )
                 )
@@ -215,4 +223,6 @@ exports['default'] = _react2['default'].createClass({
     }
 
 });
+
+exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
 module.exports = exports['default'];

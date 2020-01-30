@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -81,6 +83,8 @@ var _editorVersionPolicyPeriods2 = _interopRequireDefault(_editorVersionPolicyPe
 var _EncryptionKeys = require('./EncryptionKeys');
 
 var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -341,6 +345,13 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var body = adminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             var _props4 = this.props;
             var currentNode = _props4.currentNode;
             var pydio = _props4.pydio;
@@ -387,12 +398,12 @@ var DataSourcesBoard = (function (_React$Component) {
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
             if (accessByName('CreateDatasource')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }));
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
             }
             if (!versioningReadonly && accessByName('CreateVersioning')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
                         _this4.openVersionPolicy();
-                    } }));
+                    } }, adminStyles.props.header.flatButton)));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
@@ -417,26 +428,28 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: dataSources,
                                 columns: dsColumns,
                                 onSelectRows: this.openDataSource.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No datasources created yet"
+                                emptyStateString: "No datasources created yet",
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: versioningPolicies,
                                 columns: policiesColumns,
                                 onSelectRows: this.openVersionPolicy.bind(this),
                                 deselectOnClickAway: true,
-                                showCheckboxes: false
+                                showCheckboxes: false,
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
@@ -460,6 +473,8 @@ DataSourcesBoard.propTypes = {
     filter: _react2['default'].PropTypes.string,
     versioningReadonly: _react2['default'].PropTypes.bool
 };
+
+exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
 
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];

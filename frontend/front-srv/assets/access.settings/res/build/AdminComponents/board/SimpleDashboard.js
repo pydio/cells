@@ -41,6 +41,10 @@ var _lodashShuffle = require('lodash.shuffle');
 
 var _lodashShuffle2 = _interopRequireDefault(_lodashShuffle);
 
+var _Header = require('./Header');
+
+var _Header2 = _interopRequireDefault(_Header);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -124,7 +128,7 @@ var Dashboard = _react2['default'].createClass({
             _materialUi.Card,
             { style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
             _react2['default'].createElement(_materialUi.CardTitle, {
-                title: message('welc.title'),
+                title: null,
                 subtitle: message('welc.subtitle')
             }),
             _react2['default'].createElement(
@@ -233,6 +237,10 @@ var Dashboard = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout" },
+            _react2['default'].createElement(_Header2['default'], {
+                title: message('welc.title'),
+                icon: 'mdi mdi-account-multiple'
+            }),
             _react2['default'].createElement(
                 'div',
                 { className: "layout-fill", style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap', padding: 5 } },

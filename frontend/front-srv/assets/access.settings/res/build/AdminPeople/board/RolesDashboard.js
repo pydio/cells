@@ -23,6 +23,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -43,8 +45,16 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
+
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var RolesDashboard = _react2['default'].createClass({
     displayName: 'RolesDashboard',
@@ -172,14 +182,17 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this4 = this;
 
+        var muiTheme = this.props.muiTheme;
+
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
         var _state = this.state;
         var searchRoleString = _state.searchRoleString;
         var showTechnical = _state.showTechnical;
 
-        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) }), _react2['default'].createElement(
+        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({}, styles.props.header.flatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })), _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-filter-variant" }, styles.props.header.iconButton)),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 desktop: true,
@@ -195,10 +208,15 @@ var RolesDashboard = _react2['default'].createClass({
 
         var centerContent = _react2['default'].createElement(
             'div',
-            { style: { height: 40, padding: '0px 20px', width: 240, display: 'inline-block' } },
-            _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
-                    return _this4.setState({ searchRoleString: v });
-                } })
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
+                        return _this4.setState({ searchRoleString: v });
+                    } })
+            )
         );
         var iconStyle = {
             color: 'rgba(0,0,0,0.3)',
@@ -217,6 +235,14 @@ var RolesDashboard = _react2['default'].createClass({
             } }];
         var data = this.computeTableData(searchRoleString);
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+        var tableMaster = body.tableMaster;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
@@ -233,13 +259,14 @@ var RolesDashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
+                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
                 _react2['default'].createElement(MaterialTable, {
                     data: data,
                     columns: columns,
                     onSelectRows: this.openTableRows.bind(this),
                     deselectOnClickAway: true,
-                    showCheckboxes: false
+                    showCheckboxes: false,
+                    masterStyles: tableMaster
                 })
             )
         );
@@ -247,5 +274,6 @@ var RolesDashboard = _react2['default'].createClass({
 
 });
 
+exports['default'] = RolesDashboard = muiThemeable()(RolesDashboard);
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];

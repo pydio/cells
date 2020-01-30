@@ -166,9 +166,16 @@ var LogBoard = (function (_React$Component) {
                 }));
             }
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 } },
+                _extends({}, blockProps, { style: blockStyle }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -795,6 +802,11 @@ var LogTable = (function (_React$Component) {
                     return msg;
                 } }];
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
                 columns: columns,
@@ -815,7 +827,8 @@ var LogTable = (function (_React$Component) {
                         style.color = '#E53935';
                     }
                     return style;
-                }
+                },
+                masterStyles: tableMaster
             });
         }
     }]);

@@ -130,6 +130,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -158,7 +159,8 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            masterStyles: tableStyles
         });
     }
 

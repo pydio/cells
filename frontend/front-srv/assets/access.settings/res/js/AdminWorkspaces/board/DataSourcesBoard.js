@@ -32,6 +32,7 @@ import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'p
 import uuid from 'uuid4'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
+import {muiThemeable} from 'material-ui/styles'
 
 class DataSourcesBoard extends React.Component {
 
@@ -211,6 +212,15 @@ class DataSourcesBoard extends React.Component {
         dataSources.sort(LangUtils.arraySorter('Name'));
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        const {body} = adminStyles;
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
+
+
+
+
         const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
             {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}},
@@ -250,10 +260,10 @@ class DataSourcesBoard extends React.Component {
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
         if(accessByName('CreateDatasource')){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
         }
         if(!versioningReadonly && accessByName('CreateVersioning')){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
         const policiesColumns = [
             {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}},
@@ -276,7 +286,7 @@ class DataSourcesBoard extends React.Component {
                     />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('board.ds.title')} legend={m('board.ds.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...blockProps} style={{...blockStyle}}>
                             <MaterialTable
                                 data={dataSources}
                                 columns={dsColumns}
@@ -284,17 +294,19 @@ class DataSourcesBoard extends React.Component {
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 emptyStateString={"No datasources created yet"}
+                                masterStyles={tableMaster}
                             />
                         </Paper>
 
                         <AdminComponents.SubHeader title={m('board.versioning.title')} legend={m('board.versioning.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...blockProps} style={{...blockStyle}}>
                             <MaterialTable
                                 data={versioningPolicies}
                                 columns={policiesColumns}
                                 onSelectRows={this.openVersionPolicy.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
+                                masterStyles={tableMaster}
                             />
                         </Paper>
 
@@ -322,5 +334,7 @@ DataSourcesBoard.propTypes = {
     filter:React.PropTypes.string,
     versioningReadonly: React.PropTypes.bool,
 };
+
+DataSourcesBoard = muiThemeable()(DataSourcesBoard);
 
 export {DataSourcesBoard as default}

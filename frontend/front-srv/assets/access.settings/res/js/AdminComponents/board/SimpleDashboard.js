@@ -22,6 +22,7 @@ import {muiThemeable} from 'material-ui/styles'
 import {Card, CardTitle, CardMedia, CardActions, CardText, FlatButton, List, ListItem, Divider, IconButton, FontIcon} from 'material-ui'
 import {MessagesConsumerMixin} from '../util/Mixins'
 import shuffle from 'lodash.shuffle'
+import Header from './Header'
 
 let Dashboard = React.createClass({
 
@@ -103,7 +104,7 @@ let Dashboard = React.createClass({
         const WELCOME_COMMUNITY_CARD = (
             <Card style={{...paperStyle, minWidth:'95%'}}  containerStyle={flexContainerStyle}>
                 <CardTitle
-                    title={message('welc.title')}
+                    title={null}
                     subtitle={message('welc.subtitle')}
                 />
                 <CardText style={flexFill}>
@@ -175,6 +176,10 @@ let Dashboard = React.createClass({
 
         return (
             <div className={"main-layout-nav-to-stack vertical-layout"}>
+                <Header
+                    title={message('welc.title')}
+                    icon="mdi mdi-account-multiple"
+                />
                 <div className={"layout-fill"} style={{display:'flex', alignItems:'top', flexWrap:'wrap', padding: 5}}>
                     {WELCOME_COMMUNITY_CARD}
                     {DISCOVER_ENTERPRISE_CARD}

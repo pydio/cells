@@ -59,6 +59,10 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
+var _AdminStyles = require("./AdminStyles");
+
+var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
 var UserWidget = _Pydio$requireLib.UserWidget;
@@ -143,6 +147,13 @@ var AdminDashboard = _react2['default'].createClass({
             leftDocked: true,
             showAdvanced: showAdvanced
         };
+    },
+
+    toggleAdvanced: function toggleAdvanced() {
+        var showAdvanced = this.state.showAdvanced;
+
+        this.setState({ showAdvanced: !showAdvanced });
+        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
     },
 
     dmChangesToState: function dmChangesToState() {
@@ -382,6 +393,28 @@ var AdminDashboard = _react2['default'].createClass({
         });
 
         var appBarStyle = _extends({}, styles.appBar, { backgroundColor: muiTheme.palette.primary1Color });
+        var appBar = _react2['default'].createElement(
+            _materialUi.Paper,
+            { zDepth: 1, rounded: false, style: appBarStyle },
+            leftIconButton,
+            _react2['default'].createElement(
+                'span',
+                { style: styles.appBarTitle },
+                pydio.MessageHash['settings.topbar.title']
+            ),
+            searchIconButton,
+            toggleAdvancedButton,
+            aboutButton,
+            _react2['default'].createElement(UserWidget, {
+                pydio: pydio,
+                style: styles.userWidget,
+                hideActionBar: true,
+                displayLabel: false,
+                toolbars: ["aUser", "user", "zlogin"],
+                controller: pydio.getController()
+            })
+        );
+        var adminStyles = (0, _AdminStyles2['default'])();
 
         return _react2['default'].createElement(
             'div',
@@ -392,33 +425,13 @@ var AdminDashboard = _react2['default'].createClass({
                 rootNode: dm.getRootNode(),
                 contextNode: dm.getContextNode(),
                 open: leftDocked || openLeftNav,
-                showAdvanced: showAdvanced
+                showAdvanced: showAdvanced,
+                toggleAdvanced: this.toggleAdvanced.bind(this)
             }),
             _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, rounded: false, style: appBarStyle },
-                leftIconButton,
-                _react2['default'].createElement(
-                    'span',
-                    { style: styles.appBarTitle },
-                    pydio.MessageHash['settings.topbar.title']
-                ),
-                searchIconButton,
-                toggleAdvancedButton,
-                aboutButton,
-                _react2['default'].createElement(UserWidget, {
-                    pydio: pydio,
-                    style: styles.userWidget,
-                    hideActionBar: true,
-                    displayLabel: false,
-                    toolbars: ["aUser", "user", "zlogin"],
-                    controller: pydio.getController()
-                })
-            ),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 0, className: 'main-panel', style: _extends({}, styles.mainPanel, { left: leftDocked ? 256 : 0 }) },
+                { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
                 this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
             ),
             _react2['default'].createElement(

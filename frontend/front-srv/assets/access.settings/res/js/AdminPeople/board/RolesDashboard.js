@@ -19,11 +19,13 @@
  */
 import React from 'react'
 import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
+const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 let RolesDashboard = React.createClass({
 
@@ -136,12 +138,14 @@ let RolesDashboard = React.createClass({
 
     render(){
 
+        const {muiTheme} = this.props;
+        const styles = AdminComponents.AdminStyles(muiTheme.palette);
         const {searchRoleString, showTechnical} = this.state;
 
         const buttons = [
-            <FlatButton primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
+            <FlatButton {...styles.props.header.flatButton} primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
             <IconMenu
-                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"}/>}
+                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 desktop={true}
@@ -153,8 +157,11 @@ let RolesDashboard = React.createClass({
         ];
 
         const centerContent = (
-            <div style={{height:40, padding: '0px 20px', width: 240, display: 'inline-block'}}>
-                <TextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+            <div style={{display:'flex'}}>
+                <div style={{flex: 1}}/>
+                <div style={{width:190}}>
+                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+                </div>
             </div>
         );
         const iconStyle = {
@@ -174,6 +181,10 @@ let RolesDashboard = React.createClass({
             }}
         ];
         const data = this.computeTableData(searchRoleString);
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
         return(
 
@@ -187,13 +198,14 @@ let RolesDashboard = React.createClass({
                     loading={this.state.loading}
                 />
                 <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
-                <Paper zDepth={1} style={{margin: 16}} className={"horizontal-layout layout-fill"}>
+                <Paper {...blockProps} style={blockStyle} className={"horizontal-layout layout-fill"}>
                     <MaterialTable
                         data={data}
                         columns={columns}
                         onSelectRows={this.openTableRows.bind(this)}
                         deselectOnClickAway={true}
                         showCheckboxes={false}
+                        masterStyles={tableMaster}
                     />
                 </Paper>
             </div>
@@ -206,4 +218,5 @@ let RolesDashboard = React.createClass({
 
 });
 
+RolesDashboard = muiThemeable()(RolesDashboard)
 export {RolesDashboard as default}

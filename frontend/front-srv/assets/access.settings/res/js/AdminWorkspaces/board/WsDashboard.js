@@ -25,8 +25,9 @@ import WsEditor from '../editor/WsEditor'
 import WorkspaceList from './WorkspaceList'
 const PydioDataModel = require('pydio/model/data-model');
 const AjxpNode = require('pydio/model/node');
+import {muiThemeable} from 'material-ui/styles'
 
-export default React.createClass({
+let WsDashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -124,7 +125,9 @@ export default React.createClass({
     },
 
     render(){
-        const {pydio, dataModel, rootNode, advanced, currentNode, accessByName} = this.props;
+        const {pydio, dataModel, rootNode, advanced, currentNode, accessByName, muiTheme} = this.props;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         let buttons = [];
         buttons.push(
             <FlatButton
@@ -132,6 +135,7 @@ export default React.createClass({
                 label={this.context.getMessage('ws.3')}
                 onTouchTap={this.showWorkspaceCreator}
                 disabled={!accessByName('Create')}
+                {...adminStyles.props.header.flatButton}
             />);
 
         return (
@@ -147,7 +151,7 @@ export default React.createClass({
                     />
                     <AdminComponents.SubHeader legend={this.context.getMessage('ws.dashboard', 'ajxp_admin')}/>
                     <div className="layout-fill">
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
                             <WorkspaceList
                                 ref="workspacesList"
                                 pydio={pydio}
@@ -156,6 +160,7 @@ export default React.createClass({
                                 currentNode={currentNode}
                                 openSelection={this.openWorkspace}
                                 advanced={advanced}
+                                tableStyles={adminStyles.body.tableMaster}
                             />
                         </Paper>
                     </div>
@@ -166,3 +171,5 @@ export default React.createClass({
     }
 
 });
+
+export default muiThemeable()(WsDashboard);

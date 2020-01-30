@@ -270,6 +270,11 @@ var LogTable = (function (_React$Component) {
                     return msg;
                 } }];
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
                 columns: columns,
@@ -290,7 +295,8 @@ var LogTable = (function (_React$Component) {
                         style.color = '#E53935';
                     }
                     return style;
-                }
+                },
+                masterStyles: tableMaster
             });
         }
     }]);

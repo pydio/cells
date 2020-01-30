@@ -106,8 +106,12 @@ class LogBoard extends React.Component {
             )
         }
 
+        const {body} = AdminComponents.AdminStyles();
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
+
         const mainContent = (
-            <Paper zDepth={1} style={{margin: 16}}>
+            <Paper {...blockProps} style={blockStyle}>
                 <Dialog
                     modal={false}
                     open={!!selectedLog}

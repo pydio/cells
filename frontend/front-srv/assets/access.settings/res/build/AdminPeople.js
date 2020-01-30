@@ -599,20 +599,7 @@ var Dashboard = _react2['default'].createClass({
         var rootNode = _props3.rootNode;
         var pydio = _props3.pydio;
 
-        var fontIconStyle = {
-            style: {
-                backgroundColor: muiTheme.palette.accent2Color,
-                borderRadius: '50%',
-                width: 36,
-                height: 36,
-                padding: 8,
-                marginRight: 10
-            },
-            iconStyle: {
-                color: 'white',
-                fontSize: 20
-            }
-        };
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var _state2 = this.state;
         var searchResultData = _state2.searchResultData;
@@ -620,18 +607,33 @@ var Dashboard = _react2['default'].createClass({
         var dataModel = _state2.dataModel;
         var showAnon = _state2.showAnon;
 
-        var importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, fontIconStyle, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), onTouchTap: this.openUsersImporter }));
-        if (!_pydioHttpResourcesManager2['default'].moduleIsAvailable('EnterprisePeople')) {
-            var disabled = { style: _extends({}, fontIconStyle.style), iconStyle: _extends({}, fontIconStyle.iconStyle) };
+        /*
+        const fontIconStyle = {
+            style : {
+                backgroundColor: muiTheme.palette.accent2Color,
+                borderRadius: '50%',
+                width: 36,
+                height: 36,
+                padding: 8,
+                marginRight: 10
+            },
+            iconStyle : {
+                color: 'white',
+                fontSize: 20
+            }
+        };
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
+            let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
-            importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, disabled, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), disabled: true }));
+            importButton = <IconButton {...disabled} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} disabled={true}/>;
         }
+        */
 
         var searchBox = _react2['default'].createElement(_UsersSearchBox2['default'], {
             displayResults: this.displaySearchResults,
             displayResultsState: searchResultData,
             hideResults: this.hideSearchResults,
-            style: { margin: '-18px 20px 0' },
             limit: 50,
             textLabel: this.context.getMessage('user.7'),
             className: "media-small-hide"
@@ -639,28 +641,9 @@ var Dashboard = _react2['default'].createClass({
 
         var headerButtons = [];
         if (accessByName('Create')) {
-            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
         }
 
-        var groupHeaderStyle = {
-            height: 48,
-            lineHeight: '48px',
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '0 20px',
-            fontSize: 12,
-            fontWeight: 500
-        };
-        var groupPanelStyle = {
-            flex: 'none'
-        };
-        if (searchResultData !== false) {
-            groupPanelStyle = {
-                flex: 'none',
-                opacity: 0.6
-            };
-        }
         var profileFilter = '';
         if (currentNode.getMetadata().has('userProfileFilter')) {
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
@@ -687,6 +670,31 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.MenuItem, { value: "toggle-anon", primaryText: this.context.getMessage('user.filter.anon'), secondaryText: showAnon ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         );
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+        var groupHeaderStyle = _extends({
+            height: 48,
+            lineHeight: '48px',
+            fontSize: 12,
+            fontWeight: 500
+        }, body.block.header, {
+            borderBottom: '1px solid ' + body.tableMaster.row.borderBottomColor,
+            padding: '0 20px'
+        });
+        var groupPanelStyle = {
+            width: 226,
+            borderRight: '1px solid' + body.tableMaster.row.borderBottomColor,
+            overflowY: 'auto',
+            flex: 'none'
+        };
+        if (searchResultData !== false) {
+            groupPanelStyle = _extends({}, groupPanelStyle, { opacity: 0.6 });
+        }
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
@@ -698,10 +706,10 @@ var Dashboard = _react2['default'].createClass({
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
+                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
                 _react2['default'].createElement(
                     'div',
-                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout people-tree', style: groupPanelStyle },
+                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout', style: groupPanelStyle },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -738,7 +746,11 @@ var Dashboard = _react2['default'].createClass({
                         searchResultData: searchResultData,
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
-                        toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
+                        toolbarStyle: {
+                            backgroundColor: body.block.header.backgroundColor,
+                            height: 48,
+                            borderBottom: groupHeaderStyle.borderBottom
+                        },
                         multipleActions: [pydio.Controller.getActionByName('delete')],
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
@@ -989,8 +1001,7 @@ var PoliciesBoard = _react2['default'].createClass({
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
-
-        //let items = [];
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var subheaderStyle = {
             textTransform: 'uppercase',
@@ -1016,30 +1027,33 @@ var PoliciesBoard = _react2['default'].createClass({
                     deletePolicy: _this5.deletePolicy.bind(_this5),
                     newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
                 })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
+                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
             });
             items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Subheader,
-                    { style: subheaderStyle },
-                    title
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '0 20px' } },
-                    legend
-                ),
-                _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: { margin: 16 } },
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, adminStyles.body.block.header, {
+                                borderBottom: '1px solid ' + adminStyles.body.tableMaster.row.borderBottomColor,
+                                height: 48, lineHeight: '48px', fontWeight: 500, paddingLeft: 16
+                            }) },
+                        title
+                    ),
                     _react2['default'].createElement(
                         _materialUi.List,
                         null,
                         items
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
+                    legend
                 )
             );
         });
@@ -1047,11 +1061,11 @@ var PoliciesBoard = _react2['default'].createClass({
         var action = _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.FlatButton, {
+            _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
                 onTouchTap: this.openPopover.bind(this),
                 label: m('policy.new')
-            }),
+            })),
             _react2['default'].createElement(
                 _materialUi.Popover,
                 {
@@ -1145,6 +1159,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -1165,8 +1181,16 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
+
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var RolesDashboard = _react2['default'].createClass({
     displayName: 'RolesDashboard',
@@ -1294,14 +1318,17 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this4 = this;
 
+        var muiTheme = this.props.muiTheme;
+
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
         var _state = this.state;
         var searchRoleString = _state.searchRoleString;
         var showTechnical = _state.showTechnical;
 
-        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) }), _react2['default'].createElement(
+        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({}, styles.props.header.flatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })), _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-filter-variant" }, styles.props.header.iconButton)),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 desktop: true,
@@ -1317,10 +1344,15 @@ var RolesDashboard = _react2['default'].createClass({
 
         var centerContent = _react2['default'].createElement(
             'div',
-            { style: { height: 40, padding: '0px 20px', width: 240, display: 'inline-block' } },
-            _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
-                    return _this4.setState({ searchRoleString: v });
-                } })
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
+                        return _this4.setState({ searchRoleString: v });
+                    } })
+            )
         );
         var iconStyle = {
             color: 'rgba(0,0,0,0.3)',
@@ -1339,6 +1371,14 @@ var RolesDashboard = _react2['default'].createClass({
             } }];
         var data = this.computeTableData(searchRoleString);
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+        var tableMaster = body.tableMaster;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
@@ -1355,13 +1395,14 @@ var RolesDashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
+                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
                 _react2['default'].createElement(MaterialTable, {
                     data: data,
                     columns: columns,
                     onSelectRows: this.openTableRows.bind(this),
                     deselectOnClickAway: true,
-                    showCheckboxes: false
+                    showCheckboxes: false,
+                    masterStyles: tableMaster
                 })
             )
         );
@@ -1369,10 +1410,11 @@ var RolesDashboard = _react2['default'].createClass({
 
 });
 
+exports['default'] = RolesDashboard = muiThemeable()(RolesDashboard);
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":8,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],7:[function(require,module,exports){
+},{"../editor/Editor":8,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1410,6 +1452,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -1436,6 +1482,10 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
 /**
  * Search input building a set of query parameters and calling
  * the callbacks to display / hide results
@@ -1452,7 +1502,8 @@ var UsersSearchBox = (function (_React$Component) {
         dm.setRootNode(new _pydioModelNode2['default']());
         this.state = {
             dataModel: dm,
-            displayResult: props.displayResultsState
+            displayResult: props.displayResultsState,
+            crtValue: ''
         };
         this.searchDebounced = (0, _lodashDebounce2['default'])(this.triggerSearch, 350);
     }
@@ -1477,7 +1528,7 @@ var UsersSearchBox = (function (_React$Component) {
         value: function triggerSearch() {
             var _this = this;
 
-            var value = this.refs.query.getValue();
+            var value = this.state.crtValue;
             if (!value) {
                 this.hideResultsState();
                 this.refs.query.blur();
@@ -1523,32 +1574,31 @@ var UsersSearchBox = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var crtValue = this.state.crtValue;
+
             return _react2['default'].createElement(
                 'div',
-                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center', maxWidth: 220 }, this.props.style) },
+                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center' }, this.props.style) },
+                _react2['default'].createElement('div', { style: { flex: 1 } }),
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1 } },
+                    { style: { maxWidth: 190 } },
                     _react2['default'].createElement(
                         'form',
                         { autoComplete: "off" },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                        _react2['default'].createElement(ModernTextField, {
+                            ref: "query",
                             onKeyDown: this.keyDown.bind(this),
-                            floatingLabelText: this.props.textLabel,
+                            hintText: this.props.textLabel,
                             fullWidth: true,
-                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                            value: crtValue,
+                            onChange: function (e, v) {
+                                _this2.setState({ crtValue: v });
+                            }
                         })
                     )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { paddingTop: 22, opacity: 0.3 } },
-                    _react2['default'].createElement(_materialUi.IconButton, {
-                        ref: 'button',
-                        onTouchTap: this.triggerSearch.bind(this),
-                        iconClassName: 'mdi mdi-account-search',
-                        tooltip: this.props.textLabel
-                    })
                 )
             );
         }
@@ -1569,7 +1619,7 @@ UsersSearchBox.PropTypes = {
 exports['default'] = UsersSearchBox;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],8:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],8:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>

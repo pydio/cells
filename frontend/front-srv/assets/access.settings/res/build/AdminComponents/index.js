@@ -46,6 +46,10 @@ var _boardSubHeader = require('./board/SubHeader');
 
 var _boardSubHeader2 = _interopRequireDefault(_boardSubHeader);
 
+var _boardAdminStyles = require('./board/AdminStyles');
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _utilMixins = require('./util/Mixins');
 
 var _utilNavigationHelper = require('./util/NavigationHelper');
@@ -103,6 +107,7 @@ window.AdminComponents = {
     MenuItemListener: _utilMenuItemListener2['default'],
     DNDActionsManager: _utilDNDActionsManager2['default'],
     PluginsLoader: _utilPluginsLoader2['default'],
+    AdminStyles: _boardAdminStyles2['default'],
 
     AdminDashboard: _boardAdminDashboard2['default'],
     SimpleDashboard: _boardSimpleDashboard2['default'],

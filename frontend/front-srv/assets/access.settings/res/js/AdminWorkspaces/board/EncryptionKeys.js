@@ -226,9 +226,13 @@ class EncryptionKeys extends React.Component{
                 <FlatButton label={m('key.create')} primary={true} onTouchTap={()=>{this.createKey()}}/>
             ];
         }
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
         return (
-            <div zDepth={0} style={{margin: 16}}>
+            <div>
                 <Dialog
                     title={dialogTitle}
                     open={showDialog}
@@ -245,13 +249,14 @@ class EncryptionKeys extends React.Component{
                         <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
                     </div>
                 }
-                <Paper zDepth={1}>
+                <Paper {...blockProps} style={blockStyle}>
                     <MaterialTable
                         data={keys}
                         columns={columns}
                         onSelectRows={()=>{}}
                         showCheckboxes={false}
                         emptyStateString={m('key.emptyState')}
+                        masterStyles={tableMaster}
                     />
                 </Paper>
             </div>

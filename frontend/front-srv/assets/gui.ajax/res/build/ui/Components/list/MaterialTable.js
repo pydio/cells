@@ -86,6 +86,8 @@ var MaterialTable = (function (_React$Component) {
         var data = _props2.data;
         var deselectOnClickAway = _props2.deselectOnClickAway;
         var emptyStateString = _props2.emptyStateString;
+        var _props2$masterStyles = _props2.masterStyles;
+        var masterStyles = _props2$masterStyles === undefined ? {} : _props2$masterStyles;
         var emptyStateStyle = _props2.emptyStateStyle;
         var onSelectRows = _props2.onSelectRows;
         var computeRowStyle = _props2.computeRowStyle;
@@ -102,7 +104,7 @@ var MaterialTable = (function (_React$Component) {
                 }, model.style);
                 return _react2['default'].createElement(
                     _materialUi.TableRow,
-                    { className: "media-small-hide" },
+                    { className: "media-small-hide", style: _extends({}, masterStyles.row) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
                         { colSpan: columns.length, style: headerStyle },
@@ -113,7 +115,7 @@ var MaterialTable = (function (_React$Component) {
             if (model.colSpan) {
                 return _react2['default'].createElement(
                     _materialUi.TableRow,
-                    { style: model.rowStyle },
+                    { style: _extends({}, model.rowStyle, masterStyles.row) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
                         { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
@@ -123,7 +125,7 @@ var MaterialTable = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _materialUi.TableRow,
-                { selectable: onSelectRows !== undefined, style: rowStyle },
+                { selectable: onSelectRows !== undefined, style: _extends({}, rowStyle, masterStyles.row) },
                 columns.map(function (column) {
                     var value = model[column.name];
                     if (column.useMoment && value) {
@@ -133,7 +135,10 @@ var MaterialTable = (function (_React$Component) {
                     }
                     return _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { style: column.style || {}, title: value, className: column.hideSmall ? 'media-small-hide' : null },
+                        {
+                            style: column.style || {},
+                            title: value,
+                            className: column.hideSmall ? 'media-small-hide' : null },
                         value
                     );
                 })
@@ -142,7 +147,10 @@ var MaterialTable = (function (_React$Component) {
         var headers = columns.map(function (column) {
             return _react2['default'].createElement(
                 _materialUi.TableHeaderColumn,
-                { style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }), className: column.hideSmall ? 'media-small-hide' : null },
+                {
+                    style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }, masterStyles.head),
+                    className: column.hideSmall ? 'media-small-hide' : null
+                },
                 column.label
             );
         });
@@ -162,7 +170,7 @@ var MaterialTable = (function (_React$Component) {
             // Add fake first line to fix width
             rows.unshift(_react2['default'].createElement(
                 _materialUi.TableRow,
-                { style: { borderBottom: 'none', height: 0 } },
+                { style: _extends({ borderBottom: 'none', height: 0 }, masterStyles.row) },
                 columns.map(function (col) {
                     var s = col.style || {};
                     return _react2['default'].createElement(_materialUi.TableRowColumn, { style: _extends({}, s, { height: 0 }), className: col.hideSmall ? 'media-small-hide' : null });
@@ -180,7 +188,7 @@ var MaterialTable = (function (_React$Component) {
                 { displaySelectAll: showCheckboxes, adjustForCheckbox: showCheckboxes, enableSelectAll: showCheckboxes },
                 _react2['default'].createElement(
                     _materialUi.TableRow,
-                    null,
+                    { style: masterStyles.row },
                     headers
                 )
             ),

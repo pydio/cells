@@ -165,9 +165,16 @@ var LogBoard = (function (_React$Component) {
                 }));
             }
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 } },
+                _extends({}, blockProps, { style: blockStyle }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {

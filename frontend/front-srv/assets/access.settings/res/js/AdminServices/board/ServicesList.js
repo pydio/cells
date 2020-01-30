@@ -245,15 +245,22 @@ export default React.createClass({
                 }
             });
 
+            const {body} = AdminComponents.AdminStyles();
+            const {tableMaster} = body;
+            const blockProps = body.block.props;
+            const blockStyle = body.block.container;
+
+
             return (
                 <div className={this.props.className} style={this.props.style}>
-                    <Paper zDepth={1} style={{margin:16}}>
+                    <Paper {...blockProps} style={blockStyle}>
                         <MaterialTable
                             data={tableData}
                             columns={tableColumns}
                             deselectOnClickAway={true}
                             showCheckboxes={false}
                             emptyStateString={"Loading Services..."}
+                            masterStyles={tableMaster}
                         />
                     </Paper>
                 </div>

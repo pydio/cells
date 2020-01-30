@@ -99,7 +99,7 @@ export default React.createClass({
 
     render(){
 
-        const {pydio, advanced} = this.props;
+        const {pydio, advanced, tableStyles} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
         const s = (id) => pydio.MessageHash['settings.' + id];
 
@@ -128,6 +128,7 @@ export default React.createClass({
                 deselectOnClickAway={true}
                 showCheckboxes={false}
                 emptyStateString={loading ? m('home.6') : m('ws.board.empty')}
+                masterStyles={tableStyles}
             />
         );
 

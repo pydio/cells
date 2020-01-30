@@ -232,8 +232,7 @@ var PoliciesBoard = _react2['default'].createClass({
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
-
-        //let items = [];
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var subheaderStyle = {
             textTransform: 'uppercase',
@@ -259,30 +258,33 @@ var PoliciesBoard = _react2['default'].createClass({
                     deletePolicy: _this5.deletePolicy.bind(_this5),
                     newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
                 })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
+                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
             });
             items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Subheader,
-                    { style: subheaderStyle },
-                    title
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '0 20px' } },
-                    legend
-                ),
-                _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: { margin: 16 } },
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, adminStyles.body.block.header, {
+                                borderBottom: '1px solid ' + adminStyles.body.tableMaster.row.borderBottomColor,
+                                height: 48, lineHeight: '48px', fontWeight: 500, paddingLeft: 16
+                            }) },
+                        title
+                    ),
                     _react2['default'].createElement(
                         _materialUi.List,
                         null,
                         items
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
+                    legend
                 )
             );
         });
@@ -290,11 +292,11 @@ var PoliciesBoard = _react2['default'].createClass({
         var action = _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.FlatButton, {
+            _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
                 onTouchTap: this.openPopover.bind(this),
                 label: m('policy.new')
-            }),
+            })),
             _react2['default'].createElement(
                 _materialUi.Popover,
                 {

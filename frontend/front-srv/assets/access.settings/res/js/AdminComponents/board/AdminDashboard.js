@@ -28,6 +28,7 @@ const {UserWidget} = Pydio.requireLib('workspaces');
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
+import AdminStyles from "./AdminStyles";
 
 const styles = {
     appBar: {
@@ -104,6 +105,12 @@ let AdminDashboard = React.createClass({
             leftDocked: true,
             showAdvanced: showAdvanced,
         };
+    },
+
+    toggleAdvanced(){
+        const {showAdvanced} = this.state;
+        this.setState({showAdvanced: !showAdvanced});
+        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
     },
 
     dmChangesToState(){
@@ -317,6 +324,24 @@ let AdminDashboard = React.createClass({
         );
 
         const appBarStyle = {...styles.appBar, backgroundColor:muiTheme.palette.primary1Color};
+        const appBar = (
+            <Paper zDepth={1} rounded={false} style={appBarStyle}>
+                {leftIconButton}
+                <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
+                {searchIconButton}
+                {toggleAdvancedButton}
+                {aboutButton}
+                <UserWidget
+                    pydio={pydio}
+                    style={styles.userWidget}
+                    hideActionBar={true}
+                    displayLabel={false}
+                    toolbars={["aUser", "user", "zlogin"]}
+                    controller={pydio.getController()}
+                />
+            </Paper>
+        );
+        const adminStyles = AdminStyles();
 
         return (
             <div className="app-canvas">
@@ -327,24 +352,10 @@ let AdminDashboard = React.createClass({
                     contextNode={dm.getContextNode()}
                     open={leftDocked || openLeftNav}
                     showAdvanced={showAdvanced}
+                    toggleAdvanced={this.toggleAdvanced.bind(this)}
                 />
                 <TasksPanel pydio={pydio} mode={"absolute"}/>
-                <Paper zDepth={1} rounded={false} style={appBarStyle}>
-                    {leftIconButton}
-                    <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
-                    {searchIconButton}
-                    {toggleAdvancedButton}
-                    {aboutButton}
-                    <UserWidget
-                        pydio={pydio}
-                        style={styles.userWidget}
-                        hideActionBar={true}
-                        displayLabel={false}
-                        toolbars={["aUser", "user", "zlogin"]}
-                        controller={pydio.getController()}
-                    />
-                </Paper>
-                <Paper zDepth={0} className="main-panel" style={{...styles.mainPanel, left: leftDocked ? 256 : 0}}>
+                <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: leftDocked ? 256 : 0}}>
                     {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
                 </Paper>
                 <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>

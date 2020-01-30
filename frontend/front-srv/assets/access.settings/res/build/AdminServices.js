@@ -626,19 +626,28 @@ exports['default'] = _react2['default'].createClass({
                     }
                 });
 
+                var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+                var body = _AdminComponents$AdminStyles.body;
+                var tableMaster = body.tableMaster;
+
+                var blockProps = body.block.props;
+                var blockStyle = body.block.container;
+
                 return {
                     v: _react2['default'].createElement(
                         'div',
                         { className: _this3.props.className, style: _this3.props.style },
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: blockStyle }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: tableData,
                                 columns: tableColumns,
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "Loading Services..."
+                                emptyStateString: "Loading Services...",
+                                masterStyles: tableMaster
                             })
                         )
                     )

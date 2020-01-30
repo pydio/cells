@@ -46,6 +46,10 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
+var _AdminStyles = require("./AdminStyles");
+
+var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+
 var Header = (function (_Component) {
     _inherits(Header, _Component);
 
@@ -72,20 +76,24 @@ var Header = (function (_Component) {
             var muiTheme = _props.muiTheme;
             var editorMode = _props.editorMode;
 
+            var adminStyles = (0, _AdminStyles2['default'])(muiTheme.palette);
+
             var styles = {
                 base: {
                     padding: '0 16px',
-                    borderBottom: '1px solid #e0e0e0',
-                    backgroundColor: 'transparent'
+                    backgroundColor: '#ffffff',
+                    boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 2px',
+                    zIndex: 10
                 },
                 container: {
                     display: 'flex',
                     width: '100%',
-                    height: 63,
+                    paddingLeft: 12,
+                    height: 64,
                     alignItems: 'center'
                 },
                 title: {
-                    fontSize: 20,
+                    fontSize: 18,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
@@ -161,7 +169,7 @@ var Header = (function (_Component) {
             }
             var reloadButton = undefined;
             if (reloadAction) {
-                reloadButton = React.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-reload", onTouchTap: reloadAction });
+                reloadButton = React.createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-reload", onTouchTap: reloadAction }, adminStyles.props.header.iconButton));
             }
 
             var headTitle = React.createElement(
@@ -200,13 +208,19 @@ var Header = (function (_Component) {
                     headTitle,
                     React.createElement(
                         'div',
-                        { style: { flex: 1 } },
+                        { style: { flex: 1, marginRight: centerContent ? 8 : 0 } },
                         centerContent
                     ),
                     React.createElement(
                         'div',
-                        { style: { display: 'flex', alignItems: 'center' } },
-                        actions,
+                        { style: { display: 'flex', alignItems: 'center', marginTop: -2 } },
+                        actions && actions.map(function (a) {
+                            return React.createElement(
+                                'div',
+                                { style: { margin: '0 8px' } },
+                                a
+                            );
+                        }),
                         !loading && reloadButton,
                         loading && React.createElement(_materialUi.RefreshIndicator, {
                             size: 30,

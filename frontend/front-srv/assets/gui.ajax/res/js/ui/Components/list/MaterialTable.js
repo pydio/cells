@@ -48,7 +48,7 @@ class MaterialTable extends React.Component{
 
     render(){
 
-        const {columns, data, deselectOnClickAway, emptyStateString, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
+        const {columns, data, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
         let {showCheckboxes} = this.props;
 
         let rows = data.map((model) => {
@@ -62,7 +62,7 @@ class MaterialTable extends React.Component{
                     ...model.style
                 };
                 return (
-                    <TableRow className={"media-small-hide"}>
+                    <TableRow className={"media-small-hide"} style={{...masterStyles.row}}>
                         <TableRowColumn colSpan={columns.length} style={headerStyle}>
                             {model.Subheader}
                         </TableRowColumn>
@@ -71,13 +71,13 @@ class MaterialTable extends React.Component{
             }
             if(model.colSpan){
                 return (
-                    <TableRow style={model.rowStyle}>
+                    <TableRow style={{...model.rowStyle,...masterStyles.row}}>
                         <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.element}</TableRowColumn>
                     </TableRow>
                 )
             }
             return (
-                <TableRow selectable={onSelectRows !== undefined} style={rowStyle}>
+                <TableRow selectable={onSelectRows !== undefined} style={{...rowStyle, ...masterStyles.row}}>
                     {columns.map((column) => {
                         let value = model[column.name];
                         if (column.useMoment && value){
@@ -85,13 +85,19 @@ class MaterialTable extends React.Component{
                         } else if (column.renderCell) {
                             value = column.renderCell(model);
                         }
-                        return <TableRowColumn style={column.style||{}} title={value} className={column.hideSmall?'media-small-hide':null}>{value}</TableRowColumn>
+                        return <TableRowColumn
+                            style={column.style||{}}
+                            title={value}
+                            className={column.hideSmall?'media-small-hide':null}>{value}</TableRowColumn>
                     })}
                 </TableRow>
             );
         });
         const headers = columns.map((column) => {
-            return <TableHeaderColumn style={{...column.headerStyle, height: 48, backgroundColor:'#F5F5F5', fontWeight: 500}} className={column.hideSmall?'media-small-hide':null}>{column.label}</TableHeaderColumn>
+            return <TableHeaderColumn
+                style={{...column.headerStyle, height: 48, backgroundColor:'#F5F5F5', fontWeight: 500, ...masterStyles.head}}
+                className={column.hideSmall?'media-small-hide':null}
+            >{column.label}</TableHeaderColumn>
         });
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
@@ -102,7 +108,7 @@ class MaterialTable extends React.Component{
         if((data.length && data[0].Subheader) || (emptyStateString && !rows.length)){
             // Add fake first line to fix width
             rows.unshift(
-                <TableRow style={{borderBottom:'none', height:0}}>{
+                <TableRow style={{borderBottom:'none', height:0, ...masterStyles.row}}>{
                     columns.map(col => {
                         const s = col.style || {};
                         return <TableRowColumn style={{...s, height: 0}} className={col.hideSmall?'media-small-hide':null}/>
@@ -117,7 +123,7 @@ class MaterialTable extends React.Component{
             <Table onRowSelection={this.onRowSelection.bind(this)} multiSelectable={showCheckboxes}>
                 {!hideHeaders &&
                     <TableHeader displaySelectAll={showCheckboxes} adjustForCheckbox={showCheckboxes} enableSelectAll={showCheckboxes}>
-                        <TableRow>
+                        <TableRow style={masterStyles.row}>
                             {headers}
                         </TableRow>
                     </TableHeader>

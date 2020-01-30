@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import React from 'react'
 import {IconButton, TextField} from 'material-ui'
 import debounce from 'lodash.debounce'
@@ -24,6 +25,8 @@ import PydioApi from 'pydio/http/api'
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import LangUtils from 'pydio/util/lang';
+const {ModernTextField} = Pydio.requireLib('hoc');
+
 
 /**
  * Search input building a set of query parameters and calling
@@ -38,6 +41,7 @@ class UsersSearchBox extends React.Component{
         this.state = {
             dataModel: dm,
             displayResult:props.displayResultsState,
+            crtValue: ''
         };
         this.searchDebounced = debounce(this.triggerSearch, 350);
     }
@@ -56,7 +60,7 @@ class UsersSearchBox extends React.Component{
     }
 
     triggerSearch(){
-        const value = this.refs.query.getValue();
+        const value = this.state.crtValue;
         if(!value) {
             this.hideResultsState();
             this.refs.query.blur();
@@ -100,25 +104,22 @@ class UsersSearchBox extends React.Component{
     }
 
     render(){
+        const {crtValue} = this.state;
+
         return (
-            <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', maxWidth:220, ...this.props.style}}>
-                <div style={{flex: 1}}>
+            <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', ...this.props.style}}>
+                <div style={{flex: 1}}/>
+                <div style={{maxWidth: 190}}>
                     <form autoComplete={"off"}>
-                    <TextField ref="query"
-                               onKeyDown={this.keyDown.bind(this)}
-                               floatingLabelText={this.props.textLabel}
-                               fullWidth={true}
-                               floatingLabelStyle={{overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}
+                    <ModernTextField
+                        ref={"query"}
+                        onKeyDown={this.keyDown.bind(this)}
+                        hintText={this.props.textLabel}
+                        fullWidth={true}
+                        value={crtValue}
+                        onChange={(e,v) => {this.setState({crtValue: v})}}
                     />
                     </form>
-                </div>
-                <div style={{paddingTop:22, opacity:0.3}}>
-                    <IconButton
-                        ref="button"
-                        onTouchTap={this.triggerSearch.bind(this)}
-                        iconClassName="mdi mdi-account-search"
-                        tooltip={this.props.textLabel}
-                    />
                 </div>
             </div>
         );

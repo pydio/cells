@@ -22,6 +22,7 @@ import {Component} from 'react'
 import {Paper, FontIcon, IconButton, RefreshIndicator} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
+import AdminStyles from "./AdminStyles";
 
 class Header extends Component{
 
@@ -30,21 +31,24 @@ class Header extends Component{
         const {reloadAction, loading, backButtonAction, scrolling,
             title, centerContent, actions, tabs, tabValue, onTabChange, muiTheme, editorMode} = this.props;
 
+        const adminStyles = AdminStyles(muiTheme.palette);
 
         let styles = {
             base: {
                 padding: '0 16px',
-                borderBottom: '1px solid #e0e0e0',
-                backgroundColor: 'transparent',
+                backgroundColor: '#ffffff',
+                boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 2px',
+                zIndex: 10
             },
             container: {
                 display:'flex',
                 width: '100%',
-                height: 63,
+                paddingLeft: 12,
+                height: 64,
                 alignItems: 'center'
             },
             title: {
-                fontSize: 20,
+                fontSize: 18,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
@@ -130,7 +134,7 @@ class Header extends Component{
         }
         let reloadButton;
         if(reloadAction){
-            reloadButton = <IconButton iconClassName={"mdi mdi-reload"} onTouchTap={reloadAction}/>;
+            reloadButton = <IconButton iconClassName={"mdi mdi-reload"} onTouchTap={reloadAction} {...adminStyles.props.header.iconButton} />;
         }
 
         let headTitle = <h3 style={styles.title}>{title}</h3>;
@@ -149,9 +153,9 @@ class Header extends Component{
                 <div style={styles.container}>
                     {icon}
                     {headTitle}
-                    <div style={{flex:1}}>{centerContent}</div>
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        {actions}
+                    <div style={{flex:1, marginRight:centerContent?8:0}}>{centerContent}</div>
+                    <div style={{display:'flex', alignItems:'center', marginTop: -2}}>
+                        {actions && actions.map(a => <div style={{margin:'0 8px'}}>{a}</div>)}
                         {!loading && reloadButton}
                         {loading &&
                             <RefreshIndicator
