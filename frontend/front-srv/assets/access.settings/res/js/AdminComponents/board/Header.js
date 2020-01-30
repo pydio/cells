@@ -148,6 +148,13 @@ class Header extends Component{
                 return <h3 style={st} onClick={()=>onTabChange(tab.Value)}>{icon}{tab.Label}</h3>
             })}</div>
         }
+        let actionButtons = actions;
+        if(!actionButtons){
+            actionButtons = []
+        } else if(!actionButtons.map){
+            actionButtons = [actionButtons];
+        }
+
         return (
             <Paper style={scrolling?styles.scrolling:styles.base} zDepth={scrolling?1:0}>
                 <div style={styles.container}>
@@ -155,7 +162,7 @@ class Header extends Component{
                     {headTitle}
                     <div style={{flex:1, marginRight:centerContent?8:0}}>{centerContent}</div>
                     <div style={{display:'flex', alignItems:'center', marginTop: -2}}>
-                        {actions && actions.map(a => <div style={{margin:'0 8px'}}>{a}</div>)}
+                        {actionButtons.map(a => <div style={{margin:'0 8px'}}>{a}</div>)}
                         {!loading && reloadButton}
                         {loading &&
                             <RefreshIndicator

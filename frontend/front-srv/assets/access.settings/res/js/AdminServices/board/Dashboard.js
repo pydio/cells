@@ -83,6 +83,7 @@ export default React.createClass({
                 </DropDownMenu>
             </div>
         );
+
         return (
             <div className="main-layout-nav-to-stack workspaces-board">
                 <div className="vertical-layout" style={{width:'100%'}}>
@@ -90,7 +91,7 @@ export default React.createClass({
                         title={this.context.getMessage('172', 'settings')}
                         icon="mdi mdi-access-point-network"
                         legend={this.context.getMessage('173', 'settings')}
-                        actions={buttonContainer}
+                        actions={[buttonContainer]}
                         reloadAction={this.reloadList.bind(this)}
                     />
                     <ServicesList

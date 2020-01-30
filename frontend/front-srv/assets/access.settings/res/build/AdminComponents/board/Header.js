@@ -198,6 +198,13 @@ var Header = (function (_Component) {
                     })
                 );
             }
+            var actionButtons = actions;
+            if (!actionButtons) {
+                actionButtons = [];
+            } else if (!actionButtons.map) {
+                actionButtons = [actionButtons];
+            }
+
             return React.createElement(
                 _materialUi.Paper,
                 { style: scrolling ? styles.scrolling : styles.base, zDepth: scrolling ? 1 : 0 },
@@ -214,7 +221,7 @@ var Header = (function (_Component) {
                     React.createElement(
                         'div',
                         { style: { display: 'flex', alignItems: 'center', marginTop: -2 } },
-                        actions && actions.map(function (a) {
+                        actionButtons.map(function (a) {
                             return React.createElement(
                                 'div',
                                 { style: { margin: '0 8px' } },

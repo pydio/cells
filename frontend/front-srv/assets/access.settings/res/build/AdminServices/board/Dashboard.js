@@ -118,6 +118,7 @@ exports['default'] = _react2['default'].createClass({
                 _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
             )
         );
+
         return _react2['default'].createElement(
             'div',
             { className: 'main-layout-nav-to-stack workspaces-board' },
@@ -128,7 +129,7 @@ exports['default'] = _react2['default'].createClass({
                     title: this.context.getMessage('172', 'settings'),
                     icon: 'mdi mdi-access-point-network',
                     legend: this.context.getMessage('173', 'settings'),
-                    actions: buttonContainer,
+                    actions: [buttonContainer],
                     reloadAction: this.reloadList.bind(this)
                 }),
                 _react2['default'].createElement(_ServicesList2['default'], {

@@ -45,6 +45,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _editorUtilClassLoader = require("../editor/util/ClassLoader");
+
 var _require = require('material-ui/styles');
 
 var muiThemeable = _require.muiThemeable;
@@ -96,28 +98,30 @@ var RolesDashboard = _react2['default'].createClass({
     },
 
     openRoleEditor: function openRoleEditor(idmRole) {
+        var _this2 = this;
+
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props = this.props;
-        var advancedAcl = _props.advancedAcl;
         var pydio = _props.pydio;
+        var rolesEditorClass = _props.rolesEditorClass;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        var editorData = {
-            COMPONENT: _editorEditor2['default'],
-            PROPS: {
-                ref: "editor",
-                idmRole: idmRole,
-                pydio: pydio,
-                initialEditSection: initialSection,
-                onRequestTabClose: this.closeRoleEditor,
-                advancedAcl: advancedAcl
-            }
-        };
-        this.props.openRightPane(editorData);
+        (0, _editorUtilClassLoader.loadEditorClass)(rolesEditorClass, _editorEditor2['default']).then(function (component) {
+            _this2.props.openRightPane({
+                COMPONENT: component,
+                PROPS: {
+                    ref: "editor",
+                    idmRole: idmRole,
+                    pydio: pydio,
+                    initialEditSection: initialSection,
+                    onRequestTabClose: _this2.closeRoleEditor
+                }
+            });
+        });
         return true;
     },
 
@@ -132,7 +136,7 @@ var RolesDashboard = _react2['default'].createClass({
     },
 
     deleteAction: function deleteAction(roleId) {
-        var _this2 = this;
+        var _this3 = this;
 
         var pydio = this.props.pydio;
 
@@ -140,21 +144,21 @@ var RolesDashboard = _react2['default'].createClass({
             message: pydio.MessageHash['settings.126'],
             validCallback: function validCallback() {
                 _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(roleId).then(function () {
-                    _this2.load();
+                    _this3.load();
                 });
             }
         });
     },
 
     createRoleAction: function createRoleAction() {
-        var _this3 = this;
+        var _this4 = this;
 
-        pydio.UI.openComponentInModal('AdminPeople', 'CreateRoleOrGroupForm', {
+        pydio.UI.openComponentInModal('AdminPeople', 'Forms.CreateRoleOrGroupForm', {
             type: 'role',
             roleNode: this.state.currentNode,
             openRoleEditor: this.openRoleEditor.bind(this),
             reload: function reload() {
-                _this3.load();
+                _this4.load();
             }
         });
     },
@@ -180,7 +184,7 @@ var RolesDashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this5 = this;
 
         var muiTheme = this.props.muiTheme;
 
@@ -197,13 +201,13 @@ var RolesDashboard = _react2['default'].createClass({
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 desktop: true,
                 onChange: function () {
-                    _this4.setState({ showTechnical: !showTechnical }, function () {
-                        _this4.load();
+                    _this5.setState({ showTechnical: !showTechnical }, function () {
+                        _this5.load();
                     });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: showTechnical ? null : _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) }),
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null }),
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         )];
 
         var centerContent = _react2['default'].createElement(
@@ -214,7 +218,7 @@ var RolesDashboard = _react2['default'].createClass({
                 'div',
                 { style: { width: 190 } },
                 _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
-                        return _this4.setState({ searchRoleString: v });
+                        return _this5.setState({ searchRoleString: v });
                     } })
             )
         );
@@ -225,7 +229,7 @@ var RolesDashboard = _react2['default'].createClass({
         var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 if (row.role.PoliciesContextEditable) {
                     return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                            _this4.deleteAction(row.roleId);
+                            _this5.deleteAction(row.roleId);
                         }, onClick: function (e) {
                             e.stopPropagation();
                         }, iconStyle: iconStyle });
@@ -252,7 +256,7 @@ var RolesDashboard = _react2['default'].createClass({
                 actions: buttons,
                 centerContent: centerContent,
                 reloadAction: function () {
-                    _this4.load();
+                    _this5.load();
                 },
                 loading: this.state.loading
             }),
