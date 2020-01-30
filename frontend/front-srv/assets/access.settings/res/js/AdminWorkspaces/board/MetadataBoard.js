@@ -1,6 +1,7 @@
 import React from 'react'
 import Metadata from '../model/Metadata'
 import {FlatButton, Paper, IconButton} from 'material-ui'
+const {muiThemeable} = require('material-ui/styles');
 import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import MetaNamespace from '../editor/MetaNamespace'
@@ -70,6 +71,9 @@ class MetadataBoard extends React.Component{
     }
 
     render(){
+        const {muiTheme} = this.props;
+        const adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
+
         let {namespaces, loading, dialogOpen, selectedNamespace, create, m} = this.state;
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
@@ -115,7 +119,7 @@ class MetadataBoard extends React.Component{
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
         if(accessByName('Create')){
-            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}}/>);
+            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
         }
 
         return (
@@ -141,7 +145,7 @@ class MetadataBoard extends React.Component{
                     />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('namespaces')} legend={m('namespaces.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...adminStyle.body.block.props}>
                             <MaterialTable
                                 data={namespaces}
                                 columns={columns}
@@ -149,6 +153,7 @@ class MetadataBoard extends React.Component{
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 emptyStateString={m('empty')}
+                                masterStyles={adminStyle.body.tableMaster}
                             />
                         </Paper>
                     </div>
@@ -161,5 +166,6 @@ class MetadataBoard extends React.Component{
 
 }
 
+MetadataBoard = muiThemeable()(MetadataBoard);
 
 export {MetadataBoard as default}

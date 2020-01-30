@@ -211,6 +211,7 @@ var EncryptionKeys = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var accessByName = _props.accessByName;
+            var adminStyles = _props.adminStyles;
 
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
@@ -330,13 +331,17 @@ var EncryptionKeys = (function (_React$Component) {
                 ),
                 accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
-                    { style: { textAlign: 'right', paddingBottom: 16 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
+                    { style: { textAlign: 'right', paddingRight: 24 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
-                        }, style: { marginLeft: 16 } }),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.create'), onTouchTap: function () {
-                            _this6.setState({ showCreateKey: true, showDialog: true });
-                        }, style: { marginLeft: 16 } })
+                        } }, adminStyles.props.header.flatButton)),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { marginLeft: 8 } },
+                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onTouchTap: function () {
+                                _this6.setState({ showCreateKey: true, showDialog: true });
+                            } }, adminStyles.props.header.flatButton))
+                    )
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,

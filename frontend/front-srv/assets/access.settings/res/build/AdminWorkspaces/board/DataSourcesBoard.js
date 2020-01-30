@@ -453,7 +453,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
-                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName })
+                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName, adminStyles: adminStyles })
                     )
                 )
             );

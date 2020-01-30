@@ -143,7 +143,7 @@ class EncryptionKeys extends React.Component{
     render(){
 
         const {keys, showDialog, showImportKey, showExportKey, exportedKey, showCreateKey, m} = this.state;
-        const {pydio, accessByName} = this.props;
+        const {pydio, accessByName, adminStyles} = this.props;
 
         const columns = [
             {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
@@ -244,9 +244,9 @@ class EncryptionKeys extends React.Component{
                     {dialogContent}
                 </Dialog>
                 {accessByName('CreateEncryption') &&
-                    <div style={{textAlign:'right', paddingBottom: 16}}>
-                        <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
-                        <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
+                    <div style={{textAlign:'right', paddingRight: 24}}>
+                        <FlatButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
+                        <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
                     </div>
                 }
                 <Paper {...blockProps} style={blockStyle}>

@@ -311,7 +311,7 @@ class DataSourcesBoard extends React.Component {
                         </Paper>
 
                         <AdminComponents.SubHeader  title={m('board.enc.title')} legend={m('board.enc.legend')}/>
-                        <EncryptionKeys pydio={pydio} ref={"encKeys"} accessByName={accessByName}/>
+                        <EncryptionKeys pydio={pydio} ref={"encKeys"} accessByName={accessByName} adminStyles={adminStyles}/>
 
                     </div>
 

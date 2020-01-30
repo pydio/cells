@@ -23,6 +23,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydio = require('pydio');
@@ -47,6 +49,10 @@ var _ServicesList2 = _interopRequireDefault(_ServicesList);
 
 var _materialUi = require('material-ui');
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 exports['default'] = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -100,22 +106,34 @@ exports['default'] = _react2['default'].createClass({
 
         var buttonContainer = _react2['default'].createElement(
             'div',
-            { style: { display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%' } },
-            _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
+            { style: { display: 'flex', alignItems: 'center', width: '100%' } },
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 150, marginRight: 8 } },
+                _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: _extends({ width: 150 }, ModernStyles.toggleField.style) })
+            ),
             peers.length && _react2['default'].createElement(
-                _materialUi.DropDownMenu,
-                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
-                peers.map(function (peer) {
-                    return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
-                })
+                'div',
+                { style: { width: 150, height: 14, marginRight: 8 } },
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    { fullWidth: true, className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
+                    peers.map(function (peer) {
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
+                    })
+                )
             ),
             _react2['default'].createElement(
-                _materialUi.DropDownMenu,
-                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
+                'div',
+                { style: { width: 150, height: 14 } },
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    { fullWidth: true, className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
+                )
             )
         );
 

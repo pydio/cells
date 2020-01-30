@@ -161,7 +161,13 @@ exports['default'] = function () {
                     color: '#607D8B'
                 },
                 props: {
-                    zDepth: 0
+                    zDepth: 0,
+                    style: {
+                        border: '1px solid rgba(30, 58, 74, 0.14)',
+                        borderRadius: 6,
+                        margin: 16,
+                        overflow: 'hidden'
+                    }
                 }
             },
             legend: {

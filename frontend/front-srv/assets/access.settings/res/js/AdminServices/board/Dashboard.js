@@ -23,6 +23,7 @@ import AjxpNode from 'pydio/model/node'
 import React from 'react'
 import ServicesList from './ServicesList'
 import {Toggle, DropDownMenu, MenuItem, IconButton, Paper} from 'material-ui'
+const {ModernStyles, ModernSelectField} = Pydio.requireLib('hoc');
 
 export default React.createClass({
 
@@ -68,19 +69,25 @@ export default React.createClass({
         const m = id => pydio.MessageHash['ajxp_admin.services.' + id] || id;
 
         const buttonContainer = (
-            <div style={{display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%'}}>
-                <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
+            <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+                <div style={{width: 150, marginRight: 8}}>
+                    <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150, ...ModernStyles.toggleField.style}}/>
+                </div>
                 {peers.length &&
-                    <DropDownMenu className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
-                        <MenuItem value={''} primaryText={m('peerfilter.title')} />
-                        {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
-                    </DropDownMenu>
+                    <div style={{width: 150, height:14, marginRight: 8}}>
+                        <ModernSelectField fullWidth={true} className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
+                            <MenuItem value={''} primaryText={m('peerfilter.title')} />
+                            {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
+                        </ModernSelectField>
+                    </div>
                 }
-                <DropDownMenu className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
-                    <MenuItem value={''} primaryText={m('filter.nofilter')} />
-                    <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
-                    <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
-                </DropDownMenu>
+                <div style={{width: 150, height:14}}>
+                    <ModernSelectField fullWidth={true} className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
+                        <MenuItem value={''} primaryText={m('filter.nofilter')} />
+                        <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
+                        <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
+                    </ModernSelectField>
+                </div>
             </div>
         );
 
