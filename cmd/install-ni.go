@@ -38,7 +38,7 @@ import (
 
 func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
 
-	if niYmlFile != "" || niJsonFile != "" {
+	if niYamlFile != "" || niJsonFile != "" {
 		return installFromConf()
 	}
 
@@ -167,15 +167,15 @@ func unmarshallConf() (*install.InstallConfig, error) {
 	var confFromFile *install.InstallConfig
 	var path string
 
-	if niYmlFile != "" {
-		path = niYmlFile
-		file, err := ioutil.ReadFile(niYmlFile)
+	if niYamlFile != "" {
+		path = niYamlFile
+		file, err := ioutil.ReadFile(niYamlFile)
 		if err != nil {
-			return nil, fmt.Errorf("could not read YAML file at %s: %s", niYmlFile, err.Error())
+			return nil, fmt.Errorf("could not read YAML file at %s: %s", niYamlFile, err.Error())
 		}
 		err = yaml.Unmarshal(file, &confFromFile)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYmlFile, err.Error())
+			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYamlFile, err.Error())
 		}
 
 	}

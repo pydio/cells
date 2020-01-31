@@ -75,7 +75,7 @@ var (
 	niLeEmailContact   string
 	niLeAcceptEula     bool
 	niLeUseStagingCA   bool
-	niYmlFile          string
+	niYamlFile         string
 	niJsonFile         string
 	niExitAfterInstall bool
 )
@@ -152,7 +152,7 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		if niYmlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
+		if niYamlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
@@ -392,7 +392,7 @@ func init() {
 	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
 	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "Accept Let's Encrypt EULA")
 	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
-	flags.StringVar(&niYmlFile, "yaml", "", "Points toward a configuration in YAML format")
+	flags.StringVar(&niYamlFile, "yaml", "", "Points toward a configuration in YAML format")
 	flags.StringVar(&niJsonFile, "json", "", "Points toward a configuration in JSON format")
 	flags.BoolVar(&niExitAfterInstall, "exit_after_install", false, "Simply exits main process after the installation is done")
 
