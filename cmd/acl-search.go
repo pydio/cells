@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
@@ -59,6 +60,11 @@ Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id o
 			NodeIDs:      nodeIDs,
 		})
 
+		// Exit if query is empty
+		if len(query.Value) == 0 {
+			return
+		}
+
 		stream, err := client.SearchACL(context.Background(), &idm.SearchACLRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{query},
@@ -71,15 +77,20 @@ Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id o
 
 		defer stream.Close()
 
-		for {
-			response, err := stream.Recv()
+		table := tablewriter.NewWriter(cmd.OutOrStdout())
+		table.SetRowLine(true)
+		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 
-			if err != nil {
+		for {
+			response, e := stream.Recv()
+
+			if e != nil {
 				break
 			}
 
-			log.Println(response)
+			table.Append([]string{response.ACL.ID, response.ACL.Action.String(), response.ACL.NodeID, response.ACL.RoleID, response.ACL.WorkspaceID})
 		}
+		table.Render()
 	},
 }
 

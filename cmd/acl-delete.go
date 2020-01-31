@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -59,14 +59,20 @@ Flags allow you to query the grpc service for deleting the resulting ACLs
 			NodeIDs:      nodeIDs,
 		})
 
+		if len(query.Value) == 0 {
+			return
+		}
+
 		if response, err := client.DeleteACL(context.Background(), &idm.DeleteACLRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{query},
 			},
 		}); err != nil {
-			log.Println(err)
+			fmt.Println(err)
+			return
 		} else {
-			log.Println(response)
+			fmt.Printf("Successfully deleted ACL - [%v]\n", response.RowsDeleted)
+			return
 		}
 	},
 }
