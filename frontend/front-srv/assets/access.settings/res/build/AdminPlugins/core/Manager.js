@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28,6 +27,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _PluginsList = require('./PluginsList');
 
 var _PluginsList2 = _interopRequireDefault(_PluginsList);
@@ -37,6 +40,10 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var PluginsManager = _react2['default'].createClass({
     displayName: 'PluginsManager',
@@ -56,6 +63,8 @@ var PluginsManager = _react2['default'].createClass({
 
         var filter = this.state.filter;
 
+        var adminStyles = AdminComponents.AdminStyles();
+
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%' }, className: 'vertical-layout' },
@@ -63,13 +72,13 @@ var PluginsManager = _react2['default'].createClass({
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
                 reloadAction: this.reload,
-                actions: [_react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-filter", style: { fontSize: 16, marginRight: 10, color: 'rgba(0,0,0,0.2)' } }), _react2['default'].createElement(_materialUi.TextField, { style: { width: 196 }, placeholder: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
+                actions: [_react2['default'].createElement(ModernTextField, { style: { width: 196 }, hintText: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
                         _this.setState({ filter: v });
                     } })]
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: 'vertical-layout layout-fill' },
+                _extends({}, adminStyles.body.block.props, { className: 'vertical-layout layout-fill' }),
                 _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list', filterString: filter }))
             )
         );

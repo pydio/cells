@@ -269,10 +269,7 @@ var PoliciesBoard = _react2['default'].createClass({
                     _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({}, adminStyles.body.block.header, {
-                                borderBottom: '1px solid ' + adminStyles.body.tableMaster.row.borderBottomColor,
-                                height: 48, lineHeight: '48px', fontWeight: 500, paddingLeft: 16
-                            }) },
+                        { style: adminStyles.body.block.headerFull },
                         title
                     ),
                     _react2['default'].createElement(

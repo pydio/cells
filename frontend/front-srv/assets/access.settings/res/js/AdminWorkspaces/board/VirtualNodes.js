@@ -25,6 +25,7 @@ import DataSource from '../model/DataSource'
 import NodeCard from '../virtual/NodeCard'
 import {Paper, Divider, IconButton, FlatButton, RaisedButton, Popover} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 class VirtualNodes extends React.Component{
 
@@ -75,17 +76,19 @@ class VirtualNodes extends React.Component{
     };
 
     render(){
-        const {readonly, pydio, accessByName} = this.props;
+        const {readonly, pydio, muiTheme, accessByName} = this.props;
         const {nodes, dataSources, nodesLoaded, dataSourcesLoaded} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         let vNodes = [];
         nodes.map((node) => {
-            vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly || !accessByName('Create')}/>);
+            vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly || !accessByName('Create')} adminStyles={adminStyles}/>);
         });
 
         let headerActions = [];
         if(!readonly && accessByName('Create')){
-            headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)}/>);
+            headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)} {...adminStyles.props.header.flatButton}/>);
         }
 
         return (
@@ -135,5 +138,6 @@ class VirtualNodes extends React.Component{
 
 }
 
+VirtualNodes = muiThemeable()(VirtualNodes);
 
 export {VirtualNodes as default}

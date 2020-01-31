@@ -20,6 +20,7 @@
 
 import React from 'react'
 import {RaisedButton, FlatButton, IconButton, FontIcon} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
 import XMLUtils from 'pydio/util/xml'
 import LangUtils from 'pydio/util/lang'
@@ -29,7 +30,7 @@ import LangUtils from 'pydio/util/lang'
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-const PluginEditor = React.createClass({
+let PluginEditor = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -108,8 +109,13 @@ const PluginEditor = React.createClass({
     computeButtons(){
         const {dirty} = this.state;
         const actions = [];
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        let props = adminStyles.props.header.flatButton;
+        if(!dirty){
+            props = adminStyles.props.header.flatButtonDisabled;
+        }
+        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert} {...props}/>);
+        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save} {...props}/>);
         return actions;
     },
 
@@ -254,6 +260,12 @@ const PluginEditor = React.createClass({
         if(mainPaneScrolled){
             scrollingClassName = ' main-pane-scrolled';
         }
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        let bProps = adminStyles.props.header.flatButton;
+        if(!dirty){
+            bProps = adminStyles.props.header.flatButtonDisabled;
+        }
+
         let actions = [];
         if(accessByName('Create')){
             if (closeEditor) {
@@ -267,9 +279,9 @@ const PluginEditor = React.createClass({
                                          tooltip={this.context.getMessage('86', '')} onTouchTap={closeEditor}/>);
             } else {
                 actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')}
-                                         onTouchTap={this.revert}/>);
+                                         onTouchTap={this.revert} {...bProps}/>);
                 actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')}
-                                         onTouchTap={this.save}/>);
+                                         onTouchTap={this.save} {...bProps}/>);
             }
         } else if(closeEditor){
             actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color: 'white'}}
@@ -305,11 +317,14 @@ const PluginEditor = React.createClass({
                     helperData={this.state?this.state.helperData:null}
                     close={this.closeHelper}
                 />
+                {adminStyles.formCss()}
             </div>
         );
 
 
     }
 });
+
+PluginEditor = muiThemeable()(PluginEditor)
 
 export {PluginEditor as default}

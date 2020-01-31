@@ -32,17 +32,11 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _pydio = require('pydio');
 
@@ -174,6 +168,7 @@ var PluginEditor = _react2['default'].createClass({
         var rootNode = _props.rootNode;
         var tabs = _props.tabs;
         var accessByName = _props.accessByName;
+        var muiTheme = _props.muiTheme;
         var _state = this.state;
         var documentation = _state.documentation;
         var pluginId = _state.pluginId;
@@ -184,6 +179,8 @@ var PluginEditor = _react2['default'].createClass({
         var values = _state.values;
         var helperData = _state.helperData;
 
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         var addPanes = { top: [], bottom: [] };
         if (additionalPanes) {
             addPanes.top = additionalPanes.top.slice();
@@ -192,7 +189,7 @@ var PluginEditor = _react2['default'].createClass({
         var serviceName = this.props.serviceName;
 
         if (serviceName === 'pydio.grpc.mailer') {
-            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio }));
+            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio, adminStyles: adminStyles }));
         }
 
         var closeButton = undefined;
@@ -225,8 +222,12 @@ var PluginEditor = _react2['default'].createClass({
         }
         var actions = [];
         if (accessByName('Create')) {
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+            var props = adminStyles.props.header.flatButton;
+            if (!dirty) {
+                props = adminStyles.props.header.flatButtonDisabled;
+            }
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
         }
         actions.push(closeButton);
 
@@ -253,10 +254,13 @@ var PluginEditor = _react2['default'].createClass({
             _react2['default'].createElement(PydioForm.PydioHelper, {
                 helperData: helperData,
                 close: this.closeHelper
-            })
+            }),
+            adminStyles.formCss()
         );
     }
 });
+
+exports['default'] = PluginEditor = (0, _materialUiStyles.muiThemeable)()(PluginEditor);
 
 exports['default'] = PluginEditor;
 module.exports = exports['default'];

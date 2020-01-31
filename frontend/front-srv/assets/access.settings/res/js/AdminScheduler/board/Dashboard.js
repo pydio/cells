@@ -18,9 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import React from 'react'
 import {IconMenu, Divider, IconButton, MenuItem, FlatButton, Paper, Dialog} from 'material-ui'
-import Pydio from 'pydio'
+import {muiThemeable} from 'material-ui/styles'
 const {JobsStore, moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -31,7 +32,7 @@ import {Events} from './builder/Triggers'
 import {JobsJob} from 'pydio/http/rest-api';
 import uuid from 'uuid4'
 
-const Dashboard = React.createClass({
+let Dashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -205,8 +206,9 @@ const Dashboard = React.createClass({
 
     render(){
 
-        const {pydio, jobsEditable} = this.props;
+        const {pydio, jobsEditable, muiTheme} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         const keys = [
             {
@@ -261,6 +263,7 @@ const Dashboard = React.createClass({
                         job={found[0]}
                         jobsEditable={jobsEditable}
                         onSave={()=>{this.load(true)}}
+                        adminStyles={adminStyles}
                         onRequestClose={(refresh)=>{
                             this.setState({selectJob: null});
                             if(refresh){
@@ -278,6 +281,7 @@ const Dashboard = React.createClass({
                     jobsEditable={jobsEditable}
                     onSave={()=>{this.load(true)}}
                     onRequestClose={()=>this.setState({createJob: null})}
+                    adminStyles={adminStyles}
                 />
             );
         }
@@ -289,7 +293,7 @@ const Dashboard = React.createClass({
         if (jobsEditable) {
             actions.push(<FlatButton label={"+ Job"} onTouchTap={() => {
                 this.setState({promptJob: true});
-            }}/>)
+            }} {...adminStyles.props.header.flatButton}/>)
         }
 
         return (
@@ -327,26 +331,28 @@ const Dashboard = React.createClass({
                         title={m('system.title')}
                         legend={m('system.legend')}
                     />
-                    <Paper style={{margin: 20}}>
+                    <Paper {...adminStyles.body.block.props}>
                         <MaterialTable
                             data={system}
                             columns={keys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
                             emptyStateString={loading ? this.context.getMessage('466', '') : m('system.empty')}
+                            masterStyles={adminStyles.body.tableMaster}
                         />
                     </Paper>
                     <AdminComponents.SubHeader
                         title={m('users.title')}
                         legend={m('users.legend')}
                     />
-                    <Paper style={{margin: 20}}>
+                    <Paper {...adminStyles.body.block.props}>
                         <MaterialTable
                             data={other}
                             columns={userKeys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
                             emptyStateString={m('users.empty')}
+                            masterStyles={adminStyles.body.tableMaster}
                         />
                     </Paper>
                 </div>
@@ -357,4 +363,5 @@ const Dashboard = React.createClass({
 
 });
 
+Dashboard = muiThemeable()(Dashboard);
 export {Dashboard as default};

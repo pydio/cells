@@ -18296,6 +18296,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -18329,6 +18331,8 @@ var _virtualNodeCard = require('../virtual/NodeCard');
 var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
 
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -18404,6 +18408,7 @@ var VirtualNodes = (function (_React$Component) {
             var _props = this.props;
             var readonly = _props.readonly;
             var pydio = _props.pydio;
+            var muiTheme = _props.muiTheme;
             var accessByName = _props.accessByName;
             var _state = this.state;
             var nodes = _state.nodes;
@@ -18414,14 +18419,16 @@ var VirtualNodes = (function (_React$Component) {
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
             };
+            var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
             var vNodes = [];
             nodes.map(function (node) {
-                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly || !accessByName('Create') }));
+                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly || !accessByName('Create'), adminStyles: adminStyles }));
             });
 
             var headerActions = [];
             if (!readonly && accessByName('Create')) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }));
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
             }
 
             return _react2['default'].createElement(
@@ -18486,10 +18493,12 @@ var VirtualNodes = (function (_React$Component) {
     return VirtualNodes;
 })(_react2['default'].Component);
 
+exports['default'] = VirtualNodes = (0, _materialUiStyles.muiThemeable)()(VirtualNodes);
+
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":21,"../model/VirtualNode":23,"../virtual/NodeCard":25,"material-ui":"material-ui","pydio":"pydio","react":"react"}],7:[function(require,module,exports){
+},{"../model/DataSource":21,"../model/VirtualNode":23,"../virtual/NodeCard":25,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23198,6 +23207,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -23278,6 +23289,7 @@ var NodeCard = (function (_React$Component) {
             var node = _props2.node;
             var readonly = _props2.readonly;
             var oneLiner = _props2.oneLiner;
+            var adminStyles = _props2.adminStyles;
             var _props2$onClose = _props2.onClose;
             var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
 
@@ -23322,7 +23334,7 @@ var NodeCard = (function (_React$Component) {
             } else {
                 var titleComponent = _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'baseline' } },
+                    { style: { display: 'flex', alignItems: 'center', height: 48 } },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -23331,17 +23343,21 @@ var NodeCard = (function (_React$Component) {
                     !readonly && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }, adminStyles.props.header.iconButton)),
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' }, adminStyles.props.header.iconButton))
                     )
                 );
                 return _react2['default'].createElement(
-                    'div',
-                    { style: { marginBottom: 10 } },
-                    _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { marginBottom: 10 }) }),
                     _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { zDepth: 1, style: { margin: '0 20px' } },
+                        'div',
+                        { style: adminStyles.body.block.headerFull },
+                        titleComponent
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
                         codeMirrorField
                     )
                 );

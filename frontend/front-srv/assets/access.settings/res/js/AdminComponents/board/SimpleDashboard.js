@@ -23,6 +23,7 @@ import {Card, CardTitle, CardMedia, CardActions, CardText, FlatButton, List, Lis
 import {MessagesConsumerMixin} from '../util/Mixins'
 import shuffle from 'lodash.shuffle'
 import Header from './Header'
+import AdminStyles from "./AdminStyles";
 
 let Dashboard = React.createClass({
 
@@ -74,9 +75,10 @@ let Dashboard = React.createClass({
 
         const verticalFlex = {display:'flex', flexDirection:'column', height: '100%'};
         const flexFill = {flex:1};
-        const paperStyle = {flex: 1, minWidth: 450, margin: 5};
         const flexContainerStyle = {...verticalFlex};
         const {accent2Color} = this.props.muiTheme.palette;
+        const adminStyles= AdminStyles(this.props.muiTheme.palette);
+        const paperStyle = {...adminStyles.body.block.container, flex: 1, minWidth: 450, margin: 8};
 
 
         const {pydio} = this.props;
@@ -102,11 +104,8 @@ let Dashboard = React.createClass({
         }
 
         const WELCOME_COMMUNITY_CARD = (
-            <Card style={{...paperStyle, minWidth:'95%'}}  containerStyle={flexContainerStyle}>
-                <CardTitle
-                    title={null}
-                    subtitle={message('welc.subtitle')}
-                />
+            <Card zDepth={0} style={{...paperStyle, minWidth:'95%'}}  containerStyle={flexContainerStyle}>
+                <div style={adminStyles.body.block.headerFull}>{message('welc.subtitle')}</div>
                 <CardText style={flexFill}>
                     <style dangerouslySetInnerHTML={{__html:'.doc-link{color: '+accent2Color+';cursor: pointer;text-decoration:underline;}'}}/>
                     <div style={{lineHeight:'1.6em'}}>
@@ -125,7 +124,7 @@ let Dashboard = React.createClass({
         );
 
         const PAY_IT_FORWARD_CARD = (
-            <Card style={paperStyle} containerStyle={flexContainerStyle}>
+            <Card zDepth={0} style={paperStyle} containerStyle={flexContainerStyle}>
                 <CardTitle title={message('cont.title')} subtitle={message('cont.subtitle')} />
                 <CardText style={flexFill}>
                     <div className="mdi mdi-github-circle" style={{fontSize: 60, display:'inline-block', float:'left', marginRight:10, marginBottom:10}}/>
@@ -151,7 +150,7 @@ let Dashboard = React.createClass({
 
 
         const DISCOVER_ENTERPRISE_CARD = (
-            <Card style={paperStyle} containerStyle={flexContainerStyle}>
+            <Card zDepth={0} style={paperStyle} containerStyle={flexContainerStyle}>
                 <CardMedia
                     overlay={<CardTitle title={message('ent.title')} subtitle={message('ent.subtitle')}/>}
                 >

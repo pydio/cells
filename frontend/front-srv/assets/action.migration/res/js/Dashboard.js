@@ -4,6 +4,7 @@ import LangUtils from 'pydio/util/lang'
 import {Paper, Divider, SelectField, MenuItem, LinearProgress, Stepper} from 'material-ui'
 import {JobsJob, JobsTask} from 'pydio/http/rest-api'
 const {JobsStore, moment} = Pydio.requireLib("boot");
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 import StepEmptyConfig from './steps/StepEmptyConfig'
 import StepConnection from './steps/StepConnection'
@@ -97,8 +98,10 @@ export default class Dashboard extends React.Component {
 
         const {pydio, openRightPane, closeRightPane, advanced} = this.props;
         const {activeStep, url, skipVerify, user, pwd, features, task, showLogs, localStatus, previousTasks, ...remainingState} = this.state;
+        const adminStyles = AdminComponents.AdminStyles();
+
         const previousJobsSelector = (
-            <SelectField fullWidth={true} value={showLogs} onChange={(e,i,v) => {this.setState({showLogs:v})}}>
+            <ModernSelectField fullWidth={true} value={showLogs} onChange={(e,i,v) => {this.setState({showLogs:v})}}>
                 <MenuItem value={null} primaryText={this.T('job.new')}/>
                 {previousTasks.length > 0 && <Divider/> }
                 {previousTasks.map((t) => {
@@ -110,13 +113,13 @@ export default class Dashboard extends React.Component {
                     }
                     return <MenuItem label={label} primaryText={label} value={t}/>
                 })}
-            </SelectField>
+            </ModernSelectField>
         );
 
         let content;
         if(showLogs){
             content = (
-                <Paper style={{margin: 16}}>
+                <Paper {...adminStyles.body.block.props}>
                     <TaskActivity pydio={pydio} task={showLogs} styles={styles}/>
                 </Paper>
             )
@@ -136,7 +139,7 @@ export default class Dashboard extends React.Component {
             };
 
             content = (
-                <Paper style={{margin: 16, paddingBottom: 16}}>
+                <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, paddingBottom: 16}}>
                     <Stepper style={{display:'flex'}} orientation="vertical" activeStep={activeStep}>
                         <StepDisclaimer {...commonProps} onBack={null} advanced={advanced}/>
 
@@ -221,7 +224,7 @@ export default class Dashboard extends React.Component {
 
                     <div className="layout-fill">
                         {(task || localStatus.length > 0) &&
-                        <Paper style={{margin: 16, padding: 16}}>
+                        <Paper>
                             <h5>{this.T('importing')}</h5>
                             {localStatus.length > 0 &&
                             <div>{localStatus.map(x => <div>{x}</div>)}</div>

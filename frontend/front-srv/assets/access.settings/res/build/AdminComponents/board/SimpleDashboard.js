@@ -45,6 +45,10 @@ var _Header = require('./Header');
 
 var _Header2 = _interopRequireDefault(_Header);
 
+var _AdminStyles = require("./AdminStyles");
+
+var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -101,9 +105,12 @@ var Dashboard = _react2['default'].createClass({
 
         var verticalFlex = { display: 'flex', flexDirection: 'column', height: '100%' };
         var flexFill = { flex: 1 };
-        var paperStyle = { flex: 1, minWidth: 450, margin: 5 };
         var flexContainerStyle = _extends({}, verticalFlex);
         var accent2Color = this.props.muiTheme.palette.accent2Color;
+
+        var adminStyles = (0, _AdminStyles2['default'])(this.props.muiTheme.palette);
+        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
+
         var pydio = this.props.pydio;
 
         var message = function message(id) {
@@ -126,11 +133,12 @@ var Dashboard = _react2['default'].createClass({
 
         var WELCOME_COMMUNITY_CARD = _react2['default'].createElement(
             _materialUi.Card,
-            { style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
-            _react2['default'].createElement(_materialUi.CardTitle, {
-                title: null,
-                subtitle: message('welc.subtitle')
-            }),
+            { zDepth: 0, style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
+            _react2['default'].createElement(
+                'div',
+                { style: adminStyles.body.block.headerFull },
+                message('welc.subtitle')
+            ),
             _react2['default'].createElement(
                 _materialUi.CardText,
                 { style: flexFill },
@@ -159,7 +167,7 @@ var Dashboard = _react2['default'].createClass({
 
         var PAY_IT_FORWARD_CARD = _react2['default'].createElement(
             _materialUi.Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
+            { zDepth: 0, style: paperStyle, containerStyle: flexContainerStyle },
             _react2['default'].createElement(_materialUi.CardTitle, { title: message('cont.title'), subtitle: message('cont.subtitle') }),
             _react2['default'].createElement(
                 _materialUi.CardText,
@@ -196,7 +204,7 @@ var Dashboard = _react2['default'].createClass({
 
         var DISCOVER_ENTERPRISE_CARD = _react2['default'].createElement(
             _materialUi.Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
+            { zDepth: 0, style: paperStyle, containerStyle: flexContainerStyle },
             _react2['default'].createElement(
                 _materialUi.CardMedia,
                 {

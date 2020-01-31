@@ -87,6 +87,7 @@ class JSDocsPanel extends Component{
                 />
             );
         });
+        const adminStyles = AdminComponents.AdminStyles();
         return (
             <div className={"main-layout-nav-to-stack vertical-layout"}>
                 <AdminComponents.Header
@@ -94,14 +95,14 @@ class JSDocsPanel extends Component{
                     icon="mdi mdi-nodejs"
                 />
                 <div className={"layout-fill"} style={{display:'flex', backgroundColor:'white'}}>
-                    <Paper zDepth={1} style={{width:256, overflowY:'scroll', display:'flex', flexDirection:'column'}}>
+                    <Paper zDepth={1} style={{width:256, overflowY:'scroll', display:'flex', flexDirection:'column', zIndex: 1}}>
                         <div style={{padding:16, paddingBottom: 0, paddingTop: 8}}>
-                            <TextField fullWidth={true} value={search} onChange={this.onSearch.bind(this)} hintText="Search for a class..." underlineShow={false}/>
+                            <TextField fullWidth={true} value={search} onChange={this.onSearch.bind(this)} hintText="Search classes..." underlineShow={false}/>
                         </div>
                         {error && <div style={{padding:16}}>{error}</div>}
                         <List style={{flex:1}}>{items}</List>
                     </Paper>
-                    <div style={{flex:1, overflowY: 'scroll'}}>
+                    <div style={{flex:1, overflowY: 'scroll', backgroundColor:adminStyles.body.mainPanel.backgroundColor}}>
                         {selection &&
                             <ClassPanel path={selection} data={data[selection][0]}/>
                         }
@@ -153,7 +154,7 @@ class ClassPanel extends Component{
             });
         }
         const dStyle = {padding:'0 16px 16px'};
-        const pStyle = {margin: '0 16px'};
+        const adminStyles = AdminComponents.AdminStyles();
 
         return (
             <div style={{paddingBottom:16}}>
@@ -164,7 +165,7 @@ class ClassPanel extends Component{
                 }
                 <CardTitle title="Props"/>
                 {props.length > 0 &&
-                <Paper style={pStyle} zDepth={1}>
+                <Paper {...adminStyles.body.block.props}>
                     <Table>
                         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                             <TableRow>
@@ -183,7 +184,7 @@ class ClassPanel extends Component{
                 {!props.length && <div style={{...dStyle, color: 'rgba(0,0,0,0.33)'}}>No Props documented</div>}
                 <CardTitle title="Methods"/>
                 {methods.length > 0 &&
-                <Paper style={pStyle} zDepth={1}>
+                <Paper {...adminStyles.body.block.props}>
                     <Table>
                         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                             <TableRow>

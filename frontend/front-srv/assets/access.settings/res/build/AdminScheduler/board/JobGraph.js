@@ -905,6 +905,7 @@ var JobGraph = (function (_React$Component) {
             var _props = this.props;
             var jobsEditable = _props.jobsEditable;
             var create = _props.create;
+            var adminStyles = _props.adminStyles;
             var _state10 = this.state;
             var onEmptyModel = _state10.onEmptyModel;
             var editMode = _state10.editMode;
@@ -998,10 +999,10 @@ var JobGraph = (function (_React$Component) {
                 header: {
                     display: 'flex',
                     alignItems: 'center',
-                    backgroundColor: editMode ? '#424242' : 'whitesmoke',
-                    borderBottom: '1px solid #e0e0e0',
+                    backgroundColor: editMode ? '#424242' : adminStyles.body.block.header.backgroundColor,
                     height: 48,
-                    color: editMode ? '#eeeeee' : '#9e9e9e',
+                    color: editMode ? '#eeeeee' : adminStyles.body.block.header.color,
+                    borderBottom: '1px solid ' + adminStyles.body.lineColor,
                     fontSize: 12,
                     fontWeight: 500,
                     paddingRight: 12
@@ -1051,7 +1052,7 @@ var JobGraph = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 20 } },
+                adminStyles.body.block.props,
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {

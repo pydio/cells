@@ -54622,6 +54622,7 @@ var MailerTest = (function (_React$Component) {
         value: function render() {
             var loaded = this.state.loaded;
             var MessageHash = this.props.pydio.MessageHash;
+            var adminStyles = this.props.adminStyles;
 
             if (!loaded) {
                 return _react2['default'].createElement(
@@ -54641,7 +54642,7 @@ var MailerTest = (function (_React$Component) {
                     overlay: false,
                     panelTitle: MessageHash["ajxp_admin.mailer.test.title"],
                     style: { margin: 0 },
-                    titleStyle: { backgroundColor: '#f5f5f5', color: '#9e9e9e', fontSize: 12, fontWeight: 500, borderBottom: '1px solid #e0e0e0', height: 48, lineHeight: '48px', padding: '0 16px' },
+                    titleStyle: adminStyles.body.block.headerFull,
                     usersBlockStyle: {},
                     messageBlockStyle: {},
                     zDepth: 0
@@ -54681,7 +54682,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -54692,6 +54692,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _PluginsList = require('./PluginsList');
 
 var _PluginsList2 = _interopRequireDefault(_PluginsList);
@@ -54701,6 +54705,10 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var PluginsManager = _react2['default'].createClass({
     displayName: 'PluginsManager',
@@ -54720,6 +54728,8 @@ var PluginsManager = _react2['default'].createClass({
 
         var filter = this.state.filter;
 
+        var adminStyles = AdminComponents.AdminStyles();
+
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%' }, className: 'vertical-layout' },
@@ -54727,13 +54737,13 @@ var PluginsManager = _react2['default'].createClass({
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
                 reloadAction: this.reload,
-                actions: [_react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-filter", style: { fontSize: 16, marginRight: 10, color: 'rgba(0,0,0,0.2)' } }), _react2['default'].createElement(_materialUi.TextField, { style: { width: 196 }, placeholder: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
+                actions: [_react2['default'].createElement(ModernTextField, { style: { width: 196 }, hintText: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
                         _this.setState({ filter: v });
                     } })]
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: 'vertical-layout layout-fill' },
+                _extends({}, adminStyles.body.block.props, { className: 'vertical-layout layout-fill' }),
                 _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list', filterString: filter }))
             )
         );
@@ -54744,7 +54754,7 @@ var PluginsManager = _react2['default'].createClass({
 exports['default'] = PluginsManager;
 module.exports = exports['default'];
 
-},{"./PluginsList":651,"material-ui":"material-ui","react":"react"}],650:[function(require,module,exports){
+},{"./PluginsList":651,"material-ui":"material-ui","pydio":"pydio","react":"react"}],650:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -54771,6 +54781,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -54778,6 +54790,8 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Loader = require('./Loader');
 
@@ -54877,8 +54891,13 @@ var PluginEditor = _react2['default'].createClass({
         var dirty = this.state.dirty;
 
         var actions = [];
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        var props = adminStyles.props.header.flatButton;
+        if (!dirty) {
+            props = adminStyles.props.header.flatButtonDisabled;
+        }
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
         return actions;
     },
 
@@ -55042,6 +55061,12 @@ var PluginEditor = _react2['default'].createClass({
         if (mainPaneScrolled) {
             scrollingClassName = ' main-pane-scrolled';
         }
+        var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        var bProps = adminStyles.props.header.flatButton;
+        if (!dirty) {
+            bProps = adminStyles.props.header.flatButtonDisabled;
+        }
+
         var actions = [];
         if (accessByName('Create')) {
             if (closeEditor) {
@@ -55054,10 +55079,10 @@ var PluginEditor = _react2['default'].createClass({
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
                     tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
             } else {
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'),
-                    onTouchTap: this.revert }));
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'),
-                    onTouchTap: this.save }));
+                actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'),
+                    onTouchTap: this.revert }, bProps)));
+                actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'),
+                    onTouchTap: this.save }, bProps)));
             }
         } else if (closeEditor) {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
@@ -55094,15 +55119,18 @@ var PluginEditor = _react2['default'].createClass({
             _react2['default'].createElement(PydioForm.PydioHelper, {
                 helperData: this.state ? this.state.helperData : null,
                 close: this.closeHelper
-            })
+            }),
+            adminStyles.formCss()
         );
     }
 });
 
+exports['default'] = PluginEditor = (0, _materialUiStyles.muiThemeable)()(PluginEditor);
+
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"./Loader":647,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],651:[function(require,module,exports){
+},{"./Loader":647,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],651:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -55239,6 +55267,8 @@ var PluginsList = React.createClass({
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         };
+        var adminStyles = AdminComponents.AdminStyles();
+
         var columns = undefined;
         var renderEnabled = function renderEnabled(row) {
             return React.createElement(_materialUi.Toggle, {
@@ -55279,7 +55309,8 @@ var PluginsList = React.createClass({
             data: data,
             columns: columns,
             deselectOnClickAway: true,
-            showCheckboxes: false
+            showCheckboxes: false,
+            masterStyles: adminStyles.body.tableMaster
         });
     }
 
@@ -55323,17 +55354,11 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _pydio = require('pydio');
 
@@ -55465,6 +55490,7 @@ var PluginEditor = _react2['default'].createClass({
         var rootNode = _props.rootNode;
         var tabs = _props.tabs;
         var accessByName = _props.accessByName;
+        var muiTheme = _props.muiTheme;
         var _state = this.state;
         var documentation = _state.documentation;
         var pluginId = _state.pluginId;
@@ -55475,6 +55501,8 @@ var PluginEditor = _react2['default'].createClass({
         var values = _state.values;
         var helperData = _state.helperData;
 
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         var addPanes = { top: [], bottom: [] };
         if (additionalPanes) {
             addPanes.top = additionalPanes.top.slice();
@@ -55483,7 +55511,7 @@ var PluginEditor = _react2['default'].createClass({
         var serviceName = this.props.serviceName;
 
         if (serviceName === 'pydio.grpc.mailer') {
-            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio }));
+            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio, adminStyles: adminStyles }));
         }
 
         var closeButton = undefined;
@@ -55516,8 +55544,12 @@ var PluginEditor = _react2['default'].createClass({
         }
         var actions = [];
         if (accessByName('Create')) {
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+            var props = adminStyles.props.header.flatButton;
+            if (!dirty) {
+                props = adminStyles.props.header.flatButtonDisabled;
+            }
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
         }
         actions.push(closeButton);
 
@@ -55544,15 +55576,18 @@ var PluginEditor = _react2['default'].createClass({
             _react2['default'].createElement(PydioForm.PydioHelper, {
                 helperData: helperData,
                 close: this.closeHelper
-            })
+            }),
+            adminStyles.formCss()
         );
     }
 });
 
+exports['default'] = PluginEditor = (0, _materialUiStyles.muiThemeable)()(PluginEditor);
+
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"./MailerTest":648,"./ServiceExposedConfigs":653,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],653:[function(require,module,exports){
+},{"./MailerTest":648,"./ServiceExposedConfigs":653,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],653:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -55878,6 +55913,7 @@ var JSDocsPanel = (function (_Component) {
                     }
                 }));
             });
+            var adminStyles = AdminComponents.AdminStyles();
             return React.createElement(
                 'div',
                 { className: "main-layout-nav-to-stack vertical-layout" },
@@ -55890,11 +55926,11 @@ var JSDocsPanel = (function (_Component) {
                     { className: "layout-fill", style: { display: 'flex', backgroundColor: 'white' } },
                     React.createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
+                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column', zIndex: 1 } },
                         React.createElement(
                             'div',
                             { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
-                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
+                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search classes...', underlineShow: false })
                         ),
                         error && React.createElement(
                             'div',
@@ -55909,7 +55945,7 @@ var JSDocsPanel = (function (_Component) {
                     ),
                     React.createElement(
                         'div',
-                        { style: { flex: 1, overflowY: 'scroll' } },
+                        { style: { flex: 1, overflowY: 'scroll', backgroundColor: adminStyles.body.mainPanel.backgroundColor } },
                         selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
                     )
                 )
@@ -56008,7 +56044,7 @@ var ClassPanel = (function (_Component2) {
                 });
             }
             var dStyle = { padding: '0 16px 16px' };
-            var pStyle = { margin: '0 16px' };
+            var adminStyles = AdminComponents.AdminStyles();
 
             return React.createElement(
                 'div',
@@ -56037,7 +56073,7 @@ var ClassPanel = (function (_Component2) {
                 React.createElement(_materialUi.CardTitle, { title: 'Props' }),
                 props.length > 0 && React.createElement(
                     _materialUi.Paper,
-                    { style: pStyle, zDepth: 1 },
+                    adminStyles.body.block.props,
                     React.createElement(
                         _materialUi.Table,
                         null,
@@ -56084,7 +56120,7 @@ var ClassPanel = (function (_Component2) {
                 React.createElement(_materialUi.CardTitle, { title: 'Methods' }),
                 methods.length > 0 && React.createElement(
                     _materialUi.Paper,
-                    { style: pStyle, zDepth: 1 },
+                    adminStyles.body.block.props,
                     React.createElement(
                         _materialUi.Table,
                         null,
@@ -56164,6 +56200,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -56228,6 +56266,8 @@ var OpenApiDashboard = (function (_React$Component) {
             var pydio = this.props.pydio;
             var specUrl = this.state.specUrl;
 
+            var adminStyles = AdminComponents.AdminStyles();
+
             return _react2['default'].createElement(
                 'div',
                 { className: "main-layout-nav-to-stack vertical-layout" },
@@ -56248,7 +56288,7 @@ var OpenApiDashboard = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16, paddingBottom: 1 } },
+                        _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { paddingBottom: 1 }) }),
                         specUrl && _react2['default'].createElement(_swaggerUiReact2['default'], {
                             url: specUrl,
                             requestInterceptor: this.requestInterceptor.bind(this)
@@ -56439,6 +56479,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -56581,7 +56623,9 @@ var UpdaterDashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var list = null;
-        var accessByName = this.props.accessByName;
+        var _props = this.props;
+        var accessByName = _props.accessByName;
+        var muiTheme = _props.muiTheme;
         var _state2 = this.state;
         var packages = _state2.packages;
         var check = _state2.check;
@@ -56591,22 +56635,24 @@ var UpdaterDashboard = _react2['default'].createClass({
         var selectedPackage = _state2.selectedPackage;
         var watchJob = _state2.watchJob;
         var backend = _state2.backend;
+        var accent2Color = muiTheme.palette.accent2Color;
 
-        var subHeaderStyle = {
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            fontSize: 12,
-            fontWeight: 500,
-            borderBottom: '1px solid #e0e0e0',
-            height: 48,
-            lineHeight: '48px',
-            padding: '0 16px'
-        };
-        var accent2Color = this.props.muiTheme.palette.accent2Color;
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        var subHeaderStyle = adminStyles.body.block.headerFull;
 
         var buttons = [];
         if (packages) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied || !accessByName('Create'), secondary: true, label: this.context.getMessage('start.update', 'updater'), onTouchTap: this.performUpgrade }));
+            var bProps = _extends({}, adminStyles.props.header.flatButton);
+            var disabled = check < 0 || updateApplied || !accessByName('Create');
+            if (disabled) {
+                bProps.backgroundColor = '#e0e0e0';
+            }
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                disabled: disabled,
+                secondary: true,
+                label: this.context.getMessage('start.update', 'updater'),
+                onTouchTap: this.performUpgrade
+            }, bProps)));
             var items = [];
 
             var _loop = function (index) {
@@ -56724,7 +56770,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 { style: { flex: 1, overflow: 'auto' } },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: 20 }, zDepth: 1 },
+                    adminStyles.body.block.props,
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
@@ -56744,7 +56790,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 watchJob && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { position: 'relative' }) }),
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
@@ -56765,7 +56811,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 !watchJob && list && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { position: 'relative' }) }),
                     list
                 ),
                 !watchJob && _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
@@ -56777,7 +56823,8 @@ var UpdaterDashboard = _react2['default'].createClass({
                     onDirtyChange: function (d) {
                         return _this3.setState({ dirty: d });
                     }
-                })
+                }),
+                adminStyles.formCss()
             )
         );
     }

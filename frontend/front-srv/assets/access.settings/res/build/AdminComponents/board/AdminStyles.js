@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26,11 +25,23 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var ellispsis = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
 };
+
+var cssStyle = '\n.react-mui-context .main-layout-nav-to-stack .pydio-form-panel.row-flex .pydio-form-group {\n    box-shadow: none !important;\n    border-radius: 6px !important;\n    border: 1px solid rgba(30, 58, 74, 0.14);\n}\n\n.react-mui-context .pydio-form-panel>.pydio-form-group .pydio-form-group {\n    border-width: 0 !important;\n}\n\n.react-mui-context .pydio-form-panel.row-flex>.pydio-form-group>h3 {\n    background-color:#fbfbfc;\n    color:#607D8B;\n    border-bottom: 1px solid #eceff1;\n}\n';
+
+function cssFormStyle() {
+    return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle } });
+}
 
 exports['default'] = function () {
     var palette = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -45,6 +56,16 @@ exports['default'] = function () {
                 flatButton: {
                     backgroundColor: palette.accent2Color,
                     hoverColor: palette.accent1Color,
+                    labelStyle: {
+                        color: 'white'
+                    },
+                    style: {
+                        height: 34,
+                        lineHeight: '34px'
+                    }
+                },
+                flatButtonDisabled: {
+                    backgroundColor: '#e0e0e0',
                     labelStyle: {
                         color: 'white'
                     },
@@ -160,6 +181,16 @@ exports['default'] = function () {
                     backgroundColor: '#fbfbfc',
                     color: '#607D8B'
                 },
+                headerFull: {
+                    backgroundColor: '#fbfbfc',
+                    color: '#607D8B',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    borderBottom: '1px solid #eceff1',
+                    height: 48,
+                    lineHeight: '48px',
+                    padding: '0 16px'
+                },
                 props: {
                     zDepth: 0,
                     style: {
@@ -184,8 +215,8 @@ exports['default'] = function () {
                     color: '#607D8B'
                 }
             }
-        }
-
+        },
+        formCss: cssFormStyle
     };
 };
 

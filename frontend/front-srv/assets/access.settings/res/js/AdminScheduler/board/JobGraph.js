@@ -623,7 +623,7 @@ class JobGraph extends React.Component {
     render() {
 
         let selBlock;
-        const {jobsEditable, create} = this.props;
+        const {jobsEditable, create, adminStyles} = this.props;
         const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange,
             onLabelChange, onJobPropertyChange, createNewAction, onToggleFilterAsCondition,
             onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid} = this.state;
@@ -685,10 +685,10 @@ class JobGraph extends React.Component {
             header: {
                 display:'flex',
                 alignItems:'center',
-                backgroundColor: editMode ? '#424242' : 'whitesmoke',
-                borderBottom: '1px solid #e0e0e0',
+                backgroundColor: editMode ? '#424242' : adminStyles.body.block.header.backgroundColor,
                 height: 48,
-                color: editMode ? '#eeeeee' : '#9e9e9e',
+                color: editMode ? '#eeeeee' : adminStyles.body.block.header.color,
+                borderBottom:'1px solid ' + adminStyles.body.lineColor,
                 fontSize: 12,
                 fontWeight: 500,
                 paddingRight: 12
@@ -722,7 +722,7 @@ class JobGraph extends React.Component {
         }
 
         return (
-            <Paper zDepth={1} style={{margin: 20}}>
+            <Paper {...adminStyles.body.block.props}>
                 <Dialog
                     title={"Import/Export JSON"}
                     onRequestClose={()=>{this.setState({showJsonDialog: false})}}

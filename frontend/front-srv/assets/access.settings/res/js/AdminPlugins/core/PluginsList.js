@@ -100,6 +100,8 @@ const PluginsList = React.createClass({
 
         const {displaySmall, pydio, accessByName} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
+        const adminStyles=AdminComponents.AdminStyles();
+
         let columns;
         const renderEnabled = (row) => {
             return (<Toggle
@@ -149,6 +151,7 @@ const PluginsList = React.createClass({
                 columns={columns}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
+                masterStyles={adminStyles.body.tableMaster}
             />
         );
 

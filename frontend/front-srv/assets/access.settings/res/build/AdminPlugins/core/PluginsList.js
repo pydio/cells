@@ -134,6 +134,8 @@ var PluginsList = React.createClass({
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         };
+        var adminStyles = AdminComponents.AdminStyles();
+
         var columns = undefined;
         var renderEnabled = function renderEnabled(row) {
             return React.createElement(_materialUi.Toggle, {
@@ -174,7 +176,8 @@ var PluginsList = React.createClass({
             data: data,
             columns: columns,
             deselectOnClickAway: true,
-            showCheckboxes: false
+            showCheckboxes: false,
+            masterStyles: adminStyles.body.tableMaster
         });
     }
 

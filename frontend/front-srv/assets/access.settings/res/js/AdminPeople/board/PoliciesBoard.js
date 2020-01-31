@@ -211,11 +211,7 @@ let PoliciesBoard = React.createClass({
             return (
                 <div>
                     <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
-                        <div style={{
-                            ...adminStyles.body.block.header,
-                            borderBottom:'1px solid ' + adminStyles.body.tableMaster.row.borderBottomColor,
-                            height: 48, lineHeight:'48px', fontWeight:500, paddingLeft: 16
-                        }}>{title}</div>
+                        <div style={adminStyles.body.block.headerFull}>{title}</div>
                         <List>{items}</List>
                     </Paper>
                     <div style={{padding: '0 24px', marginTop: -6, marginBottom: 24, ...adminStyles.body.legend}}>{legend}</div>

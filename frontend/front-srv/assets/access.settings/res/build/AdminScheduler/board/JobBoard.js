@@ -264,6 +264,7 @@ var JobBoard = (function (_React$Component) {
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
             var onRequestClose = _props2.onRequestClose;
+            var adminStyles = _props2.adminStyles;
             var _state3 = this.state;
             var selectedRows = _state3.selectedRows;
             var working = _state3.working;
@@ -361,25 +362,31 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
+            var flatProps = _extends({}, adminStyles.props.header.flatButton);
+            var iconColor = adminStyles.props.header.flatButton.labelStyle.color;
             if (!create) {
                 if (!job.EventNames) {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
+                    var bProps = _extends({}, flatProps);
+                    if (job.Inactive) {
+                        bProps.backgroundColor = '#e0e0e0';
+                    }
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play", color: iconColor }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
                             JobsStore.getInstance().controlJob(job, 'RunOnce');
-                        } }));
+                        } }, bProps)));
                 }
                 if (job.Inactive) {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline" }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline", color: iconColor }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
                             JobsStore.getInstance().controlJob(job, 'Active');
-                        } }));
+                        } }, flatProps)));
                 } else {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline", color: iconColor }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
                             JobsStore.getInstance().controlJob(job, 'Inactive');
-                        } }));
+                        } }, flatProps)));
                 }
                 if (jobsEditable) {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete", color: iconColor }), label: m('job.delete'), primary: true, onTouchTap: function () {
                             _this5.deleteJob();
-                        } }));
+                        } }, flatProps)));
                 }
             }
             var running = tasks.filter(function (t) {
@@ -425,6 +432,7 @@ var JobBoard = (function (_React$Component) {
                         random: Math.random(),
                         jobsEditable: jobsEditable,
                         create: create,
+                        adminStyles: adminStyles,
                         onJobSave: this.onJobSave.bind(this),
                         onJsonSave: this.onJsonSave.bind(this),
                         onUpdateDescriptions: function (desc) {
@@ -437,7 +445,7 @@ var JobBoard = (function (_React$Component) {
                         running.length > 0 && _react2['default'].createElement(AdminComponents.SubHeader, { title: m('tasks.running') }),
                         running.length > 0 && _react2['default'].createElement(
                             _materialUi.Paper,
-                            { style: { margin: 20 } },
+                            adminStyles.body.block.props,
                             _react2['default'].createElement(MaterialTable, {
                                 data: running,
                                 columns: keys,
@@ -448,7 +456,8 @@ var JobBoard = (function (_React$Component) {
                                     if (rows.length === 1 && running.length) {
                                         _this5.setState({ taskLogs: rows[0] });
                                     }
-                                }
+                                },
+                                masterStyles: adminStyles.body.tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, {
@@ -469,7 +478,7 @@ var JobBoard = (function (_React$Component) {
                         }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { style: { margin: 20 } },
+                            adminStyles.body.block.props,
                             _react2['default'].createElement(MaterialTable, {
                                 data: other,
                                 columns: keys,
@@ -478,7 +487,8 @@ var JobBoard = (function (_React$Component) {
                                 emptyStateString: m('tasks.history.empty'),
                                 selectedRows: selectedRows,
                                 deselectOnClickAway: true,
-                                computeRowStyle: computeRowStyle
+                                computeRowStyle: computeRowStyle,
+                                masterStyles: adminStyles.body.tableMaster
                             }),
                             more && _react2['default'].createElement(
                                 'div',

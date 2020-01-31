@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -104,6 +106,7 @@ var NodeCard = (function (_React$Component) {
             var node = _props2.node;
             var readonly = _props2.readonly;
             var oneLiner = _props2.oneLiner;
+            var adminStyles = _props2.adminStyles;
             var _props2$onClose = _props2.onClose;
             var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
 
@@ -148,7 +151,7 @@ var NodeCard = (function (_React$Component) {
             } else {
                 var titleComponent = _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'baseline' } },
+                    { style: { display: 'flex', alignItems: 'center', height: 48 } },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -157,17 +160,21 @@ var NodeCard = (function (_React$Component) {
                     !readonly && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }, adminStyles.props.header.iconButton)),
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' }, adminStyles.props.header.iconButton))
                     )
                 );
                 return _react2['default'].createElement(
-                    'div',
-                    { style: { marginBottom: 10 } },
-                    _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { marginBottom: 10 }) }),
                     _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { zDepth: 1, style: { margin: '0 20px' } },
+                        'div',
+                        { style: adminStyles.body.block.headerFull },
+                        titleComponent
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
                         codeMirrorField
                     )
                 );

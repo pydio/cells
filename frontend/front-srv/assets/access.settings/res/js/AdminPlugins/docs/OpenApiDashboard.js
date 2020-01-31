@@ -51,6 +51,7 @@ class OpenApiDashboard extends React.Component {
     render(){
         const {pydio} = this.props;
         const {specUrl} = this.state;
+        const adminStyles = AdminComponents.AdminStyles();
 
         return(
             <div className={"main-layout-nav-to-stack vertical-layout"}>
@@ -63,7 +64,7 @@ class OpenApiDashboard extends React.Component {
                         {pydio.MessageHash['ajxp_admin.developer.rest.apis.legend']}
                         <span style={{cursor:'pointer'}} className={"mdi mdi-open-in-new"} onClick={()=>{open('https://pydio.com/en/docs/administration-guides')}}/>
                     </div>
-                    <Paper zDepth={1} style={{margin:16, paddingBottom: 1}}>
+                    <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, paddingBottom: 1}}>
                         {specUrl &&
                             <SwaggerUI
                                 url={specUrl}

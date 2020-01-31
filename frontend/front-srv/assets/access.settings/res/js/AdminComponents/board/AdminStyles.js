@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react';
+
 
 const ellispsis = {
     whiteSpace:'nowrap',
@@ -24,6 +26,27 @@ const ellispsis = {
     textOverflow:'ellipsis'
 };
 
+const cssStyle = `
+.react-mui-context .main-layout-nav-to-stack .pydio-form-panel.row-flex .pydio-form-group {
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(30, 58, 74, 0.14);
+}
+
+.react-mui-context .pydio-form-panel>.pydio-form-group .pydio-form-group {
+    border-width: 0 !important;
+}
+
+.react-mui-context .pydio-form-panel.row-flex>.pydio-form-group>h3 {
+    background-color:#fbfbfc;
+    color:#607D8B;
+    border-bottom: 1px solid #eceff1;
+}
+`;
+
+function cssFormStyle() {
+    return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssStyle}}/>;
+}
 
 export default function(palette = {}) {
     return {
@@ -36,6 +59,16 @@ export default function(palette = {}) {
                 flatButton:{
                     backgroundColor:palette.accent2Color,
                     hoverColor:palette.accent1Color,
+                    labelStyle:{
+                        color:'white'
+                    },
+                    style:{
+                        height: 34,
+                        lineHeight: '34px'
+                    }
+                },
+                flatButtonDisabled:{
+                    backgroundColor:'#e0e0e0',
                     labelStyle:{
                         color:'white'
                     },
@@ -152,6 +185,16 @@ export default function(palette = {}) {
                     backgroundColor:'#fbfbfc',
                     color:'#607D8B'
                 },
+                headerFull:{
+                    backgroundColor:'#fbfbfc',
+                    color:'#607D8B',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    borderBottom: '1px solid #eceff1',
+                    height: 48,
+                    lineHeight: '48px',
+                    padding: '0 16px'
+                },
                 props:{
                     zDepth:0,
                     style:{
@@ -176,7 +219,7 @@ export default function(palette = {}) {
                     color:'#607D8B'
                 }
             }
-        }
-
+        },
+        formCss:cssFormStyle
     }
 }

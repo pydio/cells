@@ -167,7 +167,7 @@ class JobBoard extends React.Component {
 
     render(){
 
-        const {pydio, jobsEditable, onRequestClose} = this.props;
+        const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
         const {selectedRows, working, mode, taskLogs, create, job, showAll} = this.state;
 
         if(!job){
@@ -244,17 +244,23 @@ class JobBoard extends React.Component {
         });
 
         let actions = [];
+        const flatProps = {...adminStyles.props.header.flatButton};
+        const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
         if(!create){
             if(!job.EventNames){
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
+                const bProps = {...flatProps};
+                if(job.Inactive){
+                    bProps.backgroundColor = '#e0e0e0';
+                }
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} {...bProps}/>);
             }
             if(job.Inactive) {
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} />);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"} color={iconColor}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} {...flatProps}/>);
             } else {
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} />);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"} color={iconColor}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} {...flatProps}/>);
             }
             if(jobsEditable) {
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}}/>)
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"} color={iconColor}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}} {...flatProps}/>)
             }
         }
         let running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
@@ -281,6 +287,7 @@ class JobBoard extends React.Component {
                         random={Math.random()}
                         jobsEditable={jobsEditable}
                         create={create}
+                        adminStyles={adminStyles}
                         onJobSave={this.onJobSave.bind(this)}
                         onJsonSave={this.onJsonSave.bind(this)}
                         onUpdateDescriptions={(desc) => {this.setState({descriptions: desc})}}
@@ -289,7 +296,7 @@ class JobBoard extends React.Component {
                     <div>
                         {running.length > 0 &&  <AdminComponents.SubHeader title={m('tasks.running')} />}
                         {running.length > 0 &&
-                        <Paper style={{margin: 20}}>
+                        <Paper {...adminStyles.body.block.props}>
                             <MaterialTable
                                 data={running}
                                 columns={keys}
@@ -301,6 +308,7 @@ class JobBoard extends React.Component {
                                         this.setState({taskLogs: rows[0]});
                                     }
                                 }}
+                                masterStyles={adminStyles.body.tableMaster}
                             />
                         </Paper>
                         }
@@ -312,7 +320,7 @@ class JobBoard extends React.Component {
                                 </div>
                             }
                         />
-                        <Paper style={{margin: 20}}>
+                        <Paper {...adminStyles.body.block.props}>
                             <MaterialTable
                                 data={other}
                                 columns={keys}
@@ -322,6 +330,7 @@ class JobBoard extends React.Component {
                                 selectedRows={selectedRows}
                                 deselectOnClickAway={true}
                                 computeRowStyle={computeRowStyle}
+                                masterStyles={adminStyles.body.tableMaster}
                             />
                             {more  && <div onClick={()=>{this.setState({showAll:true})}} style={{cursor: 'pointer', textDecoration:'underline', padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
                         </Paper>

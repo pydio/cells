@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {Paper, List, ListItem, RaisedButton, Checkbox, Divider, Subheader} from 'material-ui'
+import {Paper, List, ListItem, RaisedButton, FlatButton, Checkbox, Divider, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
 import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
@@ -131,23 +131,27 @@ let UpdaterDashboard = React.createClass({
     render:function(){
 
         let list = null;
-        const {accessByName} = this.props;
+        const {accessByName, muiTheme} = this.props;
         const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob, backend} = this.state;
-        const subHeaderStyle = {
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            fontSize: 12,
-            fontWeight: 500,
-            borderBottom: '1px solid #e0e0e0',
-            height: 48,
-            lineHeight: '48px',
-            padding: '0 16px'
-        };
-        const {accent2Color} = this.props.muiTheme.palette;
+        const {accent2Color} = muiTheme.palette;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        const subHeaderStyle = adminStyles.body.block.headerFull;
 
         let buttons = [];
         if(packages){
-            buttons.push(<RaisedButton disabled={check < 0 || updateApplied || !accessByName('Create')} secondary={true} label={this.context.getMessage('start.update', 'updater')} onTouchTap={this.performUpgrade}/>);
+            const bProps = {...adminStyles.props.header.flatButton};
+            const disabled = check < 0 || updateApplied || !accessByName('Create');
+            if(disabled){
+                bProps.backgroundColor = '#e0e0e0';
+            }
+            buttons.push(
+                <FlatButton
+                    disabled={disabled}
+                    secondary={true}
+                    label={this.context.getMessage('start.update', 'updater')}
+                    onTouchTap={this.performUpgrade}
+                    {...bProps}
+                />);
             let items = [];
             for (let index=packages.length - 1; index >= 0; index--) {
                 const p = packages[index];
@@ -213,7 +217,7 @@ let UpdaterDashboard = React.createClass({
                 />
                 {upgradeWizard}
                 <div style={{flex: 1, overflow: 'auto'}}>
-                    <Paper style={{margin:20}} zDepth={1}>
+                    <Paper {...adminStyles.body.block.props}>
                         <div style={subHeaderStyle}>{this.context.getMessage('current.version', 'updater')}</div>
                         <List style={{padding: '0 16px'}}>
                             <ListItem primaryText={versionLabel} disabled={true} secondaryTextLines={2} secondaryText={<span>
@@ -223,7 +227,7 @@ let UpdaterDashboard = React.createClass({
                         </List>
                     </Paper>
                     {watchJob &&
-                        <Paper style={{margin:'0 20px', position:'relative'}} zDepth={1}>
+                        <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, position:'relative'}}>
                             <div style={subHeaderStyle}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
                             <div style={{padding:16}}>
                                 <SingleJobProgress
@@ -236,7 +240,7 @@ let UpdaterDashboard = React.createClass({
                         </Paper>
                     }
                     {!watchJob && list &&
-                        <Paper style={{margin:'0 20px', position:'relative'}} zDepth={1}>{list}</Paper>
+                        <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, position:'relative'}}>{list}</Paper>
                     }
                     {!watchJob &&
                         <ServiceExposedConfigs
@@ -248,6 +252,7 @@ let UpdaterDashboard = React.createClass({
                             onDirtyChange={(d)=>this.setState({dirty: d})}
                         />
                     }
+                    {adminStyles.formCss()}
                 </div>
             </div>
 
