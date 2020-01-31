@@ -34,7 +34,8 @@ func initWatch() {
 
 				for name, fs := range watchers {
 					for _, f := range fs {
-						f(config.NewMap(c[name]))
+						cfg := config.NewMap(c[name])
+						f(*cfg)
 					}
 				}
 			}

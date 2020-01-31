@@ -23,11 +23,9 @@ package log
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
-	client "github.com/micro/go-micro/client"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"
 )
@@ -35,27 +33,23 @@ import (
 type LogSyncer struct {
 	serverServiceName string
 	ctx               context.Context
-	cli               client.Streamer
+	cli               log.LogRecorder_PutLogClient
+
 	logSyncerMessages chan map[string]string
+	buf               []map[string]string
 }
 
 func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	syncer := &LogSyncer{
 		serverServiceName: serviceName,
-		ctx:               ctx,
+		ctx:               t,
 		logSyncerMessages: make(chan map[string]string, 10),
 	}
 
-	go syncer.logSyncerEnd()
+	go syncer.logSyncerClientReconnect()
 	go syncer.logSyncerWatch()
 
 	return syncer
-}
-
-func (syncer *LogSyncer) logSyncerEnd() {
-	<-syncer.ctx.Done()
-	close(syncer.logSyncerMessages)
-	syncer.cli.Close()
 }
 
 func (syncer *LogSyncer) logSyncerClientReconnect() {
@@ -64,37 +58,39 @@ func (syncer *LogSyncer) logSyncerClientReconnect() {
 		cli, err := c.PutLog(syncer.ctx)
 		if err != nil {
 			<-time.After(1 * time.Second)
-			fmt.Println("Failing")
 			continue
 		}
+
+		// Emptying buffer
+		for _, m := range syncer.buf {
+			cli.Send(&log.Log{Message: m})
+		}
+
+		syncer.buf = nil
+		syncer.cli = cli
+
+		<-syncer.ctx.Done()
+
+		if syncer.ctx.Err() == context.Canceled {
+			break
+		}
+
+		syncer.cli = nil
 	}
 }
 
 func (syncer *LogSyncer) logSyncerWatch() {
-	fmt.Println("HERE WE ARE")
-	for {
-		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(syncer.ctx)
-		if err != nil {
-			<-time.After(1 * time.Second)
-			fmt.Println("Failing")
+	for m := range syncer.logSyncerMessages {
+		if syncer.cli == nil {
+			syncer.buf = append(syncer.buf, m)
 			continue
 		}
 
-		fmt.Println("Reading messages")
-
-		for m := range syncer.logSyncerMessages {
-			fmt.Println("Reading Reading")
-			err := cli.Send(&log.Log{Message: m})
-			if err != nil {
-				break
-			}
+		err := syncer.cli.Send(&log.Log{Message: m})
+		if err != nil {
+			syncer.buf = append(syncer.buf, m)
 		}
 
-		fmt.Println("Returning")
-
-		cli.Close()
-		break
 	}
 }
 
