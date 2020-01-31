@@ -24,6 +24,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var asGridItem = _Pydio$requireLib.asGridItem;
@@ -161,9 +165,13 @@ var ToDoList = (function (_Component) {
                     React.createElement('span', { onClick: this.removeTask.bind(this, index), className: 'mdi mdi-delete', style: { cursor: 'pointer', color: '#9e9e9e', fontSize: 24 } })
                 );
             }).bind(this));
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false }),
+                _extends({}, this.props, { transitionEnabled: false
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style)
+                }),
                 this.props.closeButton,
                 React.createElement(
                     'div',

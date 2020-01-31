@@ -17355,29 +17355,43 @@ var AdminDashboard = _react2['default'].createClass({
             })
         );
         var adminStyles = (0, _AdminStyles2['default'])();
+        var theme = (0, _materialUiStyles.getMuiTheme)({
+            palette: {
+                primary1Color: '#03a9f4',
+                primary2Color: '#f57c00',
+                accent1Color: '#f57c00',
+                accent2Color: '#324a57',
+                avatarsColor: '#438db3',
+                sharingColor: '#4aceb0'
+            }
+        });
 
         return _react2['default'].createElement(
-            'div',
-            { className: 'app-canvas' },
-            _react2['default'].createElement(_AdminLeftNav2['default'], {
-                pydio: this.props.pydio,
-                dataModel: dm,
-                rootNode: dm.getRootNode(),
-                contextNode: dm.getContextNode(),
-                open: leftDocked || openLeftNav,
-                showAdvanced: showAdvanced,
-                toggleAdvanced: this.toggleAdvanced.bind(this)
-            }),
-            _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
+            _materialUi.MuiThemeProvider,
+            { muiTheme: theme },
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
-                this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
-            ),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
-                rPanelContent
+                'div',
+                { className: 'app-canvas' },
+                _react2['default'].createElement(_AdminLeftNav2['default'], {
+                    pydio: this.props.pydio,
+                    dataModel: dm,
+                    rootNode: dm.getRootNode(),
+                    contextNode: dm.getContextNode(),
+                    open: leftDocked || openLeftNav,
+                    showAdvanced: showAdvanced,
+                    toggleAdvanced: this.toggleAdvanced.bind(this)
+                }),
+                _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
+                    this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
+                    rPanelContent
+                )
             )
         );
     }
@@ -17659,8 +17673,8 @@ exports['default'] = function () {
             },
             header: {
                 flatButton: {
-                    backgroundColor: palette.accent2Color,
-                    hoverColor: palette.accent1Color,
+                    backgroundColor: palette.primary1Color,
+                    hoverColor: palette.accent2Color,
                     labelStyle: {
                         color: 'white'
                     },
@@ -17681,7 +17695,7 @@ exports['default'] = function () {
                 },
                 iconButton: {
                     iconStyle: {
-                        color: palette.accent2Color
+                        color: palette.primary1Color
                     }
                 }
             }
@@ -18309,8 +18323,8 @@ var Header = (function (_Component) {
                         marginRight: 5
                     },
                     tabActive: {
-                        borderBottom: '2px solid ' + muiTheme.palette.primary1Color,
-                        color: muiTheme.palette.primary1Color
+                        borderBottom: '2px solid ' + muiTheme.palette.primary2Color,
+                        color: muiTheme.palette.primary2Color
                     }
                 }
             };
@@ -18512,14 +18526,18 @@ var Dashboard = _react2['default'].createClass({
     },
 
     getDocButton: function getDocButton(icon, message, link) {
-        return _react2['default'].createElement(_materialUi.FlatButton, {
+        var props = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+        var icProps = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
+
+        return _react2['default'].createElement(_materialUi.FlatButton, _extends({
             key: message,
             label: message,
             primary: true,
-            icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + icon }),
+            icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-" + icon }, icProps)),
             onTouchTap: function () {
                 window.open(link);
-            } });
+            }
+        }, props));
     },
 
     welcomeClick: function welcomeClick(e) {
@@ -18542,6 +18560,11 @@ var Dashboard = _react2['default'].createClass({
 
         var adminStyles = (0, _AdminStyles2['default'])(this.props.muiTheme.palette);
         var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
+        var flatProps = _extends({}, adminStyles.props.header.flatButton);
+        var icProps = {
+            color: adminStyles.props.header.flatButton.labelStyle.color,
+            style: { fontSize: 20 }
+        };
 
         var pydio = this.props.pydio;
 
@@ -18592,7 +18615,7 @@ var Dashboard = _react2['default'].createClass({
                 _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
                 guidesButtons.map(function (object) {
-                    return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
+                    return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link, flatProps, icProps);
                 })
             )
         );
@@ -18622,15 +18645,15 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(
                 _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-github-box' }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-github-box' }, icProps)), onTouchTap: function () {
                         window.open('https://github.com/pydio/cells');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-twitter-box' }), onTouchTap: function () {
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-twitter-box' }, icProps)), onTouchTap: function () {
                         window.open('https://twitter.com/Pydio');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-facebook-box' }), onTouchTap: function () {
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-facebook-box' }, icProps)), onTouchTap: function () {
                         window.open('https://facebook.com/Pydio/');
-                    } })
+                    } }, flatProps))
             )
         );
 
@@ -18665,12 +18688,12 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(
                 _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }), primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "icomoon-cells" }, icProps)), primary: true, onTouchTap: function () {
                         window.open('https://pydio.com/en/features/pydio-cells-overview');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-domain" }), primary: true, onTouchTap: function () {
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-domain" }, icProps)), primary: true, onTouchTap: function () {
                         window.open('https://pydio.com/en/pricing/contact');
-                    } })
+                    } }, flatProps))
             )
         );
 
@@ -18758,12 +18781,12 @@ var SubHeader = (function (_Component) {
             var muiTheme = _props.muiTheme;
             var titleStyle = _props.titleStyle;
             var legendStyle = _props.legendStyle;
-            var primary1Color = muiTheme.palette.primary1Color;
+            var accent2Color = muiTheme.palette.accent2Color;
 
             var subheaderStyle = _extends({
                 textTransform: 'uppercase',
                 fontSize: 12,
-                color: primary1Color,
+                color: accent2Color,
                 paddingLeft: 20,
                 paddingRight: 20
             }, titleStyle);
@@ -18950,6 +18973,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _utilReloadWrapper = require('../util/ReloadWrapper');
 
 var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
@@ -19037,15 +19064,16 @@ var GraphBadge = (function (_Component) {
             if (filenameFilter) {
                 filters["filename_filter"] = filenameFilter;
             }
+            var adminStyles = (0, _boardAdminStyles2['default'])();
 
             return React.createElement(
                 Paper,
                 _extends({
                     transitionEnabled: false
                 }, this.props, {
-                    className: (className ? className + ' ' : '') + 'graphs-badge',
-                    zDepth: 1,
-                    style: style }),
+                    className: (className ? className + ' ' : '') + 'graphs-badge'
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, style) }),
                 closeButton,
                 React.createElement(
                     'div',
@@ -19121,7 +19149,7 @@ exports['default'] = GraphBadge;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/RemoteGraphLine":42,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","react":"react"}],34:[function(require,module,exports){
+},{"../board/AdminStyles":26,"../graph/RemoteGraphLine":42,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","react":"react"}],34:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19140,6 +19168,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
 
 var _utilReloadWrapper = require('../util/ReloadWrapper');
 
@@ -19204,6 +19236,7 @@ var GraphCard = (function (_Component) {
             var containerW = parseInt(this.props.style.width);
             var containerH = parseInt(this.props.style.height);
             var className = (this.props.className ? this.props.className + ' ' : '') + 'graphs-card';
+            var adminStyles = (0, _boardAdminStyles2['default'])();
 
             var filters = this.props.filters || {};
             if (this.props.workspaceFilter && this.props.workspaceFilter != -1) {
@@ -19216,8 +19249,9 @@ var GraphCard = (function (_Component) {
             return React.createElement(
                 Paper,
                 _extends({}, this.props, {
-                    className: className,
-                    zDepth: this.props.zDepth,
+                    className: className
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style),
                     transitionEnabled: false }),
                 this.props.closeButton,
                 React.createElement(_graphGraphPaginator2['default'], {
@@ -19297,7 +19331,7 @@ exports['default'] = GraphCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/GraphPaginator":41,"../graph/RemoteGraphLine":42,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","react":"react"}],35:[function(require,module,exports){
+},{"../board/AdminStyles":26,"../graph/GraphPaginator":41,"../graph/RemoteGraphLine":42,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","react":"react"}],35:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19318,6 +19352,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
 
 var _utilNavigationHelper = require('../util/NavigationHelper');
 
@@ -19492,12 +19530,12 @@ var QuickLinks = (function (_Component) {
                     this.props.getMessage('home.1')
                 );
             }
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 Paper,
-                _extends({}, this.props, {
-                    zDepth: 1,
+                _extends({}, this.props, adminStyles.body.block.props, {
                     transitionEnabled: false,
-                    style: _extends({}, this.props.style, { display: 'flex', alignItems: 'center' })
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style, { display: 'flex', alignItems: 'center' })
                 }),
                 this.props.closeButton,
                 dropDown,
@@ -19523,7 +19561,7 @@ exports['default'] = QuickLinks;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/NavigationHelper":48,"material-ui":"material-ui","pydio":"pydio","react":"react"}],36:[function(require,module,exports){
+},{"../board/AdminStyles":26,"../util/NavigationHelper":48,"material-ui":"material-ui","pydio":"pydio","react":"react"}],36:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19564,6 +19602,10 @@ var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -19652,10 +19694,14 @@ var RecentLogs = (function (_Component) {
                 display: 'flex',
                 flexDirection: 'column'
             });
+            var adminStyles = (0, _boardAdminStyles2['default'])();
 
             return React.createElement(
                 _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false, style: style }),
+                _extends({}, this.props, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, style),
+                    transitionEnabled: false
+                }),
                 this.props.closeButton,
                 dropDown,
                 React.createElement(
@@ -19692,7 +19738,7 @@ exports['default'] = RecentLogs;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],37:[function(require,module,exports){
+},{"../board/AdminStyles":26,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],37:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19711,6 +19757,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
 
 var _utilReloadWrapper = require('../util/ReloadWrapper');
 
@@ -19804,10 +19854,14 @@ var ServicesStatus = (function (_Component) {
                 display: 'flex',
                 flexDirection: 'column'
             });
-
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false, style: style }),
+                _extends({}, this.props, {
+                    transitionEnabled: false
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, style)
+                }),
                 this.props.closeButton,
                 React.createElement(
                     'h4',
@@ -19836,7 +19890,7 @@ exports['default'] = ServicesStatus;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],38:[function(require,module,exports){
+},{"../board/AdminStyles":26,"../util/ReloadWrapper":51,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],38:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19863,6 +19917,10 @@ var _materialUi = require('material-ui');
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -20001,9 +20059,13 @@ var ToDoList = (function (_Component) {
                     React.createElement('span', { onClick: this.removeTask.bind(this, index), className: 'mdi mdi-delete', style: { cursor: 'pointer', color: '#9e9e9e', fontSize: 24 } })
                 );
             }).bind(this));
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false }),
+                _extends({}, this.props, { transitionEnabled: false
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style)
+                }),
                 this.props.closeButton,
                 React.createElement(
                     'div',
@@ -20050,7 +20112,7 @@ exports['default'] = ToDoList;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],39:[function(require,module,exports){
+},{"../board/AdminStyles":26,"material-ui":"material-ui","pydio":"pydio","react":"react"}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20063,23 +20125,28 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 var _require2 = require('material-ui');
 
 var Paper = _require2.Paper;
 var FlatButton = _require2.FlatButton;
-
-var _require3 = require('react-chartjs');
-
-var Doughnut = _require3.Doughnut;
 
 var _require$requireLib = require('pydio').requireLib('components');
 
@@ -20089,7 +20156,7 @@ var _require$requireLib2 = require('pydio').requireLib('boot');
 
 var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
 
-var globalMessages = pydio.MessageHash;
+var globalMessages = _pydio2['default'].getInstance().MessageHash;
 
 var WelcomePanel = (function (_Component) {
     _inherits(WelcomePanel, _Component);
@@ -20103,11 +20170,13 @@ var WelcomePanel = (function (_Component) {
     _createClass(WelcomePanel, [{
         key: 'render',
         value: function render() {
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 Paper,
                 _extends({}, this.props, {
-                    className: 'welcome-panel',
-                    zDepth: 1,
+                    className: 'welcome-panel'
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style),
                     transitionEnabled: false
                 }),
                 this.props.closeButton,
@@ -20141,7 +20210,7 @@ exports['default'] = WelcomePanel = asGridItem(WelcomePanel, globalMessages['ajx
 exports['default'] = WelcomePanel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],40:[function(require,module,exports){
+},{"../board/AdminStyles":26,"material-ui":"material-ui","pydio":"pydio","react":"react"}],40:[function(require,module,exports){
 /**
  * PROTO FOR one point for a graph
  message TimeRangeResult{

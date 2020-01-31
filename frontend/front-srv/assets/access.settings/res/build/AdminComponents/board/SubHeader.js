@@ -58,12 +58,12 @@ var SubHeader = (function (_Component) {
             var muiTheme = _props.muiTheme;
             var titleStyle = _props.titleStyle;
             var legendStyle = _props.legendStyle;
-            var primary1Color = muiTheme.palette.primary1Color;
+            var accent2Color = muiTheme.palette.accent2Color;
 
             var subheaderStyle = _extends({
                 textTransform: 'uppercase',
                 fontSize: 12,
-                color: primary1Color,
+                color: accent2Color,
                 paddingLeft: 20,
                 paddingRight: 20
             }, titleStyle);

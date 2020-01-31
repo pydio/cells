@@ -415,29 +415,43 @@ var AdminDashboard = _react2['default'].createClass({
             })
         );
         var adminStyles = (0, _AdminStyles2['default'])();
+        var theme = (0, _materialUiStyles.getMuiTheme)({
+            palette: {
+                primary1Color: '#03a9f4',
+                primary2Color: '#f57c00',
+                accent1Color: '#f57c00',
+                accent2Color: '#324a57',
+                avatarsColor: '#438db3',
+                sharingColor: '#4aceb0'
+            }
+        });
 
         return _react2['default'].createElement(
-            'div',
-            { className: 'app-canvas' },
-            _react2['default'].createElement(_AdminLeftNav2['default'], {
-                pydio: this.props.pydio,
-                dataModel: dm,
-                rootNode: dm.getRootNode(),
-                contextNode: dm.getContextNode(),
-                open: leftDocked || openLeftNav,
-                showAdvanced: showAdvanced,
-                toggleAdvanced: this.toggleAdvanced.bind(this)
-            }),
-            _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
+            _materialUi.MuiThemeProvider,
+            { muiTheme: theme },
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
-                this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
-            ),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
-                rPanelContent
+                'div',
+                { className: 'app-canvas' },
+                _react2['default'].createElement(_AdminLeftNav2['default'], {
+                    pydio: this.props.pydio,
+                    dataModel: dm,
+                    rootNode: dm.getRootNode(),
+                    contextNode: dm.getContextNode(),
+                    open: leftDocked || openLeftNav,
+                    showAdvanced: showAdvanced,
+                    toggleAdvanced: this.toggleAdvanced.bind(this)
+                }),
+                _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
+                    this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
+                    rPanelContent
+                )
             )
         );
     }

@@ -10,23 +10,28 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 var _require2 = require('material-ui');
 
 var Paper = _require2.Paper;
 var FlatButton = _require2.FlatButton;
-
-var _require3 = require('react-chartjs');
-
-var Doughnut = _require3.Doughnut;
 
 var _require$requireLib = require('pydio').requireLib('components');
 
@@ -36,7 +41,7 @@ var _require$requireLib2 = require('pydio').requireLib('boot');
 
 var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
 
-var globalMessages = pydio.MessageHash;
+var globalMessages = _pydio2['default'].getInstance().MessageHash;
 
 var WelcomePanel = (function (_Component) {
     _inherits(WelcomePanel, _Component);
@@ -50,11 +55,13 @@ var WelcomePanel = (function (_Component) {
     _createClass(WelcomePanel, [{
         key: 'render',
         value: function render() {
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 Paper,
                 _extends({}, this.props, {
-                    className: 'welcome-panel',
-                    zDepth: 1,
+                    className: 'welcome-panel'
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style),
                     transitionEnabled: false
                 }),
                 this.props.closeButton,

@@ -1,3 +1,5 @@
+import AdminStyles from "../board/AdminStyles";
+
 const {Component} = require('react')
 const {Paper, List, ListItem} = require('material-ui')
 const {asGridItem} = require('pydio').requireLib('components')
@@ -63,9 +65,14 @@ class ServicesStatus extends Component{
             display: 'flex',
             flexDirection:'column'
         };
-
+        const adminStyles= AdminStyles();
         return (
-            <Paper {...this.props} zDepth={1} transitionEnabled={false} style={style}>
+            <Paper
+                {...this.props}
+                transitionEnabled={false}
+                {...adminStyles.body.block.props}
+                style={{...adminStyles.body.block.container, margin:0,...style}}
+            >
                 {this.props.closeButton}
                 <h4>{this.props.getMessage('home.35')}</h4>
                 <List style={{flex: 1, overflowY: 'auto'}}>

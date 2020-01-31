@@ -1,19 +1,23 @@
-const {Component, PropTypes} = require('react')
-const {Paper, FlatButton} = require('material-ui')
-const {Doughnut} = require('react-chartjs')
-const {asGridItem} = require('pydio').requireLib('components')
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import AdminStyles from "../board/AdminStyles";
+import Pydio from 'pydio'
+const {Component} = require('react');
+const {Paper, FlatButton} = require('material-ui');
 
-const globalMessages = pydio.MessageHash;
+const {asGridItem} = require('pydio').requireLib('components');
+const {PydioContextConsumer} = require('pydio').requireLib('boot');
+
+const globalMessages = Pydio.getInstance().MessageHash;
 
 class WelcomePanel extends Component{
 
     render(){
+        const adminStyles = AdminStyles();
         return (
             <Paper
                 {...this.props}
                 className="welcome-panel"
-                zDepth={1}
+                {...adminStyles.body.block.props}
+                style={{...adminStyles.body.block.container, margin:0, ...this.props.style}}
                 transitionEnabled={false}
             >
                 {this.props.closeButton}

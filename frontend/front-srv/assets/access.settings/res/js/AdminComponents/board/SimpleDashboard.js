@@ -52,13 +52,15 @@ let Dashboard = React.createClass({
         );
     },
 
-    getDocButton: function(icon, message, link){
+    getDocButton: function(icon, message, link, props = {}, icProps = {}){
         return <FlatButton
             key={message}
             label={message}
             primary={true}
-            icon={<FontIcon className={"mdi mdi-" + icon}/>}
-            onTouchTap={()=>{window.open(link)}}/>
+            icon={<FontIcon className={"mdi mdi-" + icon} {...icProps}/>}
+            onTouchTap={()=>{window.open(link)}}
+            {...props}
+        />
     },
 
     welcomeClick: function(e){
@@ -79,6 +81,11 @@ let Dashboard = React.createClass({
         const {accent2Color} = this.props.muiTheme.palette;
         const adminStyles= AdminStyles(this.props.muiTheme.palette);
         const paperStyle = {...adminStyles.body.block.container, flex: 1, minWidth: 450, margin: 8};
+        const flatProps = {...adminStyles.props.header.flatButton};
+        const icProps = {
+            color: adminStyles.props.header.flatButton.labelStyle.color,
+            style: {fontSize:20}
+        };
 
 
         const {pydio} = this.props;
@@ -117,7 +124,7 @@ let Dashboard = React.createClass({
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
                     {guidesButtons.map((object) => {
-                        return this.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
+                        return this.getDocButton(object.icon, message('welc.btn.' + object.id), object.link, flatProps,icProps);
                     })}
                 </CardActions>
             </Card>
@@ -141,9 +148,9 @@ let Dashboard = React.createClass({
                 </CardText>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" />} onTouchTap={()=>{window.open('https://github.com/pydio/cells')}} />
-                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" />} onTouchTap={()=>{window.open('https://twitter.com/Pydio')}} />
-                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" />} onTouchTap={()=>{window.open('https://facebook.com/Pydio/')}} />
+                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" {...icProps} />} onTouchTap={()=>{window.open('https://github.com/pydio/cells')}} {...flatProps}/>
+                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" {...icProps}/>} onTouchTap={()=>{window.open('https://twitter.com/Pydio')}} {...flatProps} />
+                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" {...icProps}/>} onTouchTap={()=>{window.open('https://facebook.com/Pydio/')}} {...flatProps} />
                 </CardActions>
             </Card>
         );
@@ -167,8 +174,8 @@ let Dashboard = React.createClass({
                 </List>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} />
-                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} />
+                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} {...flatProps}/>
+                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} {...flatProps}/>
                 </CardActions>
             </Card>
         );

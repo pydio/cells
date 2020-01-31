@@ -180,7 +180,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         var selectedPackage = _state2.selectedPackage;
         var watchJob = _state2.watchJob;
         var backend = _state2.backend;
-        var accent2Color = muiTheme.palette.accent2Color;
+        var primary1Color = muiTheme.palette.primary1Color;
 
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
         var subHeaderStyle = adminStyles.body.block.headerFull;
@@ -288,7 +288,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ' ',
                 _react2['default'].createElement(
                     'a',
-                    { style: { color: accent2Color, cursor: 'pointer' }, onClick: function () {
+                    { style: { color: primary1Color, cursor: 'pointer' }, onClick: function () {
                             return _this3.setState({ upgradeDialog: true });
                         } },
                     '> ',

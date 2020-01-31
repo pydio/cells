@@ -26,12 +26,12 @@ class SubHeader extends Component {
 
     render() {
         const {title, legend, muiTheme, titleStyle, legendStyle} = this.props;
-        const {primary1Color} = muiTheme.palette;
+        const {accent2Color} = muiTheme.palette;
 
         const subheaderStyle = {
             textTransform: 'uppercase',
             fontSize: 12,
-            color: primary1Color,
+            color: accent2Color,
             paddingLeft: 20,
             paddingRight: 20,
             ...titleStyle

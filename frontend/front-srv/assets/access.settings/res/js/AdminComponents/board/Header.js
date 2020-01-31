@@ -86,8 +86,8 @@ class Header extends Component{
                     marginRight: 5
                 },
                 tabActive: {
-                    borderBottom: '2px solid ' + muiTheme.palette.primary1Color,
-                    color: muiTheme.palette.primary1Color,
+                    borderBottom: '2px solid ' + muiTheme.palette.primary2Color,
+                    color: muiTheme.palette.primary2Color,
                 }
             }
         };

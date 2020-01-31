@@ -38,6 +38,10 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var asGridItem = _Pydio$requireLib.asGridItem;
@@ -125,10 +129,14 @@ var RecentLogs = (function (_Component) {
                 display: 'flex',
                 flexDirection: 'column'
             });
+            var adminStyles = (0, _boardAdminStyles2['default'])();
 
             return React.createElement(
                 _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false, style: style }),
+                _extends({}, this.props, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, style),
+                    transitionEnabled: false
+                }),
                 this.props.closeButton,
                 dropDown,
                 React.createElement(

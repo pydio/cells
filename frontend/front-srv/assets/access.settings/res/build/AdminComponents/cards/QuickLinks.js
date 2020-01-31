@@ -18,6 +18,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _utilNavigationHelper = require('../util/NavigationHelper');
 
 var _utilNavigationHelper2 = _interopRequireDefault(_utilNavigationHelper);
@@ -191,12 +195,12 @@ var QuickLinks = (function (_Component) {
                     this.props.getMessage('home.1')
                 );
             }
+            var adminStyles = (0, _boardAdminStyles2['default'])();
             return React.createElement(
                 Paper,
-                _extends({}, this.props, {
-                    zDepth: 1,
+                _extends({}, this.props, adminStyles.body.block.props, {
                     transitionEnabled: false,
-                    style: _extends({}, this.props.style, { display: 'flex', alignItems: 'center' })
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style, { display: 'flex', alignItems: 'center' })
                 }),
                 this.props.closeButton,
                 dropDown,

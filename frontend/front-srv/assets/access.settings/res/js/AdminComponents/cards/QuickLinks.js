@@ -1,3 +1,5 @@
+import AdminStyles from "../board/AdminStyles";
+
 const {Component,PropTypes} = require('react')
 const {DropDownMenu, MenuItem, FlatButton, Paper, IconButton} = require('material-ui')
 const {asGridItem} = require('pydio').requireLib('components')
@@ -128,12 +130,13 @@ class QuickLinks extends Component{
         }else{
             dropDown = <h4 style={{padding: '15px 6px 0', fontWeight: 500, color: '#9e9e9e', fontSize: 15, textTransform: 'uppercase'}}>{this.props.getMessage('home.1')}</h4>;
         }
+        const adminStyles = AdminStyles();
         return (
             <Paper
                 {...this.props}
-                zDepth={1}
+                {...adminStyles.body.block.props}
                 transitionEnabled={false}
-                style={{...this.props.style, display:'flex', alignItems:'center'}}
+                style={{...adminStyles.body.block.container, margin:0,...this.props.style, display:'flex', alignItems:'center'}}
             >
                 {this.props.closeButton}
                 {dropDown}

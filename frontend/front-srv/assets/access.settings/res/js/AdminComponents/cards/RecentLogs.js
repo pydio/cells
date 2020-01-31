@@ -5,6 +5,7 @@ import PydioApi from 'pydio/http/api'
 import {RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
 import ReloadWrapper from '../util/ReloadWrapper'
 import ResourcesManager from 'pydio/http/resources-manager'
+import AdminStyles from "../board/AdminStyles";
 
 const {asGridItem} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
@@ -70,9 +71,15 @@ class RecentLogs extends Component{
             display:'flex',
             flexDirection:'column'
         };
+        const adminStyles=  AdminStyles();
 
         return (
-            <Paper {...this.props} zDepth={1} transitionEnabled={false} style={style}>
+            <Paper
+                {...this.props}
+                {...adminStyles.body.block.props}
+                style={{...adminStyles.body.block.container, margin:0,...style}}
+                transitionEnabled={false}
+            >
                 {this.props.closeButton}
                 {dropDown}
                 <h4>{this.props.getMessage('home.32')}</h4>

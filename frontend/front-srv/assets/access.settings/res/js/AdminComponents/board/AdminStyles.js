@@ -57,8 +57,8 @@ export default function(palette = {}) {
             },
             header: {
                 flatButton:{
-                    backgroundColor:palette.accent2Color,
-                    hoverColor:palette.accent1Color,
+                    backgroundColor:palette.primary1Color,
+                    hoverColor:palette.accent2Color,
                     labelStyle:{
                         color:'white'
                     },
@@ -79,7 +79,7 @@ export default function(palette = {}) {
                 },
                 iconButton:{
                     iconStyle:{
-                        color:palette.accent2Color
+                        color:palette.primary1Color
                     }
                 }
             }

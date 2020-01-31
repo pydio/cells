@@ -1,3 +1,5 @@
+import AdminStyles from "../board/AdminStyles";
+
 const {Component, PropTypes} = require('react')
 const {Paper} = require('material-ui')
 const {asGridItem} = require('pydio').requireLib('components')
@@ -35,6 +37,7 @@ class GraphCard extends Component{
         const containerW = parseInt(this.props.style.width);
         const containerH = parseInt(this.props.style.height);
         const className = (this.props.className?this.props.className + ' ':'') + 'graphs-card';
+        const adminStyles = AdminStyles();
 
         let filters = this.props.filters || {};
         if(this.props.workspaceFilter && this.props.workspaceFilter != -1) {
@@ -48,7 +51,8 @@ class GraphCard extends Component{
             <Paper
                 {...this.props}
                 className={className}
-                zDepth={this.props.zDepth}
+                {...adminStyles.body.block.props}
+                style={{...adminStyles.body.block.container, margin:0,...this.props.style}}
                 transitionEnabled={false}>
                 {this.props.closeButton}
                 <GraphPaginator

@@ -16,6 +16,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _boardAdminStyles = require("../board/AdminStyles");
+
+var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+
 var _utilReloadWrapper = require('../util/ReloadWrapper');
 
 var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
@@ -79,6 +83,7 @@ var GraphCard = (function (_Component) {
             var containerW = parseInt(this.props.style.width);
             var containerH = parseInt(this.props.style.height);
             var className = (this.props.className ? this.props.className + ' ' : '') + 'graphs-card';
+            var adminStyles = (0, _boardAdminStyles2['default'])();
 
             var filters = this.props.filters || {};
             if (this.props.workspaceFilter && this.props.workspaceFilter != -1) {
@@ -91,8 +96,9 @@ var GraphCard = (function (_Component) {
             return React.createElement(
                 Paper,
                 _extends({}, this.props, {
-                    className: className,
-                    zDepth: this.props.zDepth,
+                    className: className
+                }, adminStyles.body.block.props, {
+                    style: _extends({}, adminStyles.body.block.container, { margin: 0 }, this.props.style),
                     transitionEnabled: false }),
                 this.props.closeButton,
                 React.createElement(_graphGraphPaginator2['default'], {

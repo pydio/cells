@@ -1,6 +1,7 @@
 import {Component, PropTypes} from 'react';
 import {Paper, TextField, Checkbox} from 'material-ui'
 import Pydio from 'pydio'
+import AdminStyles from "../board/AdminStyles";
 const {asGridItem} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 
@@ -109,8 +110,12 @@ class ToDoList extends Component{
                 </div>
             );
         }.bind(this));
+        const adminStyles = AdminStyles();
         return (
-            <Paper {...this.props} zDepth={1} transitionEnabled={false}>
+            <Paper {...this.props} transitionEnabled={false}
+                   {...adminStyles.body.block.props}
+                   style={{...adminStyles.body.block.container, margin:0,...this.props.style}}
+            >
                 {this.props.closeButton}
                 <div style={{display:'flex', width:'100%', height:'100%', flexDirection:'column'}}>
                     {<h4>{"Todo List"}</h4>}

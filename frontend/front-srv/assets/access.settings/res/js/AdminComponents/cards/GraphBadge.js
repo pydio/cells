@@ -1,3 +1,5 @@
+import AdminStyles from "../board/AdminStyles";
+
 const {Component, PropTypes} = require('react')
 const {Paper} = require('material-ui')
 const {asGridItem} = require('pydio').requireLib('components')
@@ -54,14 +56,15 @@ class GraphBadge extends Component{
         if(filenameFilter) {
             filters["filename_filter"] = filenameFilter;
         }
+        const adminStyles = AdminStyles();
 
         return (
             <Paper
                 transitionEnabled={false}
                 {...this.props}
                 className={(className?className + ' ':'') + 'graphs-badge'}
-                zDepth={1}
-                style={style}>
+                {...adminStyles.body.block.props}
+                style={{...adminStyles.body.block.container, margin:0, ...style}}>
                 {closeButton}
                 <div className="badge-canvas-container">
                     <RemoteGraphLine

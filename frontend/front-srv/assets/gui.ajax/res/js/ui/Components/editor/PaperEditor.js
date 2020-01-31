@@ -43,7 +43,7 @@ class PaperEditorLayout extends React.Component{
 
         const styles={
             title: {
-                backgroundColor: muiTheme.palette.primary1Color,
+                backgroundColor: muiTheme.palette.accent2Color,
                 borderRadius: '2px 2px 0 0',
                 display:'flex',
                 alignItems: 'center',

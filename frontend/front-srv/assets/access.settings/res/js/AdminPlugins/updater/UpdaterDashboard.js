@@ -133,7 +133,7 @@ let UpdaterDashboard = React.createClass({
         let list = null;
         const {accessByName, muiTheme} = this.props;
         const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob, backend} = this.state;
-        const {accent2Color} = muiTheme.palette;
+        const {primary1Color} = muiTheme.palette;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
         const subHeaderStyle = adminStyles.body.block.headerFull;
 
@@ -204,7 +204,7 @@ let UpdaterDashboard = React.createClass({
         let upgradeWizard;
         if(backend.PackageType === "PydioHome" && backend.Version){
             upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version} pydio={this.props.pydio}/>;
-            versionLabel = <span>{versionLabel} <a style={{color:accent2Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; {this.context.getMessage('upgrade.ed.title', 'updater')}...</a></span>
+            versionLabel = <span>{versionLabel} <a style={{color:primary1Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; {this.context.getMessage('upgrade.ed.title', 'updater')}...</a></span>
         }
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>

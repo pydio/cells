@@ -54,8 +54,8 @@ exports['default'] = function () {
             },
             header: {
                 flatButton: {
-                    backgroundColor: palette.accent2Color,
-                    hoverColor: palette.accent1Color,
+                    backgroundColor: palette.primary1Color,
+                    hoverColor: palette.accent2Color,
                     labelStyle: {
                         color: 'white'
                     },
@@ -76,7 +76,7 @@ exports['default'] = function () {
                 },
                 iconButton: {
                     iconStyle: {
-                        color: palette.accent2Color
+                        color: palette.primary1Color
                     }
                 }
             }

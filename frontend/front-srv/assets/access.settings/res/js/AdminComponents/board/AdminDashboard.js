@@ -29,6 +29,8 @@ const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "./AdminStyles";
+import { colors, getMuiTheme } from 'material-ui/styles';
+import { MuiThemeProvider } from 'material-ui';
 
 const styles = {
     appBar: {
@@ -342,26 +344,38 @@ let AdminDashboard = React.createClass({
             </Paper>
         );
         const adminStyles = AdminStyles();
+        const theme = getMuiTheme({
+            palette:{
+                primary1Color:'#03a9f4',
+                primary2Color:'#f57c00',
+                accent1Color: '#f57c00',
+                accent2Color: '#324a57',
+                avatarsColor        : '#438db3',
+                sharingColor        : '#4aceb0',
+            }
+        });
 
         return (
-            <div className="app-canvas">
-                <AdminLeftNav
-                    pydio={this.props.pydio}
-                    dataModel={dm}
-                    rootNode={dm.getRootNode()}
-                    contextNode={dm.getContextNode()}
-                    open={leftDocked || openLeftNav}
-                    showAdvanced={showAdvanced}
-                    toggleAdvanced={this.toggleAdvanced.bind(this)}
-                />
-                <TasksPanel pydio={pydio} mode={"absolute"}/>
-                <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: leftDocked ? 256 : 0}}>
-                    {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
-                </Paper>
-                <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
-                    {rPanelContent}
-                </Paper>
-            </div>
+            <MuiThemeProvider muiTheme={theme}>
+                <div className="app-canvas">
+                    <AdminLeftNav
+                        pydio={this.props.pydio}
+                        dataModel={dm}
+                        rootNode={dm.getRootNode()}
+                        contextNode={dm.getContextNode()}
+                        open={leftDocked || openLeftNav}
+                        showAdvanced={showAdvanced}
+                        toggleAdvanced={this.toggleAdvanced.bind(this)}
+                    />
+                    <TasksPanel pydio={pydio} mode={"absolute"}/>
+                    <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: leftDocked ? 256 : 0}}>
+                        {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
+                    </Paper>
+                    <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
+                        {rPanelContent}
+                    </Paper>
+                </div>
+            </MuiThemeProvider>
         )
     }
 });
