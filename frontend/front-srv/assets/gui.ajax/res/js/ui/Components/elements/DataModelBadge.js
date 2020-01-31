@@ -17,42 +17,36 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react'
 
-export default React.createClass({
+export default class DataModelBadge extends React.Component {
 
-    propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel),
-        options:React.PropTypes.object,
-        onBadgeIncrease: React.PropTypes.func,
-        onBadgeChange: React.PropTypes.func
-    },
+    state : {value:''};
 
-    getInitialState:function(){
-        return {value:''};
-    },
+    componentDidMount(){
+        const {dataModel, options} = this.props;
 
-    componentDidMount:function(){
-        let options = this.props.options;
-        let dm = this.props.dataModel;
-        let newValue = '';
-        this._observer = function(){
+        this._observer = () => {
+            let newValue = '';
             switch (options.property){
                 case "root_children":
-                    var l = dm.getRootNode().getChildren().size;
+                    const l = dataModel.getRootNode().getChildren().size;
                     newValue = l ? l : 0;
                     break;
                 case "root_label":
-                    newValue = dm.getRootNode().getLabel();
+                    newValue = dataModel.getRootNode().getLabel();
                     break;
                 case "root_children_empty":
-                    var cLength = dm.getRootNode().getChildren().size;
-                    newValue = !cLength?options['emptyMessage']:'';
+                    const cLength = dataModel.getRootNode().getChildren().size;
+                    newValue = cLength ? '' : options['emptyMessage'];
                     break;
                 case "metadata":
                     if(options['metadata_sum']){
                         newValue = 0;
-                        dm.getRootNode().getChildren().forEach(function(c){
-                            if(c.getMetadata().get(options['metadata_sum'])) newValue += parseInt(c.getMetadata().get(options['metadata_sum']));
+                        dataModel.getRootNode().getChildren().forEach(function(c){
+                            if(c.getMetadata().get(options['metadata_sum'])) {
+                                newValue += parseInt(c.getMetadata().get(options['metadata_sum']));
+                            }
                         });
                     }
                     break;
@@ -61,29 +55,29 @@ export default React.createClass({
             }
             let prevValue = this.state.value;
             if(newValue && newValue !== prevValue){
-                if(Object.isNumber(newValue) && this.props.onBadgeIncrease){
-                    if(prevValue !== '' && newValue > prevValue) this.props.onBadgeIncrease(newValue, prevValue ? prevValue : 0, this.props.dataModel);
+                if(Object.isNumber(newValue) && this.props.onBadgeIncrease && prevValue !== '' && newValue > prevValue) {
+                    this.props.onBadgeIncrease(newValue, prevValue ? prevValue : 0, this.props.dataModel);
                 }
             }
             if(this.props.onBadgeChange){
                 this.props.onBadgeChange(newValue, prevValue, this.props.dataModel);
             }
             this.setState({value: newValue});
-        }.bind(this);
-        dm.getRootNode().observe("loaded", this._observer);
-    },
+        };
 
-    componentWillUnmount:function(){
+        dataModel.getRootNode().observe("loaded", this._observer);
+    }
+
+    componentWillUnmount(){
         this.props.dataModel.stopObserving("loaded", this._observer);
-    },
+    }
 
-    render:function(){
-        if(!this.state.value) {
-            return null;
-        } else {
+    render(){
+        if (this.state.value) {
             return (<span className={this.props.options['className']}>{this.state.value}</span>);
+        } else {
+            return null;
         }
     }
 
-});
-
+}
