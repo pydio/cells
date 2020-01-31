@@ -67,16 +67,17 @@ var (
 		TLSKey  string
 	}{}
 
-	niBindUrl        string
-	niExtUrl         string
-	niNoTls          bool
-	niCertFile       string
-	niKeyFile        string
-	niLeEmailContact string
-	niLeAcceptEula   bool
-	niLeUseStagingCA bool
-	niYmlFile        string
-	niJsonFile       string
+	niBindUrl          string
+	niExtUrl           string
+	niNoTls            bool
+	niCertFile         string
+	niKeyFile          string
+	niLeEmailContact   string
+	niLeAcceptEula     bool
+	niLeUseStagingCA   bool
+	niYmlFile          string
+	niJsonFile         string
+	niExitAfterInstall bool
 )
 
 var installCmd = &cobra.Command{
@@ -183,6 +184,13 @@ var installCmd = &cobra.Command{
 
 		// Run browser install
 		performBrowserInstall(cmd, proxyConf)
+
+		if niExitAfterInstall {
+			cmd.Println("")
+			cmd.Println(promptui.IconGood + "\033[1m Installation Finished: installation server will stop\033[0m")
+			cmd.Println("")
+			return
+		}
 
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
@@ -386,6 +394,7 @@ func init() {
 	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
 	flags.StringVar(&niYmlFile, "yaml", "", "Points toward a configuration in YAML format")
 	flags.StringVar(&niJsonFile, "json", "", "Points toward a configuration in JSON format")
+	flags.BoolVar(&niExitAfterInstall, "exit_after_install", false, "Simply exits main process after the installation is done")
 
 	RootCmd.AddCommand(installCmd)
 }
