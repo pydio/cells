@@ -91,10 +91,15 @@ var installCmd = &cobra.Command{
    3. External URL: the URL you communicate to your end-users. It can differ from your bind address, 
       typically if the app is behind a proxy or inside a container with ports mapping.
 
- You can also directly provide --bind and --external URLs. 
- This configures the internal proxy in self-signed mode and launches the browser-based installer. 
- If you are on the same machine, it opens a browser to gather necessary information and configuration for Pydio Cells, otherwise copy/paste the URL. 
- Services will all start automatically after the install process is finished.
+ You can also provide these connection parameters via flags to configure the main gateway 
+ and directly launch the browser install.
+ Typically, define only --bind and --external flags to launch in default self-signed mode: 
+ it generates locally trusted certificate with mkcert.
+ If you are working locally, the installer opens a browser (if you are installing on a remote server, copy/paste the URL),
+ to gather necessary extra information to finalize Pydio Cells installation. 
+
+ Upon installation termination, all micro-services are started automatically and you can directly start using Cells. 
+ It is yet good practice to stop the installer and restart cells in normal mode before going live.
 
  If you do not have a browser access, you can also perform the whole installation process using this CLI.
 
@@ -373,7 +378,7 @@ func init() {
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niNoTls, "no_tls", false, "Generate locally trusted certificate with mkcert")
+	flags.BoolVar(&niNoTls, "no_tls", false, "Configure the main gateway to rather use plain HTTP")
 	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
 	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
 	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
