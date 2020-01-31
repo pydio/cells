@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
+import {FlatButton} from 'material-ui'
 
 export default {
 
@@ -51,7 +53,7 @@ export default {
 
     getCloseButton:function(){
         if(this.state && this.state.showCloseAction){
-            const closeAction = this.props.onCloseAction || ()=>{};
+            const closeAction = this.props.onCloseAction || (()=>{});
             const overlayStyle = {
                 position:'absolute',
                 backgroundColor:'rgba(0,0,0,0.53)',
@@ -66,13 +68,13 @@ export default {
             };
             return(
                 <div style={overlayStyle}>
-                    <MaterialUI.FlatButton
-                        label={pydio.MessageHash['ajxp_admin.home.48']}
+                    <FlatButton
+                        label={Pydio.getInstance().MessageHash['ajxp_admin.home.48']}
                         className="card-close-button"
                         onTouchTap={closeAction}
                         style={{color:'white'}}
                     >
-                    </MaterialUI.FlatButton>
+                    </FlatButton>
                 </div>
             );
         }else{

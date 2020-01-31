@@ -171,14 +171,21 @@ PaperEditorLayout.actionButton = function (label, icon, action) {
 /**
  * Navigation subheader used by PaperEditorLayout
  */
-var PaperEditorNavHeader = _react2['default'].createClass({
-    displayName: 'PaperEditorNavHeader',
 
-    propTypes: {
-        label: _react2['default'].PropTypes.string
-    },
+var PaperEditorNavHeader = (function (_React$Component2) {
+    _inherits(PaperEditorNavHeader, _React$Component2);
 
-    render: function render() {
+    function PaperEditorNavHeader() {
+        _classCallCheck(this, PaperEditorNavHeader);
+
+        _React$Component2.apply(this, arguments);
+    }
+
+    /**
+     * Navigation entry used by PaperEditorLayout.
+     */
+
+    PaperEditorNavHeader.prototype.render = function render() {
 
         return _react2['default'].createElement(
             'div',
@@ -186,53 +193,45 @@ var PaperEditorNavHeader = _react2['default'].createClass({
             this.props.children,
             this.props.label
         );
+    };
+
+    return PaperEditorNavHeader;
+})(_react2['default'].Component);
+
+var PaperEditorNavEntry = (function (_React$Component3) {
+    _inherits(PaperEditorNavEntry, _React$Component3);
+
+    function PaperEditorNavEntry() {
+        _classCallCheck(this, PaperEditorNavEntry);
+
+        _React$Component3.apply(this, arguments);
     }
 
-});
-/**
- * Navigation entry used by PaperEditorLayout.
- */
-var PaperEditorNavEntry = _react2['default'].createClass({
-    displayName: 'PaperEditorNavEntry',
-
-    propTypes: {
-        keyName: _react2['default'].PropTypes.string.isRequired,
-        onClick: _react2['default'].PropTypes.func.isRequired,
-        label: _react2['default'].PropTypes.string,
-        selectedKey: _react2['default'].PropTypes.string,
-        isLast: _react2['default'].PropTypes.bool,
-        // Drop Down Data
-        dropDown: _react2['default'].PropTypes.bool,
-        dropDownData: _react2['default'].PropTypes.object,
-        dropDownChange: _react2['default'].PropTypes.func,
-        dropDownDefaultItems: _react2['default'].PropTypes.array
-    },
-
-    onClick: function onClick() {
+    PaperEditorNavEntry.prototype.onClick = function onClick() {
         this.props.onClick(this.props.keyName);
-    },
+    };
 
-    captureDropDownClick: function captureDropDownClick() {
+    PaperEditorNavEntry.prototype.captureDropDownClick = function captureDropDownClick() {
         if (this.preventClick) {
             this.preventClick = false;
             return;
         }
         this.props.onClick(this.props.keyName);
-    },
+    };
 
-    dropDownChange: function dropDownChange(event, index, item) {
+    PaperEditorNavEntry.prototype.dropDownChange = function dropDownChange(event, index, item) {
         this.preventClick = true;
         this.props.dropDownChange(item);
-    },
+    };
 
-    render: function render() {
+    PaperEditorNavEntry.prototype.render = function render() {
 
         if (!this.props.dropDown || !this.props.dropDownData) {
             return _react2['default'].createElement(
                 'div',
                 {
                     className: 'menu-entry' + (this.props.keyName === this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : ''),
-                    onClick: this.onClick },
+                    onClick: this.onClick.bind(this) },
                 this.props.children,
                 this.props.label
             );
@@ -248,18 +247,22 @@ var PaperEditorNavEntry = _react2['default'].createClass({
         });
         return _react2['default'].createElement(
             'div',
-            { onClick: this.captureDropDownClick, className: 'menu-entry-dropdown' + (this.props.keyName === this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : '') },
+            { onClick: this.captureDropDownClick.bind(this), className: 'menu-entry-dropdown' + (this.props.keyName === this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : '') },
             _react2['default'].createElement(_materialUi.DropDownMenu, {
                 menuItems: menuItemsTpl,
                 className: 'dropdown-full-width',
                 style: { width: 256 },
                 autoWidth: false,
-                onChange: this.dropDownChange
+                onChange: this.dropDownChange.bind(this)
             })
         );
-    }
-});
+    };
+
+    return PaperEditorNavEntry;
+})(_react2['default'].Component);
 
 exports.PaperEditorLayout = PaperEditorLayout;
 exports.PaperEditorNavEntry = PaperEditorNavEntry;
 exports.PaperEditorNavHeader = PaperEditorNavHeader;
+
+// Drop Down Data

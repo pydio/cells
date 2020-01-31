@@ -17,12 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
 
 exports['default'] = {
 
@@ -75,8 +82,8 @@ exports['default'] = {
             return React.createElement(
                 'div',
                 { style: overlayStyle },
-                React.createElement(MaterialUI.FlatButton, {
-                    label: pydio.MessageHash['ajxp_admin.home.48'],
+                React.createElement(_materialUi.FlatButton, {
+                    label: _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.48'],
                     className: 'card-close-button',
                     onTouchTap: closeAction,
                     style: { color: 'white' }
