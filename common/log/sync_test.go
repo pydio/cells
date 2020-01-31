@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"runtime"
+	"runtime/pprof"
 	"testing"
 	"time"
 
@@ -82,13 +84,17 @@ func run() {
 
 func TestCheckLegacyPasswordPydio(t *testing.T) {
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// Forwards logs to the pydio.grpc.logs service to store them
-	serverSync := zapcore.AddSync(NewLogSyncer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG))
+	var syncers []zapcore.WriteSyncer
+	for i := 0; i < 5; i++ {
+		syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG)))
+	}
 
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = RFC3369TimeEncoder
 
-	syncers := []zapcore.WriteSyncer{serverSync}
 	w := zapcore.NewMultiWriteSyncer(syncers...)
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(config),
@@ -98,15 +104,20 @@ func TestCheckLegacyPasswordPydio(t *testing.T) {
 
 	logger = zap.New(core)
 
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 100; i++ {
 		logger.Info(fmt.Sprintf("Testing %d", i))
 	}
 
-	<-time.After(1 * time.Second)
-
+	<-time.After(5 * time.Second)
 	runtime.GC()
-
 	fmt.Println(runtime.NumGoroutine())
+
+	cancel()
+
+	<-time.After(2 * time.Second)
+	runtime.GC()
+	fmt.Println(runtime.NumGoroutine())
+	pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 }
 
 type mockRegistry struct {

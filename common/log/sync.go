@@ -23,49 +23,78 @@ package log
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 
+	client "github.com/micro/go-micro/client"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"
 )
 
 type LogSyncer struct {
 	serverServiceName string
-
+	ctx               context.Context
+	cli               client.Streamer
 	logSyncerMessages chan map[string]string
 }
 
-func NewLogSyncer(serviceName string) *LogSyncer {
+func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
+	syncer := &LogSyncer{
+		serverServiceName: serviceName,
+		ctx:               ctx,
+		logSyncerMessages: make(chan map[string]string, 10),
+	}
 
-	syncer := LogSyncer{serverServiceName: serviceName}
+	go syncer.logSyncerEnd()
+	go syncer.logSyncerWatch()
 
-	syncer.logSyncerMessages = make(chan map[string]string, 1000)
-
-	initLogSyncer(&syncer)
-
-	return &syncer
+	return syncer
 }
 
-func initLogSyncer(syncer *LogSyncer) {
-	go logSyncerWatch(syncer)
+func (syncer *LogSyncer) logSyncerEnd() {
+	<-syncer.ctx.Done()
+	close(syncer.logSyncerMessages)
+	syncer.cli.Close()
 }
 
-func logSyncerWatch(syncer *LogSyncer) {
+func (syncer *LogSyncer) logSyncerClientReconnect() {
 	for {
 		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(context.Background())
+		cli, err := c.PutLog(syncer.ctx)
 		if err != nil {
 			<-time.After(1 * time.Second)
+			fmt.Println("Failing")
+			continue
+		}
+	}
+}
+
+func (syncer *LogSyncer) logSyncerWatch() {
+	fmt.Println("HERE WE ARE")
+	for {
+		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
+		cli, err := c.PutLog(syncer.ctx)
+		if err != nil {
+			<-time.After(1 * time.Second)
+			fmt.Println("Failing")
 			continue
 		}
 
+		fmt.Println("Reading messages")
+
 		for m := range syncer.logSyncerMessages {
+			fmt.Println("Reading Reading")
 			err := cli.Send(&log.Log{Message: m})
 			if err != nil {
 				break
 			}
 		}
+
+		fmt.Println("Returning")
+
+		cli.Close()
+		break
 	}
 }
 

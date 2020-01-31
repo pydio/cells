@@ -43,17 +43,18 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// Same as zapcore.WriteSyncer but without dependency
+// WriteSyncer implements zapcore.WriteSyncer
 type WriteSyncer interface {
 	io.Writer
 	Sync() error
 }
 
 var (
-	logger          *zap.Logger
-	AuditLogger     *zap.Logger
-	TasksLoggerImpl *zap.Logger
-	StdOut          *os.File
+	mainLogger  = newLogger()
+	auditLogger = newLogger()
+	tasksLogger = newLogger()
+
+	StdOut *os.File
 
 	customSyncers []zapcore.WriteSyncer
 	// Parse log lines like below:
@@ -61,114 +62,120 @@ var (
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
 )
 
+// Init for the log package - called by the main
 func Init() {
-	initLogger()
+	SetLoggerInit(func() *zap.Logger {
+
+		StdOut := os.Stdout
+
+		var logger *zap.Logger
+
+		if common.LogConfig == common.LogConfigProduction {
+
+			// Forwards logs to the pydio.grpc.logs service to store them
+			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG))
+
+			// Additional logger: stores messages in local file
+			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
+			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
+				Filename:   filepath.Join(logDir, "pydio.log"),
+				MaxSize:    500, // megabytes
+				MaxBackups: 3,
+				MaxAge:     28, // days
+			})
+
+			syncers := []zapcore.WriteSyncer{StdOut, serverSync, rotaterSync}
+			syncers = append(syncers, customSyncers...)
+			w := zapcore.NewMultiWriteSyncer(syncers...)
+
+			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
+			config := zap.NewProductionEncoderConfig()
+			config.EncodeTime = RFC3369TimeEncoder
+
+			core := zapcore.NewCore(
+				zapcore.NewJSONEncoder(config),
+				w,
+				zapcore.DebugLevel,
+			)
+
+			logger = zap.New(core)
+		} else {
+			config := zap.NewDevelopmentEncoderConfig()
+			config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+			var syncer zapcore.WriteSyncer
+			syncer = StdOut
+			if len(customSyncers) > 0 {
+				syncers := []zapcore.WriteSyncer{StdOut}
+				syncers = append(syncers, customSyncers...)
+				syncer = zapcore.NewMultiWriteSyncer(syncers...)
+			}
+			core := zapcore.NewCore(
+				zapcore.NewConsoleEncoder(config),
+				syncer,
+				common.LogLevel,
+			)
+
+			if common.LogLevel == zap.DebugLevel {
+				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
+			} else {
+				logger = zap.New(core)
+			}
+		}
+		nop := zap.NewNop()
+		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
+		micro.SetLogger(micrologger{nop})
+
+		// Catch StdOut
+		if true || !common.LogCaptureStdOut {
+			fmt.Println("No capture")
+			return logger
+		}
+
+		r, w, err := os.Pipe()
+		if err == nil {
+			os.Stdout = w
+			go func() {
+				scanner := bufio.NewScanner(r)
+				for scanner.Scan() {
+					line := scanner.Text()
+					if parsed := combinedRegexp.FindStringSubmatch(line); len(parsed) > 0 {
+						var fields []zapcore.Field
+						for i, exp := range combinedRegexp.SubexpNames() {
+							if exp == "" || exp == "user" || exp == "other" || exp == "time_local" {
+								continue
+							}
+							fields = append(fields, zap.String(exp, parsed[i]))
+						}
+						logger.Named(common.SERVICE_MICRO_API).Debug("Rest Api Call", fields...)
+					} else {
+						// Log the stdout line to my event logger
+						logger.Info(line)
+					}
+				}
+			}()
+		}
+
+		return logger
+	})
 }
 
-// Register optional writers for logs
+// RegisterWriteSyncer optional writers for logs
 func RegisterWriteSyncer(syncer WriteSyncer) {
 	customSyncers = append(customSyncers, syncer)
-	logger = nil // Will force reinit next time
+
+	mainLogger.forceReset() // Will force reinit next time
 }
 
-func initLogger() *zap.Logger {
-
-	if logger != nil {
-		return logger
-	}
-	StdOut = os.Stdout
-
-	if common.LogConfig == common.LogConfigProduction {
-
-		// Forwards logs to the pydio.grpc.logs service to store them
-		serverSync := zapcore.AddSync(NewLogSyncer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG))
-
-		// Additional logger: stores messages in local file
-		logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
-		rotaterSync := zapcore.AddSync(&lumberjack.Logger{
-			Filename:   filepath.Join(logDir, "pydio.log"),
-			MaxSize:    500, // megabytes
-			MaxBackups: 3,
-			MaxAge:     28, // days
-		})
-
-		syncers := []zapcore.WriteSyncer{StdOut, serverSync, rotaterSync}
-		syncers = append(syncers, customSyncers...)
-		w := zapcore.NewMultiWriteSyncer(syncers...)
-
-		// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
-		config := zap.NewProductionEncoderConfig()
-		config.EncodeTime = RFC3369TimeEncoder
-
-		core := zapcore.NewCore(
-			zapcore.NewJSONEncoder(config),
-			w,
-			common.LogLevel,
-		)
-
-		logger = zap.New(core)
-	} else {
-		config := zap.NewDevelopmentEncoderConfig()
-		config.EncodeLevel = zapcore.CapitalColorLevelEncoder
-
-		var syncer zapcore.WriteSyncer
-		syncer = StdOut
-		if len(customSyncers) > 0 {
-			syncers := []zapcore.WriteSyncer{StdOut}
-			syncers = append(syncers, customSyncers...)
-			syncer = zapcore.NewMultiWriteSyncer(syncers...)
-		}
-		core := zapcore.NewCore(
-			zapcore.NewConsoleEncoder(config),
-			syncer,
-			common.LogLevel,
-		)
-
-		if common.LogLevel == zap.DebugLevel {
-			logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
-		} else {
-			logger = zap.New(core)
-		}
-	}
-	nop := zap.NewNop()
-	_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
-	micro.SetLogger(micrologger{nop})
-
-	// Catch StdOut
-	if !common.LogCaptureStdOut {
-		return logger
-	}
-
-	r, w, err := os.Pipe()
-	if err == nil {
-		os.Stdout = w
-		go func() {
-			scanner := bufio.NewScanner(r)
-			for scanner.Scan() {
-				line := scanner.Text()
-				if parsed := combinedRegexp.FindStringSubmatch(line); len(parsed) > 0 {
-					var fields []zapcore.Field
-					for i, exp := range combinedRegexp.SubexpNames() {
-						if exp == "" || exp == "user" || exp == "other" || exp == "time_local" {
-							continue
-						}
-						fields = append(fields, zap.String(exp, parsed[i]))
-					}
-					logger.Named(common.SERVICE_MICRO_API).Debug("Rest Api Call", fields...)
-				} else {
-					// Log the stdout line to my event logger
-					logger.Info(line)
-				}
-			}
-		}()
-	}
-
-	return logger
+// SetLoggerInit defines what function to use to init the logger
+func SetLoggerInit(f func() *zap.Logger) {
+	mainLogger.set(f)
 }
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) *zap.Logger {
-	newLogger := initLogger()
+	newLogger := mainLogger.get()
+
 	if ctx != nil {
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
 			if serviceColor := servicecontext.GetServiceColor(ctx); serviceColor > 0 && common.LogConfig != common.LogConfigProduction {
@@ -188,15 +195,19 @@ func Logger(ctx context.Context) *zap.Logger {
 			newLogger = fillLogContext(ctx, newLogger)
 		}
 	}
+
 	return newLogger
+}
+
+// SetAuditerInit defines what function to use to init the auditer
+func SetAuditerInit(f func() *zap.Logger) {
+	auditLogger.set(f)
 }
 
 // Auditer returns a zap logger with as much context as possible
 func Auditer(ctx context.Context) *zap.Logger {
-	if AuditLogger == nil {
-		return zap.New(nil)
-	}
-	newLogger := AuditLogger //initAuditLogger()
+	newLogger := auditLogger.get()
+
 	if ctx != nil {
 		newLogger = newLogger.With(zap.String("LogType", "audit"))
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
@@ -205,15 +216,18 @@ func Auditer(ctx context.Context) *zap.Logger {
 		// Add context info to the logger
 		newLogger = fillLogContext(ctx, newLogger)
 	}
+
 	return newLogger
+}
+
+// SetTasksLoggerInit defines what function to use to init the tasks logger
+func SetTasksLoggerInit(f func() *zap.Logger) {
+	tasksLogger.set(f)
 }
 
 // TasksLogger returns a zap logger with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
-	if TasksLoggerImpl == nil {
-		return zap.New(nil)
-	}
-	newLogger := TasksLoggerImpl
+	newLogger := tasksLogger.get()
 	if ctx != nil {
 		newLogger = newLogger.With(zap.String("LogType", "tasks"))
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
@@ -222,6 +236,7 @@ func TasksLogger(ctx context.Context) *zap.Logger {
 		// Add context info to the logger
 		newLogger = fillLogContext(ctx, newLogger)
 	}
+
 	return newLogger
 }
 
@@ -248,27 +263,28 @@ func RFC3369TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 }
 
 func Debug(msg string, fields ...zapcore.Field) {
-	logger.Debug(msg, fields...)
+	mainLogger.Debug(msg, fields...)
 }
 
 func Warn(msg string, fields ...zapcore.Field) {
-	logger.Warn(msg, fields...)
+	mainLogger.Warn(msg, fields...)
 }
 
 func Error(msg string, fields ...zapcore.Field) {
-	logger.Error(msg, fields...)
+	mainLogger.Error(msg, fields...)
 }
 
 func Fatal(msg string, fields ...zapcore.Field) {
-	logger.Fatal(msg, fields...)
+	mainLogger.Fatal(msg, fields...)
 }
 
 func Info(msg string, fields ...zapcore.Field) {
-	logger.Info(msg, fields...)
+	mainLogger.Info(msg, fields...)
 }
 
 // Enrich the passed logger with generic context info, used by both syslog and audit loggers
 func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
+
 	if span, ok := servicecontext.SpanFromContext(ctx); ok {
 		if len(span.RootParentId) > 0 {
 			logger = logger.With(zap.String(common.KEY_SPAN_ROOT_UUID, span.RootParentId))

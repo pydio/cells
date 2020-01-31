@@ -386,6 +386,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
 		stream, err := ds.reader.ListNodes(ctx, req)
 		if err != nil {
+			fmt.Println("This is where we have the error ? ")
 			log.Logger(ctx).Error("ListNodesWithLimit", zap.Error(err))
 			return err
 		}
