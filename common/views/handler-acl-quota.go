@@ -49,10 +49,13 @@ type AclQuotaFilter struct {
 // PutObject checks quota on PutObject operation.
 func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 
+	// Note : as the temporary file created by PutHandler is already in index,
+	// currentUsage ALREADY takes into account the input data size.
+
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
-		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
+		} else if maxQuota > 0 && currentUsage > maxQuota {
 			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
 		}
 	}
@@ -66,7 +69,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return minio.ObjectPart{}, err
-		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
+		} else if maxQuota > 0 && currentUsage > maxQuota {
 			return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
 		}
 	}

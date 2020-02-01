@@ -100,7 +100,8 @@ class UploadItem extends StatusItem {
             completeCallback();
         };
 
-        const MAX_RETRIES = 10;
+        const MAX_RETRIES = 5;
+        const BACK_OFF = 150;
         const retry = (count)=>{
             return (e)=>{
                 if(this._userAborted){
@@ -111,7 +112,9 @@ class UploadItem extends StatusItem {
                 if (count >= MAX_RETRIES) {
                     error(e)
                 } else {
-                    this.uploadPresigned(complete, progress, retry(++count));
+                    window.setTimeout(()=>{
+                        this.uploadPresigned(complete, progress, retry(++count));
+                    }, BACK_OFF * count);
                 }
             };
         };

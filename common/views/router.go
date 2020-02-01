@@ -82,13 +82,12 @@ func NewStandardRouter(options RouterOptions) *Router {
 		handlers = append(handlers, &HandlerEventRead{})
 	}
 
-	// Set Acl Checks BEFORE creating temporary entry via PutHandler
+	handlers = append(handlers, &PutHandler{})
 	if !options.AdminView {
 		handlers = append(handlers, &UploadLimitFilter{})
 		handlers = append(handlers, &AclLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
 	}
-	handlers = append(handlers, &PutHandler{})
 
 	if options.SynchronousTasks {
 		handlers = append(handlers, &SyncFolderTasksHandler{})

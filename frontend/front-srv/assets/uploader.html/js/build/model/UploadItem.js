@@ -139,7 +139,8 @@ var UploadItem = function (_StatusItem) {
                 completeCallback();
             };
 
-            var MAX_RETRIES = 10;
+            var MAX_RETRIES = 5;
+            var BACK_OFF = 150;
             var retry = function retry(count) {
                 return function (e) {
                     if (_this2._userAborted) {
@@ -149,7 +150,9 @@ var UploadItem = function (_StatusItem) {
                     if (count >= MAX_RETRIES) {
                         error(e);
                     } else {
-                        _this2.uploadPresigned(complete, progress, retry(++count));
+                        window.setTimeout(function () {
+                            _this2.uploadPresigned(complete, progress, retry(++count));
+                        }, BACK_OFF * count);
                     }
                 };
             };
