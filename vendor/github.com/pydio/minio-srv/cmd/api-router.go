@@ -78,6 +78,8 @@ func registerAPIRouter(router *mux.Router) {
 		bucket.Methods("GET").HandlerFunc(httpTraceAll(api.GetBucketLocationHandler)).Queries("location", "")
 		// GetBucketPolicy
 		bucket.Methods("GET").HandlerFunc(httpTraceAll(api.GetBucketPolicyHandler)).Queries("policy", "")
+		// GetBucketTagging
+		bucket.Methods("GET").HandlerFunc(httpTraceAll(api.GetBucketTaggingHandler)).Queries("tagging", "")
 
 		// GetBucketACL -- this is a dummy call.
 		bucket.Methods("GET").HandlerFunc(httpTraceAll(api.GetBucketACLHandler)).Queries("acl", "")

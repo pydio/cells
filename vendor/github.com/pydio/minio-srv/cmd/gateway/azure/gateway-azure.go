@@ -1264,3 +1264,7 @@ func (a *azureObjects) IsCompressionSupported() bool {
 func (a *azureObjects) IsNotificationSupported() bool {
 	return true
 }
+
+func (a *azureObjects) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, azureToObjectError(fmt.Errorf("tagging not supported"), bucket)
+}

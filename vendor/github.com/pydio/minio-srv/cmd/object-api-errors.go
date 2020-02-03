@@ -284,6 +284,12 @@ func (e ObjectTooSmall) Error() string {
 	return "size of the object less than what is expected"
 }
 
+type QuotaExceeded GenericError
+
+func (e QuotaExceeded) Error() string {
+	return "authorized quota exceeded"
+}
+
 // OperationTimedOut - a timeout occurred.
 type OperationTimedOut struct {
 	Path string

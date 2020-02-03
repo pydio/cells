@@ -563,3 +563,18 @@ func (l *s3Objects) IsCompressionSupported() bool {
 func (l *s3Objects) IsNotificationSupported() bool {
 	return true
 }
+
+// GetBucketTagging forwards request to s3 storage
+func (l *s3Objects) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	tags := make(map[string]string)
+	if resp, err := l.Client.GetBucketTagging(bucket); err !=  nil {
+		return nil, minio.ErrorRespToObjectError(err, bucket)
+	} else if resp == nil {
+		return tags, nil
+	} else {
+		for _, t := range resp {
+			tags[t.Key] = t.Value
+		}
+		return tags, nil
+	}
+}
