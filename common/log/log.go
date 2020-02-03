@@ -95,7 +95,7 @@ func Init() {
 			core := zapcore.NewCore(
 				zapcore.NewJSONEncoder(config),
 				w,
-				zapcore.DebugLevel,
+				zapcore.InfoLevel,
 			)
 
 			logger = zap.New(core)

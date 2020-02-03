@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	defaults "github.com/pydio/cells/common/micro"
@@ -37,46 +38,48 @@ type LogSyncer struct {
 
 	logSyncerMessages chan map[string]string
 	buf               []map[string]string
+	reconnecting      int32
 }
 
 func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	syncer := &LogSyncer{
 		serverServiceName: serviceName,
-		ctx:               t,
+		ctx:               ctx,
 		logSyncerMessages: make(chan map[string]string, 10),
 	}
 
-	go syncer.logSyncerClientReconnect()
 	go syncer.logSyncerWatch()
+	go syncer.logSyncerClientReconnect()
 
 	return syncer
 }
 
 func (syncer *LogSyncer) logSyncerClientReconnect() {
-	for {
-		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(syncer.ctx)
-		if err != nil {
-			<-time.After(1 * time.Second)
-			continue
-		}
+	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-		// Emptying buffer
-		for _, m := range syncer.buf {
-			cli.Send(&log.Log{Message: m})
-		}
+	c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
 
-		syncer.buf = nil
-		syncer.cli = cli
-
-		<-syncer.ctx.Done()
-
-		if syncer.ctx.Err() == context.Canceled {
-			break
-		}
-
-		syncer.cli = nil
+	cli, err := c.PutLog(syncer.ctx)
+	if err != nil {
+		<-time.After(1 * time.Second)
+		syncer.logSyncerClientReconnect()
+		return
 	}
+
+	// Emptying buffer
+	for i, m := range syncer.buf {
+		err := cli.Send(&log.Log{Message: m})
+		if err != nil {
+			syncer.buf = syncer.buf[i:]
+			syncer.logSyncerClientReconnect()
+			return
+		}
+	}
+
+	syncer.buf = nil
+	syncer.cli = cli
+
+	atomic.StoreInt32(&syncer.reconnecting, 0)
 }
 
 func (syncer *LogSyncer) logSyncerWatch() {
@@ -88,9 +91,16 @@ func (syncer *LogSyncer) logSyncerWatch() {
 
 		err := syncer.cli.Send(&log.Log{Message: m})
 		if err != nil {
-			syncer.buf = append(syncer.buf, m)
-		}
+			syncer.cli.Close()
+			syncer.cli = nil
 
+			syncer.buf = append(syncer.buf, m)
+
+			// Check if we need to send a reconnect message
+			if atomic.LoadInt32(&syncer.reconnecting) == 0 {
+				go syncer.logSyncerClientReconnect()
+			}
+		}
 	}
 }
 

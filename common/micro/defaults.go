@@ -60,14 +60,17 @@ func InitClient(opt ...func() client.Option) {
 }
 
 func newClient(new ...client.Option) client.Client {
-	opts := new
-	for _, o := range clientOpts {
-		opts = append(opts, o())
-	}
+	var opts []client.Option
 
 	opts = append(opts, client.PoolSize(1))
 	opts = append(opts, client.RequestTimeout(10*time.Minute))
 	opts = append(opts, client.Wrap(servicecontext.SpanClientWrapper))
+
+	for _, o := range clientOpts {
+		opts = append(opts, o())
+	}
+
+	opts = append(opts, new...)
 
 	return grpcclient.NewClient(
 		opts...,

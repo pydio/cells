@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"runtime"
-	"runtime/pprof"
 	"testing"
 	"time"
 
@@ -18,6 +16,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
+	. "github.com/smartystreets/goconvey/convey"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -31,7 +30,6 @@ var (
 )
 
 func init() {
-
 	registry.DefaultRegistry = r
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)
@@ -41,24 +39,34 @@ func init() {
 		return client.Registry(r)
 	})
 
-	tick := time.Tick(2 * time.Second)
-	timeout := time.After(10 * time.Second)
+	tick := time.Tick(5 * time.Second)
+	timeout := time.After(20 * time.Second)
+	running := false
+	var cancel context.CancelFunc
 	go func() {
 		for {
 			select {
 			case <-tick:
-				fmt.Println("Running")
-				run()
+				if !running {
+					cancel = run()
+					running = true
+				} else {
+					cancel()
+					running = false
+				}
 				break
 			case <-timeout:
+				if running {
+					cancel()
+				}
 				return
 			}
 		}
 	}()
 }
 
-func run() {
-	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
+func run() context.CancelFunc {
+	ctx, cancel := context.WithCancel(context.Background())
 
 	service := micro.NewService(
 		micro.Context(ctx),
@@ -71,7 +79,7 @@ func run() {
 
 	service.Init()
 
-	plog.RegisterLogRecorderHandler(service.Server(), &Handler{})
+	plog.RegisterLogRecorderHandler(service.Server(), &Handler{ctx: ctx})
 
 	go func() {
 		// Disabling server from time to time
@@ -80,17 +88,17 @@ func run() {
 		}
 
 	}()
+
+	return cancel
 }
 
-func TestCheckLegacyPasswordPydio(t *testing.T) {
+func TestLogSync(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Forwards logs to the pydio.grpc.logs service to store them
 	var syncers []zapcore.WriteSyncer
-	for i := 0; i < 5; i++ {
-		syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG)))
-	}
+	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG)))
 
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = RFC3369TimeEncoder
@@ -102,22 +110,37 @@ func TestCheckLegacyPasswordPydio(t *testing.T) {
 		zapcore.DebugLevel,
 	)
 
-	logger = zap.New(core)
+	logger := zap.New(core)
 
-	for i := 0; i < 100; i++ {
-		logger.Info(fmt.Sprintf("Testing %d", i))
-	}
+	go func() {
+		i := 0
+		for {
+			i++
+			logger.Info(fmt.Sprintf("Testing %d", i))
+			<-time.After(1 * time.Millisecond)
+		}
+	}()
 
-	<-time.After(5 * time.Second)
-	runtime.GC()
-	fmt.Println(runtime.NumGoroutine())
+	go func() {
+		i := 0
+		for {
+			i++
+			logger.Info(fmt.Sprintf("Parallel Testing %d", i))
+			<-time.After(1 * time.Millisecond)
+		}
+	}()
 
-	cancel()
+	Convey("Test goroutine leaks", t, func() {
+		<-time.After(20 * time.Second)
+		runtime.GC()
+		So(runtime.NumGoroutine(), ShouldBeLessThan, 20)
 
-	<-time.After(2 * time.Second)
-	runtime.GC()
-	fmt.Println(runtime.NumGoroutine())
-	pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		cancel()
+
+		<-time.After(2 * time.Second)
+		So(runtime.NumGoroutine(), ShouldBeLessThan, 10)
+		runtime.GC()
+	})
 }
 
 type mockRegistry struct {
@@ -138,6 +161,8 @@ func (m *mockRegistry) Register(s *registry.Service, opts ...registry.RegisterOp
 
 // Deregister a service node
 func (m *mockRegistry) Deregister(s *registry.Service) error {
+	m.services = nil
+
 	return nil
 }
 
@@ -175,21 +200,31 @@ func (w *mockRegistryWatcher) Next() (*registry.Result, error) {
 func (w *mockRegistryWatcher) Stop() {
 }
 
-type Handler struct{}
+type Handler struct {
+	ctx context.Context
+}
 
 // PutLog retrieves the log messages from the proto stream and stores them in the index.
 func (h *Handler) PutLog(ctx context.Context, stream plog.LogRecorder_PutLogStream) error {
 	for {
-		line, err := stream.Recv()
+		_, err := stream.Recv()
 		if err == io.EOF {
-			return stream.Close()
+			return err
 		}
 
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("Received ", line.GetMessage())
+		// fmt.Println("Received ", line.GetMessage())
+
+		// If the service context is done, then we close the stream for the mock grpc
+		select {
+		case <-h.ctx.Done():
+			return stream.Close()
+		default:
+			continue
+		}
 	}
 
 	return nil
