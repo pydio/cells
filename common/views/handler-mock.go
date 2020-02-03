@@ -228,3 +228,7 @@ func (h *HandlerMock) MultipartListObjectParts(ctx context.Context, target *tree
 func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
+
+func (h *HandlerMock) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+	return nil
+}
