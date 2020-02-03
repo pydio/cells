@@ -139,12 +139,20 @@ var UploadItem = function (_StatusItem) {
                 completeCallback();
             };
 
-            var MAX_RETRIES = 5;
+            var MAX_RETRIES = 2;
             var BACK_OFF = 150;
             var retry = function retry(count) {
                 return function (e) {
+                    if (e && e.indexOf && e.indexOf('422') >= 0) {
+                        error(new Error('Quota reached! Cannot upload more to this workspace'));
+                        return;
+                    }
                     if (_this2._userAborted) {
-                        if (e) error(e);else error(new Error('Interrupted by user'));
+                        if (e) {
+                            error(e);
+                        } else {
+                            error(new Error('Interrupted by user'));
+                        }
                         return;
                     }
                     if (count >= MAX_RETRIES) {

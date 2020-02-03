@@ -100,13 +100,20 @@ class UploadItem extends StatusItem {
             completeCallback();
         };
 
-        const MAX_RETRIES = 5;
+        const MAX_RETRIES = 2;
         const BACK_OFF = 150;
         const retry = (count)=>{
             return (e)=>{
+                if (e && e.indexOf && e.indexOf('422') >= 0) {
+                    error(new Error('Quota reached! Cannot upload more to this workspace'));
+                    return;
+                }
                 if(this._userAborted){
-                    if(e) error(e);
-                    else error(new Error('Interrupted by user'));
+                    if(e) {
+                        error(e);
+                    } else {
+                        error(new Error('Interrupted by user'));
+                    }
                     return;
                 }
                 if (count >= MAX_RETRIES) {

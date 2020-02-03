@@ -133,6 +133,14 @@ class Transfer extends React.Component{
                 textOverflow: 'ellipsis',
                 flex: 1,
             },
+            errMessage: {
+                color: '#e53935',
+                fontSize: 11,
+                flex: 2,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+            },
             pgBar: {
                 width: 80,
                 position:'relative'
@@ -152,7 +160,7 @@ class Transfer extends React.Component{
         };
 
 
-        let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor;
+        let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor, errMessage;
 
         if (children.length){
             if(open || (isSession && status !== 'analyse')){
@@ -191,7 +199,6 @@ class Transfer extends React.Component{
                 pgColor = '#4caf50';
             }
         } else {
-            const status = item.getStatus();
             iconClass = "mdi mdi-file";
             const ext = PathUtils.getFileExtension(item.getFullPath());
             if(extensions.has(ext)) {
@@ -236,11 +243,16 @@ class Transfer extends React.Component{
             leftIcon = <span className={iconClass} style={styles.leftIcon}/>
         }
 
+        if(status === 'error' && item.getErrorMessage()){
+            errMessage = <span style={styles.errMessage} title={item.getErrorMessage()}>{item.getErrorMessage()}</span>
+        }
+
         return (
             <div style={styles.main} className={"upload-" + status + " " + (className?className:"")}>
                 <div style={styles.line}>
                     {leftIcon}
                     <span onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</span>
+                    {errMessage}
                     <div style={styles.pgBar}>{progressBar}</div>
                     <span style={styles.rightButton}>{rightButton}</span>
                 </div>

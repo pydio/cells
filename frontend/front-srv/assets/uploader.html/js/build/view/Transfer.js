@@ -175,6 +175,14 @@ var Transfer = function (_React$Component) {
                     textOverflow: 'ellipsis',
                     flex: 1
                 },
+                errMessage: {
+                    color: '#e53935',
+                    fontSize: 11,
+                    flex: 2,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                },
                 pgBar: {
                     width: 80,
                     position: 'relative'
@@ -199,7 +207,8 @@ var Transfer = function (_React$Component) {
                 leftIcon = void 0,
                 toggleOpen = void 0,
                 toggleCallback = void 0,
-                pgColor = void 0;
+                pgColor = void 0,
+                errMessage = void 0;
 
             if (children.length) {
                 if (open || isSession && status !== 'analyse') {
@@ -249,7 +258,6 @@ var Transfer = function (_React$Component) {
                     pgColor = '#4caf50';
                 }
             } else {
-                var _status = item.getStatus();
                 iconClass = "mdi mdi-file";
                 var ext = _path2.default.getFileExtension(item.getFullPath());
                 if (extensions.has(ext)) {
@@ -259,11 +267,11 @@ var Transfer = function (_React$Component) {
                     iconClass = 'mimefont mdi mdi-' + fontIcon;
                 }
 
-                if (_status === 'loading') {
+                if (status === 'loading') {
                     rightButton = _react2.default.createElement('span', { className: 'mdi mdi-stop', onClick: function onClick() {
                             return _this3.abort();
                         } });
-                } else if (_status === 'error') {
+                } else if (status === 'error') {
                     pgColor = '#e53935';
                     rightButton = _react2.default.createElement('span', { className: "mdi mdi-restart", style: { color: '#e53935' }, onClick: function onClick() {
                             item.process(function () {});
@@ -305,6 +313,14 @@ var Transfer = function (_React$Component) {
                 leftIcon = _react2.default.createElement('span', { className: iconClass, style: styles.leftIcon });
             }
 
+            if (status === 'error' && item.getErrorMessage()) {
+                errMessage = _react2.default.createElement(
+                    'span',
+                    { style: styles.errMessage, title: item.getErrorMessage() },
+                    item.getErrorMessage()
+                );
+            }
+
             return _react2.default.createElement(
                 'div',
                 { style: styles.main, className: "upload-" + status + " " + (className ? className : "") },
@@ -319,6 +335,7 @@ var Transfer = function (_React$Component) {
                         ' ',
                         toggleOpen
                     ),
+                    errMessage,
                     _react2.default.createElement(
                         'div',
                         { style: styles.pgBar },
