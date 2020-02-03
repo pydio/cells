@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 
+	"github.com/pydio/cells/common"
+
 	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -34,6 +36,10 @@ type EventsSubscriber struct {
 
 // Handle the events received and send them to the subscriber
 func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
+
+	if msg.GetType() == tree.NodeChangeEvent_CREATE && (msg.GetTarget().Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, msg.GetTarget())) {
+		return nil
+	}
 
 	go func() {
 		e.outputChannel <- &event.EventWithContext{
