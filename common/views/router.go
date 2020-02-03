@@ -239,6 +239,10 @@ func (v *Router) StreamChanges(ctx context.Context, in *tree.StreamChangesReques
 	return v.handlers[0].StreamChanges(ctx, in, opts...)
 }
 
+func (v *Router) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+	return v.handlers[0].WrappedCanApply(srcCtx, targetCtx, operation)
+}
+
 // To respect Handler interface
 func (v *Router) SetNextHandler(h Handler)      {}
 func (v *Router) SetClientsPool(p *ClientsPool) {}

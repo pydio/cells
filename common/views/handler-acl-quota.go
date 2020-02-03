@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -56,7 +57,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
-			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+			return 0, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -70,7 +71,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return minio.ObjectPart{}, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
-			return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+			return minio.ObjectPart{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -84,13 +85,41 @@ func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tr
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {
-			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+			return 0, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
 
+// WrappedCanApply will perform checks on quota to make sure an operation is authorized
+func (a *AclQuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+	switch operation.GetType() {
+	case tree.NodeChangeEvent_CREATE:
+		targetNode := operation.GetTarget()
+		if bI, ok := GetBranchInfo(targetCtx, "in"); ok && !bI.Binary {
+			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, &bI.Workspace); err != nil {
+				return err
+			} else if maxQuota > 0 && currentUsage+targetNode.Size > maxQuota {
+				return errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			}
+		}
+	case tree.NodeChangeEvent_UPDATE_PATH:
+		src, o := GetBranchInfo(srcCtx, "from")
+		tgt, o2 := GetBranchInfo(targetCtx, "to")
+		if o && o2 && src.Workspace.UUID != tgt.Workspace.UUID {
+			log.Logger(srcCtx).Info("Move accross workspace, check quota on target!")
+			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, &tgt.Workspace); err != nil {
+				return err
+			} else if maxQuota > 0 && currentUsage+operation.GetTarget().Size > maxQuota {
+				return errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			}
+		}
+	}
+	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
+}
+
+// ComputeQuota finds quota and current usage for a given workspace
 func (a *AclQuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Workspace) (quota int64, usage int64, err error) {
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)

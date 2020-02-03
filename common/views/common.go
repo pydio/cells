@@ -128,6 +128,7 @@ type Handler interface {
 	MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (minio.ListObjectPartsResult, error)
 
 	ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error
+	WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error
 
 	SetNextHandler(h Handler)
 	SetClientsPool(p *ClientsPool)

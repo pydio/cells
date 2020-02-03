@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/micro/go-micro/client"
@@ -232,4 +233,53 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable (CopyObject)")
 	}
 	return a.next.CopyObject(ctx, from, to, requestData)
+}
+
+func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+
+	var rwErr error
+	switch operation.GetType() {
+	case tree.NodeChangeEvent_CREATE:
+
+		rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "in", true, false, true)
+
+	case tree.NodeChangeEvent_DELETE:
+
+		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, false, true)
+
+	case tree.NodeChangeEvent_UPDATE_PATH:
+
+		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "from", false, true, true)
+		// For delete operations, ignore write permissions as recycle can be outside of authorized paths
+		if operation.GetTarget().GetStringMeta(common.RECYCLE_BIN_NAME) != "true" {
+			rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "to", true, false, true)
+		}
+
+	case tree.NodeChangeEvent_READ:
+
+		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, true, false)
+
+	}
+	if rwErr != nil {
+		return rwErr
+	}
+	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
+}
+
+func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identifier string, orParents bool, read bool, write bool) error {
+
+	accessList := c.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
+	ctx, parents, err := AncestorsListFromContext(c, node, identifier, a.clientsPool, orParents)
+	if err != nil {
+		return err
+	}
+	fmt.Println(parents)
+	if write && !accessList.CanWrite(ctx, parents...) {
+		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not writeable")
+	}
+	if read && !accessList.CanRead(ctx, parents...) {
+		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not readable")
+	}
+	return nil
+
 }
