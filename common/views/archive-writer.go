@@ -104,6 +104,15 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 	defer z.Close()
 	var totalSizeWritten int64
 
+	// Make sure to load root nodes
+	for i, n := range nodes {
+		if r, e := w.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}); e != nil {
+			return 0, e
+		} else {
+			nodes[i] = r.GetNode()
+		}
+	}
+
 	parentRoot := w.commonRoot(nodes)
 
 	log.Logger(ctx).Debug("ZipSelection", zap.String("parent", parentRoot), zap.Any("selection", nodes))
