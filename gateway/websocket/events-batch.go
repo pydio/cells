@@ -57,8 +57,8 @@ func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEv
 			case e := <-b.in:
 				b.buffer = append(b.buffer, e)
 			case <-time.After(timeout):
-				b.Flush()
 				b.closed = true
+				b.Flush()
 				return
 			}
 		}

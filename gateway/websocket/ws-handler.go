@@ -152,6 +152,12 @@ func (w *WebsocketHandler) getBatcherForUuid(uuid string) *NodeEventsBatcher {
 // to buffer them and flatten them into one.
 func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
+	defer func() {
+		if e := recover(); e != nil {
+			log.Logger(ctx).Info("recovered a panic in WebSocket handler", zap.Any("e", e))
+		}
+	}()
+
 	switch event.Type {
 	case tree.NodeChangeEvent_UPDATE_META, tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 		if event.Target != nil {

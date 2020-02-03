@@ -47,6 +47,7 @@ func TestEventBatcher(t *testing.T) {
 
 		So(dispatched, ShouldHaveLength, 1)
 		So(batchers, ShouldHaveLength, 0)
+		So(batcher.closed, ShouldBeTrue)
 
 	})
 
