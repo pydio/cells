@@ -20,11 +20,6 @@
 
 import AdminDashboard from './board/AdminDashboard'
 import SimpleDashboard from './board/SimpleDashboard'
-import GroupAdminDashboard from './board/GroupAdminDashboard'
-import TabBoard from './board/TabBoard'
-import Header from './board/Header'
-import SubHeader from './board/SubHeader'
-import AdminStyles from './board/AdminStyles'
 
 import {MessagesConsumerMixin, PydioConsumerMixin} from './util/Mixins'
 import NavigationHelper from './util/NavigationHelper'
@@ -34,37 +29,24 @@ import CodeMirrorField from './util/CodeMirrorField'
 import PluginsLoader from './util/PluginsLoader'
 import QuotaField from './util/QuotaField'
 
-import GraphBadge from './cards/GraphBadge'
-import GraphCard from './cards/GraphCard'
-import QuickLinks from './cards/QuickLinks'
-import RecentLogs from './cards/RecentLogs'
-import ServicesStatus from './cards/ServicesStatus'
-import ToDoList from './cards/ToDoList'
-import WelcomePanel from './cards/WelcomePanel'
+import AdminStyles from './styles/AdminStyles'
+import Header from './styles/Header'
+import SubHeader from './styles/SubHeader'
 
 window.AdminComponents = {
+    AdminDashboard,
+    SimpleDashboard,
+
     MessagesConsumerMixin,
     PydioConsumerMixin,
     NavigationHelper,
     MenuItemListener,
     DNDActionsManager,
     PluginsLoader,
-    AdminStyles,
-
-    AdminDashboard,
-    SimpleDashboard,
-    GroupAdminDashboard,
-    Header,
-    SubHeader,
     CodeMirrorField,
-    TabBoard,
     QuotaField,
 
-    GraphCard,
-    GraphBadge,
-    QuickLinks,
-    RecentLogs,
-    ServicesStatus,
-    ToDoList,
-    WelcomePanel
+    AdminStyles,
+    Header,
+    SubHeader,
 };

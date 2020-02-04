@@ -41,13 +41,13 @@ var _lodashShuffle = require('lodash.shuffle');
 
 var _lodashShuffle2 = _interopRequireDefault(_lodashShuffle);
 
-var _Header = require('./Header');
+var _stylesHeader = require('../styles/Header');
 
-var _Header2 = _interopRequireDefault(_Header);
+var _stylesHeader2 = _interopRequireDefault(_stylesHeader);
 
-var _AdminStyles = require("./AdminStyles");
+var _stylesAdminStyles = require("../styles/AdminStyles");
 
-var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
@@ -112,7 +112,7 @@ var Dashboard = _react2['default'].createClass({
         var flexContainerStyle = _extends({}, verticalFlex);
         var accent2Color = this.props.muiTheme.palette.accent2Color;
 
-        var adminStyles = (0, _AdminStyles2['default'])(this.props.muiTheme.palette);
+        var adminStyles = (0, _stylesAdminStyles2['default'])(this.props.muiTheme.palette);
         var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
         var flatProps = _extends({}, adminStyles.props.header.flatButton);
         var icProps = {
@@ -254,7 +254,7 @@ var Dashboard = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout" },
-            _react2['default'].createElement(_Header2['default'], {
+            _react2['default'].createElement(_stylesHeader2['default'], {
                 title: message('welc.title'),
                 icon: 'mdi mdi-account-multiple'
             }),

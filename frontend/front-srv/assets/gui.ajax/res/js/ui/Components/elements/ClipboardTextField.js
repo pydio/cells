@@ -17,30 +17,34 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react'
+import {TextField} from 'material-ui'
 
-export default React.createClass({
+export default class ClipboardTextField extends React.Component{
 
-    propTypes: {
+    static propTypes: {
         floatingLabelText: React.PropTypes.string,
 
         inputValue: React.PropTypes.string,
         inputClassName: React.PropTypes.string,
         getMessage: React.PropTypes.func,
         inputCopyMessage: React.PropTypes.string
-    },
+    };
 
-    getInitialState: function(){
-        return {copyMessage: null};
-    },
+    constructor(props){
+        super(props);
+        this.state = {copyMessage: null}
+    }
 
-    componentDidMount:function(){
+    componentDidMount(){
         this.attachClipboard();
-    },
-    componentDidUpdate:function(){
-        this.attachClipboard();
-    },
+    }
 
-    attachClipboard:function(){
+    componentDidUpdate(){
+        this.attachClipboard();
+    }
+
+    attachClipboard(){
         if(this._clip){
             this._clip.destroy();
         }
@@ -53,7 +57,7 @@ export default React.createClass({
             }.bind(this)
         });
         this._clip.on('success', function(){
-            this.setState({copyMessage:this.props.getMessage(this.props.inputCopyMessage || '192')}, this.clearCopyMessage);
+            this.setState({copyMessage:this.props.getMessage(this.props.inputCopyMessage || '192')}, this.clearCopyMessage.bind(this));
         }.bind(this));
         this._clip.on('error', function(){
             var copyMessage;
@@ -63,23 +67,24 @@ export default React.createClass({
                 copyMessage = this.props.getMessage('143');
             }
             this.refs['input'].focus();
-            this.setState({copyMessage:copyMessage}, this.clearCopyMessage);
+            this.setState({copyMessage:copyMessage}, this.clearCopyMessage.bind(this));
         }.bind(this));
-    },
+    }
 
-    clearCopyMessage:function(){
+    clearCopyMessage(){
         global.setTimeout(function(){
             this.setState({copyMessage:''});
         }.bind(this), 3000);
-    },
+    }
 
-    render: function(){
+    render(){
 
         let select = function(e){
             e.currentTarget.select();
         };
 
         let copyMessage = null;
+
         if(this.state.copyMessage){
             var setHtml = function(){
                 return {__html:this.state.copyMessage};
@@ -106,7 +111,7 @@ export default React.createClass({
         return (
             <div>
                 <div style={{position:'relative'}}>
-                    <MaterialUI.TextField
+                    <TextField
                         fullWidth={true}
                         ref="input"
                         floatingLabelText={this.props.floatingLabelText}
@@ -128,4 +133,4 @@ export default React.createClass({
         );
     }
 
-});
+}

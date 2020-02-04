@@ -24,9 +24,7 @@ const {muiThemeable} = require('material-ui/styles');
 
 import NavigationHelper from '../util/NavigationHelper'
 import MenuItemListener from '../util/MenuItemListener'
-import AdminStyles from "./AdminStyles";
-const AjxpNode = require('pydio/model/node');
-const PydioDataModel = require('pydio/model/data-model');
+import AdminStyles from "../styles/AdminStyles";
 const {UserWidget} = Pydio.requireLib('workspaces');
 
 class AdminMenu extends React.Component{

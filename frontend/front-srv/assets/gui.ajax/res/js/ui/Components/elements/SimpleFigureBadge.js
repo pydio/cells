@@ -24,21 +24,19 @@ import {Paper} from 'material-ui'
 /**
  * Simple MuiPaper with a figure and a legend
  */
-export default React.createClass({
+export default class SimpleFigureBadge extends React.Component{
 
-    propTypes:{
+    static propTypes:{
         colorIndicator:React.PropTypes.string,
         figure:React.PropTypes.number.isRequired,
         legend:React.PropTypes.string
-    },
+    };
 
-    getDefaultProps:function(){
-        return {
-            colorIndicator: ''
-        }
-    },
+    constructor(props){
+        super({colorIndicator: '', ...props});
+    }
 
-    render: function(){
+    render(){
         return (
             <Paper style={{display:'inline-block', marginLeft:16}}>
                 <div className="figure-badge" style={(this.props.colorIndicator?{borderLeftColor:this.props.colorIndicator}:{})}>
@@ -48,5 +46,4 @@ export default React.createClass({
             </Paper>
         );
     }
-});
-
+}

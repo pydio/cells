@@ -76,7 +76,7 @@ class LogBoard extends React.Component {
     }
 
     render(){
-        const {pydio, noHeader, service, disableExport} = this.props;
+        const {pydio, noHeader, service, disableExport, currentNode} = this.props;
         const {selectedLog, page, size, date, endDate, filter, contentType, z, results} = this.state;
 
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
@@ -145,6 +145,7 @@ class LogBoard extends React.Component {
                     <div className="vertical-layout" style={{width:'100%'}}>
                         <AdminComponents.Header
                             title={title}
+                            icon={currentNode.getMetadata().get('icon_class')}
                             actions={buttons}
                             reloadAction={this.handleReload.bind(this)}
                             loading={this.state.loading}

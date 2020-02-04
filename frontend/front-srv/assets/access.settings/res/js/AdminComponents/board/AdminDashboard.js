@@ -28,7 +28,7 @@ const {UserWidget} = Pydio.requireLib('workspaces');
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
-import AdminStyles from "./AdminStyles";
+import AdminStyles from "../styles/AdminStyles";
 import { colors, getMuiTheme } from 'material-ui/styles';
 import { MuiThemeProvider } from 'material-ui';
 
@@ -206,9 +206,6 @@ let AdminDashboard = React.createClass({
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         DOMUtils.observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
-        ResourcesManager.loadClass("SettingsBoards").then(c => {
-            this.setState({searchComponent:{namespace:'SettingsBoards', componentName:'GlobalSearch'}});
-        }).catch(e => {});
     },
 
     componentWillUnmount(){
@@ -233,23 +230,28 @@ let AdminDashboard = React.createClass({
     },
 
     routeMasterPanel(node, selectedNode){
-        const path = node.getPath();
-        if(!selectedNode) selectedNode = node;
-
+        const {pydio} = this.props;
+        if(!selectedNode) {
+            selectedNode = node;
+        }
         let dynamicComponent;
         if(node.getMetadata().get('component')){
             dynamicComponent = node.getMetadata().get('component');
         }else{
-            return <div>No Component Found</div>;
+            return (
+                <div style={{width: '100%',height: '100%', minHeight:500,display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
+                    <div style={{fontSize: 18, color: 'rgba(0,0,0,0.33)'}}>{pydio.MessageHash["466"]}</div>
+                </div>
+            );
         }
         const parts = dynamicComponent.split('.');
         const additionalProps = node.getMetadata().has('props') ? JSON.parse(node.getMetadata().get('props')) : {};
         return (
             <AsyncComponent
-                pydio={this.props.pydio}
+                pydio={pydio}
                 namespace={parts[0]}
                 componentName={parts[1]}
-                dataModel={this.props.pydio.getContextHolder()}
+                dataModel={pydio.getContextHolder()}
                 rootNode={node}
                 currentNode={selectedNode}
                 openEditor={this.openEditor}
@@ -268,7 +270,7 @@ let AdminDashboard = React.createClass({
     },
 
     render(){
-        const {showAdvanced, rightPanel, leftDocked, openLeftNav, searchComponent} = this.state;
+        const {showAdvanced, rightPanel, leftDocked, openLeftNav} = this.state;
         const {pydio, muiTheme} = this.props;
         const dm = pydio.getContextHolder();
 
@@ -276,7 +278,7 @@ let AdminDashboard = React.createClass({
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        let searchIconButton, leftIconButton, toggleAdvancedButton, aboutButton;
+        let leftIconButton, toggleAdvancedButton, aboutButton;
 
         // LEFT BUTTON
         let leftIcon, leftIconClick;
@@ -296,11 +298,6 @@ let AdminDashboard = React.createClass({
                 <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
             </div>
         );
-
-        // SEARCH BUTTON
-        if(searchComponent){
-            searchIconButton = <AsyncComponent {...searchComponent} appBarStyles={styles} pydio={pydio}/>
-        }
 
         toggleAdvancedButton = (
             <IconButton
@@ -330,7 +327,6 @@ let AdminDashboard = React.createClass({
             <Paper zDepth={1} rounded={false} style={appBarStyle}>
                 {leftIconButton}
                 <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
-                {searchIconButton}
                 {toggleAdvancedButton}
                 {aboutButton}
                 <UserWidget

@@ -149,11 +149,10 @@ let RolesDashboard = React.createClass({
                 iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                desktop={true}
                 onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
             >
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
             </IconMenu>
         ];
 
