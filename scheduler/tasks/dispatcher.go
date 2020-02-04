@@ -38,6 +38,7 @@ type Dispatcher struct {
 	tags       map[string]string
 	active     int
 	activeChan chan int
+	quit       chan bool
 }
 
 // NewDispatcher creates and initialises a new Dispatcher with this amount of workers.
@@ -50,49 +51,51 @@ func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
 		JobQueue:   jobQueue,
 		tags:       tags,
 		activeChan: make(chan int),
+		quit:       make(chan bool, 1),
 	}
 }
 
 // Run simply starts the N workers of this dispacher.
 func (d *Dispatcher) Run() {
 	// starting n number of workers
+	var workers []Worker
+
 	for i := 0; i < d.maxWorker; i++ {
 		worker := NewWorker(d.WorkerPool, d.JobQueue, d.activeChan, d.tags)
 		worker.Start()
+
+		workers = append(workers, worker)
 	}
+
 	g := metrics.GetMetrics().Tagged(d.tags).Gauge("activeWorkers")
-	go d.dispatch()
+
 	go func() {
 		for {
 			select {
 			case a := <-d.activeChan:
 				d.active += a
 				g.Update(float64(d.active))
+			case jobImpl := <-d.JobQueue:
+				// a jobs request has been received
+				go func(job Runnable) {
+					// try to obtain a worker job channel that is available.
+					// this will block until a worker is idle
+					jobChannel := <-d.WorkerPool
+
+					// dispatch the job to the worker job channel
+					jobChannel <- job
+				}(jobImpl)
+			case <-d.quit:
+				for _, worker := range workers {
+					worker.Stop()
+				}
+				return
 			}
 		}
-
 	}()
 }
 
-// Stop sends a quit signal to all workers. NOT YET IMPLEMENTED
+// Stop sends a quit signal to all workers and the main dispatcher
 func (d *Dispatcher) Stop() {
-	// TODO
-	// Use a signal to send Quit to all workers
-}
-
-func (d *Dispatcher) dispatch() {
-	for {
-		select {
-		case jobImpl := <-d.JobQueue:
-			// a jobs request has been received
-			go func(job Runnable) {
-				// try to obtain a worker job channel that is available.
-				// this will block until a worker is idle
-				jobChannel := <-d.WorkerPool
-
-				// dispatch the job to the worker job channel
-				jobChannel <- job
-			}(jobImpl)
-		}
-	}
+	d.quit <- true
 }

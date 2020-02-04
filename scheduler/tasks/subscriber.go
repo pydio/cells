@@ -202,7 +202,6 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 		if _, ok := s.JobsDefinitions[msg.JobRemoved]; ok {
 			delete(s.JobsDefinitions, msg.JobRemoved)
 		}
-		// TODO: Shall we stop everything when changing config?
 		if dispatcher, ok := s.Dispatchers[msg.JobRemoved]; ok {
 			dispatcher.Stop()
 			delete(s.Dispatchers, msg.JobRemoved)
@@ -210,7 +209,6 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	}
 	if msg.JobUpdated != nil {
 		s.JobsDefinitions[msg.JobUpdated.ID] = msg.JobUpdated
-		// TODO: Shall we stop everything when changing config? Or wait that it's idle for next time?
 		if dispatcher, ok := s.Dispatchers[msg.JobUpdated.ID]; ok {
 			dispatcher.Stop()
 			delete(s.Dispatchers, msg.JobUpdated.ID)
