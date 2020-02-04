@@ -76,7 +76,7 @@ class VirtualNodes extends React.Component{
     };
 
     render(){
-        const {readonly, pydio, muiTheme, accessByName} = this.props;
+        const {readonly, pydio, muiTheme, accessByName, currentNode} = this.props;
         const {nodes, dataSources, nodesLoaded, dataSourcesLoaded} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
@@ -95,7 +95,7 @@ class VirtualNodes extends React.Component{
             <div className="vertical-layout workspaces-list layout-fill" style={{height:'100%'}}>
                 <AdminComponents.Header
                     title={m('title')}
-                    icon={"mdi mdi-help-network"}
+                    icon={currentNode.getMetadata().get('icon_class')}
                     actions={headerActions}
                     reloadAction={this.reload.bind(this)}
                     loading={!(nodesLoaded && dataSourcesLoaded)}

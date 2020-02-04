@@ -180,11 +180,22 @@ let Dashboard = React.createClass({
             </Card>
         );
 
+        const websiteButton = (
+            <IconButton
+                iconClassName={"icomoon-cells"}
+                onTouchTap={()=>{window.open('https://pydio.com')}}
+                tooltip={pydio.MessageHash['settings.topbar.button.about']}
+                tooltipPosition={"bottom-left"}
+                {...adminStyles.props.header.iconButton}
+            />
+        );
+
         return (
             <div className={"main-layout-nav-to-stack vertical-layout"}>
                 <Header
                     title={message('welc.title')}
-                    icon="mdi mdi-account-multiple"
+                    icon="mdi mdi-view-dashboard"
+                    actions={[websiteButton]}
                 />
                 <div className={"layout-fill"} style={{display:'flex', alignItems:'top', flexWrap:'wrap', padding: 5}}>
                     {WELCOME_COMMUNITY_CARD}

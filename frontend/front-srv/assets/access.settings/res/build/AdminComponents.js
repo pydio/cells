@@ -17860,12 +17860,22 @@ var Dashboard = _react2['default'].createClass({
             )
         );
 
+        var websiteButton = _react2['default'].createElement(_materialUi.IconButton, _extends({
+            iconClassName: "icomoon-cells",
+            onTouchTap: function () {
+                window.open('https://pydio.com');
+            },
+            tooltip: pydio.MessageHash['settings.topbar.button.about'],
+            tooltipPosition: "bottom-left"
+        }, adminStyles.props.header.iconButton));
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout" },
             _react2['default'].createElement(_stylesHeader2['default'], {
                 title: message('welc.title'),
-                icon: 'mdi mdi-account-multiple'
+                icon: 'mdi mdi-view-dashboard',
+                actions: [websiteButton]
             }),
             _react2['default'].createElement(
                 'div',

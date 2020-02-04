@@ -186,6 +186,7 @@ var Dashboard = (function (_React$Component) {
             var openRightPane = _props.openRightPane;
             var closeRightPane = _props.closeRightPane;
             var advanced = _props.advanced;
+            var currentNode = _props.currentNode;
             var _state = this.state;
             var activeStep = _state.activeStep;
             var url = _state.url;
@@ -335,6 +336,7 @@ var Dashboard = (function (_React$Component) {
                     { className: 'vertical-layout', style: { width: '100%' } },
                     _react2['default'].createElement(AdminComponents.Header, {
                         title: this.T('title'),
+                        icon: currentNode.getMetadata().get('icon_class'),
                         actions: [previousJobsSelector]
                     }),
                     _react2['default'].createElement(

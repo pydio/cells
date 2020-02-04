@@ -96,7 +96,7 @@ export default class Dashboard extends React.Component {
 
     render(){
 
-        const {pydio, openRightPane, closeRightPane, advanced} = this.props;
+        const {pydio, openRightPane, closeRightPane, advanced, currentNode} = this.props;
         const {activeStep, url, skipVerify, user, pwd, features, task, showLogs, localStatus, previousTasks, ...remainingState} = this.state;
         const adminStyles = AdminComponents.AdminStyles();
 
@@ -219,6 +219,7 @@ export default class Dashboard extends React.Component {
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
                         title={this.T('title')}
+                        icon={currentNode.getMetadata().get('icon_class')}
                         actions={[previousJobsSelector]}
                     />
 

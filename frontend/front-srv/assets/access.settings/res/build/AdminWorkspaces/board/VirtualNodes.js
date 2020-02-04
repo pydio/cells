@@ -138,6 +138,7 @@ var VirtualNodes = (function (_React$Component) {
             var pydio = _props.pydio;
             var muiTheme = _props.muiTheme;
             var accessByName = _props.accessByName;
+            var currentNode = _props.currentNode;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
@@ -164,7 +165,7 @@ var VirtualNodes = (function (_React$Component) {
                 { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: m('title'),
-                    icon: "mdi mdi-help-network",
+                    icon: currentNode.getMetadata().get('icon_class'),
                     actions: headerActions,
                     reloadAction: this.reload.bind(this),
                     loading: !(nodesLoaded && dataSourcesLoaded)
