@@ -23,79 +23,84 @@ package log
 import (
 	"context"
 	"encoding/json"
-	"sync"
+	"strconv"
+	"sync/atomic"
 	"time"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"
 )
 
 type LogSyncer struct {
 	serverServiceName string
+	ctx               context.Context
+	cli               log.LogRecorder_PutLogClient
 
-	logSyncerMutex    *sync.Mutex
-	logSyncerClient   log.LogRecorder_PutLogClient
 	logSyncerMessages chan map[string]string
-	logSyncerErrors   chan error
+	buf               []map[string]string
+	reconnecting      int32
 }
 
-func NewLogSyncer(serviceName string) *LogSyncer {
+func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
+	syncer := &LogSyncer{
+		serverServiceName: serviceName,
+		ctx:               ctx,
+		logSyncerMessages: make(chan map[string]string, 10),
+	}
 
-	syncer := LogSyncer{serverServiceName: serviceName}
+	go syncer.logSyncerWatch()
+	go syncer.logSyncerClientReconnect()
 
-	syncer.logSyncerMutex = &sync.Mutex{}
-	syncer.logSyncerMessages = make(chan map[string]string)
-	syncer.logSyncerErrors = make(chan error)
-
-	initLogSyncer(&syncer)
-
-	return &syncer
+	return syncer
 }
 
-func initLogSyncer(syncer *LogSyncer) {
-	go logSyncerWatch(syncer)
-	go logSyncerSync(syncer)
-}
+func (syncer *LogSyncer) logSyncerClientReconnect() {
+	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-func logSyncerWatch(syncer *LogSyncer) {
-	syncer.logSyncerMutex.Lock()
+	c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
 
-	for {
-		//<-time.After(2 * time.Second)
-		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(context.Background(), client.WithRequestTimeout(1*time.Hour))
+	cli, err := c.PutLog(syncer.ctx)
+	if err != nil {
+		<-time.After(1 * time.Second)
+		syncer.logSyncerClientReconnect()
+		return
+	}
 
+	// Emptying buffer
+	for i, m := range syncer.buf {
+		err := cli.Send(&log.Log{Message: m})
 		if err != nil {
+			syncer.buf = syncer.buf[i:]
+			syncer.logSyncerClientReconnect()
+			return
+		}
+	}
+
+	syncer.buf = nil
+	syncer.cli = cli
+
+	atomic.StoreInt32(&syncer.reconnecting, 0)
+}
+
+func (syncer *LogSyncer) logSyncerWatch() {
+	for m := range syncer.logSyncerMessages {
+		if syncer.cli == nil {
+			syncer.buf = append(syncer.buf, m)
 			continue
 		}
 
-		syncer.logSyncerClient = cli
-		syncer.logSyncerMutex.Unlock()
+		err := syncer.cli.Send(&log.Log{Message: m})
+		if err != nil {
+			syncer.cli.Close()
+			syncer.cli = nil
 
-		for err := range syncer.logSyncerErrors {
-			if err == nil {
-				continue
+			syncer.buf = append(syncer.buf, m)
+
+			// Check if we need to send a reconnect message
+			if atomic.LoadInt32(&syncer.reconnecting) == 0 {
+				go syncer.logSyncerClientReconnect()
 			}
-			if cli != nil {
-				cli.Close()
-			}
-			break
 		}
-
-		syncer.logSyncerMutex.Lock()
-	}
-}
-
-func logSyncerSync(syncer *LogSyncer) {
-
-	for m := range syncer.logSyncerMessages {
-		syncer.logSyncerMutex.Lock()
-		syncer.logSyncerErrors <- syncer.logSyncerClient.Send(&log.Log{
-			Message: m,
-		})
-		syncer.logSyncerMutex.Unlock()
 	}
 }
 
@@ -111,9 +116,9 @@ func (l *LogSyncer) Write(p []byte) (n int, err error) {
 			m[key] = value
 		}
 	}
+	// Add nano time for better sorting
+	m["nano"] = strconv.Itoa(time.Now().Nanosecond())
 
-	go func() {
-		l.logSyncerMessages <- m
-	}()
+	l.logSyncerMessages <- m
 	return len(p), nil
 }
