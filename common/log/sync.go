@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	defaults "github.com/pydio/cells/common/micro"
@@ -32,38 +33,72 @@ import (
 
 type LogSyncer struct {
 	serverServiceName string
+	ctx               context.Context
+	cli               log.LogRecorder_PutLogClient
 
 	logSyncerMessages chan map[string]string
+	buf               []map[string]string
+	reconnecting      int32
 }
 
-func NewLogSyncer(serviceName string) *LogSyncer {
+func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
+	syncer := &LogSyncer{
+		serverServiceName: serviceName,
+		ctx:               ctx,
+		logSyncerMessages: make(chan map[string]string, 10),
+	}
 
-	syncer := LogSyncer{serverServiceName: serviceName}
+	go syncer.logSyncerWatch()
+	go syncer.logSyncerClientReconnect()
 
-	syncer.logSyncerMessages = make(chan map[string]string, 1000)
-
-	initLogSyncer(&syncer)
-
-	return &syncer
+	return syncer
 }
 
-func initLogSyncer(syncer *LogSyncer) {
-	go logSyncerWatch(syncer)
-}
+func (syncer *LogSyncer) logSyncerClientReconnect() {
+	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-func logSyncerWatch(syncer *LogSyncer) {
-	for {
-		c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
-		cli, err := c.PutLog(context.Background())
+	c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
+
+	cli, err := c.PutLog(syncer.ctx)
+	if err != nil {
+		<-time.After(1 * time.Second)
+		syncer.logSyncerClientReconnect()
+		return
+	}
+
+	// Emptying buffer
+	for i, m := range syncer.buf {
+		err := cli.Send(&log.Log{Message: m})
 		if err != nil {
-			<-time.After(1 * time.Second)
+			syncer.buf = syncer.buf[i:]
+			syncer.logSyncerClientReconnect()
+			return
+		}
+	}
+
+	syncer.buf = nil
+	syncer.cli = cli
+
+	atomic.StoreInt32(&syncer.reconnecting, 0)
+}
+
+func (syncer *LogSyncer) logSyncerWatch() {
+	for m := range syncer.logSyncerMessages {
+		if syncer.cli == nil {
+			syncer.buf = append(syncer.buf, m)
 			continue
 		}
 
-		for m := range syncer.logSyncerMessages {
-			err := cli.Send(&log.Log{Message: m})
-			if err != nil {
-				break
+		err := syncer.cli.Send(&log.Log{Message: m})
+		if err != nil {
+			syncer.cli.Close()
+			syncer.cli = nil
+
+			syncer.buf = append(syncer.buf, m)
+
+			// Check if we need to send a reconnect message
+			if atomic.LoadInt32(&syncer.reconnecting) == 0 {
+				go syncer.logSyncerClientReconnect()
 			}
 		}
 	}

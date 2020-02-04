@@ -36,7 +36,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -245,9 +245,11 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
+		PrintMemUsage("GetNodeTree")
 		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}, false) {
 			i++
 		}
+		PrintMemUsage("GetNodeTree END")
 
 		So(i, ShouldEqual, 3)
 	})

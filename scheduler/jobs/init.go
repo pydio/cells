@@ -1,7 +1,9 @@
 package jobs
 
 import (
+	"context"
 	"path/filepath"
+	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -12,17 +14,18 @@ import (
 	"github.com/pydio/cells/common/log"
 )
 
+var (
+	once   = &sync.Once{}
+	logger *zap.Logger
+)
+
 func init() {
-	log.TasksLoggerImpl = initTasksLogger()
+	log.SetTasksLoggerInit(initTasksLogger)
 }
 
 func initTasksLogger() *zap.Logger {
-	if log.TasksLoggerImpl != nil {
-		return log.TasksLoggerImpl
-	}
-
 	// Logger that forwards the messages to a bleve DB via gRPC
-	serverSync := zapcore.AddSync(log.NewLogSyncer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS))
+	serverSync := zapcore.AddSync(log.NewLogSyncer(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS))
 
 	logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
 
@@ -51,5 +54,7 @@ func initTasksLogger() *zap.Logger {
 		zap.InfoLevel,
 	)
 
-	return zap.New(core)
+	logger = zap.New(core)
+
+	return logger
 }

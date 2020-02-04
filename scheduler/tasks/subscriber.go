@@ -23,6 +23,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -40,7 +41,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -88,6 +89,8 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 
 	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
+	fmt.Println("BEFORE ", runtime.NumGoroutine())
+
 	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
@@ -99,9 +102,12 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 	}))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent))
+	fmt.Println("AFTER ", runtime.NumGoroutine())
 
 	s.ListenToMainQueue()
 	s.TaskChannelSubscription()
+
+	fmt.Println("AFTER 2", runtime.NumGoroutine())
 
 	return s
 }
