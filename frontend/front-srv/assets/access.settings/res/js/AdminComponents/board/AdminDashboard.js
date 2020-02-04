@@ -24,63 +24,13 @@ import AdminLeftNav from './AdminLeftNav'
 import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
-const {UserWidget} = Pydio.requireLib('workspaces');
+
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "../styles/AdminStyles";
 import { colors, getMuiTheme } from 'material-ui/styles';
 import { MuiThemeProvider } from 'material-ui';
-
-const styles = {
-    appBar: {
-        zIndex: 10,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        //backgroundColor:muiTheme.palette.primary1Color,
-        color: 'white',
-        display:'flex',
-        alignItems:'center'
-    },
-    appBarTitle: {
-        flex: 1,
-        fontSize: 18,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    },
-    appBarButton: {
-        padding: 14
-    },
-    appBarButtonIcon: {
-        color: 'white',
-        fontSize: 20
-    },
-    appBarLeftIcon: {
-        color: 'white',
-    },
-    mainPanel : {
-        position: 'absolute',
-        top: 56,
-        left: 256, // can be changed by leftDocked state
-        right: 0,
-        bottom: 0,
-        backgroundColor:'#eceff1'
-    },
-    userWidget: {
-        height: 56,
-        lineHeight: '16px',
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-        display:'flex',
-        alignItems:'center',
-        width: 'auto',
-        marginRight: 16
-    }
-};
-
 
 let AdminDashboard = React.createClass({
 
@@ -264,23 +214,18 @@ let AdminDashboard = React.createClass({
             />);
     },
 
-    backToHome(){
-        //this.props.pydio.triggerRepositoryChange("homepage");
-        window.open('https://pydio.com');
-    },
-
     render(){
         const {showAdvanced, rightPanel, leftDocked, openLeftNav} = this.state;
-        const {pydio, muiTheme} = this.props;
+        const {pydio} = this.props;
         const dm = pydio.getContextHolder();
 
         let rPanelContent;
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        let leftIconButton, toggleAdvancedButton, aboutButton;
 
-        // LEFT BUTTON
+        /*
+        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
         let leftIcon, leftIconClick;
         if (leftDocked) {
             leftIcon = "mdi mdi-tune-vertical";
@@ -293,53 +238,13 @@ let AdminDashboard = React.createClass({
                 this.setState({openLeftNav: !openLeftNav})
             };
         }
-        leftIconButton = (
+        const leftIconButton = (
             <div style={{margin: '0 12px'}}>
                 <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
             </div>
         );
+        */
 
-        toggleAdvancedButton = (
-            <IconButton
-                iconClassName={"mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off")}
-                style={styles.appBarButton}
-                iconStyle={styles.appBarButtonIcon}
-                tooltip={pydio.MessageHash['settings.topbar.button.advanced']}
-                onTouchTap={() => {
-                    this.setState({showAdvanced: !showAdvanced});
-                    localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
-                }}
-            />
-        );
-
-        aboutButton = (
-            <IconButton
-                iconClassName={"icomoon-cells"}
-                onTouchTap={()=>{window.open('https://pydio.com')}}
-                tooltip={pydio.MessageHash['settings.topbar.button.about']}
-                style={styles.appBarButton}
-                iconStyle={styles.appBarButtonIcon}
-            />
-        );
-
-        const appBarStyle = {...styles.appBar, backgroundColor:muiTheme.palette.primary1Color};
-        const appBar = (
-            <Paper zDepth={1} rounded={false} style={appBarStyle}>
-                {leftIconButton}
-                <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
-                {toggleAdvancedButton}
-                {aboutButton}
-                <UserWidget
-                    pydio={pydio}
-                    style={styles.userWidget}
-                    hideActionBar={true}
-                    displayLabel={false}
-                    toolbars={["aUser", "user", "zlogin"]}
-                    controller={pydio.getController()}
-                />
-            </Paper>
-        );
-        const adminStyles = AdminStyles();
         const theme = getMuiTheme({
             palette:{
                 primary1Color:'#03a9f4',
@@ -350,6 +255,7 @@ let AdminDashboard = React.createClass({
                 sharingColor        : '#4aceb0',
             }
         });
+        const adminStyles = AdminStyles(theme.palette);
 
         return (
             <MuiThemeProvider muiTheme={theme}>

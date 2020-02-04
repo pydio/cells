@@ -17003,63 +17003,10 @@ var _stylesAdminStyles = require("../styles/AdminStyles");
 
 var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var UserWidget = _Pydio$requireLib.UserWidget;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
-
-var AsyncComponent = _Pydio$requireLib2.AsyncComponent;
-var TasksPanel = _Pydio$requireLib2.TasksPanel;
-
-var styles = {
-    appBar: {
-        zIndex: 10,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        //backgroundColor:muiTheme.palette.primary1Color,
-        color: 'white',
-        display: 'flex',
-        alignItems: 'center'
-    },
-    appBarTitle: {
-        flex: 1,
-        fontSize: 18,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    },
-    appBarButton: {
-        padding: 14
-    },
-    appBarButtonIcon: {
-        color: 'white',
-        fontSize: 20
-    },
-    appBarLeftIcon: {
-        color: 'white'
-    },
-    mainPanel: {
-        position: 'absolute',
-        top: 56,
-        left: 256, // can be changed by leftDocked state
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#eceff1'
-    },
-    userWidget: {
-        height: 56,
-        lineHeight: '16px',
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        width: 'auto',
-        marginRight: 16
-    }
-};
+var AsyncComponent = _Pydio$requireLib.AsyncComponent;
+var TasksPanel = _Pydio$requireLib.TasksPanel;
 
 var AdminDashboard = _react2['default'].createClass({
     displayName: 'AdminDashboard',
@@ -17258,22 +17205,13 @@ var AdminDashboard = _react2['default'].createClass({
         }));
     },
 
-    backToHome: function backToHome() {
-        //this.props.pydio.triggerRepositoryChange("homepage");
-        window.open('https://pydio.com');
-    },
-
     render: function render() {
-        var _this2 = this;
-
         var _state = this.state;
         var showAdvanced = _state.showAdvanced;
         var rightPanel = _state.rightPanel;
         var leftDocked = _state.leftDocked;
         var openLeftNav = _state.openLeftNav;
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var muiTheme = _props.muiTheme;
+        var pydio = this.props.pydio;
 
         var dm = pydio.getContextHolder();
 
@@ -17281,73 +17219,28 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var leftIconButton = undefined,
-            toggleAdvancedButton = undefined,
-            aboutButton = undefined;
 
-        // LEFT BUTTON
-        var leftIcon = undefined,
-            leftIconClick = undefined;
+        /*
+        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
+        let leftIcon, leftIconClick;
         if (leftDocked) {
             leftIcon = "mdi mdi-tune-vertical";
-            leftIconClick = function () {
+            leftIconClick = () => {
                 dm.requireContextChange(dm.getRootNode());
-            };
+            }
         } else {
             leftIcon = "mdi mdi-menu";
-            leftIconClick = function () {
-                _this2.setState({ openLeftNav: !openLeftNav });
+            leftIconClick = () => {
+                this.setState({openLeftNav: !openLeftNav})
             };
         }
-        leftIconButton = _react2['default'].createElement(
-            'div',
-            { style: { margin: '0 12px' } },
-            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: leftIcon, onTouchTap: leftIconClick, iconStyle: styles.appBarLeftIcon })
+        const leftIconButton = (
+            <div style={{margin: '0 12px'}}>
+                <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
+            </div>
         );
+        */
 
-        toggleAdvancedButton = _react2['default'].createElement(_materialUi.IconButton, {
-            iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
-            style: styles.appBarButton,
-            iconStyle: styles.appBarButtonIcon,
-            tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
-            onTouchTap: function () {
-                _this2.setState({ showAdvanced: !showAdvanced });
-                localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
-            }
-        });
-
-        aboutButton = _react2['default'].createElement(_materialUi.IconButton, {
-            iconClassName: "icomoon-cells",
-            onTouchTap: function () {
-                window.open('https://pydio.com');
-            },
-            tooltip: pydio.MessageHash['settings.topbar.button.about'],
-            style: styles.appBarButton,
-            iconStyle: styles.appBarButtonIcon
-        });
-
-        var appBarStyle = _extends({}, styles.appBar, { backgroundColor: muiTheme.palette.primary1Color });
-        var appBar = _react2['default'].createElement(
-            _materialUi.Paper,
-            { zDepth: 1, rounded: false, style: appBarStyle },
-            leftIconButton,
-            _react2['default'].createElement(
-                'span',
-                { style: styles.appBarTitle },
-                pydio.MessageHash['settings.topbar.title']
-            ),
-            toggleAdvancedButton,
-            aboutButton,
-            _react2['default'].createElement(UserWidget, {
-                pydio: pydio,
-                style: styles.userWidget,
-                hideActionBar: true,
-                displayLabel: false,
-                toolbars: ["aUser", "user", "zlogin"],
-                controller: pydio.getController()
-            })
-        );
-        var adminStyles = (0, _stylesAdminStyles2['default'])();
         var theme = (0, _materialUiStyles.getMuiTheme)({
             palette: {
                 primary1Color: '#03a9f4',
@@ -17358,6 +17251,7 @@ var AdminDashboard = _react2['default'].createClass({
                 sharingColor: '#4aceb0'
             }
         });
+        var adminStyles = (0, _stylesAdminStyles2['default'])(theme.palette);
 
         return _react2['default'].createElement(
             _materialUi.MuiThemeProvider,
