@@ -128,6 +128,7 @@ var LogBoard = (function (_React$Component) {
             var noHeader = _props.noHeader;
             var service = _props.service;
             var disableExport = _props.disableExport;
+            var currentNode = _props.currentNode;
             var _state = this.state;
             var selectedLog = _state.selectedLog;
             var page = _state.page;
@@ -225,6 +226,7 @@ var LogBoard = (function (_React$Component) {
                         { className: 'vertical-layout', style: { width: '100%' } },
                         _react2['default'].createElement(AdminComponents.Header, {
                             title: title,
+                            icon: currentNode.getMetadata().get('icon_class'),
                             actions: buttons,
                             reloadAction: this.handleReload.bind(this),
                             loading: this.state.loading

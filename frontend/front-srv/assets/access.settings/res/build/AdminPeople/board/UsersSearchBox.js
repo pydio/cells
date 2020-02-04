@@ -114,7 +114,9 @@ var UsersSearchBox = (function (_React$Component) {
             var value = this.state.crtValue;
             if (!value) {
                 this.hideResultsState();
-                this.refs.query.blur();
+                try {
+                    this.refs.query.refs.input.blur();
+                } catch (e) {}
                 return;
             }
             var dm = this.state.dataModel;
