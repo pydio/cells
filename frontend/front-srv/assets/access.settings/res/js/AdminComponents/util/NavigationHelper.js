@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import AdminStyles from "../board/AdminStyles";
+import AdminStyles from "../styles/AdminStyles";
 
 const {MenuItem, Divider, Subheader, FontIcon} = require('material-ui')
 

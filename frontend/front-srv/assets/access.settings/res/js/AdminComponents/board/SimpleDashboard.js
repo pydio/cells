@@ -22,8 +22,8 @@ import {muiThemeable} from 'material-ui/styles'
 import {Card, CardTitle, CardMedia, CardActions, CardText, FlatButton, List, ListItem, Divider, IconButton, FontIcon} from 'material-ui'
 import {MessagesConsumerMixin} from '../util/Mixins'
 import shuffle from 'lodash.shuffle'
-import Header from './Header'
-import AdminStyles from "./AdminStyles";
+import Header from '../styles/Header'
+import AdminStyles from "../styles/AdminStyles";
 
 let Dashboard = React.createClass({
 

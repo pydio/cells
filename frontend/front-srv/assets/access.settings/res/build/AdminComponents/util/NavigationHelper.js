@@ -30,9 +30,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _boardAdminStyles = require("../board/AdminStyles");
+var _stylesAdminStyles = require("../styles/AdminStyles");
 
-var _boardAdminStyles2 = _interopRequireDefault(_boardAdminStyles);
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var _require = require('material-ui');
 
@@ -46,7 +46,7 @@ function renderItem(palette, node) {
     var noIcon = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
     var advanced = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
-    var _AdminStyles = (0, _boardAdminStyles2['default'])(palette);
+    var _AdminStyles = (0, _stylesAdminStyles2['default'])(palette);
 
     var menu = _AdminStyles.menu;
 
@@ -100,7 +100,7 @@ var NavigationHelper = (function () {
                 textTransform: 'uppercase'
             };
 
-            var _AdminStyles2 = (0, _boardAdminStyles2['default'])(palette);
+            var _AdminStyles2 = (0, _stylesAdminStyles2['default'])(palette);
 
             var menu = _AdminStyles2.menu;
 

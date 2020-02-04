@@ -47,9 +47,9 @@ var _utilMenuItemListener = require('../util/MenuItemListener');
 
 var _utilMenuItemListener2 = _interopRequireDefault(_utilMenuItemListener);
 
-var _AdminStyles2 = require("./AdminStyles");
+var _stylesAdminStyles = require("../styles/AdminStyles");
 
-var _AdminStyles3 = _interopRequireDefault(_AdminStyles2);
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var React = require('react');
 
@@ -62,9 +62,6 @@ var IconButton = _require.IconButton;
 var _require2 = require('material-ui/styles');
 
 var muiThemeable = _require2.muiThemeable;
-
-var AjxpNode = require('pydio/model/node');
-var PydioDataModel = require('pydio/model/data-model');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
@@ -130,7 +127,7 @@ var AdminMenu = (function (_React$Component) {
                     autoWidth: false,
                     width: 256,
                     desktop: true,
-                    listStyle: (0, _AdminStyles3['default'])(muiTheme.palette).menu.listStyle,
+                    listStyle: (0, _stylesAdminStyles2['default'])(muiTheme.palette).menu.listStyle,
                     value: contextNode
                 },
                 menuItems
@@ -162,7 +159,7 @@ var AdminLeftNav = (function (_React$Component2) {
             var pydio = _props2.pydio;
             var showAdvanced = _props2.showAdvanced;
 
-            var _AdminStyles = (0, _AdminStyles3['default'])();
+            var _AdminStyles = (0, _stylesAdminStyles2['default'])();
 
             var menu = _AdminStyles.menu;
             var props = _AdminStyles.props;

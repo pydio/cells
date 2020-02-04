@@ -59,9 +59,9 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var _AdminStyles = require("./AdminStyles");
+var _stylesAdminStyles = require("../styles/AdminStyles");
 
-var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
@@ -233,8 +233,6 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        var _this2 = this;
-
         var dm = this.props.pydio.getContextHolder();
         dm.observe("context_changed", this.dmChangesToState);
         dm.observe("selection_changed", this.dmChangesToState);
@@ -258,9 +256,6 @@ var AdminDashboard = _react2['default'].createClass({
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         _pydioUtilDom2['default'].observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
-        _pydioHttpResourcesManager2['default'].loadClass("SettingsBoards").then(function (c) {
-            _this2.setState({ searchComponent: { namespace: 'SettingsBoards', componentName: 'GlobalSearch' } });
-        })['catch'](function (e) {});
     },
 
     componentWillUnmount: function componentWillUnmount() {
@@ -285,26 +280,32 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     routeMasterPanel: function routeMasterPanel(node, selectedNode) {
-        var path = node.getPath();
-        if (!selectedNode) selectedNode = node;
+        var pydio = this.props.pydio;
 
+        if (!selectedNode) {
+            selectedNode = node;
+        }
         var dynamicComponent = undefined;
         if (node.getMetadata().get('component')) {
             dynamicComponent = node.getMetadata().get('component');
         } else {
             return _react2['default'].createElement(
                 'div',
-                null,
-                'No Component Found'
+                { style: { width: '100%', height: '100%', minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 18, color: 'rgba(0,0,0,0.33)' } },
+                    pydio.MessageHash["466"]
+                )
             );
         }
         var parts = dynamicComponent.split('.');
         var additionalProps = node.getMetadata().has('props') ? JSON.parse(node.getMetadata().get('props')) : {};
         return _react2['default'].createElement(AsyncComponent, _extends({
-            pydio: this.props.pydio,
+            pydio: pydio,
             namespace: parts[0],
             componentName: parts[1],
-            dataModel: this.props.pydio.getContextHolder(),
+            dataModel: pydio.getContextHolder(),
             rootNode: node,
             currentNode: selectedNode,
             openEditor: this.openEditor,
@@ -323,14 +324,13 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this3 = this;
+        var _this2 = this;
 
         var _state = this.state;
         var showAdvanced = _state.showAdvanced;
         var rightPanel = _state.rightPanel;
         var leftDocked = _state.leftDocked;
         var openLeftNav = _state.openLeftNav;
-        var searchComponent = _state.searchComponent;
         var _props = this.props;
         var pydio = _props.pydio;
         var muiTheme = _props.muiTheme;
@@ -341,8 +341,7 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var searchIconButton = undefined,
-            leftIconButton = undefined,
+        var leftIconButton = undefined,
             toggleAdvancedButton = undefined,
             aboutButton = undefined;
 
@@ -357,7 +356,7 @@ var AdminDashboard = _react2['default'].createClass({
         } else {
             leftIcon = "mdi mdi-menu";
             leftIconClick = function () {
-                _this3.setState({ openLeftNav: !openLeftNav });
+                _this2.setState({ openLeftNav: !openLeftNav });
             };
         }
         leftIconButton = _react2['default'].createElement(
@@ -366,18 +365,13 @@ var AdminDashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.IconButton, { iconClassName: leftIcon, onTouchTap: leftIconClick, iconStyle: styles.appBarLeftIcon })
         );
 
-        // SEARCH BUTTON
-        if (searchComponent) {
-            searchIconButton = _react2['default'].createElement(AsyncComponent, _extends({}, searchComponent, { appBarStyles: styles, pydio: pydio }));
-        }
-
         toggleAdvancedButton = _react2['default'].createElement(_materialUi.IconButton, {
             iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
             style: styles.appBarButton,
             iconStyle: styles.appBarButtonIcon,
             tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
             onTouchTap: function () {
-                _this3.setState({ showAdvanced: !showAdvanced });
+                _this2.setState({ showAdvanced: !showAdvanced });
                 localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
             }
         });
@@ -402,7 +396,6 @@ var AdminDashboard = _react2['default'].createClass({
                 { style: styles.appBarTitle },
                 pydio.MessageHash['settings.topbar.title']
             ),
-            searchIconButton,
             toggleAdvancedButton,
             aboutButton,
             _react2['default'].createElement(UserWidget, {
@@ -414,7 +407,7 @@ var AdminDashboard = _react2['default'].createClass({
                 controller: pydio.getController()
             })
         );
-        var adminStyles = (0, _AdminStyles2['default'])();
+        var adminStyles = (0, _stylesAdminStyles2['default'])();
         var theme = (0, _materialUiStyles.getMuiTheme)({
             palette: {
                 primary1Color: '#03a9f4',
