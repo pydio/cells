@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -247,7 +247,6 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 			close(statusMsg)
 			close(status)
 			close(progress)
-			close(done)
 		}()
 		for {
 			select {
