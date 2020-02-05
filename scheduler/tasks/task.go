@@ -208,7 +208,6 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 			close(statusMsg)
 			close(status)
 			close(progress)
-			close(done)
 		}()
 		for {
 			select {

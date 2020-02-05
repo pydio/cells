@@ -127,8 +127,7 @@ func Init() {
 		micro.SetLogger(micrologger{nop})
 
 		// Catch StdOut
-		if true || !common.LogCaptureStdOut {
-			fmt.Println("No capture")
+		if !common.LogCaptureStdOut {
 			return logger
 		}
 

@@ -170,7 +170,7 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 
 	runnableChannels, done := r.Task.GetRunnableChannels()
 	outputMessage, err := r.Implementation.Run(r.Context, runnableChannels, r.Message)
-	done <- true
+	close(done)
 	r.Task.Done(1)
 
 	if err != nil {
