@@ -105,8 +105,35 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	if group.Uuid == "" {
 		group.Uuid = uuid.NewUUID().String()
 	} else {
+		// Gather remove policies
+		var delPolicies []string
+		stmt, er := s.GetStmt("listRelPolicies")
+		if er != nil {
+			return nil, er
+		}
+		if res, err := stmt.Query(group.Uuid); err == nil {
+			defer res.Close()
+			for res.Next() {
+				var pId string
+				sE := res.Scan(&pId)
+				if sE != nil {
+					return nil, sE
+				}
+				var found bool
+				for _, in := range group.Policies {
+					if in.Id == pId {
+						found = true
+						break
+					}
+				}
+				if !found {
+					delPolicies = append(delPolicies, pId)
+				}
+			}
+		}
+
 		// First clear relations
-		stmt, er := s.GetStmt("deleteRelPolicies")
+		stmt, er = s.GetStmt("deleteRelPolicies")
 		if er != nil {
 			return nil, er
 		}
@@ -115,6 +142,13 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		if err != nil {
 			log.Logger(ctx).Error(fmt.Sprintf("could not delete relation for policy group %s", group.Uuid), zap.Error(err))
 			return group, err
+		}
+
+		// Delete removed ones
+		for _, pID := range delPolicies {
+			if er := s.Manager.Delete(pID); er != nil {
+				return nil, er
+			}
 		}
 	}
 
