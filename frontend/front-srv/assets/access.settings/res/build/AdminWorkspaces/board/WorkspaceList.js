@@ -130,6 +130,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var editable = _props.editable;
         var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
@@ -156,7 +157,7 @@ exports['default'] = _react2['default'].createClass({
         return _react2['default'].createElement(MaterialTable, {
             data: data,
             columns: columns,
-            onSelectRows: this.openTableRows.bind(this),
+            onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
             emptyStateString: loading ? m('home.6') : m('ws.board.empty'),

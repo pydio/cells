@@ -99,7 +99,7 @@ export default React.createClass({
 
     render(){
 
-        const {pydio, advanced, tableStyles} = this.props;
+        const {pydio, advanced, editable, tableStyles} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
         const s = (id) => pydio.MessageHash['settings.' + id];
 
@@ -124,7 +124,7 @@ export default React.createClass({
             <MaterialTable
                 data={data}
                 columns={columns}
-                onSelectRows={this.openTableRows.bind(this)}
+                onSelectRows={editable?this.openTableRows.bind(this):null}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
                 emptyStateString={loading ? m('home.6') : m('ws.board.empty')}

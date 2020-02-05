@@ -179,12 +179,13 @@ var WsDashboard = _react2['default'].createClass({
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var buttons = [];
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
-            primary: true,
-            label: this.context.getMessage('ws.3'),
-            onTouchTap: this.showWorkspaceCreator,
-            disabled: !accessByName('Create')
-        }, adminStyles.props.header.flatButton)));
+        if (accessByName('Create')) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                primary: true,
+                label: this.context.getMessage('ws.3'),
+                onTouchTap: this.showWorkspaceCreator
+            }, adminStyles.props.header.flatButton)));
+        }
 
         return _react2['default'].createElement(
             'div',
@@ -214,6 +215,7 @@ var WsDashboard = _react2['default'].createClass({
                             currentNode: currentNode,
                             openSelection: this.openWorkspace,
                             advanced: advanced,
+                            editable: accessByName('Create'),
                             tableStyles: adminStyles.body.tableMaster
                         })
                     )

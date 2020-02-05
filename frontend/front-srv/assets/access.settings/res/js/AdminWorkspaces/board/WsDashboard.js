@@ -129,14 +129,16 @@ let WsDashboard = React.createClass({
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         let buttons = [];
-        buttons.push(
-            <FlatButton
-                primary={true}
-                label={this.context.getMessage('ws.3')}
-                onTouchTap={this.showWorkspaceCreator}
-                disabled={!accessByName('Create')}
-                {...adminStyles.props.header.flatButton}
-            />);
+        if(accessByName('Create')){
+            buttons.push(
+                <FlatButton
+                    primary={true}
+                    label={this.context.getMessage('ws.3')}
+                    onTouchTap={this.showWorkspaceCreator}
+                    {...adminStyles.props.header.flatButton}
+                />
+            );
+        }
 
         return (
 
@@ -160,6 +162,7 @@ let WsDashboard = React.createClass({
                                 currentNode={currentNode}
                                 openSelection={this.openWorkspace}
                                 advanced={advanced}
+                                editable={accessByName('Create')}
                                 tableStyles={adminStyles.body.tableMaster}
                             />
                         </Paper>

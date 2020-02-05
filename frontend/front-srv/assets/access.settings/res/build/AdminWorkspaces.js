@@ -18410,7 +18410,6 @@ var VirtualNodes = (function (_React$Component) {
             var pydio = _props.pydio;
             var muiTheme = _props.muiTheme;
             var accessByName = _props.accessByName;
-            var currentNode = _props.currentNode;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
@@ -18437,7 +18436,7 @@ var VirtualNodes = (function (_React$Component) {
                 { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: m('title'),
-                    icon: currentNode.getMetadata().get('icon_class'),
+                    icon: "mdi mdi-help-network",
                     actions: headerActions,
                     reloadAction: this.reload.bind(this),
                     loading: !(nodesLoaded && dataSourcesLoaded)
@@ -18632,6 +18631,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var editable = _props.editable;
         var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
@@ -18658,7 +18658,7 @@ exports['default'] = _react2['default'].createClass({
         return _react2['default'].createElement(MaterialTable, {
             data: data,
             columns: columns,
-            onSelectRows: this.openTableRows.bind(this),
+            onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
             emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
@@ -18851,12 +18851,13 @@ var WsDashboard = _react2['default'].createClass({
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var buttons = [];
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
-            primary: true,
-            label: this.context.getMessage('ws.3'),
-            onTouchTap: this.showWorkspaceCreator,
-            disabled: !accessByName('Create')
-        }, adminStyles.props.header.flatButton)));
+        if (accessByName('Create')) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                primary: true,
+                label: this.context.getMessage('ws.3'),
+                onTouchTap: this.showWorkspaceCreator
+            }, adminStyles.props.header.flatButton)));
+        }
 
         return _react2['default'].createElement(
             'div',
@@ -18886,6 +18887,7 @@ var WsDashboard = _react2['default'].createClass({
                             currentNode: currentNode,
                             openSelection: this.openWorkspace,
                             advanced: advanced,
+                            editable: accessByName('Create'),
                             tableStyles: adminStyles.body.tableMaster
                         })
                     )
