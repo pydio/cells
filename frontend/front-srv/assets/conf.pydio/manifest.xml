@@ -44,8 +44,11 @@
                 <gui text="settings.topbar.title" title="settings.topbar.title" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-tune-vertical" >
                     <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="zlogin"/>
                 </gui>
-                <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
+                <rightsContext noUser="false" read="false" userLogged="only" write="false"/>
                 <processing>
+                    <activeCondition><![CDATA[
+                        return (pydio && pydio.user && (pydio.user.getRepositoriesList().has('settings') && pydio.user.activeRepository !== 'settings'));
+                    ]]> </activeCondition>
                     <clientCallback module="PydioCoreActions.Navigation.switchToSettings"/>
                 </processing>
             </action>
