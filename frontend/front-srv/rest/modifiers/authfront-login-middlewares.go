@@ -60,6 +60,16 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" has been blocked. Contact your sysadmin.")
 		}
 
+		// Reset failed connections
+		if user.Attributes != nil {
+			if _, ok := user.Attributes["failedConnections"]; ok {
+				log.Logger(ctx).Info("[WrapWithUserLocks] Resetting user failedConnections", user.ZapLogin())
+				userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+				delete(user.Attributes, "failedConnections")
+				userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user})
+			}
+		}
+
 		// Checking policies
 		cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
 		policyContext := make(map[string]string)
