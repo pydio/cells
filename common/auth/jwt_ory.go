@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/dexidp/dex/connector"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/oauth2"
@@ -151,18 +150,18 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 		}
 	}
 
-	var identity connector.Identity
+	var identity Identity
 	var valid bool
 	var err error
 
 	connectors := GetConnectors()
 	for _, c := range connectors {
-		cc, ok := c.Conn().(connector.PasswordConnector)
+		cc, ok := c.Conn().(PasswordConnector)
 		if !ok {
 			continue
 		}
 
-		identity, valid, err = cc.Login(ctx, connector.Scopes{}, userName, password)
+		identity, valid, err = cc.Login(ctx, Scopes{}, userName, password)
 		// Error means the user is unknwown to the system, we contine to the next round
 		if err != nil {
 			continue
@@ -250,20 +249,20 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	}
 	challenge := c.Challenge
 
-	var identity connector.Identity
+	var identity Identity
 	var valid bool
 
 	connectors := GetConnectors()
 	attempt := 0
 	for _, c := range connectors {
-		cc, ok := c.Conn().(connector.PasswordConnector)
+		cc, ok := c.Conn().(PasswordConnector)
 		if !ok {
 			continue
 		}
 
 		attempt++
 
-		identity, valid, err = cc.Login(ctx, connector.Scopes{}, userName, password)
+		identity, valid, err = cc.Login(ctx, Scopes{}, userName, password)
 		// Error means the user is unknwown to the system, we contine to the next round
 		if err != nil {
 			continue

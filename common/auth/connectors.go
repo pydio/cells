@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/dexidp/dex/connector"
 	dlog "github.com/dexidp/dex/pkg/log"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
@@ -15,7 +14,7 @@ import (
 )
 
 var (
-	_ connector.PasswordConnector = (*pydioconnector)(nil)
+	_ PasswordConnector = (*pydioconnector)(nil)
 )
 
 func init() {
@@ -26,7 +25,7 @@ func init() {
 
 type pydioconfig struct{}
 
-func (c *pydioconfig) Open(string, dlog.Logger) (connector.Connector, error) {
+func (c *pydioconfig) Open(string, dlog.Logger) (Connector, error) {
 	return &pydioconnector{}, nil
 }
 
@@ -36,21 +35,21 @@ func (p *pydioconnector) Prompt() string {
 	return "pydio"
 }
 
-func (p *pydioconnector) Login(ctx context.Context, s connector.Scopes, username, password string) (connector.Identity, bool, error) {
+func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password string) (Identity, bool, error) {
 	// Check the user has successfully logged in
 	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
 		errr := errors.Parse(err.Error())
 		if errr.Code == http.StatusForbidden {
-			return connector.Identity{}, false, nil
+			return Identity{}, false, nil
 		}
 
-		return connector.Identity{}, false, err
+		return Identity{}, false, err
 	}
 
 	user := resp.GetUser()
-	return connector.Identity{
+	return Identity{
 		UserID:        user.GetUuid(),
 		Username:      user.GetLogin(),
 		Email:         user.GetAttributes()["email"],
