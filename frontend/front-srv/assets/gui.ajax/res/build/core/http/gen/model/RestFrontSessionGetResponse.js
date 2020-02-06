@@ -23,9 +23,9 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
-var _RestToken = require('./RestToken');
+var _AuthToken = require('./AuthToken');
 
-var _RestToken2 = _interopRequireDefault(_RestToken);
+var _AuthToken2 = _interopRequireDefault(_AuthToken);
 
 /**
 * The RestFrontSessionGetResponse model module.
@@ -59,14 +59,14 @@ var RestFrontSessionGetResponse = (function () {
             obj = obj || new RestFrontSessionGetResponse();
 
             if (data.hasOwnProperty('Token')) {
-                obj['Token'] = _RestToken2['default'].constructFromObject(data['Token']);
+                obj['Token'] = _AuthToken2['default'].constructFromObject(data['Token']);
             }
         }
         return obj;
     };
 
     /**
-    * @member {module:model/RestToken} Token
+    * @member {module:model/AuthToken} Token
     */
     return RestFrontSessionGetResponse;
 })();

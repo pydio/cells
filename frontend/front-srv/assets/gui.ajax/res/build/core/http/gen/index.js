@@ -53,6 +53,10 @@ var _modelActivitySummaryPointOfView = require('./model/ActivitySummaryPointOfVi
 
 var _modelActivitySummaryPointOfView2 = _interopRequireDefault(_modelActivitySummaryPointOfView);
 
+var _modelAuthToken = require('./model/AuthToken');
+
+var _modelAuthToken2 = _interopRequireDefault(_modelAuthToken);
+
 var _modelCtlPeer = require('./model/CtlPeer');
 
 var _modelCtlPeer2 = _interopRequireDefault(_modelCtlPeer);
@@ -761,10 +765,6 @@ var _modelRestTemplateNode = require('./model/RestTemplateNode');
 
 var _modelRestTemplateNode2 = _interopRequireDefault(_modelRestTemplateNode);
 
-var _modelRestToken = require('./model/RestToken');
-
-var _modelRestToken2 = _interopRequireDefault(_modelRestToken);
-
 var _modelRestUpdateSharePoliciesRequest = require('./model/RestUpdateSharePoliciesRequest');
 
 var _modelRestUpdateSharePoliciesRequest2 = _interopRequireDefault(_modelRestUpdateSharePoliciesRequest);
@@ -1102,6 +1102,13 @@ exports.
  * @property {module:model/ActivitySummaryPointOfView}
  */
 ActivitySummaryPointOfView = _modelActivitySummaryPointOfView2['default'];
+exports.
+
+/**
+ * The AuthToken model constructor.
+ * @property {module:model/AuthToken}
+ */
+AuthToken = _modelAuthToken2['default'];
 exports.
 
 /**
@@ -2341,13 +2348,6 @@ exports.
  * @property {module:model/RestTemplateNode}
  */
 RestTemplateNode = _modelRestTemplateNode2['default'];
-exports.
-
-/**
- * The RestToken model constructor.
- * @property {module:model/RestToken}
- */
-RestToken = _modelRestToken2['default'];
 exports.
 
 /**
