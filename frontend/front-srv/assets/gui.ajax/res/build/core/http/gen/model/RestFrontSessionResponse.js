@@ -23,9 +23,9 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
-var _RestToken = require('./RestToken');
+var _AuthToken = require('./AuthToken');
 
-var _RestToken2 = _interopRequireDefault(_RestToken);
+var _AuthToken2 = _interopRequireDefault(_AuthToken);
 
 /**
 * The RestFrontSessionResponse model module.
@@ -77,7 +77,7 @@ var RestFrontSessionResponse = (function () {
                 obj['TriggerInfo'] = _ApiClient2['default'].convertToType(data['TriggerInfo'], { 'String': 'String' });
             }
             if (data.hasOwnProperty('Token')) {
-                obj['Token'] = _RestToken2['default'].constructFromObject(data['Token']);
+                obj['Token'] = _AuthToken2['default'].constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('RedirectTo')) {
                 obj['RedirectTo'] = _ApiClient2['default'].convertToType(data['RedirectTo'], 'String');
@@ -111,7 +111,7 @@ module.exports = exports['default'];
 */
 
 /**
-* @member {module:model/RestToken} Token
+* @member {module:model/AuthToken} Token
 */
 
 /**

@@ -35,7 +35,9 @@ export default class SettingsNodeProvider{
      */
     constructor(properties = null){
         this.discrete = false;
-        if(properties) this.initProvider(properties);
+        if(properties) {
+            this.initProvider(properties);
+        }
     }
     /**
      * Initialize properties
@@ -43,9 +45,9 @@ export default class SettingsNodeProvider{
      */
     initProvider(properties){
         this.properties = new Map();
-        for (let p in properties){
-            if(properties.hasOwnProperty(p)) this.properties.set(p, properties[p]);
-        }
+        Object.keys(properties).forEach(p => {
+            this.properties.set(p, properties[p]);
+        });
         if(this.properties && this.properties.has('connexion_discrete')){
             this.discrete = true;
             this.properties.delete('connexion_discrete');
@@ -203,6 +205,7 @@ export default class SettingsNodeProvider{
 
     static parseSection(parentPath, section, childCallback = null){
         let label = section.LABEL;
+        const pydio = Pydio.getInstance();
         if(pydio && pydio.MessageHash && pydio.MessageHash[label]){
             label = pydio.MessageHash[label];
         }
@@ -235,15 +238,11 @@ export default class SettingsNodeProvider{
      * @return {Promise}
      */
     static loadMenu(){
-        if (PydioApi.LOADED_SETTINGS_MENU){
-            return Promise.resolve(PydioApi.LOADED_SETTINGS_MENU);
-        }
         return new Promise((resolve, reject) => {
             const client = PydioApi.getRestClient();
             client.callApi('/frontend/settings-menu', 'GET', '',
                 [], [], [], null, null, ['application/json'], ['application/json'],
                 null).then(r => {
-                    PydioApi.LOADED_SETTINGS_MENU = r.response.body;
                     resolve(r.response.body)
             }).catch(e => {
                 reject(e);
