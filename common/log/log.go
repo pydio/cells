@@ -65,7 +65,7 @@ var (
 func Init() {
 	SetLoggerInit(func() *zap.Logger {
 
-		StdOut := os.Stdout
+		StdOut = os.Stdout
 
 		var logger *zap.Logger
 
