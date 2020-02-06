@@ -20,6 +20,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// LoginSuccessWrapper wraps functionalities after user was successfully logged in
 func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" { // Ignore this middleware
@@ -106,6 +107,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 	}
 }
 
+// LoginFailedWrapper wraps functionalities after user failed to log in
 func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "external" { // Ignore this middleware
