@@ -115,6 +115,7 @@ type Identity struct {
 	Username      string
 	Email         string
 	EmailVerified bool
+	Claims        map[string]interface{}
 
 	Groups []string
 
