@@ -29,6 +29,7 @@ import (
 
 	"github.com/dchest/uniuri"
 	"github.com/gogo/protobuf/proto"
+	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
@@ -46,6 +47,11 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 
 	// First store minio config
 	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)
+	// Replace ApiSecret with vault Uuid
+	keyUuid := uuid.New()
+	config.SetSecret(keyUuid, conf.ApiSecret)
+	minioConfig.ApiSecret = keyUuid
+	// Now store in config
 	config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name))
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 

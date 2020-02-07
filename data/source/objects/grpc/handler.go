@@ -48,6 +48,10 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	accessKey := o.Config.ApiKey
 	secretKey := o.Config.ApiSecret
+	// Replace secretKey on the fly
+	if sec := config.GetSecret(secretKey).String(""); sec != "" {
+		secretKey = sec
+	}
 	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
 	if e != nil {
 		return e
