@@ -115,18 +115,18 @@ func TestUnmarshallConf(t *testing.T) {
 		Convey("From YAML File", func() {
 
 			Convey("No TLS", func() {
-				niYmlFile = filepath.Join(testDir, "no-tls.yml")
+				niYamlFile = filepath.Join(testDir, "no-tls.yml")
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 				So(installConf.GetProxyConfig(), ShouldNotBeNil)
 				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:80")
 				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost")
 				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
-				niYmlFile = ""
+				niYamlFile = ""
 			})
 
 			Convey("Self-Signed", func() {
-				niYmlFile = filepath.Join(testDir, "self-signed.yml")
+				niYamlFile = filepath.Join(testDir, "self-signed.yml")
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 
@@ -139,11 +139,11 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetSelfSigned(), ShouldNotBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
 				So(len(pc.GetSelfSigned().GetHostnames()), ShouldEqual, 1)
-				niYmlFile = ""
+				niYamlFile = ""
 			})
 
 			Convey("Let's Encrypt", func() {
-				niYmlFile = filepath.Join(testDir, "lets-encrypt.yml")
+				niYamlFile = filepath.Join(testDir, "lets-encrypt.yml")
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 
@@ -158,11 +158,11 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetLetsEncrypt().GetAcceptEULA(), ShouldBeTrue)
 				So(pc.GetLetsEncrypt().GetStagingCA(), ShouldBeTrue)
 
-				niYmlFile = ""
+				niYamlFile = ""
 			})
 
 			Convey("Provided Certificate", func() {
-				niYmlFile = filepath.Join(testDir, "provided-cert.yml")
+				niYamlFile = filepath.Join(testDir, "provided-cert.yml")
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 
@@ -176,7 +176,7 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetCertificate(), ShouldNotBeNil)
 				So(pc.GetCertificate().GetCertFile(), ShouldEqual, "/var/cells/certs/cert.pem")
 				So(pc.GetCertificate().GetKeyFile(), ShouldEqual, "/var/cells/certs/key.pem")
-				niYmlFile = ""
+				niYamlFile = ""
 			})
 
 		})
