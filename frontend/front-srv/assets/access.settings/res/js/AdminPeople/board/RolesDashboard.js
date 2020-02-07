@@ -58,7 +58,7 @@ let RolesDashboard = React.createClass({
     },
 
     openTableRows(rows) {
-        if (rows.length) {
+        if (rows.length && rows[0].role.PoliciesContextEditable) {
             this.openRoleEditor(rows[0].role);
         }
     },
@@ -139,12 +139,19 @@ let RolesDashboard = React.createClass({
 
     render(){
 
-        const {muiTheme} = this.props;
+        const {muiTheme, accessByName} = this.props;
         const styles = AdminComponents.AdminStyles(muiTheme.palette);
         const {searchRoleString, showTechnical} = this.state;
+        const hasEditRight = accessByName('Create');
 
-        const buttons = [
-            <FlatButton {...styles.props.header.flatButton} primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
+        // Header Buttons & edit functions
+        let selectRows = null;
+        const buttons = [];
+        if(hasEditRight){
+            buttons.push(<FlatButton {...styles.props.header.flatButton} primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>);
+            selectRows = this.openTableRows.bind(this);
+        }
+        buttons.push(
             <IconMenu
                 iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
@@ -154,7 +161,7 @@ let RolesDashboard = React.createClass({
                 <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
                 <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
             </IconMenu>
-        ];
+        );
 
         const centerContent = (
             <div style={{display:'flex'}}>
@@ -173,7 +180,7 @@ let RolesDashboard = React.createClass({
             {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true},
             {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true},
             {name:'actions', label:'', style:{width:80, textOverflow:'none'}, headerStyle:{width:80}, renderCell:(row) => {
-                if(row.role.PoliciesContextEditable){
+                if(hasEditRight && row.role.PoliciesContextEditable){
                     return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
                 } else {
                     return null;
@@ -202,7 +209,7 @@ let RolesDashboard = React.createClass({
                     <MaterialTable
                         data={data}
                         columns={columns}
-                        onSelectRows={this.openTableRows.bind(this)}
+                        onSelectRows={selectRows}
                         deselectOnClickAway={true}
                         showCheckboxes={false}
                         masterStyles={tableMaster}

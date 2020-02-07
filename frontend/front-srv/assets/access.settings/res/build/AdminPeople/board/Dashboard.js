@@ -434,7 +434,15 @@ var Dashboard = _react2['default'].createClass({
         });
 
         var headerButtons = [];
+        var renderActionsFunc = function renderActionsFunc() {
+            return [];
+        };
+        var openEditor = null;
+        var multipleActions = [];
         if (accessByName('Create')) {
+            renderActionsFunc = this.renderNodeActions.bind(this);
+            multipleActions = [pydio.Controller.getActionByName('delete')];
+            openEditor = this.openRoleEditor.bind(this);
             headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
         }
 
@@ -530,13 +538,13 @@ var Dashboard = _react2['default'].createClass({
                         pydio: pydio,
                         node: currentNode,
                         dataModel: dataModel,
-                        openEditor: this.openRoleEditor,
                         clearSelectionOnReload: false,
-                        entryRenderIcon: this.renderListUserAvatar,
-                        entryRenderFirstLine: this.renderListEntryFirstLine,
-                        entryRenderSecondLine: this.renderListEntrySecondLine,
-                        entryEnableSelector: this.renderListEntrySelector,
-                        entryRenderActions: this.renderNodeActions,
+                        openEditor: openEditor,
+                        entryRenderIcon: this.renderListUserAvatar.bind(this),
+                        entryRenderFirstLine: this.renderListEntryFirstLine.bind(this),
+                        entryRenderSecondLine: this.renderListEntrySecondLine.bind(this),
+                        entryEnableSelector: this.renderListEntrySelector.bind(this),
+                        entryRenderActions: renderActionsFunc,
                         searchResultData: searchResultData,
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
@@ -545,7 +553,7 @@ var Dashboard = _react2['default'].createClass({
                             height: 48,
                             borderBottom: groupHeaderStyle.borderBottom
                         },
-                        multipleActions: [pydio.Controller.getActionByName('delete')],
+                        multipleActions: multipleActions,
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
                     })

@@ -172,20 +172,12 @@ let PoliciesBoard = React.createClass({
 
     render(){
 
-        const {muiTheme, readonly, currentNode, pydio} = this.props;
+        const {muiTheme, currentNode, pydio, accessByName} = this.props;
+        let {readonly} = this.props;
+        readonly = readonly || !accessByName('Create');
         const {policies} = this.state;
-        const {primary1Color} = muiTheme.palette;
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
-
-
-        const subheaderStyle = {
-            textTransform: 'uppercase',
-            fontSize: 12,
-            color: primary1Color,
-            paddingLeft: 20,
-            paddingRight: 20,
-        };
 
         const lists = Object.keys(policies).map((k) => {
             if (readonly && k === 'acl') {
@@ -199,6 +191,7 @@ let PoliciesBoard = React.createClass({
                 items.push(
                     <Policy
                         {...this.props}
+                        readonly={readonly}
                         key={policy.Name}
                         policy={policy}
                         savePolicy={this.savePolicy.bind(this)}

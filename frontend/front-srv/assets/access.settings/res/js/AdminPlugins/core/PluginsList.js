@@ -112,6 +112,9 @@ const PluginsList = React.createClass({
             />);
         };
         const renderEditButton = (row) => {
+            if(!accessByName('Create')){
+                return null;
+            }
             if(XMLUtils.XPathSelectNodes(row.xmlNode, "server_settings/global_param").length){
                 return (
                     <IconButton

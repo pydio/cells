@@ -150,6 +150,9 @@ var PluginsList = React.createClass({
             });
         };
         var renderEditButton = function renderEditButton(row) {
+            if (!accessByName('Create')) {
+                return null;
+            }
             if (_pydioUtilXml2['default'].XPathSelectNodes(row.xmlNode, "server_settings/global_param").length) {
                 return React.createElement(_materialUi.IconButton, {
                     iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 },

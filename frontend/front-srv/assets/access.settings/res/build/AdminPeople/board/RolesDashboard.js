@@ -92,7 +92,7 @@ var RolesDashboard = _react2['default'].createClass({
     },
 
     openTableRows: function openTableRows(rows) {
-        if (rows.length) {
+        if (rows.length && rows[0].role.PoliciesContextEditable) {
             this.openRoleEditor(rows[0].role);
         }
     },
@@ -186,14 +186,25 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
-        var muiTheme = this.props.muiTheme;
+        var _props2 = this.props;
+        var muiTheme = _props2.muiTheme;
+        var accessByName = _props2.accessByName;
 
         var styles = AdminComponents.AdminStyles(muiTheme.palette);
         var _state = this.state;
         var searchRoleString = _state.searchRoleString;
         var showTechnical = _state.showTechnical;
 
-        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({}, styles.props.header.flatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })), _react2['default'].createElement(
+        var hasEditRight = accessByName('Create');
+
+        // Header Buttons & edit functions
+        var selectRows = null;
+        var buttons = [];
+        if (hasEditRight) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({}, styles.props.header.flatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })));
+            selectRows = this.openTableRows.bind(this);
+        }
+        buttons.push(_react2['default'].createElement(
             _materialUi.IconMenu,
             {
                 iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-filter-variant" }, styles.props.header.iconButton)),
@@ -207,7 +218,7 @@ var RolesDashboard = _react2['default'].createClass({
             },
             _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null }),
             _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
-        )];
+        ));
 
         var centerContent = _react2['default'].createElement(
             'div',
@@ -226,7 +237,7 @@ var RolesDashboard = _react2['default'].createClass({
             fontSize: 20
         };
         var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                if (row.role.PoliciesContextEditable) {
+                if (hasEditRight && row.role.PoliciesContextEditable) {
                     return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
                             _this5.deleteAction(row.roleId);
                         }, onClick: function (e) {
@@ -266,7 +277,7 @@ var RolesDashboard = _react2['default'].createClass({
                 _react2['default'].createElement(MaterialTable, {
                     data: data,
                     columns: columns,
-                    onSelectRows: this.openTableRows.bind(this),
+                    onSelectRows: selectRows,
                     deselectOnClickAway: true,
                     showCheckboxes: false,
                     masterStyles: tableMaster
