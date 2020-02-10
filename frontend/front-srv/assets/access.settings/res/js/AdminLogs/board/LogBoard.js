@@ -43,18 +43,6 @@ class LogBoard extends React.Component {
         this.setState({...newState});
     }
 
-    componentWillReceiveProps(newProps){
-        if(newProps.filter !== this.state.filter){
-            this.setState({filter: newProps.filter, page: 0});
-        }
-        if(newProps.date !== this.state.date){
-            this.setState({date: newProps.date, page: 0});
-        }
-        if(newProps.endDate !== this.state.endDate){
-            this.setState({endDate: newProps.endDate, page: 0});
-        }
-    }
-
     handleReload() {
         this.setState({z: Math.random()})
     }
