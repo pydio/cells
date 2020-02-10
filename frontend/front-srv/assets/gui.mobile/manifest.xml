@@ -5,7 +5,7 @@
         <global_param description="CONF_MESSAGE[iOS Application ID on the store]" label="CONF_MESSAGE[iOS Application ID]" name="IOS_APP_ID" type="string" default="1109419882" expose="true"/>
         <global_param description="CONF_MESSAGE[iOS Application Icon]" label="CONF_MESSAGE[iOS Application Icon]" name="IOS_APP_ICON" type="string" default="plug/gui.mobile/res/icons/pydio-pro-icon.png" expose="true"/>
         <global_param description="CONF_MESSAGE[Android Application ID]" label="CONF_MESSAGE[Android App ID]" name="ANDROID_APP_ID" type="string" default="com.pydio.android.Client" expose="true"/>
-        <global_param description="CONF_MESSAGE[Android Application Icon]" label="CONF_MESSAGE[Android App Icon]" name="ANDROID_APP_ICON" type="string" default="plug/gui.mobile/res/icons/pydio-pro-icon.png" expose="true"/>
+        <global_param description="CONF_MESSAGE[Android App Icon]" label="CONF_MESSAGE[Android App Icon]" name="ANDROID_APP_ICON" type="string" default="plug/gui.mobile/res/icons/pydio-pro-icon.png" expose="true"/>
     </server_settings>
     <client_settings>
         <resources>
