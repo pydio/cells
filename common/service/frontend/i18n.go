@@ -1,9 +1,12 @@
 package frontend
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
+
+var debugMissingStrings = false
 
 type I18nMessages struct {
 	Messages     map[string]string
@@ -20,6 +23,9 @@ func i18nConfMessages(i string, messages map[string]string) string {
 		if translation, ok := messages[key]; ok {
 			i = strings.Replace(i, orig, translation, -1)
 		} else {
+			if debugMissingStrings {
+				fmt.Println(" -- CONF_MESSAGE not found: " + key)
+			}
 			i = strings.Replace(i, orig, key, -1)
 		}
 	}

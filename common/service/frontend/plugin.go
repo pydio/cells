@@ -187,6 +187,9 @@ func (plugin *Cplugin) ExposeConfigs(c map[string]interface{}) {
 }
 
 func (plugin *Cplugin) Translate(messages I18nMessages) {
+	if debugMissingStrings {
+		fmt.Println("Translate plugin " + plugin.Attrid)
+	}
 	if plugin.Cserver_settings != nil {
 		newSettings := &Cserver_settings{}
 		for _, orig := range plugin.Cserver_settings.Cglobal_param {
