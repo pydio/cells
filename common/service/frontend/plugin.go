@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jinzhu/copier"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 )
@@ -181,20 +183,28 @@ func (plugin *Cplugin) ExposeConfigs(c map[string]interface{}) {
 
 func (plugin *Cplugin) Translate(messages I18nMessages) {
 	if plugin.Cserver_settings != nil {
-		for _, param := range plugin.Cserver_settings.Cglobal_param {
-			param.Attrlabel = i18nConfMessages(param.Attrlabel, messages.ConfMessages)
-			param.Attrdescription = i18nConfMessages(param.Attrdescription, messages.ConfMessages)
-			param.Attrchoices = i18nConfMessages(param.Attrchoices, messages.ConfMessages)
-			param.Attrdefault = i18nConfMessages(param.Attrdefault, messages.ConfMessages)
-			param.Attrgroup = i18nConfMessages(param.Attrgroup, messages.ConfMessages)
+		newSettings := &Cserver_settings{}
+		for _, orig := range plugin.Cserver_settings.Cglobal_param {
+			param := &Cglobal_param{}
+			copier.Copy(&param, orig)
+			param.Attrlabel = i18nConfMessages(orig.Attrlabel, messages.ConfMessages)
+			param.Attrdescription = i18nConfMessages(orig.Attrdescription, messages.ConfMessages)
+			param.Attrchoices = i18nConfMessages(orig.Attrchoices, messages.ConfMessages)
+			param.Attrdefault = i18nConfMessages(orig.Attrdefault, messages.ConfMessages)
+			param.Attrgroup = i18nConfMessages(orig.Attrgroup, messages.ConfMessages)
+			newSettings.Cglobal_param = append(newSettings.Cglobal_param, param)
 		}
-		for _, param := range plugin.Cserver_settings.Cparam {
-			param.Attrlabel = i18nConfMessages(param.Attrlabel, messages.ConfMessages)
-			param.Attrdescription = i18nConfMessages(param.Attrdescription, messages.ConfMessages)
-			param.Attrchoices = i18nConfMessages(param.Attrchoices, messages.ConfMessages)
-			param.Attrdefault = i18nConfMessages(param.Attrdefault, messages.ConfMessages)
-			param.Attrgroup = i18nConfMessages(param.Attrgroup, messages.ConfMessages)
+		for _, orig := range plugin.Cserver_settings.Cparam {
+			param := &Cparam{}
+			copier.Copy(&param, orig)
+			param.Attrlabel = i18nConfMessages(orig.Attrlabel, messages.ConfMessages)
+			param.Attrdescription = i18nConfMessages(orig.Attrdescription, messages.ConfMessages)
+			param.Attrchoices = i18nConfMessages(orig.Attrchoices, messages.ConfMessages)
+			param.Attrdefault = i18nConfMessages(orig.Attrdefault, messages.ConfMessages)
+			param.Attrgroup = i18nConfMessages(orig.Attrgroup, messages.ConfMessages)
+			newSettings.Cparam = append(newSettings.Cparam, param)
 		}
+		plugin.Cserver_settings = newSettings
 	}
 	plugin.Attrlabel = i18nConfMessages(plugin.Attrlabel, messages.ConfMessages)
 	plugin.Attrdescription = i18nConfMessages(plugin.Attrdescription, messages.ConfMessages)
