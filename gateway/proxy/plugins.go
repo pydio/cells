@@ -33,13 +33,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
+	"github.com/pborman/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -155,7 +155,7 @@ var (
 		if {path} not_starts_with "/robots.txt"
 		to {path} {path}/ /login
 	}
-
+	root {{.WebRoot}}
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 	errors "{{.Logs}}/caddy_errors.log"
@@ -179,6 +179,7 @@ http://{{.HTTPRedirectSource.Host}} {
 		FrontPlugins string
 		DAV          string
 		ProxyGRPC    string
+		WebRoot      string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
 		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
@@ -350,6 +351,7 @@ func play() (*bytes.Buffer, error) {
 func LoadCaddyConf() error {
 
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
+	caddyconf.WebRoot = "/" + uuid.New()
 
 	u, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
 	if err != nil {
