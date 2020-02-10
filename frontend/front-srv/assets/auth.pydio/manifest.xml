@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="auth.pydio" name="pydio" label="CONF_MESSAGE[Pydio Backend]"
-            description="CONF_MESSAGE[Authentication is performed via the pydio backend]"
+<plugin id="auth.pydio" name="pydio" label="CONF_MESSAGE[Authentication actions]"
+            description="CONF_MESSAGE[Authentication-related actions]"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
             mixins="authdriver_commons"
+        enabled="always"
         >
     <client_settings>
         <resources>
@@ -20,6 +21,63 @@
                 <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
                 <processing>
                     <clientCallback module="PydioCoreActions.Callbacks.changePass"/>
+                </processing>
+            </action>
+            <action name="user_team_create">
+                <gui iconClass="icon-plus" text="571.create_team_action" title="571.create_team_legend"/>
+            </action>
+            <action name="custom_data_edit">
+                <gui text="442" title="443" iconClass="icon-reorder" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+            </action>
+            <action name="user_update_user">
+                <gui text="519" title="520" iconClass="icon-user" accessKey="" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="true" actionBar="true" actionBarGroup="address_book" contextMenu="false" infoPanel="false"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="shared_user"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+            </action>
+            <action name="user_create_user">
+                <gui text="484" title="485" iconClass="icon-user" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="true" actionBarGroup="address_book" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+            </action>
+            <action name="switch_language">
+                <gui text="190" title="190" accessKey="" hasAccessKey="false" iconClass="icon-flag">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.switchLanguage"/>
+                </processing>
+            </action>
+            <action name="webdav_preferences">
+                <gui text="403" title="403" iconClass="icon-cog" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" read="true" write="false" adminOnly=""/>
+            </action>
+            <action name="switch_to_settings">
+                <gui text="settings.topbar.title" title="settings.topbar.title" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-tune-vertical" >
+                    <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="zlogin"/>
+                </gui>
+                <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.switchToSettings"/>
+                </processing>
+            </action>
+            <action name="switch_to_homepage">
+                <gui text="305" title="305" hasAccessKey="false" iconClass="mdi mdi-home" >
+                    <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="aUser"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <activeCondition><![CDATA[
+                        return (pydio && pydio.user && (pydio.user.getRepositoriesList().has('homepage') && pydio.user.activeRepository !== 'homepage'));
+                    ]]> </activeCondition>
+                    <clientCallback module="PydioCoreActions.Navigation.switchToHomepage"/>
                 </processing>
             </action>
         </actions>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="core.mailer" enabled="always" label="CONF_MESSAGE[Mailer Component]" description="CONF_MESSAGE[Core component for sending emails]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+<plugin id="core.mailer" enabled="always" label="CONF_MESSAGE[Mailers]" description="CONF_MESSAGE[Core component for sending emails]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
     <server_settings>
         <!--
         <param name="NOTIFICATIONS_EMAIL_GET" type="select" choices="true|PYDIO_MESSAGE[440],false|PYDIO_MESSAGE[441]" scope="user" description="CONF_MESSAGE[Receive Notifcations by email]" label="CONF_MESSAGE[Active notifications by email]" expose="true" mandatory="true" default="true" />
