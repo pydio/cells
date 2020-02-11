@@ -1,23 +1,8 @@
 {
-  "Connexion": {
-    "other": "Pieslēgums"
+  "Authentication actions": {
+    "other": "Authentication actions"
   },
-  "DB Auth Storage": {
-    "other": "DB Auth Storage"
-  },
-  "DB Storage": {
-    "other": "DB Storage"
-  },
-  "Install SQL Tables": {
-    "other": "Instalēt SQL tabulas"
-  },
-  "SQL Tables": {
-    "other": "SQL Tabulas"
-  },
-  "Stores the Authentication data in an SQL database.": {
-    "other": "Glabā Autentifikācijas datus SQL datu bāzē."
-  },
-  "The Database Connexion": {
-    "other": "Datu bāzes pieslēgums"
+  "Authentication-related actions": {
+    "other": "Authentication-related actions"
   }
 }

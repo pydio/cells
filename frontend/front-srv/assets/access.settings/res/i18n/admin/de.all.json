@@ -1509,10 +1509,10 @@
     "other": "Wenn Personen mit diesem Workspace verbunden sind, funktioniert ihre Synchronisierungsaufgabe nicht mehr! Möchten Sie das wirklich ändern?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
+    "other": "Datenträgernutzungskontingent (belassen Sie 0 für unbegrenzt). Dieses Kontingent wird für alle Dateien dieses Arbeitsbereichs berechnet. Für benutzerspezifische Arbeitsbereiche (wie z. B. persönliche Dateien) können Sie diesen Wert pro Benutzer / Gruppe / Rolle im Abschnitt \"Personen\" verfeinern."
   },
   "ws.editor.other.quota.noquota": {
-    "other": "No Quota set"
+    "other": "Kein Quote festgelegt"
   },
   "ws.editor.path.folder": {
     "other": "Ordnerpfad"

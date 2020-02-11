@@ -1,4 +1,10 @@
 {
+  "User Account Panel": {
+    "other": "Benutzerkontenbereich"
+  },
+  "User account panel for managing settings and opening address book": {
+    "other": "Benutzerkonten-Panel zur Verwaltung von Einstellungen und zum Öffnen des Adressbuchs"
+  },
   "Disable Address Book": {
     "other": "Adressbuch deaktivieren"
   },

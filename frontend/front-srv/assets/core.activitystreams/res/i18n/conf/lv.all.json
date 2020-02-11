@@ -1,35 +1,17 @@
 {
-  "Activate desktop notifications": {
-    "other": "Aktivizēt darbvirsmas paziņojumus"
+  "Show file/folders activities": {
+    "other": "Show file/folders activities"
   },
-  "Choose the plugin": {
-    "other": "Izvēlēties spraudni"
+  "Display file and folders activities in the right-hand info panel": {
+    "other": "Display file and folders activities in the right-hand info panel"
   },
-  "Desktop Notifications": {
-    "other": "Darbvirsmas paziņojumi"
+  "Activities": {
+    "other": "Activities"
   },
-  "Display Workspaces Activity": {
-    "other": "Rādīt darbvirsmu aktivitāti"
+  "Activity Center": {
+    "other": "Activity Center"
   },
-  "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
-    "other": "Rādīt jaunu ierakstu ar visiem notikumiem lietotāju darbvirsmās, kā arī brīdinājumus. SQL datu bāzei jābūt konfigurētam iestatījumam FEED_DRIVER."
-  },
-  "Display workspaces activity to the users in the right-hand information panel": {
-    "other": "Parādīt darbvirsmas aktivitāti lietotājam labās puses informācijas panelī"
-  },
-  "Feed Instance": {
-    "other": "Barotne"
-  },
-  "Handle users watches and notifications": {
-    "other": "Uzturēt lietotāju monitorēšanu un paziņojumus"
-  },
-  "Instance Params": {
-    "other": "Parametri"
-  },
-  "Notification Center": {
-    "other": "Paziņojumu centrs"
-  },
-  "User events and alerts": {
-    "other": "Lietotāja notikumi un paziņojumi"
+  "Activity Streams 2.0": {
+    "other": "Activity Streams 2.0"
   }
 }

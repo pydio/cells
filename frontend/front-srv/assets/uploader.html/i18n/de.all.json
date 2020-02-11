@@ -45,16 +45,16 @@
     "other": "Bestehende Datei still überschreiben"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Ordner umbenennen, dann widersprüchliche Dateien"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Nur Dateien umbenennen (Ordner zusammenführen)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Ordner zusammenführen und Dateien überschreiben"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Auswahl für die nächsten Uploads speichern"
   },
   "22": {
     "other": "Optionen"

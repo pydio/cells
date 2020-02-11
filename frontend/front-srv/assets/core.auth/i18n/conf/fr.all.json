@@ -130,5 +130,20 @@
   },
   "Will be shown to the user at login": {
     "other": "Sera affiché à l'utilisateur à la connexion"
+  },
+  "Security": {
+    "other": "Sécurité"
+  },
+  "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
+    "other": "Action à déclencher en cliquant sur Mot de passe oublié. Peut être modifiée pour déclencher une action personnalisée pour rediriger vers un système d'authentification externe."
+  },
+  "Let user create new cells": {
+    "other": "Créer de nouvelles cellules"
+  },
+  "Whether users can create their own cells or not": {
+    "other": "Autoriser les utilisateurs à créer leurs propres cellules"
+  },
+  "Delegation": {
+    "other": "Délégation"
   }
 }

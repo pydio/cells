@@ -5,8 +5,8 @@
   "Comments Feed": {
     "other": "Kommentare"
   },
-  "Display a chat-like feed on all nodes": {
-    "other": "Kommentare zu Elementen hinzufügen und im Info-Bereich anzeigen"
+  "Display a chat-like feed on every nodes": {
+    "other": "Zeigen Sie auf allen Knoten einen chatähnlichen Feed an"
   },
   "Maximum number of characters for each comment": {
     "other": "Maximale Anzahl der Zeichen pro Kommentar"

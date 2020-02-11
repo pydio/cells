@@ -5,16 +5,22 @@
   "Collabora Online Editor for office documents": {
     "other": "Editeur Collabora Online pour les documents Office"
   },
-  "URL to the Libre Office Editor Iframe": {
-    "other": "URL de l'Iframe LibreOffice"
+  "Libre Office SSL": {
+    "other": "Libre Office SSL"
   },
-  "Web Socket Connector Host": {
-    "other": "Host du connecteur WebSocket"
+  "Libre Office uses ssl": {
+    "other": "Libre Office utilise ssl"
   },
-  "Web Socket Connector Port": {
-    "other": "Port du connecteur WebSocket"
+  "Libre Office Host": {
+    "other": "Hôte Libre Office"
   },
-  "Websocket Uses TLS": {
-    "other": "Le WebSocket utilise TLS"
+  "Libre Office Port": {
+    "other": "Hôte Libre Office"
+  },
+  "Host for Libre Office": {
+    "other": "Hôte pour Libre Office"
+  },
+  "Port for Libre Office": {
+    "other": "Port pour Libre Office"
   }
 }
