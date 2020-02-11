@@ -156,12 +156,22 @@ let ProfilePane = React.createClass({
                     idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
+            let changeLang = false;
             if(values['lang'] && values['lang'] !== pydio.currentLanguage) {
                 pydio.user.setPreference('lang', values['lang']);
+                changeLang = true;
             }
             const api = new UserServiceApi(PydioApi.getRestClient());
             return api.putUser(idmUser.Login, idmUser).then(response => {
-                // Do something now
+                if (changeLang) {
+                    // Reload form after registry reload
+                    pydio.observeOnce('registry_loaded', () => {
+                        this.setState({
+                            definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
+                            mailDefinitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
+                        });
+                    });
+                }
                 pydio.refreshUserData();
                 this.setState({dirty: false}, () => {
                     if(this._updater) {
