@@ -1,4 +1,10 @@
 {
+  "User Account Panel": {
+    "other": "Panneau de compte utilisateur"
+  },
+  "User account panel for managing settings and opening address book": {
+    "other": "Panneau de compte utilisateur pour gérer les paramètres et ouvrir le carnet d'adresses"
+  },
   "Disable Address Book": {
     "other": "Désactiver le carnet d'adresses"
   },

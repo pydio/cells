@@ -1,4 +1,7 @@
 {
+  "Core component for sending emails": {
+    "other": "Composant principal pour l'envoi d'e-mails"
+  },
   "Activate Queue": {
     "other": "Activer la queue"
   },

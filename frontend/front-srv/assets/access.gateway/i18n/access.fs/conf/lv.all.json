@@ -1,80 +1,29 @@
 {
-  "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absulūtais ceļš uz direktorijām serverī. Varat lietot PYDIO_DATA_PATH un PYDIO_INSTALL_PATH lai norādītu Pydio noklusēto datu glabāšanas ceļu un pamata instalācijas ceļu."
-  },
-  "Create": {
-    "other": "Izveidot"
-  },
-  "Create folder if it does not exists": {
-    "other": "Izveidot direktoriju ja tā neeksistē"
-  },
-  "Data template": {
-    "other": "Datu šablons"
-  },
-  "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping": {
-    "other": "Deleģē visas lejupielādes operācijas priekš nginx izmantojot X-Accel-Redirect galveni. Uzmanību, nginx ir jāpievieno papildu konfigurācija, piemēram X-Accel-Mapping"
-  },
-  "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
-    "other": "Deleģē visas lejupielādes operācijas webserverim izmantojot X-SendFile galveni. Uzmanību, šis ir ārēji instalējams Apache modulis. Lighttpd šis modulis is aktīvs pēc noklusējuma. Uzmanību, Jums manuāli jāpievieno direktorijas kurās moduļa konfigurācijai tiks lejupielādēti faili (XSendFilePath direktīva)"
-  },
-  "Directly write the zip file to an output stream which is connected to the user's browser.": {
-    "other": "Rakstīt zip faila datu informāciju pa tiešo klienta interneta pārlūkā."
-  },
-  "File Creation Mask": {
-    "other": "Failu veidošanas maska"
-  },
-  "File System (Standard)": {
-    "other": "Failu sistēma (Standarta)"
-  },
-  "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Tīrīt dokumentus pēc noteikta dienu skaita (pat ja ir koplietoti). Nepieciešams izveidot manuāli CRON uzdevumu. Atstājiet 0 ja nevēlaties izmantot šo iespēju."
-  },
-  "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Tīrīt dokumentus pēc noteikta dienu skaita (ja nav koplietoti). Nepieciešams izveidot manuāli CRON uzdevumu. Atstājiet 0 ja nevēlaties izmantot šo iespēju."
-  },
-  "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Tīrīt dokumentus pēc noteikta dienu skaita. Nepieciešams izveidot manuāli CRON uzdevumu. Atstājiet 0 ja nevēlaties izmantot šo iespēju."
-  },
-  "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
-    "other": "Pielietot chmod funkciju. Vērtībai jāsastāv no cipariem, piemēram 0777, 0644, u.t.t."
-  },
   "Path": {
     "other": "Ceļš"
   },
-  "Path to a directory on the filesystem whose content will be copied to the repository the first time it is loaded.": {
-    "other": "Ceļš uz direktoriju failu sistēmā kuras saturs tiks kopēts uz darbvirsmu kad tā tiks pirmo reizi ielādēta."
+  "Default download format": {
+    "other": "Default download format"
   },
-  "Purge Days": {
-    "other": "Tīrīšanas dienas"
+  "When downloading a folder or a multiple selection, automatically create an archive using this format": {
+    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
   },
-  "Purge Days (Hard limit)": {
-    "other": "Tīrīšanas dienas (cietais limits)"
+  "Path to the folder on the server": {
+    "other": "Path to the folder on the server"
   },
-  "Purge Days (Soft limit)": {
-    "other": "Tīrīšanas dienas (mīkstais limits)"
+  "Gateway": {
+    "other": "Gateway"
   },
-  "Real Size Probing": {
-    "other": "Īstā izmēra pārbaude"
+  "Pydio S3 Gateway": {
+    "other": "Pydio S3 Gateway"
   },
-  "The most standard access to a filesystem located on the server.": {
-    "other": "Standarta piekļuve failu sistēmai uz servera."
+  "Absolute path to one or more root nodes": {
+    "other": "Absolute path to one or more root nodes"
   },
-  "Use POSIX": {
-    "other": "Lietot POSIX"
+  "#Items per page": {
+    "other": "#Items per page"
   },
-  "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
-    "other": "Lietojiet php POSIX paplašinājumu lai nolasītu failu permisijas. Darbojas tikai uz *nix sistēmām."
-  },
-  "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
-    "other": "Lietojiet sistēmas komandrindu lai iegūtu faila lielumu, nevis php iebūvēto funkciju (labo 2Go limitu)"
-  },
-  "X-Accel-Redirect Active": {
-    "other": "X-Accel-Redirect Aktīvs"
-  },
-  "X-SendFile Active": {
-    "other": "X-SendFile Aktīvs"
-  },
-  "Zip downloading files on the fly": {
-    "other": "Zip failu nekavējoša lejpielāde"
+  "Once in pagination mode, number of items to display per page.": {
+    "other": "Once in pagination mode, number of items to display per page."
   }
 }

@@ -34,5 +34,23 @@
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
     "other": "Beim Öffnen der Webschnittstelle auf einem mobilen Terminal keinen Smart Banner anzeigen."
+  },
+  "iOS Application Icon": {
+    "other": "iOS-Anwendungssymbol"
+  },
+  "iOS Application ID": {
+    "other": "iOS-Anwendungs-ID"
+  },
+  "iOS Application ID on the store": {
+    "other": "iOS-Anwendungs-ID im Store"
+  },
+  "Android Application ID": {
+    "other": "Android-Anwendungs-ID"
+  },
+  "Android App ID": {
+    "other": "Android App ID"
+  },
+  "Android App Icon": {
+    "other": "Android-Anwendungssymbol"
   }
 }

@@ -1,35 +1,17 @@
 {
-  "Activate desktop notifications": {
-    "other": "Activer les notifications sur l'espace de travail"
+  "Show file/folders activities": {
+    "other": "Afficher les activités des fichiers/dossiers"
   },
-  "Choose the plugin": {
-    "other": "Choisir un plugin"
+  "Display file and folders activities in the right-hand info panel": {
+    "other": "Afficher les activités de fichiers et de dossiers dans le panneau d'information de droite"
   },
-  "Desktop Notifications": {
-    "other": "Notifications sur l'espace de travail"
+  "Activities": {
+    "other": "Activités"
   },
-  "Display Workspaces Activity": {
-    "other": "Afficher l'activité des workspaces"
+  "Activity Center": {
+    "other": "Centre d'activités"
   },
-  "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
-    "other": "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration."
-  },
-  "Display workspaces activity to the users in the right-hand information panel": {
-    "other": "Affiche un widget avec un flux d'activité dans le panneau d'information."
-  },
-  "Feed Instance": {
-    "other": "Feed Instance"
-  },
-  "Handle users watches and notifications": {
-    "other": "Gestion des notifications et des alertes."
-  },
-  "Instance Params": {
-    "other": "Paramètre d'instance"
-  },
-  "Notification Center": {
-    "other": "Centre de Notifications"
-  },
-  "User events and alerts": {
-    "other": "Notifications et alertes"
+  "Activity Streams 2.0": {
+    "other": "Flux d'activité AS2.0"
   }
 }
