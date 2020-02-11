@@ -169,12 +169,22 @@ var ProfilePane = _react2['default'].createClass({
                     idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
+            var changeLang = false;
             if (values['lang'] && values['lang'] !== pydio.currentLanguage) {
                 pydio.user.setPreference('lang', values['lang']);
+                changeLang = true;
             }
             var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putUser(idmUser.Login, idmUser).then(function (response) {
-                // Do something now
+                if (changeLang) {
+                    // Reload form after registry reload
+                    pydio.observeOnce('registry_loaded', function () {
+                        _this3.setState({
+                            definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
+                            mailDefinitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]")
+                        });
+                    });
+                }
                 pydio.refreshUserData();
                 _this3.setState({ dirty: false }, function () {
                     if (_this3._updater) {
