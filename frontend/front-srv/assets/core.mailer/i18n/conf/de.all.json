@@ -1,4 +1,7 @@
 {
+  "Core component for sending emails": {
+    "other": "Kernkomponente zum Versenden von E-Mails"
+  },
   "Activate Queue": {
     "other": "Warteschlange aktivieren"
   },

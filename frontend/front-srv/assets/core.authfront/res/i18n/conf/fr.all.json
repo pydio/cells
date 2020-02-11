@@ -1,0 +1,8 @@
+{
+  "Authentication FrontEnd": {
+    "other": "FrontEnd d'authentification"
+  },
+  "Actual way to authenticate users (via credentials, certificates, http, etc)": {
+    "other": "Méthode d'authentification des utilisateurs (via les identifiants, les certificats, http, etc)"
+  }
+}

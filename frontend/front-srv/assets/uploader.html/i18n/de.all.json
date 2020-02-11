@@ -44,6 +44,18 @@
   "options.existing.overwrite": {
     "other": "Bestehende Datei still überschreiben"
   },
+  "confirm.rename.all": {
+    "other": "Ordner umbenennen, dann widersprüchliche Dateien"
+  },
+  "confirm.rename.merge": {
+    "other": "Nur Dateien umbenennen (Ordner zusammenführen)"
+  },
+  "confirm.overwrite": {
+    "other": "Ordner zusammenführen und Dateien überschreiben"
+  },
+  "confirm.save.choice": {
+    "other": "Auswahl für die nächsten Uploads speichern"
+  },
   "22": {
     "other": "Optionen"
   },

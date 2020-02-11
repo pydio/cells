@@ -1,35 +1,17 @@
 {
-  "Activate desktop notifications": {
-    "other": "Desktop-Benachrichtigungen aktivieren"
+  "Show file/folders activities": {
+    "other": "Datei- / Ordneraktivitäten anzeigen"
   },
-  "Choose the plugin": {
-    "other": "Eine Erweiterung auswählen"
+  "Display file and folders activities in the right-hand info panel": {
+    "other": "Zeigen Sie Datei- und Ordneraktivitäten im rechten Infofenster an"
   },
-  "Desktop Notifications": {
-    "other": "Desktop-Benachrichtigungen"
+  "Activities": {
+    "other": "Aktivitäten"
   },
-  "Display Workspaces Activity": {
-    "other": "Arbeitsumgebungs-Aktivitäten anzeigen"
+  "Activity Center": {
+    "other": "Aktivitätszentrum"
   },
-  "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
-    "other": "Bei allen Ereignissen in einem Arbeitsbereich einen neuen Eintrag anzeigen und Benachrichtigungen ausgeben. Dafür muss unten eine SQL-Datenbank konfiguriert werden."
-  },
-  "Display workspaces activity to the users in the right-hand information panel": {
-    "other": "Arbeitsumgebungs-Aktivitäten im Info-Bereich auf der rechten Seite anzeigen"
-  },
-  "Feed Instance": {
-    "other": "Ereignisspeicher"
-  },
-  "Handle users watches and notifications": {
-    "other": "Verarbeitet durch Benutzer beobachtete Dateien und Benachrichtigungen"
-  },
-  "Instance Params": {
-    "other": "Parameter des Ereignisspeichers"
-  },
-  "Notification Center": {
-    "other": "Ereignis-Benachrichtigungen"
-  },
-  "User events and alerts": {
-    "other": "Benutzer-Ereignisse und Benachrichtigungen"
+  "Activity Streams 2.0": {
+    "other": "Aktivitäts-Streams 2.0"
   }
 }

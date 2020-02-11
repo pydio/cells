@@ -1,8 +1,8 @@
 {
-  "Git-based Versioning": {
-    "other": "Versiones basadas en Git"
+  "Files Versioning": {
+    "other": "Files Versioning"
   },
-  "Keep tracks of all files modifications using a local Git repository": {
-    "other": "Mantener trazabilidad de todas las modificaciones de archivos usando un workspace local de Git"
+  "Keep tracks of all files modifications": {
+    "other": "Keep tracks of all files modifications"
   }
 }

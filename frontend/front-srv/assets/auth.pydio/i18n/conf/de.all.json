@@ -1,23 +1,8 @@
 {
-  "Connexion": {
-    "other": "Verbindung"
+  "Authentication actions": {
+    "other": "Authentifizierungsaktionen"
   },
-  "DB Auth Storage": {
-    "other": "Datenbank-Speicher"
-  },
-  "DB Storage": {
-    "other": "DB-Speicher"
-  },
-  "Install SQL Tables": {
-    "other": "SQL-Tabellen installieren"
-  },
-  "SQL Tables": {
-    "other": "SQL Tabellen"
-  },
-  "Stores the Authentication data in an SQL database.": {
-    "other": "Speichert Authentifizierungsdaten in einer SQL-Datenbank."
-  },
-  "The Database Connexion": {
-    "other": "Die Datenbankverbindung"
+  "Authentication-related actions": {
+    "other": "Authentifizierungsbezogene Aktionen"
   }
 }

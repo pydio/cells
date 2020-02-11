@@ -260,6 +260,12 @@
   "Web Session": {
     "other": "Session Web"
   },
+  "Web Interface auto-logout after inactivity": {
+    "other": "Déconnexion automatique de l'interface Web après inactivité"
+  },
+  "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
+    "other": "Pour des raisons de sécurité, déconnecter l'utilisateur s'il n'y a pas d'activité sur l'interface. Définit aussi l'expiration du cookie par défaut."
+  },
   "Welcome Message": {
     "other": "Message d'accueil"
   },

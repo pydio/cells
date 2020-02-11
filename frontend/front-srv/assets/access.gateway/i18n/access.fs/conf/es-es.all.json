@@ -1,80 +1,29 @@
 {
-  "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Ruta absoluta a la carpeta en el servidor. Puede usar PYDIO_DATA_PATH y PYDIO_INSTALL_PATH para apuntar a la ruta de datos por defecto de Pydio y ruta de instalación del directorio raíz."
-  },
-  "Create": {
-    "other": "Crear"
-  },
-  "Create folder if it does not exists": {
-    "other": "Crear directorio si no existe"
-  },
-  "Data template": {
-    "other": "Plantilla de datos"
-  },
-  "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping": {
-    "other": "Delega todas las operaciones de descarga a nginx usando la cabecera X-Accel-Redirect. Atención, tiene que añadir la configuración a nginx, como X-Accel-Mapping"
-  },
-  "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
-    "other": "Delega todas las operaciones de descarga al servidor web usando la cabecera X-SendFile. Atención, esto es un módulo externo que se instala en Apache. El módulo está activado por defecto en Lighttpd. Atención, hay que añadir manualmente los directorios donde se descargarán los archivos en el modulo de configuración (directiva XSendFilePath)"
-  },
-  "Directly write the zip file to an output stream which is connected to the user's browser.": {
-    "other": "Escribir directamente el archivo zip a un flujo de salida que esté conectado al navegador del usuario."
-  },
-  "File Creation Mask": {
-    "other": "Máscara de creación de archivos"
-  },
-  "File System (Standard)": {
-    "other": "Sistema de Archivos (Estándar)"
-  },
-  "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos una vez transcurrido un número de dias seleccionado (incluso si están compartidos). Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
-  },
-  "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos una vez transcurrido un número de dias seleccionado (excluye los compartidos). Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
-  },
-  "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos una vez transcurrido el número de dias seleccionado. Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
-  },
-  "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
-    "other": "Aplicar opcionalmente una operación chmod. El valor debe ser numérico (p.e. 0777 0644, etc)."
-  },
   "Path": {
     "other": "Ruta"
   },
-  "Path to a directory on the filesystem whose content will be copied to the repository the first time it is loaded.": {
-    "other": "Ruta al directorio del sistema de archivos cuyo contenido será copiado al workspace la primera vez que sea cargado."
+  "Default download format": {
+    "other": "Default download format"
   },
-  "Purge Days": {
-    "other": "Purgar (Dias)"
+  "When downloading a folder or a multiple selection, automatically create an archive using this format": {
+    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
   },
-  "Purge Days (Hard limit)": {
-    "other": "Purgar (Dias - Estricto)"
+  "Path to the folder on the server": {
+    "other": "Path to the folder on the server"
   },
-  "Purge Days (Soft limit)": {
-    "other": "Purgar (Dias - Flexible)"
+  "Gateway": {
+    "other": "Gateway"
   },
-  "Real Size Probing": {
-    "other": "Comprobación a Tamaño Real"
+  "Pydio S3 Gateway": {
+    "other": "Pydio S3 Gateway"
   },
-  "The most standard access to a filesystem located on the server.": {
-    "other": "El acceso más estándar a un sistema de ficheros ubicado en el servidor."
+  "Absolute path to one or more root nodes": {
+    "other": "Absolute path to one or more root nodes"
   },
-  "Use POSIX": {
-    "other": "Usar POSIX"
+  "#Items per page": {
+    "other": "#Items per page"
   },
-  "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
-    "other": "Usar la extension PHP POSIX para leer los permisos de los archivos. Sólo funciona en sistema *nix."
-  },
-  "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
-    "other": "Usar la línea de comandos del sistema para obtener el tamaño de archivo en lugar de usar la función PHP (soluciona la limitación de 2G)"
-  },
-  "X-Accel-Redirect Active": {
-    "other": "X-Accel-Redirect Activo"
-  },
-  "X-SendFile Active": {
-    "other": "X-SendFile Activo"
-  },
-  "Zip downloading files on the fly": {
-    "other": "Comprimir archivos al mismo tiempo que se descargan"
+  "Once in pagination mode, number of items to display per page.": {
+    "other": "Once in pagination mode, number of items to display per page."
   }
 }

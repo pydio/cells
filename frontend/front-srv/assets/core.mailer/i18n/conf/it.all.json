@@ -1,4 +1,7 @@
 {
+  "Core component for sending emails": {
+    "other": "Core component for sending emails"
+  },
   "Activate Queue": {
     "other": "Attivare la coda"
   },

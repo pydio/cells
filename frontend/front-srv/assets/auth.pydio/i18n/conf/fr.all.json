@@ -1,23 +1,8 @@
 {
-  "Connexion": {
-    "other": "Connexion"
+  "Authentication actions": {
+    "other": "Action d'authentification"
   },
-  "DB Auth Storage": {
-    "other": "Stockage en BDD des authentifications"
-  },
-  "DB Storage": {
-    "other": "Stockage BDD"
-  },
-  "Install SQL Tables": {
-    "other": "Installer les tables SQL"
-  },
-  "SQL Tables": {
-    "other": "Tables SQL"
-  },
-  "Stores the Authentication data in an SQL database.": {
-    "other": "Stockage des informations d'authentification dans une base de données."
-  },
-  "The Database Connexion": {
-    "other": "Connexion à la base de données"
+  "Authentication-related actions": {
+    "other": "Actions liées à l'authentification"
   }
 }
