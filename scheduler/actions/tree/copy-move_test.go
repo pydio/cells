@@ -98,8 +98,8 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
 		}
 		action.Client = mock
-		status := make(chan string)
-		progress := make(chan float32)
+		status := make(chan string, 10000)
+		progress := make(chan float32, 10000)
 
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
@@ -150,8 +150,8 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 				"create": "true",
 			},
 		})
-		status := make(chan string)
-		progress := make(chan float32)
+		status := make(chan string, 10000)
+		progress := make(chan float32, 10000)
 
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
@@ -197,8 +197,8 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 				"create": "true",
 			},
 		})
-		status := make(chan string)
-		progress := make(chan float32)
+		status := make(chan string, 10000)
+		progress := make(chan float32, 10000)
 
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
