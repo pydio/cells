@@ -24,6 +24,7 @@ package s3
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"io"
@@ -179,12 +180,24 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 		targetKey := newPath + strings.TrimPrefix(object.Key, oldPath)
 		destinationInfo, _ := minio.NewDestinationInfo(c.Bucket, targetKey, nil, nil)
 		sourceInfo := minio.NewSourceInfo(c.Bucket, object.Key, nil)
-		copyResult := c.Mc.CopyObject(destinationInfo, sourceInfo)
-		if copyResult == nil {
-			c.Mc.RemoveObject(c.Bucket, object.Key)
+		// Switch to multipart for copy
+		if object.Size > MaxCopyObjectSize {
+			cl, ok := c.Mc.(*minio.Client)
+			if !ok {
+				return fmt.Errorf("cannot convert MockableMinio to minio.Client")
+			}
+			coreCopier := &minio.Core{Client: cl}
+			er := CopyObjectMultipart(context.Background(), coreCopier, object, c.Bucket, object.Key, c.Bucket, targetKey, nil, nil)
+			if er != nil {
+				return er
+			}
 		} else {
-			return copyResult
+			copyResult := c.Mc.CopyObject(destinationInfo, sourceInfo)
+			if copyResult != nil {
+				return copyResult
+			}
 		}
+		c.Mc.RemoveObject(c.Bucket, object.Key)
 	}
 	return nil
 
@@ -219,7 +232,7 @@ func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 func (c *Client) ComputeChecksum(node *tree.Node) error {
 	p := c.getFullPath(node.GetPath())
-	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p}); err == nil {
+	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p, Size: node.Size}); err == nil {
 		node.Etag = strings.Trim(newInfo.ETag, "\"")
 	} else {
 		return err
@@ -339,22 +352,59 @@ func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknF
 
 func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
 
-	var destinationInfo minio.DestinationInfo
-	var sourceInfo minio.SourceInfo
-
-	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, nil)
-	sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
-	sourceInfo.Headers.Set(servicescommon.X_AMZ_META_DIRECTIVE, "REPLACE")
-	copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
-	if copyErr != nil {
-		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
-		return objectInfo, copyErr
-	}
-	newInfo, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
+	oi, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
 	if e != nil {
 		return objectInfo, e
 	}
-	return newInfo, nil
+	existingMeta := make(map[string]string, len(oi.Metadata))
+	for k, v := range oi.Metadata {
+		existingMeta[k] = strings.Join(v, "")
+	}
+	// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
+	// TODO : SHOULD NOT BE NECESSARY FOR REAL MINIO ON FS (but required for Minio as S3 gateway or real S3)
+	if objectInfo.Size > MaxCopyObjectSize {
+		if checksum := oi.Metadata.Get(servicescommon.X_AMZ_META_CONTENT_MD5); checksum != "" {
+			objectInfo.ETag = checksum
+			return objectInfo, nil
+		}
+		reader, e := c.GetReaderOn(objectInfo.Key)
+		if e != nil {
+			return objectInfo, e
+		}
+		h := md5.New()
+		if _, err := io.Copy(h, reader); err != nil {
+			return objectInfo, err
+		}
+		checksum := fmt.Sprintf("%x", h.Sum(nil))
+		existingMeta[servicescommon.X_AMZ_META_DIRECTIVE] = "REPLACE"
+		existingMeta[servicescommon.X_AMZ_META_CONTENT_MD5] = checksum
+		cl, ok := c.Mc.(*minio.Client)
+		if !ok {
+			return objectInfo, fmt.Errorf("cannot convert MockableMinio to minio.Client")
+		}
+		coreCopier := &minio.Core{Client: cl}
+		err := CopyObjectMultipart(context.Background(), coreCopier, objectInfo, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, existingMeta, nil)
+		objectInfo.ETag = checksum
+		return objectInfo, err
+
+	} else {
+
+		var destinationInfo minio.DestinationInfo
+		var sourceInfo minio.SourceInfo
+		destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, existingMeta)
+		sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
+		sourceInfo.Headers.Set(servicescommon.X_AMZ_META_DIRECTIVE, "REPLACE")
+		copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
+		if copyErr != nil {
+			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
+			return objectInfo, copyErr
+		}
+		newInfo, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
+		if e != nil {
+			return objectInfo, e
+		}
+		return newInfo, nil
+	}
 
 }
 

@@ -3,6 +3,7 @@ package views
 import (
 	"context"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 	"sync"
@@ -34,20 +35,21 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			go func() {
 				<-time.After(10 * time.Second)
 				log.Logger(ctx).Debug("Force close session now:" + session)
-				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+				client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
 					SessionForceClose: session,
 				}))
 			}()
 		}
 	}()
 	publishError := func(dsName, errorPath string) {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+		client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
 			ErrorDetected:  true,
 			DataSourceName: dsName,
 			ErrorPath:      errorPath,
 		}))
 	}
 	childrenMoved := 0
+	var totalSize, sizeMoved int64
 	logger := log.Logger(ctx)
 	var taskLogger *zap.Logger
 	if isTask {
@@ -72,6 +74,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				}
 			}
 		}
+	}
+	var translate i18n.TranslateFunc
+	if len(tFunc) > 0 {
+		translate = tFunc[0]
 	}
 
 	if recursive && !sourceNode.IsLeaf() {
@@ -105,6 +111,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: child.Node, ObjectStats: true}); statErr != nil {
 					statErrors++
 				}
+				totalSize += child.Node.Size
 			}
 			children = append(children, child.Node)
 		}
@@ -119,7 +126,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			logger.Info(cMess)
 			taskLogger.Info(cMess)
 		}
-		total := len(children)
+		//total := len(children)
 
 		// For Copy case, first create new folders with fresh UUID
 		if !move {
@@ -156,10 +163,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 		wg := &sync.WaitGroup{}
 		queue := make(chan struct{}, 4)
-		var translate i18n.TranslateFunc
-		if len(tFunc) > 0 {
-			translate = tFunc[0]
-		}
 
 		t := time.Now()
 		var lastNode *tree.Node
@@ -180,12 +183,13 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					<-queue
 					defer wg.Done()
 				}()
-				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, translate)
+				progress := &copyPgReader{progressChan: progressChan, offset: sizeMoved, total: totalSize}
+				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, translate)
 				if e != nil {
 					errors = append(errors, e)
 				} else {
 					childrenMoved++
-					progressChan <- float32(childrenMoved) / float32(total)
+					sizeMoved += childNode.Size
 					taskLogger.Info("-- Copy/Move Success for " + childNode.Path)
 				}
 			}()
@@ -197,13 +201,12 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		if lastNode != nil {
 			// Now process very last node
-			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, translate)
+			progress := &copyPgReader{progressChan: progressChan, offset: sizeMoved, total: totalSize}
+			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, translate)
 			if e != nil {
 				panic(e)
 			}
 			childrenMoved++
-			progressChan <- float32(childrenMoved) / float32(total)
-
 			taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 		}
 		log.Logger(ctx).Info("Recursive copy operation timing", zap.Duration("duration", time.Now().Sub(t)))
@@ -237,8 +240,16 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			copyMeta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
 			copyMeta[common.XPydioSessionUuid] = closeSession
 		}
+		status := "Copying " + path.Base(sourceNode.Path)
+		if translate != nil {
+			status = strings.Replace(translate("Jobs.User.CopyingItem"), "%s", path.Base(sourceNode.Path), -1)
+		}
+		statusChan <- status
 
-		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{Metadata: copyMeta})
+		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{
+			Metadata: copyMeta,
+			Progress: &copyPgReader{offset: 0, total: sourceNode.Size, progressChan: progressChan},
+		})
 		if e != nil {
 			publishError(sourceDs, sourceNode.Path)
 			publishError(targetDs, targetNode.Path)
@@ -284,7 +295,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	return
 }
 
-func processCopyMove(ctx context.Context, handler Handler, session string, move bool, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, tFunc i18n.TranslateFunc) error {
+func processCopyMove(ctx context.Context, handler Handler, session string, move, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, progress io.Reader, tFunc i18n.TranslateFunc) error {
 
 	childPath := childNode.Path
 	relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
@@ -329,7 +340,10 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move 
 				meta[common.XPydioMoveUuid] = childNode.Uuid
 			}
 		}
-		_, e := handler.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
+		_, e := handler.CopyObject(ctx, childNode, targetNode, &CopyRequestData{
+			Metadata: meta,
+			Progress: progress,
+		})
 		if e != nil {
 			logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
 			publishError(sourceDs, childNode.Path)
@@ -366,4 +380,16 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move 
 	}
 
 	return nil
+}
+
+type copyPgReader struct {
+	offset       int64
+	total        int64
+	progressChan chan float32
+}
+
+func (c *copyPgReader) Read(p []byte) (n int, err error) {
+	c.offset += int64(len(p))
+	c.progressChan <- float32(c.offset) / float32(c.total)
+	return len(p), nil
 }

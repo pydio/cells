@@ -150,6 +150,7 @@ const (
 	X_AMZ_META_CLEAR_SIZE        = "X-Amz-Meta-Pydio-Clear-Size"
 	X_AMZ_META_CLEAR_SIZE_UNKOWN = "unknown"
 	X_AMZ_META_NODE_UUID         = "X-Amz-Meta-Pydio-Node-Uuid"
+	X_AMZ_META_CONTENT_MD5       = "X-Amz-Meta-Content-Md5"
 	X_AMZ_META_DIRECTIVE         = "X-Amz-Metadata-Directive"
 	XPydioClientUuid             = "X-Pydio-Client-Uuid"
 	XPydioSessionUuid            = "X-Pydio-Session"
