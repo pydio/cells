@@ -225,9 +225,16 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 				break
 			case p := <-progress:
 				t.lockTask()
-				t.lockedTask.Progress = p
+				diff := p - t.lockedTask.Progress
+				save := false
+				if diff > 0.01 || p == 1 {
+					t.lockedTask.Progress = p
+					save = true
+				}
 				t.unlockTask()
-				t.Save()
+				if save {
+					t.Save()
+				}
 				break
 			case <-done:
 				return
