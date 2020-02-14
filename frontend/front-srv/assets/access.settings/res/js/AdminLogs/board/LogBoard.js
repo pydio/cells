@@ -64,6 +64,18 @@ class LogBoard extends React.Component {
         this.setState({results: resultsCount});
     }
 
+    componentWillReceiveProps(newProps){
+        if(newProps.filter && newProps.filter !== this.state.filter){
+            this.setState({filter: newProps.filter, page: 0});
+        }
+        if(newProps.date && newProps.date !== this.state.date){
+            this.setState({date: newProps.date, page: 0});
+        }
+        if(newProps.endDate && newProps.endDate !== this.state.endDate){
+            this.setState({endDate: newProps.endDate, page: 0});
+        }
+    }
+
     render(){
         const {pydio, noHeader, service, disableExport} = this.props;
         const {selectedLog, page, size, date, endDate, filter, contentType, z, results} = this.state;

@@ -107,6 +107,19 @@ var LogBoard = (function (_React$Component) {
             this.setState({ results: resultsCount });
         }
     }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.filter && newProps.filter !== this.state.filter) {
+                this.setState({ filter: newProps.filter, page: 0 });
+            }
+            if (newProps.date && newProps.date !== this.state.date) {
+                this.setState({ date: newProps.date, page: 0 });
+            }
+            if (newProps.endDate && newProps.endDate !== this.state.endDate) {
+                this.setState({ endDate: newProps.endDate, page: 0 });
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this = this;
