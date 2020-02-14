@@ -22,6 +22,15 @@ func (c Core) PutObjectPartWithContext(ctx context.Context, bucket, object, uplo
 	return c.uploadPart(ctx, bucket, object, uploadID, data, partID, md5Base64, sha256Hex, size, sse)
 }
 
+// CopyObjectPartWithContext - creates a part in a multipart upload by copying (a
+// part of) an existing object.
+func (c Core) CopyObjectPartWithContext(ctx context.Context, srcBucket, srcObject, destBucket, destObject string, uploadID string,
+	partID int, startOffset, length int64, metadata map[string]string) (p CompletePart, err error) {
+
+	return c.copyObjectPartDo(ctx, srcBucket, srcObject, destBucket, destObject, uploadID,
+		partID, startOffset, length, metadata)
+}
+
 // CompleteMultipartUpload - Concatenate uploaded parts and commit to an object.
 func (c Core) CompleteMultipartUploadWithContext(ctx context.Context, bucket, object, uploadID string, parts []CompletePart) (string, error) {
 	res, err := c.completeMultipartUpload(ctx, bucket, object, uploadID, completeMultipartUpload{
