@@ -371,6 +371,7 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 		if e != nil {
 			return objectInfo, e
 		}
+		defer reader.Close()
 		h := md5.New()
 		if _, err := io.Copy(h, reader); err != nil {
 			return objectInfo, err
