@@ -32,13 +32,16 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
+	"github.com/pydio/minio-go/pkg/s3utils"
 	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/sync/endpoints/s3"
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
@@ -300,15 +303,42 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 				requestData.Metadata[k] = v
 			}
 		}
-
-		_, err := destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
-		if err != nil {
-			if err.Error() == noSuchKeyString {
-				err = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
+		// Check object exists and check its size
+		src, e := destClient.StatObject(srcBucket, fromPath, opts)
+		if e != nil {
+			log.Logger(ctx).Error("HandlerExec: Error on CopyObject while first stating source", zap.Error(e))
+			if e.Error() == noSuchKeyString {
+				e = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
 			}
+			return 0, e
+		}
+
+		// Make sure to copy the content MD5 along
+		if cs := src.Metadata.Get(common.X_AMZ_META_CONTENT_MD5); cs != "" {
+			if requestData.Metadata == nil {
+				requestData.Metadata = make(map[string]string, 1)
+			}
+			requestData.Metadata[common.X_AMZ_META_CONTENT_MD5] = cs
+		}
+
+		var err error
+		if destInfo.StorageType != object.StorageType_LOCAL && src.Size > s3.MaxCopyObjectSize {
+			err = s3.CopyObjectMultipart(ctx, destClient, src, srcBucket, fromPath, destBucket, toPath, requestData.Metadata, requestData.Progress)
+		} else if requestData.Progress != nil {
+			dst, _ := minio.NewDestinationInfo(destBucket, toPath, nil, requestData.Metadata)
+			srcI := minio.NewSourceInfo(srcBucket, fromPath, nil)
+			srcI.Headers = opts.Header()
+			// Necessary as CopyObjectWithProgress does not set this correctly
+			srcI.Headers.Set("x-amz-copy-source", s3utils.EncodePath(srcBucket+"/"+fromPath))
+			err = destClient.CopyObjectWithProgress(dst, srcI, requestData.Progress)
+		} else {
+			_, err = destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
+		}
+		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
 			return 0, err
 		}
+
 		stat, _ := destClient.StatObject(destBucket, toPath, opts)
 		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients", zap.Int64("written", stat.Size))
 		return stat.Size, nil
@@ -345,7 +375,10 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			ctx = context2.WithMetadata(ctx, ctxMeta)
 		}
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
-		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
+		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{
+			UserMetadata: requestData.Metadata,
+			Progress:     requestData.Progress,
+		})
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients",
 				zap.Error(err),

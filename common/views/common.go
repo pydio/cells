@@ -97,6 +97,7 @@ type (
 	CopyRequestData struct {
 		Metadata     map[string]string
 		SrcVersionId string
+		Progress     io.Reader
 	}
 
 	MultipartRequestData struct {
