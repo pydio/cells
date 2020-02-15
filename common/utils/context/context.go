@@ -39,6 +39,9 @@ func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 	md = make(map[string]string)
 	if meta, mOk := metadata.FromContext(ctx); mOk {
 		for k, v := range meta {
+			if strings.ToLower(k) == "x-pydio-claims" {
+				continue
+			}
 			if httpguts.ValidHeaderFieldName(k) && httpguts.ValidHeaderFieldValue(v) {
 				md[k] = v
 			}
