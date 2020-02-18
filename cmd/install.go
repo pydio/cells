@@ -385,7 +385,7 @@ func init() {
 
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL://URL[:PORT] exposed to the outside")
 	flags.BoolVar(&niNoTls, "no_tls", false, "Configure the main gateway to rather use plain HTTP")
 	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
 	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
