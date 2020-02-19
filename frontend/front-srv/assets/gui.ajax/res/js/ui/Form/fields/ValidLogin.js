@@ -71,7 +71,7 @@ export default React.createClass({
             );
             if(this.props.attributes['type'] === 'password'){
                 return (
-                    <form autoComplete="off" style={{display:'inline'}}>{field}</form>
+                    <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}} style={{display:'inline'}}>{field}</form>
                 );
             }else{
                 return(

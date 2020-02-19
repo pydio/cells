@@ -97,7 +97,7 @@ export default React.createClass({
                 ];
             }
             return(
-                <form autoComplete="off">
+                <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}}>
                     <div style={{display:'flex'}}>
                         <ModernTextField
                             ref="pass"
