@@ -550,12 +550,23 @@ func (a *azureObjects) ListObjects(ctx context.Context, bucket, prefix, marker, 
 				// skip all the entries till we reach the marker.
 				continue
 			}
+			etag := minio.ToS3ETag(blob.Properties.Etag)
+			switch {
+			case blob.Properties.ContentMD5 != "":
+				b, err := base64.StdEncoding.DecodeString(blob.Properties.ContentMD5)
+				if err == nil {
+					etag = hex.EncodeToString(b)
+				}
+			case blob.Metadata["md5sum"] != "":
+				etag = blob.Metadata["md5sum"]
+				delete(blob.Metadata, "md5sum")
+			}
 			objects = append(objects, minio.ObjectInfo{
 				Bucket:          bucket,
 				Name:            blob.Name,
 				ModTime:         time.Time(blob.Properties.LastModified),
 				Size:            blob.Properties.ContentLength,
-				ETag:            minio.ToS3ETag(blob.Properties.Etag),
+				ETag:            etag,
 				ContentType:     blob.Properties.ContentType,
 				ContentEncoding: blob.Properties.ContentEncoding,
 			})
@@ -812,6 +823,7 @@ func (a *azureObjects) PutObject(ctx context.Context, bucket, object string, dat
 	if err != nil {
 		return objInfo, azureToObjectError(err, bucket, object)
 	}
+	objBlob.Properties.ContentMD5 = base64.StdEncoding.EncodeToString(data.MD5Current())
 	if err = objBlob.SetProperties(nil); err != nil {
 		return objInfo, azureToObjectError(err, bucket, object)
 	}
@@ -825,9 +837,16 @@ func (a *azureObjects) PutObject(ctx context.Context, bucket, object string, dat
 // CopyObject - Copies a blob from source container to destination container.
 // Uses Azure equivalent CopyBlob API.
 func (a *azureObjects) CopyObject(ctx context.Context, srcBucket, srcObject, destBucket, destObject string, srcInfo minio.ObjectInfo, srcOpts, dstOpts minio.ObjectOptions) (objInfo minio.ObjectInfo, err error) {
-	srcBlobURL := a.client.GetContainerReference(srcBucket).GetBlobReference(srcObject).GetURL()
+	srcBlob := a.client.GetContainerReference(srcBucket).GetBlobReference(srcObject)
+	err = srcBlob.GetProperties(nil)
+	if err != nil {
+		return objInfo, azureToObjectError(err, srcBucket, srcObject)
+	}
+	contentMd5 := srcBlob.Properties.ContentMD5
+	fmt.Println(contentMd5)
+	srcBlobURL := srcBlob.GetURL()
 	destBlob := a.client.GetContainerReference(destBucket).GetBlobReference(destObject)
-	azureMeta, props, err := s3MetaToAzureProperties(ctx, srcInfo.UserDefined)
+	azureMeta, _, err := s3MetaToAzureProperties(ctx, srcInfo.UserDefined)
 	if err != nil {
 		return objInfo, azureToObjectError(err, srcBucket, srcObject)
 	}
@@ -846,11 +865,21 @@ func (a *azureObjects) CopyObject(ctx context.Context, srcBucket, srcObject, des
 			return objInfo, azureToObjectError(err, srcBucket, srcObject)
 		}
 	}
+	// Make sure ContentMD5 is properly copied - seems like it depends on the size
+	if contentMd5 != "" {
+		destBlob.Properties.ContentMD5 = contentMd5
+		err = destBlob.SetProperties(nil)
+		if err != nil {
+			return objInfo, azureToObjectError(err, srcBucket, srcObject)
+		}
+	}
+	/*
 	destBlob.Properties = props
 	err = destBlob.SetProperties(nil)
 	if err != nil {
 		return objInfo, azureToObjectError(err, srcBucket, srcObject)
 	}
+	 */
 	return a.GetObjectInfo(ctx, destBucket, destObject, dstOpts)
 }
 
