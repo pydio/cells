@@ -80,7 +80,9 @@ exports['default'] = _react2['default'].createClass({
             if (this.props.attributes['type'] === 'password') {
                 return _react2['default'].createElement(
                     'form',
-                    { autoComplete: 'off', style: { display: 'inline' } },
+                    { autoComplete: 'off', onSubmit: function (e) {
+                            e.stopPropagation();e.preventDefault();
+                        }, style: { display: 'inline' } },
                     field
                 );
             } else {

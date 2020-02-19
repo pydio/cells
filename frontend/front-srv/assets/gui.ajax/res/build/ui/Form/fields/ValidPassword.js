@@ -121,7 +121,9 @@ exports["default"] = _react2["default"].createClass({
             }
             return _react2["default"].createElement(
                 "form",
-                { autoComplete: "off" },
+                { autoComplete: "off", onSubmit: function (e) {
+                        e.stopPropagation();e.preventDefault();
+                    } },
                 _react2["default"].createElement(
                     "div",
                     { style: { display: 'flex' } },
