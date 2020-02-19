@@ -104,12 +104,15 @@ const PluginsList = React.createClass({
 
         let columns;
         const renderEnabled = (row) => {
-            return (<Toggle
-                toggled={row.xmlNode.getAttribute("enabled") !== "false"}
-                onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
-                onClick={(e)=> e.stopPropagation()}
-                disabled={row.xmlNode.getAttribute("enabled") === "always" || !accessByName('Create')}
-            />);
+            const enableValue = row.xmlNode.getAttribute("enabled");
+            return (
+                <Toggle
+                    toggled={row.xmlNode.getAttribute('enabled') !== 'false'}
+                    onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
+                    onClick={(e)=> e.stopPropagation()}
+                    disabled={enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')}
+                />
+            );
         };
         const renderEditButton = (row) => {
             if(!accessByName('Create')){

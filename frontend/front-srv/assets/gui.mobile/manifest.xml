@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="gui.mobile" enabled="false" label="CONF_MESSAGE[Mobile]" description="CONF_MESSAGE[Template extending gui.ajax for small screen terminals.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+<plugin id="gui.mobile" enabled="auto" label="CONF_MESSAGE[Mobile]" description="CONF_MESSAGE[Template extending gui.ajax for small screen terminals.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
     <server_settings>
         <global_param name="GUI_MOBILE_DISABLE" type="boolean" label="CONF_MESSAGE[Disable this feature]" description="CONF_MESSAGE[Do not display a smart banner when opening web interface on a mobile terminal.]" default="false"/>
         <global_param description="CONF_MESSAGE[iOS Application ID on the store]" label="CONF_MESSAGE[iOS Application ID]" name="IOS_APP_ID" type="string" default="1109419882" expose="true"/>
