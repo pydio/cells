@@ -32,7 +32,6 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
-	"github.com/pydio/minio-go/pkg/s3utils"
 	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/metadata"
@@ -286,25 +285,16 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
 
-	var opts = minio.StatObjectOptions{}
+	var ctxAsOptions = minio.StatObjectOptions{}
 	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
-			opts.Set(k, v)
+			ctxAsOptions.Set(k, v)
 		}
 	}
 
 	if destClient == srcClient && requestData.SrcVersionId == "" {
-
-		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-			if requestData.Metadata == nil {
-				requestData.Metadata = make(map[string]string)
-			}
-			for k, v := range meta {
-				requestData.Metadata[k] = v
-			}
-		}
 		// Check object exists and check its size
-		src, e := destClient.StatObject(srcBucket, fromPath, opts)
+		src, e := destClient.StatObject(srcBucket, fromPath, ctxAsOptions)
 		if e != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject while first stating source", zap.Error(e))
 			if e.Error() == noSuchKeyString {
@@ -313,33 +303,44 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			return 0, e
 		}
 
-		// Make sure to copy the content MD5 along
+		if requestData.Metadata == nil {
+			requestData.Metadata = make(map[string]string)
+		}
+		// Copy Pydio specific metadata along
 		if cs := src.Metadata.Get(common.X_AMZ_META_CONTENT_MD5); cs != "" {
-			if requestData.Metadata == nil {
-				requestData.Metadata = make(map[string]string, 1)
-			}
 			requestData.Metadata[common.X_AMZ_META_CONTENT_MD5] = cs
 		}
-
+		if cs := src.Metadata.Get(common.X_AMZ_META_CLEAR_SIZE); cs != "" {
+			requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = cs
+		}
+		directive, dirOk := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]
+		if dirOk {
+			delete(requestData.Metadata, common.X_AMZ_META_DIRECTIVE)
+		}
 		var err error
 		if destInfo.StorageType != object.StorageType_LOCAL && src.Size > s3.MaxCopyObjectSize {
+			if dirOk {
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.X_AMZ_META_DIRECTIVE: directive})
+			}
 			err = s3.CopyObjectMultipart(ctx, destClient, src, srcBucket, fromPath, destBucket, toPath, requestData.Metadata, requestData.Progress)
-		} else if requestData.Progress != nil {
-			dst, _ := minio.NewDestinationInfo(destBucket, toPath, nil, requestData.Metadata)
-			srcI := minio.NewSourceInfo(srcBucket, fromPath, nil)
-			srcI.Headers = opts.Header()
-			// Necessary as CopyObjectWithProgress does not set this correctly
-			srcI.Headers.Set("x-amz-copy-source", s3utils.EncodePath(srcBucket+"/"+fromPath))
-			err = destClient.CopyObjectWithProgress(dst, srcI, requestData.Progress)
 		} else {
-			_, err = destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
+			destinationInfo, _ := minio.NewDestinationInfo(destBucket, toPath, nil, requestData.Metadata)
+			sourceInfo := minio.NewSourceInfo(srcBucket, fromPath, nil)
+			// Add request Headers to SrcInfo (authentication, etc)
+			for k, v := range ctxAsOptions.Header() {
+				sourceInfo.Headers.Set(k, strings.Join(v, ""))
+			}
+			if dirOk {
+				sourceInfo.Headers.Set(common.X_AMZ_META_DIRECTIVE, directive)
+			}
+			err = destClient.CopyObjectWithProgress(destinationInfo, sourceInfo, requestData.Progress)
 		}
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
 			return 0, err
 		}
 
-		stat, _ := destClient.StatObject(destBucket, toPath, opts)
+		stat, _ := destClient.StatObject(destBucket, toPath, ctxAsOptions)
 		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients", zap.Int64("written", stat.Size))
 		return stat.Size, nil
 
@@ -347,7 +348,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		var reader io.ReadCloser
 		var err error
-		srcStat, srcErr := srcClient.StatObject(srcBucket, fromPath, opts)
+		srcStat, srcErr := srcClient.StatObject(srcBucket, fromPath, ctxAsOptions)
 		if srcErr != nil {
 			return 0, srcErr
 		}
