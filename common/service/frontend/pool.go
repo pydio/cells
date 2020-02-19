@@ -171,7 +171,9 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 
 	for _, plugin := range p.Plugins {
 		var enabled = "false"
-		if plugin.PluginEnabled(emptyStatus) {
+		if plugin.AutoEnabled() {
+			enabled = "auto"
+		} else if plugin.PluginEnabled(emptyStatus) {
 			if plugin.AlwaysEnabled() {
 				enabled = "always"
 			} else {
