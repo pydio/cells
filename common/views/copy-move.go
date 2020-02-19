@@ -49,7 +49,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}))
 	}
 	childrenMoved := 0
-	var totalSize, sizeMoved int64
+	var totalSize int64
 	logger := log.Logger(ctx)
 	var taskLogger *zap.Logger
 	if isTask {
@@ -74,10 +74,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				}
 			}
 		}
-	}
-	var translate i18n.TranslateFunc
-	if len(tFunc) > 0 {
-		translate = tFunc[0]
 	}
 
 	if recursive && !sourceNode.IsLeaf() {
@@ -138,11 +134,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				childPath := childNode.Path
 				relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
 				targetPath := prefixPathTarget + "/" + relativePath
-				status := "Copying " + relativePath
-				if len(tFunc) > 0 {
-					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", relativePath, -1)
-				}
-				statusChan <- status
+
+				statusChan <- copyMoveStatusKey(relativePath, move, tFunc...)
 
 				folderNode := childNode.Clone()
 				folderNode.Path = targetPath
@@ -167,6 +160,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		t := time.Now()
 		var lastNode *tree.Node
 		var errors []error
+		progress := &copyPgReader{
+			progressChan: progressChan,
+			total:        totalSize,
+		}
 		for idx, childNode := range children {
 
 			if idx == len(children)-1 {
@@ -183,13 +180,11 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					<-queue
 					defer wg.Done()
 				}()
-				progress := &copyPgReader{progressChan: progressChan, offset: sizeMoved, total: totalSize}
-				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, translate)
+				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 				if e != nil {
 					errors = append(errors, e)
 				} else {
 					childrenMoved++
-					sizeMoved += childNode.Size
 					taskLogger.Info("-- Copy/Move Success for " + childNode.Path)
 				}
 			}()
@@ -201,8 +196,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		if lastNode != nil {
 			// Now process very last node
-			progress := &copyPgReader{progressChan: progressChan, offset: sizeMoved, total: totalSize}
-			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, translate)
+			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 			if e != nil {
 				panic(e)
 			}
@@ -240,11 +234,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			copyMeta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
 			copyMeta[common.XPydioSessionUuid] = closeSession
 		}
-		status := "Copying " + path.Base(sourceNode.Path)
-		if translate != nil {
-			status = strings.Replace(translate("Jobs.User.CopyingItem"), "%s", path.Base(sourceNode.Path), -1)
-		}
-		statusChan <- status
+		statusChan <- copyMoveStatusKey(sourceNode.Path, move, tFunc...)
 
 		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{
 			Metadata: copyMeta,
@@ -295,7 +285,25 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	return
 }
 
-func processCopyMove(ctx context.Context, handler Handler, session string, move, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, progress io.Reader, tFunc i18n.TranslateFunc) error {
+func copyMoveStatusKey(keyPath string, move bool, tFunc ...i18n.TranslateFunc) string {
+	var statusPath = keyPath
+	if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+		statusPath = path.Dir(statusPath)
+	}
+	statusPath = path.Base(statusPath)
+	status := "Copying " + statusPath
+	tKey := "Jobs.User.CopyingItem"
+	if move {
+		status = "Moving " + statusPath
+		tKey = "Jobs.User.MovingItem"
+	}
+	if len(tFunc) > 0 {
+		status = strings.Replace(tFunc[0](tKey), "%s", statusPath, -1)
+	}
+	return status
+}
+
+func processCopyMove(ctx context.Context, handler Handler, session string, move, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, progress io.Reader, tFunc ...i18n.TranslateFunc) error {
 
 	childPath := childNode.Path
 	relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
@@ -310,15 +318,8 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 	if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
 
 		logger.Debug("Copy " + childNode.Path + " to " + targetPath)
-		var statusPath = relativePath
-		if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
-			statusPath = path.Dir(statusPath)
-		}
-		status := "Copying " + statusPath
-		if tFunc != nil {
-			status = strings.Replace(tFunc("Jobs.User.CopyingItem"), "%s", statusPath, -1)
-		}
-		statusChan <- status
+
+		statusChan <- copyMoveStatusKey(relativePath, move, tFunc...)
 
 		meta := make(map[string]string, 1)
 		if move {
