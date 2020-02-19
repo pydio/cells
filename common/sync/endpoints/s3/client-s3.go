@@ -60,6 +60,7 @@ type Client struct {
 	RootPath                    string
 	Host                        string
 	ServerRequiresNormalization bool
+	skipRecomputeEtagByCopy     bool
 	options                     model.EndpointOptions
 	globalContext               context.Context
 	plainSizeComputer           func(nodeUUID string) (int64, error)
@@ -231,6 +232,9 @@ func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 }
 
 func (c *Client) ComputeChecksum(node *tree.Node) error {
+	if c.skipRecomputeEtagByCopy {
+		return fmt.Errorf("skipping recompute etag by copy, not supported by storage")
+	}
 	p := c.getFullPath(node.GetPath())
 	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p, Size: node.Size}); err == nil {
 		node.Etag = strings.Trim(newInfo.ETag, "\"")
@@ -492,6 +496,10 @@ func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, err
 
 func (c *Client) SetServerRequiresNormalization() {
 	c.ServerRequiresNormalization = true
+}
+
+func (c *Client) SkipRecomputeEtagByCopy() {
+	c.skipRecomputeEtagByCopy = true
 }
 
 func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
