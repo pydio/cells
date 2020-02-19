@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -54,16 +55,18 @@ type JobsHandler struct {
 	putTaskBuff       map[string]map[string]*proto.Task
 	putTaskBuffLength int
 	jobsBuff          map[string]*proto.Job
+	jobsBuffLock      *sync.Mutex
 	stop              chan bool
 }
 
 // NewJobsHandler creates a new JobsHandler
 func NewJobsHandler(store jobs.DAO, messageRepository log3.MessageRepository) *JobsHandler {
 	j := &JobsHandler{
-		store:       store,
-		putTaskChan: make(chan *proto.Task),
-		jobsBuff:    make(map[string]*proto.Job),
-		stop:        make(chan bool),
+		store:        store,
+		putTaskChan:  make(chan *proto.Task),
+		jobsBuff:     make(map[string]*proto.Job),
+		jobsBuffLock: &sync.Mutex{},
+		stop:         make(chan bool),
 	}
 	j.Handler.Repo = messageRepository
 	go j.watchPutTaskChan()
@@ -289,12 +292,17 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 		}
 		t := request.Task
 		var tJob *proto.Job
-		if s, ok := j.jobsBuff[t.JobID]; !ok {
+		j.jobsBuffLock.Lock()
+		s, ok := j.jobsBuff[t.JobID]
+		j.jobsBuffLock.Unlock()
+		if !ok {
 			job, e := j.store.GetJob(t.JobID, 0)
 			if e != nil {
 				return errors.NotFound(common.SERVICE_JOBS, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 			}
+			j.jobsBuffLock.Lock()
 			j.jobsBuff[t.JobID] = job
+			j.jobsBuffLock.Unlock()
 			tJob = job
 		} else {
 			tJob = s
