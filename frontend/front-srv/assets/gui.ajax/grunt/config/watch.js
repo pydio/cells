@@ -19,10 +19,6 @@ module.exports = function(grunt){
                 options: {
                 nospawn: true
             }
-        },
-        manifests: {
-            files: ['../*/manifest.xml'],
-                tasks: ['clean:cache']
         }
     };
 
