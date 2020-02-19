@@ -134,15 +134,16 @@ var PluginsList = React.createClass({
         };
         var columns = undefined;
         var renderEnabled = function renderEnabled(row) {
+            var enableValue = row.xmlNode.getAttribute("enabled");
             return React.createElement(_materialUi.Toggle, {
-                toggled: row.xmlNode.getAttribute("enabled") !== "false",
+                toggled: row.xmlNode.getAttribute('enabled') !== 'false',
                 onToggle: function (e, v) {
                     return _this4.togglePluginEnable(row.xmlNode, v);
                 },
                 onClick: function (e) {
                     return e.stopPropagation();
                 },
-                disabled: row.xmlNode.getAttribute("enabled") === "always"
+                disabled: enableValue === 'always' || enableValue === 'auto'
             });
         };
         var renderEditButton = function renderEditButton(row) {

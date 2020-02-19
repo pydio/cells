@@ -101,12 +101,15 @@ const PluginsList = React.createClass({
         const m = (id) => pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         let columns;
         const renderEnabled = (row) => {
-            return (<Toggle
-                toggled={row.xmlNode.getAttribute("enabled") !== "false"}
-                onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
-                onClick={(e)=> e.stopPropagation()}
-                disabled={row.xmlNode.getAttribute("enabled") === "always"}
-            />);
+            const enableValue = row.xmlNode.getAttribute("enabled");
+            return (
+                <Toggle
+                    toggled={row.xmlNode.getAttribute('enabled') !== 'false'}
+                    onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
+                    onClick={(e)=> e.stopPropagation()}
+                    disabled={enableValue === 'always' || enableValue === 'auto'}
+                />
+            );
         };
         const renderEditButton = (row) => {
             if(XMLUtils.XPathSelectNodes(row.xmlNode, "server_settings/global_param").length){
