@@ -256,6 +256,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if computer != nil {
 			s3client.SetPlainSizeComputer(computer)
 		}
+		if syncConfig.StorageType == object.StorageType_GCS {
+			s3client.SkipRecomputeEtagByCopy()
+		}
 		source = s3client
 	}
 

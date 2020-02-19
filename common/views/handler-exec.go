@@ -318,7 +318,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			delete(requestData.Metadata, common.X_AMZ_META_DIRECTIVE)
 		}
 		var err error
-		if destInfo.StorageType != object.StorageType_LOCAL && src.Size > s3.MaxCopyObjectSize {
+		if destInfo.StorageType == object.StorageType_S3 && src.Size > s3.MaxCopyObjectSize {
 			if dirOk {
 				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.X_AMZ_META_DIRECTIVE: directive})
 			}
