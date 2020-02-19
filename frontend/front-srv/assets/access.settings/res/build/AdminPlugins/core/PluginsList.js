@@ -143,7 +143,7 @@ var PluginsList = React.createClass({
                 onClick: function (e) {
                     return e.stopPropagation();
                 },
-                disabled: enableValue === 'always' || enableValue === 'auto'
+                disabled: enableValue === 'always' || enableValue === 'auto' || row.id === 'meta.layout_sendfile'
             });
         };
         var renderEditButton = function renderEditButton(row) {

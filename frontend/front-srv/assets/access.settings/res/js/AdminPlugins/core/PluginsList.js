@@ -107,7 +107,7 @@ const PluginsList = React.createClass({
                     toggled={row.xmlNode.getAttribute('enabled') !== 'false'}
                     onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
                     onClick={(e)=> e.stopPropagation()}
-                    disabled={enableValue === 'always' || enableValue === 'auto'}
+                    disabled={enableValue === 'always' || enableValue === 'auto' || row.id === 'meta.layout_sendfile'}
                 />
             );
         };
