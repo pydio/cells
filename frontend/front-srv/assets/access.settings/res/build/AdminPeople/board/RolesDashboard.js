@@ -220,7 +220,7 @@ var RolesDashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         ));
 
-        var centerContent = _react2['default'].createElement(
+        var searchBox = _react2['default'].createElement(
             'div',
             { style: { display: 'flex' } },
             _react2['default'].createElement('div', { style: { flex: 1 } }),
@@ -259,29 +259,34 @@ var RolesDashboard = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
+            { className: "main-layout-nav-to-stack vertical-layout" },
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.context.getMessage('69', 'settings'),
                 icon: 'mdi mdi-account-multiple',
                 actions: buttons,
-                centerContent: centerContent,
+                centerContent: searchBox,
                 reloadAction: function () {
                     _this5.load();
                 },
                 loading: this.state.loading
             }),
-            _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
-                _materialUi.Paper,
-                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
-                _react2['default'].createElement(MaterialTable, {
-                    data: data,
-                    columns: columns,
-                    onSelectRows: selectRows,
-                    deselectOnClickAway: true,
-                    showCheckboxes: false,
-                    masterStyles: tableMaster
-                })
+                'div',
+                { className: "layout-fill" },
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, blockProps, { style: blockStyle }),
+                    _react2['default'].createElement(MaterialTable, {
+                        data: data,
+                        columns: columns,
+                        onSelectRows: selectRows,
+                        deselectOnClickAway: true,
+                        showCheckboxes: false,
+                        masterStyles: tableMaster,
+                        paginate: [10, 25, 50, 100]
+                    })
+                )
             )
         );
     }

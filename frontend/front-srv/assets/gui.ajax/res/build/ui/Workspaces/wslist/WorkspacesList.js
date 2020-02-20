@@ -42,6 +42,10 @@ var _WorkspaceEntry = require('./WorkspaceEntry');
 
 var _WorkspaceEntry2 = _interopRequireDefault(_WorkspaceEntry);
 
+var _pydioModelRepository = require('pydio/model/repository');
+
+var _pydioModelRepository2 = _interopRequireDefault(_pydioModelRepository);
+
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
@@ -57,31 +61,197 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 var withVerticalScroll = _Pydio$requireLib.withVerticalScroll;
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var Repository = require('pydio/model/repository');
-
 var _require = require('material-ui/styles');
 
 var muiThemeable = _require.muiThemeable;
 
-var WorkspacesList = (function (_React$Component) {
-    _inherits(WorkspacesList, _React$Component);
+var Entries = (function (_React$Component) {
+    _inherits(Entries, _React$Component);
 
-    function WorkspacesList(props, context) {
-        var _this = this;
+    function Entries(props) {
+        _classCallCheck(this, Entries);
 
-        _classCallCheck(this, WorkspacesList);
-
-        _React$Component.call(this, props, context);
-        this.state = _extends({}, this.stateFromPydio(props.pydio), {
+        _React$Component.call(this, props);
+        this.state = {
             toggleFilter: false,
             filterValue: ''
-        });
-        this._reloadObserver = function () {
-            _this.setState(_this.stateFromPydio(_this.props.pydio));
         };
     }
 
-    WorkspacesList.prototype.stateFromPydio = function stateFromPydio(pydio) {
+    Entries.prototype.computePagination = function computePagination(entries) {
+        if (!entries || !entries.length) {
+            return { use: false };
+        }
+        var pageSize = 15;
+        if (entries.length <= pageSize) {
+            return { use: false };
+        }
+        var _state$page = this.state.page;
+        var page = _state$page === undefined ? 1 : _state$page;
+
+        var max = Math.ceil(entries.length / pageSize);
+        var sliceStart = (page - 1) * pageSize;
+        var sliceEnd = Math.min(page * pageSize, entries.length);
+        var pages = [];
+        for (var i = 1; i <= max; i++) {
+            pages.push(i);
+        }
+        return {
+            use: true,
+            sliceStart: sliceStart,
+            sliceEnd: sliceEnd,
+            total: entries.length,
+            pages: pages,
+            page: page,
+            pageSize: pageSize
+        };
+    };
+
+    Entries.prototype.renderPagination = function renderPagination(pagination) {
+        var _this = this;
+
+        var titleStyle = this.props.titleStyle;
+        var page = pagination.page;
+        var pages = pagination.pages;
+        var sliceStart = pagination.sliceStart;
+        var sliceEnd = pagination.sliceEnd;
+        var total = pagination.total;
+
+        var chevStyles = { style: { width: 36, height: 36, padding: 6 }, iconStyle: { color: titleStyle.color } };
+        return _react2['default'].createElement(
+            'div',
+            { style: { display: 'flex', backgroundColor: 'rgba(0, 0, 0, 0.03)', color: titleStyle.color, alignItems: 'center', justifyContent: 'center', fontWeight: 400 } },
+            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
+                    return _this.setState({ page: page - 1 });
+                } }, chevStyles)),
+            _react2['default'].createElement(
+                'div',
+                null,
+                sliceStart + 1,
+                '-',
+                sliceEnd,
+                ' of ',
+                total
+            ),
+            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
+                    return _this.setState({ page: page + 1 });
+                } }, chevStyles))
+        );
+    };
+
+    Entries.prototype.render = function render() {
+        var _this2 = this;
+
+        var _props = this.props;
+        var title = _props.title;
+        var entries = _props.entries;
+        var filterHint = _props.filterHint;
+        var titleStyle = _props.titleStyle;
+        var pydio = _props.pydio;
+        var createAction = _props.createAction;
+        var showTreeForWorkspace = _props.showTreeForWorkspace;
+        var palette = _props.palette;
+        var buttonStyles = _props.buttonStyles;
+        var emptyState = _props.emptyState;
+        var _state = this.state;
+        var toggleFilter = _state.toggleFilter;
+        var filterValue = _state.filterValue;
+
+        var messages = pydio.MessageHash;
+
+        var filterFunc = function filterFunc(t, f, ws) {
+            return !t || !f || ws.getLabel().toLowerCase().indexOf(f.toLowerCase()) >= 0;
+        };
+
+        var wss = entries.filter(function (ws) {
+            return filterFunc(toggleFilter, filterValue, ws);
+        });
+        var pagination = this.computePagination(wss);
+        if (pagination.use) {
+            wss = wss.slice(pagination.sliceStart, pagination.sliceEnd);
+        }
+
+        return _react2['default'].createElement(
+            'div',
+            null,
+            !toggleFilter && _react2['default'].createElement(
+                'div',
+                { key: 'shared-title', className: 'section-title', style: titleStyle },
+                _react2['default'].createElement(
+                    'span',
+                    { style: { cursor: 'pointer' }, title: filterHint, onClick: function () {
+                            _this2.setState({ toggleFilter: true });
+                        } },
+                    title,
+                    _react2['default'].createElement('span', { style: { fontSize: 12, opacity: '0.4', marginLeft: 3 }, className: "mdi mdi-filter" })
+                ),
+                createAction
+            ),
+            toggleFilter && _react2['default'].createElement(
+                'div',
+                { key: 'shared-title', className: 'section-title', style: _extends({}, titleStyle, { paddingLeft: 12, paddingRight: 8, textTransform: 'none', transition: 'none' }) },
+                _react2['default'].createElement(ModernTextField, {
+                    focusOnMount: true,
+                    fullWidth: true,
+                    style: { marginTop: -16, marginBottom: -16, top: -1 },
+                    hintText: messages['cells.quick-filter'],
+                    hintStyle: { fontWeight: 400 },
+                    inputStyle: { fontWeight: 400, color: palette.primary1Color },
+                    value: filterValue,
+                    onChange: function (e, v) {
+                        _this2.setState({ filterValue: v });
+                    },
+                    onBlur: function () {
+                        setTimeout(function () {
+                            if (!filterValue) _this2.setState({ toggleFilter: false });
+                        }, 150);
+                    }
+                }),
+                _react2['default'].createElement(_materialUi.IconButton, {
+                    key: "close-filter",
+                    iconClassName: "mdi mdi-close",
+                    style: buttonStyles.button,
+                    iconStyle: buttonStyles.icon,
+                    onTouchTap: function () {
+                        _this2.setState({ toggleFilter: false, filterValue: '' });
+                    }
+                })
+            ),
+            _react2['default'].createElement(
+                'div',
+                { className: "workspaces" },
+                wss.map(function (ws) {
+                    return _react2['default'].createElement(_WorkspaceEntry2['default'], _extends({}, _this2.props, {
+                        key: ws.getId(),
+                        workspace: ws,
+                        showFoldersTree: showTreeForWorkspace && showTreeForWorkspace === ws.getId()
+                    }));
+                }),
+                !entries.length && emptyState,
+                pagination.use && this.renderPagination(pagination)
+            )
+        );
+    };
+
+    return Entries;
+})(_react2['default'].Component);
+
+var WorkspacesList = (function (_React$Component2) {
+    _inherits(WorkspacesList, _React$Component2);
+
+    function WorkspacesList(props, context) {
+        var _this3 = this;
+
+        _classCallCheck(this, WorkspacesList);
+
+        _React$Component2.call(this, props, context);
+        this.state = WorkspacesList.stateFromPydio(props.pydio);
+        this._reloadObserver = function () {
+            _this3.setState(WorkspacesList.stateFromPydio(_this3.props.pydio));
+        };
+    }
+
+    WorkspacesList.stateFromPydio = function stateFromPydio(pydio) {
         return {
             workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
             showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false,
@@ -102,90 +272,53 @@ var WorkspacesList = (function (_React$Component) {
     };
 
     WorkspacesList.prototype.render = function render() {
-        var _this3 = this;
+        var _this5 = this;
 
-        var entries = [],
-            sharedEntries = [],
-            createAction = undefined;
-        var _state = this.state;
-        var workspaces = _state.workspaces;
-        var showTreeForWorkspace = _state.showTreeForWorkspace;
-        var activeRepoIsHome = _state.activeRepoIsHome;
-        var toggleFilter = _state.toggleFilter;
-        var filterValue = _state.filterValue;
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var className = _props.className;
-        var filterByType = _props.filterByType;
-        var muiTheme = _props.muiTheme;
-        var sectionTitleStyle = _props.sectionTitleStyle;
+        var createAction = undefined;
+        var _state2 = this.state;
+        var workspaces = _state2.workspaces;
+        var showTreeForWorkspace = _state2.showTreeForWorkspace;
+        var _props2 = this.props;
+        var pydio = _props2.pydio;
+        var className = _props2.className;
+        var muiTheme = _props2.muiTheme;
+        var sectionTitleStyle = _props2.sectionTitleStyle;
 
-        var selectHint = undefined,
-            titleMarginFirst = undefined;
-        // TEMP TESTS
-        if (false && activeRepoIsHome) {
-            var hintStyle = {
-                padding: '14px 18px 12px',
-                color: '#2196F3',
-                fontWeight: 500,
-                backgroundColor: '#E3F2FD'
-            };
-            var hintIconStyle = {
-                display: 'inline-block',
-                marginLeft: 5
-            };
-            selectHint = _react2['default'].createElement(
-                'div',
-                { style: hintStyle },
-                'Select a workspace or a cell',
-                _react2['default'].createElement('span', { className: 'mdi mdi-arrow-down', style: hintIconStyle })
-            );
-            titleMarginFirst = true;
-        }
+        // Split Workspaces from Cells
         var wsList = [];
-        workspaces.forEach(function (o, k) {
-            wsList.push(o);
+        workspaces.forEach(function (o) {
+            return wsList.push(o);
+        });
+        wsList = wsList.filter(function (ws) {
+            return !_pydioModelRepository2['default'].isInternal(ws.getId());
         });
         wsList.sort(function (oA, oB) {
             return oA.getLabel().localeCompare(oB.getLabel(), undefined, { numeric: true });
         });
-
-        wsList.forEach((function (object) {
-
-            var key = object.getId();
-            if (Repository.isInternal(key)) {
-                return;
-            }
-
-            var entry = _react2['default'].createElement(_WorkspaceEntry2['default'], _extends({}, this.props, {
-                key: key,
-                workspace: object,
-                showFoldersTree: showTreeForWorkspace && showTreeForWorkspace === key
-            }));
-            if (object.getOwner()) {
-                if (!toggleFilter || !filterValue || object.getLabel().toLowerCase().indexOf(filterValue.toLowerCase()) >= 0) {
-                    sharedEntries.push(entry);
-                }
-            } else {
-                entries.push(entry);
-            }
-        }).bind(this));
+        var entries = wsList.filter(function (ws) {
+            return !ws.getOwner();
+        });
+        var sharedEntries = wsList.filter(function (ws) {
+            return ws.getOwner();
+        });
 
         var messages = pydio.MessageHash;
+
         var createClick = (function (event) {
-            var _this2 = this;
+            var _this4 = this;
 
             var target = event.target;
             _pydioHttpResourcesManager2['default'].loadClassesAndApply(['ShareDialog'], function () {
-                _this2.setState({
+                _this4.setState({
                     popoverOpen: true,
                     popoverAnchor: target,
-                    popoverContent: _react2['default'].createElement(ShareDialog.CreateCellDialog, { pydio: _this2.props.pydio, onDismiss: function () {
-                            _this2.setState({ popoverOpen: false });
+                    popoverContent: _react2['default'].createElement(ShareDialog.CreateCellDialog, { pydio: _this4.props.pydio, onDismiss: function () {
+                            _this4.setState({ popoverOpen: false });
                         } })
                 });
             });
         }).bind(this);
+
         var buttonStyles = {
             button: {
                 width: 36,
@@ -200,139 +333,27 @@ var WorkspacesList = (function (_React$Component) {
                 color: muiTheme.palette.primary1Color //'rgba(0,0,0,.54)'
             }
         };
-        if (this.createRepositoryEnabled()) {
-            if (sharedEntries.length) {
-                createAction = _react2['default'].createElement(_materialUi.IconButton, {
-                    key: "create-cell",
-                    style: buttonStyles.button,
-                    iconStyle: buttonStyles.icon,
-                    iconClassName: "mdi mdi-plus",
-                    tooltip: messages[417],
-                    tooltipPosition: "top-left",
-                    onTouchTap: createClick
-                });
-            }
-        }
 
-        var sections = [];
-        if (entries.length) {
-            var _s = titleMarginFirst ? _extends({}, sectionTitleStyle, { marginTop: 5 }) : _extends({}, sectionTitleStyle);
-            titleMarginFirst = false;
-            sections.push({
-                k: 'entries',
-                title: _react2['default'].createElement(
-                    'div',
-                    { key: 'entries-title', className: 'section-title', style: _s },
-                    messages[468]
-                ),
-                content: _react2['default'].createElement(
-                    'div',
-                    { key: 'entries-ws', className: 'workspaces' },
-                    entries
-                )
+        if (this.createRepositoryEnabled() && sharedEntries.length) {
+            createAction = _react2['default'].createElement(_materialUi.IconButton, {
+                key: "create-cell",
+                style: buttonStyles.button,
+                iconStyle: buttonStyles.icon,
+                iconClassName: "mdi mdi-plus",
+                tooltip: messages[417],
+                tooltipPosition: "top-left",
+                onTouchTap: createClick
             });
         }
-        if (!sharedEntries.length) {
-
-            var mainColor = _color2['default'](muiTheme.palette.primary1Color);
-            sharedEntries = _react2['default'].createElement(
-                'div',
-                { style: { textAlign: 'center', color: mainColor.fade(0.6).toString() } },
-                _react2['default'].createElement('div', { className: 'icomoon-cells', style: { fontSize: 80 } }),
-                this.createRepositoryEnabled() && _react2['default'].createElement(_materialUi.FlatButton, { style: { color: muiTheme.palette.accent2Color, marginTop: 5 }, primary: true, label: messages[418], onTouchTap: createClick }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { fontSize: 13, padding: '5px 20px' } },
-                    messages[633]
-                )
-            );
-        }
-        var s = titleMarginFirst ? _extends({}, sectionTitleStyle, { marginTop: 5 }) : _extends({}, sectionTitleStyle);
-        var cellsSectionStyle = _extends({}, s, { position: 'relative', overflow: 'visible', padding: '16px 16px', transition: 'none' });
-        var cellsSectionTitle = _react2['default'].createElement(
-            'div',
-            {
-                key: 'shared-title',
-                className: 'section-title',
-                style: cellsSectionStyle
-            },
-            _react2['default'].createElement(
-                'span',
-                { style: { cursor: 'pointer' }, title: messages['cells.quick-filter'], onClick: function () {
-                        _this3.setState({ toggleFilter: true });
-                    } },
-                messages[469],
-                ' ',
-                _react2['default'].createElement('span', { style: { fontSize: 12, opacity: '0.4', marginLeft: 3 }, className: "mdi mdi-filter" })
-            ),
-            createAction
-        );
-        if (toggleFilter) {
-            cellsSectionTitle = _react2['default'].createElement(
-                'div',
-                { key: 'shared-title', className: 'section-title', style: _extends({}, cellsSectionStyle, { paddingLeft: 12, paddingRight: 8, textTransform: 'none', transition: 'none' }) },
-                _react2['default'].createElement(ModernTextField, {
-                    focusOnMount: true,
-                    fullWidth: true,
-                    style: { marginTop: -16, marginBottom: -16, top: -1 },
-                    hintText: messages['cells.quick-filter'],
-                    hintStyle: { fontWeight: 400 },
-                    inputStyle: { fontWeight: 400, color: muiTheme.palette.primary1Color },
-                    value: filterValue,
-                    onChange: function (e, v) {
-                        _this3.setState({ filterValue: v });
-                    },
-                    onBlur: function () {
-                        setTimeout(function () {
-                            if (!filterValue) _this3.setState({ toggleFilter: false });
-                        }, 150);
-                    }
-                }),
-                _react2['default'].createElement(_materialUi.IconButton, { key: "close-filter", iconClassName: "mdi mdi-close", style: buttonStyles.button, iconStyle: buttonStyles.icon, onTouchTap: function () {
-                        _this3.setState({ toggleFilter: false, filterValue: '' });
-                    } })
-            );
-        }
-        sections.push({
-            k: 'shared',
-            title: cellsSectionTitle,
-            content: _react2['default'].createElement(
-                'div',
-                { key: 'shared-ws', className: 'workspaces' },
-                sharedEntries
-            )
-        });
 
         var classNames = ['user-workspaces-list'];
         if (className) {
             classNames.push(className);
         }
 
-        if (filterByType) {
-            var ret = undefined;
-            sections.map(function (s) {
-                if (filterByType && filterByType === s.k) {
-                    ret = _react2['default'].createElement(
-                        'div',
-                        { className: classNames.join(' ') },
-                        s.title,
-                        s.content
-                    );
-                }
-            });
-            return ret;
-        }
-
-        var elements = [];
-        sections.map(function (s) {
-            elements.push(s.title);
-            elements.push(s.content);
-        });
         return _react2['default'].createElement(
             'div',
             { className: classNames.join(' ') },
-            selectHint,
-            elements,
             _react2['default'].createElement(
                 _materialUi.Popover,
                 {
@@ -340,7 +361,7 @@ var WorkspacesList = (function (_React$Component) {
                     anchorEl: this.state.popoverAnchor,
                     useLayerForClickAway: true,
                     onRequestClose: function () {
-                        _this3.setState({ popoverOpen: false });
+                        _this5.setState({ popoverOpen: false });
                     },
                     anchorOrigin: sharedEntries.length ? { horizontal: "left", vertical: "top" } : { horizontal: "left", vertical: "bottom" },
                     targetOrigin: sharedEntries.length ? { horizontal: "left", vertical: "top" } : { horizontal: "left", vertical: "bottom" },
@@ -348,7 +369,39 @@ var WorkspacesList = (function (_React$Component) {
                     style: { borderRadius: 6, overflow: 'hidden', marginLeft: sharedEntries.length ? -10 : 0, marginTop: sharedEntries.length ? -10 : 0 }
                 },
                 this.state.popoverContent
-            )
+            ),
+            entries.length && _react2['default'].createElement(Entries, {
+                title: messages[468],
+                entries: entries,
+                filterHint: messages['ws.quick-filter'],
+                titleStyle: _extends({}, sectionTitleStyle, { marginTop: 5, position: 'relative', overflow: 'visible', transition: 'none' }),
+                pydio: pydio,
+                showTreeForWorkspace: showTreeForWorkspace,
+                palette: muiTheme.palette,
+                buttonStyles: buttonStyles
+            }),
+            _react2['default'].createElement(Entries, {
+                title: messages[469],
+                entries: sharedEntries,
+                filterHint: messages['cells.quick-filter'],
+                titleStyle: _extends({}, sectionTitleStyle, { position: 'relative', overflow: 'visible', transition: 'none' }),
+                pydio: pydio,
+                createAction: createAction,
+                showTreeForWorkspace: showTreeForWorkspace,
+                palette: muiTheme.palette,
+                buttonStyles: buttonStyles,
+                emptyState: _react2['default'].createElement(
+                    'div',
+                    { style: { textAlign: 'center', color: _color2['default'](muiTheme.palette.primary1Color).fade(0.6).toString() } },
+                    _react2['default'].createElement('div', { className: 'icomoon-cells', style: { fontSize: 80 } }),
+                    this.createRepositoryEnabled() && _react2['default'].createElement(_materialUi.FlatButton, { style: { color: muiTheme.palette.accent2Color, marginTop: 5 }, primary: true, label: messages[418], onTouchTap: createClick }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 13, padding: '5px 20px' } },
+                        messages[633]
+                    )
+                )
+            })
         );
     };
 

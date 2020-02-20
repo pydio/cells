@@ -2243,6 +2243,9 @@
   "cells.quick-filter": {
     "other": "Filter Cells"
   },
+  "ws.quick-filter": {
+    "other": "Filter Workspaces"
+  },
   "visibility.panel.title": {
     "other": "Visibility"
   },

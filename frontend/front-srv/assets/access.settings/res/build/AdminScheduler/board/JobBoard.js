@@ -488,7 +488,9 @@ var JobBoard = (function (_React$Component) {
                                 selectedRows: selectedRows,
                                 deselectOnClickAway: true,
                                 computeRowStyle: computeRowStyle,
-                                masterStyles: adminStyles.body.tableMaster
+                                masterStyles: adminStyles.body.tableMaster,
+                                paginate: [10, 25, 50, 100],
+                                defaultPageSize: 10
                             }),
                             more && _react2['default'].createElement(
                                 'div',

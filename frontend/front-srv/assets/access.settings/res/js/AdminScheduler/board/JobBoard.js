@@ -331,6 +331,8 @@ class JobBoard extends React.Component {
                                 deselectOnClickAway={true}
                                 computeRowStyle={computeRowStyle}
                                 masterStyles={adminStyles.body.tableMaster}
+                                paginate={[10, 25, 50, 100]}
+                                defaultPageSize={10}
                             />
                             {more  && <div onClick={()=>{this.setState({showAll:true})}} style={{cursor: 'pointer', textDecoration:'underline', padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
                         </Paper>

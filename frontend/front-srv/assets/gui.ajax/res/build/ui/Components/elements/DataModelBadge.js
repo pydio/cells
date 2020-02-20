@@ -17,81 +17,96 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = React.createClass({
-    displayName: 'DataModelBadge',
 
-    propTypes: {
-        dataModel: React.PropTypes.instanceOf(PydioDataModel),
-        options: React.PropTypes.object,
-        onBadgeIncrease: React.PropTypes.func,
-        onBadgeChange: React.PropTypes.func
-    },
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-    getInitialState: function getInitialState() {
-        return { value: '' };
-    },
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-    componentDidMount: function componentDidMount() {
-        var options = this.props.options;
-        var dm = this.props.dataModel;
-        var newValue = '';
-        this._observer = (function () {
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var DataModelBadge = (function (_React$Component) {
+    _inherits(DataModelBadge, _React$Component);
+
+    function DataModelBadge() {
+        _classCallCheck(this, DataModelBadge);
+
+        _React$Component.apply(this, arguments);
+    }
+
+    DataModelBadge.prototype.componentDidMount = function componentDidMount() {
+        var _this = this;
+
+        var _props = this.props;
+        var dataModel = _props.dataModel;
+        var options = _props.options;
+
+        this._observer = function () {
+            var newValue = '';
             switch (options.property) {
                 case "root_children":
-                    var l = dm.getRootNode().getChildren().size;
+                    var l = dataModel.getRootNode().getChildren().size;
                     newValue = l ? l : 0;
                     break;
                 case "root_label":
-                    newValue = dm.getRootNode().getLabel();
+                    newValue = dataModel.getRootNode().getLabel();
                     break;
                 case "root_children_empty":
-                    var cLength = dm.getRootNode().getChildren().size;
-                    newValue = !cLength ? options['emptyMessage'] : '';
+                    var cLength = dataModel.getRootNode().getChildren().size;
+                    newValue = cLength ? '' : options['emptyMessage'];
                     break;
                 case "metadata":
                     if (options['metadata_sum']) {
                         newValue = 0;
-                        dm.getRootNode().getChildren().forEach(function (c) {
-                            if (c.getMetadata().get(options['metadata_sum'])) newValue += parseInt(c.getMetadata().get(options['metadata_sum']));
+                        dataModel.getRootNode().getChildren().forEach(function (c) {
+                            if (c.getMetadata().get(options['metadata_sum'])) {
+                                newValue += parseInt(c.getMetadata().get(options['metadata_sum']));
+                            }
                         });
                     }
                     break;
                 default:
                     break;
             }
-            var prevValue = this.state.value;
+            var prevValue = _this.state.value;
             if (newValue && newValue !== prevValue) {
-                if (Object.isNumber(newValue) && this.props.onBadgeIncrease) {
-                    if (prevValue !== '' && newValue > prevValue) this.props.onBadgeIncrease(newValue, prevValue ? prevValue : 0, this.props.dataModel);
+                if (Object.isNumber(newValue) && _this.props.onBadgeIncrease && prevValue !== '' && newValue > prevValue) {
+                    _this.props.onBadgeIncrease(newValue, prevValue ? prevValue : 0, _this.props.dataModel);
                 }
             }
-            if (this.props.onBadgeChange) {
-                this.props.onBadgeChange(newValue, prevValue, this.props.dataModel);
+            if (_this.props.onBadgeChange) {
+                _this.props.onBadgeChange(newValue, prevValue, _this.props.dataModel);
             }
-            this.setState({ value: newValue });
-        }).bind(this);
-        dm.getRootNode().observe("loaded", this._observer);
-    },
+            _this.setState({ value: newValue });
+        };
 
-    componentWillUnmount: function componentWillUnmount() {
+        dataModel.getRootNode().observe("loaded", this._observer);
+    };
+
+    DataModelBadge.prototype.componentWillUnmount = function componentWillUnmount() {
         this.props.dataModel.stopObserving("loaded", this._observer);
-    },
+    };
 
-    render: function render() {
-        if (!this.state.value) {
-            return null;
-        } else {
-            return React.createElement(
+    DataModelBadge.prototype.render = function render() {
+        if (this.state.value) {
+            return _react2['default'].createElement(
                 'span',
                 { className: this.props.options['className'] },
                 this.state.value
             );
+        } else {
+            return null;
         }
-    }
+    };
 
-});
+    return DataModelBadge;
+})(_react2['default'].Component);
+
+exports['default'] = DataModelBadge;
 module.exports = exports['default'];

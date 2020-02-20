@@ -19,13 +19,15 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import {FlatButton, IconButton, Paper} from 'material-ui'
 import XMLUtils from 'pydio/util/xml'
 import WsEditor from '../editor/WsEditor'
 import WorkspaceList from './WorkspaceList'
-const PydioDataModel = require('pydio/model/data-model');
-const AjxpNode = require('pydio/model/node');
+import PydioDataModel from 'pydio/model/data-model'
+import AjxpNode from 'pydio/model/node'
 import {muiThemeable} from 'material-ui/styles'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 let WsDashboard = React.createClass({
 
@@ -43,23 +45,7 @@ let WsDashboard = React.createClass({
     },
 
     getInitialState(){
-        return {selectedNode:null}
-    },
-
-    componentDidMount(){
-        this._setLoading = () => {
-            this.setState({loading: true});
-        };
-        this._stopLoading = () => {
-            this.setState({loading: false});
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-    },
-
-    componentWillUnmount(){
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+        return {selectedNode:null, searchString:''}
     },
 
     dirtyEditor(){
@@ -125,7 +111,8 @@ let WsDashboard = React.createClass({
     },
 
     render(){
-        const {pydio, dataModel, rootNode, advanced, currentNode, accessByName, muiTheme} = this.props;
+        const {pydio, advanced, currentNode, accessByName, muiTheme} = this.props;
+        const {searchString, loading} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         let buttons = [];
@@ -140,34 +127,41 @@ let WsDashboard = React.createClass({
             );
         }
 
+        const searchBox = (
+            <div style={{display:'flex'}}>
+                <div style={{flex: 1}}/>
+                <div style={{width:190}}>
+                    <ModernTextField fullWidth={true} hintText={'Search workspaces'} value={searchString} onChange={(e,v) => this.setState({searchString:v}) } />
+                </div>
+            </div>
+        );
+
+
         return (
 
-            <div className="main-layout-nav-to-stack workspaces-board">
-                <div className="vertical-layout" style={{width:'100%'}}>
-                    <AdminComponents.Header
-                        title={currentNode.getLabel()}
-                        icon={'mdi mdi-folder-open'}
-                        actions={buttons}
-                        reloadAction={this.reloadWorkspaceList}
-                        loading={this.state.loading}
-                    />
+            <div className="main-layout-nav-to-stack vertical-layout workspaces-board">
+                <AdminComponents.Header
+                    title={currentNode.getLabel()}
+                    icon={'mdi mdi-folder-open'}
+                    actions={buttons}
+                    centerContent={searchBox}
+                    reloadAction={this.reloadWorkspaceList}
+                    loading={loading}
+                />
+                <div className="layout-fill">
                     <AdminComponents.SubHeader legend={this.context.getMessage('ws.dashboard', 'ajxp_admin')}/>
-                    <div className="layout-fill">
-                        <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
-                            <WorkspaceList
-                                ref="workspacesList"
-                                pydio={pydio}
-                                dataModel={dataModel}
-                                rootNode={rootNode}
-                                currentNode={currentNode}
-                                openSelection={this.openWorkspace}
-                                advanced={advanced}
-                                editable={accessByName('Create')}
-                                tableStyles={adminStyles.body.tableMaster}
-                            />
-                        </Paper>
-                    </div>
-
+                    <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
+                        <WorkspaceList
+                            ref="workspacesList"
+                            pydio={pydio}
+                            openSelection={this.openWorkspace}
+                            advanced={advanced}
+                            editable={accessByName('Create')}
+                            onLoadState={(state) => {this.setState({loading: state})}}
+                            tableStyles={adminStyles.body.tableMaster}
+                            filterString={searchString}
+                        />
+                    </Paper>
                 </div>
             </div>
         );

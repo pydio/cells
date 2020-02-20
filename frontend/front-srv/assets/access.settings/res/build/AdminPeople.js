@@ -1310,7 +1310,7 @@ var RolesDashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         ));
 
-        var centerContent = _react2['default'].createElement(
+        var searchBox = _react2['default'].createElement(
             'div',
             { style: { display: 'flex' } },
             _react2['default'].createElement('div', { style: { flex: 1 } }),
@@ -1349,29 +1349,34 @@ var RolesDashboard = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
+            { className: "main-layout-nav-to-stack vertical-layout" },
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.context.getMessage('69', 'settings'),
                 icon: 'mdi mdi-account-multiple',
                 actions: buttons,
-                centerContent: centerContent,
+                centerContent: searchBox,
                 reloadAction: function () {
                     _this5.load();
                 },
                 loading: this.state.loading
             }),
-            _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
-                _materialUi.Paper,
-                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
-                _react2['default'].createElement(MaterialTable, {
-                    data: data,
-                    columns: columns,
-                    onSelectRows: selectRows,
-                    deselectOnClickAway: true,
-                    showCheckboxes: false,
-                    masterStyles: tableMaster
-                })
+                'div',
+                { className: "layout-fill" },
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, blockProps, { style: blockStyle }),
+                    _react2['default'].createElement(MaterialTable, {
+                        data: data,
+                        columns: columns,
+                        onSelectRows: selectRows,
+                        deselectOnClickAway: true,
+                        showCheckboxes: false,
+                        masterStyles: tableMaster,
+                        paginate: [10, 25, 50, 100]
+                    })
+                )
             )
         );
     }
@@ -2106,6 +2111,13 @@ var _WorkspaceAcl = require('./WorkspaceAcl');
 
 var _WorkspaceAcl2 = _interopRequireDefault(_WorkspaceAcl);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var PydioComponents = _pydio2['default'].requireLib('components');
+var MaterialTable = PydioComponents.MaterialTable;
+
 var WorkspacesAcls = (function (_React$Component) {
     _inherits(WorkspacesAcls, _React$Component);
 
@@ -2115,7 +2127,7 @@ var WorkspacesAcls = (function (_React$Component) {
         _classCallCheck(this, WorkspacesAcls);
 
         _get(Object.getPrototypeOf(WorkspacesAcls.prototype), 'constructor', this).call(this, props);
-        this.state = { workspaces: [] };
+        this.state = { loading: true, workspaces: [] };
         var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
         var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
         request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
@@ -2124,7 +2136,9 @@ var WorkspacesAcls = (function (_React$Component) {
         api.searchWorkspaces(request).then(function (collection) {
             var workspaces = collection.Workspaces || [];
             workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
-            _this.setState({ workspaces: workspaces });
+            _this.setState({ workspaces: workspaces, loading: false });
+        })['catch'](function (e) {
+            _this.setState({ loading: false });
         });
     }
 
@@ -2134,20 +2148,37 @@ var WorkspacesAcls = (function (_React$Component) {
             var _props = this.props;
             var role = _props.role;
             var advancedAcl = _props.advancedAcl;
-            var workspaces = this.state.workspaces;
+            var _state = this.state;
+            var workspaces = _state.workspaces;
+            var loading = _state.loading;
 
             if (!role) {
                 return _react2['default'].createElement('div', null);
             }
-            return _react2['default'].createElement(
-                'div',
-                { className: "material-list" },
-                workspaces.map(function (ws) {
+            var columns = [{
+                name: 'acl',
+                label: '',
+                style: { paddingLeft: 0, paddingRight: 0 },
+                renderCell: function renderCell(ws) {
                     return _react2['default'].createElement(_WorkspaceAcl2['default'], {
                         workspace: ws,
                         role: role,
                         advancedAcl: advancedAcl
                     });
+                }
+            }];
+
+            return _react2['default'].createElement(
+                'div',
+                { className: "material-list" },
+                _react2['default'].createElement(MaterialTable, {
+                    data: workspaces,
+                    columns: columns,
+                    hideHeaders: true,
+                    paginate: [10, 25, 50, 100],
+                    defaultPageSize: 25,
+                    showCheckboxes: false,
+                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.6'] : ''
                 })
             );
         }
@@ -2159,7 +2190,7 @@ var WorkspacesAcls = (function (_React$Component) {
 exports['default'] = WorkspacesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":10,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
+},{"./WorkspaceAcl":10,"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5680,7 +5711,7 @@ arguments[4][8][0].apply(exports,arguments)
 arguments[4][10][0].apply(exports,arguments)
 },{"../util/MessagesMixin":46,"./RightsSelector":34,"dup":10,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],36:[function(require,module,exports){
 arguments[4][11][0].apply(exports,arguments)
-},{"./WorkspaceAcl":35,"dup":11,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],37:[function(require,module,exports){
+},{"./WorkspaceAcl":35,"dup":11,"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],37:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
 },{"../model/User":41,"dup":14,"pydio":"pydio","react":"react"}],38:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)

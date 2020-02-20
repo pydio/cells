@@ -18,15 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {Table, TableHeader, TableRow, TableBody, TableRowColumn, TableHeaderColumn} from 'material-ui'
+import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, TableHeaderColumn, SelectField, MenuItem, IconButton} from 'material-ui'
 import Pydio from 'pydio'
 const {moment} = Pydio.requireLib("boot");
+const {ModernStyles} = Pydio.requireLib("hoc");
 
 /**
  * Simple material table
  * columns are objects of shape {name, label, style, headerStyle}
  */
 class MaterialTable extends React.Component{
+
+    constructor(props){
+        super(props);
+        this.state = {};
+    }
 
     onRowSelection(indexes){
         const {data, onSelectRows} = this.props;
@@ -38,18 +44,82 @@ class MaterialTable extends React.Component{
         } else if(indexes === 'all'){
             onSelectRows(data);
         } else {
+            const pagination = this.computePagination();
+            let src = data;
+            if(pagination.use){
+                src = src.slice(pagination.sliceStart, pagination.sliceEnd);
+            }
             let selection = [];
             indexes.map((i) => {
-                selection.push(data[i]);
+                selection.push(src[i]);
             });
             onSelectRows(selection);
         }
     }
 
+    computePagination(){
+        const {data, paginate, defaultPageSize} = this.props;
+        if (!paginate || !data || !data.length) {
+            return {use: false}
+        }
+        const pageSize = this.state.pageSize || defaultPageSize || paginate[0];
+        if (data.length <= pageSize) {
+            return {use: false}
+        }
+        const {page = 1} = this.state;
+        const max = Math.ceil(data.length / pageSize);
+        const sliceStart = (page - 1) * pageSize;
+        const sliceEnd = Math.min((page) * pageSize, data.length);
+        let pages = [];
+        for (let i = 1; i <= max; i ++) {
+            pages.push(i);
+        }
+        return {
+            use: true,
+            sliceStart,
+            sliceEnd,
+            pages,
+            page,
+            pageSize,
+            pageSizes: paginate
+        }
+    }
+
+    renderPagination(pagination){
+        const {data} = this.props;
+        const {page, pageSize, pages, pageSizes, sliceStart, sliceEnd} = pagination;
+        return (
+            <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', color:'#757575'}}>
+                {pageSizes.length > 1 &&
+                    <div style={{paddingRight: 10}}>Rows per page :</div>
+                }
+                {pageSizes.length > 1 &&
+                    <div style={{width: 90}}>
+                        <SelectField {...ModernStyles.selectField} fullWidth={true} value={pageSize} onChange={(e,i, v) => this.setState({page:1, pageSize: v}) }>
+                            {pageSizes.map(ps => <MenuItem value={ps} primaryText={ps}/>)}
+                        </SelectField>
+                    </div>
+                }
+                <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
+                <div>{sliceStart+1}-{sliceEnd} of {data.length}</div>
+                <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})}/>
+            </div>
+        );
+    }
+
+
     render(){
 
-        const {columns, data, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
+        const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
+        let {data} = this.props;
         let {showCheckboxes} = this.props;
+
+        const pagination = this.computePagination();
+        let paginator;
+        if(pagination.use){
+            data = data.slice(pagination.sliceStart, pagination.sliceEnd);
+            paginator = this.renderPagination(pagination);
+        }
 
         let rows = data.map((model) => {
             let rowStyle;
@@ -131,6 +201,13 @@ class MaterialTable extends React.Component{
                 <TableBody deselectOnClickaway={deselectOnClickAway} displayRowCheckbox={showCheckboxes}>
                     {rows}
                 </TableBody>
+                {paginator &&
+                    <TableFooter>
+                        <TableRow style={{backgroundColor:'#fafafa'}}>
+                            <TableRowColumn colSpan={columns.length}>{paginator}</TableRowColumn>
+                        </TableRow>
+                    </TableFooter>
+                }
             </Table>
         );
     }

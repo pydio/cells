@@ -163,7 +163,7 @@ let RolesDashboard = React.createClass({
             </IconMenu>
         );
 
-        const centerContent = (
+        const searchBox = (
             <div style={{display:'flex'}}>
                 <div style={{flex: 1}}/>
                 <div style={{width:190}}>
@@ -195,26 +195,29 @@ let RolesDashboard = React.createClass({
 
         return(
 
-            <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
+            <div className={"main-layout-nav-to-stack vertical-layout"}>
                 <AdminComponents.Header
                     title={this.context.getMessage('69', 'settings')}
                     icon="mdi mdi-account-multiple"
                     actions={buttons}
-                    centerContent={centerContent}
+                    centerContent={searchBox}
                     reloadAction={()=>{this.load()}}
                     loading={this.state.loading}
                 />
-                <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
-                <Paper {...blockProps} style={blockStyle} className={"horizontal-layout layout-fill"}>
-                    <MaterialTable
-                        data={data}
-                        columns={columns}
-                        onSelectRows={selectRows}
-                        deselectOnClickAway={true}
-                        showCheckboxes={false}
-                        masterStyles={tableMaster}
-                    />
-                </Paper>
+                <div className={"layout-fill"}>
+                    <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
+                    <Paper {...blockProps} style={blockStyle}>
+                        <MaterialTable
+                            data={data}
+                            columns={columns}
+                            onSelectRows={selectRows}
+                            deselectOnClickAway={true}
+                            showCheckboxes={false}
+                            masterStyles={tableMaster}
+                            paginate={[10,25, 50, 100]}
+                        />
+                    </Paper>
+                </div>
             </div>
 
 
