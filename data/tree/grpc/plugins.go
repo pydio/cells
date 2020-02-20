@@ -64,6 +64,7 @@ func init() {
 				tree.RegisterNodeReceiverHandler(srv, treeServer)
 				tree.RegisterSearcherHandler(srv, treeServer)
 				tree.RegisterNodeChangesStreamerHandler(srv, treeServer)
+				tree.RegisterNodeProviderStreamerHandler(srv, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 

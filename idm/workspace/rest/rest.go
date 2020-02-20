@@ -231,6 +231,8 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 	}
 	defer streamer.Close()
 	collection := &rest.WorkspaceCollection{}
+	var uuids []string
+	wss := make(map[string]*idm.Workspace)
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
@@ -240,15 +242,13 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 			continue
 		}
 		resp.Workspace.PoliciesContextEditable = h.IsContextEditable(ctx, resp.Workspace.UUID, resp.Workspace.Policies)
-		if er := h.loadRootNodesForWorkspace(ctx, resp.Workspace); er != nil {
-			log.Logger(ctx).Error("Could not load root nodes for workspace", zap.Error(er))
-		}
-		if er := h.manageDefaultRights(ctx, resp.Workspace, true, ""); er != nil {
-			log.Logger(ctx).Error("Could not load default rights workspace", zap.Error(er))
-		}
+		uuids = append(uuids, resp.Workspace.UUID)
+		wss[resp.Workspace.UUID] = resp.Workspace
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
 		collection.Total++
 	}
+	h.loadRootNodesForWorkspaces(ctx, uuids, wss)
+	h.bulkReadDefaultRights(ctx, uuids, wss)
 	rsp.WriteEntity(collection)
 
 }

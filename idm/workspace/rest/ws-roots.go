@@ -14,10 +14,67 @@ import (
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
+
+func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[string]*idm.Workspace) error {
+
+	acls, err := permissions.GetACLsForWorkspace(ctx, wsUUIDs, &idm.ACLAction{Name: permissions.AclWsrootActionName})
+	if err != nil {
+		return err
+	}
+	wsAcls := make(map[string][]*idm.ACL, len(wsUUIDs))
+	for _, a := range acls {
+		wsAcls[a.WorkspaceID] = append(wsAcls[a.WorkspaceID], a)
+	}
+	streamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_TREE))
+	c, e := streamer.ReadNodeStream(ctx)
+	if e != nil {
+		return e
+	}
+	defer c.Close()
+	vManager := views.GetVirtualNodesManager()
+	localCache := make(map[string]*tree.Node)
+	for uuid, ws := range wss {
+		aa, o := wsAcls[uuid]
+		if !o {
+			continue
+		}
+		for _, a := range aa {
+			if n, o := localCache[a.NodeID]; o {
+				if ws.RootNodes == nil {
+					ws.RootNodes = make(map[string]*tree.Node)
+				}
+				ws.RootNodes[a.NodeID] = n
+			}
+			c.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
+			r, e := c.Recv()
+			if e != nil {
+				break
+			}
+			if r != nil && r.Success {
+				if ws.RootNodes == nil {
+					ws.RootNodes = make(map[string]*tree.Node)
+				}
+				ws.RootNodes[a.NodeID] = r.Node.WithoutReservedMetas()
+				localCache[a.NodeID] = r.Node.WithoutReservedMetas()
+			} else {
+				// May be a virtual node
+				if node, ok := vManager.ByUuid(a.NodeID); ok {
+					if ws.RootNodes == nil {
+						ws.RootNodes = make(map[string]*tree.Node)
+					}
+					ws.RootNodes[a.NodeID] = node.WithoutReservedMetas()
+					localCache[a.NodeID] = node.WithoutReservedMetas()
+				}
+			}
+		}
+	}
+	return nil
+}
 
 // LoadRootNodesForWorkspace loads all root nodes for this workspace
 func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
@@ -30,7 +87,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *id
 	if len(acls) == 0 {
 		return nil
 	}
-	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
 	for _, a := range acls {
 		r, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
 		if e == nil && r != nil {
@@ -149,6 +206,61 @@ func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *
 		}
 	}
 	return value
+}
+
+func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*idm.Workspace) error {
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	// Load RootRole ACLs and append to Attributes
+	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		WorkspaceIDs: uuids,
+		RoleIDs:      []string{"ROOT_GROUP"},
+	})
+	q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite},
+	})
+	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
+		Query: &service.Query{
+			SubQueries: []*any.Any{q1, q2},
+			Operation:  service.OperationType_AND,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	defer stream.Close()
+	rightStrings := make(map[string]string, len(uuids))
+	for {
+		r, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		st := ""
+		if s, o := rightStrings[r.ACL.WorkspaceID]; o {
+			st = s
+		}
+		if r.ACL.Action.Name == permissions.AclRead.Name {
+			st += "r"
+		}
+		if r.ACL.Action.Name == permissions.AclWrite.Name {
+			st += "w"
+		}
+		rightStrings[r.ACL.WorkspaceID] = st
+	}
+	for uuid, right := range rightStrings {
+		workspace := wss[uuid]
+		attributes := make(map[string]interface{}, 1)
+		if workspace.Attributes != "" {
+			var atts map[string]interface{}
+			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
+				attributes = atts
+			}
+		}
+		attributes["DEFAULT_RIGHTS"] = right
+		jsonAttributes, _ := json.Marshal(attributes)
+		workspace.Attributes = string(jsonAttributes)
+	}
+	return nil
 }
 
 func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, value string) error {

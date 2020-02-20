@@ -85,6 +85,34 @@ type TreeServer struct {
 	listeners    []*changesListener
 }
 
+// ReadNodeStream Implement stream for readNode method
+func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+	defer streamer.Close()
+
+	for {
+		request, err := streamer.Recv()
+		if request == nil {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		response := &tree.ReadNodeResponse{}
+		err = s.ReadNode(ctx, request, response)
+		if err != nil {
+			response.Success = false
+		} else {
+			response.Success = true
+		}
+		e := streamer.Send(response)
+		if e != nil {
+			return e
+		}
+	}
+
+	return nil
+}
+
 func (s *TreeServer) treeNodeToDataSourcePath(node *tree.Node) (dataSourceName string, dataSourcePath string) {
 
 	path := strings.Trim(node.GetPath(), "/")
