@@ -85,6 +85,13 @@ var MaterialTable = (function (_React$Component) {
                 }
                 var selection = [];
                 indexes.map(function (i) {
+                    // Find if previous data has expanded rows : do not count them in for selection
+                    var expanded = src.slice(0, i).filter(function (d) {
+                        return d.expandedRow;
+                    }).length;
+                    if (expanded) {
+                        i = i - expanded;
+                    }
                     selection.push(src[i]);
                 });
                 onSelectRows(selection);
@@ -97,7 +104,12 @@ var MaterialTable = (function (_React$Component) {
         var data = _props2.data;
         var paginate = _props2.paginate;
         var defaultPageSize = _props2.defaultPageSize;
+        var pagination = _props2.pagination;
 
+        if (pagination) {
+            // externally managed
+            return _extends({}, pagination, { use: true });
+        }
         if (!paginate || !data || !data.length) {
             return { use: false };
         }
@@ -136,6 +148,11 @@ var MaterialTable = (function (_React$Component) {
         var pageSizes = pagination.pageSizes;
         var sliceStart = pagination.sliceStart;
         var sliceEnd = pagination.sliceEnd;
+        var nextDisabled = pagination.nextDisabled;
+        var prevDisabled = pagination.prevDisabled;
+        var onPageNext = pagination.onPageNext;
+        var onPagePrev = pagination.onPagePrev;
+        var onPageSizeChange = pagination.onPageSizeChange;
 
         return _react2['default'].createElement(
             'div',
@@ -151,17 +168,24 @@ var MaterialTable = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.SelectField,
                     _extends({}, ModernStyles.selectField, { fullWidth: true, value: pageSize, onChange: function (e, i, v) {
-                            return _this2.setState({ page: 1, pageSize: v });
+                            if (onPageSizeChange) {
+                                onPageSizeChange(v);
+                            } else {
+                                _this2.setState({ page: 1, pageSize: v });
+                            }
                         } }),
                     pageSizes.map(function (ps) {
                         return _react2['default'].createElement(_materialUi.MenuItem, { value: ps, primaryText: ps });
                     })
                 )
             ),
-            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
+            onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: prevDisabled, onTouchTap: function () {
+                    return onPagePrev();
+                } }),
+            !onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
                     return _this2.setState({ page: page - 1 });
                 } }),
-            _react2['default'].createElement(
+            (sliceStart || sliceEnd) && _react2['default'].createElement(
                 'div',
                 null,
                 sliceStart + 1,
@@ -170,7 +194,10 @@ var MaterialTable = (function (_React$Component) {
                 ' of ',
                 data.length
             ),
-            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
+            onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: nextDisabled, onTouchTap: function () {
+                    return onPageNext();
+                } }),
+            !onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
                     return _this2.setState({ page: page + 1 });
                 } })
         );
@@ -196,7 +223,8 @@ var MaterialTable = (function (_React$Component) {
             paginator = this.renderPagination(pagination);
         }
 
-        var rows = data.map(function (model) {
+        var rows = [];
+        data.map(function (model) {
             var rowStyle = undefined;
             if (computeRowStyle) {
                 rowStyle = computeRowStyle(model);
@@ -205,7 +233,7 @@ var MaterialTable = (function (_React$Component) {
                 var headerStyle = _extends({
                     fontSize: 12, color: '#616161', backgroundColor: '#FAFAFA', fontWeight: 500
                 }, model.style);
-                return _react2['default'].createElement(
+                rows.push(_react2['default'].createElement(
                     _materialUi.TableRow,
                     { className: "media-small-hide", style: _extends({}, masterStyles.row) },
                     _react2['default'].createElement(
@@ -213,10 +241,11 @@ var MaterialTable = (function (_React$Component) {
                         { colSpan: columns.length, style: headerStyle },
                         model.Subheader
                     )
-                );
+                ));
+                return;
             }
             if (model.colSpan) {
-                return _react2['default'].createElement(
+                rows.push(_react2['default'].createElement(
                     _materialUi.TableRow,
                     { style: _extends({}, model.rowStyle, masterStyles.row) },
                     _react2['default'].createElement(
@@ -224,11 +253,16 @@ var MaterialTable = (function (_React$Component) {
                         { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
                         model.element
                     )
-                );
+                ));
+                return;
             }
-            return _react2['default'].createElement(
+            var mainRowStyle = _extends({}, rowStyle, masterStyles.row);
+            if (model.expandedRow) {
+                mainRowStyle = _extends({}, mainRowStyle, masterStyles.expanderRow);
+            }
+            rows.push(_react2['default'].createElement(
                 _materialUi.TableRow,
-                { selectable: onSelectRows !== undefined, style: _extends({}, rowStyle, masterStyles.row) },
+                { selectable: onSelectRows !== undefined, style: mainRowStyle },
                 columns.map(function (column) {
                     var value = model[column.name];
                     var tip = value;
@@ -237,7 +271,7 @@ var MaterialTable = (function (_React$Component) {
                         tip = value;
                     } else if (column.renderCell) {
                         value = column.renderCell(model);
-                        if (typeof value === 'object' && value.element && value.text) {
+                        if (value && typeof value === 'object' && value.element && value.text) {
                             tip = value.text;
                             value = value.element;
                         }
@@ -251,7 +285,18 @@ var MaterialTable = (function (_React$Component) {
                         value
                     );
                 })
-            );
+            ));
+            if (model.expandedRow) {
+                rows.push(_react2['default'].createElement(
+                    _materialUi.TableRow,
+                    { selectable: false, style: _extends({}, masterStyles.row, masterStyles.expandedRow) },
+                    _react2['default'].createElement(
+                        _materialUi.TableRowColumn,
+                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        model.expandedRow
+                    )
+                ));
+            }
         });
         var headers = columns.map(function (column) {
             return _react2['default'].createElement(

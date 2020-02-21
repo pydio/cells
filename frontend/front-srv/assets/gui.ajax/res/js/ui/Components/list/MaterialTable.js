@@ -51,6 +51,11 @@ class MaterialTable extends React.Component{
             }
             let selection = [];
             indexes.map((i) => {
+                // Find if previous data has expanded rows : do not count them in for selection
+                const expanded = src.slice(0, i).filter(d => d.expandedRow).length;
+                if (expanded){
+                    i = i - expanded;
+                }
                 selection.push(src[i]);
             });
             onSelectRows(selection);
@@ -58,7 +63,11 @@ class MaterialTable extends React.Component{
     }
 
     computePagination(){
-        const {data, paginate, defaultPageSize} = this.props;
+        const {data, paginate, defaultPageSize, pagination} = this.props;
+        if(pagination){
+            // externally managed
+            return {...pagination, use: true};
+        }
         if (!paginate || !data || !data.length) {
             return {use: false}
         }
@@ -87,7 +96,7 @@ class MaterialTable extends React.Component{
 
     renderPagination(pagination){
         const {data} = this.props;
-        const {page, pageSize, pages, pageSizes, sliceStart, sliceEnd} = pagination;
+        const {page, pageSize, pages, pageSizes, sliceStart, sliceEnd, nextDisabled, prevDisabled, onPageNext, onPagePrev, onPageSizeChange} = pagination;
         return (
             <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', color:'#757575'}}>
                 {pageSizes.length > 1 &&
@@ -95,14 +104,30 @@ class MaterialTable extends React.Component{
                 }
                 {pageSizes.length > 1 &&
                     <div style={{width: 90}}>
-                        <SelectField {...ModernStyles.selectField} fullWidth={true} value={pageSize} onChange={(e,i, v) => this.setState({page:1, pageSize: v}) }>
+                        <SelectField {...ModernStyles.selectField} fullWidth={true} value={pageSize} onChange={(e,i, v) => {
+                            if(onPageSizeChange){
+                                onPageSizeChange(v);
+                            } else {
+                                this.setState({page:1, pageSize: v})
+                            }
+                        }}>
                             {pageSizes.map(ps => <MenuItem value={ps} primaryText={ps}/>)}
                         </SelectField>
                     </div>
                 }
-                <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
-                <div>{sliceStart+1}-{sliceEnd} of {data.length}</div>
-                <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})}/>
+                {onPagePrev &&
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={prevDisabled} onTouchTap={() => onPagePrev()}/>
+                }
+                {!onPagePrev &&
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
+                }
+                {(sliceStart || sliceEnd) && <div>{sliceStart+1}-{sliceEnd} of {data.length}</div>}
+                {onPageNext &&
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onTouchTap={() => onPageNext()}/>
+                }
+                {!onPageNext &&
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})}/>
+                }
             </div>
         );
     }
@@ -121,7 +146,8 @@ class MaterialTable extends React.Component{
             paginator = this.renderPagination(pagination);
         }
 
-        let rows = data.map((model) => {
+        let rows = [];
+        data.map((model) => {
             let rowStyle;
             if(computeRowStyle){
                 rowStyle = computeRowStyle(model);
@@ -131,23 +157,29 @@ class MaterialTable extends React.Component{
                     fontSize:12, color: '#616161', backgroundColor:'#FAFAFA',fontWeight: 500,
                     ...model.style
                 };
-                return (
+                rows.push(
                     <TableRow className={"media-small-hide"} style={{...masterStyles.row}}>
                         <TableRowColumn colSpan={columns.length} style={headerStyle}>
                             {model.Subheader}
                         </TableRowColumn>
                     </TableRow>
                 );
+                return;
             }
             if(model.colSpan){
-                return (
+                rows.push(
                     <TableRow style={{...model.rowStyle,...masterStyles.row}}>
                         <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.element}</TableRowColumn>
                     </TableRow>
-                )
+                );
+                return;
             }
-            return (
-                <TableRow selectable={onSelectRows !== undefined} style={{...rowStyle, ...masterStyles.row}}>
+            let mainRowStyle = {...rowStyle, ...masterStyles.row};
+            if(model.expandedRow){
+                mainRowStyle = {...mainRowStyle, ...masterStyles.expanderRow};
+            }
+            rows.push(
+                <TableRow selectable={onSelectRows !== undefined} style={mainRowStyle}>
                     {columns.map((column) => {
                         let value = model[column.name];
                         let tip = value;
@@ -156,7 +188,7 @@ class MaterialTable extends React.Component{
                             tip = value;
                         } else if (column.renderCell) {
                             value = column.renderCell(model);
-                            if (typeof value === 'object' && value.element && value.text){
+                            if (value && typeof value === 'object' && value.element && value.text){
                                 tip = value.text;
                                 value = value.element;
                             }
@@ -168,6 +200,13 @@ class MaterialTable extends React.Component{
                     })}
                 </TableRow>
             );
+            if(model.expandedRow){
+                rows.push(
+                    <TableRow selectable={false} style={{...masterStyles.row,...masterStyles.expandedRow}}>
+                        <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.expandedRow}</TableRowColumn>
+                    </TableRow>
+                );
+            }
         });
         const headers = columns.map((column) => {
             return <TableHeaderColumn
