@@ -150,14 +150,20 @@ class MaterialTable extends React.Component{
                 <TableRow selectable={onSelectRows !== undefined} style={{...rowStyle, ...masterStyles.row}}>
                     {columns.map((column) => {
                         let value = model[column.name];
+                        let tip = value;
                         if (column.useMoment && value){
                             value = moment(new Date(parseInt(value) * 1000)).fromNow();
+                            tip = value;
                         } else if (column.renderCell) {
                             value = column.renderCell(model);
+                            if (typeof value === 'object' && value.element && value.text){
+                                tip = value.text;
+                                value = value.element;
+                            }
                         }
                         return <TableRowColumn
                             style={column.style||{}}
-                            title={value}
+                            title={typeof tip === 'object' ? null : tip}
                             className={column.hideSmall?'media-small-hide':null}>{value}</TableRowColumn>
                     })}
                 </TableRow>

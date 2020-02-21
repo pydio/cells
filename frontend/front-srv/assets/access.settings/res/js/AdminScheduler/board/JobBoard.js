@@ -168,7 +168,7 @@ class JobBoard extends React.Component {
     render(){
 
         const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
-        const {selectedRows, working, mode, taskLogs, create, job, showAll} = this.state;
+        const {selectedRows, working, mode, taskLogs, create, job} = this.state;
 
         if(!job){
             return null;
@@ -266,11 +266,6 @@ class JobBoard extends React.Component {
         let running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
         running = this.insertTaskLogRow(running);
         let other = tasks.filter((t) => {return runningStatus.indexOf(t.Status) === -1});
-        let more;
-        if(!showAll && other.length > 10) {
-            more = other.length - 10;
-            other = other.slice(0, 10);
-        }
         other = this.insertTaskLogRow(other);
 
         return (
@@ -334,7 +329,6 @@ class JobBoard extends React.Component {
                                 paginate={[10, 25, 50, 100]}
                                 defaultPageSize={10}
                             />
-                            {more  && <div onClick={()=>{this.setState({showAll:true})}} style={{cursor: 'pointer', textDecoration:'underline', padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
                         </Paper>
                     </div>
                     }

@@ -272,7 +272,6 @@ var JobBoard = (function (_React$Component) {
             var taskLogs = _state3.taskLogs;
             var create = _state3.create;
             var job = _state3.job;
-            var showAll = _state3.showAll;
 
             if (!job) {
                 return null;
@@ -396,11 +395,6 @@ var JobBoard = (function (_React$Component) {
             var other = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) === -1;
             });
-            var more = undefined;
-            if (!showAll && other.length > 10) {
-                more = other.length - 10;
-                other = other.slice(0, 10);
-            }
             other = this.insertTaskLogRow(other);
 
             return _react2['default'].createElement(
@@ -491,14 +485,7 @@ var JobBoard = (function (_React$Component) {
                                 masterStyles: adminStyles.body.tableMaster,
                                 paginate: [10, 25, 50, 100],
                                 defaultPageSize: 10
-                            }),
-                            more && _react2['default'].createElement(
-                                'div',
-                                { onClick: function () {
-                                        _this5.setState({ showAll: true });
-                                    }, style: { cursor: 'pointer', textDecoration: 'underline', padding: 20, borderTop: '1px solid #eee' } },
-                                m('tasks.history.more').replace('%s', more)
-                            )
+                            })
                         )
                     )
                 )

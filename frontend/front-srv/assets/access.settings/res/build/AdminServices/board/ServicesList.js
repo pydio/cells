@@ -233,10 +233,14 @@ exports['default'] = _react2['default'].createClass({
                 var tableData = [];
                 var tableColumns = [{ name: 'Status', label: '', style: { width: 56, paddingLeft: 12, paddingRight: 12, textOverflow: 'inherit' }, headerStyle: { width: 56 }, renderCell: function renderCell(service) {
                         var iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+                        var text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
                         if (service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats")) {
                             iconColor = '#9E9E9E';
                         }
-                        return _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor });
+                        return {
+                            element: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor }),
+                            text: text
+                        };
                     } }, { name: 'Name', label: m2('name'), style: { paddingLeft: 0 }, headerStyle: { paddingLeft: 0 } }, { name: 'Description', label: m2('description'), style: { width: '40%' }, headerStyle: { width: '40%' }, hideSmall: true }, { name: 'Version', label: m2('version'), style: { width: 80 }, headerStyle: { width: 80 }, hideSmall: true }, { name: 'Type', label: m2('tag'), style: { width: 140 }, headerStyle: { width: 140 }, hideSmall: true, renderCell: function renderCell(service) {
                         var isGrpc = service.Name.startsWith('pydio.grpc.');
                         var legend = isGrpc ? "Grpc" : "Rest";

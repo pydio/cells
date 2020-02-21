@@ -189,10 +189,14 @@ export default React.createClass({
             const tableColumns = [
                 {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12, textOverflow:'inherit'}, headerStyle:{width:56}, renderCell: (service) =>{
                     let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+                    let text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
                     if( service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats") ){
                         iconColor = '#9E9E9E';
                     }
-                    return <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
+                    return {
+                        element:<FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>,
+                        text,
+                    }
                 }},
                 {name:'Name', label: m2('name'), style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
                 {name:'Description', label: m2('description'), style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},

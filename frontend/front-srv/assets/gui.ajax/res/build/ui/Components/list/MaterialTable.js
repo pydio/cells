@@ -231,16 +231,22 @@ var MaterialTable = (function (_React$Component) {
                 { selectable: onSelectRows !== undefined, style: _extends({}, rowStyle, masterStyles.row) },
                 columns.map(function (column) {
                     var value = model[column.name];
+                    var tip = value;
                     if (column.useMoment && value) {
                         value = moment(new Date(parseInt(value) * 1000)).fromNow();
+                        tip = value;
                     } else if (column.renderCell) {
                         value = column.renderCell(model);
+                        if (typeof value === 'object' && value.element && value.text) {
+                            tip = value.text;
+                            value = value.element;
+                        }
                     }
                     return _react2['default'].createElement(
                         _materialUi.TableRowColumn,
                         {
                             style: column.style || {},
-                            title: value,
+                            title: typeof tip === 'object' ? null : tip,
                             className: column.hideSmall ? 'media-small-hide' : null },
                         value
                     );
