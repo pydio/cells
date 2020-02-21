@@ -86,9 +86,21 @@ var Entries = (function (_React$Component) {
         if (entries.length <= pageSize) {
             return { use: false };
         }
-        var _state$page = this.state.page;
-        var page = _state$page === undefined ? 1 : _state$page;
+        var page = this.state.page;
+        var activeWorkspace = this.props.activeWorkspace;
 
+        if (!page) {
+            page = 1;
+            if (activeWorkspace) {
+                var wsIndex = entries.map(function (ws) {
+                    return ws.getId();
+                }).indexOf(activeWorkspace);
+                if (wsIndex > -1) {
+                    // Select page that shows active workspace
+                    page = Math.floor(wsIndex / pageSize) + 1;
+                }
+            }
+        }
         var max = Math.ceil(entries.length / pageSize);
         var sliceStart = (page - 1) * pageSize;
         var sliceEnd = Math.min(page * pageSize, entries.length);
@@ -149,7 +161,7 @@ var Entries = (function (_React$Component) {
         var titleStyle = _props.titleStyle;
         var pydio = _props.pydio;
         var createAction = _props.createAction;
-        var showTreeForWorkspace = _props.showTreeForWorkspace;
+        var activeWorkspace = _props.activeWorkspace;
         var palette = _props.palette;
         var buttonStyles = _props.buttonStyles;
         var emptyState = _props.emptyState;
@@ -170,6 +182,11 @@ var Entries = (function (_React$Component) {
         if (pagination.use) {
             wss = wss.slice(pagination.sliceStart, pagination.sliceEnd);
         }
+        var uniqueResult = undefined;
+        if (toggleFilter && filterValue && wss.length === 1 && wss[0].getId() !== activeWorkspace) {
+            uniqueResult = wss[0];
+        }
+        console.log(uniqueResult);
 
         return _react2['default'].createElement(
             'div',
@@ -194,7 +211,7 @@ var Entries = (function (_React$Component) {
                     focusOnMount: true,
                     fullWidth: true,
                     style: { marginTop: -16, marginBottom: -16, top: -1 },
-                    hintText: messages['cells.quick-filter'],
+                    hintText: filterHint,
                     hintStyle: { fontWeight: 400 },
                     inputStyle: { fontWeight: 400, color: palette.primary1Color },
                     value: filterValue,
@@ -205,8 +222,19 @@ var Entries = (function (_React$Component) {
                         setTimeout(function () {
                             if (!filterValue) _this2.setState({ toggleFilter: false });
                         }, 150);
+                    },
+                    onKeyPress: function (ev) {
+                        if (ev.key === 'Enter' && uniqueResult) {
+                            pydio.triggerRepositoryChange(uniqueResult.getId());
+                            _this2.setState({ filterValue: '', toggleFilter: false });
+                        }
                     }
                 }),
+                uniqueResult && _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, buttonStyles.button, { right: 28, lineHeight: '24px', fontSize: 20, opacity: 0.5 }) },
+                    _react2['default'].createElement('span', { className: "mdi mdi-keyboard-return" })
+                ),
                 _react2['default'].createElement(_materialUi.IconButton, {
                     key: "close-filter",
                     iconClassName: "mdi mdi-close",
@@ -221,11 +249,12 @@ var Entries = (function (_React$Component) {
                 'div',
                 { className: "workspaces" },
                 wss.map(function (ws) {
-                    return _react2['default'].createElement(_WorkspaceEntry2['default'], _extends({}, _this2.props, {
+                    return _react2['default'].createElement(_WorkspaceEntry2['default'], {
+                        pydio: pydio,
                         key: ws.getId(),
                         workspace: ws,
-                        showFoldersTree: showTreeForWorkspace && showTreeForWorkspace === ws.getId()
-                    }));
+                        showFoldersTree: activeWorkspace && activeWorkspace === ws.getId()
+                    });
                 }),
                 !entries.length && emptyState,
                 pagination.use && this.renderPagination(pagination)
@@ -254,7 +283,7 @@ var WorkspacesList = (function (_React$Component2) {
     WorkspacesList.stateFromPydio = function stateFromPydio(pydio) {
         return {
             workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
-            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false,
+            activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
     };
@@ -277,7 +306,7 @@ var WorkspacesList = (function (_React$Component2) {
         var createAction = undefined;
         var _state2 = this.state;
         var workspaces = _state2.workspaces;
-        var showTreeForWorkspace = _state2.showTreeForWorkspace;
+        var activeWorkspace = _state2.activeWorkspace;
         var _props2 = this.props;
         var pydio = _props2.pydio;
         var className = _props2.className;
@@ -293,7 +322,12 @@ var WorkspacesList = (function (_React$Component2) {
             return !_pydioModelRepository2['default'].isInternal(ws.getId());
         });
         wsList.sort(function (oA, oB) {
-            return oA.getLabel().localeCompare(oB.getLabel(), undefined, { numeric: true });
+            var res = oA.getLabel().localeCompare(oB.getLabel(), undefined, { numeric: true });
+            if (res === 0) {
+                return oA.getSlug().localeCompare(oB.getSlug());
+            } else {
+                return res;
+            }
         });
         var entries = wsList.filter(function (ws) {
             return !ws.getOwner();
@@ -376,7 +410,7 @@ var WorkspacesList = (function (_React$Component2) {
                 filterHint: messages['ws.quick-filter'],
                 titleStyle: _extends({}, sectionTitleStyle, { marginTop: 5, position: 'relative', overflow: 'visible', transition: 'none' }),
                 pydio: pydio,
-                showTreeForWorkspace: showTreeForWorkspace,
+                activeWorkspace: activeWorkspace,
                 palette: muiTheme.palette,
                 buttonStyles: buttonStyles
             }),
@@ -387,7 +421,7 @@ var WorkspacesList = (function (_React$Component2) {
                 titleStyle: _extends({}, sectionTitleStyle, { position: 'relative', overflow: 'visible', transition: 'none' }),
                 pydio: pydio,
                 createAction: createAction,
-                showTreeForWorkspace: showTreeForWorkspace,
+                activeWorkspace: activeWorkspace,
                 palette: muiTheme.palette,
                 buttonStyles: buttonStyles,
                 emptyState: _react2['default'].createElement(
@@ -411,7 +445,6 @@ var WorkspacesList = (function (_React$Component2) {
 WorkspacesList.PropTypes = {
     pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
     workspaces: _react2['default'].PropTypes.instanceOf(Map),
-    showTreeForWorkspace: _react2['default'].PropTypes.string,
     onHoverLink: _react2['default'].PropTypes.func,
     onOutLink: _react2['default'].PropTypes.func,
     className: _react2['default'].PropTypes.string,

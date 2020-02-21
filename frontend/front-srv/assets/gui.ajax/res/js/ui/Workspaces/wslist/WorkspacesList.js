@@ -46,7 +46,18 @@ class Entries extends React.Component{
         if (entries.length <= pageSize) {
             return {use: false}
         }
-        const {page = 1} = this.state;
+        let {page} = this.state;
+        const {activeWorkspace} = this.props;
+        if(!page) {
+            page = 1;
+            if(activeWorkspace){
+                const wsIndex = entries.map(ws => ws.getId()).indexOf(activeWorkspace);
+                if(wsIndex > -1) {
+                    // Select page that shows active workspace
+                    page = Math.floor(wsIndex / pageSize) + 1;
+                }
+            }
+        }
         const max = Math.ceil(entries.length / pageSize);
         const sliceStart = (page - 1) * pageSize;
         const sliceEnd = Math.min((page) * pageSize, entries.length);
@@ -80,7 +91,7 @@ class Entries extends React.Component{
 
 
     render(){
-        const {title, entries, filterHint, titleStyle, pydio, createAction, showTreeForWorkspace, palette, buttonStyles, emptyState} = this.props;
+        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState} = this.props;
         const {toggleFilter, filterValue} = this.state;
         const messages = pydio.MessageHash;
 
@@ -91,6 +102,11 @@ class Entries extends React.Component{
         if(pagination.use){
             wss = wss.slice(pagination.sliceStart, pagination.sliceEnd);
         }
+        let uniqueResult;
+        if(toggleFilter && filterValue && wss.length === 1 && wss[0].getId() !== activeWorkspace){
+            uniqueResult = wss[0];
+        }
+        console.log(uniqueResult);
 
         return (
             <div>
@@ -109,13 +125,24 @@ class Entries extends React.Component{
                             focusOnMount={true}
                             fullWidth={true}
                             style={{marginTop: -16, marginBottom: -16, top: -1}}
-                            hintText={messages['cells.quick-filter']}
+                            hintText={filterHint}
                             hintStyle={{fontWeight: 400}}
                             inputStyle={{fontWeight: 400, color:palette.primary1Color}}
                             value={filterValue}
                             onChange={(e,v) => {this.setState({filterValue:v})}}
                             onBlur={()=>{setTimeout(()=>{if(!filterValue) this.setState({toggleFilter:false})}, 150)}}
+                            onKeyPress={(ev) =>  {
+                                if(ev.key === 'Enter' && uniqueResult){
+                                    pydio.triggerRepositoryChange(uniqueResult.getId());
+                                    this.setState({filterValue:'', toggleFilter: false});
+                                }
+                            }}
                         />
+                        {uniqueResult &&
+                            <div style={{...buttonStyles.button, right: 28, lineHeight:'24px', fontSize:20, opacity: 0.5}}>
+                                <span className={"mdi mdi-keyboard-return"}/>
+                            </div>
+                        }
                         <IconButton
                             key={"close-filter"}
                             iconClassName={"mdi mdi-close"}
@@ -128,10 +155,10 @@ class Entries extends React.Component{
                 <div className={"workspaces"}>
                     {wss.map((ws) => (
                         <WorkspaceEntry
-                            {...this.props}
+                            pydio={pydio}
                             key={ws.getId()}
                             workspace={ws}
-                            showFoldersTree={showTreeForWorkspace && showTreeForWorkspace===ws.getId()}
+                            showFoldersTree={activeWorkspace && activeWorkspace===ws.getId()}
                         />
                     ))}
                     {!entries.length && emptyState}
@@ -157,7 +184,7 @@ class WorkspacesList extends React.Component{
     static stateFromPydio(pydio){
         return {
             workspaces : pydio.user ? pydio.user.getRepositoriesList() : [],
-            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false,
+            activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
     }
@@ -176,7 +203,7 @@ class WorkspacesList extends React.Component{
 
     render(){
         let createAction;
-        const {workspaces,showTreeForWorkspace} = this.state;
+        const {workspaces,activeWorkspace} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle} = this.props;
 
         // Split Workspaces from Cells
@@ -184,7 +211,12 @@ class WorkspacesList extends React.Component{
         workspaces.forEach(o => wsList.push(o));
         wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
         wsList.sort((oA, oB) => {
-            return oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
+            const res = oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
+            if (res === 0) {
+                return oA.getSlug().localeCompare(oB.getSlug());
+            } else {
+                return res;
+            }
         });
         let entries = wsList.filter(ws => !ws.getOwner());
         let sharedEntries = wsList.filter(ws => ws.getOwner());
@@ -255,7 +287,7 @@ class WorkspacesList extends React.Component{
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
                         pydio={pydio}
-                        showTreeForWorkspace={showTreeForWorkspace}
+                        activeWorkspace={activeWorkspace}
                         palette={muiTheme.palette}
                         buttonStyles={buttonStyles}
                     />
@@ -267,7 +299,7 @@ class WorkspacesList extends React.Component{
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
                     pydio={pydio}
                     createAction={createAction}
-                    showTreeForWorkspace={showTreeForWorkspace}
+                    activeWorkspace={activeWorkspace}
                     palette={muiTheme.palette}
                     buttonStyles={buttonStyles}
                     emptyState={
@@ -286,7 +318,6 @@ class WorkspacesList extends React.Component{
 WorkspacesList.PropTypes =   {
     pydio                   : React.PropTypes.instanceOf(Pydio),
     workspaces              : React.PropTypes.instanceOf(Map),
-    showTreeForWorkspace    : React.PropTypes.string,
     onHoverLink             : React.PropTypes.func,
     onOutLink               : React.PropTypes.func,
     className               : React.PropTypes.string,
