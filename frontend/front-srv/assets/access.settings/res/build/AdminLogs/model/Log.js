@@ -86,6 +86,14 @@ var Log = (function (_Observable) {
 
             return arr.join(' ');
         }
+    }, {
+        key: "buildTsQuery",
+        value: function buildTsQuery(timestamp, minutesWindow) {
+            var arr = [];
+            arr.push('+Ts:>' + (timestamp - minutesWindow * 60));
+            arr.push('+Ts:<' + (timestamp + minutesWindow * 60));
+            return arr.join(' ');
+        }
 
         /**
          *

@@ -53,9 +53,9 @@ var _LogTools = require('./LogTools');
 
 var _LogTools2 = _interopRequireDefault(_LogTools);
 
-var _LogDetail = require('./LogDetail');
+var _modelLog = require('../model/Log');
 
-var _LogDetail2 = _interopRequireDefault(_LogDetail);
+var _modelLog2 = _interopRequireDefault(_modelLog);
 
 var LogBoard = (function (_React$Component) {
     _inherits(LogBoard, _React$Component);
@@ -102,6 +102,16 @@ var LogBoard = (function (_React$Component) {
             this.setState({ page: this.state.page + 1 });
         }
     }, {
+        key: 'handleTimestampContext',
+        value: function handleTimestampContext(ts) {
+            if (ts) {
+                var q = _modelLog2['default'].buildTsQuery(ts, 5);
+                this.setState({ tmpQuery: q, focus: ts });
+            } else {
+                this.setState({ tmpQuery: null, focus: null });
+            }
+        }
+    }, {
         key: 'handleLoadingStatusChange',
         value: function handleLoadingStatusChange(status, resultsCount) {
             if (this.props.onLoadingStatusChange) {
@@ -123,39 +133,23 @@ var LogBoard = (function (_React$Component) {
             var disableExport = _props.disableExport;
             var currentNode = _props.currentNode;
             var _state = this.state;
-            var selectedLog = _state.selectedLog;
             var page = _state.page;
             var size = _state.size;
             var query = _state.query;
+            var tmpQuery = _state.tmpQuery;
+            var focus = _state.focus;
             var contentType = _state.contentType;
             var z = _state.z;
             var results = _state.results;
 
             var title = pydio.MessageHash["ajxp_admin.logs.1"];
-
-            var buttons = _react2['default'].createElement(_LogTools2['default'], { pydio: pydio, service: service, onStateChange: this.handleLogToolsChange.bind(this), disableExport: disableExport });
-
-            var navItems = [];
-            if (page > 0) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "prev",
-                    label: 'Previous',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-left' }),
-                    onTouchTap: function () {
-                        return _this.handleDecrPage();
-                    }
-                }));
-            }
-            if (results === size) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "next",
-                    label: 'Next',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-right' }),
-                    onTouchTap: function () {
-                        return _this.handleIncrPage();
-                    }
-                }));
-            }
+            var buttons = _react2['default'].createElement(_LogTools2['default'], {
+                pydio: pydio,
+                service: service,
+                focus: focus,
+                onStateChange: this.handleLogToolsChange.bind(this),
+                disableExport: disableExport
+            });
 
             var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
 
@@ -168,7 +162,7 @@ var LogBoard = (function (_React$Component) {
             var nextDisabled = results < size;
             var pageSizes = [50, 100, 500, 1000];
             var paginationProps = undefined;
-            if (!(prevDisabled && results < pageSizes[0])) {
+            if (!(prevDisabled && results < pageSizes[0]) && !focus) {
                 paginationProps = {
                     pageSizes: pageSizes, prevDisabled: prevDisabled, nextDisabled: nextDisabled,
                     onPageNext: this.handleIncrPage.bind(this),
@@ -182,35 +176,17 @@ var LogBoard = (function (_React$Component) {
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
                 _extends({}, blockProps, { style: blockStyle }),
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        modal: false,
-                        open: !!selectedLog,
-                        onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        },
-                        style: { padding: 0 },
-                        contentStyle: { maxWidth: 420 },
-                        bodyStyle: { padding: 0 },
-                        autoScrollBodyContent: true
-                    },
-                    selectedLog && _react2['default'].createElement(_LogDetail2['default'], { log: selectedLog, pydio: pydio, onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        } })
-                ),
                 _react2['default'].createElement(_LogTable2['default'], _extends({
                     pydio: pydio,
                     service: service || 'syslog',
                     page: page,
                     size: size,
-                    query: query,
+                    query: tmpQuery ? tmpQuery : query,
+                    focus: focus,
                     contentType: contentType,
                     z: z,
                     onLoadingStatusChange: this.handleLoadingStatusChange.bind(this),
-                    onSelectLog: function (log) {
-                        _this.setState({ selectedLog: log });
-                    }
+                    onTimestampContext: this.handleTimestampContext.bind(this)
                 }, paginationProps))
             );
 

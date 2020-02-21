@@ -25,6 +25,7 @@ import Log from '../model/Log'
 import {RaisedButton, DatePicker, TimePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {moment} = Pydio.requireLib('boot');
 
 class LogTools extends React.Component{
 
@@ -129,15 +130,29 @@ class LogTools extends React.Component{
     }
 
     render(){
-        const {pydio, disableExport, muiTheme} = this.props;
+        const {pydio, disableExport, muiTheme, focus} = this.props;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        const focusBadge = {
+            backgroundColor: '#FBE9E7',
+            height: 35,
+            lineHeight: '35px',
+            fontSize: 15,
+            padding: '0 10px',
+            marginRight: 5,
+            color: '#FF5722',
+            borderRadius: 3
+        };
 
-        const {filter, date, dateShow, endDate, endDateShow, filterMode, serviceFilter, serviceFilterShow, level, levelShow, userNameShow, remoteAddressShow, exportUrl, exportFilename, exportOnClick} = this.state;
+        const {filter, date, dateShow, endDate, endDateShow, serviceFilter, serviceFilterShow, level, levelShow, userName, userNameShow, remoteAddress, remoteAddressShow, exportUrl, exportFilename, exportOnClick} = this.state;
         const {MessageHash} = pydio;
-        const hasFilter = filter || date;
+        const hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
         const checkIcon = <FontIcon style={{top: 0}} className={"mdi mdi-check"}/>;
         return (
             <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
+
+                {focus &&
+                    <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date(focus*1000)).format('hh:mm:ss')}</div>
+                }
 
                 <div style={{marginRight: 5, width: 170}} >
                     <ModernTextField hintText={MessageHash["ajxp_admin.logs.3"]} onChange={(e, v) => this.handleFilterChange(v, 'filter')} fullWidth={true}/>

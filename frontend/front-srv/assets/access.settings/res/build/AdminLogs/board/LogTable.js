@@ -52,6 +52,10 @@ var _modelLog = require('../model/Log');
 
 var _modelLog2 = _interopRequireDefault(_modelLog);
 
+var _LogDetail = require('./LogDetail');
+
+var _LogDetail2 = _interopRequireDefault(_LogDetail);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
@@ -67,7 +71,7 @@ var LogTable = (function (_React$Component) {
         _classCallCheck(this, LogTable);
 
         _get(Object.getPrototypeOf(LogTable.prototype), 'constructor', this).call(this, props);
-        this.state = { logs: [], loading: false, rootSpans: {} };
+        this.state = { logs: [], loading: false, rootSpans: {}, selectedRows: [] };
     }
 
     _createClass(LogTable, [{
@@ -207,10 +211,12 @@ var LogTable = (function (_React$Component) {
             var _state2 = this.state;
             var loading = _state2.loading;
             var rootSpans = _state2.rootSpans;
+            var selectedRows = _state2.selectedRows;
             var _props2 = this.props;
             var pydio = _props2.pydio;
-            var onSelectLog = _props2.onSelectLog;
+            var onTimestampContext = _props2.onTimestampContext;
             var query = _props2.query;
+            var focus = _props2.focus;
             var _props3 = this.props;
             var _onPageNext = _props3.onPageNext;
             var _onPagePrev = _props3.onPagePrev;
@@ -222,6 +228,30 @@ var LogTable = (function (_React$Component) {
             var pageSizes = _props3.pageSizes;
 
             var logs = this.openSpans();
+            if (selectedRows.length) {
+                (function () {
+                    var expStyle = { paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10 };
+                    var first = JSON.stringify(selectedRows[0]);
+                    logs = logs.map(function (log) {
+                        if (JSON.stringify(log) === first) {
+                            return _extends({}, log, {
+                                expandedRow: _react2['default'].createElement(_LogDetail2['default'], {
+                                    style: expStyle,
+                                    userDisplay: "inline",
+                                    pydio: pydio,
+                                    log: log,
+                                    focus: focus,
+                                    onSelectPeriod: onTimestampContext,
+                                    onRequestClose: function () {
+                                        return _this2.setState({ selectedRows: [] });
+                                    }
+                                }) });
+                        } else {
+                            return log;
+                        }
+                    });
+                })();
+            }
             var MessageHash = pydio.MessageHash;
 
             var columns = [{
@@ -302,8 +332,9 @@ var LogTable = (function (_React$Component) {
                 data: logs,
                 columns: columns,
                 onSelectRows: function (rows) {
-                    if (rows.length && onSelectLog) {
-                        onSelectLog(rows[0]);
+                    _this2.setState({ selectedRows: rows });
+                    if (_this2.props.onTimestampContext) {
+                        _this2.props.onTimestampContext(null);
                     }
                 },
                 deselectOnClickAway: true,

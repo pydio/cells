@@ -64,6 +64,10 @@ var ModernTextField = _Pydio$requireLib.ModernTextField;
 var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 var ModernStyles = _Pydio$requireLib.ModernStyles;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib2.moment;
+
 var LogTools = (function (_React$Component) {
     _inherits(LogTools, _React$Component);
 
@@ -210,8 +214,19 @@ var LogTools = (function (_React$Component) {
             var pydio = _props.pydio;
             var disableExport = _props.disableExport;
             var muiTheme = _props.muiTheme;
+            var focus = _props.focus;
 
             var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+            var focusBadge = {
+                backgroundColor: '#FBE9E7',
+                height: 35,
+                lineHeight: '35px',
+                fontSize: 15,
+                padding: '0 10px',
+                marginRight: 5,
+                color: '#FF5722',
+                borderRadius: 3
+            };
 
             var _state4 = this.state;
             var filter = _state4.filter;
@@ -219,23 +234,30 @@ var LogTools = (function (_React$Component) {
             var dateShow = _state4.dateShow;
             var endDate = _state4.endDate;
             var endDateShow = _state4.endDateShow;
-            var filterMode = _state4.filterMode;
             var serviceFilter = _state4.serviceFilter;
             var serviceFilterShow = _state4.serviceFilterShow;
             var level = _state4.level;
             var levelShow = _state4.levelShow;
+            var userName = _state4.userName;
             var userNameShow = _state4.userNameShow;
+            var remoteAddress = _state4.remoteAddress;
             var remoteAddressShow = _state4.remoteAddressShow;
             var exportUrl = _state4.exportUrl;
             var exportFilename = _state4.exportFilename;
             var exportOnClick = _state4.exportOnClick;
             var MessageHash = pydio.MessageHash;
 
-            var hasFilter = filter || date;
+            var hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
             var checkIcon = _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-check" });
             return _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 } },
+                focus && _react2['default'].createElement(
+                    'div',
+                    { style: focusBadge },
+                    'Focus on +/- 5 minutes at ',
+                    moment(new Date(focus * 1000)).format('hh:mm:ss')
+                ),
                 _react2['default'].createElement(
                     'div',
                     { style: { marginRight: 5, width: 170 } },

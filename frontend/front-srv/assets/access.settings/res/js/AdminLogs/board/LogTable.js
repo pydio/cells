@@ -23,13 +23,14 @@ import Pydio from 'pydio'
 import {Paper, FontIcon, IconButton} from 'material-ui'
 const {MaterialTable} = Pydio.requireLib('components');
 import Log from '../model/Log'
+import LogDetail from './LogDetail'
 const {moment} = Pydio.requireLib('boot');
 
 class LogTable extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {logs: [], loading: false, rootSpans:{}};
+        this.state = {logs: [], loading: false, rootSpans:{}, selectedRows: []};
     }
 
     initRootSpans(logs){
@@ -136,10 +137,33 @@ class LogTable extends React.Component {
     }
 
     render(){
-        const {loading, rootSpans} = this.state;
-        const {pydio, onSelectLog, query} = this.props;
+        const {loading, rootSpans, selectedRows} = this.state;
+        const {pydio, onTimestampContext, query, focus} = this.props;
         const {onPageNext, onPagePrev, nextDisabled, prevDisabled, onPageSizeChange, page, size, pageSizes} = this.props;
-        const logs = this.openSpans();
+        let logs = this.openSpans();
+        if(selectedRows.length){
+            const expStyle = {paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10};
+            const first = JSON.stringify(selectedRows[0]);
+            logs = logs.map(log => {
+                if(JSON.stringify(log) === first){
+                    return {
+                        ...log,
+                        expandedRow:(
+                            <LogDetail
+                                style={expStyle}
+                                userDisplay={"inline"}
+                                pydio={pydio}
+                                log={log}
+                                focus={focus}
+                                onSelectPeriod={onTimestampContext}
+                                onRequestClose={()=> this.setState({selectedRows:[]})}
+                            />
+                        )}
+                } else {
+                    return log;
+                }
+            })
+        }
         const {MessageHash} = pydio;
 
         const columns = [
@@ -208,7 +232,12 @@ class LogTable extends React.Component {
             <MaterialTable
                 data={logs}
                 columns={columns}
-                onSelectRows={(rows) => {if(rows.length && onSelectLog){onSelectLog(rows[0])}}}
+                onSelectRows={(rows) => {
+                    this.setState({selectedRows: rows});
+                    if(this.props.onTimestampContext){
+                        this.props.onTimestampContext(null);
+                    }
+                }}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
                 emptyStateString={loading ? MessageHash['settings.33']: (query) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}

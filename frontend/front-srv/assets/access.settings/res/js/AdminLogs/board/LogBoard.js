@@ -18,11 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {Dialog, TextField, RaisedButton, FlatButton, Paper, DatePicker, FontIcon, BottomNavigation, BottomNavigationItem} from 'material-ui'
+import {Paper, FontIcon} from 'material-ui'
 import PydioDataModel from 'pydio/model/data-model'
 import LogTable from './LogTable';
 import LogTools from './LogTools'
-import LogDetail from './LogDetail'
+import Log from '../model/Log'
 
 class LogBoard extends React.Component {
 
@@ -60,6 +60,15 @@ class LogBoard extends React.Component {
         this.setState({page: this.state.page + 1})
     }
 
+    handleTimestampContext(ts) {
+        if(ts){
+            const q = Log.buildTsQuery(ts, 5);
+            this.setState({tmpQuery: q, focus: ts});
+        } else {
+            this.setState({tmpQuery: null, focus: null});
+        }
+    }
+
     handleLoadingStatusChange(status, resultsCount){
         if(this.props.onLoadingStatusChange){
             this.props.onLoadingStatusChange(status);
@@ -71,33 +80,17 @@ class LogBoard extends React.Component {
 
     render(){
         const {pydio, noHeader, service, disableExport, currentNode} = this.props;
-        const {selectedLog, page, size, query, contentType, z, results} = this.state;
-
+        const {page, size, query, tmpQuery, focus, contentType, z, results} = this.state;
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
-
-        const buttons = <LogTools pydio={pydio} service={service} onStateChange={this.handleLogToolsChange.bind(this)} disableExport={disableExport}/>;
-
-        let navItems = [];
-        if(page > 0) {
-            navItems.push(
-                <BottomNavigationItem
-                    key={"prev"}
-                    label="Previous"
-                    icon={<FontIcon className="mdi mdi-chevron-left" />}
-                    onTouchTap={() => this.handleDecrPage()}
-                />
-            );
-        }
-        if(results === size){
-            navItems.push(
-                <BottomNavigationItem
-                    key={"next"}
-                    label="Next"
-                    icon={<FontIcon className="mdi mdi-chevron-right" />}
-                    onTouchTap={() => this.handleIncrPage()}
-                />
-            )
-        }
+        const buttons = (
+            <LogTools
+                pydio={pydio}
+                service={service}
+                focus={focus}
+                onStateChange={this.handleLogToolsChange.bind(this)}
+                disableExport={disableExport}
+            />
+        );
 
         const {body} = AdminComponents.AdminStyles();
         const blockProps = body.block.props;
@@ -107,7 +100,7 @@ class LogBoard extends React.Component {
         const nextDisabled = results < size;
         const pageSizes = [50, 100, 500, 1000];
         let paginationProps;
-        if(!(prevDisabled && results < pageSizes[0])){
+        if(!(prevDisabled && results < pageSizes[0]) && !focus){
             paginationProps = {
                 pageSizes, prevDisabled, nextDisabled,
                 onPageNext: this.handleIncrPage.bind(this),
@@ -118,25 +111,17 @@ class LogBoard extends React.Component {
 
         const mainContent = (
             <Paper {...blockProps} style={blockStyle}>
-                <Dialog
-                    modal={false}
-                    open={!!selectedLog}
-                    onRequestClose={() => {this.setState({selectedLog: null})}}
-                    style={{padding: 0}}
-                    contentStyle={{maxWidth: 420}}
-                    bodyStyle={{padding: 0}}
-                    autoScrollBodyContent={true}
-                >{selectedLog && <LogDetail log={selectedLog} pydio={pydio} onRequestClose={() => {this.setState({selectedLog: null})}}/>}</Dialog>
                 <LogTable
                     pydio={pydio}
                     service={service || 'syslog'}
                     page={page}
                     size={size}
-                    query={query}
+                    query={tmpQuery ? tmpQuery:query}
+                    focus={focus}
                     contentType={contentType}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
-                    onSelectLog={(log) => {this.setState({selectedLog: log})}}
+                    onTimestampContext={this.handleTimestampContext.bind(this)}
                     {...paginationProps}
                 />
             </Paper>

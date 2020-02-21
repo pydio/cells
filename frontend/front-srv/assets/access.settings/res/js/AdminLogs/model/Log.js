@@ -53,6 +53,13 @@ class Log extends Observable{
 
     }
 
+    static buildTsQuery(timestamp, minutesWindow){
+        let arr = [];
+        arr.push('+Ts:>' + (timestamp - (minutesWindow*60)));
+        arr.push('+Ts:<' + (timestamp + (minutesWindow*60)));
+        return arr.join(' ');
+    }
+
     /**
      *
      * @param serviceName string syslog or audit
