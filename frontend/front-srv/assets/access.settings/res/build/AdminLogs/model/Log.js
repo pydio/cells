@@ -43,21 +43,33 @@ var Log = (function (_Observable) {
         /**
          * Build Bleve Query based on filter and date
          * @param filter {string}
+         * @param serviceFilter {string}
+         * @param level {string}
+         * @param remoteAddress {string}
+         * @param userName {string}
          * @param date {Date}
          * @param endDate {Date}
          * @return {string}
          */
-        value: function buildQuery(filter, date) {
-            var endDate = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+        value: function buildQuery(filter, serviceFilter, level, remoteAddress, userName, date) {
+            var endDate = arguments.length <= 6 || arguments[6] === undefined ? undefined : arguments[6];
 
             var arr = [];
 
             if (filter) {
-                arr.push('Msg:*' + filter + '*');
-                arr.push('RemoteAddress:*' + filter + '*');
-                arr.push('Level:*' + filter + '*');
-                arr.push('UserName:*' + filter + '*');
-                arr.push('Logger:*' + filter + '*');
+                arr.push('+Msg:"*' + filter + '*"');
+            }
+            if (serviceFilter) {
+                arr.push('+Logger:*' + serviceFilter + '*');
+            }
+            if (level) {
+                arr.push('+Level:' + level);
+            }
+            if (remoteAddress) {
+                arr.push('+RemoteAddress:*' + remoteAddress + '*');
+            }
+            if (userName) {
+                arr.push('+UserName:*' + userName + '*');
             }
 
             if (date) {

@@ -144,7 +144,7 @@ var JobBoard = (function (_React$Component) {
 
             if (mode === 'selection') {
                 this.setState({ selectedRows: rows });
-            } else if (rows.length === 1 && !rows[0].colSpan) {
+            } else if (rows.length === 1) {
                 this.setState({ taskLogs: rows[0] });
             }
         }
@@ -230,30 +230,27 @@ var JobBoard = (function (_React$Component) {
             var job = _state2.job;
             var descriptions = _state2.descriptions;
             var taskLogs = _state2.taskLogs;
+            var mode = _state2.mode;
 
-            if (!taskLogs) {
+            if (mode === 'selection') {
                 return rows;
             }
-            var insert = [];
-            rows.forEach(function (t) {
-                insert.push(t);
-                if (t.ID === taskLogs.ID) {
-                    insert.push({
-                        colSpan: true,
-                        rowStyle: { borderLeft: '2px solid #1e96f3' },
-                        element: _react2['default'].createElement(_TaskActivity2['default'], {
-                            pydio: pydio,
-                            task: taskLogs,
-                            job: job,
-                            descriptions: descriptions,
-                            onRequestClose: function () {
-                                return _this4.setState({ taskLogs: null });
-                            }
-                        })
+            return rows.map(function (t) {
+                if (taskLogs && t.ID === taskLogs.ID) {
+                    var expandedRow = _react2['default'].createElement(_TaskActivity2['default'], {
+                        pydio: pydio,
+                        task: taskLogs,
+                        job: job,
+                        descriptions: descriptions,
+                        onRequestClose: function () {
+                            _this4.setState({ taskLogs: null });
+                        }
                     });
+                    return _extends({}, t, { expandedRow: expandedRow });
+                } else {
+                    return t;
                 }
             });
-            return insert;
         }
     }, {
         key: 'render',
@@ -269,7 +266,6 @@ var JobBoard = (function (_React$Component) {
             var selectedRows = _state3.selectedRows;
             var working = _state3.working;
             var mode = _state3.mode;
-            var taskLogs = _state3.taskLogs;
             var create = _state3.create;
             var job = _state3.job;
 
@@ -340,16 +336,6 @@ var JobBoard = (function (_React$Component) {
                     }
                     return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's';
                 } }, { name: 'Actions', label: actionsHeader, style: { textAlign: 'right', width: 120, paddingLeft: 0 }, headerStyle: { width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
-            var computeRowStyle = function computeRowStyle(row) {
-                if (taskLogs && taskLogs.ID === row.ID) {
-                    return {
-                        backgroundColor: '#e0e0e0',
-                        fontWeight: 500,
-                        borderLeft: '2px solid #1e96f3'
-                    };
-                }
-                return null;
-            };
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -481,7 +467,6 @@ var JobBoard = (function (_React$Component) {
                                 emptyStateString: m('tasks.history.empty'),
                                 selectedRows: selectedRows,
                                 deselectOnClickAway: true,
-                                computeRowStyle: computeRowStyle,
                                 masterStyles: adminStyles.body.tableMaster,
                                 paginate: [10, 25, 50, 100],
                                 defaultPageSize: 10

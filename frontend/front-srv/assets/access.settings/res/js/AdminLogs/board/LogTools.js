@@ -22,9 +22,9 @@ import Pydio from 'pydio'
 import React from 'react'
 import debounce from 'lodash.debounce'
 import Log from '../model/Log'
-import {RaisedButton, TextField, DatePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
+import {RaisedButton, DatePicker, TimePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
-const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 
 class LogTools extends React.Component{
 
@@ -32,41 +32,70 @@ class LogTools extends React.Component{
         super(props);
         this.state = {
             filter: "",
-            filterMode: "fulltext"
+            filterMode: "fulltext",
+            levelShow:false,
+            serviceFilterShow: false,
         };
-
-        this.handleFilterChange = debounce(this.handleFilterChange.bind(this), 250);
-        this.handleDateChange = debounce(this.handleDateChange.bind(this), 250);
-
+        this.publishStateChange = debounce(this.publishStateChange.bind(this), 250);
     }
+
 
     publishStateChange(){
-        this.props.onStateChange(this.state);
+        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate} = this.state;
+        const query = Log.buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
+        this.props.onStateChange({query});
     }
 
-    handleFilterChange(val) {
-        this.setState({filter: val?val.toLowerCase():val, page: 0}, this.publishStateChange.bind(this))
+    handleToggleShow(field){
+        const fieldName = field + 'Show';
+        const crt = this.state[fieldName];
+        const s = {[fieldName]:!crt};
+        if(crt){
+           if(field === 'date' || field === 'endDate'){
+               s['date'] = null;
+               s['endDate'] = null;
+               s['dateShow'] = false;
+               s['endDateShow'] = false;
+           } else {
+               s[field] = null;
+           }
+           s['page'] = 0;
+        } else if(field === 'date' && this.state.endDateShow){
+            s['endDate'] = null;
+            s['endDateShow'] = false;
+        }
+        this.setState(s, this.publishStateChange.bind(this));
     }
 
-    handleDateChange(date) {
-        const {filterMode, endDate} = this.state;
-        if(filterMode === 'period' && !endDate && date !== undefined){
+    handleFilterChange(val, keyName) {
+        this.setState({[keyName]: val, page: 0}, this.publishStateChange.bind(this))
+    }
+
+    handleDateChange(date, time = null) {
+        if(time){
+            date.setHours(time.getHours(), time.getMinutes());
+        }
+        const {endDate, endDateShow} = this.state;
+        if(endDateShow && !endDate && date !== undefined){
             let end = new Date();
-            //end.setDate(end.getDate() + 1);
+            end.setHours(23, 59, 59);
             this.setState({endDate: end})
         }
         this.setState({date: date, page: 0}, this.publishStateChange.bind(this));
     }
 
-    handleEndDateChange(date) {
+    handleEndDateChange(date, time = null) {
+        if(time){
+            date.setHours(time.getHours(), time.getMinutes());
+        }
         this.setState({endDate: date, page: 0}, this.publishStateChange.bind(this));
     }
 
     handleExport(format) {
-        const {filter, date, endDate} = this.state;
+        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate} = this.state;
         const {service} = this.props;
         const dateString = (date? date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate() : '');
-        const query = Log.buildQuery(filter, date, endDate);
+        const query = Log.buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
         Log.downloadLogs(service || 'sys', query, format).then(blob => {
             const url = window.URL.createObjectURL(blob);
             let filename = 'cells-logs-';
@@ -99,41 +128,75 @@ class LogTools extends React.Component{
         });
     }
 
-    handleFilterMode(filterMode){
-        this.setState({filterMode: filterMode, date: undefined, filter: ''}, this.publishStateChange.bind(this));
-    }
-
     render(){
         const {pydio, disableExport, muiTheme} = this.props;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        const {filter, date, filterMode, exportUrl, exportFilename, exportOnClick} = this.state;
+        const {filter, date, dateShow, endDate, endDateShow, filterMode, serviceFilter, serviceFilterShow, level, levelShow, userNameShow, remoteAddressShow, exportUrl, exportFilename, exportOnClick} = this.state;
         const {MessageHash} = pydio;
         const hasFilter = filter || date;
         const checkIcon = <FontIcon style={{top: 0}} className={"mdi mdi-check"}/>;
         return (
-            <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                {filterMode === 'fulltext' &&
-                    <ModernTextField hintText={MessageHash["ajxp_admin.logs.3"]} onChange={(e) => this.handleFilterChange(e.target.value)} style={{margin: '0 5px', width: 180}} />
-                }
-                {filterMode === 'oneday' &&
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        <DatePicker hintText={MessageHash["ajxp_admin.logs.2"]} onChange={(e, date) => this.handleDateChange(date)}
-                                    autoOk={true} maxDate={new Date()} value={this.state.date}
-                                    showYearSelector={true} style={{width: 120}} textFieldStyle={{width: 120}} {...ModernStyles.textField}/>
-                        <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+            <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
+
+                <div style={{marginRight: 5, width: 170}} >
+                    <ModernTextField hintText={MessageHash["ajxp_admin.logs.3"]} onChange={(e, v) => this.handleFilterChange(v, 'filter')} fullWidth={true}/>
+                </div>
+
+                {levelShow &&
+                    <div style={{marginRight: 5, marginTop: -2, width: 100}}>
+                        <ModernSelectField hintText={"Level"} fullWidth={true} value={level}
+                                           onChange={(e, i, v) => this.handleFilterChange(v, 'level')}>
+                            <MenuItem primaryText={""}/>
+                            <MenuItem primaryText={"ERROR"} value={"ERROR"}/>
+                            <MenuItem primaryText={"INFO"} value={"INFO"}/>
+                            <MenuItem primaryText={"DEBUG"} value={"DEBUG"}/>
+                        </ModernSelectField>
                     </div>
                 }
-                {filterMode === 'period' &&
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        <DatePicker hintText={'From'} onChange={(e, date) => this.handleDateChange(date)}
-                                    autoOk={true} maxDate={new Date()} value={this.state.date}
-                                    showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                        <DatePicker hintText={'To'} onChange={(e, date) => this.handleEndDateChange(date)}
-                                    autoOk={true} minDate={this.state.date} maxDate={new Date()} value={this.state.endDate}
-                                    showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                        <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined); this.handleEndDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+
+                {serviceFilterShow &&
+                    <div style={{marginRight: 5, width: 80}} >
+                        <ModernTextField hintText={"Service"} fullWidth={true} value={serviceFilter} onChange={(e, v) => this.handleFilterChange(v, 'serviceFilter')} />
                     </div>
+                }
+
+                {remoteAddressShow &&
+                    <div style={{marginRight: 5, width: 80}} >
+                        <ModernTextField hintText={"IP"} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'remoteAddress')} />
+                    </div>
+                }
+
+                {userNameShow &&
+                    <div style={{marginRight: 5, width: 80}} >
+                        <ModernTextField hintText={"Login"} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'userName')} />
+                    </div>
+                }
+
+                {dateShow && !endDateShow &&
+                <div style={{display:'flex', alignItems:'center'}}>
+                    <DatePicker hintText={MessageHash["ajxp_admin.logs.2"]} onChange={(e, date) => this.handleDateChange(date)}
+                                autoOk={true} maxDate={new Date()} value={date}
+                                showYearSelector={true} style={{width: 120}} textFieldStyle={{width: 120}} {...ModernStyles.textField}/>
+                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+                </div>
+                }
+                {endDateShow &&
+                <div style={{display:'flex', alignItems:'center'}}>
+                    <DatePicker hintText={'From'} onChange={(e, date) => this.handleDateChange(date)}
+                                autoOk={true} maxDate={new Date()} value={date}
+                                showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
+                    <TimePicker hintText={'at...'} disabled={!date} onChange={(e, time) => this.handleDateChange(date, time)}
+                                autoOk={true} value={date}
+                                style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
+                    <DatePicker hintText={'To'} onChange={(e, date) => this.handleEndDateChange(date)}
+                                autoOk={true} minDate={this.state.date} maxDate={new Date()} value={endDate}
+                                showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
+                    <TimePicker hintText={'at...'} disabled={!endDate} onChange={(e, time) => this.handleEndDateChange(endDate, time)}
+                                autoOk={true} value={endDate}
+                                style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
+                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined); this.handleEndDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+                </div>
                 }
                 <IconMenu
                     iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} tooltip={MessageHash['ajxp_admin.logs.3']} {...adminStyles.props.header.iconButton}/>}
@@ -142,9 +205,12 @@ class LogTools extends React.Component{
                     desktop={true}
                 >
                     {<Subheader>{MessageHash['ajxp_admin.logs.filter.legend']}</Subheader>}
-                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.fulltext']} rightIcon={filterMode === 'fulltext' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('fulltext')}}/>
-                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={filterMode === 'oneday' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('oneday')}}/>
-                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={filterMode === 'period' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('period')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={dateShow && !endDateShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('date')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={endDateShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('endDate')}}/>
+                    <MenuItem primaryText={"Level"}  rightIcon={levelShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('level')}}/>
+                    <MenuItem primaryText={"Service"}  rightIcon={serviceFilterShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('serviceFilter')}}/>
+                    <MenuItem primaryText={"User Login"}  rightIcon={userNameShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('userName')}}/>
+                    <MenuItem primaryText={"IP"}  rightIcon={remoteAddressShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('remoteAddress')}}/>
                 </IconMenu>
 
                 {!disableExport &&

@@ -81,7 +81,7 @@ class JobBoard extends React.Component {
         const {mode} = this.state;
         if(mode === 'selection'){
             this.setState({selectedRows: rows});
-        } else if(rows.length === 1 && !rows[0].colSpan){
+        } else if(rows.length === 1){
             this.setState({taskLogs: rows[0]});
         }
     }
@@ -141,34 +141,30 @@ class JobBoard extends React.Component {
 
     insertTaskLogRow(rows){
         const {pydio} = this.props;
-        const {job, descriptions, taskLogs} = this.state;
-        if(!taskLogs){
+        const {job, descriptions, taskLogs, mode} = this.state;
+        if(mode === 'selection'){
             return rows;
         }
-        const insert = [];
-        rows.forEach((t) => {
-            insert.push(t);
-            if(t.ID === taskLogs.ID){
-                insert.push({
-                    colSpan: true,
-                    rowStyle: {borderLeft: '2px solid #1e96f3'},
-                    element: <TaskActivity
-                        pydio={pydio}
-                        task={taskLogs}
-                        job={job}
-                        descriptions={descriptions}
-                        onRequestClose={()=>this.setState({taskLogs: null})}
-                    />
-                })
+        return rows.map((t) => {
+            if(taskLogs && t.ID === taskLogs.ID){
+                const expandedRow = (<TaskActivity
+                    pydio={pydio}
+                    task={taskLogs}
+                    job={job}
+                    descriptions={descriptions}
+                    onRequestClose={()=>{this.setState({taskLogs: null})}}
+                />);
+                return {...t, expandedRow}
+            } else {
+                return t
             }
         });
-        return insert;
     }
 
     render(){
 
         const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
-        const {selectedRows, working, mode, taskLogs, create, job} = this.state;
+        const {selectedRows, working, mode, create, job} = this.state;
 
         if(!job){
             return null;
@@ -223,16 +219,6 @@ class JobBoard extends React.Component {
                 }},
             {name:'Actions', label:actionsHeader, style:{textAlign:'right', width: 120, paddingLeft:0}, headerStyle:{width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right'}, renderCell:this.renderActions.bind(this)}
         ];
-        const computeRowStyle = (row) => {
-            if(taskLogs && taskLogs.ID === row.ID){
-                return {
-                    backgroundColor:'#e0e0e0',
-                    fontWeight: 500,
-                    borderLeft: '2px solid #1e96f3'
-                };
-            }
-            return null;
-        };
         const tasks = job.Tasks || [];
         const runningStatus = ['Running', 'Paused'];
 
@@ -324,7 +310,6 @@ class JobBoard extends React.Component {
                                 emptyStateString={m('tasks.history.empty')}
                                 selectedRows={selectedRows}
                                 deselectOnClickAway={true}
-                                computeRowStyle={computeRowStyle}
                                 masterStyles={adminStyles.body.tableMaster}
                                 paginate={[10, 25, 50, 100]}
                                 defaultPageSize={10}

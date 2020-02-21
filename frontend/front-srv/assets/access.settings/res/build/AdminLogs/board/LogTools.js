@@ -28,9 +28,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -59,6 +61,7 @@ var _materialUiStyles = require('material-ui/styles');
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var LogTools = (function (_React$Component) {
@@ -70,33 +73,72 @@ var LogTools = (function (_React$Component) {
         _get(Object.getPrototypeOf(LogTools.prototype), 'constructor', this).call(this, props);
         this.state = {
             filter: "",
-            filterMode: "fulltext"
+            filterMode: "fulltext",
+            levelShow: false,
+            serviceFilterShow: false
         };
-
-        this.handleFilterChange = (0, _lodashDebounce2['default'])(this.handleFilterChange.bind(this), 250);
-        this.handleDateChange = (0, _lodashDebounce2['default'])(this.handleDateChange.bind(this), 250);
+        this.publishStateChange = (0, _lodashDebounce2['default'])(this.publishStateChange.bind(this), 250);
     }
 
     _createClass(LogTools, [{
         key: 'publishStateChange',
         value: function publishStateChange() {
-            this.props.onStateChange(this.state);
+            var _state = this.state;
+            var filter = _state.filter;
+            var serviceFilter = _state.serviceFilter;
+            var level = _state.level;
+            var remoteAddress = _state.remoteAddress;
+            var userName = _state.userName;
+            var date = _state.date;
+            var endDate = _state.endDate;
+
+            var query = _modelLog2['default'].buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
+            this.props.onStateChange({ query: query });
+        }
+    }, {
+        key: 'handleToggleShow',
+        value: function handleToggleShow(field) {
+            var fieldName = field + 'Show';
+            var crt = this.state[fieldName];
+            var s = _defineProperty({}, fieldName, !crt);
+            if (crt) {
+                if (field === 'date' || field === 'endDate') {
+                    s['date'] = null;
+                    s['endDate'] = null;
+                    s['dateShow'] = false;
+                    s['endDateShow'] = false;
+                } else {
+                    s[field] = null;
+                }
+                s['page'] = 0;
+            } else if (field === 'date' && this.state.endDateShow) {
+                s['endDate'] = null;
+                s['endDateShow'] = false;
+            }
+            this.setState(s, this.publishStateChange.bind(this));
         }
     }, {
         key: 'handleFilterChange',
-        value: function handleFilterChange(val) {
-            this.setState({ filter: val ? val.toLowerCase() : val, page: 0 }, this.publishStateChange.bind(this));
+        value: function handleFilterChange(val, keyName) {
+            var _setState;
+
+            this.setState((_setState = {}, _defineProperty(_setState, keyName, val), _defineProperty(_setState, 'page', 0), _setState), this.publishStateChange.bind(this));
         }
     }, {
         key: 'handleDateChange',
         value: function handleDateChange(date) {
-            var _state = this.state;
-            var filterMode = _state.filterMode;
-            var endDate = _state.endDate;
+            var time = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
-            if (filterMode === 'period' && !endDate && date !== undefined) {
+            if (time) {
+                date.setHours(time.getHours(), time.getMinutes());
+            }
+            var _state2 = this.state;
+            var endDate = _state2.endDate;
+            var endDateShow = _state2.endDateShow;
+
+            if (endDateShow && !endDate && date !== undefined) {
                 var end = new Date();
-                //end.setDate(end.getDate() + 1);
+                end.setHours(23, 59, 59);
                 this.setState({ endDate: end });
             }
             this.setState({ date: date, page: 0 }, this.publishStateChange.bind(this));
@@ -104,6 +146,11 @@ var LogTools = (function (_React$Component) {
     }, {
         key: 'handleEndDateChange',
         value: function handleEndDateChange(date) {
+            var time = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            if (time) {
+                date.setHours(time.getHours(), time.getMinutes());
+            }
             this.setState({ endDate: date, page: 0 }, this.publishStateChange.bind(this));
         }
     }, {
@@ -111,14 +158,18 @@ var LogTools = (function (_React$Component) {
         value: function handleExport(format) {
             var _this = this;
 
-            var _state2 = this.state;
-            var filter = _state2.filter;
-            var date = _state2.date;
-            var endDate = _state2.endDate;
+            var _state3 = this.state;
+            var filter = _state3.filter;
+            var serviceFilter = _state3.serviceFilter;
+            var level = _state3.level;
+            var remoteAddress = _state3.remoteAddress;
+            var userName = _state3.userName;
+            var date = _state3.date;
+            var endDate = _state3.endDate;
             var service = this.props.service;
 
             var dateString = date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '';
-            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
+            var query = _modelLog2['default'].buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
             _modelLog2['default'].downloadLogs(service || 'sys', query, format).then(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 var filename = 'cells-logs-';
@@ -151,11 +202,6 @@ var LogTools = (function (_React$Component) {
             });
         }
     }, {
-        key: 'handleFilterMode',
-        value: function handleFilterMode(filterMode) {
-            this.setState({ filterMode: filterMode, date: undefined, filter: '' }, this.publishStateChange.bind(this));
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -167,48 +213,107 @@ var LogTools = (function (_React$Component) {
 
             var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-            var _state3 = this.state;
-            var filter = _state3.filter;
-            var date = _state3.date;
-            var filterMode = _state3.filterMode;
-            var exportUrl = _state3.exportUrl;
-            var exportFilename = _state3.exportFilename;
-            var exportOnClick = _state3.exportOnClick;
+            var _state4 = this.state;
+            var filter = _state4.filter;
+            var date = _state4.date;
+            var dateShow = _state4.dateShow;
+            var endDate = _state4.endDate;
+            var endDateShow = _state4.endDateShow;
+            var filterMode = _state4.filterMode;
+            var serviceFilter = _state4.serviceFilter;
+            var serviceFilterShow = _state4.serviceFilterShow;
+            var level = _state4.level;
+            var levelShow = _state4.levelShow;
+            var userNameShow = _state4.userNameShow;
+            var remoteAddressShow = _state4.remoteAddressShow;
+            var exportUrl = _state4.exportUrl;
+            var exportFilename = _state4.exportFilename;
+            var exportOnClick = _state4.exportOnClick;
             var MessageHash = pydio.MessageHash;
 
             var hasFilter = filter || date;
             var checkIcon = _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-check" });
             return _react2['default'].createElement(
                 'div',
-                { style: { display: 'flex', alignItems: 'center', width: '100%' } },
-                filterMode === 'fulltext' && _react2['default'].createElement(ModernTextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
-                        return _this2.handleFilterChange(e.target.value);
-                    }, style: { margin: '0 5px', width: 180 } }),
-                filterMode === 'oneday' && _react2['default'].createElement(
+                { style: { display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 170 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'filter');
+                        }, fullWidth: true })
+                ),
+                levelShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, marginTop: -2, width: 100 } },
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { hintText: "Level", fullWidth: true, value: level,
+                            onChange: function (e, i, v) {
+                                return _this2.handleFilterChange(v, 'level');
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "ERROR", value: "ERROR" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "INFO", value: "INFO" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DEBUG", value: "DEBUG" })
+                    )
+                ),
+                serviceFilterShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Service", fullWidth: true, value: serviceFilter, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'serviceFilter');
+                        } })
+                ),
+                remoteAddressShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "IP", fullWidth: true, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'remoteAddress');
+                        } })
+                ),
+                userNameShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Login", fullWidth: true, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'userName');
+                        } })
+                ),
+                dateShow && !endDateShow && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
                     _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
                             return _this2.handleDateChange(date);
                         },
-                        autoOk: true, maxDate: new Date(), value: this.state.date,
+                        autoOk: true, maxDate: new Date(), value: date,
                         showYearSelector: true, style: { width: 120 }, textFieldStyle: { width: 120 } }, ModernStyles.textField)),
                     _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
                             _this2.handleDateChange(undefined);
                         } }, adminStyles.props.header.iconButton))
                 ),
-                filterMode === 'period' && _react2['default'].createElement(
+                endDateShow && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
                     _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: 'From', onChange: function (e, date) {
                             return _this2.handleDateChange(date);
                         },
-                        autoOk: true, maxDate: new Date(), value: this.state.date,
+                        autoOk: true, maxDate: new Date(), value: date,
                         showYearSelector: true, style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({ hintText: 'at...', disabled: !date, onChange: function (e, time) {
+                            return _this2.handleDateChange(date, time);
+                        },
+                        autoOk: true, value: date,
+                        style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
                     _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: 'To', onChange: function (e, date) {
                             return _this2.handleEndDateChange(date);
                         },
-                        autoOk: true, minDate: this.state.date, maxDate: new Date(), value: this.state.endDate,
+                        autoOk: true, minDate: this.state.date, maxDate: new Date(), value: endDate,
                         showYearSelector: true, style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({ hintText: 'at...', disabled: !endDate, onChange: function (e, time) {
+                            return _this2.handleEndDateChange(endDate, time);
+                        },
+                        autoOk: true, value: endDate,
+                        style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
                     _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
                             _this2.handleDateChange(undefined);_this2.handleEndDateChange(undefined);
                         } }, adminStyles.props.header.iconButton))
@@ -226,14 +331,23 @@ var LogTools = (function (_React$Component) {
                         null,
                         MessageHash['ajxp_admin.logs.filter.legend']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.fulltext'], rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('fulltext');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: dateShow && !endDateShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('date');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('oneday');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: endDateShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('endDate');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('period');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Level", rightIcon: levelShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('level');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Service", rightIcon: serviceFilterShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('serviceFilter');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "User Login", rightIcon: userNameShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('userName');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "IP", rightIcon: remoteAddressShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('remoteAddress');
                         } })
                 ),
                 !disableExport && _react2['default'].createElement(

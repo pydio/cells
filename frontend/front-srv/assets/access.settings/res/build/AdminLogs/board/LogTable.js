@@ -188,18 +188,15 @@ var LogTable = (function (_React$Component) {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             var service = nextProps.service;
-            var filter = nextProps.filter;
-            var date = nextProps.date;
-            var endDate = nextProps.endDate;
+            var query = nextProps.query;
             var page = nextProps.page;
             var size = nextProps.size;
             var onLoadingStatusChange = nextProps.onLoadingStatusChange;
             var z = nextProps.z;
 
-            if (filter === this.props.filter && date === this.props.date && endDate === this.props.endDate && size === this.props.size && page === this.props.page && z === this.props.z) {
+            if (query === this.props.query && size === this.props.size && page === this.props.page && z === this.props.z) {
                 return;
             }
-            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
             this.load(service, query, page, size, 'JSON', onLoadingStatusChange);
         }
     }, {
@@ -213,8 +210,16 @@ var LogTable = (function (_React$Component) {
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var onSelectLog = _props2.onSelectLog;
-            var filter = _props2.filter;
-            var date = _props2.date;
+            var query = _props2.query;
+            var _props3 = this.props;
+            var _onPageNext = _props3.onPageNext;
+            var _onPagePrev = _props3.onPagePrev;
+            var nextDisabled = _props3.nextDisabled;
+            var prevDisabled = _props3.prevDisabled;
+            var onPageSizeChange = _props3.onPageSizeChange;
+            var page = _props3.page;
+            var size = _props3.size;
+            var pageSizes = _props3.pageSizes;
 
             var logs = this.openSpans();
             var MessageHash = pydio.MessageHash;
@@ -275,6 +280,24 @@ var LogTable = (function (_React$Component) {
             var body = _AdminComponents$AdminStyles.body;
             var tableMaster = body.tableMaster;
 
+            var pagination = undefined;
+            if (_onPageNext) {
+                pagination = {
+                    page: page + 1,
+                    pageSize: size,
+                    pageSizes: pageSizes,
+                    onPageNext: function onPageNext(v) {
+                        return _onPageNext(v - 1);
+                    },
+                    onPagePrev: function onPagePrev(v) {
+                        return _onPagePrev(v - 1);
+                    },
+                    onPageSizeChange: onPageSizeChange,
+                    nextDisabled: nextDisabled,
+                    prevDisabled: prevDisabled
+                };
+            }
+
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
                 columns: columns,
@@ -285,7 +308,7 @@ var LogTable = (function (_React$Component) {
                 },
                 deselectOnClickAway: true,
                 showCheckboxes: false,
-                emptyStateString: loading ? MessageHash['settings.33'] : filter || date ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
+                emptyStateString: loading ? MessageHash['settings.33'] : query ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
                 computeRowStyle: function (row) {
                     var style = {};
                     if (row.HasRoot) {
@@ -296,19 +319,14 @@ var LogTable = (function (_React$Component) {
                     }
                     return style;
                 },
-                masterStyles: tableMaster
+                masterStyles: tableMaster,
+                pagination: pagination
             });
         }
     }]);
 
     return LogTable;
 })(_react2['default'].Component);
-
-LogTable.propTypes = {
-    date: _react2['default'].PropTypes.instanceOf(Date).isRequired,
-    endDate: _react2['default'].PropTypes.instanceOf(Date),
-    filter: _react2['default'].PropTypes.string.isRequired
-};
 
 exports['default'] = LogTable;
 module.exports = exports['default'];

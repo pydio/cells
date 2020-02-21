@@ -67,7 +67,7 @@ var LogBoard = (function (_React$Component) {
         this.state = {
             page: 0,
             size: 100,
-            filter: "",
+            query: "",
             contentType: 'JSON',
             loading: false,
             results: 0
@@ -82,14 +82,8 @@ var LogBoard = (function (_React$Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(newProps) {
-            if (newProps.filter !== this.state.filter) {
-                this.setState({ filter: newProps.filter, page: 0 });
-            }
-            if (newProps.date !== this.state.date) {
-                this.setState({ date: newProps.date, page: 0 });
-            }
-            if (newProps.endDate !== this.state.endDate) {
-                this.setState({ endDate: newProps.endDate, page: 0 });
+            if (newProps.query !== undefined && newProps.query !== this.state.query) {
+                this.setState({ query: newProps.query, page: 0 });
             }
         }
     }, {
@@ -132,9 +126,7 @@ var LogBoard = (function (_React$Component) {
             var selectedLog = _state.selectedLog;
             var page = _state.page;
             var size = _state.size;
-            var date = _state.date;
-            var endDate = _state.endDate;
-            var filter = _state.filter;
+            var query = _state.query;
             var contentType = _state.contentType;
             var z = _state.z;
             var results = _state.results;
@@ -172,6 +164,21 @@ var LogBoard = (function (_React$Component) {
             var blockProps = body.block.props;
             var blockStyle = body.block.container;
 
+            var prevDisabled = page === 0;
+            var nextDisabled = results < size;
+            var pageSizes = [50, 100, 500, 1000];
+            var paginationProps = undefined;
+            if (!(prevDisabled && results < pageSizes[0])) {
+                paginationProps = {
+                    pageSizes: pageSizes, prevDisabled: prevDisabled, nextDisabled: nextDisabled,
+                    onPageNext: this.handleIncrPage.bind(this),
+                    onPagePrev: this.handleDecrPage.bind(this),
+                    onPageSizeChange: function onPageSizeChange(v) {
+                        _this.setState({ size: v, page: 0 });
+                    }
+                };
+            }
+
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
                 _extends({}, blockProps, { style: blockStyle }),
@@ -192,26 +199,19 @@ var LogBoard = (function (_React$Component) {
                             _this.setState({ selectedLog: null });
                         } })
                 ),
-                _react2['default'].createElement(_LogTable2['default'], {
+                _react2['default'].createElement(_LogTable2['default'], _extends({
                     pydio: pydio,
                     service: service || 'syslog',
                     page: page,
                     size: size,
-                    date: date,
-                    endDate: endDate,
-                    filter: filter,
+                    query: query,
                     contentType: contentType,
                     z: z,
                     onLoadingStatusChange: this.handleLoadingStatusChange.bind(this),
                     onSelectLog: function (log) {
                         _this.setState({ selectedLog: log });
                     }
-                }),
-                navItems.length ? _react2['default'].createElement(
-                    _materialUi.BottomNavigation,
-                    { selectedIndex: this.state.selectedIndex },
-                    navItems
-                ) : null
+                }, paginationProps))
             );
 
             if (noHeader) {

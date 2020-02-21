@@ -31,7 +31,7 @@ class LogBoard extends React.Component {
         this.state = {
             page: 0,
             size: 100,
-            filter: "",
+            query: "",
             contentType: 'JSON',
             loading: false,
             results: 0,
@@ -43,14 +43,8 @@ class LogBoard extends React.Component {
     }
 
     componentWillReceiveProps(newProps){
-        if(newProps.filter !== this.state.filter){
-            this.setState({filter: newProps.filter, page: 0});
-        }
-        if(newProps.date !== this.state.date){
-            this.setState({date: newProps.date, page: 0});
-        }
-        if(newProps.endDate !== this.state.endDate){
-            this.setState({endDate: newProps.endDate, page: 0});
+        if(newProps.query !== undefined && newProps.query !== this.state.query){
+            this.setState({query: newProps.query, page: 0});
         }
     }
 
@@ -77,7 +71,7 @@ class LogBoard extends React.Component {
 
     render(){
         const {pydio, noHeader, service, disableExport, currentNode} = this.props;
-        const {selectedLog, page, size, date, endDate, filter, contentType, z, results} = this.state;
+        const {selectedLog, page, size, query, contentType, z, results} = this.state;
 
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
 
@@ -109,6 +103,19 @@ class LogBoard extends React.Component {
         const blockProps = body.block.props;
         const blockStyle = body.block.container;
 
+        const prevDisabled = page === 0;
+        const nextDisabled = results < size;
+        const pageSizes = [50, 100, 500, 1000];
+        let paginationProps;
+        if(!(prevDisabled && results < pageSizes[0])){
+            paginationProps = {
+                pageSizes, prevDisabled, nextDisabled,
+                onPageNext: this.handleIncrPage.bind(this),
+                onPagePrev: this.handleDecrPage.bind(this),
+                onPageSizeChange: (v) => {this.setState({size:v, page:0})}
+            }
+        }
+
         const mainContent = (
             <Paper {...blockProps} style={blockStyle}>
                 <Dialog
@@ -125,15 +132,13 @@ class LogBoard extends React.Component {
                     service={service || 'syslog'}
                     page={page}
                     size={size}
-                    date={date}
-                    endDate={endDate}
-                    filter={filter}
+                    query={query}
                     contentType={contentType}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
                     onSelectLog={(log) => {this.setState({selectedLog: log})}}
+                    {...paginationProps}
                 />
-                {navItems.length ? <BottomNavigation selectedIndex={this.state.selectedIndex}>{navItems}</BottomNavigation> : null}
             </Paper>
         );
 

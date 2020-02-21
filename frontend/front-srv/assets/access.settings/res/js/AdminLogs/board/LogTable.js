@@ -128,19 +128,17 @@ class LogTable extends React.Component {
 
     componentWillReceiveProps(nextProps) {
 
-        const {service, filter, date, endDate, page, size, onLoadingStatusChange, z} = nextProps;
-
-        if(filter === this.props.filter && date === this.props.date && endDate === this.props.endDate
-            && size === this.props.size && page === this.props.page && z === this.props.z){
+        const {service, query, page, size, onLoadingStatusChange, z} = nextProps;
+        if(query === this.props.query && size === this.props.size && page === this.props.page && z === this.props.z){
             return;
         }
-        const query = Log.buildQuery(filter, date, endDate);
         this.load(service, query, page, size, 'JSON', onLoadingStatusChange);
     }
 
     render(){
         const {loading, rootSpans} = this.state;
-        const {pydio, onSelectLog, filter, date} = this.props;
+        const {pydio, onSelectLog, query} = this.props;
+        const {onPageNext, onPagePrev, nextDisabled, prevDisabled, onPageSizeChange, page, size, pageSizes} = this.props;
         const logs = this.openSpans();
         const {MessageHash} = pydio;
 
@@ -192,6 +190,19 @@ class LogTable extends React.Component {
 
         const {body} = AdminComponents.AdminStyles();
         const {tableMaster} = body;
+        let pagination;
+        if(onPageNext){
+            pagination = {
+                page:(page + 1),
+                pageSize: size,
+                pageSizes,
+                onPageNext:v => onPageNext(v -1 ),
+                onPagePrev:v => onPagePrev(v -1),
+                onPageSizeChange,
+                nextDisabled,
+                prevDisabled
+            };
+        }
 
         return (
             <MaterialTable
@@ -200,7 +211,7 @@ class LogTable extends React.Component {
                 onSelectRows={(rows) => {if(rows.length && onSelectLog){onSelectLog(rows[0])}}}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
-                emptyStateString={loading ? MessageHash['settings.33']: (filter || date) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
+                emptyStateString={loading ? MessageHash['settings.33']: (query) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
                 computeRowStyle={(row) => {
                     let style = {};
                     if (row.HasRoot){
@@ -212,16 +223,10 @@ class LogTable extends React.Component {
                     return style;
                 }}
                 masterStyles={tableMaster}
+                pagination={pagination}
             />
         );
     }
 }
-
-LogTable.propTypes = {
-    date: React.PropTypes.instanceOf(Date).isRequired,
-    endDate: React.PropTypes.instanceOf(Date),
-    filter: React.PropTypes.string.isRequired,
-};
-
 
 export {LogTable as default}

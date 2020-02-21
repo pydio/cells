@@ -217,6 +217,14 @@ export default function(palette = {}) {
                 head:{
                     backgroundColor:'#fbfbfc',
                     color:'#607D8B'
+                },
+                expanderRow:{
+                    backgroundColor:'#e0e0e0',
+                    fontWeight: 500,
+                    borderLeft: '2px solid #1e96f3'
+                },
+                expandedRow:{
+                    borderLeft: '2px solid #1e96f3'
                 }
             }
         },
