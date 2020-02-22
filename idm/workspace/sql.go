@@ -231,6 +231,26 @@ func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bo
 		expressions = append(expressions, goqu.I("scope").Eq(q.Scope))
 	}
 
+	if q.LastUpdated != "" {
+		if lt, d, e := q.ParseLastUpdated(); e == nil {
+			ref := int32(time.Now().Add(-d).Unix())
+			if lt || q.Not {
+				expressions = append(expressions, goqu.I("last_updated").Lt(ref))
+			} else {
+				expressions = append(expressions, goqu.I("last_updated").Gt(ref))
+			}
+		}
+	}
+
+	if q.HasAttribute != "" {
+		// search in JSON
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "attributes", `*"`+q.HasAttribute+`":*`))
+	}
+	if q.AttributeName != "" && q.AttributeValue != "" {
+		// search in JSON
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "attributes", `*"`+q.AttributeName+`":"`+q.AttributeValue+`"*`))
+	}
+
 	if len(expressions) == 0 {
 		return nil, true
 	}

@@ -42,6 +42,7 @@ const (
 	HttpMetaCookiesString = "CookiesString"
 	ClientTime            = "ClientTime"
 	ServerTime            = "ServerTime"
+	CtxWorkspaceUuid = "CtxWorkspaceUuid"
 )
 
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.

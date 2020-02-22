@@ -288,6 +288,9 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
 			continue
 		}
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
+			continue
+		}
 		for _, eName := range jobData.EventNames {
 			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
 				if event.Type == eType {

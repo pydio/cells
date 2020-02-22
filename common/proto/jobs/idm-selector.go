@@ -23,6 +23,9 @@ package jobs
 import (
 	"context"
 	"github.com/golang/protobuf/proto"
+	"github.com/micro/go-micro/metadata"
+	"github.com/pydio/cells/common/registry"
+	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -202,8 +205,14 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		}
 
 	case IdmSelectorType_Workspace:
-		if len(input.Workspaces) == 0 {
-			return input, nil, false
+		srcWW := input.Workspaces
+		if len(srcWW) == 0 {
+			// Special case: on node event, load workspace based on CtxWorkspaceUuid
+			if ws, ok := m.WorkspaceFromEventContext(ctx); ok {
+				srcWW = append(srcWW, ws)
+			} else {
+				return input, nil, false
+			}
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.WorkspaceSingleQuery{}
@@ -216,7 +225,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		}
 		var ww []*idm.Workspace
 		var xx []*idm.Workspace
-		for _, w := range input.Workspaces {
+		for _, w := range srcWW {
 			if m.matchQueries(w, matchers) {
 				ww = append(ww, w)
 			} else {
@@ -331,4 +340,30 @@ func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQ
 		return aQ
 	}
 	return singleQuery.(idm.Matcher)
+}
+
+func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
+	ctxMeta, has := metadata.FromContext(ctx);
+	if !has {
+		return nil, false
+	}
+	wsUuid, o := ctxMeta[servicecontext.CtxWorkspaceUuid];
+	if !o {
+		return nil, false
+	}
+	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid:wsUuid})
+	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query:&service.Query{SubQueries:[]*any.Any{q}}})
+	if e != nil {
+		return nil, false
+	}
+	defer r.Close()
+	for {
+		resp, er := r.Recv()
+		if er != nil {
+			break
+		}
+		return resp.Workspace, true
+	}
+	return nil, false
 }

@@ -188,6 +188,11 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		expressions = append(expressions, goqu.I("t.leaf").Eq(0))
 	}
 
+	if q.HasProfile != "" {
+		q.AttributeName = idm.UserAttrProfile
+		q.AttributeValue = q.HasProfile
+	}
+
 	if len(q.AttributeName) > 0 {
 
 		db := goqu.New(driver, nil)

@@ -1,8 +1,12 @@
 package idm
 
 import (
+	"encoding/json"
+	"fmt"
 	"path"
+	"strconv"
 	"strings"
+	"time"
 
 	service "github.com/pydio/cells/common/service/proto"
 )
@@ -71,7 +75,59 @@ func (m *WorkspaceSingleQuery) matches(ws *Workspace) bool {
 	if m.Scope != WorkspaceScope_ANY {
 		bb = append(bb, m.Scope == ws.Scope)
 	}
+	if m.HasAttribute != "" || (m.AttributeName != "" && m.AttributeValue != "") {
+		var found bool
+		var atts map[string]interface{}
+		if err := json.Unmarshal([]byte(ws.Attributes), &atts); err == nil {
+			if m.AttributeName != "" {
+				if v, o := atts[m.AttributeName]; o && v.(string) == m.AttributeValue {
+					found = true
+				}
+			} else if _, o := atts[m.HasAttribute]; o {
+				found = true
+			}
+		}
+		if found {
+			bb = append(bb, true)
+		} else {
+			bb = append(bb, false)
+		}
+	}
+	if m.LastUpdated != "" && ws.LastUpdated > 0 {
+		if lt, d, e := m.ParseLastUpdated(); e == nil {
+			ref := time.Now().Add(-d)
+			wsUpdated := time.Unix(int64(ws.LastUpdated), 0)
+			if lt {
+				bb = append(bb, ref.Before(wsUpdated))
+			} else {
+				bb = append(bb, ref.After(wsUpdated))
+			}
+		}
+	}
+
 	return flattenBool(bb, m.Not)
+}
+
+func (m *WorkspaceSingleQuery) ParseLastUpdated() (lt bool, d time.Duration, e error) {
+	firstChar := m.LastUpdated[0:1]
+	if firstChar != "<" && firstChar != ">" {
+		e = fmt.Errorf("please start with < or > character")
+		return
+	}
+	lt = firstChar == "<"
+	ds := strings.TrimSpace(m.LastUpdated[1:])
+	if strings.HasSuffix(ds, "d") {
+		// Parse as number of days
+		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
+		if er != nil {
+			e = er
+			return
+		}
+		d = time.Duration(days) * 24 * time.Hour
+		return
+	}
+	d, e = time.ParseDuration(strings.TrimSpace(m.LastUpdated[1:]))
+	return
 }
 
 func (m *ACLSingleQuery) Matches(idmObject interface{}) bool {
@@ -141,6 +197,10 @@ func (m *UserSingleQuery) matches(user *User) bool {
 			}
 		}
 		bb = append(bb, has)
+	}
+	if m.HasProfile != "" {
+		m.AttributeName = UserAttrProfile
+		m.AttributeValue = m.HasProfile
 	}
 	if m.AttributeName != "" {
 		if user.Attributes == nil {

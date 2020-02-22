@@ -22,6 +22,8 @@ package views
 
 import (
 	"context"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"strings"
 
 	"github.com/micro/go-micro/errors"
@@ -98,6 +100,9 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		Workspace:     *workspaces[0],
 	}
 	branchInfo.AncestorsList[node.Path] = parents
+	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+		servicecontext.CtxWorkspaceUuid:branchInfo.Workspace.UUID,
+	})
 	return WithBranchInfo(ctx, identifier, branchInfo), node, nil
 }
 
