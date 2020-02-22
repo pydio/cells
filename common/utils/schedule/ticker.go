@@ -39,6 +39,8 @@ type TickerSchedule struct {
 	iso8601Schedule string
 	// Number of repetitions: if 0, infinite repetition.
 	repeat int64
+	// If there is repeat, endTime should interrupt sending events
+	endTime time.Time
 	// Do not start before that time
 	startTime time.Time
 	// Interval between ticks
@@ -77,12 +79,21 @@ func (s *TickerSchedule) ParseIsoSchedule() error {
 		}
 	}
 
-	if s.repeat > 1 || s.repeat == 0 {
+	if intervalString != "" {
+
 		isoDuration, er := iso8601.FromString(intervalString)
 		if er != nil {
 			return err
 		}
 		s.interval = isoDuration.ToDuration()
+
+		if s.repeat > 0 {
+			// Compute endTime based on startTime + number of repetitions.
+			// We consider startTime is always just before now, so the first repetition will not be
+			// sent on the very first tick, but after the first interval, so add another interval.
+			s.endTime = s.startTime.Add(s.interval * time.Duration(s.repeat)).Add(s.interval / 2)
+		}
+
 	}
 
 	return nil
@@ -113,6 +124,7 @@ type Ticker struct {
 	*TickerSchedule
 	ticker   OnTick
 	stopChan chan bool
+	stopped  bool
 	lastTick time.Time
 }
 
@@ -132,6 +144,10 @@ func (w *Ticker) Start() {
 
 // Stop simply stops the waiter
 func (w *Ticker) Stop() {
+	if w.stopped {
+		return
+	}
+	w.stopped = true
 	w.stopChan <- true
 }
 
@@ -139,11 +155,15 @@ func (w *Ticker) Stop() {
 func (w *Ticker) WaitUntilNext() {
 
 	var wait time.Duration
-	if w.interval == 0 {
+	var stop bool
+	wait, stop = w.computeNextWait()
+	if stop {
+		w.stopped = true
+		return
+	}
+	if wait == 0 {
 		// This is not normal, this will trigger the job too many times
 		wait = 5 * time.Minute
-	} else {
-		wait = w.computeNextWait()
 	}
 
 	go func() {
@@ -153,7 +173,6 @@ func (w *Ticker) WaitUntilNext() {
 				w.ticker()
 				w.lastTick = time.Now()
 				w.WaitUntilNext()
-				// TODO implement number of repetition management?
 				return
 			case <-w.stopChan:
 				return
@@ -163,12 +182,16 @@ func (w *Ticker) WaitUntilNext() {
 
 }
 
-func (w *Ticker) computeNextWait() time.Duration {
+func (w *Ticker) computeNextWait() (time.Duration, bool) {
 
 	now := time.Now()
 	var wait time.Duration
 	// First let's wait until start time
-	if wait = w.startTime.Sub(now); wait < 0 {
+	wait = w.startTime.Sub(now)
+	if wait < 0 {
+		if w.interval == 0 {
+			return 0, true
+		}
 		// Start time is behind us, let's have a look at intervals now
 		if w.lastTick.IsZero() {
 			// next start should be the rest of wait modulo interval
@@ -178,6 +201,10 @@ func (w *Ticker) computeNextWait() time.Duration {
 		}
 	}
 
-	return wait
+	if !w.endTime.IsZero() && now.Add(wait).After(w.endTime) {
+		return wait, true
+	}
+
+	return wait, false
 
 }
