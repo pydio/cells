@@ -23,8 +23,6 @@ package timer
 import (
 	"context"
 	"log"
-	"os"
-	"runtime/pprof"
 	"testing"
 	"time"
 
@@ -128,7 +126,7 @@ func TestProducer(t *testing.T) {
 		So(len(events), ShouldEqual, 0)
 		stop <- struct{}{}
 
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		//pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 
 	})
 }
