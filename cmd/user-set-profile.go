@@ -26,6 +26,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/manifoldco/promptui"
+
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -57,7 +59,7 @@ full control over your app via the web front end. So think twice beforew
 
 EXAMPLE
 =======
-$ %s admin user-profile -u 'USER_LOGIN' --profile '%s'
+$ %s user set-profile -u 'USER_LOGIN' --profile '%s'
 
 `,
 		common.PYDIO_PROFILE_ADMIN,
@@ -68,21 +70,31 @@ $ %s admin user-profile -u 'USER_LOGIN' --profile '%s'
 		common.PYDIO_PROFILE_STANDARD,
 	),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if userProfileLogin == "" || userTargetProfile == "" {
-			return fmt.Errorf("Missing arguments")
+		if userProfileLogin == "" {
+			return fmt.Errorf("Please provide a valid username (login)")
 		}
 
-		isKnown := false
-		for _, prof := range knownProfiles {
-			if userTargetProfile == prof {
-				isKnown = true
-				break
+		if userTargetProfile != "" {
+			isKnown := false
+			for _, prof := range knownProfiles {
+				if userTargetProfile == prof {
+					isKnown = true
+					break
+				}
 			}
+
+			if !isKnown {
+				return fmt.Errorf("Unknown profile [%s], cannot proceed", userTargetProfile)
+			}
+		} else {
+			p := promptui.Select{
+				Label: "Select a profile for this user",
+				Items: knownProfiles,
+			}
+			c, _, _ := p.Run()
+			userTargetProfile = knownProfiles[c]
 		}
 
-		if !isKnown {
-			return fmt.Errorf("Unknown profile [%s], cannot proceed", userTargetProfile)
-		}
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -93,17 +105,6 @@ $ %s admin user-profile -u 'USER_LOGIN' --profile '%s'
 			fmt.Printf("Cannot list users for login %s: %s", userProfileLogin, err.Error())
 		}
 
-		// for _, user := range users {
-		// 	// cmd.Print(fmt.Sprintf("B4 trying to set [%s] profile on %s\n", userTargetProfile, user.Login))
-
-		// 	user.Attributes["profile"] = userTargetProfile
-		// 	if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
-		// 		User: user,
-		// 	}); err != nil {
-		// 		fmt.Printf("could not update profile for [%s], skipping and continuing.\n Error message: %s", user.Login, err.Error())
-		// 		log.Println(err)
-		// 	}
-		// }
 		for _, user := range users {
 			if user.Attributes == nil {
 				user.Attributes = make(map[string]string, 1)
@@ -123,7 +124,7 @@ $ %s admin user-profile -u 'USER_LOGIN' --profile '%s'
 
 func init() {
 	userSetProfileCmd.Flags().StringVarP(&userProfileLogin, "username", "u", "", "Login of the user to update")
-	userSetProfileCmd.Flags().StringVar(&userTargetProfile, "profile", "", "New profile")
+	userSetProfileCmd.Flags().StringVarP(&userTargetProfile, "profile", "p", "", "New profile")
 
 	userCmd.AddCommand(userSetProfileCmd)
 }
