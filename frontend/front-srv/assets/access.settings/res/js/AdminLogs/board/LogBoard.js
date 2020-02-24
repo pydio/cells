@@ -65,13 +65,13 @@ class LogBoard extends React.Component {
     }
 
     componentWillReceiveProps(newProps){
-        if(newProps.filter && newProps.filter !== this.state.filter){
+        if(typeof newProps.filter !== "undefined" && newProps.filter !== this.state.filter){
             this.setState({filter: newProps.filter, page: 0});
         }
-        if(newProps.date && newProps.date !== this.state.date){
+        if(typeof newProps.filter !== "undefined" && newProps.date && newProps.date !== this.state.date){
             this.setState({date: newProps.date, page: 0});
         }
-        if(newProps.endDate && newProps.endDate !== this.state.endDate){
+        if(typeof newProps.filter !== "undefined" && newProps.endDate && newProps.endDate !== this.state.endDate){
             this.setState({endDate: newProps.endDate, page: 0});
         }
     }

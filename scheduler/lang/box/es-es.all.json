@@ -64,5 +64,8 @@
   },
   "Jobs.User.CopyingItem": {
     "other": "Copiando %s"
+  },
+  "Jobs.User.MovingItem": {
+    "other": "Moving %s"
   }
 }

@@ -14,12 +14,15 @@ import (
 	"github.com/ory/hydra/driver/configuration"
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
+	"github.com/ory/hydra/x"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -52,9 +55,20 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 			return
 		}
 
-		if _, err := r.KeyManager().(*jwk.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			fmt.Println(err)
+		km := r.KeyManager().(*jwk.SQLManager)
+		if _, err := km.CreateSchemas(dao.Driver()); err != nil {
+			log.Error("Errory creating key manager schema", zap.Error(err))
 			return
+		} else {
+			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OpenIDConnectKeyName); err != nil {
+				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OpenIDConnectKeyName))
+				km.DeleteKeySet(context.Background(), x.OpenIDConnectKeyName)
+			}
+
+			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OAuth2JWTKeyName); err != nil {
+				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OAuth2JWTKeyName))
+				km.DeleteKeySet(context.Background(), x.OAuth2JWTKeyName)
+			}
 		}
 
 		if _, err := r.ConsentManager().(*consent.SQLManager).CreateSchemas(dao.Driver()); err != nil {
