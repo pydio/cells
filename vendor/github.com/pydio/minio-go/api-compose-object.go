@@ -198,6 +198,12 @@ func (s *SourceInfo) getProps(c Client) (size int64, etag string, userMeta map[s
 	// headers are added to the stat request if given.
 	var objInfo ObjectInfo
 	opts := StatObjectOptions{GetObjectOptions{ServerSideEncryption: encrypt.SSE(s.encryption)}}
+	if s.Headers != nil {
+		opts.headers = make(map[string]string, len(s.Headers))
+		for k, v := range s.Headers {
+			opts.headers[k] = strings.Join(v, "")
+		}
+	}
 	objInfo, err = c.statObject(context.Background(), s.bucket, s.object, opts)
 	if err != nil {
 		err = ErrInvalidArgument(fmt.Sprintf("Could not stat object - %s/%s: %v", s.bucket, s.object, err))
