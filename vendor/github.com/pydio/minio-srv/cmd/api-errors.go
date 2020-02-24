@@ -188,6 +188,7 @@ const (
 	// Add new extended error codes here.
 	// Please open a https://github.com/pydio/minio-srv/issues before adding
 	// new error codes here.
+	ErrQuotaExceeded
 
 	ErrMalformedJSON
 	ErrAdminNoSuchUser
@@ -1435,6 +1436,11 @@ var errorCodeResponse = map[APIErrorCode]APIError{
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	// Add your error structure here.
+	ErrQuotaExceeded : {
+		Code: "QuotaExceeded",
+		Description:"You have reached your authorized quota",
+		HTTPStatusCode: http.StatusUnprocessableEntity,
+	},
 }
 
 // toAPIErrorCode - Converts embedded errors. Convenience
@@ -1731,6 +1737,8 @@ func toAPIErrorCode(err error) (apiErr APIErrorCode) {
 		apiErr = ErrEntityTooLarge
 	case ObjectTooSmall:
 		apiErr = ErrEntityTooSmall
+	case QuotaExceeded:
+		apiErr = ErrQuotaExceeded
 	case NotImplemented:
 		apiErr = ErrNotImplemented
 	case PartTooBig:

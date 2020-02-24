@@ -3980,10 +3980,10 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "euTKVJzbeoN1KcCoYEW8sX/6JDc=",
+			"checksumSHA1": "+a1WLhW7MZJ7Oklih9ni4eGkGTg=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "c019de63ff56c3c1d24ad14e123c9d9ca4c66db9",
-			"revisionTime": "2019-12-03T19:39:55Z",
+			"revision": "d0caaeb0ccac7e41f7a8fca7f55f8cea324f92d6",
+			"revisionTime": "2020-02-19T13:21:07Z",
 			"tree": true
 		},
 		{

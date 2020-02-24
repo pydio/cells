@@ -32,6 +32,7 @@ import (
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/pkg/auth"
 	"github.com/pydio/minio-srv/pkg/hash"
+	microerrors "github.com/micro/go-micro/errors"
 )
 
 const (
@@ -343,6 +344,12 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket string, object stri
 		Md5Sum:    data.MD5(),
 	})
 	if err != nil {
+		if microerrors.Parse(err.Error()).Code == 422 {
+			err = minio.QuotaExceeded{
+				Bucket: bucket,
+				Object: object,
+			}
+		}
 		return objInfo, minio.ErrorRespToObjectError(err, bucket, object)
 	}
 	// TODO : PutObject should return more info about written node
