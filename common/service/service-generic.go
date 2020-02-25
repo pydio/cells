@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
@@ -68,6 +69,7 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 				micro.Name(name),
 				micro.Metadata(registry.BuildServiceMeta()),
 				micro.BeforeStart(func() error {
+					n := s.Options().Name
 					r, c, s, err := f(s.Options().Context, s.Options().Cancel)
 					if err != nil {
 						return err
@@ -78,7 +80,9 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 						<-ctx.Done()
 						s.Stop()
 					}()
-
+					if r == nil {
+						return fmt.Errorf("nil runner before start for %s", n)
+					}
 					go r.Run()
 
 					if err := Retry(c.Check); err != nil {

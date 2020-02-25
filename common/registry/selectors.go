@@ -21,6 +21,8 @@
 package registry
 
 import (
+	"fmt"
+
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 )
@@ -39,6 +41,29 @@ func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption
 					break
 				}
 				if h, ok := n.Metadata[serviceMetaHostname]; ok && h == targetPeer {
+					nodes = append(nodes, n)
+					break
+				}
+			}
+			if len(nodes) > 0 {
+				srv.Nodes = nodes
+				out = append(out, srv)
+			}
+		}
+		return
+	})
+}
+
+// PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
+func FixedInstanceSelector(srvName string, targetAddress string) selector.SelectOption {
+	return selector.WithFilter(func(services []*registry.Service) (out []*registry.Service) {
+		for _, srv := range services {
+			if srv.Name != srvName {
+				continue
+			}
+			var nodes []*registry.Node
+			for _, n := range srv.Nodes {
+				if fmt.Sprintf("%s:%d", n.Address, n.Port) == targetAddress {
 					nodes = append(nodes, n)
 					break
 				}

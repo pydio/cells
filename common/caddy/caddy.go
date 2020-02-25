@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"net"
 	"runtime"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ import (
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"go.uber.org/zap"
 
@@ -40,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	registry2 "github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
@@ -276,19 +279,34 @@ func internalURLFromServices(name string, uri ...string) string {
 	return strings.Join(res, " ")
 }
 
-func addressFromService(name string, uri ...string) string {
+func addressFromService(name string) string {
 
+	// List available instances
+	services, _ := registry.GetService(name)
 	c := proto.NewService(name, defaults.NewClient())
-	r, err := c.Status(context.Background(), &empty.Empty{})
-	if err != nil {
+	var urls []string
+
+	for _, service := range services {
+		for _, node := range service.Nodes {
+			add := fmt.Sprintf("%s:%d", node.Address, node.Port)
+			selector := registry2.FixedInstanceSelector(name, add)
+			r, err := c.Status(context.Background(), &empty.Empty{}, client.WithSelectOption(selector))
+			if err != nil || !r.GetOK() {
+				continue
+			}
+			a := r.Address
+			// Append node host to response
+			if h, p, e := net.SplitHostPort(a); e == nil && h == "" {
+				a = net.JoinHostPort(node.Address, p)
+			}
+			urls = append(urls, a)
+		}
+	}
+	if len(urls) == 0 {
 		return "NOT_AVAILABLE"
 	}
 
-	if !r.GetOK() {
-		return "NOT_AVAILABLE"
-	}
-
-	return r.Address
+	return strings.Join(urls, " ")
 }
 
 func peersFromConfig(path []string, def ...string) string {

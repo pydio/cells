@@ -54,6 +54,8 @@ func init() {
 						return nil
 					}), nil
 			}, func(s service.Service) (micro.Option, error) {
+				// TODO : RESTART ON SERVICES START/STOP CHANGES
+
 				srv := defaults.NewHTTPServer()
 
 				r := mux.NewRouter()
