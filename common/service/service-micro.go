@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/server/grpc"
 
@@ -94,9 +93,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					log.Logger(ctx).Info("stopping")
 
 					return nil
-				}),
-				micro.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)

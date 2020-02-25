@@ -97,9 +97,6 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 
 					return nil
 				}),
-				// micro.AfterStart(func() error {
-				// 	return broker.Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(name)})
-				// }),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
