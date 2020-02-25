@@ -22,7 +22,6 @@ package registry
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/pydio/cells/common/log"
@@ -32,7 +31,6 @@ import (
 // ListRunningServices returns a list of services that are registered with the main registry
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
-
 	c.runninglock.RLock()
 	defer c.runninglock.RUnlock()
 
@@ -80,7 +78,6 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
-
 	c.runninglock.Lock()
 	defer c.runninglock.Unlock()
 
@@ -90,13 +87,21 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		log.Fatal("Could not retrieve initial services list")
 	}
 
-	initialServicesMap := make(map[string]string)
 	for _, s := range initialServices {
-		initialServicesMap[s.Name] = s.Name
-	}
+		ss, err := defaults.Registry().GetService(s.Name)
+		if err != nil {
+			continue
+		}
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
+		if len(ss) == 0 {
+			continue
+		}
+
+		for _, n := range ss[0].Nodes {
+			c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
+			c.registerProcessFromNode(n, s.Name)
+		}
+	}
 
 	go func() {
 
@@ -105,9 +110,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		if err != nil {
 			return
 		}
-
-		check := true
-
 		for {
 			res, err := w.Next()
 			if err != nil {
@@ -128,22 +130,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 					c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
 					c.registerProcessFromNode(n, s.Name)
 				}
-				delete(initialServicesMap, s.Name)
 			case "delete":
 				for _, n := range s.Nodes {
 					c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port))
 					c.deregisterProcessFromNode(n, s.Name)
 				}
 			}
-
-			if check && len(initialServicesMap) == 0 {
-				wg.Done()
-				check = false
-			}
 		}
 	}()
-
-	wg.Wait()
-
-	log.Info("Captured initial list of running services")
 }

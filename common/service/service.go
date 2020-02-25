@@ -280,6 +280,9 @@ var mandatoryOptions = []ServiceOption{
 		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
 		for _, d := range s.Options().Dependencies {
+
+			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
+
 			err := Retry(func() error {
 				runningServices, err := registry.ListRunningServices()
 				if err != nil {
