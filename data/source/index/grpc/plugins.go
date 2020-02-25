@@ -54,6 +54,7 @@ func init() {
 				service.Source(source),
 				service.Fork(true),
 				service.AutoStart(false),
+				service.Unique(true),
 				service.WithStorage(index.NewDAO, func(s service.Service) string {
 					// Returning a prefix for the dao
 					return strings.Replace(name, ".", "_", -1)

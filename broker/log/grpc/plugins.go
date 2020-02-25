@@ -41,6 +41,7 @@ func init() {
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG),
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("Syslog index store"),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG)
 				if e != nil {
