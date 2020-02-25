@@ -24,7 +24,6 @@ package proxy
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -32,6 +31,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
@@ -48,7 +48,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 )
 
@@ -257,6 +256,17 @@ func init() {
 						log.Logger(ctx).Error("*******************************************************************")
 					}
 
+					for {
+						if err == nil || !errorUtils.IsErrorPortBusy(err) {
+							break
+						}
+
+						log.Logger(ctx).Error("port is busy - standing by", zap.Error(err))
+
+						<-time.After(10 * time.Second)
+						err = caddy.Start()
+					}
+
 					return nil, nil, nil, err
 				}
 
@@ -266,6 +276,7 @@ func init() {
 						instance.Wait()
 						return nil
 					}), service.CheckerFunc(func() error {
+
 						if len(instance.Servers()) == 0 {
 							return fmt.Errorf("No servers have been started")
 						}
@@ -282,7 +293,7 @@ func init() {
 				}
 
 				// Adding subscriber
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STARTED, func(p broker.Publication) error {
 					sName := string(p.Message().Body)
 					if needsRestart(sName) {
 						log.Logger(s.Options().Context).Debug("Received Start Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
@@ -293,13 +304,11 @@ func init() {
 				}); err != nil {
 					return err
 				}
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
-					var se service2.StopEvent
-					if e := json.Unmarshal(p.Message().Body, &se); e == nil {
-						if needsRestart(se.ServiceName) {
-							log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", &se))
-							return caddy.Restart()
-						}
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOPPED, func(p broker.Publication) error {
+					sName := string(p.Message().Body)
+					if needsRestart(sName) {
+						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", sName))
+						return caddy.Restart()
 					}
 					return nil
 				}); err != nil {

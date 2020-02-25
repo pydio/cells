@@ -24,14 +24,13 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -98,9 +97,9 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 
 					return nil
 				}),
-				micro.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
-				}),
+				// micro.AfterStart(func() error {
+				// 	return broker.Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(name)})
+				// }),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),

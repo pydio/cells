@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/micro/go-micro/broker"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 )
@@ -100,6 +102,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		for _, n := range ss[0].Nodes {
 			c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
 			c.registerProcessFromNode(n, s.Name)
+			defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(s.Name)})
 		}
 	}
 
@@ -127,12 +130,16 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			switch a {
 			case "create":
 				for _, n := range s.Nodes {
-					c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
+					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
+						defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(s.Name)})
+					}
 					c.registerProcessFromNode(n, s.Name)
 				}
 			case "delete":
 				for _, n := range s.Nodes {
-					c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port))
+					if c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port)) {
+						defaults.Broker().Publish(common.TOPIC_SERVICE_STOPPED, &broker.Message{Body: []byte(s.Name)})
+					}
 					c.deregisterProcessFromNode(n, s.Name)
 				}
 			}
