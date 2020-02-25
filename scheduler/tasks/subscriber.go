@@ -71,7 +71,7 @@ type Subscriber struct {
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
 // by maintaining a map of dispacher, one for each job definition.
-func NewSubscriber(parentContext context.Context, client client.Client, server server.Server) *Subscriber {
+func NewSubscriber(parentContext context.Context, client client.Client, srv server.Server) *Subscriber {
 
 	s := &Subscriber{
 		Client:          client,
@@ -88,17 +88,21 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 
 	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
-	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
+	// Use a "Queue" mechanism to make sure events are distributed accross tasks instances
+	opts := func(o *server.SubscriberOptions) {
+		o.Queue = "tasks"
+	}
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
 		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
 			return s.nodeEvent(ctx, e)
 		} else {
 			return nil
 		}
-	}))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent))
+	}, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent, opts))
 
 	s.ListenToMainQueue()
 	s.TaskChannelSubscription()
