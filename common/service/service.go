@@ -233,37 +233,77 @@ var mandatoryOptions = []ServiceOption{
 	// Setting config watchers
 	AfterInit(func(s Service) error {
 		watchers := s.Options().Watchers
-
 		if len(watchers) == 0 {
 			return nil
 		}
-
 		registerWatchers(s.Name(), watchers)
+		return nil
+	}),
 
-		// w, err := config.Watch("services", s.Name())
-		// if err != nil {
-		// 	return err
-		// }
+	// Adding a check before starting the service to ensure only one is started if unique
+	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
 
-		// go func() {
-		// 	defer w.Stop()
+		if s.MustBeUnique() {
+			for {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
 
-		// 	for {
-		// 		ch, err := w.Next()
-		// 		if err != nil {
-		// 			break
-		// 		}
+				found := false
+				for _, r := range runningServices {
+					log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
+					if s.Name() == r.Name() {
+						found = true
+						break
+					}
+				}
 
-		// 		var c config.Map
-		// 		if err := ch.Scan(&c); err != nil {
-		// 			continue
-		// 		}
+				if found {
+					log.Logger(ctx).Info("already started - standing by")
+					<-time.After(10 * time.Second)
+					continue
+				}
 
-		// 		for _, watcher := range watchers {
-		// 			watcher(s.Options().Context, c)
-		// 		}
-		// 	}
-		// }()
+				break
+			}
+		}
+
+		return nil
+	}),
+
+	// Adding a check before starting the service to ensure all dependencies are running
+	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
+
+		for _, d := range s.Options().Dependencies {
+
+			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
+
+			err := Retry(func() error {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					if d.Name == r.Name() {
+						return nil
+					}
+				}
+
+				return fmt.Errorf("dependency %s not found", d.Name)
+			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+
+			if err != nil {
+				return err
+			}
+		}
+
+		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
 
 		return nil
 	}),
@@ -318,60 +358,6 @@ var mandatoryOptions = []ServiceOption{
 
 		return nil
 
-	}),
-
-	// Adding a check before starting the service to ensure only one is started if unique
-	BeforeStart(func(s Service) error {
-
-		ctx := s.Options().Context
-
-		if s.MustBeUnique() {
-			runningServices, err := registry.ListRunningServices()
-			if err != nil {
-				return err
-			}
-
-			for _, r := range runningServices {
-				log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
-				if s.Name() == r.Name() {
-					return fmt.Errorf("already started")
-				}
-			}
-		}
-
-		return nil
-	}),
-
-	// Adding a check before starting the service to ensure all dependencies are running
-	BeforeStart(func(s Service) error {
-		ctx := s.Options().Context
-
-		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
-
-		for _, d := range s.Options().Dependencies {
-			err := Retry(func() error {
-				runningServices, err := registry.ListRunningServices()
-				if err != nil {
-					return err
-				}
-
-				for _, r := range runningServices {
-					if d.Name == r.Name() {
-						return nil
-					}
-				}
-
-				return fmt.Errorf("dependency %s not found", d.Name)
-			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
-
-			if err != nil {
-				return err
-			}
-		}
-
-		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
-
-		return nil
 	}),
 }
 
