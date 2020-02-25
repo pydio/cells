@@ -22,19 +22,23 @@ package registry
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
 )
 
 // ListRunningServices returns a list of services that are registered with the main registry
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 
+	c.runninglock.RLock()
+	defer c.runninglock.RUnlock()
+
 	var services []Service
 
 	for _, p := range GetPeers() {
-
 		for _, rs := range p.GetServices() {
 			if s, ok := c.register[rs.Name]; ok {
 				services = append(services, s)
@@ -77,28 +81,22 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 
-	// start := time.Now()
-	// initialServices, _ := defaults.Registry().ListServices()
-	// //for _, r := range initialServices {
-	// // Initially, we retrieve each service to ensure we have the correct list
-	// // services, _ := defaults.Registry().GetService(r.Name)
-	// // for _, s := range services {
-	// // 	for _, n := range s.Nodes {
+	c.runninglock.Lock()
+	defer c.runninglock.Unlock()
 
-	// // 		// _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
-	// // 		// if err != nil {
-	// // 		// 	continue
-	// // 		// }
+	// To ensure the watch is properly populated
+	initialServices, err := defaults.Registry().ListServices()
+	if err != nil {
+		log.Fatal("Could not retrieve initial services list")
+	}
 
-	// // 		c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
-	// // 		c.registerProcessFromNode(n, s.Name)
-	// // 	}
-	// // }
-	// //}
-	// elapsed := time.Since(start)
-	// fmt.Printf("Binomial took %s", elapsed)
+	initialServicesMap := make(map[string]string)
+	for _, s := range initialServices {
+		initialServicesMap[s.Name] = s.Name
+	}
 
-	// fmt.Println(initialServices)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 
 	go func() {
 
@@ -107,6 +105,8 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		if err != nil {
 			return
 		}
+
+		check := true
 
 		for {
 			res, err := w.Next()
@@ -128,12 +128,22 @@ func (c *pydioregistry) maintainRunningServicesList() {
 					c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
 					c.registerProcessFromNode(n, s.Name)
 				}
+				delete(initialServicesMap, s.Name)
 			case "delete":
 				for _, n := range s.Nodes {
 					c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port))
 					c.deregisterProcessFromNode(n, s.Name)
 				}
 			}
+
+			if check && len(initialServicesMap) == 0 {
+				wg.Done()
+				check = false
+			}
 		}
 	}()
+
+	wg.Wait()
+
+	log.Info("Captured initial list of running services")
 }
