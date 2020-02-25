@@ -90,12 +90,14 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	}
 
 	for _, s := range initialServices {
-		ss, err := defaults.Registry().GetService(s.Name)
+		ss, err := defaults.StartupRegistry().GetService(s.Name)
 		if err != nil {
 			continue
 		}
 
 		if len(ss) == 0 {
+			fmt.Println("We should not be in there maintainRunningServicesList")
+			log.Error("We should not be in there maintainRunningServicesList")
 			continue
 		}
 

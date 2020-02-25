@@ -41,6 +41,8 @@ var (
 	clientOpts     []func() client.Option
 	serverOpts     []func() server.Option
 	serverHTTPOpts []func() server.Option
+
+	DefaultStartupRegistry registry.Registry
 )
 
 func InitServer(opt ...func() server.Option) {
@@ -112,16 +114,21 @@ func NewHTTPServer(new ...server.Option) server.Server {
 }
 
 func Registry() registry.Registry {
-	c := NewClient()
-	return c.Options().Registry
+	return registry.DefaultRegistry
+}
+
+func StartupRegistry() registry.Registry {
+	if DefaultStartupRegistry == nil {
+		return Registry()
+	}
+
+	return DefaultStartupRegistry
 }
 
 func Transport() transport.Transport {
-	c := NewClient()
-	return c.Options().Transport
+	return transport.DefaultTransport
 }
 
 func Broker() broker.Broker {
-	c := NewClient()
-	return c.Options().Broker
+	return broker.DefaultBroker
 }
