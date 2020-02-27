@@ -3987,6 +3987,12 @@
 			"tree": true
 		},
 		{
+			"checksumSHA1": "6k5WOrjYcKugmaBH6AlDKw6gGVk=",
+			"path": "github.com/pydio/nats-on-a-log",
+			"revision": "9db47696d02e5af33ccc7804d4fcc439a2317197",
+			"revisionTime": "2020-02-26T18:22:08Z"
+		},
+		{
 			"checksumSHA1": "kkYqEi0iUICktn03od75Zb0dKmA=",
 			"path": "github.com/pydio/pydio-sdk-go/client",
 			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",

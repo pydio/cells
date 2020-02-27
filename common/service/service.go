@@ -242,34 +242,26 @@ var mandatoryOptions = []ServiceOption{
 
 	// Adding a check before starting the service to ensure only one is started if unique
 	BeforeStart(func(s Service) error {
-		ctx := s.Options().Context
 
 		if s.MustBeUnique() {
-			for {
-				runningServices, err := registry.ListRunningServices()
-				if err != nil {
-					return err
-				}
-
-				found := false
-				for _, r := range runningServices {
-					log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
-					if s.Name() == r.Name() {
-						found = true
-						break
-					}
-				}
-
-				if found {
-					log.Logger(ctx).Info("already started - standing by")
-					<-time.After(10 * time.Second)
-					continue
-				}
-
-				break
+			ctx := s.Options().Context
+			serviceName := s.Name()
+			cluster := registry.GetCluster(ctx, serviceName, &registry.NullFSM{})
+			nodeId := s.Options().Micro.Server().Options().Id
+			if err := cluster.Join(nodeId); err != nil {
+				return err
 			}
+			s.Init(Cluster(cluster))
+			<-cluster.LeadershipAcquired()
 		}
 
+		return nil
+	}),
+
+	BeforeStop(func(s Service) error {
+		if s.MustBeUnique() && s.Options().Cluster != nil {
+			return s.Options().Cluster.Leave()
+		}
 		return nil
 	}),
 
