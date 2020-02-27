@@ -196,7 +196,7 @@ func (r *raftNatsCluster) Close() error {
 }
 
 func (r *raftNatsCluster) listExistingNodes() (ids []string) {
-	ss, err := defaults.Registry().GetService(r.serviceName)
+	ss, err := defaults.StartupRegistry().GetService(r.serviceName)
 	if err == nil && len(ss) > 0 {
 		for _, n := range ss[0].Nodes {
 			ids = append(ids, n.Id)
