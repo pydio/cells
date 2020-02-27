@@ -23,6 +23,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
+	errorUtils "github.com/pydio/cells/common/utils/error"
 
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
@@ -70,23 +73,47 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 				micro.Metadata(registry.BuildServiceMeta()),
 				micro.BeforeStart(func() error {
 					n := s.Options().Name
-					r, c, s, err := f(s.Options().Context, s.Options().Cancel)
+					var runner Runner
+					var checker Checker
+					var stopper Stopper
+					var err error
+					loop := 0
+					for {
+						loop++
+						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
+						if err == nil || !errorUtils.IsServiceStartNeedsRetry(err) {
+							break
+						}
+						if loop == 1 {
+							log.Logger(s.Options().Context).Info("Runner generator returned ServiceStartNeedsRetry error, waiting for 10s")
+						}
+						<-time.After(10 * time.Second)
+					}
 					if err != nil {
 						return err
 					}
 
 					// Adding context watcher
 					go func() {
+						defer func() {
+							if e := recover(); e != nil {
+								fmt.Println("Panic recovered while stopping service", e)
+							}
+						}()
 						<-ctx.Done()
-						s.Stop()
+						stopper.Stop()
 					}()
-					if r == nil {
-						return fmt.Errorf("nil runner before start for %s", n)
+					if runner == nil {
+						fmt.Printf("Nil runner before start for %s, call runner generator again\n", n)
+						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
+						if err != nil {
+							return err
+						}
 					}
-					go r.Run()
+					go runner.Run()
 
-					if err := Retry(c.Check); err != nil {
-						s.Stop()
+					if err := Retry(checker.Check); err != nil {
+						stopper.Stop()
 					}
 
 					return nil

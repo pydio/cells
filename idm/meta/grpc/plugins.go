@@ -49,6 +49,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
+			service.Unique(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

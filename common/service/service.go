@@ -59,17 +59,6 @@ import (
 	net2 "github.com/pydio/cells/common/utils/net"
 )
 
-const (
-	TYPE_GENERIC = iota
-	TYPE_GRPC
-	TYPE_REST
-	TYPE_API
-)
-
-var (
-	types = []string{"generic", "grpc", "rest", "api"}
-)
-
 type Service interface {
 	registry.Service
 
@@ -443,7 +432,7 @@ func (s *service) Start() {
 }
 
 // ForkStart uses a fork process to start the service
-func (s *service) ForkStart() {
+func (s *service) ForkStart(retries ...int) {
 
 	name := s.Options().Name
 	ctx := s.Options().Context
@@ -483,7 +472,21 @@ func (s *service) ForkStart() {
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
 	if err := cmd.Wait(); err != nil {
-		cancel()
+		r := 0
+		if len(retries) > 0 {
+			r = retries[0]
+		}
+		if r >= 4 {
+			log.Logger(ctx).Error("SubProcess finished with error: " + err.Error() + " but reached max retries")
+			cancel()
+			return
+		} else {
+			<-time.After(2 * time.Second)
+			log.Logger(ctx).Error("SubProcess finished with error: " + err.Error() + ", trying to restart now")
+			s.ForkStart(r + 1)
+		}
+	} else {
+		log.Logger(ctx).Debug("SubProcess finished without error")
 	}
 
 }

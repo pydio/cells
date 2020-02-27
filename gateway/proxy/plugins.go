@@ -31,7 +31,6 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
-	"time"
 
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
@@ -260,11 +259,8 @@ func init() {
 						if err == nil || !errorUtils.IsErrorPortBusy(err) {
 							break
 						}
-
-						log.Logger(ctx).Error("port is busy - standing by", zap.Error(err))
-
-						<-time.After(10 * time.Second)
-						err = caddy.Start()
+						//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
+						return nil, nil, nil, fmt.Errorf(errorUtils.ErrServiceStartNeedsRetry)
 					}
 
 					return nil, nil, nil, err

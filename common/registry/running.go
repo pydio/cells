@@ -102,7 +102,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		}
 
 		for _, n := range ss[0].Nodes {
-			c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
+			c.GetPeer(n).Add(ss[0], fmt.Sprintf("%d", n.Port))
 			c.registerProcessFromNode(n, s.Name)
 			defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(s.Name)})
 		}
