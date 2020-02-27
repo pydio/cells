@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/spf13/viper"
+
 	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/hashicorp/raft"
@@ -84,12 +86,15 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	r.config.LocalID = raft.ServerID(r.localId)
 
 	natsOpts := nats.GetDefaultOptions()
+	natsOpts.Timeout = 10 * time.Second
+	addr := viper.GetString("registry_address")
+	natsOpts.Url = addr
 	var err error
 	r.conn, err = natsOpts.Connect()
 	if err != nil {
 		return err
 	}
-	transport, err := natslog.NewNATSTransport(r.localId, r.conn, 2*time.Second, os.Stdout)
+	transport, err := natslog.NewNATSTransport(r.localId, r.conn, 10*time.Second, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -131,7 +136,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	for _, joinId := range nn {
 		fmt.Println("Trying to join", joinId)
 		req, _ := json.Marshal(&joinRequest{ID: r.localId})
-		resp, err := r.conn.Request(fmt.Sprintf("%s.join", joinId), req, 5*time.Second)
+		resp, err := r.conn.Request(fmt.Sprintf("%s.join", joinId), req, 10*time.Second)
 		if err != nil {
 			continue
 		}
@@ -309,7 +314,7 @@ func (r *raftNatsCluster) prune() {
 				continue
 			}
 			req, _ := json.Marshal(map[string]interface{}{})
-			if _, e := r.conn.Request(fmt.Sprintf("%s.ping", srv.ID), req, 1*time.Second); e != nil {
+			if _, e := r.conn.Request(fmt.Sprintf("%s.ping", srv.ID), req, 10*time.Second); e != nil {
 				fmt.Println("Removing server from cluster now", srv.ID)
 				f := r.raft.RemoveServer(srv.ID, configFuture.Index(), 1*time.Second)
 				if er := f.Error(); er != nil {
