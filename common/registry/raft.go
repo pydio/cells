@@ -233,7 +233,7 @@ func (r *raftNatsCluster) subscribe() error {
 
 		configFuture := r.raft.GetConfiguration()
 		if err := configFuture.Error(); err != nil {
-			fmt.Println("failed to get raft configuration: %v", err)
+			fmt.Println("failed to get raft configuration:", err.Error())
 			resp, _ := json.Marshal(&joinResponse{OK: false, Error: err.Error()})
 			r.conn.Publish(msg.Reply, resp)
 			return
@@ -242,7 +242,7 @@ func (r *raftNatsCluster) subscribe() error {
 			// However if *both* the ID and the address are the same, then nothing -- not even
 			// a join operation -- is needed.
 			if !req.Leave && srv.ID == raft.ServerID(req.ID) {
-				fmt.Println("node %s already member of cluster, ignoring join request", req.ID)
+				fmt.Println("node already member of cluster, ignoring join request", req.ID)
 				return
 			}
 		}

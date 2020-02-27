@@ -2,6 +2,8 @@ language: go
 
 go:
 - "1.12.12"
+- "1.13"
+- "1.14"
 
 script:
 - go build main.go
