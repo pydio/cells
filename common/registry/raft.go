@@ -1,15 +1,20 @@
 package registry
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
+	stdlog "log"
+	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/spf13/viper"
 
+	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/hashicorp/raft"
@@ -63,6 +68,7 @@ type raftNatsCluster struct {
 	config      *raft.Config
 	localId     string
 	leadership  chan bool
+	logOutput   io.Writer
 
 	conn *nats.Conn
 	raft *raft.Raft
@@ -80,10 +86,36 @@ func GetCluster(ctx context.Context, serviceName string, fsm raft.FSM) Cluster {
 	}
 }
 
+func (r *raftNatsCluster) logger() io.Writer {
+	if r.logOutput == nil {
+		re, wr := io.Pipe()
+		r.logOutput = wr
+		scanner := bufio.NewScanner(re)
+		scanner.Split(bufio.ScanLines)
+		go func() {
+			for scanner.Scan() {
+				line := scanner.Text()
+				line = strings.Replace(line, "raft: ", "[raft] ", 1)
+				if strings.HasPrefix(line, "[WARN] ") {
+					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[WARN] "))
+				} else if strings.HasPrefix(line, "[DEBUG] ") {
+					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[DEBUG] "))
+				} else if strings.HasPrefix(line, "[INFO] ") {
+					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[INFO] "))
+				} else {
+					log.Logger(r.ctx).Info(line)
+				}
+			}
+		}()
+	}
+	return r.logOutput
+}
+
 func (r *raftNatsCluster) Join(nodeId string) error {
 
 	r.localId = r.serviceName + "-" + nodeId
 	r.config.LocalID = raft.ServerID(r.localId)
+	r.config.Logger = stdlog.New(r.logger(), "", 0)
 
 	natsOpts := nats.GetDefaultOptions()
 	natsOpts.Timeout = 10 * time.Second
@@ -94,7 +126,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	if err != nil {
 		return err
 	}
-	transport, err := natslog.NewNATSTransport(r.localId, r.conn, 10*time.Second, os.Stdout)
+	transport, err := natslog.NewNATSTransport(r.localId, r.conn, 10*time.Second, r.logger())
 	if err != nil {
 		return err
 	}
@@ -134,7 +166,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	// Try to join existing cluster
 	var joined bool
 	for _, joinId := range nn {
-		fmt.Println("Trying to join", joinId)
+		log.Logger(r.ctx).Debug("[raft] Trying to join node " + joinId)
 		req, _ := json.Marshal(&joinRequest{ID: r.localId})
 		resp, err := r.conn.Request(fmt.Sprintf("%s.join", joinId), req, 10*time.Second)
 		if err != nil {
@@ -163,12 +195,12 @@ func (r *raftNatsCluster) LeadershipAcquired() chan bool {
 }
 
 func (r *raftNatsCluster) Leave() error {
-	fmt.Println("Leaving cluster now")
+	log.Logger(r.ctx).Info("[raft] Leaving cluster now")
 	configFuture := r.raft.GetConfiguration()
 	if e := configFuture.Error(); e == nil {
 		if r.raft.State() == raft.Leader {
 			// For leader, remove from conf directly
-			fmt.Println("Removing from configuration")
+			log.Logger(r.ctx).Debug("[raft] Removing from configuration")
 			f := r.raft.RemoveServer(raft.ServerID(r.localId), configFuture.Index(), 1*time.Second)
 			f.Error()
 		} else {
@@ -181,11 +213,11 @@ func (r *raftNatsCluster) Leave() error {
 				}
 			}
 			if leaderId != "" {
-				fmt.Println("Informing leader of removal")
+				log.Logger(r.ctx).Debug("[raft] Informing leader of removal")
 				req, _ := json.Marshal(&joinRequest{ID: r.localId, Leave: true})
 				_, err := r.conn.Request(fmt.Sprintf("%s.join", leaderId), req, 5*time.Second)
 				if err != nil {
-					fmt.Println("could not send leave request", err.Error())
+					log.Logger(r.ctx).Error("[raft] could not send leave request", zap.Error(err))
 				}
 			}
 		}
@@ -238,7 +270,7 @@ func (r *raftNatsCluster) subscribe() error {
 
 		configFuture := r.raft.GetConfiguration()
 		if err := configFuture.Error(); err != nil {
-			fmt.Println("failed to get raft configuration:", err.Error())
+			log.Logger(r.ctx).Error("[raft] failed to get raft configuration:", zap.Error(err))
 			resp, _ := json.Marshal(&joinResponse{OK: false, Error: err.Error()})
 			r.conn.Publish(msg.Reply, resp)
 			return
@@ -247,14 +279,14 @@ func (r *raftNatsCluster) subscribe() error {
 			// However if *both* the ID and the address are the same, then nothing -- not even
 			// a join operation -- is needed.
 			if !req.Leave && srv.ID == raft.ServerID(req.ID) {
-				fmt.Println("node already member of cluster, ignoring join request", req.ID)
+				//fmt.Println("node already member of cluster, ignoring join request", req.ID)
 				return
 			}
 		}
 
 		resp := &joinResponse{OK: true}
 		if !req.Leave {
-			fmt.Println("Adding new node to raft cluster", req.ID)
+			log.Logger(r.ctx).Info("[raft] Adding new node to raft cluster " + req.ID)
 			future := r.raft.AddVoter(raft.ServerID(req.ID), raft.ServerAddress(req.ID), 0, 0)
 			if err := future.Error(); err != nil {
 				resp.OK = false
@@ -291,11 +323,11 @@ func (r *raftNatsCluster) subscribe() error {
 	go func() {
 		for isLeader := range r.raft.LeaderCh() {
 			if isLeader {
-				fmt.Println("*** LEADERSHIP ACQUIRED ***")
+				log.Logger(r.ctx).Info("[raft] #### Leadership Acquired for service " + r.serviceName + " ####")
 				r.leadership <- true
 				r.prune()
 			} else {
-				fmt.Println("*** LEADERSHIP LOST ***")
+				log.Logger(r.ctx).Info("[raft] #### Leadership Lost on service " + r.serviceName + " ####")
 			}
 		}
 	}()
@@ -307,7 +339,7 @@ func (r *raftNatsCluster) prune() {
 	// Leader changed, so someone must have been lost, ping cluster and remove dead servers
 	configFuture := r.raft.GetConfiguration()
 	if err := configFuture.Error(); err != nil {
-		fmt.Printf("failed to get raft configuration: %v\n", err)
+		log.Logger(r.ctx).Error("[raft] failed to get raft configuration: %v\n", zap.Error(err))
 	} else {
 		for _, srv := range configFuture.Configuration().Servers {
 			if srv.ID == raft.ServerID(r.localId) {
@@ -315,10 +347,10 @@ func (r *raftNatsCluster) prune() {
 			}
 			req, _ := json.Marshal(map[string]interface{}{})
 			if _, e := r.conn.Request(fmt.Sprintf("%s.ping", srv.ID), req, 10*time.Second); e != nil {
-				fmt.Println("Removing server from cluster now", srv.ID)
+				log.Logger(r.ctx).Debug("[raft] Removing server from cluster now " + string(srv.ID))
 				f := r.raft.RemoveServer(srv.ID, configFuture.Index(), 1*time.Second)
 				if er := f.Error(); er != nil {
-					fmt.Println("Error while removing server from cluster", er.Error())
+					log.Logger(r.ctx).Error("[raft] Error while removing server from cluster", zap.Error(err))
 				}
 			}
 		}
