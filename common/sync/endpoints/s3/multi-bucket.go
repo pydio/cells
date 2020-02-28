@@ -186,13 +186,18 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
 	doneChan := make(chan bool)
+	wConn := make(chan model.WatchConnectionInfo)
 	watchObject := &model.WatchObject{
-		EventInfoChan: eventChan,
-		ErrorChan:     errorChan,
-		DoneChan:      doneChan,
+		EventInfoChan:  eventChan,
+		ErrorChan:      errorChan,
+		DoneChan:       doneChan,
+		ConnectionInfo: wConn,
 	}
+	var subCloses []chan bool
 	// Setup a watcher on each bucket : init clients
 	for _, b := range bb {
+		subClose := make(chan bool)
+		subCloses = append(subCloses, subClose)
 		if m.bucketRegexp != nil && !m.bucketRegexp.MatchString(b.Name) {
 			continue
 		}
@@ -206,25 +211,41 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 		}
 		log.Logger(context.Background()).Info("Started watcher for bucket", zap.String("bucket", b.Name))
 		go func(bName string) {
+			internalClose := false
 			defer func() {
-				log.Logger(context.Background()).Info("Closing watcher for bucket", zap.String("bucket", bName))
-				bWatcher.DoneChan <- true
+				if !internalClose {
+					log.Logger(context.Background()).Info("Closing watcher for bucket", zap.String("bucket", bName))
+					bWatcher.DoneChan <- true
+				}
 			}()
 			for {
 				select {
-				case event := <-bWatcher.Events():
+				case event, open := <-bWatcher.Events():
+					if !open {
+						internalClose = true
+						return
+					}
 					// Patch Event data for output
 					event.Path = m.patchPath(bName, nil, event.Path)
 					event.Source = m
 					eventChan <- event
 				case evErr := <-bWatcher.Errors():
 					errorChan <- evErr
-				case <-doneChan:
+				case conn := <-bWatcher.ConnectionInfos():
+					wConn <- conn
+				case <-subClose:
 					return
 				}
 			}
 		}(b.Name)
 	}
+	// close all sub watchers when global done is called
+	go func() {
+		<-doneChan
+		for _, s := range subCloses {
+			close(s)
+		}
+	}()
 	return watchObject, nil
 }
 

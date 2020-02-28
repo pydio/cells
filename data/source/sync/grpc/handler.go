@@ -97,6 +97,7 @@ func (s *Handler) Start() {
 	s.syncTask.Start(s.globalCtx, true)
 	go s.watchConfigs()
 	go s.watchErrors()
+	go s.watchDisconnection()
 }
 
 func (s *Handler) Stop() {
@@ -304,6 +305,33 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	return nil
 
+}
+
+func (s *Handler) watchDisconnection() {
+	//defer close(watchOnce)
+	watchOnce := make(chan interface{})
+	s.syncTask.SetupEventsChan(nil, nil, watchOnce)
+
+	for w := range watchOnce {
+		if m, ok := w.(*model.EndpointStatus); ok && m.WatchConnection == model.WatchDisconnected {
+			log.Logger(s.globalCtx).Error("WATCHER DISCONNECTED! SHOULD RESTART SYNC NOW", zap.Any("m", m))
+			//s.syncTask.SetupEventsChan(nil, nil, nil) // Reset watchConn listener
+			s.syncTask.Shutdown()
+			<-time.After(3 * time.Second)
+			var syncConfig *object.DataSource
+			if err := servicecontext.ScanConfig(s.globalCtx, &syncConfig); err != nil {
+				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
+			}
+			if sec := config.GetSecret(syncConfig.ApiSecret).String(""); sec != "" {
+				syncConfig.ApiSecret = sec
+			}
+			if e := s.initSync(syncConfig); e != nil {
+				log.Logger(s.globalCtx).Error("Error while restarting sync")
+			}
+			s.syncTask.Start(s.globalCtx, true)
+			return
+		}
+	}
 }
 
 func (s *Handler) watchErrors() {

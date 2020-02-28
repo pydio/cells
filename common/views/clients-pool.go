@@ -42,7 +42,6 @@ import (
 )
 
 var (
-	clientWithRetries     *client.Client
 	clientWithRetriesOnce = &sync.Once{}
 )
 
@@ -158,7 +157,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		}
 		delay := (retry + 1) * 2
 
-		log.Logger(context.Background()).Debug(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
+		log.Logger(context.Background()).Info(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
 
 		<-time.After(time.Duration(delay) * time.Second)
 		p.listDatasources()

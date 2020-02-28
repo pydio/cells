@@ -608,35 +608,43 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	events = append(events, string(minio.ObjectRemovedAll))
 
 	doneCh := make(chan struct{})
+	wConn := make(chan model.WatchConnectionInfo)
 
+	closeCalled := false
 	// wait for doneChan to close the other channels
 	go func() {
 		<-doneChan
-
+		closeCalled = true
 		close(doneCh)
 		close(eventChan)
 		close(errorChan)
+		close(wConn)
 	}()
 
 	// Start listening on all bucket events.
 	eventsCh := c.Mc.ListenBucketNotification(c.Bucket, c.getFullPath(recursivePath), "", events, doneCh)
 
 	wo := &model.WatchObject{
-		EventInfoChan: eventChan,
-		ErrorChan:     errorChan,
-		DoneChan:      doneChan,
+		EventInfoChan:  eventChan,
+		ErrorChan:      errorChan,
+		DoneChan:       doneChan,
+		ConnectionInfo: wConn,
 	}
 
 	// wait for events to occur and sent them through the eventChan and errorChan
 	go func() {
-		defer wo.Close()
+		//defer wo.Close()
 		for notificationInfo := range eventsCh {
+			if closeCalled {
+				return
+			}
 			if notificationInfo.Err != nil {
 				if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
 					errorChan <- errors.New("API Not Supported")
 					return
 				}
 				errorChan <- notificationInfo.Err
+				wConn <- model.WatchDisconnected
 			}
 			for _, record := range notificationInfo.Records {
 				//bucketName := record.S3.Bucket.Name
