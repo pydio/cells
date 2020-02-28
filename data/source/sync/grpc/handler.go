@@ -314,8 +314,7 @@ func (s *Handler) watchDisconnection() {
 
 	for w := range watchOnce {
 		if m, ok := w.(*model.EndpointStatus); ok && m.WatchConnection == model.WatchDisconnected {
-			log.Logger(s.globalCtx).Error("WATCHER DISCONNECTED! SHOULD RESTART SYNC NOW", zap.Any("m", m))
-			//s.syncTask.SetupEventsChan(nil, nil, nil) // Reset watchConn listener
+			log.Logger(s.globalCtx).Error("Watcher disconnected! Will try to restart sync now.")
 			s.syncTask.Shutdown()
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
