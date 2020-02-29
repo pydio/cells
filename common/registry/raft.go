@@ -34,16 +34,18 @@ type NullFSM struct{}
 type NullSnapshot struct{}
 
 func (n *NullSnapshot) Persist(sink raft.SnapshotSink) error {
+	sink.Close()
 	return nil
 }
 func (n *NullSnapshot) Release() {}
 func (n *NullFSM) Apply(*raft.Log) interface{} {
-	return true
+	return nil
 }
 func (n *NullFSM) Snapshot() (raft.FSMSnapshot, error) {
 	return &NullSnapshot{}, nil
 }
-func (n *NullFSM) Restore(io.ReadCloser) error {
+func (n *NullFSM) Restore(rc io.ReadCloser) error {
+	rc.Close()
 	return nil
 }
 
@@ -77,12 +79,16 @@ type raftNatsCluster struct {
 }
 
 func GetCluster(ctx context.Context, serviceName string, fsm raft.FSM) Cluster {
+	c := raft.DefaultConfig()
+	c.ElectionTimeout = 5 * time.Second
+	c.HeartbeatTimeout = 5 * time.Second
+	c.LeaderLeaseTimeout = 2 * time.Second
 	return &raftNatsCluster{
 		ctx:         ctx,
 		serviceName: serviceName,
 		fsm:         fsm,
 		leadership:  make(chan bool),
-		config:      raft.DefaultConfig(),
+		config:      c,
 	}
 }
 
@@ -96,12 +102,15 @@ func (r *raftNatsCluster) logger() io.Writer {
 			for scanner.Scan() {
 				line := scanner.Text()
 				line = strings.Replace(line, "raft: ", "[raft] ", 1)
+				line = strings.Replace(line, "raft-net: ", "[raft-net] ", 1)
 				if strings.HasPrefix(line, "[WARN] ") {
-					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[WARN] "))
+					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[WARN] "))
 				} else if strings.HasPrefix(line, "[DEBUG] ") {
-					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[DEBUG] "))
+					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[DEBUG] "))
 				} else if strings.HasPrefix(line, "[INFO] ") {
 					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[INFO] "))
+				} else if strings.HasPrefix(line, "[ERR] ") {
+					log.Logger(r.ctx).Warn(strings.TrimPrefix(line, "[ERR] "))
 				} else {
 					log.Logger(r.ctx).Info(line)
 				}
@@ -118,7 +127,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	r.config.Logger = stdlog.New(r.logger(), "", 0)
 
 	natsOpts := nats.GetDefaultOptions()
-	natsOpts.Timeout = 10 * time.Second
+	natsOpts.Timeout = 4 * time.Second
 	addr := viper.GetString("registry_address")
 	natsOpts.Url = addr
 	var err error
@@ -126,7 +135,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	if err != nil {
 		return err
 	}
-	transport, err := natslog.NewNATSTransport(r.localId, r.conn, 10*time.Second, r.logger())
+	transport, err := natslog.NewNATSTransportWithLogger(r.localId, r.conn, 4*time.Second, r.config.Logger)
 	if err != nil {
 		return err
 	}

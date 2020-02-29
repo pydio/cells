@@ -92,11 +92,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		log.Fatal("Could not retrieve initial services list")
 	}
 
-	fmt.Printf("Listing initial services (%d)... Please wait\n", len(initialServices))
 	wg := &sync.WaitGroup{}
 	queue := make(chan struct{}, 10)
 	wg.Add(len(initialServices))
 	var ss []*registry.Service
+
+	fmt.Printf("Discovering running nodes for all services (%d)... Please wait\n", len(initialServices))
 
 	for _, s := range initialServices {
 		queue <- struct{}{}
