@@ -21,8 +21,8 @@ func Enable() {
 
 	defaults.DefaultStartupRegistry = nats.NewRegistry(
 		registry.Addrs(addr),
-		registry.Timeout(10*time.Second),
-		nats.Quorum(1),
+		registry.Timeout(4*time.Second),
+		nats.Quorum(0),
 	)
 
 	s := cache.NewSelector(selector.Registry(r))

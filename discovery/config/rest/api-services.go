@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/emicklei/go-restful"
@@ -325,6 +326,9 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 			Metadata: node.Metadata,
 		})
 	}
+	sort.Slice(protoSrv.RunningPeers, func(i, j int) bool {
+		return protoSrv.RunningPeers[i].Id > protoSrv.RunningPeers[j].Id
+	})
 	if len(protoSrv.RunningPeers) == 0 {
 		protoSrv.Status = ctl.ServiceStatus_STOPPED
 	}

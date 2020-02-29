@@ -22,9 +22,12 @@ package registry
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/registry"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -89,22 +92,39 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		log.Fatal("Could not retrieve initial services list")
 	}
 
+	fmt.Printf("Listing initial services (%d)... Please wait\n", len(initialServices))
+	wg := &sync.WaitGroup{}
+	queue := make(chan struct{}, 10)
+	wg.Add(len(initialServices))
+	var ss []*registry.Service
+
 	for _, s := range initialServices {
-		ss, err := defaults.StartupRegistry().GetService(s.Name)
-		if err != nil {
-			continue
-		}
+		queue <- struct{}{}
+		go func(name string) {
+			defer func() {
+				<-queue
+				wg.Done()
+			}()
+			sv, err := defaults.StartupRegistry().GetService(name)
+			if err != nil {
+				fmt.Printf("- Error on StartupRegistry.GetService for %s", name)
+				return
+			}
+			if len(sv) == 0 {
+				fmt.Println("- We should not be in there maintainRunningServicesList " + name)
+				return
+			}
+			ss = append(ss, sv...)
+		}(s.Name)
+	}
+	wg.Wait()
 
-		if len(ss) == 0 {
-			fmt.Println("We should not be in there maintainRunningServicesList")
-			log.Error("We should not be in there maintainRunningServicesList")
-			continue
-		}
-
-		for _, n := range ss[0].Nodes {
-			c.GetPeer(n).Add(ss[0], fmt.Sprintf("%d", n.Port))
-			c.registerProcessFromNode(n, s.Name)
-			defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(s.Name)})
+	for _, srv := range ss {
+		//fmt.Printf("%s - Registering %d existing nodes for service %s\n", strings.Join(os.Args, "-"), len(srv.Nodes), srv.Name)
+		for _, n := range srv.Nodes {
+			c.GetPeer(n).Add(srv, fmt.Sprintf("%d", n.Port))
+			c.registerProcessFromNode(n, srv.Name)
+			defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(srv.Name)})
 		}
 	}
 

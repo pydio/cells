@@ -617,12 +617,20 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-	var nodes []*microregistry.Node
 
+	nMap := make(map[string]*microregistry.Node)
 	for _, p := range registry.GetPeers() {
 		for _, ms := range p.GetServices(s.Name()) {
-			nodes = append(nodes, ms.Nodes...)
+			for _, n := range ms.Nodes {
+				if _, ok := nMap[n.Id]; !ok {
+					nMap[n.Id] = n
+				}
+			}
 		}
+	}
+	var nodes []*microregistry.Node
+	for _, n := range nMap {
+		nodes = append(nodes, n)
 	}
 	return nodes
 }

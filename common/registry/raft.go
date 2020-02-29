@@ -97,9 +97,9 @@ func (r *raftNatsCluster) logger() io.Writer {
 				line := scanner.Text()
 				line = strings.Replace(line, "raft: ", "[raft] ", 1)
 				if strings.HasPrefix(line, "[WARN] ") {
-					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[WARN] "))
+					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[WARN] "))
 				} else if strings.HasPrefix(line, "[DEBUG] ") {
-					log.Logger(r.ctx).Debug(strings.TrimPrefix(line, "[DEBUG] "))
+					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[DEBUG] "))
 				} else if strings.HasPrefix(line, "[INFO] ") {
 					log.Logger(r.ctx).Info(strings.TrimPrefix(line, "[INFO] "))
 				} else {
