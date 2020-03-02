@@ -192,7 +192,10 @@ class RestClient extends ApiClient{
             })
             .then((response) => response)
             .catch((reason) =>{
-                this.handleError(reason);
+                const msg = this.handleError(reason);
+                if(msg){
+                    return Promise.reject(msg);
+                }
                 return Promise.reject(reason);
             });
     }
@@ -209,8 +212,13 @@ class RestClient extends ApiClient{
         }
         if (reason.response && reason.response.status === 404) {
             // 404 may happen
-            console.info('404 not found', msg)
-            return
+            console.info('404 not found', msg);
+            return msg;
+        }
+        if (reason.response && reason.response.status === 503) {
+            // 404 may happen
+            console.warn('Service currently unavailable', msg);
+            return msg;
         }
         if(this.pydio && this.pydio.UI) {
             this.pydio.UI.displayMessage('ERROR', msg);

@@ -245,7 +245,10 @@ var RestClient = (function (_ApiClient) {
         }).then(function (response) {
             return response;
         })['catch'](function (reason) {
-            _this3.handleError(reason);
+            var msg = _this3.handleError(reason);
+            if (msg) {
+                return Promise.reject(msg);
+            }
             return Promise.reject(reason);
         });
     };
@@ -263,7 +266,12 @@ var RestClient = (function (_ApiClient) {
         if (reason.response && reason.response.status === 404) {
             // 404 may happen
             console.info('404 not found', msg);
-            return;
+            return msg;
+        }
+        if (reason.response && reason.response.status === 503) {
+            // 404 may happen
+            console.warn('Service currently unavailable', msg);
+            return msg;
         }
         if (this.pydio && this.pydio.UI) {
             this.pydio.UI.displayMessage('ERROR', msg);
