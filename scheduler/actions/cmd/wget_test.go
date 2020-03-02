@@ -27,6 +27,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/pydio/cells/common/config"
+
 	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -35,6 +37,10 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/scheduler/actions"
 )
+
+func init() {
+	config.AsTestEnv()
+}
 
 func TestWGetAction_GetName(t *testing.T) {
 	Convey("Test GetName", t, func() {

@@ -65,6 +65,10 @@ func initConfig() {
 	close(configLoaded)
 }
 
+func AsTestEnv() {
+	close(configLoaded)
+}
+
 // Config wrapper around micro Config
 type Config struct {
 	config.Config
