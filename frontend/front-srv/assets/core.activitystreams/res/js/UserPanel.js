@@ -38,15 +38,17 @@ class UserPanel extends React.Component {
     }
 
     reloadData() {
-        Client.loadActivityStreams((json) => {
+        Client.loadActivityStreams('USER_ID', this.props.pydio.user.id, 'inbox').then((json) => {
             this.setState({data: json});
-        }, 'USER_ID', this.props.pydio.user.id, 'inbox');
+        }).catch(msg => {
+            this.setState({error: msg});
+        });
     }
 
     reloadUnread() {
-        Client.UnreadInbox(this.props.pydio.user.id, (count) => {
+        Client.UnreadInbox(this.props.pydio.user.id).then((count) => {
             this.setState({unreadStatus: count});
-        });
+        }).catch(msg => {});
     }
 
     onStatusChange(){

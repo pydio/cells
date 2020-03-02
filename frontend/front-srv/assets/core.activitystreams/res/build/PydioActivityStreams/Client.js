@@ -44,16 +44,15 @@ var AS2Client = (function () {
     _createClass(AS2Client, null, [{
         key: 'loadActivityStreams',
         value: function loadActivityStreams() {
-            var callback = arguments.length <= 0 || arguments[0] === undefined ? function (json) {} : arguments[0];
-            var context = arguments.length <= 1 || arguments[1] === undefined ? 'USER_ID' : arguments[1];
-            var contextData = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
-            var boxName = arguments.length <= 3 || arguments[3] === undefined ? 'outbox' : arguments[3];
-            var pointOfView = arguments.length <= 4 || arguments[4] === undefined ? '' : arguments[4];
-            var offset = arguments.length <= 5 || arguments[5] === undefined ? -1 : arguments[5];
-            var limit = arguments.length <= 6 || arguments[6] === undefined ? -1 : arguments[6];
+            var context = arguments.length <= 0 || arguments[0] === undefined ? 'USER_ID' : arguments[0];
+            var contextData = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+            var boxName = arguments.length <= 2 || arguments[2] === undefined ? 'outbox' : arguments[2];
+            var pointOfView = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
+            var offset = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
+            var limit = arguments.length <= 5 || arguments[5] === undefined ? -1 : arguments[5];
 
             if (!contextData) {
-                return;
+                return Promise.resolve([]);
             }
             var api = new _pydioHttpRestApi.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
             var req = new _pydioHttpRestApi.ActivityStreamActivitiesRequest();
@@ -70,9 +69,7 @@ var AS2Client = (function () {
             if (pointOfView) {
                 req.PointOfView = pointOfView;
             }
-            api.stream(req).then(function (data) {
-                callback(data);
-            });
+            return api.stream(req);
         }
     }, {
         key: 'UnreadInbox',
@@ -85,9 +82,8 @@ var AS2Client = (function () {
             req.ContextData = userId;
             req.BoxName = 'inbox';
             req.UnreadCountOnly = true;
-            api.stream(req).then(function (data) {
-                var count = data.totalItems || 0;
-                callback(count);
+            return api.stream(req).then(function (data) {
+                return data.totalItems || 0;
             });
         }
     }]);

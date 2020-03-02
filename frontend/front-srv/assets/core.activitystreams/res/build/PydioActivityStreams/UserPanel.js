@@ -78,18 +78,20 @@ var UserPanel = (function (_React$Component) {
         value: function reloadData() {
             var _this = this;
 
-            _Client2['default'].loadActivityStreams(function (json) {
+            _Client2['default'].loadActivityStreams('USER_ID', this.props.pydio.user.id, 'inbox').then(function (json) {
                 _this.setState({ data: json });
-            }, 'USER_ID', this.props.pydio.user.id, 'inbox');
+            })['catch'](function (msg) {
+                _this.setState({ error: msg });
+            });
         }
     }, {
         key: 'reloadUnread',
         value: function reloadUnread() {
             var _this2 = this;
 
-            _Client2['default'].UnreadInbox(this.props.pydio.user.id, function (count) {
+            _Client2['default'].UnreadInbox(this.props.pydio.user.id).then(function (count) {
                 _this2.setState({ unreadStatus: count });
-            });
+            })['catch'](function (msg) {});
         }
     }, {
         key: 'onStatusChange',
