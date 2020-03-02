@@ -11,11 +11,12 @@ import (
 	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
+	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
 
 var (
-	hydraBaseURL  = config.Get("defaults", "urlInternal").String("")
+	hydraBaseURL  string
 	hydraAdminURL = hydraBaseURL + "/oidc-admin"
 	hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
 )
@@ -44,6 +45,12 @@ type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int64  `json:"expires_in"`
+}
+
+func init() {
+	cobra.OnInitialize(func() {
+		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
+	})
 }
 
 func GetLogin(challenge string) (*auth.GetLoginResponse, error) {

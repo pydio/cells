@@ -33,9 +33,10 @@ import (
 	"time"
 
 	"github.com/micro/go-config/reader"
+	"github.com/ory/viper"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
-	"github.com/spf13/viper"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
@@ -48,12 +49,19 @@ var (
 	PydioConfigDir  = ApplicationWorkingDir()
 	PydioConfigFile = "pydio.json"
 
-	VersionsStore    file2.VersionsStore
-	defaultConfig    *Config
-	once             sync.Once
-	remoteSourceOnce sync.Once
-	remoteSource     bool
+	VersionsStore file2.VersionsStore
+	defaultConfig *Config
+	once          sync.Once
+	configLoaded  = make(chan struct{}, 1)
 )
+
+func init() {
+	cobra.OnInitialize(initConfig)
+}
+
+func initConfig() {
+	close(configLoaded)
+}
 
 // Config wrapper around micro Config
 type Config struct {
@@ -242,11 +250,7 @@ func GetJsonPath() string {
 }
 
 func GetRemoteSource() bool {
-	remoteSourceOnce.Do(func() {
-		if viper.GetString("registry_cluster_routes") != "" {
-			remoteSource = true
-		}
-	})
+	<-configLoaded
 
-	return remoteSource
+	return (viper.GetString("registry_cluster_routes") != "")
 }

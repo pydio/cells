@@ -37,6 +37,7 @@ import (
 	"github.com/ory/x/urlx"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/auth"
@@ -60,8 +61,14 @@ var (
 
 var (
 	DefaultClientID    = "cells-frontend"
-	DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+	DefaultRedirectURI string
 )
+
+func init() {
+	cobra.OnInitialize(func() {
+		DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+	})
+}
 
 func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest, out *pauth.GetLoginResponse) error {
 	req, err := auth.GetRegistry().ConsentManager().GetLoginRequest(ctx, in.Challenge)
