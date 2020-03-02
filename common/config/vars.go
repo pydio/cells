@@ -252,5 +252,5 @@ func GetJsonPath() string {
 func GetRemoteSource() bool {
 	<-configLoaded
 
-	return true || (viper.GetString("registry_cluster_routes") != "")
+	return (viper.GetString("registry_cluster_routes") != "")
 }
