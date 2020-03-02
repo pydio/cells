@@ -33,10 +33,10 @@ import (
 	"time"
 
 	"github.com/micro/go-config/reader"
-	"github.com/ory/viper"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
@@ -53,6 +53,8 @@ var (
 	defaultConfig *Config
 	once          sync.Once
 	configLoaded  = make(chan struct{}, 1)
+
+	postInitializers []func()
 )
 
 func init() {
@@ -92,6 +94,10 @@ func initVersionStore() {
 	}
 }
 
+func OnInitialized(f func()) {
+	postInitializers = append(postInitializers, f)
+}
+
 // Default Config with initialisation
 func Default() config.Config {
 	once.Do(func() {
@@ -124,6 +130,11 @@ func Default() config.Config {
 				fmt.Printf("[Configs] something went wrong while upgrading configs: %s\n", e.Error())
 			}
 		}
+		go func() {
+			for _, x := range postInitializers {
+				x()
+			}
+		}()
 	})
 	return defaultConfig
 }
@@ -251,6 +262,5 @@ func GetJsonPath() string {
 
 func GetRemoteSource() bool {
 	<-configLoaded
-
-	return (viper.GetString("registry_cluster_routes") != "")
+	return viper.GetString("registry_cluster_routes") != ""
 }

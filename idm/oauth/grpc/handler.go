@@ -37,7 +37,6 @@ import (
 	"github.com/ory/x/urlx"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/auth"
@@ -65,7 +64,7 @@ var (
 )
 
 func init() {
-	cobra.OnInitialize(func() {
+	config.OnInitialized(func() {
 		DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
 	})
 }

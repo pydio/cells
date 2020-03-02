@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/oauth2"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
-	"github.com/spf13/cobra"
-	"golang.org/x/oauth2"
 )
 
 var (
@@ -48,7 +48,7 @@ type TokenResponse struct {
 }
 
 func init() {
-	cobra.OnInitialize(func() {
+	config.OnInitialized(func() {
 		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
 	})
 }
