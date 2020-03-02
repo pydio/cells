@@ -59,6 +59,9 @@ exports['default'] = function (pydio) {
                 n.getMetadata().set('pending_operation_uuid', r.JobUuid);
                 n.notify('meta_replaced', n);
                 pydio.getContextHolder().setSelectedNodes([]);
+            })['catch'](function (err) {
+                var msg = err.Detail || err.message || err;
+                pydio.UI.displayMessage('ERROR', msg);
             });
         };
         var n = pydio.getUserSelection().getSelectedNodes()[0];

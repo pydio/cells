@@ -123,13 +123,16 @@ exports['default'] = _react2['default'].createClass({
 
         e.preventDefault();
         e.stopPropagation();
-
+        var pydio = this.props.pydio;
         var _state2 = this.state;
         var dir = _state2.dir;
         var urls = _state2.urls;
 
         _pydioHttpApi2['default'].getRestClient().userJob("remote-download", { target: dir, urls: urls }).then(function () {
             _this.setState({ urls: [] });
+        })['catch'](function (err) {
+            var msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
     },
 

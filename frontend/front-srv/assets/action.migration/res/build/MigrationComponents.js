@@ -30046,6 +30046,9 @@ function startJob(state, onLocalUpdate) {
     if (allActions.length) {
         _pydioHttpApi2["default"].getRestClient().userJob("import-p8", allActions).then(function (res) {
             console.log(res);
+        })["catch"](function (err) {
+            var msg = err.Detail || err.message || err;
+            _pydio2["default"].getInstance().UI.displayMessage('ERROR', msg);
         });
     }
 }
