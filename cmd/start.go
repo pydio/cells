@@ -96,11 +96,22 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		// Filtering services by tags
 		registry.Default.Filter(func(s registry.Service) bool {
+			// Unique exclude must be done here
+			for _, exclude := range FilterStartExclude {
+				if exclude == startTagUnique && s.MustBeUnique() {
+					return true
+				}
+			}
 			for _, t := range FilterStartTags {
-				for _, st := range s.Tags() {
-					if t == st {
-						registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
-						return false
+				if t == startTagUnique && s.MustBeUnique() {
+					registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
+					return false
+				} else {
+					for _, st := range s.Tags() {
+						if t == st {
+							registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
+							return false
+						}
 					}
 				}
 			}

@@ -64,6 +64,8 @@ var (
 	IsFork bool
 )
 
+const startTagUnique = "unique"
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   os.Args[0],
