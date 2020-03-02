@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/errors"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/gorilla/mux"
@@ -57,8 +59,14 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 	// Load link data
 	linkData, e := h.loadLink(ctx, linkId)
 	if e != nil {
-		tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent it to you."
-		return 404, tplConf
+		parsed := errors.Parse(e.Error())
+		if parsed.Code == 500 && parsed.Id == "go.micro.client" && parsed.Detail == "none available" {
+			tplConf.ErrorMessage = "Service is temporarily unavailable, please retry later."
+			return 503, tplConf
+		} else {
+			tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent it to you."
+			return 404, tplConf
+		}
 	}
 
 	// Check expiration time
