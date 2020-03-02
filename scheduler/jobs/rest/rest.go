@@ -95,7 +95,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 
 	streamer, err := cli.ListJobs(ctx, &request)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer streamer.Close()
@@ -130,7 +130,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 			TaskID: []string{cmd.TaskId},
 		}
 		if response, err := cli.DeleteTasks(ctx, delRequest); err != nil {
-			service.RestError500(req, rsp, err)
+			service.RestErrorDetect(req, rsp, err)
 		} else {
 			rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: fmt.Sprintf("Deleted %v tasks", len(response.Deleted))})
 		}
@@ -154,13 +154,13 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 				job.Inactive = false
 			}
 			if _, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
-				service.RestError500(req, rsp, err)
+				service.RestErrorDetect(req, rsp, err)
 			} else {
 				rsp.WriteEntity(&jobs.CtrlCommandResponse{Msg: "Updated Job State"})
 			}
 
 		} else {
-			service.RestError500(req, rsp, err)
+			service.RestErrorDetect(req, rsp, err)
 		}
 
 	} else {
@@ -168,7 +168,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		if response, err := cli.Control(ctx, &cmd); err == nil {
 			rsp.WriteEntity(response)
 		} else {
-			service.RestError500(req, rsp, err)
+			service.RestErrorDetect(req, rsp, err)
 		}
 	}
 
@@ -185,7 +185,7 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	response, e := cli.DeleteTasks(req.Request.Context(), &request)
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		service.RestErrorDetect(req, rsp, e)
 		return
 	}
 
@@ -299,7 +299,7 @@ func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response)
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer res.Close()
