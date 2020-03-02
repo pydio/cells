@@ -53,6 +53,10 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		service.RestError500(req, rsp, e)
 		return
 	}
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
 
 	ctx := req.Request.Context()
 	var subjects []string
@@ -97,7 +101,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		},
 	})
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer streamer.Close()
@@ -123,7 +127,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 
 	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.AclRead, permissions.AclWrite, permissions.AclPolicy)
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		service.RestErrorDetect(req, rsp, e)
 		return
 	}
 
