@@ -106,7 +106,6 @@ class Entries extends React.Component{
         if(toggleFilter && filterValue && wss.length === 1 && wss[0].getId() !== activeWorkspace){
             uniqueResult = wss[0];
         }
-        console.log(uniqueResult);
 
         return (
             <div>

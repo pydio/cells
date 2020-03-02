@@ -380,6 +380,9 @@ var CellModel = (function (_Observable) {
                     _pydio2['default'].getInstance().triggerRepositoryChange(response.Uuid);
                 });
             }
+        })['catch'](function (err) {
+            var msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
     };
 
@@ -434,13 +437,19 @@ var CellModel = (function (_Observable) {
                         });
                         if (switchToOther) {
                             pydio.triggerRepositoryChange(switchToOther, function () {
-                                api.deleteCell(_this6.cell.Uuid).then(function (res) {});
+                                api.deleteCell(_this6.cell.Uuid).then(function (res) {})['catch'](function (err) {
+                                    var msg = err.Detail || err.message || err;
+                                    pydio.UI.displayMessage('ERROR', msg);
+                                });
                             });
                         }
                     })();
                 } else {
                     return {
-                        v: api.deleteCell(_this6.cell.Uuid).then(function (res) {})
+                        v: api.deleteCell(_this6.cell.Uuid).then(function (res) {})['catch'](function (err) {
+                            var msg = err.Detail || err.message || err;
+                            pydio.UI.displayMessage('ERROR', msg);
+                        })
                     };
                 }
             })();

@@ -65,9 +65,15 @@ var LinkModel = (function (_Observable) {
         this.link.PoliciesContextEditable = true;
         this.link.RootNodes = [];
         this.ValidPassword = true;
+        this.loadError = null;
     }
 
     _createClass(LinkModel, [{
+        key: 'hasError',
+        value: function hasError() {
+            return this.loadError;
+        }
+    }, {
         key: 'isEditable',
         value: function isEditable() {
             return this.link.PoliciesContextEditable;
@@ -170,6 +176,9 @@ var LinkModel = (function (_Observable) {
                 }
                 _this.originalLink = _this.clone(_this.link);
                 _this.notify("update");
+            })['catch'](function (err) {
+                _this.loadError = err;
+                _this.notify("update");
             });
         }
     }, {
@@ -253,6 +262,9 @@ var LinkModel = (function (_Observable) {
                 _this4.ValidPassword = true;
                 _this4.notify('update');
                 _this4.notify('save');
+            })['catch'](function (err) {
+                var msg = err.Detail || err.message || err;
+                Pydio.getInstance().UI.displayMessage('ERROR', msg);
             });
         }
 
@@ -272,6 +284,9 @@ var LinkModel = (function (_Observable) {
                 _this5.updatePassword = _this5.createPassword = _this5.customLink = null;
                 _this5.notify('update');
                 _this5.notify('delete');
+            })['catch'](function (err) {
+                var msg = err.Detail || err.message || err;
+                pydio.UI.displayMessage('ERROR', msg);
             });
         }
 
