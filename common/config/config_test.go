@@ -41,6 +41,7 @@ func TestTreeNode(t *testing.T) {
 
 	Convey("Test Set", t, func() {
 
+		initConfig()
 		Set("whatever", "url")
 		So(Get("url").String(""), ShouldEqual, "whatever")
 
