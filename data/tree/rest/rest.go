@@ -268,6 +268,15 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			if e != nil {
 				return e
 			}
+			bi, ok := views.GetBranchInfo(ctx, "in")
+			if !ok {
+				return fmt.Errorf("cannot find branch info for this node")
+			}
+			for _, rootID := range bi.RootUUIDs {
+				if rootID == node.Uuid {
+					return fmt.Errorf("please do not modify directly the root of a workspace")
+				}
+			}
 			if sourceInRecycle(ctx, filtered, ancestors) {
 				// This is a real delete!
 				if er := router.WrappedCanApply(ctx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_DELETE, Source: filtered}); er != nil {
