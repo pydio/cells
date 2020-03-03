@@ -11,8 +11,6 @@ import JobInput from './graph/JobInput'
 import Filter from "./graph/Filter";
 import Link from "./graph/Link";
 import Action from "./graph/Action";
-import dagre from 'dagre'
-import graphlib from 'graphlib'
 import Selector from "./graph/Selector";
 import {Paper, FlatButton, FontIcon, IconButton, Checkbox, Dialog} from 'material-ui'
 import FormPanel from "./builder/FormPanel";
@@ -46,12 +44,13 @@ import {
     attachDescriptions,
     toggleFilterAsConditionAction
 } from "./actions/editor";
-import Filters from "./builder/Filters";
-import Templates from "./graph/Templates";
-import {AllowedKeys, linkAttr} from "./graph/Configs";
+import Filters from "./builder/Filters"
+import Templates from "./graph/Templates"
+import {AllowedKeys, linkAttr} from "./graph/Configs"
+import {getCssStyle} from "./builder/styles"
+import ActionFilter from "./graph/ActionFilter"
+import CreateActions from './CreateActions'
 const {ModernTextField} = Pydio.requireLib('hoc');
-import {getCssStyle} from "./builder/styles";
-import ActionFilter from "./graph/ActionFilter";
 
 const mapStateToProps = state => {
     console.debug(state);
@@ -141,9 +140,9 @@ const mapDispatchToProps = dispatch => {
             dispatch((d, getState) => {
                 d(dropFilterAction(target, dropped, filterOrSelector, objectType));
                 d(setDirtyAction(true));
-                const {job, descriptions} = getState();
-                d(jobChangedAction(job, descriptions));
-                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                const {job, descriptions, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
                 d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
@@ -151,9 +150,9 @@ const mapDispatchToProps = dispatch => {
             dispatch((d, getState) => {
                 d(removeFilterAction(target, filter, filterOrSelector, objectType));
                 d(setDirtyAction(true));
-                const {job, descriptions} = getState();
-                d(jobChangedAction(job, descriptions));
-                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                const {job, descriptions, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
                 d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
@@ -161,9 +160,9 @@ const mapDispatchToProps = dispatch => {
             dispatch((d, getState) => {
                 d(toggleFilterAsConditionAction(toggle, action));
                 d(setDirtyAction(true));
-                const {job, descriptions} = getState();
-                d(jobChangedAction(job, descriptions));
-                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                const {job, descriptions, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
                 d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             })
         },
@@ -195,9 +194,9 @@ const mapDispatchToProps = dispatch => {
             dispatch((d, getState)=> {
                 d(revertAction(original));
                 d(setDirtyAction(false));
-                const {job, descriptions} = getState();
-                d(jobChangedAction(job, descriptions));
-                const {graph, boundingRef, editMode, paper, createLinkTool} = getState();
+                const {job, descriptions, editMode} = getState();
+                d(jobChangedAction(job, descriptions, editMode));
+                const {graph, boundingRef, paper, createLinkTool} = getState();
                 d(requireLayoutAction(graph, boundingRef, editMode, paper, createLinkTool));
             });
         },
@@ -633,14 +632,16 @@ class JobGraph extends React.Component {
         let rightWidth = 300;
         let showOffsetButton;
         if(createNewAction) {
+            /*
             showOffsetButton = true;
             selBlock = <FormPanel
                 actions={descriptions}
                 action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
-                onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
                 create={true}
+                onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
                 onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
             />
+            */
         } else if(selectionModel){
             if(selectionType === 'action'){
                 showOffsetButton = true;
@@ -723,6 +724,17 @@ class JobGraph extends React.Component {
 
         return (
             <Paper {...adminStyles.body.block.props}>
+                <CreateActions
+                    open={createNewAction}
+                    descriptions={descriptions}
+                    onSubmit={(newAction) => {
+                        onEmptyModel(new Action(descriptions, newAction, true));
+                        this.setState({createNewAction: false})
+                    }}
+                    onDismiss={()=>{
+                        this.setState({createNewAction: false})}
+                    }
+                />
                 <Dialog
                     title={"Import/Export JSON"}
                     onRequestClose={()=>{this.setState({showJsonDialog: false})}}

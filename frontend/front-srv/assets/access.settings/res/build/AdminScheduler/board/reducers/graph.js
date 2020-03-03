@@ -40,15 +40,15 @@ var _graphlib = require("graphlib");
 
 var _graphlib2 = _interopRequireDefault(_graphlib);
 
-function chainActions(descriptions, graph, actions, inputId) {
-    var outputPort = arguments.length <= 4 || arguments[4] === undefined ? 'output' : arguments[4];
-    var hasData = arguments.length <= 5 || arguments[5] === undefined ? true : arguments[5];
+function chainActions(descriptions, graph, editMode, actions, inputId) {
+    var outputPort = arguments.length <= 5 || arguments[5] === undefined ? 'output' : arguments[5];
+    var hasData = arguments.length <= 6 || arguments[6] === undefined ? true : arguments[6];
 
     actions.forEach(function (action) {
         var crtInput = inputId;
         var hasChain = action.ChainedActions && action.ChainedActions.length;
         var hasNegate = action.FailedFilterActions && action.FailedFilterActions.length;
-        var shape = new _graphAction2["default"](descriptions, action, hasChain);
+        var shape = new _graphAction2["default"](descriptions, action, hasChain || editMode);
         shape.addTo(graph);
         var filter = shape.getActionFilter();
         var link = undefined;
@@ -63,10 +63,10 @@ function chainActions(descriptions, graph, actions, inputId) {
             link.addTo(graph);
         }
         if (hasChain) {
-            chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
+            chainActions(descriptions, graph, editMode, action.ChainedActions, shape.id, 'output');
         }
         if (filter && hasNegate) {
-            chainActions(descriptions, graph, action.FailedFilterActions, filter.id, 'negate');
+            chainActions(descriptions, graph, editMode, action.FailedFilterActions, filter.id, 'negate');
         }
     });
 }
@@ -136,7 +136,8 @@ function graphReducer(graph, action) {
 
         case _actionsEditor.JOB_CHANGED:
             var job = action.job,
-                descriptions = action.descriptions;
+                descriptions = action.descriptions,
+                editMode = action.editMode;
 
             graph.getCells().filter(function (c) {
                 return !c.isTemplate;
@@ -154,7 +155,7 @@ function graphReducer(graph, action) {
             var actionsInput = shapeIn.id;
             var firstLinkHasData = _JobGraph2["default"].jobInputCreatesData(job);
 
-            chainActions(descriptions, graph, job.Actions, actionsInput, 'output', firstLinkHasData);
+            chainActions(descriptions, graph, editMode, job.Actions, actionsInput, 'output', firstLinkHasData);
 
             return graph;
 

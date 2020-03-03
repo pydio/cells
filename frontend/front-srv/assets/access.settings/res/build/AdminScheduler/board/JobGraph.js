@@ -60,14 +60,6 @@ var _graphAction = require("./graph/Action");
 
 var _graphAction2 = _interopRequireDefault(_graphAction);
 
-var _dagre = require('dagre');
-
-var _dagre2 = _interopRequireDefault(_dagre);
-
-var _graphlib = require('graphlib');
-
-var _graphlib2 = _interopRequireDefault(_graphlib);
-
 var _graphSelector = require("./graph/Selector");
 
 var _graphSelector2 = _interopRequireDefault(_graphSelector);
@@ -107,6 +99,10 @@ var _builderStyles = require("./builder/styles");
 var _graphActionFilter = require("./graph/ActionFilter");
 
 var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
+var _CreateActions = require('./CreateActions');
+
+var _CreateActions2 = _interopRequireDefault(_CreateActions);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -273,14 +269,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState12.job;
                 var descriptions = _getState12.descriptions;
+                var editMode = _getState12.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState13 = getState();
 
                 var graph = _getState13.graph;
                 var boundingRef = _getState13.boundingRef;
-                var editMode = _getState13.editMode;
                 var paper = _getState13.paper;
                 var createLinkTool = _getState13.createLinkTool;
 
@@ -296,14 +292,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState14.job;
                 var descriptions = _getState14.descriptions;
+                var editMode = _getState14.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState15 = getState();
 
                 var graph = _getState15.graph;
                 var boundingRef = _getState15.boundingRef;
-                var editMode = _getState15.editMode;
                 var paper = _getState15.paper;
                 var createLinkTool = _getState15.createLinkTool;
 
@@ -319,14 +315,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState16.job;
                 var descriptions = _getState16.descriptions;
+                var editMode = _getState16.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState17 = getState();
 
                 var graph = _getState17.graph;
                 var boundingRef = _getState17.boundingRef;
-                var editMode = _getState17.editMode;
                 var paper = _getState17.paper;
                 var createLinkTool = _getState17.createLinkTool;
 
@@ -366,14 +362,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState18.job;
                 var descriptions = _getState18.descriptions;
+                var editMode = _getState18.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState19 = getState();
 
                 var graph = _getState19.graph;
                 var boundingRef = _getState19.boundingRef;
-                var editMode = _getState19.editMode;
                 var paper = _getState19.paper;
                 var createLinkTool = _getState19.createLinkTool;
 
@@ -936,64 +932,62 @@ var JobGraph = (function (_React$Component) {
             var rightWidth = 300;
             var showOffsetButton = undefined;
             if (createNewAction) {
+                /*
                 showOffsetButton = true;
-                selBlock = _react2['default'].createElement(_builderFormPanel2['default'], {
-                    actions: descriptions,
-                    action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
-                    onChange: function (newAction) {
-                        onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
-                    },
-                    create: true,
-                    onDismiss: function () {
-                        _this6.setState({ createNewAction: false, fPanelWidthOffset: 0 });
-                    }
-                });
+                selBlock = <FormPanel
+                    actions={descriptions}
+                    action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
+                    create={true}
+                    onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
+                    onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
+                />
+                */
             } else if (selectionModel) {
-                if (selectionType === 'action') {
-                    (function () {
-                        showOffsetButton = true;
-                        var action = selectionModel.getJobsAction();
-                        selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
-                            actions: descriptions,
-                            actionInfo: descriptions[action.ID],
-                            action: action }, blockProps, {
-                            onRemove: function () {
-                                _this6.deleteAction();
-                            },
-                            onChange: function (newAction) {
-                                action.Parameters = newAction.Parameters;
-                                action.Label = newAction.Label;
-                                action.Description = newAction.Description;
-                                selectionModel.notifyJobModel(action);
+                    if (selectionType === 'action') {
+                        (function () {
+                            showOffsetButton = true;
+                            var action = selectionModel.getJobsAction();
+                            selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
+                                actions: descriptions,
+                                actionInfo: descriptions[action.ID],
+                                action: action }, blockProps, {
+                                onRemove: function () {
+                                    _this6.deleteAction();
+                                },
+                                onChange: function (newAction) {
+                                    action.Parameters = newAction.Parameters;
+                                    action.Label = newAction.Label;
+                                    action.Description = newAction.Description;
+                                    selectionModel.notifyJobModel(action);
+                                    onSetDirty(true);
+                                }
+                            }));
+                        })();
+                    } else if (selectionType === 'selector' || selectionType === 'filter') {
+                        rightWidth = 600;
+                        var filtersProps = _extends({
+                            type: selectionType
+                        }, blockProps, {
+                            onRemoveFilter: onRemoveFilter,
+                            onSave: function onSave() {
                                 onSetDirty(true);
                             }
-                        }));
-                    })();
-                } else if (selectionType === 'selector' || selectionType === 'filter') {
-                    rightWidth = 600;
-                    var filtersProps = _extends({
-                        type: selectionType
-                    }, blockProps, {
-                        onRemoveFilter: onRemoveFilter,
-                        onSave: function onSave() {
-                            onSetDirty(true);
+                        });
+                        if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
+                            filtersProps.job = selectionModel;
+                        } else {
+                            filtersProps.action = selectionModel;
+                            if (selectionType === 'filter') {
+                                filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
+                            }
                         }
-                    });
-                    if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        filtersProps.job = selectionModel;
-                    } else {
-                        filtersProps.action = selectionModel;
-                        if (selectionType === 'filter') {
-                            filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
-                        }
-                    }
-                    selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
-                } else if (selectionType === 'trigger') {
-                    var _job = this.state.job;
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
+                    } else if (selectionType === 'trigger') {
+                        var _job = this.state.job;
 
-                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
+                        selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
+                    }
                 }
-            }
 
             var st = {
                 header: {
@@ -1053,6 +1047,17 @@ var JobGraph = (function (_React$Component) {
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 adminStyles.body.block.props,
+                _react2['default'].createElement(_CreateActions2['default'], {
+                    open: createNewAction,
+                    descriptions: descriptions,
+                    onSubmit: function (newAction) {
+                        onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
+                        _this6.setState({ createNewAction: false });
+                    },
+                    onDismiss: function () {
+                        _this6.setState({ createNewAction: false });
+                    }
+                }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {

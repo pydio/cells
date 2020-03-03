@@ -59,8 +59,17 @@ class FormPanel extends React.Component {
 
     loadForm(actionID){
         FormLoader.loadAction(actionID).then((params) => {
-            this.setState({formParams: params});
-            const {create} = this.props;
+            const {create, onLoaded} = this.props;
+            this.setState({formParams: params}, () => {
+                if(onLoaded && !(this.formsLoaded && this.formsLoaded[actionID])) {
+                    if(!this.formsLoaded) {
+                        this.formsLoaded = {};
+                    }
+                    this.formsLoaded[actionID] = true;
+                    console.log("ONLOADED");
+                    onLoaded();
+                }
+            });
             if(create){
                 const defaults = {};
                 params.forEach(p => {
@@ -214,7 +223,7 @@ class FormPanel extends React.Component {
 
     render(){
 
-        const {onDismiss, onRemove, create} = this.props;
+        const {onDismiss, onRemove, create, inDialog} = this.props;
         const {actionInfo, action, formParams, dirty, valid} = this.state;
         let save, revert;
         if(!create && dirty && valid) {
@@ -256,36 +265,50 @@ class FormPanel extends React.Component {
             )
 
         }
-        return (
-            <RightPanel
-                title={actionInfo.Label}
-                icon={actionInfo.Icon}
-                onDismiss={onDismiss}
-                saveButtons={!create}
-                onSave={save}
-                onRevert={revert}
-                onRemove={onRemove}
-            >
-                {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
-                <div style={{padding: 10}}>{actionInfo.Description}</div>
-                {form}
-                {action.ID !== JOB_ACTION_EMPTY &&
-                    <div style={{padding: '0 12px', marginTop: -6}}>
-                        <ModernTextField hintText={"Custom label (optional - 20 chars max)"} value={action.Label} onChange={(e,v) => {this.onLabelChange(v)}} fullWidth={true}/>
-                        <ModernTextField hintText={"Comment (optional)"} style={{marginTop: -2 }} multiLine={true} value={action.Description} onChange={(e,v) => {this.onDescriptionChange(v)}} fullWidth={true}/>
-                    </div>
-                }
-                {create &&
-                    <div style={{padding: 10, textAlign:'right'}}>
-                        <RaisedButton
-                            primary={true}
-                            label={"Create Action"}
-                            disabled={action.ID === JOB_ACTION_EMPTY || !valid}
-                            onTouchTap={() => {this.save(); onDismiss()}}/>
-                    </div>
-                }
-            </RightPanel>
-        )
+
+        let children = [];
+        if(create && !inDialog) {
+            children.push(<div style={{padding: 10}}>{this.actionPicker()}</div>);
+        }
+        children.push(<div style={{padding: 12, fontWeight: 300, fontSize: 13}}>{actionInfo.Description}</div>);
+        children.push(form);
+        if(action.ID !== JOB_ACTION_EMPTY){
+            children.push(
+                <div style={{padding: '0 12px', marginTop: -6}}>
+                    <ModernTextField hintText={"Custom label (optional - 20 chars max)"} value={action.Label} onChange={(e,v) => {this.onLabelChange(v)}} fullWidth={true}/>
+                    <ModernTextField hintText={"Comment (optional)"} style={{marginTop: -2 }} multiLine={true} value={action.Description} onChange={(e,v) => {this.onDescriptionChange(v)}} fullWidth={true}/>
+                </div>
+            );
+        }
+        if(create) {
+            children.push(
+                <div style={{padding: 10, textAlign:'right'}}>
+                    <RaisedButton
+                        primary={true}
+                        label={"Create Action"}
+                        disabled={action.ID === JOB_ACTION_EMPTY || !valid}
+                        onTouchTap={() => {this.save(); onDismiss()}}/>
+                </div>
+            );
+        }
+        if (inDialog) {
+            return <div style={this.props.style}>{children}</div>
+        } else {
+            return (
+                <RightPanel
+                    title={actionInfo.Label}
+                    icon={actionInfo.Icon}
+                    onDismiss={onDismiss}
+                    saveButtons={!create}
+                    onSave={save}
+                    onRevert={revert}
+                    onRemove={onRemove}
+                >
+                    {children}
+                </RightPanel>
+            )
+
+        }
     }
 }
 

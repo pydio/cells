@@ -43088,6 +43088,201 @@ exports['default'] = thunk;
 
 },{}],296:[function(require,module,exports){
 /*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _builderFormPanel = require('./builder/FormPanel');
+
+var _builderFormPanel2 = _interopRequireDefault(_builderFormPanel);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib("components");
+
+var Stepper = _Pydio$requireLib.Stepper;
+var Dialog = Stepper.Dialog;
+var PanelBigButtons = Stepper.PanelBigButtons;
+
+var CreateActions = (function (_React$Component) {
+    _inherits(CreateActions, _React$Component);
+
+    function CreateActions(props) {
+        _classCallCheck(this, CreateActions);
+
+        _get(Object.getPrototypeOf(CreateActions.prototype), 'constructor', this).call(this, props);
+        this.state = { filter: '' };
+    }
+
+    _createClass(CreateActions, [{
+        key: 'dismiss',
+        value: function dismiss() {
+            this.setState({ actionId: '', random: null });
+            var onDismiss = this.props.onDismiss;
+
+            onDismiss();
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props = this.props;
+            var descriptions = _props.descriptions;
+            var onSubmit = _props.onSubmit;
+            var open = _props.open;
+            var _state = this.state;
+            var filter = _state.filter;
+            var actionId = _state.actionId;
+            var random = _state.random;
+
+            var title = undefined,
+                content = undefined,
+                dialogFilter = undefined,
+                dialogProps = {};
+            if (actionId) {
+                var action = descriptions[actionId];
+                var icon = 'mdi mdi-' + action.Icon || 'mdi mdi-chip';
+                title = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { style: { marginRight: 8 }, className: icon, color: action.Tint }),
+                    action.Label
+                );
+                content = _react2['default'].createElement(_builderFormPanel2['default'], {
+                    actions: descriptions,
+                    action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: actionId }),
+                    onChange: function (newAction) {
+                        onSubmit(newAction);_this.setState({ actionId: '' });
+                    },
+                    create: true,
+                    inDialog: true,
+                    onDismiss: function () {
+                        _this.dismiss();
+                    },
+                    style: { margin: '10px -10px -10px' },
+                    onLoaded: function () {
+                        _this.setState({ random: Math.random() });
+                    }
+                });
+                dialogProps = {
+                    bodyStyle: {
+                        backgroundColor: 'white'
+                    },
+                    contentStyle: {
+                        maxWidth: 600
+                    }
+                };
+            } else {
+                (function () {
+
+                    var ss = {};
+                    if (descriptions) {
+                        Object.keys(descriptions).forEach(function (k) {
+                            var action = descriptions[k];
+                            if (filter && action.Label.toLowerCase().indexOf(filter.toLowerCase()) === -1 && action.Description.toLowerCase().indexOf(filter.toLowerCase()) === -1) {
+                                return;
+                            }
+                            var sName = action.Category;
+                            if (!ss[sName]) {
+                                var sp = sName.split(' - ');
+                                ss[sName] = { title: sp[sp.length - 1], Actions: [] };
+                            }
+                            ss[sName].Actions.push({
+                                value: k,
+                                title: action.Label,
+                                icon: action.Icon ? 'mdi mdi-' + action.Icon : 'mdi mdi-chip',
+                                tint: action.Tint,
+                                description: action.Description
+                            });
+                        });
+                    }
+                    var keys = Object.keys(ss);
+                    keys.sort();
+                    var model = {
+                        Sections: keys.map(function (k) {
+                            return ss[k];
+                        })
+                    };
+
+                    title = "Create Action";
+                    content = _react2['default'].createElement(PanelBigButtons, {
+                        model: model,
+                        onPick: function (actionId) {
+                            _this.setState({ actionId: actionId, filter: '' });
+                        }
+                    });
+                    dialogFilter = function (v) {
+                        _this.setState({ filter: v });
+                    };
+                })();
+            }
+
+            return _react2['default'].createElement(
+                Dialog,
+                {
+                    title: title,
+                    open: open,
+                    dialogProps: dialogProps,
+                    onDismiss: function () {
+                        _this.dismiss();
+                    },
+                    onFilter: dialogFilter,
+                    random: random
+                },
+                content
+            );
+        }
+    }]);
+
+    return CreateActions;
+})(_react2['default'].Component);
+
+exports['default'] = CreateActions;
+module.exports = exports['default'];
+
+},{"./builder/FormPanel":305,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],297:[function(require,module,exports){
+/*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
@@ -43616,7 +43811,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":297,"./JobSchedule":299,"./builder/Triggers":313,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":295}],297:[function(require,module,exports){
+},{"./JobBoard":298,"./JobSchedule":300,"./builder/Triggers":314,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":295}],298:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -44103,7 +44298,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobGraph":298,"./TaskActivity":300,"material-ui":"material-ui","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],298:[function(require,module,exports){
+},{"./JobGraph":299,"./TaskActivity":301,"material-ui":"material-ui","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],299:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -44166,14 +44361,6 @@ var _graphAction = require("./graph/Action");
 
 var _graphAction2 = _interopRequireDefault(_graphAction);
 
-var _dagre = require('dagre');
-
-var _dagre2 = _interopRequireDefault(_dagre);
-
-var _graphlib = require('graphlib');
-
-var _graphlib2 = _interopRequireDefault(_graphlib);
-
 var _graphSelector = require("./graph/Selector");
 
 var _graphSelector2 = _interopRequireDefault(_graphSelector);
@@ -44213,6 +44400,10 @@ var _builderStyles = require("./builder/styles");
 var _graphActionFilter = require("./graph/ActionFilter");
 
 var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
+
+var _CreateActions = require('./CreateActions');
+
+var _CreateActions2 = _interopRequireDefault(_CreateActions);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -44379,14 +44570,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState12.job;
                 var descriptions = _getState12.descriptions;
+                var editMode = _getState12.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState13 = getState();
 
                 var graph = _getState13.graph;
                 var boundingRef = _getState13.boundingRef;
-                var editMode = _getState13.editMode;
                 var paper = _getState13.paper;
                 var createLinkTool = _getState13.createLinkTool;
 
@@ -44402,14 +44593,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState14.job;
                 var descriptions = _getState14.descriptions;
+                var editMode = _getState14.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState15 = getState();
 
                 var graph = _getState15.graph;
                 var boundingRef = _getState15.boundingRef;
-                var editMode = _getState15.editMode;
                 var paper = _getState15.paper;
                 var createLinkTool = _getState15.createLinkTool;
 
@@ -44425,14 +44616,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState16.job;
                 var descriptions = _getState16.descriptions;
+                var editMode = _getState16.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState17 = getState();
 
                 var graph = _getState17.graph;
                 var boundingRef = _getState17.boundingRef;
-                var editMode = _getState17.editMode;
                 var paper = _getState17.paper;
                 var createLinkTool = _getState17.createLinkTool;
 
@@ -44472,14 +44663,14 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
                 var job = _getState18.job;
                 var descriptions = _getState18.descriptions;
+                var editMode = _getState18.editMode;
 
-                d((0, _actionsEditor.jobChangedAction)(job, descriptions));
+                d((0, _actionsEditor.jobChangedAction)(job, descriptions, editMode));
 
                 var _getState19 = getState();
 
                 var graph = _getState19.graph;
                 var boundingRef = _getState19.boundingRef;
-                var editMode = _getState19.editMode;
                 var paper = _getState19.paper;
                 var createLinkTool = _getState19.createLinkTool;
 
@@ -45042,64 +45233,62 @@ var JobGraph = (function (_React$Component) {
             var rightWidth = 300;
             var showOffsetButton = undefined;
             if (createNewAction) {
+                /*
                 showOffsetButton = true;
-                selBlock = _react2['default'].createElement(_builderFormPanel2['default'], {
-                    actions: descriptions,
-                    action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
-                    onChange: function (newAction) {
-                        onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
-                    },
-                    create: true,
-                    onDismiss: function () {
-                        _this6.setState({ createNewAction: false, fPanelWidthOffset: 0 });
-                    }
-                });
+                selBlock = <FormPanel
+                    actions={descriptions}
+                    action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
+                    create={true}
+                    onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
+                    onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
+                />
+                */
             } else if (selectionModel) {
-                if (selectionType === 'action') {
-                    (function () {
-                        showOffsetButton = true;
-                        var action = selectionModel.getJobsAction();
-                        selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
-                            actions: descriptions,
-                            actionInfo: descriptions[action.ID],
-                            action: action }, blockProps, {
-                            onRemove: function () {
-                                _this6.deleteAction();
-                            },
-                            onChange: function (newAction) {
-                                action.Parameters = newAction.Parameters;
-                                action.Label = newAction.Label;
-                                action.Description = newAction.Description;
-                                selectionModel.notifyJobModel(action);
+                    if (selectionType === 'action') {
+                        (function () {
+                            showOffsetButton = true;
+                            var action = selectionModel.getJobsAction();
+                            selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
+                                actions: descriptions,
+                                actionInfo: descriptions[action.ID],
+                                action: action }, blockProps, {
+                                onRemove: function () {
+                                    _this6.deleteAction();
+                                },
+                                onChange: function (newAction) {
+                                    action.Parameters = newAction.Parameters;
+                                    action.Label = newAction.Label;
+                                    action.Description = newAction.Description;
+                                    selectionModel.notifyJobModel(action);
+                                    onSetDirty(true);
+                                }
+                            }));
+                        })();
+                    } else if (selectionType === 'selector' || selectionType === 'filter') {
+                        rightWidth = 600;
+                        var filtersProps = _extends({
+                            type: selectionType
+                        }, blockProps, {
+                            onRemoveFilter: onRemoveFilter,
+                            onSave: function onSave() {
                                 onSetDirty(true);
                             }
-                        }));
-                    })();
-                } else if (selectionType === 'selector' || selectionType === 'filter') {
-                    rightWidth = 600;
-                    var filtersProps = _extends({
-                        type: selectionType
-                    }, blockProps, {
-                        onRemoveFilter: onRemoveFilter,
-                        onSave: function onSave() {
-                            onSetDirty(true);
+                        });
+                        if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
+                            filtersProps.job = selectionModel;
+                        } else {
+                            filtersProps.action = selectionModel;
+                            if (selectionType === 'filter') {
+                                filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
+                            }
                         }
-                    });
-                    if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        filtersProps.job = selectionModel;
-                    } else {
-                        filtersProps.action = selectionModel;
-                        if (selectionType === 'filter') {
-                            filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
-                        }
-                    }
-                    selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
-                } else if (selectionType === 'trigger') {
-                    var _job = this.state.job;
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
+                    } else if (selectionType === 'trigger') {
+                        var _job = this.state.job;
 
-                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
+                        selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
+                    }
                 }
-            }
 
             var st = {
                 header: {
@@ -45159,6 +45348,17 @@ var JobGraph = (function (_React$Component) {
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 adminStyles.body.block.props,
+                _react2['default'].createElement(_CreateActions2['default'], {
+                    open: createNewAction,
+                    descriptions: descriptions,
+                    onSubmit: function (newAction) {
+                        onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
+                        _this6.setState({ createNewAction: false });
+                    },
+                    onDismiss: function () {
+                        _this6.setState({ createNewAction: false });
+                    }
+                }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -45238,7 +45438,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":301,"./builder/Filters":302,"./builder/FormPanel":304,"./builder/Triggers":313,"./builder/styles":314,"./graph/Action":315,"./graph/ActionFilter":316,"./graph/Configs":317,"./graph/Filter":318,"./graph/JobInput":319,"./graph/Link":320,"./graph/Selector":321,"./graph/Templates":322,"./reducers":325,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],299:[function(require,module,exports){
+},{"./CreateActions":296,"./actions/editor":302,"./builder/Filters":303,"./builder/FormPanel":305,"./builder/Triggers":314,"./builder/styles":315,"./graph/Action":316,"./graph/ActionFilter":317,"./graph/Configs":318,"./graph/Filter":319,"./graph/JobInput":320,"./graph/Link":321,"./graph/Selector":322,"./graph/Templates":323,"./reducers":326,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],300:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45661,7 +45861,7 @@ var JobSchedule = (function (_React$Component) {
 exports['default'] = JobSchedule;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],300:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],301:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45931,7 +46131,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],301:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],302:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46199,7 +46399,7 @@ function revertAction(original) {
     };
 }
 
-},{}],302:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46355,7 +46555,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"../graph/Configs":317,"./QueryBuilder":307,"./styles":314,"material-ui":"material-ui","react":"react"}],303:[function(require,module,exports){
+},{"../graph/Configs":318,"./QueryBuilder":308,"./styles":315,"material-ui":"material-ui","react":"react"}],304:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46431,7 +46631,7 @@ FormLoader.FormsCache = {};
 exports['default'] = FormLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],304:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],305:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46536,9 +46736,20 @@ var FormPanel = (function (_React$Component) {
             var _this = this;
 
             _FormLoader2['default'].loadAction(actionID).then(function (params) {
-                _this.setState({ formParams: params });
-                var create = _this.props.create;
+                var _props = _this.props;
+                var create = _props.create;
+                var onLoaded = _props.onLoaded;
 
+                _this.setState({ formParams: params }, function () {
+                    if (onLoaded && !(_this.formsLoaded && _this.formsLoaded[actionID])) {
+                        if (!_this.formsLoaded) {
+                            _this.formsLoaded = {};
+                        }
+                        _this.formsLoaded[actionID] = true;
+                        console.log("ONLOADED");
+                        onLoaded();
+                    }
+                });
                 if (create) {
                     (function () {
                         var defaults = {};
@@ -46706,9 +46917,9 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'save',
         value: function save() {
-            var _props = this.props;
-            var onChange = _props.onChange;
-            var onDismiss = _props.onDismiss;
+            var _props2 = this.props;
+            var onChange = _props2.onChange;
+            var onDismiss = _props2.onDismiss;
             var action = this.state.action;
 
             onChange(action);
@@ -46729,10 +46940,11 @@ var FormPanel = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var _props2 = this.props;
-            var onDismiss = _props2.onDismiss;
-            var onRemove = _props2.onRemove;
-            var create = _props2.create;
+            var _props3 = this.props;
+            var onDismiss = _props3.onDismiss;
+            var onRemove = _props3.onRemove;
+            var create = _props3.create;
+            var inDialog = _props3.inDialog;
             var _state = this.state;
             var actionInfo = _state.actionInfo;
             var action = _state.action;
@@ -46784,29 +46996,23 @@ var FormPanel = (function (_React$Component) {
                     })
                 );
             }
-            return _react2['default'].createElement(
-                _styles.RightPanel,
-                {
-                    title: actionInfo.Label,
-                    icon: actionInfo.Icon,
-                    onDismiss: onDismiss,
-                    saveButtons: !create,
-                    onSave: save,
-                    onRevert: revert,
-                    onRemove: onRemove
-                },
-                create && _react2['default'].createElement(
+
+            var children = [];
+            if (create && !inDialog) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
                     this.actionPicker()
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    actionInfo.Description
-                ),
-                form,
-                action.ID !== _actionsEditor.JOB_ACTION_EMPTY && _react2['default'].createElement(
+                ));
+            }
+            children.push(_react2['default'].createElement(
+                'div',
+                { style: { padding: 12, fontWeight: 300, fontSize: 13 } },
+                actionInfo.Description
+            ));
+            children.push(form);
+            if (action.ID !== _actionsEditor.JOB_ACTION_EMPTY) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: '0 12px', marginTop: -6 } },
                     _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
@@ -46815,8 +47021,10 @@ var FormPanel = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { hintText: "Comment (optional)", style: { marginTop: -2 }, multiLine: true, value: action.Description, onChange: function (e, v) {
                             _this3.onDescriptionChange(v);
                         }, fullWidth: true })
-                ),
-                create && _react2['default'].createElement(
+                ));
+            }
+            if (create) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
                     _react2['default'].createElement(_materialUi.RaisedButton, {
@@ -46826,8 +47034,29 @@ var FormPanel = (function (_React$Component) {
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })
-                )
-            );
+                ));
+            }
+            if (inDialog) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: this.props.style },
+                    children
+                );
+            } else {
+                return _react2['default'].createElement(
+                    _styles.RightPanel,
+                    {
+                        title: actionInfo.Label,
+                        icon: actionInfo.Icon,
+                        onDismiss: onDismiss,
+                        saveButtons: !create,
+                        onSave: save,
+                        onRevert: revert,
+                        onRemove: onRemove
+                    },
+                    children
+                );
+            }
         }
     }]);
 
@@ -46837,7 +47066,7 @@ var FormPanel = (function (_React$Component) {
 exports['default'] = FormPanel;
 module.exports = exports['default'];
 
-},{"../actions/editor":301,"./FormLoader":303,"./styles":314,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],305:[function(require,module,exports){
+},{"../actions/editor":302,"./FormLoader":304,"./styles":315,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],306:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47124,7 +47353,7 @@ var ProtoValue = (function (_React$Component) {
 exports['default'] = ProtoValue;
 module.exports = exports['default'];
 
-},{"./FormLoader":303,"material-ui":"material-ui","pydio":"pydio","react":"react"}],306:[function(require,module,exports){
+},{"./FormLoader":304,"material-ui":"material-ui","pydio":"pydio","react":"react"}],307:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47241,7 +47470,7 @@ var Query = (function (_shapes$devs$Model) {
 exports["default"] = Query;
 module.exports = exports["default"];
 
-},{"../graph/Configs":317,"jointjs":52}],307:[function(require,module,exports){
+},{"../graph/Configs":318,"jointjs":52}],308:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48128,7 +48357,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":320,"./ProtoValue":305,"./Query":306,"./QueryCluster":308,"./QueryConnector":309,"./QueryInput":310,"./QueryOutput":311,"./styles":314,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],308:[function(require,module,exports){
+},{"../graph/Link":321,"./ProtoValue":306,"./Query":307,"./QueryCluster":309,"./QueryConnector":310,"./QueryInput":311,"./QueryOutput":312,"./styles":315,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],309:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48245,7 +48474,7 @@ var QueryCluster = (function (_shapes$basic$Rect) {
 exports['default'] = QueryCluster;
 module.exports = exports['default'];
 
-},{"../graph/Configs":317,"jointjs":52}],309:[function(require,module,exports){
+},{"../graph/Configs":318,"jointjs":52}],310:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48292,7 +48521,7 @@ var QueryConnector = (function (_shapes$devs$Model) {
 exports['default'] = QueryConnector;
 module.exports = exports['default'];
 
-},{"../graph/Configs":317,"jointjs":52}],310:[function(require,module,exports){
+},{"../graph/Configs":318,"jointjs":52}],311:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48342,7 +48571,7 @@ var QueryInput = (function (_shapes$devs$Model) {
 exports['default'] = QueryInput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":317,"jointjs":52}],311:[function(require,module,exports){
+},{"../graph/Configs":318,"jointjs":52}],312:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48387,7 +48616,7 @@ var QueryOutput = (function (_shapes$devs$Model) {
 exports['default'] = QueryOutput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":317,"jointjs":52}],312:[function(require,module,exports){
+},{"../graph/Configs":318,"jointjs":52}],313:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -48768,7 +48997,7 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"../graph/Configs":317,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],313:[function(require,module,exports){
+},{"../graph/Configs":318,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],314:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49059,7 +49288,7 @@ var Triggers = (function (_React$Component2) {
 exports.Triggers = Triggers;
 exports.Events = Events;
 
-},{"../graph/Configs":317,"./ScheduleForm":312,"./styles":314,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],314:[function(require,module,exports){
+},{"../graph/Configs":318,"./ScheduleForm":313,"./styles":315,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],315:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49208,7 +49437,7 @@ exports.position = position;
 exports.RightPanel = RightPanel;
 exports.getCssStyle = getCssStyle;
 
-},{"material-ui":"material-ui","react":"react"}],315:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],316:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49289,6 +49518,7 @@ var Action = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Action.prototype), "constructor", this).call(this, config);
+        console.log("construct", edit);
         this._edit = edit;
         this._descriptions = descriptions;
         this.notifyJobModel(action);
@@ -49344,6 +49574,7 @@ var Action = (function (_shapes$devs$Model) {
     }, {
         key: "toggleEdit",
         value: function toggleEdit() {
+            console.log('toggleEdit?');
             this._edit = !this._edit;
             // Show out port in edit mode even if no actions
             if (!this._jobModel.ChainedActions || !this._jobModel.ChainedActions.length) {
@@ -49406,7 +49637,7 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"../actions/editor":301,"./ActionFilter":316,"./Configs":317,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],316:[function(require,module,exports){
+},{"../actions/editor":302,"./ActionFilter":317,"./Configs":318,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],317:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49522,7 +49753,7 @@ var ActionFilter = (function (_shapes$devs$Model) {
 exports['default'] = ActionFilter;
 module.exports = exports['default'];
 
-},{"./Configs":317,"jointjs":52}],317:[function(require,module,exports){
+},{"./Configs":318,"jointjs":52}],318:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49908,7 +50139,7 @@ exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
 exports.DropShadow = dropShadow;
 
-},{"pydio/http/rest-api":"pydio/http/rest-api"}],318:[function(require,module,exports){
+},{"pydio/http/rest-api":"pydio/http/rest-api"}],319:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50013,7 +50244,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports["default"] = Filter;
 module.exports = exports["default"];
 
-},{"./Configs":317,"jointjs":52}],319:[function(require,module,exports){
+},{"./Configs":318,"jointjs":52}],320:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50159,7 +50390,7 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":317,"jointjs":52}],320:[function(require,module,exports){
+},{"./Configs":318,"jointjs":52}],321:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50206,7 +50437,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":317,"jointjs":52}],321:[function(require,module,exports){
+},{"./Configs":318,"jointjs":52}],322:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50299,7 +50530,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":317,"jointjs":52}],322:[function(require,module,exports){
+},{"./Configs":318,"jointjs":52}],323:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50581,7 +50812,7 @@ var Templates = (function (_shapes$standard$Path) {
 exports["default"] = Templates;
 module.exports = exports["default"];
 
-},{"./Configs":317,"./Filter":318,"./Selector":321,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],323:[function(require,module,exports){
+},{"./Configs":318,"./Filter":319,"./Selector":322,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],324:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50657,7 +50888,7 @@ function descriptions(state, action) {
 
 exports["default"] = editor;
 
-},{"../actions/editor":301,"pydio/http/rest-api":"pydio/http/rest-api"}],324:[function(require,module,exports){
+},{"../actions/editor":302,"pydio/http/rest-api":"pydio/http/rest-api"}],325:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50700,15 +50931,15 @@ var _graphlib = require("graphlib");
 
 var _graphlib2 = _interopRequireDefault(_graphlib);
 
-function chainActions(descriptions, graph, actions, inputId) {
-    var outputPort = arguments.length <= 4 || arguments[4] === undefined ? 'output' : arguments[4];
-    var hasData = arguments.length <= 5 || arguments[5] === undefined ? true : arguments[5];
+function chainActions(descriptions, graph, editMode, actions, inputId) {
+    var outputPort = arguments.length <= 5 || arguments[5] === undefined ? 'output' : arguments[5];
+    var hasData = arguments.length <= 6 || arguments[6] === undefined ? true : arguments[6];
 
     actions.forEach(function (action) {
         var crtInput = inputId;
         var hasChain = action.ChainedActions && action.ChainedActions.length;
         var hasNegate = action.FailedFilterActions && action.FailedFilterActions.length;
-        var shape = new _graphAction2["default"](descriptions, action, hasChain);
+        var shape = new _graphAction2["default"](descriptions, action, hasChain || editMode);
         shape.addTo(graph);
         var filter = shape.getActionFilter();
         var link = undefined;
@@ -50723,10 +50954,10 @@ function chainActions(descriptions, graph, actions, inputId) {
             link.addTo(graph);
         }
         if (hasChain) {
-            chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
+            chainActions(descriptions, graph, editMode, action.ChainedActions, shape.id, 'output');
         }
         if (filter && hasNegate) {
-            chainActions(descriptions, graph, action.FailedFilterActions, filter.id, 'negate');
+            chainActions(descriptions, graph, editMode, action.FailedFilterActions, filter.id, 'negate');
         }
     });
 }
@@ -50796,7 +51027,8 @@ function graphReducer(graph, action) {
 
         case _actionsEditor.JOB_CHANGED:
             var job = action.job,
-                descriptions = action.descriptions;
+                descriptions = action.descriptions,
+                editMode = action.editMode;
 
             graph.getCells().filter(function (c) {
                 return !c.isTemplate;
@@ -50814,7 +51046,7 @@ function graphReducer(graph, action) {
             var actionsInput = shapeIn.id;
             var firstLinkHasData = _JobGraph2["default"].jobInputCreatesData(job);
 
-            chainActions(descriptions, graph, job.Actions, actionsInput, 'output', firstLinkHasData);
+            chainActions(descriptions, graph, editMode, job.Actions, actionsInput, 'output', firstLinkHasData);
 
             return graph;
 
@@ -50857,7 +51089,7 @@ function graphReducer(graph, action) {
 exports.graphReducer = graphReducer;
 exports.layoutReducer = layoutReducer;
 
-},{"../JobGraph":298,"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":319,"../graph/Link":320,"../graph/Templates":322,"dagre":2,"graphlib":32,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],325:[function(require,module,exports){
+},{"../JobGraph":299,"../actions/editor":302,"../graph/Action":316,"../graph/JobInput":320,"../graph/Link":321,"../graph/Templates":323,"dagre":2,"graphlib":32,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],326:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50900,7 +51132,7 @@ var allReducers = (0, _redux.combineReducers)({
 exports["default"] = allReducers;
 module.exports = exports["default"];
 
-},{"./editor":323,"./graph":324,"./job":326,"./paper":327,"redux":"redux"}],326:[function(require,module,exports){
+},{"./editor":324,"./graph":325,"./job":327,"./paper":328,"redux":"redux"}],327:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51194,7 +51426,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../JobGraph":298,"../actions/editor":301,"../graph/Action":315,"../graph/ActionFilter":316,"../graph/Configs":317,"../graph/JobInput":319,"pydio/http/rest-api":"pydio/http/rest-api"}],327:[function(require,module,exports){
+},{"../JobGraph":299,"../actions/editor":302,"../graph/Action":316,"../graph/ActionFilter":317,"../graph/Configs":318,"../graph/JobInput":320,"pydio/http/rest-api":"pydio/http/rest-api"}],328:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51317,7 +51549,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":301,"../graph/Action":315,"../graph/JobInput":319,"../graph/Link":320,"jointjs":52}],328:[function(require,module,exports){
+},{"../actions/editor":302,"../graph/Action":316,"../graph/JobInput":320,"../graph/Link":321,"jointjs":52}],329:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -51350,4 +51582,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":296}]},{},[328]);
+},{"./board/Dashboard":297}]},{},[329]);

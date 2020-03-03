@@ -9,12 +9,12 @@ import {JobsAction} from "pydio/http/rest-api";
 import dagre from "dagre";
 import graphlib from "graphlib";
 
-function chainActions(descriptions, graph, actions, inputId, outputPort='output', hasData = true) {
+function chainActions(descriptions, graph, editMode, actions, inputId, outputPort='output', hasData = true) {
     actions.forEach(action => {
         let crtInput = inputId;
         const hasChain = (action.ChainedActions && action.ChainedActions.length);
         const hasNegate = (action.FailedFilterActions && action.FailedFilterActions.length);
-        const shape = new Action(descriptions, action, hasChain);
+        const shape = new Action(descriptions, action, (hasChain || editMode));
         shape.addTo(graph);
         const filter = shape.getActionFilter();
         let link;
@@ -29,10 +29,10 @@ function chainActions(descriptions, graph, actions, inputId, outputPort='output'
             link.addTo(graph);
         }
         if (hasChain) {
-            chainActions(descriptions, graph, action.ChainedActions, shape.id, 'output');
+            chainActions(descriptions, graph, editMode, action.ChainedActions, shape.id, 'output');
         }
         if (filter && hasNegate) {
-            chainActions(descriptions, graph, action.FailedFilterActions, filter.id, 'negate');
+            chainActions(descriptions, graph, editMode, action.FailedFilterActions, filter.id, 'negate');
         }
     });
 }
@@ -95,7 +95,7 @@ function graphReducer(graph, action) {
     switch (action.type) {
 
         case JOB_CHANGED:
-            const {job, descriptions} = action;
+            const {job, descriptions, editMode} = action;
 
             graph.getCells().filter(c => !c.isTemplate).forEach(c => c.remove());
 
@@ -109,7 +109,7 @@ function graphReducer(graph, action) {
             let actionsInput = shapeIn.id;
             let firstLinkHasData = JobGraph.jobInputCreatesData(job);
 
-            chainActions(descriptions, graph, job.Actions, actionsInput, 'output', firstLinkHasData);
+            chainActions(descriptions, graph, editMode, job.Actions, actionsInput, 'output', firstLinkHasData);
 
             return graph;
 

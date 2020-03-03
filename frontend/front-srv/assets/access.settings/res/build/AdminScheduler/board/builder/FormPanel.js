@@ -102,9 +102,20 @@ var FormPanel = (function (_React$Component) {
             var _this = this;
 
             _FormLoader2['default'].loadAction(actionID).then(function (params) {
-                _this.setState({ formParams: params });
-                var create = _this.props.create;
+                var _props = _this.props;
+                var create = _props.create;
+                var onLoaded = _props.onLoaded;
 
+                _this.setState({ formParams: params }, function () {
+                    if (onLoaded && !(_this.formsLoaded && _this.formsLoaded[actionID])) {
+                        if (!_this.formsLoaded) {
+                            _this.formsLoaded = {};
+                        }
+                        _this.formsLoaded[actionID] = true;
+                        console.log("ONLOADED");
+                        onLoaded();
+                    }
+                });
                 if (create) {
                     (function () {
                         var defaults = {};
@@ -272,9 +283,9 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'save',
         value: function save() {
-            var _props = this.props;
-            var onChange = _props.onChange;
-            var onDismiss = _props.onDismiss;
+            var _props2 = this.props;
+            var onChange = _props2.onChange;
+            var onDismiss = _props2.onDismiss;
             var action = this.state.action;
 
             onChange(action);
@@ -295,10 +306,11 @@ var FormPanel = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var _props2 = this.props;
-            var onDismiss = _props2.onDismiss;
-            var onRemove = _props2.onRemove;
-            var create = _props2.create;
+            var _props3 = this.props;
+            var onDismiss = _props3.onDismiss;
+            var onRemove = _props3.onRemove;
+            var create = _props3.create;
+            var inDialog = _props3.inDialog;
             var _state = this.state;
             var actionInfo = _state.actionInfo;
             var action = _state.action;
@@ -350,29 +362,23 @@ var FormPanel = (function (_React$Component) {
                     })
                 );
             }
-            return _react2['default'].createElement(
-                _styles.RightPanel,
-                {
-                    title: actionInfo.Label,
-                    icon: actionInfo.Icon,
-                    onDismiss: onDismiss,
-                    saveButtons: !create,
-                    onSave: save,
-                    onRevert: revert,
-                    onRemove: onRemove
-                },
-                create && _react2['default'].createElement(
+
+            var children = [];
+            if (create && !inDialog) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
                     this.actionPicker()
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    actionInfo.Description
-                ),
-                form,
-                action.ID !== _actionsEditor.JOB_ACTION_EMPTY && _react2['default'].createElement(
+                ));
+            }
+            children.push(_react2['default'].createElement(
+                'div',
+                { style: { padding: 12, fontWeight: 300, fontSize: 13 } },
+                actionInfo.Description
+            ));
+            children.push(form);
+            if (action.ID !== _actionsEditor.JOB_ACTION_EMPTY) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: '0 12px', marginTop: -6 } },
                     _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
@@ -381,8 +387,10 @@ var FormPanel = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { hintText: "Comment (optional)", style: { marginTop: -2 }, multiLine: true, value: action.Description, onChange: function (e, v) {
                             _this3.onDescriptionChange(v);
                         }, fullWidth: true })
-                ),
-                create && _react2['default'].createElement(
+                ));
+            }
+            if (create) {
+                children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
                     _react2['default'].createElement(_materialUi.RaisedButton, {
@@ -392,8 +400,29 @@ var FormPanel = (function (_React$Component) {
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })
-                )
-            );
+                ));
+            }
+            if (inDialog) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: this.props.style },
+                    children
+                );
+            } else {
+                return _react2['default'].createElement(
+                    _styles.RightPanel,
+                    {
+                        title: actionInfo.Label,
+                        icon: actionInfo.Icon,
+                        onDismiss: onDismiss,
+                        saveButtons: !create,
+                        onSave: save,
+                        onRevert: revert,
+                        onRemove: onRemove
+                    },
+                    children
+                );
+            }
         }
     }]);
 
