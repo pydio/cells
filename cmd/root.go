@@ -206,6 +206,7 @@ func init() {
 
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
 	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
+	viper.BindPFlag("is_fork", flags.Lookup("fork"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

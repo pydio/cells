@@ -36,13 +36,13 @@ import (
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
 	"github.com/pydio/cells/common/config/memory"
 	"github.com/pydio/cells/common/config/remote"
+	defaults "github.com/pydio/cells/common/micro"
 )
 
 var (
@@ -266,5 +266,5 @@ func GetJsonPath() string {
 
 func GetRemoteSource() bool {
 	<-configLoaded
-	return viper.GetString("registry_cluster_routes") != ""
+	return defaults.RuntimeIsCluster() // viper.GetString("registry_cluster_routes") != ""
 }
