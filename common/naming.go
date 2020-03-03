@@ -39,10 +39,11 @@ type (
 const (
 	SERVICE_NATS = "nats"
 
-	SERVICE_LOG     = "log"
-	SERVICE_CONFIG  = "config"
-	SERVICE_INSTALL = "install"
-	SERVICE_UPDATE  = "update"
+	SERVICE_LOG         = "log"
+	SERVICE_CONFIG      = "config"
+	SERVICE_INSTALL     = "install"
+	SERVICE_UPDATE      = "update"
+	SERVICE_HEALTHCHECK = "healthcheck"
 
 	SERVICE_TAG_IDM        = "idm"
 	SERVICE_TAG_SCHEDULER  = "scheduler"

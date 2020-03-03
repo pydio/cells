@@ -59,6 +59,7 @@ import (
 
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
+	_ "github.com/pydio/cells/discovery/healthcheck/rest"
 
 	_ "github.com/pydio/cells/gateway/data"
 	_ "github.com/pydio/cells/gateway/dav"
