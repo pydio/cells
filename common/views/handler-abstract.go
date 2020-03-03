@@ -148,6 +148,10 @@ func (a *AbstractHandler) CopyObject(ctx context.Context, from *tree.Node, to *t
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
 
+func (a *AbstractHandler) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
+}
+
 // Multi part upload management
 
 func (a *AbstractHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {

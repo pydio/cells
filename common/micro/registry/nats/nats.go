@@ -18,11 +18,14 @@ func Enable() {
 	r := nats.NewRegistry(
 		registry.Addrs(addr),
 	)
-
+	q := 1
+	if defaults.RuntimeIsCluster() {
+		q = 0
+	}
 	defaults.DefaultStartupRegistry = nats.NewRegistry(
 		registry.Addrs(addr),
 		registry.Timeout(4*time.Second),
-		nats.Quorum(0),
+		nats.Quorum(q),
 	)
 
 	s := cache.NewSelector(selector.Registry(r))

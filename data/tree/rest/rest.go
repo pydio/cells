@@ -256,14 +256,11 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 
 	for _, node := range input.Nodes {
-		read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-		if er != nil {
+		if read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); er != nil {
 			service.RestErrorDetect(req, resp, er)
 			return
-		}
-		if eLock := permissions.CheckContentLock(ctx, read.Node); eLock != nil {
-			service.RestErrorDetect(req, resp, eLock)
-			return
+		} else {
+			node = read.Node
 		}
 		e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 			ctx, filtered, _ := inputFilter(ctx, node, "in")
@@ -271,12 +268,20 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			if e != nil {
 				return e
 			}
-			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
-			if !accessList.CanWrite(ctx, ancestors...) {
-				return errors.Forbidden("node.not.writeable", "Node is not writable")
+			bi, ok := views.GetBranchInfo(ctx, "in")
+			if !ok {
+				return fmt.Errorf("cannot find branch info for this node")
+			}
+			for _, rootID := range bi.RootUUIDs {
+				if rootID == node.Uuid {
+					return fmt.Errorf("please do not modify directly the root of a workspace")
+				}
 			}
 			if sourceInRecycle(ctx, filtered, ancestors) {
-				// Now, this is a real delete!
+				// This is a real delete!
+				if er := router.WrappedCanApply(ctx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_DELETE, Source: filtered}); er != nil {
+					return er
+				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
 				log.Auditer(ctx).Info(
@@ -299,6 +304,16 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				if _, ok := deleteJobs.RecyclesNodes[rPath]; !ok {
 					deleteJobs.RecyclesNodes[rPath] = &tree.Node{Path: rPath, Type: tree.NodeType_COLLECTION}
 				}
+
+				// Check permissions
+				srcCtx, srcNode, _ := inputFilter(ctx, node, "from")
+				_, recycleOut, _ := outputFilter(ctx, deleteJobs.RecyclesNodes[rPath], "to")
+				targetCtx, recycleIn, _ := inputFilter(ctx, recycleOut, "to")
+				recycleIn.SetMeta(common.RECYCLE_BIN_NAME, "true")
+				if er := router.WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: srcNode, Target: recycleIn}); er != nil {
+					return er
+				}
+
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Moved [%s] to recycle bin", node.GetPath()),
 					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),

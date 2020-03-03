@@ -53,6 +53,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
@@ -232,7 +233,7 @@ var mandatoryOptions = []ServiceOption{
 	// Adding a check before starting the service to ensure only one is started if unique
 	BeforeStart(func(s Service) error {
 
-		if s.MustBeUnique() {
+		if s.MustBeUnique() && defaults.RuntimeIsCluster() {
 			ctx := s.Options().Context
 			serviceName := s.Name()
 			cluster := registry.GetCluster(ctx, serviceName, &registry.NullFSM{})
@@ -248,7 +249,7 @@ var mandatoryOptions = []ServiceOption{
 	}),
 
 	BeforeStop(func(s Service) error {
-		if s.MustBeUnique() && s.Options().Cluster != nil {
+		if s.MustBeUnique() && defaults.RuntimeIsCluster() && s.Options().Cluster != nil {
 			return s.Options().Cluster.Leave()
 		}
 		return nil

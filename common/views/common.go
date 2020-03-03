@@ -137,6 +137,7 @@ type Handler interface {
 	MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (minio.ListObjectPartsResult, error)
 
 	ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error
+	WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error
 	ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error
 
 	SetNextHandler(h Handler)
