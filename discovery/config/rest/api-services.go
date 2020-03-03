@@ -51,7 +51,6 @@ SERVICES MANAGEMENT
 *********************/
 // List all services with their status
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
-
 	all, err := registry.ListServices(true)
 	if err != nil {
 		service.RestError500(req, resp, err)
@@ -87,7 +86,6 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	output.Total = int32(len(output.Services))
 
 	resp.WriteEntity(output)
-
 }
 
 // List all Peers (servers) on which any pydio service is running
