@@ -271,6 +271,15 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			if e != nil {
 				return e
 			}
+			bi, ok := views.GetBranchInfo(ctx, "in")
+			if !ok {
+				return fmt.Errorf("cannot find branch info for this node")
+			}
+			for _, rootID := range bi.RootUUIDs {
+				if rootID == node.Uuid {
+					return fmt.Errorf("please do not modify directly the root of a workspace")
+				}
+			}
 			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
 			if !accessList.CanWrite(ctx, ancestors...) {
 				return errors.Forbidden("node.not.writeable", "Node is not writable")
