@@ -48,6 +48,10 @@ var IdmWorkspaceSingleQuery = (function () {
         this.description = undefined;
         this.slug = undefined;
         this.scope = undefined;
+        this.LastUpdated = undefined;
+        this.HasAttribute = undefined;
+        this.AttributeName = undefined;
+        this.AttributeValue = undefined;
         this.not = undefined;
     }
 
@@ -77,6 +81,18 @@ var IdmWorkspaceSingleQuery = (function () {
             }
             if (data.hasOwnProperty('scope')) {
                 obj['scope'] = _IdmWorkspaceScope2['default'].constructFromObject(data['scope']);
+            }
+            if (data.hasOwnProperty('LastUpdated')) {
+                obj['LastUpdated'] = _ApiClient2['default'].convertToType(data['LastUpdated'], 'String');
+            }
+            if (data.hasOwnProperty('HasAttribute')) {
+                obj['HasAttribute'] = _ApiClient2['default'].convertToType(data['HasAttribute'], 'String');
+            }
+            if (data.hasOwnProperty('AttributeName')) {
+                obj['AttributeName'] = _ApiClient2['default'].convertToType(data['AttributeName'], 'String');
+            }
+            if (data.hasOwnProperty('AttributeValue')) {
+                obj['AttributeValue'] = _ApiClient2['default'].convertToType(data['AttributeValue'], 'String');
             }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = _ApiClient2['default'].convertToType(data['not'], 'Boolean');
@@ -108,6 +124,22 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/IdmWorkspaceScope} scope
+*/
+
+/**
+* @member {String} LastUpdated
+*/
+
+/**
+* @member {String} HasAttribute
+*/
+
+/**
+* @member {String} AttributeName
+*/
+
+/**
+* @member {String} AttributeValue
 */
 
 /**

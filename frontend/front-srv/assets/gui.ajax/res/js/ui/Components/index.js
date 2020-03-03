@@ -60,6 +60,9 @@ import ChatIcon from './chat/ChatIcon'
 import ResourcePoliciesPanel from './policies/ResourcePoliciesPanel'
 import CellActionsRenderer from './users/avatar/CellActionsRenderer'
 
+import PanelBigButtons from './stepper/PanelBigButtons'
+import Dialog from './stepper/Dialog'
+
 const PydioComponents = {
 
     SortableList            : SortableList,
@@ -108,7 +111,9 @@ const PydioComponents = {
     ChatIcon,
     ChatClient,
     ResourcePoliciesPanel,
-    CellActionsRenderer
+    CellActionsRenderer,
+
+    Stepper : {PanelBigButtons, Dialog}
 };
 
 export {PydioComponents as default}

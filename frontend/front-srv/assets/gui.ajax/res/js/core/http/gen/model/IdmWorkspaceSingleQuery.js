@@ -72,6 +72,18 @@ export default class IdmWorkspaceSingleQuery {
             if (data.hasOwnProperty('scope')) {
                 obj['scope'] = IdmWorkspaceScope.constructFromObject(data['scope']);
             }
+            if (data.hasOwnProperty('LastUpdated')) {
+                obj['LastUpdated'] = ApiClient.convertToType(data['LastUpdated'], 'String');
+            }
+            if (data.hasOwnProperty('HasAttribute')) {
+                obj['HasAttribute'] = ApiClient.convertToType(data['HasAttribute'], 'String');
+            }
+            if (data.hasOwnProperty('AttributeName')) {
+                obj['AttributeName'] = ApiClient.convertToType(data['AttributeName'], 'String');
+            }
+            if (data.hasOwnProperty('AttributeValue')) {
+                obj['AttributeValue'] = ApiClient.convertToType(data['AttributeValue'], 'String');
+            }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = ApiClient.convertToType(data['not'], 'Boolean');
             }
@@ -99,6 +111,22 @@ export default class IdmWorkspaceSingleQuery {
     * @member {module:model/IdmWorkspaceScope} scope
     */
     scope = undefined;
+    /**
+    * @member {String} LastUpdated
+    */
+    LastUpdated = undefined;
+    /**
+    * @member {String} HasAttribute
+    */
+    HasAttribute = undefined;
+    /**
+    * @member {String} AttributeName
+    */
+    AttributeName = undefined;
+    /**
+    * @member {String} AttributeValue
+    */
+    AttributeValue = undefined;
     /**
     * @member {Boolean} not
     */

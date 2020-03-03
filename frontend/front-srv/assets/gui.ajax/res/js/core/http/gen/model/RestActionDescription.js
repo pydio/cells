@@ -77,6 +77,9 @@ export default class RestActionDescription {
             if (data.hasOwnProperty('Category')) {
                 obj['Category'] = ApiClient.convertToType(data['Category'], 'String');
             }
+            if (data.hasOwnProperty('Tint')) {
+                obj['Tint'] = ApiClient.convertToType(data['Tint'], 'String');
+            }
             if (data.hasOwnProperty('InputDescription')) {
                 obj['InputDescription'] = ApiClient.convertToType(data['InputDescription'], 'String');
             }
@@ -115,6 +118,10 @@ export default class RestActionDescription {
     * @member {String} Category
     */
     Category = undefined;
+    /**
+    * @member {String} Tint
+    */
+    Tint = undefined;
     /**
     * @member {String} InputDescription
     */

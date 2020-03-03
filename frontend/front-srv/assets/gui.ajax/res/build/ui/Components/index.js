@@ -152,6 +152,14 @@ var _usersAvatarCellActionsRenderer = require('./users/avatar/CellActionsRendere
 
 var _usersAvatarCellActionsRenderer2 = _interopRequireDefault(_usersAvatarCellActionsRenderer);
 
+var _stepperPanelBigButtons = require('./stepper/PanelBigButtons');
+
+var _stepperPanelBigButtons2 = _interopRequireDefault(_stepperPanelBigButtons);
+
+var _stepperDialog = require('./stepper/Dialog');
+
+var _stepperDialog2 = _interopRequireDefault(_stepperDialog);
+
 var PydioComponents = {
 
     SortableList: _listSortableList2['default'],
@@ -200,7 +208,9 @@ var PydioComponents = {
     ChatIcon: _chatChatIcon2['default'],
     ChatClient: _chatChatClient2['default'],
     ResourcePoliciesPanel: _policiesResourcePoliciesPanel2['default'],
-    CellActionsRenderer: _usersAvatarCellActionsRenderer2['default']
+    CellActionsRenderer: _usersAvatarCellActionsRenderer2['default'],
+
+    Stepper: { PanelBigButtons: _stepperPanelBigButtons2['default'], Dialog: _stepperDialog2['default'] }
 };
 
 exports['default'] = PydioComponents;

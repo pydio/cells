@@ -333,6 +333,13 @@
         "description": "",
         "methods": [
           {
+            "name": "toggleAdvanced",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "dmChangesToState",
             "docblock": null,
             "modifiers": [],
@@ -404,13 +411,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "backToHome",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
           }
         ],
         "props": {
@@ -428,14 +428,8 @@
     "AdminComponents/board/AdminLeftNav.js": [
       {
         "description": "",
+        "displayName": "AdminMenu",
         "methods": [
-          {
-            "name": "checkForUpdates",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "onMenuChange",
             "docblock": null,
@@ -452,78 +446,11 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "rootNode": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          },
-          "contextNode": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dataModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       },
       {
         "description": "",
         "displayName": "AdminLeftNav",
-        "methods": []
-      }
-    ],
-    "AdminComponents/board/AdvancedDashboard.js": [
-      {
-        "description": "",
-        "displayName": "AdvancedDashboard",
-        "methods": [
-          {
-            "name": "getDefaultCards",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/board/GroupAdminDashboard.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "renderLink",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/board/Header.js": [
-      {
-        "description": "",
-        "displayName": "Header",
         "methods": []
       }
     ],
@@ -559,6 +486,14 @@
               {
                 "name": "link",
                 "type": null
+              },
+              {
+                "name": "props",
+                "type": null
+              },
+              {
+                "name": "icProps",
+                "type": null
               }
             ],
             "returns": null
@@ -578,604 +513,25 @@
         ]
       }
     ],
-    "AdminComponents/board/SubHeader.js": [
+    "AdminComponents/styles/AdminStyles.js": [
+      {
+        "description": "",
+        "displayName": "cssFormStyle",
+        "methods": []
+      }
+    ],
+    "AdminComponents/styles/Header.js": [
+      {
+        "description": "",
+        "displayName": "Header",
+        "methods": []
+      }
+    ],
+    "AdminComponents/styles/SubHeader.js": [
       {
         "description": "",
         "displayName": "SubHeader",
         "methods": []
-      }
-    ],
-    "AdminComponents/board/TabBoard.js": [
-      {
-        "description": "",
-        "displayName": "TabBoard",
-        "methods": [
-          {
-            "name": "onTabChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleLogToolsChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "state",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleLoadingStatusChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "status",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/GraphBadge.js": [
-      {
-        "description": "",
-        "displayName": "GraphBadge",
-        "methods": [
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onLoadedData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "receivedData",
-                "type": null
-              },
-              {
-                "name": "preparedDataSet",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "queryName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "defaultInterval": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "figure": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "frequency": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "legend": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminComponents/cards/GraphCard.js": [
-      {
-        "description": "",
-        "displayName": "GraphCard",
-        "methods": [
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onPaginatorChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "start",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onGraphDataLoaded",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "queryName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "title": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "defaultInterval": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "{\n    width:540, height:350, zDepth:1\n}",
-              "computed": false
-            }
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "zDepth": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminComponents/cards/QuickLinks.js": [
-      {
-        "description": "",
-        "displayName": "QuickLinks",
-        "methods": [
-          {
-            "name": "menuClicked",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "index",
-                "type": null
-              },
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "removeLink",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "payload",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "toggleEdit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/RecentLogs.js": [
-      {
-        "description": "",
-        "displayName": "RecentLogs",
-        "methods": [
-          {
-            "name": "loadLogs",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "changeFilter",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/ServicesStatus.js": [
-      {
-        "description": "",
-        "displayName": "ServerStatus",
-        "methods": [
-          {
-            "name": "loadStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/ToDoList.js": [
-      {
-        "description": "",
-        "displayName": "ToDoList",
-        "methods": [
-          {
-            "name": "addTask",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "handleNewTaskKeyDown",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "removeTask",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "index",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "changeTaskState",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "index",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "title": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminComponents/cards/WelcomePanel.js": [
-      {
-        "description": "",
-        "displayName": "WelcomePanel",
-        "methods": []
-      }
-    ],
-    "AdminComponents/graph/GraphPaginator.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "makeLink",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "type",
-                "type": null
-              },
-              {
-                "name": "links",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "start": {
-            "type": {
-              "name": "number"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onRangeChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "links": {
-            "type": {
-              "name": "array"
-            },
-            "required": false,
-            "description": ""
-          },
-          "pickerOnShow": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "pickerOnDismiss": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminComponents/graph/RemoteGraphLine.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "loadData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "parseData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "queryName",
-                "type": null
-              },
-              {
-                "name": "jsonData",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "makeDataSet",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "label",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              },
-              {
-                "name": "index",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "resizeChart",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "queryName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "start": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "0",
-              "computed": false
-            }
-          },
-          "frequency": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "'H'",
-              "computed": false
-            }
-          },
-          "onDataLoaded": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "function(){}",
-              "computed": false
-            }
-          },
-          "width": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "300",
-              "computed": false
-            }
-          },
-          "height": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "200",
-              "computed": false
-            }
-          },
-          "chartOptions": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "{\n    responsive:true,\n    useCSSTransforms:false,\n    maintainAspectRatio:false,\n    tooltipTemplate: \"<%= value %> <%= datasetLabel %>\",\n    multiTooltipTemplate: \"<%= value %> <%= datasetLabel %>\"\n}",
-              "computed": false
-            }
-          },
-          "filters": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
       }
     ],
     "AdminComponents/util/CodeMirrorField.js": [
@@ -1217,6 +573,42 @@
         "methods": []
       }
     ],
+    "AdminComponents/util/QuotaField.js": [
+      {
+        "description": "",
+        "displayName": "QuotaField",
+        "methods": [
+          {
+            "name": "divide",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "initialValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "multiple",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "v",
+                "type": null
+              },
+              {
+                "name": "u",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminLogs/board/LogBoard.js": [
       {
         "description": "",
@@ -1253,6 +645,18 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleTimestampContext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ts",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -1303,6 +707,20 @@
           },
           {
             "name": "detachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "focusPeriod",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "unfocusPeriod",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -1371,32 +789,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "date": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Date"
-            },
-            "required": true,
-            "description": ""
-          },
-          "endDate": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Date"
-            },
-            "required": false,
-            "description": ""
-          },
-          "filter": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "AdminLogs/board/LogTools.js": [
@@ -1412,12 +805,28 @@
             "returns": null
           },
           {
+            "name": "handleToggleShow",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "field",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "handleFilterChange",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
                 "name": "val",
+                "type": null
+              },
+              {
+                "name": "keyName",
                 "type": null
               }
             ],
@@ -1431,6 +840,10 @@
               {
                 "name": "date",
                 "type": null
+              },
+              {
+                "name": "time",
+                "type": null
               }
             ],
             "returns": null
@@ -1443,6 +856,10 @@
               {
                 "name": "date",
                 "type": null
+              },
+              {
+                "name": "time",
+                "type": null
               }
             ],
             "returns": null
@@ -1454,18 +871,6 @@
             "params": [
               {
                 "name": "format",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleFilterMode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "filterMode",
                 "type": null
               }
             ],
@@ -2176,159 +1581,10 @@
         "methods": []
       }
     ],
-    "AdminPeople/editor/acl/PermissionMaskEditor.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "dmObserver",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "recursiveLoadNodesWithChildren",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "crtMask",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "recursiveClearNodeValues",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "values",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onCheckboxCheck",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "checkboxName",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "roleAclObject",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "checkboxesComputeStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "role": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Role"
-            },
-            "required": false,
-            "description": ""
-          },
-          "workspace": {
-            "type": {
-              "name": "instanceOf",
-              "value": "IdmWorkspace"
-            },
-            "required": false,
-            "description": ""
-          },
-          "globalWorkspacePermissions": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showGlobalPermissions": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onGlobalPermissionsChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onNodesChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showModal": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideModal": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminPeople/editor/acl/RightsSelector.js": [
       {
         "description": "",
+        "displayName": "RightsSelector",
         "methods": [
           {
             "name": "getAcl",
@@ -2360,51 +1616,38 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "acl": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "disabled": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideDeny": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideLabels": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "advancedAcl": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
+        ]
+      }
+    ],
+    "AdminPeople/editor/acl/RightsSummary.js": [
+      {
+        "description": "",
+        "displayName": "RightsSummary",
+        "methods": []
+      }
+    ],
+    "AdminPeople/editor/acl/WorkspaceAcl.js": [
+      {
+        "description": "",
+        "displayName": "WorkspaceAcl",
+        "methods": [
+          {
+            "name": "onAclChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "oldValue",
+                "type": null
+              }
+            ],
+            "returns": null
           }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/acl/WorkspacesAcls.js": [
@@ -2506,21 +1749,6 @@
         ]
       }
     ],
-    "AdminPeople/editor/info/UserActivity.js": [
-      {
-        "description": "",
-        "displayName": "UserActivity",
-        "methods": [
-          {
-            "name": "loadActivity",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
     "AdminPeople/editor/info/UserInfo.js": [
       {
         "description": "",
@@ -2578,36 +1806,6 @@
             "returns": null
           }
         ]
-      }
-    ],
-    "AdminPeople/editor/panel/SharesList.js": [
-      {
-        "description": "",
-        "methods": [],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "userId": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "userData": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
       }
     ],
     "AdminPeople/editor/params/ParameterCreate.js": [
@@ -2735,6 +1933,7 @@
     "AdminPeople/editor/params/ParameterEntry.js": [
       {
         "description": "",
+        "displayName": "ParameterEntry",
         "methods": [
           {
             "name": "onChangeParameter",
@@ -2805,46 +2004,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "acl": {
-            "type": {
-              "name": "instanceOf",
-              "value": "IdmACL"
-            },
-            "required": false,
-            "description": ""
-          },
-          "role": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Role"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actions": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "parameters": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "inherited": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/params/ParametersPanel.js": [
@@ -2898,6 +2058,7 @@
     "AdminPeople/editor/params/ParametersPicker.js": [
       {
         "description": "",
+        "displayName": "ParametersPicker",
         "methods": [
           {
             "name": "filter",
@@ -2935,66 +2096,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "allParameters": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "allActions": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onSelection": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actionsPrefix": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "'[a] '",
-              "computed": false
-            }
-          },
-          "parametersPrefix": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            }
-          },
-          "initialSelection": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/user/UserPasswordDialog.js": [
@@ -3424,350 +2526,6 @@
           },
           {
             "name": "removeRule",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Actions.js": [
-      {
-        "description": "",
-        "displayName": "Actions",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/ChipValues.js": [
-      {
-        "description": "",
-        "displayName": "ChipValues",
-        "methods": [
-          {
-            "name": "addChip",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "deleteChip",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "chipValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Conditions.js": [
-      {
-        "description": "",
-        "displayName": "Conditions",
-        "methods": [
-          {
-            "name": "onConditionAdd",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "fieldName",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onConditionRemove",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fieldName",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fieldName",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Effect.js": [
-      {
-        "description": "",
-        "displayName": "Effect",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/InlineLabel.js": [
-      {
-        "description": "",
-        "displayName": "InlineLabel",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onEnter",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "cancel",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "open",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Label.js": [
-      {
-        "description": "",
-        "displayName": "Label",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Resources.js": [
-      {
-        "description": "",
-        "displayName": "Resources",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/RuleEditor.js": [
-      {
-        "description": "",
-        "displayName": "RuleEditor",
-        "methods": [
-          {
-            "name": "isDirty",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isValid",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isCreate",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "rule",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "revert",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "save",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Subjects.js": [
-      {
-        "description": "",
-        "displayName": "Subjects",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/ValuesOrRegexp.js": [
-      {
-        "description": "",
-        "displayName": "ValuesOrRegexp",
-        "methods": [
-          {
-            "name": "onItemTouchTap",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onTextFieldSubmitted",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "cancelTextField",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -4484,6 +3242,13 @@
         ]
       }
     ],
+    "AdminScheduler/board/CreateActions.js": [
+      {
+        "description": "",
+        "displayName": "CreateActions",
+        "methods": []
+      }
+    ],
     "AdminScheduler/board/Dashboard.js": [
       {
         "description": "",
@@ -4627,6 +3392,18 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "insertTaskLogRow",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "rows",
+                "type": null
+              }
+            ],
+            "returns": null
           }
         ]
       }
@@ -4636,13 +3413,6 @@
         "description": "",
         "displayName": "JobGraph",
         "methods": [
-          {
-            "name": "loadDescriptions",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "jobInputCreatesData",
             "docblock": null,
@@ -4913,6 +3683,34 @@
             "params": [
               {
                 "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeTag",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "row",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "findAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "path",
+                "type": null
+              },
+              {
+                "name": "actions",
                 "type": null
               }
             ],
@@ -6212,6 +5010,20 @@
       {
         "description": "",
         "methods": [
+          {
+            "name": "startLoad",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "endLoad",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "reload",
             "docblock": null,
@@ -18602,6 +17414,52 @@
         ]
       }
     ],
+    "core/http/gen/model/AuthToken.js": [
+      {
+        "description": "The AuthToken model module.\n@module model/AuthToken\n@version 1.0",
+        "displayName": "AuthToken",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>AuthToken</code>.\n@alias module:model/AuthToken\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>AuthToken</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>AuthToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/AuthToken} obj Optional instance to populate.\n@return {module:model/AuthToken} The populated <code>AuthToken</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/AuthToken"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>AuthToken</code> instance.",
+              "type": {
+                "name": "module:model/AuthToken"
+              }
+            },
+            "description": "Constructs a <code>AuthToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/CtlPeer.js": [
       {
         "description": "The CtlPeer model module.\n@module model/CtlPeer\n@version 1.0",
@@ -26410,52 +25268,6 @@
         ]
       }
     ],
-    "core/http/gen/model/RestToken.js": [
-      {
-        "description": "The RestToken model module.\n@module model/RestToken\n@version 1.0",
-        "displayName": "RestToken",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestToken</code>.\n@alias module:model/RestToken\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestToken</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestToken} obj Optional instance to populate.\n@return {module:model/RestToken} The populated <code>RestToken</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestToken"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestToken</code> instance.",
-              "type": {
-                "name": "module:model/RestToken"
-              }
-            },
-            "description": "Constructs a <code>RestToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
     "core/http/gen/model/RestUpdateSharePoliciesRequest.js": [
       {
         "description": "The RestUpdateSharePoliciesRequest model module.\n@module model/RestUpdateSharePoliciesRequest\n@version 1.0",
@@ -33807,6 +32619,7 @@
     "Components/dynamic-grid/DynamicGrid.js": [
       {
         "description": "Automatic layout for presenting draggable cards to users. Used for user and admin dashboard.",
+        "displayName": "CardsGrid",
         "methods": [
           {
             "name": "saveFullLayouts",
@@ -33869,6 +32682,7 @@
       },
       {
         "description": "",
+        "displayName": "DynamicGrid",
         "methods": [
           {
             "name": "removeCard",
@@ -33908,57 +32722,13 @@
             "params": [],
             "returns": null
           }
-        ],
-        "props": {
-          "storeNamespace": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "builderNamespaces": {
-            "type": {
-              "name": "array"
-            },
-            "required": false,
-            "description": ""
-          },
-          "defaultCards": {
-            "type": {
-              "name": "array"
-            },
-            "required": false,
-            "description": ""
-          },
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "disableDrag": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "disableEdit": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "Components/dynamic-grid/GridBuilder.js": [
       {
         "description": "",
+        "displayName": "GridBuilder",
         "methods": [
           {
             "name": "listAvailableWidgets",
@@ -34026,29 +32796,6 @@
             "returns": null
           }
         ],
-        "props": {
-          "namespaces": {
-            "type": {
-              "name": "array"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onCreateCard": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onEditStatusChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {GridBuilder} = require('pydio').requireLib('components')"
       }
     ],
@@ -34105,9 +32852,41 @@
         "require": "const {ReactEditorOpener} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/elements/ClipboardTextField.js": [
+      {
+        "description": "",
+        "displayName": "ClipboardTextField",
+        "methods": [
+          {
+            "name": "attachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clearCopyMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {ClipboardTextField} = require('pydio').requireLib('components')"
+      }
+    ],
+    "Components/elements/DataModelBadge.js": [
+      {
+        "description": "",
+        "displayName": "DataModelBadge",
+        "methods": [],
+        "require": "const {DataModelBadge} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/elements/LabelWithTip.js": [
       {
         "description": "",
+        "displayName": "LabelWithTip",
         "methods": [
           {
             "name": "show",
@@ -34124,84 +32903,14 @@
             "returns": null
           }
         ],
-        "props": {
-          "label": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "labelElement": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "tooltip": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "tooltipClassName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {LabelWithTip} = require('pydio').requireLib('components')"
       }
     ],
     "Components/elements/SimpleFigureBadge.js": [
       {
         "description": "Simple MuiPaper with a figure and a legend",
+        "displayName": "SimpleFigureBadge",
         "methods": [],
-        "props": {
-          "colorIndicator": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            }
-          },
-          "figure": {
-            "type": {
-              "name": "number"
-            },
-            "required": true,
-            "description": ""
-          },
-          "legend": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {SimpleFigureBadge} = require('pydio').requireLib('components')"
       }
     ],
@@ -34564,6 +33273,25 @@
             "params": [
               {
                 "name": "indexes",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computePagination",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "renderPagination",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "pagination",
                 "type": null
               }
             ],
@@ -36092,6 +34820,39 @@
         "displayName": "itemsToMenu",
         "methods": [],
         "require": "const {Utils} = require('pydio').requireLib('components')"
+      }
+    ],
+    "Components/stepper/Dialog.js": [
+      {
+        "description": "",
+        "displayName": "StepperDialog",
+        "methods": [],
+        "require": "const {Dialog} = require('pydio').requireLib('components')"
+      }
+    ],
+    "Components/stepper/PanelBigButtons.js": [
+      {
+        "description": "",
+        "displayName": "PanelBigButtons",
+        "methods": [
+          {
+            "name": "stProps",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "a",
+                "type": null
+              },
+              {
+                "name": "b",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {PanelBigButtons} = require('pydio').requireLib('components')"
       }
     ],
     "Components/users/TeamCreationForm.js": [
@@ -42105,12 +40866,45 @@
     "Workspaces/wslist/WorkspacesList.js": [
       {
         "description": "",
+        "displayName": "Entries",
+        "methods": [
+          {
+            "name": "computePagination",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "entries",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "renderPagination",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "pagination",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {WorkspacesList} = require('pydio').requireLib('workspaces')"
+      },
+      {
+        "description": "",
         "displayName": "WorkspacesList",
         "methods": [
           {
             "name": "stateFromPydio",
             "docblock": null,
-            "modifiers": [],
+            "modifiers": [
+              "static"
+            ],
             "params": [
               {
                 "name": "pydio",
@@ -42126,8 +40920,7 @@
             "params": [],
             "returns": null
           }
-        ],
-        "require": "const {WorkspacesList} = require('pydio').requireLib('workspaces')"
+        ]
       }
     ],
     "Workspaces/wslist/WorkspacesListMaterial.js": [

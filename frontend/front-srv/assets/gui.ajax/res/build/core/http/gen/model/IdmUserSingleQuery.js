@@ -54,6 +54,7 @@ var IdmUserSingleQuery = (function () {
         this.AttributeAnyValue = undefined;
         this.HasRole = undefined;
         this.NodeType = undefined;
+        this.HasProfile = undefined;
         this.not = undefined;
     }
 
@@ -101,6 +102,9 @@ var IdmUserSingleQuery = (function () {
             }
             if (data.hasOwnProperty('NodeType')) {
                 obj['NodeType'] = _IdmNodeType2['default'].constructFromObject(data['NodeType']);
+            }
+            if (data.hasOwnProperty('HasProfile')) {
+                obj['HasProfile'] = _ApiClient2['default'].convertToType(data['HasProfile'], 'String');
             }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = _ApiClient2['default'].convertToType(data['not'], 'Boolean');
@@ -156,6 +160,10 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/IdmNodeType} NodeType
+*/
+
+/**
+* @member {String} HasProfile
 */
 
 /**
