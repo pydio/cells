@@ -489,6 +489,10 @@ func (e *Executor) StreamChanges(ctx context.Context, in *tree.StreamChangesRequ
 
 }
 
+func (e *Executor) WrappedCanApply(_ context.Context, _ context.Context, _ *tree.NodeChangeEvent) error {
+	return nil
+}
+
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {
 
 	path := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)

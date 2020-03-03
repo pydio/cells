@@ -58,3 +58,17 @@ func (a *AclLockFilter) CopyObject(ctx context.Context, from *tree.Node, to *tre
 
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
+
+func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
+	var lockErr error
+	switch operation.GetType() {
+	case tree.NodeChangeEvent_CREATE:
+		lockErr = permissions.CheckContentLock(targetCtx, operation.GetTarget())
+	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
+		lockErr = permissions.CheckContentLock(srcCtx, operation.GetSource())
+	}
+	if lockErr != nil {
+		return lockErr
+	}
+	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
+}
