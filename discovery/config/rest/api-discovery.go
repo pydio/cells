@@ -201,10 +201,15 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
 	}
 	for name, a := range allActions {
+		t := a.Tint
+		if ct, o := actions.CategoryTints[a.Category]; o && t == "" {
+			t = ct
+		}
 		response.Actions[name] = &rest.ActionDescription{
 			Name:              a.ID,
 			Icon:              a.Icon,
 			Label:             a.Label,
+			Tint:              t,
 			Description:       a.Description,
 			SummaryTemplate:   a.SummaryTemplate,
 			Category:          a.Category,

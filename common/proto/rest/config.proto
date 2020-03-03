@@ -148,10 +148,12 @@ message ActionDescription{
     bool HasForm = 6;
     // User-defined category to organize actions list
     string Category = 7;
+    // User-defined hexa or rgb color
+    string Tint = 8;
     // Additional description for expected inputs
-    string InputDescription = 8;
+    string InputDescription = 9;
     // Additional description describing the action output
-    string OutputDescription = 9;
+    string OutputDescription = 10;
 }
 
 message SchedulerActionsRequest{}
