@@ -23,9 +23,12 @@ package rest
 
 import (
 	"context"
+	"fmt"
 
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
@@ -39,11 +42,17 @@ var (
 
 func init() {
 	plugins.Register(func() {
+
+		port := viper.Get("healthcheck")
+		if port == "" {
+			return
+		}
+
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_HEALTHCHECK),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.RouterDependencies(),
-			service.Port("53948"),
+			service.Port(fmt.Sprintf("%d", port)),
 			service.Description("Healthcheck for services"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {

@@ -30,6 +30,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -204,6 +205,9 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Filter by tags")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Filter")
+	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
+
+	viper.BindPFlag("healthcheck", StartCmd.Flags().Lookup("healthcheck"))
 
 	RootCmd.AddCommand(StartCmd)
 }

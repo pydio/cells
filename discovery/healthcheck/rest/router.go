@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 
@@ -32,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/ctl"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
+	cnet "github.com/pydio/cells/common/utils/net"
 )
 
 type route struct {
@@ -65,9 +67,9 @@ func NewRouter() *mux.Router {
 func index(w http.ResponseWriter, r *http.Request) {
 
 	params := r.URL.Query()
-	excluded := strings.Split(params.Get("excluded"), ",")
+	global := params.Get("global")
 
-	all, err := registry.ListServices(true)
+	all, err := registry.ListServices(global != "")
 	if err != nil {
 		return
 	}
@@ -76,6 +78,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+
+	excluded := strings.Split(params.Get("excluded"), ",")
 
 	// Filtering excluded services
 	for _, x := range excluded {
@@ -112,12 +116,55 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Filtering non-local
-	hostname := params.Get("hostname")
+	// Filtering non-local (by default host only)
+	if global == "" {
+		var services []*ctl.Service
+
+		for _, service := range output.Services {
+			if len(service.RunningPeers) == 0 {
+				services = append(services, service)
+				continue
+			}
+			for _, node := range service.RunningPeers {
+				ips, err := cnet.GetAvailableIPs()
+				if err != nil {
+					http.Error(w, "could not retrieve ip", http.StatusInternalServerError)
+					return
+				}
+
+				found := false
+				for _, ip := range ips {
+					if node.GetAddress() == ip.String() {
+						found = true
+						break
+					}
+				}
+
+				if found {
+					services = append(services, service)
+					break
+				}
+			}
+		}
+
+		output.Services = services
+	}
+
+	// Filtering non-local by hostname
+	hostname, _ := os.Hostname()
+	if global != "" {
+		hostname = params.Get("hostname")
+	}
+
 	if hostname != "" {
 		var services []*ctl.Service
 
 		for _, service := range output.Services {
+			if len(service.RunningPeers) == 0 {
+				services = append(services, service)
+				continue
+			}
+
 			for _, node := range service.RunningPeers {
 				meta := node.GetMetadata()
 				if h, ok := meta["hostname"]; ok && h == hostname {
@@ -131,11 +178,20 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Filtering PID
-	pids := strings.Split(params.Get("pid"), ",")
+	pids := []string{fmt.Sprintf("%d", os.Getpid())}
+	if global != "" {
+		pids = strings.Split(params.Get("pid"), ",")
+	}
+
 	if len(pids) > 0 && pids[0] != "" {
 		var services []*ctl.Service
 
 		for _, service := range output.Services {
+			if len(service.RunningPeers) == 0 {
+				services = append(services, service)
+				continue
+			}
+
 			found := false
 			for _, node := range service.RunningPeers {
 				meta := node.GetMetadata()
@@ -161,9 +217,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, service := range output.Services {
+
+		// We don't display that information
 		service.RunningPeers = nil
+
+		if service.Status == ctl.ServiceStatus_STOPPED {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 
+	// Checking statuses
 	output.Total = int32(len(output.Services))
 
 	w.Header().Set("Content-Type", "application/json")
