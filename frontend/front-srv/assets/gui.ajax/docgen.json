@@ -3246,7 +3246,15 @@
       {
         "description": "",
         "displayName": "CreateActions",
-        "methods": []
+        "methods": [
+          {
+            "name": "dismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
       }
     ],
     "AdminScheduler/board/Dashboard.js": [

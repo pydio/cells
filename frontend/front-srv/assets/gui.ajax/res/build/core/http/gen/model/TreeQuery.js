@@ -47,7 +47,7 @@ var TreeQuery = (function () {
     function TreeQuery() {
         _classCallCheck(this, TreeQuery);
 
-        this.PresetPaths = undefined;
+        this.Paths = undefined;
         this.PathPrefix = undefined;
         this.MinSize = undefined;
         this.MaxSize = undefined;
@@ -60,6 +60,7 @@ var TreeQuery = (function () {
         this.Extension = undefined;
         this.GeoQuery = undefined;
         this.PathDepth = undefined;
+        this.UUIDs = undefined;
         this.Not = undefined;
     }
 
@@ -75,8 +76,8 @@ var TreeQuery = (function () {
         if (data) {
             obj = obj || new TreeQuery();
 
-            if (data.hasOwnProperty('PresetPaths')) {
-                obj['PresetPaths'] = _ApiClient2['default'].convertToType(data['PresetPaths'], ['String']);
+            if (data.hasOwnProperty('Paths')) {
+                obj['Paths'] = _ApiClient2['default'].convertToType(data['Paths'], ['String']);
             }
             if (data.hasOwnProperty('PathPrefix')) {
                 obj['PathPrefix'] = _ApiClient2['default'].convertToType(data['PathPrefix'], ['String']);
@@ -114,6 +115,9 @@ var TreeQuery = (function () {
             if (data.hasOwnProperty('PathDepth')) {
                 obj['PathDepth'] = _ApiClient2['default'].convertToType(data['PathDepth'], 'Number');
             }
+            if (data.hasOwnProperty('UUIDs')) {
+                obj['UUIDs'] = _ApiClient2['default'].convertToType(data['UUIDs'], ['String']);
+            }
             if (data.hasOwnProperty('Not')) {
                 obj['Not'] = _ApiClient2['default'].convertToType(data['Not'], 'Boolean');
             }
@@ -122,7 +126,7 @@ var TreeQuery = (function () {
     };
 
     /**
-    * @member {Array.<String>} PresetPaths
+    * @member {Array.<String>} Paths
     */
     return TreeQuery;
 })();
@@ -176,6 +180,10 @@ module.exports = exports['default'];
 
 /**
 * @member {Number} PathDepth
+*/
+
+/**
+* @member {Array.<String>} UUIDs
 */
 
 /**
