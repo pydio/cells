@@ -7711,12 +7711,12 @@ var SwaggerJson = `{
     "treeQuery": {
       "type": "object",
       "properties": {
-        "PresetPaths": {
+        "Paths": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "title": "Preset list of nodes - used for NodesSelector, not for search engines"
+          "title": "Preset list of nodes by Path"
         },
         "PathPrefix": {
           "type": "array",
@@ -7771,6 +7771,13 @@ var SwaggerJson = `{
           "type": "integer",
           "format": "int32",
           "title": "Limit to a given level of the tree - can be used in filters"
+        },
+        "UUIDs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Preset list of Node by UUIDs"
         },
         "Not": {
           "type": "boolean",

@@ -22,20 +22,20 @@ package jobs
 
 import (
 	"context"
-	"github.com/golang/protobuf/proto"
-	"github.com/pydio/cells/common/registry"
-	"go.uber.org/zap"
 	"path"
 	"strings"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/search/query"
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/protobuf/ptypes"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/proto"
 )
 
@@ -84,10 +84,20 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			return e
 		}
 		// If paths are preset, just load nodes and do not go further
-		if len(q.PresetPaths) > 0 {
+		if len(q.Paths) > 0 {
 			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
-			for _, p := range q.PresetPaths {
+			for _, p := range q.Paths {
 				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
+					objects <- r.GetNode()
+				}
+			}
+			return nil
+		}
+		// If UUIDs are preset, just load nodes and do not go further
+		if len(q.UUIDs) > 0 {
+			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+			for _, uuid := range q.UUIDs {
+				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
 					objects <- r.GetNode()
 				}
 			}
@@ -190,8 +200,14 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 
 func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool {
 
-	if len(q.PresetPaths) > 0 {
-		if !contains(q.PresetPaths, node.Path, false, false) {
+	if len(q.Paths) > 0 {
+		if !contains(q.Paths, node.Path, false, false) {
+			return false
+		}
+	}
+
+	if len(q.UUIDs) > 0 {
+		if !contains(q.UUIDs, node.Uuid, false, false) {
 			return false
 		}
 	}
@@ -376,7 +392,8 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
 			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
 			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
-			singleQuery.PresetPaths = EvaluateFieldStrSlice(ctx, input, singleQuery.PresetPaths)
+			singleQuery.Paths = EvaluateFieldStrSlice(ctx, input, singleQuery.Paths)
+			singleQuery.UUIDs = EvaluateFieldStrSlice(ctx, input, singleQuery.UUIDs)
 			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
 		}
 	}
