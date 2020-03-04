@@ -47,7 +47,9 @@ func init() {
 				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
-				m.Init(micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}))
+				metadata := m.Server().Options().Metadata
+				metadata[meta.ServiceMetaProvider] = "stream"
+
 				handler := new(Handler)
 				idm.RegisterACLServiceHandler(m.Server(), handler)
 				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
