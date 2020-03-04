@@ -2,11 +2,12 @@ package idm
 
 import (
 	"context"
-
-	"github.com/pydio/cells/common/forms"
+	"path"
+	"time"
 
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -19,6 +20,7 @@ var (
 )
 
 type CleanUserDataAction struct {
+	targetParent string
 }
 
 func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -30,12 +32,25 @@ func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescr
 		Category:         actions.ActionCategoryIDM,
 		InputDescription: "Single-selection of one user, provided by the delete user event.",
 		SummaryTemplate:  "",
-		HasForm:          false,
+		HasForm:          true,
 	}
 }
 
 func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "targetParent",
+					Type:        "string",
+					Label:       "Data copy destination",
+					Description: "Where to copy or move original files (sibling folder by default)",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 func (c *CleanUserDataAction) GetName() string {
@@ -43,6 +58,9 @@ func (c *CleanUserDataAction) GetName() string {
 }
 
 func (c *CleanUserDataAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+	if tp, o := action.Parameters["targetParent"]; o {
+		c.targetParent = tp
+	}
 	return nil
 }
 
@@ -79,6 +97,11 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		}
 	}()
 
+	tp := c.targetParent
+	if tp != "" {
+		tp = jobs.EvaluateFieldStr(ctx, input, tp)
+	}
+
 	router := views.NewStandardRouter(views.RouterOptions{AdminView: true, SynchronousTasks: true})
 	clientsPool := router.GetClientsPool()
 	var cleaned bool
@@ -99,7 +122,23 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			realNode := resp.Node
 			// Resolve as Uuid - Move Node
 			folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
-			targetNode, _ := vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
+			var targetNode *tree.Node
+			if tp != "" {
+				// As we consider it's a parent node, make sure it exists
+				targetParent := &tree.Node{Path: tp, Type: tree.NodeType_COLLECTION}
+				targetNode = &tree.Node{Path: path.Join(tp, folderName), Type: tree.NodeType_COLLECTION}
+				if _, er := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: targetParent}); er != nil {
+					if _, e := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetParent}); e != nil {
+						log.TasksLogger(ctx).Error("Could not create parent destination folder, switching to default path instead")
+						targetNode, _ = vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
+					} else {
+						// Wait for indexation
+						<-time.After(3 * time.Second)
+					}
+				}
+			} else {
+				targetNode, _ = vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
+			}
 			log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())
 			log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
 			cleaned = true
