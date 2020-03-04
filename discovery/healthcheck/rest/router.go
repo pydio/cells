@@ -96,6 +96,91 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Filtering non-local (by default host only)
+	if global == "" {
+		var services []registry.Service
+
+		for _, service := range running {
+			for _, node := range service.RunningNodes() {
+				ips, err := cnet.GetAvailableIPs()
+				if err != nil {
+					http.Error(w, "could not retrieve ip", http.StatusInternalServerError)
+					return
+				}
+
+				found := false
+				for _, ip := range ips {
+					if node.Address == ip.String() {
+						found = true
+						break
+					}
+				}
+
+				if found {
+					services = append(services, service)
+					break
+				}
+			}
+		}
+
+		running = services
+	}
+
+	// Filtering non-local by hostname
+	hostname, _ := os.Hostname()
+	if global != "" {
+		hostname = params.Get("hostname")
+	}
+
+	if hostname != "" {
+		var services []registry.Service
+
+		for _, service := range running {
+			for _, node := range service.RunningNodes() {
+				meta := node.Metadata
+				if h, ok := meta["hostname"]; ok && h == hostname {
+					services = append(services, service)
+					break
+				}
+			}
+		}
+
+		running = services
+	}
+
+	// Filtering PID
+	pids := []string{fmt.Sprintf("%d", os.Getpid())}
+	if global != "" {
+		pids = strings.Split(params.Get("pid"), ",")
+	}
+
+	if len(pids) > 0 && pids[0] != "" {
+		var services []registry.Service
+
+		for _, service := range running {
+			for _, node := range service.RunningNodes() {
+				meta := node.Metadata
+				found := false
+				for _, pid := range pids {
+					p, ok := meta["PID"]
+					pp, okk := meta["parentPID"]
+
+					if ok && (p == pid) || (okk && pp == pid) {
+						found = true
+						services = append(services, service)
+						break
+					}
+
+					if found {
+						break
+					}
+				}
+			}
+		}
+
+		running = services
+	}
+
 	output := &rest.ServiceCollection{
 		Services: []*ctl.Service{},
 	}
@@ -116,108 +201,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Filtering non-local (by default host only)
-	if global == "" {
-		var services []*ctl.Service
-
-		for _, service := range output.Services {
-			if len(service.RunningPeers) == 0 {
-				services = append(services, service)
-				continue
-			}
-			for _, node := range service.RunningPeers {
-				ips, err := cnet.GetAvailableIPs()
-				if err != nil {
-					http.Error(w, "could not retrieve ip", http.StatusInternalServerError)
-					return
-				}
-
-				found := false
-				for _, ip := range ips {
-					if node.GetAddress() == ip.String() {
-						found = true
-						break
-					}
-				}
-
-				if found {
-					services = append(services, service)
-					break
-				}
-			}
-		}
-
-		output.Services = services
-	}
-
-	// Filtering non-local by hostname
-	hostname, _ := os.Hostname()
-	if global != "" {
-		hostname = params.Get("hostname")
-	}
-
-	if hostname != "" {
-		var services []*ctl.Service
-
-		for _, service := range output.Services {
-			if len(service.RunningPeers) == 0 {
-				services = append(services, service)
-				continue
-			}
-
-			for _, node := range service.RunningPeers {
-				meta := node.GetMetadata()
-				if h, ok := meta["hostname"]; ok && h == hostname {
-					services = append(services, service)
-					break
-				}
-			}
-		}
-
-		output.Services = services
-	}
-
-	// Filtering PID
-	pids := []string{fmt.Sprintf("%d", os.Getpid())}
-	if global != "" {
-		pids = strings.Split(params.Get("pid"), ",")
-	}
-
-	if len(pids) > 0 && pids[0] != "" {
-		var services []*ctl.Service
-
-		for _, service := range output.Services {
-			if len(service.RunningPeers) == 0 {
-				services = append(services, service)
-				continue
-			}
-
-			found := false
-			for _, node := range service.RunningPeers {
-				meta := node.GetMetadata()
-
-				for _, pid := range pids {
-					p, ok := meta["PID"]
-					pp, okk := meta["parentPID"]
-
-					if ok && (p == pid) || (okk && pp == pid) {
-						found = true
-						services = append(services, service)
-						break
-					}
-
-					if found {
-						break
-					}
-				}
-			}
-		}
-
-		output.Services = services
-	}
-
 	for _, service := range output.Services {
-
 		// We don't display that information
 		service.RunningPeers = nil
 
