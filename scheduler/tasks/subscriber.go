@@ -317,6 +317,12 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
+	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+		log.Logger(ctx).Info("IdmEvent: adding system user in context")
+		ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+		ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	}
+
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
 			continue
