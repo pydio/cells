@@ -78,7 +78,6 @@ var Action = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Action.prototype), "constructor", this).call(this, config);
-        console.log("construct", edit);
         this._edit = edit;
         this._descriptions = descriptions;
         this.notifyJobModel(action);
@@ -134,7 +133,6 @@ var Action = (function (_shapes$devs$Model) {
     }, {
         key: "toggleEdit",
         value: function toggleEdit() {
-            console.log('toggleEdit?');
             this._edit = !this._edit;
             // Show out port in edit mode even if no actions
             if (!this._jobModel.ChainedActions || !this._jobModel.ChainedActions.length) {

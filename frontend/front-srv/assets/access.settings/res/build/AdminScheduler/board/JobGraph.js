@@ -931,63 +931,52 @@ var JobGraph = (function (_React$Component) {
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
-            if (createNewAction) {
-                /*
-                showOffsetButton = true;
-                selBlock = <FormPanel
-                    actions={descriptions}
-                    action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
-                    create={true}
-                    onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
-                    onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
-                />
-                */
-            } else if (selectionModel) {
-                    if (selectionType === 'action') {
-                        (function () {
-                            showOffsetButton = true;
-                            var action = selectionModel.getJobsAction();
-                            selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
-                                actions: descriptions,
-                                actionInfo: descriptions[action.ID],
-                                action: action }, blockProps, {
-                                onRemove: function () {
-                                    _this6.deleteAction();
-                                },
-                                onChange: function (newAction) {
-                                    action.Parameters = newAction.Parameters;
-                                    action.Label = newAction.Label;
-                                    action.Description = newAction.Description;
-                                    selectionModel.notifyJobModel(action);
-                                    onSetDirty(true);
-                                }
-                            }));
-                        })();
-                    } else if (selectionType === 'selector' || selectionType === 'filter') {
-                        rightWidth = 600;
-                        var filtersProps = _extends({
-                            type: selectionType
-                        }, blockProps, {
-                            onRemoveFilter: onRemoveFilter,
-                            onSave: function onSave() {
+            if (!createNewAction && selectionModel) {
+                if (selectionType === 'action') {
+                    (function () {
+                        showOffsetButton = true;
+                        var action = selectionModel.getJobsAction();
+                        selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
+                            actions: descriptions,
+                            actionInfo: descriptions[action.ID],
+                            action: action }, blockProps, {
+                            onRemove: function () {
+                                _this6.deleteAction();
+                            },
+                            onChange: function (newAction) {
+                                action.Parameters = newAction.Parameters;
+                                action.Label = newAction.Label;
+                                action.Description = newAction.Description;
+                                selectionModel.notifyJobModel(action);
                                 onSetDirty(true);
                             }
-                        });
-                        if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                            filtersProps.job = selectionModel;
-                        } else {
-                            filtersProps.action = selectionModel;
-                            if (selectionType === 'filter') {
-                                filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
-                            }
+                        }));
+                    })();
+                } else if (selectionType === 'selector' || selectionType === 'filter') {
+                    rightWidth = 600;
+                    var filtersProps = _extends({
+                        type: selectionType
+                    }, blockProps, {
+                        onRemoveFilter: onRemoveFilter,
+                        onSave: function onSave() {
+                            onSetDirty(true);
                         }
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
-                    } else if (selectionType === 'trigger') {
-                        var _job = this.state.job;
-
-                        selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
+                    });
+                    if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
+                        filtersProps.job = selectionModel;
+                    } else {
+                        filtersProps.action = selectionModel;
+                        if (selectionType === 'filter') {
+                            filtersProps.onToggleFilterAsCondition = onToggleFilterAsCondition;
+                        }
                     }
+                    selBlock = _react2['default'].createElement(_builderFilters2['default'], filtersProps);
+                } else if (selectionType === 'trigger') {
+                    var _job = this.state.job;
+
+                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
                 }
+            }
 
             var st = {
                 header: {

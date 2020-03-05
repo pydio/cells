@@ -4,6 +4,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -51,6 +53,7 @@ var FormPanel = (function (_React$Component) {
         var action = props.action;
 
         this.state = {
+            actionRef: action,
             action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
             actionInfo: this.getActionInfo(action),
             valid: true
@@ -88,8 +91,9 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.action !== this.state.action || nextProps.create !== this.props.create) {
+            if (nextProps.action !== this.state.actionRef || nextProps.create !== this.props.create) {
                 this.setState({
+                    actionRef: nextProps.action,
                     action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(nextProps.action))),
                     actionInfo: this.getActionInfo(nextProps.action),
                     formParams: null
@@ -112,7 +116,6 @@ var FormPanel = (function (_React$Component) {
                             _this.formsLoaded = {};
                         }
                         _this.formsLoaded[actionID] = true;
-                        console.log("ONLOADED");
                         onLoaded();
                     }
                 });
@@ -177,14 +180,26 @@ var FormPanel = (function (_React$Component) {
                 map = {};
             }
             var values = {};
+            var convert = function convert(p, v) {
+                if (p.type === 'boolean') {
+                    return v === 'true';
+                } else if (p.type === 'integer') {
+                    return parseInt(v);
+                }
+                return v;
+            };
             params.forEach(function (p) {
-                if (map[p.name]) {
-                    if (p.type === 'boolean') {
-                        values[p.name] = map[p.name] === 'true';
-                    } else if (p.type === 'integer') {
-                        values[p.name] = parseInt(map[p.name]);
-                    } else {
-                        values[p.name] = map[p.name];
+                if (map[p.name] !== undefined) {
+                    values[p.name] = convert(p, map[p.name]);
+                    if (p.replicationGroup) {
+                        // check if there are more
+                        var i = 1;
+                        var search = p.name + '_1';
+                        while (map[search] !== undefined) {
+                            values[search] = convert(p, map[search]);
+                            i++;
+                            search = p.name + '_' + i;
+                        }
                     }
                 }
             });
@@ -295,7 +310,26 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'revert',
         value: function revert() {
+            var _this3 = this;
+
             var original = this.props.action;
+            var formParams = this.state.formParams;
+
+            if (formParams && formParams.filter(function (p) {
+                return p.type === 'textarea' && p.choices === 'json:content-type:text/go';
+            }).length) {
+                // Force rebuilding CoreMirrorField by nullifying/refeeding formParams
+                this.setState({
+                    action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
+                    formParams: [],
+                    dirty: false
+                }, function () {
+                    _this3.setState({
+                        formParams: formParams,
+                        dirty: false
+                    });
+                });
+            }
             this.setState({
                 action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
                 dirty: false
@@ -304,7 +338,7 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var _props3 = this.props;
             var onDismiss = _props3.onDismiss;
@@ -322,48 +356,15 @@ var FormPanel = (function (_React$Component) {
                 revert = undefined;
             if (!create && dirty && valid) {
                 save = function () {
-                    return _this3.save();
+                    return _this4.save();
                 };
                 revert = function () {
-                    return _this3.revert();
+                    return _this4.revert();
                 };
-            }
-            var form = undefined;
-            if (formParams && formParams.length && formParams[0].type === 'textarea' && formParams[0].choices === 'json:content-type:text/go') {
-                //Switch to CodeMirror component
-                var value = '';
-                if (action.Parameters && action.Parameters[formParams[0].name]) {
-                    value = action.Parameters[formParams[0].name];
-                }
-                form = _react2['default'].createElement(
-                    'div',
-                    { style: { border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3 } },
-                    _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                        value: value,
-                        onChange: function (e, v) {
-                            var values = {};
-                            values[formParams[0].name] = v;
-                            _this3.onFormChange(values);
-                            _this3.setState({ valid: !!v });
-                        }
-                    })
-                );
-            } else if (formParams) {
-                form = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(PydioForm.FormPanel, {
-                        ref: 'formPanel',
-                        depth: -1,
-                        parameters: formParams,
-                        values: this.fromStringString(formParams, action.Parameters),
-                        onChange: this.onFormChange.bind(this),
-                        onValidStatusChange: this.onValidStatusChange.bind(this)
-                    })
-                );
             }
 
             var children = [];
+
             if (create && !inDialog) {
                 children.push(_react2['default'].createElement(
                     'div',
@@ -376,16 +377,66 @@ var FormPanel = (function (_React$Component) {
                 { style: { padding: 12, fontWeight: 300, fontSize: 13 } },
                 actionInfo.Description
             ));
-            children.push(form);
+
+            if (formParams) {
+                (function () {
+                    var scriptFields = formParams.filter(function (p) {
+                        return p.type === 'textarea' && p.choices === 'json:content-type:text/go';
+                    });
+                    var otherFields = formParams.filter(function (p) {
+                        return !(p.type === 'textarea' && p.choices === 'json:content-type:text/go');
+                    });
+                    if (scriptFields.length) {
+                        (function () {
+                            var scriptField = scriptFields[0];
+                            var scriptValue = '';
+                            if (action.Parameters && action.Parameters[scriptField.name]) {
+                                scriptValue = action.Parameters[scriptField.name];
+                            }
+                            children.push(_react2['default'].createElement(
+                                'div',
+                                { style: { border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3 } },
+                                _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                                    value: scriptValue,
+                                    onChange: function (e, v) {
+                                        var values = _this4.fromStringString(otherFields, action.Parameters);
+                                        values[scriptField.name] = v;
+                                        _this4.onFormChange(values);
+                                        _this4.setState({ valid: !!v });
+                                    }
+                                })
+                            ));
+                        })();
+                    }
+                    if (otherFields.length) {
+                        children.push(_react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(PydioForm.FormPanel, {
+                                ref: 'formPanel',
+                                depth: -1,
+                                parameters: otherFields,
+                                values: _this4.fromStringString(otherFields, action.Parameters),
+                                onChange: function (fValues) {
+                                    var values = _extends({}, fValues, _this4.fromStringString(scriptFields, action.Parameters));
+                                    _this4.onFormChange(values);
+                                },
+                                onValidStatusChange: _this4.onValidStatusChange.bind(_this4)
+                            })
+                        ));
+                    }
+                })();
+            }
+
             if (action.ID !== _actionsEditor.JOB_ACTION_EMPTY) {
                 children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: '0 12px', marginTop: -6 } },
                     _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
-                            _this3.onLabelChange(v);
+                            _this4.onLabelChange(v);
                         }, fullWidth: true }),
                     _react2['default'].createElement(ModernTextField, { hintText: "Comment (optional)", style: { marginTop: -2 }, multiLine: true, value: action.Description, onChange: function (e, v) {
-                            _this3.onDescriptionChange(v);
+                            _this4.onDescriptionChange(v);
                         }, fullWidth: true })
                 ));
             }
@@ -398,7 +449,7 @@ var FormPanel = (function (_React$Component) {
                         label: "Create Action",
                         disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY || !valid,
                         onTouchTap: function () {
-                            _this3.save();onDismiss();
+                            _this4.save();onDismiss();
                         } })
                 ));
             }

@@ -63,7 +63,6 @@ class Action extends shapes.devs.Model{
         }
 
         super(config);
-        console.log("construct", edit);
         this._edit = edit;
         this._descriptions = descriptions;
         this.notifyJobModel(action);
@@ -123,7 +122,6 @@ class Action extends shapes.devs.Model{
     }
 
     toggleEdit(){
-        console.log('toggleEdit?');
         this._edit = !this._edit;
         // Show out port in edit mode even if no actions
         if(!this._jobModel.ChainedActions || !this._jobModel.ChainedActions.length) {

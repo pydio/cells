@@ -631,18 +631,7 @@ class JobGraph extends React.Component {
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
         let rightWidth = 300;
         let showOffsetButton;
-        if(createNewAction) {
-            /*
-            showOffsetButton = true;
-            selBlock = <FormPanel
-                actions={descriptions}
-                action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
-                create={true}
-                onChange={(newAction) => { onEmptyModel(new Action(descriptions, newAction, true)); }}
-                onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
-            />
-            */
-        } else if(selectionModel){
+        if(!createNewAction && selectionModel){
             if(selectionType === 'action'){
                 showOffsetButton = true;
                 const action = selectionModel.getJobsAction();

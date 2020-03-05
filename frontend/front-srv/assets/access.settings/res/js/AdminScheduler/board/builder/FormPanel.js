@@ -15,6 +15,7 @@ class FormPanel extends React.Component {
         super(props);
         const {action} = props;
         this.state = {
+            actionRef: action,
             action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
             actionInfo: this.getActionInfo(action),
             valid: true
@@ -48,8 +49,9 @@ class FormPanel extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.action !== this.state.action || nextProps.create !== this.props.create) {
+        if(nextProps.action !== this.state.actionRef || nextProps.create !== this.props.create) {
             this.setState({
+                actionRef: nextProps.action,
                 action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(nextProps.action))),
                 actionInfo: this.getActionInfo(nextProps.action),
                 formParams: null
@@ -66,7 +68,6 @@ class FormPanel extends React.Component {
                         this.formsLoaded = {};
                     }
                     this.formsLoaded[actionID] = true;
-                    console.log("ONLOADED");
                     onLoaded();
                 }
             });
@@ -121,14 +122,25 @@ class FormPanel extends React.Component {
             map = {};
         }
         const values = {};
+        const convert = (p, v) => {
+            if(p.type === 'boolean') {
+                return v === 'true';
+            }else if(p.type === 'integer') {
+                return parseInt(v)
+            }
+            return v;
+        };
         params.forEach(p => {
-            if(map[p.name]){
-                if(p.type === 'boolean') {
-                    values[p.name] = map[p.name] === 'true';
-                }else if(p.type === 'integer') {
-                    values[p.name] = parseInt(map[p.name])
-                } else {
-                    values[p.name] = map[p.name];
+            if(map[p.name] !== undefined){
+                values[p.name] = convert(p, map[p.name]);
+                if(p.replicationGroup){ // check if there are more
+                    let i = 1;
+                    let search = p.name + '_1';
+                    while(map[search] !== undefined){
+                        values[search] = convert(p, map[search]);
+                        i++;
+                        search = p.name + '_' + i;
+                    }
                 }
             }
         });
@@ -215,6 +227,21 @@ class FormPanel extends React.Component {
 
     revert(){
         const original = this.props.action;
+        const {formParams} = this.state;
+
+        if(formParams && formParams.filter(p => p.type === 'textarea' && p.choices==='json:content-type:text/go').length){
+            // Force rebuilding CoreMirrorField by nullifying/refeeding formParams
+            this.setState({
+                action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
+                formParams:[],
+                dirty: false
+            }, () => {
+                this.setState({
+                    formParams: formParams,
+                    dirty: false
+                })
+            });
+        }
         this.setState({
             action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
             dirty: false
@@ -230,48 +257,57 @@ class FormPanel extends React.Component {
             save = () => this.save();
             revert = () => this.revert();
         }
-        let form;
-        if(formParams && formParams.length && formParams[0].type === 'textarea' && formParams[0].choices==='json:content-type:text/go'){
-            //Switch to CodeMirror component
-            let value = '';
-            if(action.Parameters && action.Parameters[formParams[0].name]){
-                value = action.Parameters[formParams[0].name];
-            }
-            form= (
-                <div style={{border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3}}>
-                    <AdminComponents.CodeMirrorField
-                        value={value}
-                        onChange={(e, v) => {
-                            const values = {};
-                            values[formParams[0].name] = v;
-                            this.onFormChange(values);
-                            this.setState({valid: !!v});
-                        }}
-                    />
-                </div>
-            );
-        } else if (formParams) {
-            form = (
-                <div>
-                    <PydioForm.FormPanel
-                        ref="formPanel"
-                        depth={-1}
-                        parameters={formParams}
-                        values={this.fromStringString(formParams, action.Parameters)}
-                        onChange={this.onFormChange.bind(this)}
-                        onValidStatusChange={this.onValidStatusChange.bind(this)}
-                    />
-                </div>
-            )
-
-        }
 
         let children = [];
+
         if(create && !inDialog) {
             children.push(<div style={{padding: 10}}>{this.actionPicker()}</div>);
         }
         children.push(<div style={{padding: 12, fontWeight: 300, fontSize: 13}}>{actionInfo.Description}</div>);
-        children.push(form);
+
+        if (formParams) {
+            const scriptFields = formParams.filter(p => p.type === 'textarea' && p.choices==='json:content-type:text/go');
+            const otherFields = formParams.filter(p => !(p.type === 'textarea' && p.choices==='json:content-type:text/go'));
+            if(scriptFields.length){
+                const scriptField = scriptFields[0];
+                let scriptValue = '';
+                if(action.Parameters && action.Parameters[scriptField.name]){
+                    scriptValue = action.Parameters[scriptField.name];
+                }
+                children.push(
+                    <div style={{border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3}}>
+                        <AdminComponents.CodeMirrorField
+                            value={scriptValue}
+                            onChange={(e, v) => {
+                                const values = this.fromStringString(otherFields, action.Parameters);
+                                values[scriptField.name] = v;
+                                this.onFormChange(values);
+                                this.setState({valid: !!v});
+                            }}
+                        />
+                    </div>
+                );
+            }
+            if(otherFields.length) {
+                children.push(
+                    <div>
+                        <PydioForm.FormPanel
+                            ref="formPanel"
+                            depth={-1}
+                            parameters={otherFields}
+                            values={this.fromStringString(otherFields, action.Parameters)}
+                            onChange={(fValues) => {
+                                const values = {...fValues, ...this.fromStringString(scriptFields, action.Parameters)};
+                                this.onFormChange(values);
+                            }}
+                            onValidStatusChange={this.onValidStatusChange.bind(this)}
+                        />
+                    </div>
+                )
+            }
+        }
+
+
         if(action.ID !== JOB_ACTION_EMPTY){
             children.push(
                 <div style={{padding: '0 12px', marginTop: -6}}>

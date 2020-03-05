@@ -27,7 +27,6 @@ class ProtoValue extends React.Component {
                 }
                 formValues = ProtoValue.protoValueToFormValues(params, fieldName, proto.value[fieldName], notProps);
             } else {
-                console.log(props);
                 formValues = PydioForm.Manager.JsonToSlashes(proto); // TODO
             }
             this.setState({
