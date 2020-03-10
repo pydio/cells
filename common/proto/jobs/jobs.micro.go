@@ -17,6 +17,7 @@ It has these top-level messages:
 	Schedule
 	Action
 	Job
+	JobParameter
 	JobChangeEvent
 	TaskChangeEvent
 	PutJobRequest

@@ -174,6 +174,16 @@ func (this *Job) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ContextMetaFilter", err)
 		}
 	}
+	for _, item := range this.Parameters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Parameters", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *JobParameter) Validate() error {
 	return nil
 }
 func (this *JobChangeEvent) Validate() error {

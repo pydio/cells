@@ -176,6 +176,24 @@ message Job {
     IdmSelector IdmFilter = 17;
     // Event Context Filter
     ContextMetaFilter ContextMetaFilter = 18;
+
+    // Job-level parameters that can be passed to underlying actions
+    repeated JobParameter Parameters = 19;
+}
+
+message JobParameter {
+    // Parameter name
+    string Name = 1;
+    // Additional description
+    string Description = 2;
+    // Value saved for this parameter
+    string Value = 4;
+    // If mandatory, job cannot start without a value
+    bool Mandatory = 3;
+    // Parameter type used in GUI forms
+    string Type = 5;
+    // Additional data used by GUI elements
+    string JsonChoices = 6;
 }
 
 // Events sent by the JobService when CRUD'ing a Job configuration

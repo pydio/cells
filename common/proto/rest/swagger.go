@@ -5114,6 +5114,43 @@ var SwaggerJson = `{
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Event Context Filter"
+        },
+        "Parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/jobsJobParameter"
+          },
+          "title": "Job-level parameters that can be passed to underlying actions"
+        }
+      }
+    },
+    "jobsJobParameter": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "title": "Parameter name"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Additional description"
+        },
+        "Value": {
+          "type": "string",
+          "title": "Value saved for this parameter"
+        },
+        "Mandatory": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If mandatory, job cannot start without a value"
+        },
+        "Type": {
+          "type": "string",
+          "title": "Parameter type used in GUI forms"
+        },
+        "JsonChoices": {
+          "type": "string",
+          "title": "Additional data used by GUI elements"
         }
       }
     },
