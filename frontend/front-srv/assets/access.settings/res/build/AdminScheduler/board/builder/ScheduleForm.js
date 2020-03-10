@@ -340,7 +340,7 @@ var ScheduleForm = (function (_React$Component) {
 
             var dTRead = '0:00';
             if (daytime) {
-                dTRead = moment(daytime).format('h:mm');
+                dTRead = moment(daytime).format('h:mm a');
             }
             switch (frequency) {
                 case "manual":

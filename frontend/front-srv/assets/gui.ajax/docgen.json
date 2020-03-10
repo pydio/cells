@@ -3248,10 +3248,72 @@
         "displayName": "CreateActions",
         "methods": [
           {
+            "name": "loadTemplates",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "dismiss",
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/CreateFilters.js": [
+      {
+        "description": "",
+        "displayName": "CreateFilters",
+        "methods": [
+          {
+            "name": "loadTemplates",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "open",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "insert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "model",
+                "type": null
+              },
+              {
+                "name": "type",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "actionFromList",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
@@ -3590,6 +3652,68 @@
         ]
       }
     ],
+    "AdminScheduler/board/JobParameters.js": [
+      {
+        "description": "",
+        "displayName": "Parameter",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "JobParameters",
+        "methods": [
+          {
+            "name": "revert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "save",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "changeParam",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "newParam",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "removeParam",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "index",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "addParam",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminScheduler/board/JobSchedule.js": [
       {
         "description": "",
@@ -3883,6 +4007,13 @@
           },
           {
             "name": "actionPicker",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "saveAsTemplate",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -4227,6 +4358,13 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "saveAsTemplate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -4326,7 +4464,7 @@
         "displayName": "Events",
         "methods": [
           {
-            "name": "eventLabel",
+            "name": "eventData",
             "docblock": null,
             "modifiers": [
               "static"
@@ -4334,10 +4472,6 @@
             "params": [
               {
                 "name": "e",
-                "type": null
-              },
-              {
-                "name": "T",
                 "type": null
               }
             ],
@@ -4414,6 +4548,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "dismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           }
         ]
@@ -20513,6 +20654,52 @@
               }
             },
             "description": "Constructs a <code>JobsJob</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsJobParameter.js": [
+      {
+        "description": "The JobsJobParameter model module.\n@module model/JobsJobParameter\n@version 1.0",
+        "displayName": "JobsJobParameter",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsJobParameter</code>.\n@alias module:model/JobsJobParameter\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsJobParameter</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsJobParameter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsJobParameter} obj Optional instance to populate.\n@return {module:model/JobsJobParameter} The populated <code>JobsJobParameter</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsJobParameter"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsJobParameter</code> instance.",
+              "type": {
+                "name": "module:model/JobsJobParameter"
+              }
+            },
+            "description": "Constructs a <code>JobsJobParameter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

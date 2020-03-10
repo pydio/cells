@@ -50,6 +50,7 @@ function position(width, sourceSize, sourcePosition, scrollLeft, topOffset = 0) 
 }
 
 class RightPanel extends React.Component{
+
     render(){
         const {title, icon, saveButtons, onRevert, onRemove, onSave, onDismiss, width, titleAdditional, children} = this.props;
         let bStyles = styles.button;
@@ -63,7 +64,7 @@ class RightPanel extends React.Component{
                     <span style={{flex: 1}}>{title}</span>
                     {titleAdditional}
                     {saveButtons && <span className={'mdi mdi-undo'} onClick={onRevert} style={bStyles}/>}
-                    {saveButtons && <span className={'mdi mdi-content-save'} onClick={onSave} style={bStyles}/>}
+                    {saveButtons && <span className={'mdi mdi-check'} onClick={onSave} style={bStyles}/>}
                     {onRemove && <span className={'mdi mdi-delete'} onClick={onRemove} style={{...styles.button, ...styles.delete}}/>}
                     <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={{...styles.button, ...styles.close}}/>
                 </div>
@@ -73,6 +74,7 @@ class RightPanel extends React.Component{
             </Paper>
         );
     }
+
 }
 
 const cssStyle = `

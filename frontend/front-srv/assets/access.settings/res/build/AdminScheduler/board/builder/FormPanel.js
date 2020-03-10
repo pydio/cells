@@ -34,6 +34,14 @@ var _FormLoader = require('./FormLoader');
 
 var _FormLoader2 = _interopRequireDefault(_FormLoader);
 
+var _graphTplManager = require('../graph/TplManager');
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var PydioForm = _pydio2['default'].requireLib('form');
@@ -296,6 +304,20 @@ var FormPanel = (function (_React$Component) {
             );
         }
     }, {
+        key: 'saveAsTemplate',
+        value: function saveAsTemplate() {
+            var action = this.state.action;
+
+            var copy = _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action)));
+            delete copy.ChainedActions;
+            delete copy.FailedActions;
+            _graphTplManager2['default'].getInstance().saveAction((0, _uuid42['default'])(), copy).then(function () {
+                _pydio2['default'].getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
+            })['catch'](function (e) {
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', e.message);
+            });
+        }
+    }, {
         key: 'save',
         value: function save() {
             var _props2 = this.props;
@@ -440,7 +462,7 @@ var FormPanel = (function (_React$Component) {
                         }, fullWidth: true })
                 ));
             }
-            if (create) {
+            if (inDialog) {
                 children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
@@ -450,6 +472,14 @@ var FormPanel = (function (_React$Component) {
                         disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY || !valid,
                         onTouchTap: function () {
                             _this4.save();onDismiss();
+                        } })
+                ));
+            } else {
+                children.push(_react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Save as template", onTouchTap: function () {
+                            _this4.saveAsTemplate();
                         } })
                 ));
             }
@@ -466,7 +496,7 @@ var FormPanel = (function (_React$Component) {
                         title: actionInfo.Label,
                         icon: actionInfo.Icon,
                         onDismiss: onDismiss,
-                        saveButtons: !create,
+                        saveButtons: !create && !inDialog,
                         onSave: save,
                         onRevert: revert,
                         onRemove: onRemove

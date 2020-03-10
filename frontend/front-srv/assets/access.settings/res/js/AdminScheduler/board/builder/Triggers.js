@@ -1,44 +1,151 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {RightPanel} from './styles'
-import {Divider, FontIcon, IconButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
+import {Divider, FontIcon, IconButton, FlatButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
 import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
 import {LightGrey} from "../graph/Configs";
+const {Stepper} = Pydio.requireLib("components");
+const {Dialog, PanelBigButtons} = Stepper;
+
 
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 const eventMessages = {
     NODE_CHANGE:{
-        '0':'trigger.create.node',
-        '1':'trigger.read.node',
-        '2':'trigger.update.path',
-        '3':'trigger.update.content',
-        '4':'trigger.update.metadata',
-        '5':'trigger.delete.node',
-        '6':'trigger.update.user-metadata'
+        title:'Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically.',
+        '0':{
+            title:'trigger.create.node',
+            icon:'file-plus',
+            description:'A new file was uploaded or a new folder was created'
+        },
+        '1':{
+            title:'trigger.read.node',
+            icon:'eye',
+            description:'A file was downloaded or a folder content was listed'
+        },
+        '2':{
+            title:'trigger.update.path',
+            icon:'folder-move',
+            description:'A file or folder was moved or renamed'
+        },
+        '3':{
+            title:'trigger.update.content',
+            icon:'content-save',
+            description:'A file content was updated by edition or upload overwriting'
+        },
+        '5':{
+            title:'trigger.delete.node',
+            icon:'delete',
+            description:'A file or a folder was definitively deleted'
+        },
+        '4':{
+            title:'trigger.update.metadata',
+            icon:'tag',
+            description:'Internal metadata were modified on file or folder'
+        },
+        '6':{
+            title:'trigger.update.user-metadata',
+            icon:'tag-multiple',
+            description:'User-defined metadata were modified (event contains updated metadata)'
+        }
     },
     IDM_CHANGE: {
         USER : {
-            '0': 'trigger.create.user',
-            '1': 'trigger.read.user',
-            '2': 'trigger.update.user',
-            '3': 'trigger.delete.user',
-            '4': 'trigger.bind.user',
-            '5': 'trigger.logout.user'
+            title:'User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses.',
+            '0': {
+                title:'trigger.create.user',
+                icon:'account-plus',
+                tint:'#009688',
+                description:'A user or a group was created'
+            },
+            '1': {
+                title:'trigger.read.user',
+                icon:'account',
+                tint:'#009688',
+                description:'A user or a group was accessed'
+            },
+            '2': {
+                title:'trigger.update.user',
+                icon:'account-box',
+                tint:'#009688',
+                description:'A user or a group data was updated'
+            },
+            '3': {
+                title:'trigger.delete.user',
+                icon:'account-minus',
+                tint:'#009688',
+                description:'A user or a group was deleted'
+            },
+            '4': {
+                title:'trigger.bind.user',
+                icon:'login',
+                tint:'#009688',
+                description:'A user has logged in'
+            },
+            '5': {
+                title:'trigger.logout.user',
+                icon:'logout',
+                tint:'#009688',
+                description:'A user has logged out'
+            }
         },
-        // TODO I18N
         ROLE : {
-            '0': 'Create Role',
-            '3': 'Delete Role',
+            title:'Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles.',
+            '0': {
+                title:'Create Role',
+                icon:'account-card-details',
+                tint:'#607d8b',
+                description:'New role created.'
+            },
+            '2': {
+                title:'Update Role',
+                icon:'pencil',
+                tint:'#607d8b',
+                description:'A role has been updated'
+            },
+            '3': {
+                title:'Delete Role',
+                icon:'delete-forever',
+                tint:'#607d8b',
+                description:'A role has been deleted'
+            },
         },
         WORKSPACE : {
-            '0': 'Create Workspace',
-            '3': 'Delete Workspace',
+            title:'Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells',
+            '0': {
+                title:'Create Workspace',
+                icon:'folder-plus',
+                tint:'#ff9800',
+                description:'A workspace has been created'
+            },
+            '2': {
+                title:'Update Workspace',
+                icon:'pencil',
+                tint:'#ff9800',
+                description:'A workspace has been updated'
+            },
+            '3': {
+                title:'Delete Workspace',
+                icon:'delete-forever',
+                tint:'#ff9800',
+                description:'New file uploaded or folder created'
+            },
         },
         ACL : {
-            '0': 'Create Acl',
-            '3': 'Delete Acl',
+            title:'ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data.',
+            '0': {
+                title:'Create Acl',
+                icon:'view-list',
+                tint:'#795548',
+                description:'An access control has been opened'
+            },
+            '3': {
+                title:'Delete Acl',
+                icon:'delete-forever',
+                tint:'#795548',
+                description:'An access control has been closed'
+            },
         },
     }
 };
@@ -50,15 +157,22 @@ class Events extends React.Component{
         this.state = {objEvents: this.toObject(props.events || [])};
     }
 
-    static eventLabel(e, T) {
+    static eventData(e) {
 
         const parts = e.split(':');
+        let data;
         if(parts.length === 2 && eventMessages[parts[0]]) {
-            return T(eventMessages[parts[0]][parts[1]]);
+            data = eventMessages[parts[0]][parts[1]];
         } else if(parts.length === 3 && eventMessages[parts[0]] && eventMessages[parts[0]][parts[1]] && eventMessages[parts[0]][parts[1]][parts[2]]){
-            return T(eventMessages[parts[0]][parts[1]][parts[2]]);
+            data = eventMessages[parts[0]][parts[1]][parts[2]];
         } else {
-            return e;
+            data = {title:e, icon:'pulse', description:''};
+        }
+        return {
+            title : Events.T(data.title),
+            description : Events.T(data.description),
+            icon: 'mdi mdi-' + data.icon,
+            tint: data.tint
         }
 
     }
@@ -92,48 +206,79 @@ class Events extends React.Component{
     flatStruct(s, pref = []) {
         const data = [];
         Object.keys(s).forEach((k) => {
+            if(k === 'title'){
+                return;
+            }
             if(isNaN(k) && k !== 'IDM_CHANGE'){
-                data.push({header: k});
+                data.push({header: s[k].title});
             }
             const v = s[k];
-            if (typeof v === 'string') {
-                data.push([...pref, k].join(':'))
-            } else {
+            if (isNaN(k)) {
                 data.push(...this.flatStruct(v, [...pref, k]))
+            } else {
+                data.push([...pref, k].join(':'))
             }
         });
         return data;
     }
 
+    dismiss(){
+        this.setState({open: false, filter:''})
+    }
+
     render() {
-        const {objEvents} = this.state;
+        const {objEvents, open, filter} = this.state;
         const flat = this.flatStruct(eventMessages);
         const list = [];
         Object.keys(objEvents).forEach(e => {
             list.push(<ListItem
                 key={e}
-                primaryText={Events.eventLabel(e, Events.T)}
+                disabled={true}
+                primaryText={Events.eventData(e).title}
                 rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
             />);
             list.push(<Divider/>)
         });
         list.pop();
 
+
+        const model = {Sections:[]};
+        let section;
+        flat.forEach(k => {
+            if(k.header){
+                if(section && section.Actions.length){
+                    model.Sections.push(section);
+                }
+                // Reset section
+                section = {title: k.header, Actions:[]}
+            } else {
+                const eData = Events.eventData(k);
+                if(filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1){
+                    return
+                }
+                section.Actions.push({...eData,value: k})
+            }
+        });
+        // Append last
+        if(section){
+            model.Sections.push(section);
+        }
+
         return (
             <div>
-                <ModernSelectField fullWidth={true} value={-1} onChange={(e,i,v) => {this.add(v)}}>
-                    <MenuItem value={-1} primaryText={"Add an event type..."}/>
-                    {flat.map(f =>{
-                        if(f.header){
-                            return <Subheader>{f.header}</Subheader>
-                        } else {
-                            if(objEvents[f]){ // already registered
-                                return null;
-                            }
-                            return <MenuItem value={f} primaryText={Events.eventLabel(f, Events.T)}/>
-                        }
-                    })}
-                </ModernSelectField>
+                <Dialog
+                    title={"Trigger job on..."}
+                    open={open}
+                    dialogProps={{}}
+                    onDismiss={()=>{this.dismiss()}}
+                    onFilter={(v) => {this.setState({filter:v.toLowerCase()})}}
+                >
+                    <PanelBigButtons
+                        model={model}
+                        onPick={(eventId) => {this.add(eventId); this.dismiss()}}
+                    />
+                </Dialog>
+                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onTouchTap={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
                 <List>{list}</List>
             </div>
         )

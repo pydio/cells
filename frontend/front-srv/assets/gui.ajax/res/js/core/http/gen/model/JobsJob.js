@@ -16,6 +16,7 @@ import ApiClient from '../ApiClient';
 import JobsAction from './JobsAction';
 import JobsContextMetaFilter from './JobsContextMetaFilter';
 import JobsIdmSelector from './JobsIdmSelector';
+import JobsJobParameter from './JobsJobParameter';
 import JobsNodesSelector from './JobsNodesSelector';
 import JobsSchedule from './JobsSchedule';
 import JobsTask from './JobsTask';
@@ -114,6 +115,9 @@ export default class JobsJob {
             if (data.hasOwnProperty('ContextMetaFilter')) {
                 obj['ContextMetaFilter'] = JobsContextMetaFilter.constructFromObject(data['ContextMetaFilter']);
             }
+            if (data.hasOwnProperty('Parameters')) {
+                obj['Parameters'] = ApiClient.convertToType(data['Parameters'], [JobsJobParameter]);
+            }
         }
         return obj;
     }
@@ -186,6 +190,10 @@ export default class JobsJob {
     * @member {module:model/JobsContextMetaFilter} ContextMetaFilter
     */
     ContextMetaFilter = undefined;
+    /**
+    * @member {Array.<module:model/JobsJobParameter>} Parameters
+    */
+    Parameters = undefined;
 
 
 

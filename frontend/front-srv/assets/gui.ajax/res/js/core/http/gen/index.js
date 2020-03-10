@@ -92,6 +92,7 @@ import JobsDeleteTasksResponse from './model/JobsDeleteTasksResponse';
 import JobsIdmSelector from './model/JobsIdmSelector';
 import JobsIdmSelectorType from './model/JobsIdmSelectorType';
 import JobsJob from './model/JobsJob';
+import JobsJobParameter from './model/JobsJobParameter';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
 import JobsSchedule from './model/JobsSchedule';
@@ -773,6 +774,12 @@ export {
      * @property {module:model/JobsJob}
      */
     JobsJob,
+
+    /**
+     * The JobsJobParameter model constructor.
+     * @property {module:model/JobsJobParameter}
+     */
+    JobsJobParameter,
 
     /**
      * The JobsListJobsRequest model constructor.

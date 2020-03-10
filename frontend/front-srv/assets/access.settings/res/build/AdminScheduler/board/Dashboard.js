@@ -261,7 +261,7 @@ var Dashboard = _react2['default'].createClass({
                     _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events') }),
                     ' ',
                     job.EventNames.map(function (e) {
-                        return _builderTriggers.Events.eventLabel(e, m);
+                        return _builderTriggers.Events.eventData(e).title;
                     }).join(', ')
                 );
             } else {

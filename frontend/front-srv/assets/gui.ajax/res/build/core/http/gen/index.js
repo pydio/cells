@@ -337,6 +337,10 @@ var _modelJobsJob = require('./model/JobsJob');
 
 var _modelJobsJob2 = _interopRequireDefault(_modelJobsJob);
 
+var _modelJobsJobParameter = require('./model/JobsJobParameter');
+
+var _modelJobsJobParameter2 = _interopRequireDefault(_modelJobsJobParameter);
+
 var _modelJobsListJobsRequest = require('./model/JobsListJobsRequest');
 
 var _modelJobsListJobsRequest2 = _interopRequireDefault(_modelJobsListJobsRequest);
@@ -1599,6 +1603,13 @@ exports.
  * @property {module:model/JobsJob}
  */
 JobsJob = _modelJobsJob2['default'];
+exports.
+
+/**
+ * The JobsJobParameter model constructor.
+ * @property {module:model/JobsJobParameter}
+ */
+JobsJobParameter = _modelJobsJobParameter2['default'];
 exports.
 
 /**

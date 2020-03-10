@@ -4,6 +4,8 @@ import {MenuItem, Paper, RaisedButton, SelectField, Subheader} from 'material-ui
 import {RightPanel} from './styles'
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import FormLoader from './FormLoader'
+import TplManager from '../graph/TplManager'
+import uuid from 'uuid4';
 import {ConfigServiceApi, JobsAction, JobsJob, RestConfiguration} from 'pydio/http/rest-api'
 
 const PydioForm = Pydio.requireLib('form');
@@ -217,6 +219,18 @@ class FormPanel extends React.Component {
         )
     }
 
+    saveAsTemplate(){
+        const {action} = this.state;
+        const copy = JobsAction.constructFromObject(JSON.parse(JSON.stringify(action)));
+        delete(copy.ChainedActions);
+        delete(copy.FailedActions);
+        TplManager.getInstance().saveAction(uuid(), copy).then(() => {
+            Pydio.getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
+        }).catch(e => {
+            Pydio.getInstance().UI.displayMessage('ERROR', e.message);
+        });
+    }
+
     save(){
         const {onChange, onDismiss} = this.props;
         const {action} = this.state;
@@ -316,7 +330,7 @@ class FormPanel extends React.Component {
                 </div>
             );
         }
-        if(create) {
+        if(inDialog) {
             children.push(
                 <div style={{padding: 10, textAlign:'right'}}>
                     <RaisedButton
@@ -326,6 +340,12 @@ class FormPanel extends React.Component {
                         onTouchTap={() => {this.save(); onDismiss()}}/>
                 </div>
             );
+        } else {
+            children.push(
+                <div>
+                    <RaisedButton label={"Save as template"} onTouchTap={()=>{this.saveAsTemplate()}}/>
+                </div>
+            )
         }
         if (inDialog) {
             return <div style={this.props.style}>{children}</div>
@@ -335,7 +355,7 @@ class FormPanel extends React.Component {
                     title={actionInfo.Label}
                     icon={actionInfo.Icon}
                     onDismiss={onDismiss}
-                    saveButtons={!create}
+                    saveButtons={!create && !inDialog}
                     onSave={save}
                     onRevert={revert}
                     onRemove={onRemove}

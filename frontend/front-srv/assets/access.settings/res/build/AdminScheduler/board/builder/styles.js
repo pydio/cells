@@ -113,7 +113,7 @@ var RightPanel = (function (_React$Component) {
                     ),
                     titleAdditional,
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
-                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-check', onClick: onSave, style: bStyles }),
                     onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();

@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -103,6 +103,14 @@ var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
 var _CreateActions = require('./CreateActions');
 
 var _CreateActions2 = _interopRequireDefault(_CreateActions);
+
+var _CreateFilters = require("./CreateFilters");
+
+var _CreateFilters2 = _interopRequireDefault(_CreateFilters);
+
+var _JobParameters = require("./JobParameters");
+
+var _JobParameters2 = _interopRequireDefault(_JobParameters);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -255,8 +263,10 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onRemoveModel: function onRemoveModel(model, parentModel) {
+            var removeFilter = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
             dispatch(function (d) {
-                d((0, _actionsEditor.removeModelAction)(model, parentModel));
+                d((0, _actionsEditor.removeModelAction)(model, parentModel, removeFilter));
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
@@ -596,8 +606,8 @@ var JobGraph = (function (_React$Component) {
             };
             var _this = this;
 
-            var templates = new _graphTemplates2['default'](graph);
-            templates.addTo(graph);
+            //const templates = new Templates(graph);
+            //templates.addTo(graph);
 
             onPaperBind(_reactDom2['default'].findDOMNode(this.refs.placeholder), graph, {
                 'element:pointerdown': function elementPointerdown(elementView, event) {
@@ -610,11 +620,11 @@ var JobGraph = (function (_React$Component) {
                             model.select();
                             _this4.select(model);
                         }
-                    } else if (model.isTemplate && model !== templates) {
-                        // Start dragging new model and duplicate
-                        templates.replicate(model, graph);
-                        model.toFront();
-                    }
+                    } else if (model.isTemplate /*&& model !== templates*/) {
+                            // Start dragging new model and duplicate
+                            //templates.replicate(model, graph);
+                            model.toFront();
+                        }
                 },
                 'element:filter:pointerdown': function elementFilterPointerdown(elementView, event) {
                     var model = elementView.model;
@@ -753,6 +763,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'isDroppable',
         value: function isDroppable(elementAbove, elementBelow) {
+            if (elementAbove instanceof _graphAction2['default']) {
+                return false;
+            }
             if (elementAbove instanceof _graphFilter2['default'] && elementBelow instanceof _graphActionFilter2['default']) {
                 // Replace with parent action Action model
                 elementBelow = elementBelow.getJobsAction().model;
@@ -792,23 +805,36 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'deleteAction',
         value: function deleteAction() {
-            if (!window.confirm('Do you want to delete this action?')) {
-                return;
-            }
             var _state5 = this.state;
             var selectionModel = _state5.selectionModel;
             var paper = _state5.paper;
             var graph = _state5.graph;
             var onRemoveModel = _state5.onRemoveModel;
 
-            var parentModel = undefined;
+            var parentModel = undefined,
+                removeFilter = undefined;
             graph.getConnectedLinks(selectionModel).forEach(function (link) {
                 var linkView = link.findView(paper);
                 if (linkView.targetView.model === selectionModel) {
                     parentModel = linkView.sourceView.model;
                 }
             });
-            onRemoveModel(selectionModel, parentModel);
+            if (parentModel instanceof _graphActionFilter2['default']) {
+                // Step up one level
+                if (!window.confirm('This will also remove the filters on the left of this action, are you sure you want to do this?')) {
+                    return;
+                }
+                removeFilter = parentModel;
+                graph.getConnectedLinks(parentModel).forEach(function (link) {
+                    var linkView = link.findView(paper);
+                    if (linkView.targetView.model === parentModel) {
+                        parentModel = linkView.sourceView.model;
+                    }
+                });
+            } else if (!window.confirm('Do you want to delete this action?')) {
+                return;
+            }
+            onRemoveModel(selectionModel, parentModel, removeFilter);
             this.clearSelection();
         }
     }, {
@@ -817,7 +843,13 @@ var JobGraph = (function (_React$Component) {
             var _state6 = this.state;
             var onToggleEdit = _state6.onToggleEdit;
             var editMode = _state6.editMode;
+            var dirty = _state6.dirty;
 
+            if (editMode && dirty) {
+                if (!confirm('There are unsaved changes, are you sure you want to close?')) {
+                    return;
+                }
+            }
             this.clearSelection();
             onToggleEdit(!editMode);
         }
@@ -913,6 +945,7 @@ var JobGraph = (function (_React$Component) {
             var onLabelChange = _state10.onLabelChange;
             var onJobPropertyChange = _state10.onJobPropertyChange;
             var createNewAction = _state10.createNewAction;
+            var createNewFilter = _state10.createNewFilter;
             var onToggleFilterAsCondition = _state10.onToggleFilterAsCondition;
             var onRemoveFilter = _state10.onRemoveFilter;
             var dirty = _state10.dirty;
@@ -923,6 +956,8 @@ var JobGraph = (function (_React$Component) {
             var job = _state10.job;
             var showJsonDialog = _state10.showJsonDialog;
             var jsonJobInvalid = _state10.jsonJobInvalid;
+            var requireLayout = _state10.requireLayout;
+            var showParameters = _state10.showParameters;
 
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
@@ -1003,18 +1038,19 @@ var JobGraph = (function (_React$Component) {
                 { style: { flex: 1, padding: '14px 24px' } },
                 'Job Workflow'
             );
-            var footer = undefined;
+            var footer = undefined,
+                actionBar = undefined;
             if (jobsEditable && editMode) {
                 header = _react2['default'].createElement(
                     'span',
                     { style: { flex: 1, padding: '0 6px' } },
-                    _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, style: { maxWidth: 500 }, value: job.Label, onChange: function (e, v) {
                             onLabelChange(v);
                         }, inputStyle: { color: 'white' } })
                 );
                 footer = _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0' } },
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: 'rgb(251, 251, 252)', borderTop: '1px solid rgb(236, 239, 241)' } },
                     _react2['default'].createElement(
                         'div',
                         { style: { display: 'flex', alignItems: 'center', padding: '0 16px' } },
@@ -1031,6 +1067,27 @@ var JobGraph = (function (_React$Component) {
                             _this6.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
+
+                actionBar = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: 'rgb(251, 251, 252)', borderBottom: '1px solid rgb(236, 239, 241)', padding: 5 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Action", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewAction: true });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-chip" }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Filter", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewFilter: 'filter' });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-filter-outline" }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Selector", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewFilter: 'selector' });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-magnify" }) }),
+                    _react2['default'].createElement('span', { style: { display: 'block', height: 30, width: 1, backgroundColor: '#E0E0E0' } }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Parameters", secondary: !!showParameters, onTouchTap: function () {
+                            return _this6.setState({ showParameters: !showParameters });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-chevron-" + (showParameters ? 'up' : 'down') }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Reflow", 'default': true, onTouchTap: function () {
+                            requireLayout();
+                        } })
+                );
             }
 
             return _react2['default'].createElement(
@@ -1045,6 +1102,24 @@ var JobGraph = (function (_React$Component) {
                     },
                     onDismiss: function () {
                         _this6.setState({ createNewAction: false });
+                    }
+                }),
+                _react2['default'].createElement(_CreateFilters2['default'], {
+                    open: createNewFilter,
+                    selectors: createNewFilter === 'selector',
+                    onSubmit: function (newData, newType) {
+                        var emptyModel = undefined;
+                        if (createNewFilter === 'selector') {
+                            emptyModel = new _graphSelector2['default'](newData, newType);
+                        } else {
+                            emptyModel = new _graphFilter2['default'](newData, newType);
+                        }
+                        emptyModel.isTemplate = true;
+                        onEmptyModel(emptyModel);
+                        _this6.setState({ createNewFilter: '' });
+                    },
+                    onDismiss: function () {
+                        _this6.setState({ createNewFilter: '' });
                     }
                 }),
                 _react2['default'].createElement(
@@ -1080,15 +1155,19 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this6.props.onJobSave);
-                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
-                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this6.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onSave(job, _this6.props.onJobSave);
+                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this6.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
+                actionBar,
+                editMode && showParameters && _react2['default'].createElement(_JobParameters2['default'], { parameters: job.Parameters, onChange: function (v) {
+                        onJobPropertyChange('Parameters', v);
+                    } }),
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', display: 'flex', minHeight: editMode ? editWindowHeight : null }, ref: "boundingBox" },

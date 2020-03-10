@@ -132,11 +132,12 @@ export function jobChangedAction(job, descriptions, editMode) {
     }
 }
 
-export function removeModelAction(model, parentModel) {
+export function removeModelAction(model, parentModel, removeFilter) {
     return{
         type: REMOVE_MODEL_ACTION,
         model,
-        parentModel
+        parentModel,
+        removeFilter
     }
 }
 

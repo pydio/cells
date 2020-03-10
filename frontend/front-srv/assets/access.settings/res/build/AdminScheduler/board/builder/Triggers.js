@@ -4,6 +4,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -36,41 +38,151 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _graphConfigs = require("../graph/Configs");
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
-var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var Stepper = _Pydio$requireLib.Stepper;
+var Dialog = Stepper.Dialog;
+var PanelBigButtons = Stepper.PanelBigButtons;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
 
 var eventMessages = {
     NODE_CHANGE: {
-        '0': 'trigger.create.node',
-        '1': 'trigger.read.node',
-        '2': 'trigger.update.path',
-        '3': 'trigger.update.content',
-        '4': 'trigger.update.metadata',
-        '5': 'trigger.delete.node',
-        '6': 'trigger.update.user-metadata'
+        title: 'Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically.',
+        '0': {
+            title: 'trigger.create.node',
+            icon: 'file-plus',
+            description: 'A new file was uploaded or a new folder was created'
+        },
+        '1': {
+            title: 'trigger.read.node',
+            icon: 'eye',
+            description: 'A file was downloaded or a folder content was listed'
+        },
+        '2': {
+            title: 'trigger.update.path',
+            icon: 'folder-move',
+            description: 'A file or folder was moved or renamed'
+        },
+        '3': {
+            title: 'trigger.update.content',
+            icon: 'content-save',
+            description: 'A file content was updated by edition or upload overwriting'
+        },
+        '5': {
+            title: 'trigger.delete.node',
+            icon: 'delete',
+            description: 'A file or a folder was definitively deleted'
+        },
+        '4': {
+            title: 'trigger.update.metadata',
+            icon: 'tag',
+            description: 'Internal metadata were modified on file or folder'
+        },
+        '6': {
+            title: 'trigger.update.user-metadata',
+            icon: 'tag-multiple',
+            description: 'User-defined metadata were modified (event contains updated metadata)'
+        }
     },
     IDM_CHANGE: {
         USER: {
-            '0': 'trigger.create.user',
-            '1': 'trigger.read.user',
-            '2': 'trigger.update.user',
-            '3': 'trigger.delete.user',
-            '4': 'trigger.bind.user',
-            '5': 'trigger.logout.user'
+            title: 'User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses.',
+            '0': {
+                title: 'trigger.create.user',
+                icon: 'account-plus',
+                tint: '#009688',
+                description: 'A user or a group was created'
+            },
+            '1': {
+                title: 'trigger.read.user',
+                icon: 'account',
+                tint: '#009688',
+                description: 'A user or a group was accessed'
+            },
+            '2': {
+                title: 'trigger.update.user',
+                icon: 'account-box',
+                tint: '#009688',
+                description: 'A user or a group data was updated'
+            },
+            '3': {
+                title: 'trigger.delete.user',
+                icon: 'account-minus',
+                tint: '#009688',
+                description: 'A user or a group was deleted'
+            },
+            '4': {
+                title: 'trigger.bind.user',
+                icon: 'login',
+                tint: '#009688',
+                description: 'A user has logged in'
+            },
+            '5': {
+                title: 'trigger.logout.user',
+                icon: 'logout',
+                tint: '#009688',
+                description: 'A user has logged out'
+            }
         },
-        // TODO I18N
         ROLE: {
-            '0': 'Create Role',
-            '3': 'Delete Role'
+            title: 'Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles.',
+            '0': {
+                title: 'Create Role',
+                icon: 'account-card-details',
+                tint: '#607d8b',
+                description: 'New role created.'
+            },
+            '2': {
+                title: 'Update Role',
+                icon: 'pencil',
+                tint: '#607d8b',
+                description: 'A role has been updated'
+            },
+            '3': {
+                title: 'Delete Role',
+                icon: 'delete-forever',
+                tint: '#607d8b',
+                description: 'A role has been deleted'
+            }
         },
         WORKSPACE: {
-            '0': 'Create Workspace',
-            '3': 'Delete Workspace'
+            title: 'Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells',
+            '0': {
+                title: 'Create Workspace',
+                icon: 'folder-plus',
+                tint: '#ff9800',
+                description: 'A workspace has been created'
+            },
+            '2': {
+                title: 'Update Workspace',
+                icon: 'pencil',
+                tint: '#ff9800',
+                description: 'A workspace has been updated'
+            },
+            '3': {
+                title: 'Delete Workspace',
+                icon: 'delete-forever',
+                tint: '#ff9800',
+                description: 'New file uploaded or folder created'
+            }
         },
         ACL: {
-            '0': 'Create Acl',
-            '3': 'Delete Acl'
+            title: 'ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data.',
+            '0': {
+                title: 'Create Acl',
+                icon: 'view-list',
+                tint: '#795548',
+                description: 'An access control has been opened'
+            },
+            '3': {
+                title: 'Delete Acl',
+                icon: 'delete-forever',
+                tint: '#795548',
+                description: 'An access control has been closed'
+            }
         }
     }
 };
@@ -126,31 +238,43 @@ var Events = (function (_React$Component) {
 
             var data = [];
             Object.keys(s).forEach(function (k) {
+                if (k === 'title') {
+                    return;
+                }
                 if (isNaN(k) && k !== 'IDM_CHANGE') {
-                    data.push({ header: k });
+                    data.push({ header: s[k].title });
                 }
                 var v = s[k];
-                if (typeof v === 'string') {
-                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
-                } else {
+                if (isNaN(k)) {
                     data.push.apply(data, _toConsumableArray(_this.flatStruct(v, [].concat(_toConsumableArray(pref), [k]))));
+                } else {
+                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
                 }
             });
             return data;
+        }
+    }, {
+        key: 'dismiss',
+        value: function dismiss() {
+            this.setState({ open: false, filter: '' });
         }
     }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
 
-            var objEvents = this.state.objEvents;
+            var _state = this.state;
+            var objEvents = _state.objEvents;
+            var open = _state.open;
+            var filter = _state.filter;
 
             var flat = this.flatStruct(eventMessages);
             var list = [];
             Object.keys(objEvents).forEach(function (e) {
                 list.push(_react2['default'].createElement(_materialUi.ListItem, {
                     key: e,
-                    primaryText: Events.eventLabel(e, Events.T),
+                    disabled: true,
+                    primaryText: Events.eventData(e).title,
                     rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: _graphConfigs.LightGrey }, onTouchTap: function () {
                             _this2.remove(e);
                         } })
@@ -159,31 +283,54 @@ var Events = (function (_React$Component) {
             });
             list.pop();
 
+            var model = { Sections: [] };
+            var section = undefined;
+            flat.forEach(function (k) {
+                if (k.header) {
+                    if (section && section.Actions.length) {
+                        model.Sections.push(section);
+                    }
+                    // Reset section
+                    section = { title: k.header, Actions: [] };
+                } else {
+                    var eData = Events.eventData(k);
+                    if (filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1) {
+                        return;
+                    }
+                    section.Actions.push(_extends({}, eData, { value: k }));
+                }
+            });
+            // Append last
+            if (section) {
+                model.Sections.push(section);
+            }
+
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    ModernSelectField,
-                    { fullWidth: true, value: -1, onChange: function (e, i, v) {
-                            _this2.add(v);
-                        } },
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
-                    flat.map(function (f) {
-                        if (f.header) {
-                            return _react2['default'].createElement(
-                                _materialUi.Subheader,
-                                null,
-                                f.header
-                            );
-                        } else {
-                            if (objEvents[f]) {
-                                // already registered
-                                return null;
-                            }
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                    Dialog,
+                    {
+                        title: "Trigger job on...",
+                        open: open,
+                        dialogProps: {},
+                        onDismiss: function () {
+                            _this2.dismiss();
+                        },
+                        onFilter: function (v) {
+                            _this2.setState({ filter: v.toLowerCase() });
+                        }
+                    },
+                    _react2['default'].createElement(PanelBigButtons, {
+                        model: model,
+                        onPick: function (eventId) {
+                            _this2.add(eventId);_this2.dismiss();
                         }
                     })
                 ),
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onTouchTap: function () {
+                        return _this2.setState({ open: true });
+                    }, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pulse" }) }),
                 _react2['default'].createElement(
                     _materialUi.List,
                     null,
@@ -192,17 +339,24 @@ var Events = (function (_React$Component) {
             );
         }
     }], [{
-        key: 'eventLabel',
-        value: function eventLabel(e, T) {
+        key: 'eventData',
+        value: function eventData(e) {
 
             var parts = e.split(':');
+            var data = undefined;
             if (parts.length === 2 && eventMessages[parts[0]]) {
-                return T(eventMessages[parts[0]][parts[1]]);
+                data = eventMessages[parts[0]][parts[1]];
             } else if (parts.length === 3 && eventMessages[parts[0]] && eventMessages[parts[0]][parts[1]] && eventMessages[parts[0]][parts[1]][parts[2]]) {
-                return T(eventMessages[parts[0]][parts[1]][parts[2]]);
+                data = eventMessages[parts[0]][parts[1]][parts[2]];
             } else {
-                return e;
+                data = { title: e, icon: 'pulse', description: '' };
             }
+            return {
+                title: Events.T(data.title),
+                description: Events.T(data.description),
+                icon: 'mdi mdi-' + data.icon,
+                tint: data.tint
+            };
         }
     }, {
         key: 'T',

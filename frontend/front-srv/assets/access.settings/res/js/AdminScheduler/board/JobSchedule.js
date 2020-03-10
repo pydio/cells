@@ -160,7 +160,7 @@ class JobSchedule extends React.Component {
         const {frequency, monthday, weekday, daytime, everyminutes} = state;
         let dTRead = '0:00';
         if(daytime){
-            dTRead = moment(daytime).format('h:mm');
+            dTRead = moment(daytime).format('h:mm a');
         }
         switch (frequency) {
             case "manual":

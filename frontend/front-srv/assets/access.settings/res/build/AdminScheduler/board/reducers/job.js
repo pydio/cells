@@ -235,9 +235,11 @@ exports["default"] = function (job, action) {
 
         case _actionsEditor.REMOVE_MODEL_ACTION:
             var model = action.model,
-                parentModel = action.parentModel;
+                parentModel = action.parentModel,
+                removeFilter = action.removeFilter;
 
             if (model instanceof _graphAction2["default"]) {
+                console.log(model, parentModel);
                 if (parentModel) {
                     // Action is connected from Action
                     if (parentModel instanceof _graphAction2["default"]) {
@@ -251,6 +253,9 @@ exports["default"] = function (job, action) {
                     }
                 }
                 model.remove();
+                if (removeFilter) {
+                    removeFilter.remove();
+                }
             }
             return job;
 

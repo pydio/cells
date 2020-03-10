@@ -169,7 +169,7 @@ let Dashboard = React.createClass({
                 data.SortValue = '0-' + job.Label;
             } else if(job.EventNames) {
                 data.SortValue = '1-' + job.Label;
-                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#43a047'}}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {job.EventNames.map(e => Events.eventLabel(e, m)).join(', ')}</div>;
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#43a047'}}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {job.EventNames.map(e => Events.eventData(e).title).join(', ')}</div>;
             } else {
                 data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#607d8b'}}><span className={"mdi mdi-gesture-tap"}/> {m('trigger.manual')}</div>;
                 data.SortValue = '2-' + job.Label;

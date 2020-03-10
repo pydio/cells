@@ -50,6 +50,8 @@ import {AllowedKeys, linkAttr} from "./graph/Configs"
 import {getCssStyle} from "./builder/styles"
 import ActionFilter from "./graph/ActionFilter"
 import CreateActions from './CreateActions'
+import CreateFilters from "./CreateFilters";
+import JobParameters from "./JobParameters";
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 const mapStateToProps = state => {
@@ -130,9 +132,9 @@ const mapDispatchToProps = dispatch => {
                 d(setDirtyAction(true));
             });
         },
-        onRemoveModel : (model, parentModel) => {
+        onRemoveModel : (model, parentModel, removeFilter = null) => {
             dispatch((d) => {
-                d(removeModelAction(model, parentModel));
+                d(removeModelAction(model, parentModel, removeFilter));
                 d(setDirtyAction(true));
             });
         },
@@ -366,8 +368,8 @@ class JobGraph extends React.Component {
         const removeLinkTool = () => this.createLinkTool();
         const _this = this;
 
-        const templates = new Templates(graph);
-        templates.addTo(graph);
+        //const templates = new Templates(graph);
+        //templates.addTo(graph);
 
         onPaperBind(ReactDOM.findDOMNode(this.refs.placeholder), graph, {
             'element:pointerdown': (elementView, event) => {
@@ -379,9 +381,9 @@ class JobGraph extends React.Component {
                         model.select();
                         this.select(model);
                     }
-                } else if(model.isTemplate && model !== templates){
+                } else if(model.isTemplate /*&& model !== templates*/){
                     // Start dragging new model and duplicate
-                    templates.replicate(model, graph);
+                    //templates.replicate(model, graph);
                     model.toFront();
                 }
             },
@@ -507,6 +509,9 @@ class JobGraph extends React.Component {
     }
 
     isDroppable(elementAbove, elementBelow){
+        if (elementAbove instanceof Action){
+            return false;
+        }
         if (elementAbove instanceof Filter && elementBelow instanceof ActionFilter){
             // Replace with parent action Action model
             elementBelow = elementBelow.getJobsAction().model;
@@ -544,23 +549,40 @@ class JobGraph extends React.Component {
     }
 
     deleteAction(){
-        if(!window.confirm('Do you want to delete this action?')){
-            return;
-        }
         const {selectionModel, paper, graph, onRemoveModel} = this.state;
-        let parentModel;
+        let parentModel, removeFilter;
         graph.getConnectedLinks(selectionModel).forEach(link => {
             const linkView = link.findView(paper);
             if(linkView.targetView.model === selectionModel) {
                 parentModel = linkView.sourceView.model;
             }
         });
-        onRemoveModel(selectionModel, parentModel);
+        if(parentModel instanceof ActionFilter){
+            // Step up one level
+            if(!window.confirm('This will also remove the filters on the left of this action, are you sure you want to do this?')){
+                return;
+            }
+            removeFilter = parentModel;
+            graph.getConnectedLinks(parentModel).forEach(link => {
+                const linkView = link.findView(paper);
+                if(linkView.targetView.model === parentModel) {
+                    parentModel = linkView.sourceView.model;
+                }
+            });
+        } else if(!window.confirm('Do you want to delete this action?')){
+                return;
+        }
+        onRemoveModel(selectionModel, parentModel, removeFilter);
         this.clearSelection();
     }
 
     toggleEdit(){
-        const {onToggleEdit, editMode} = this.state;
+        const {onToggleEdit, editMode, dirty} = this.state;
+        if(editMode && dirty){
+            if (!confirm('There are unsaved changes, are you sure you want to close?')){
+                return
+            }
+        }
         this.clearSelection();
         onToggleEdit(!editMode);
     }
@@ -624,8 +646,8 @@ class JobGraph extends React.Component {
         let selBlock;
         const {jobsEditable, create, adminStyles} = this.props;
         const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange,
-            onLabelChange, onJobPropertyChange, createNewAction, onToggleFilterAsCondition,
-            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid} = this.state;
+            onLabelChange, onJobPropertyChange, createNewAction, createNewFilter, onToggleFilterAsCondition,
+            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid, requireLayout, showParameters} = this.state;
         let fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
@@ -692,15 +714,15 @@ class JobGraph extends React.Component {
         };
 
         let header = <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow</span>
-        let footer;
+        let footer, actionBar;
         if(jobsEditable && editMode) {
             header = (
                 <span style={{flex: 1, padding: '0 6px'}}>
-                    <ModernTextField value={job.Label} onChange={(e,v)=>{onLabelChange(v)}} inputStyle={{color: 'white'}}/>
+                    <ModernTextField fullWidth={true} style={{maxWidth: 500}} value={job.Label} onChange={(e,v)=>{onLabelChange(v)}} inputStyle={{color: 'white'}}/>
                 </span>
             );
             footer = (
-                <div style={{display:'flex',alignItems: 'center',backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0'}}>
+                <div style={{display:'flex',alignItems: 'center',backgroundColor: 'rgb(251, 251, 252)', borderTop: '1px solid rgb(236, 239, 241)'}}>
                     <div style={{display:'flex',alignItems: 'center', padding: '0 16px'}}>
                         Max. Parallel Tasks : <ModernTextField style={{width:60}} value={job.MaxConcurrency} onChange={(e,v)=>{onJobPropertyChange('MaxConcurrency', parseInt(v))}} type={"number"}/>
                     </div>
@@ -709,6 +731,17 @@ class JobGraph extends React.Component {
                     <IconButton iconClassName={"mdi mdi-json"} onTouchTap={()=>{this.setState({showJsonDialog: true})}} tooltip={"Import/Export JSON"} tooltipPosition={"top-left"}/>
                 </div>
             );
+
+            actionBar = (
+                <div style={{display:'flex', alignItems:'center',backgroundColor: 'rgb(251, 251, 252)', borderBottom: '1px solid rgb(236, 239, 241)', padding: 5}}>
+                    <FlatButton label={"Action"} primary={true} onTouchTap={() => this.setState({createNewAction: true})} icon={<FontIcon style={{fontSize:16}} className={"mdi mdi-chip"}/>}/>
+                    <FlatButton label={"Filter"} primary={true} onTouchTap={() => this.setState({createNewFilter: 'filter'})} icon={<FontIcon style={{fontSize:16}} className={"mdi mdi-filter-outline"}/>}/>
+                    <FlatButton label={"Selector"} primary={true} onTouchTap={() => this.setState({createNewFilter: 'selector'})} icon={<FontIcon style={{fontSize:16}} className={"mdi mdi-magnify"}/>}/>
+                    <span style={{display: 'block', height: 30, width: 1, backgroundColor: '#E0E0E0'}}></span>
+                    <FlatButton label={"Parameters"} secondary={!!showParameters} onTouchTap={() => this.setState({showParameters: !showParameters})} icon={<FontIcon style={{fontSize:16}} className={"mdi mdi-chevron-" + (showParameters?'up':'down')}/>}/>
+                    <FlatButton label={"Reflow"} default={true} onTouchTap={() => {requireLayout()}}/>
+                </div>
+            )
         }
 
         return (
@@ -722,6 +755,24 @@ class JobGraph extends React.Component {
                     }}
                     onDismiss={()=>{
                         this.setState({createNewAction: false})}
+                    }
+                />
+                <CreateFilters
+                    open={createNewFilter}
+                    selectors={createNewFilter === 'selector'}
+                    onSubmit={(newData, newType) => {
+                        let emptyModel;
+                        if(createNewFilter === 'selector'){
+                            emptyModel = new Selector(newData, newType)
+                        } else {
+                            emptyModel = new Filter(newData, newType)
+                        }
+                        emptyModel.isTemplate = true;
+                        onEmptyModel(emptyModel);
+                        this.setState({createNewFilter: ''})
+                    }}
+                    onDismiss={()=>{
+                        this.setState({createNewFilter: ''})}
                     }
                 />
                 <Dialog
@@ -749,10 +800,14 @@ class JobGraph extends React.Component {
                 </Dialog>
                 <div style={st.header}>
                     {header}
-                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {this.revertAction()}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
+                {actionBar}
+                {editMode && showParameters &&
+                    <JobParameters parameters={job.Parameters} onChange={(v)=>{onJobPropertyChange('Parameters', v)}}/>
+                }
                 <div style={{position:'relative', display:'flex', minHeight:editMode?editWindowHeight:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>

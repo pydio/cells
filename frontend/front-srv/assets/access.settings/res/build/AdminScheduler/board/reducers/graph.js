@@ -94,7 +94,7 @@ function layoutReducer(state, action) {
                 edgeSep: 48,
                 rankSep: 128,
                 rankDir: "LR",
-                marginX: editMode ? 160 : 32,
+                marginX: /*editMode ? 160 :*/32, // OFFSET FOR TEMPLATE PANEL
                 marginY: 32,
                 dagre: _dagre2["default"],
                 graphlib: _graphlib2["default"]
@@ -187,7 +187,8 @@ function graphReducer(graph, action) {
         case _actionsEditor.EMPTY_MODEL_ACTION:
             var model = action.model;
 
-            model.position(160, 200);
+            //model.position(160, 200);
+            model.position(32, 200);
             model.addTo(graph);
             return graph;
         default:

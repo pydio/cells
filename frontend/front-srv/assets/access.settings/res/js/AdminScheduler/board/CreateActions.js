@@ -20,6 +20,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import FormPanel from './builder/FormPanel'
+import TplManager from './graph/TplManager'
 import {JobsAction} from 'pydio/http/rest-api'
 import {FontIcon} from 'material-ui'
 const {Stepper} = Pydio.requireLib("components");
@@ -29,7 +30,33 @@ class CreateActions extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {filter: ''}
+        this.state = {filter: '', templates: []};
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(nextProps.open && !this.props.open){
+            this.loadTemplates();
+        }
+    }
+
+    loadTemplates(){
+        const {descriptions} = this.props;
+        TplManager.getInstance().listActions().then(aa => {
+            let templates = {};
+            aa.map((a, i) => {
+                const ID = a.ID;
+                if(descriptions[ID]){
+                    const {TemplateName} = a;
+                    templates[TemplateName] = {
+                        ...descriptions[ID],
+                        Label: a.Label,
+                        Description: a.Description,
+                        Parameters: a.Parameters
+                    };
+                }
+            });
+            this.setState({templates});
+        })
     }
 
     dismiss(){
@@ -40,19 +67,28 @@ class CreateActions extends React.Component {
 
     render() {
         const {descriptions, onSubmit, open} = this.props;
-        const {filter, actionId, random} = this.state;
+        const {filter, actionId, random, templates} = this.state;
 
         let title, content, dialogFilter, dialogProps = {};
         if(actionId) {
-            const action = descriptions[actionId];
+            let model, action, create = true;
+            if(descriptions[actionId]){
+                action = descriptions[actionId];
+                model = JobsAction.constructFromObject({ID: actionId});
+            } else if(templates[actionId]){
+                create = false;
+                const tpl = templates[actionId];
+                action = descriptions[tpl.Name];
+                model = JobsAction.constructFromObject({ID: action.Name, ...tpl})
+            }
             const icon = 'mdi mdi-' + action.Icon || 'mdi mdi-chip';
             title = <span><FontIcon style={{marginRight: 8}} className={icon} color={action.Tint}/>{action.Label}</span>;
             content = (
                 <FormPanel
                     actions={descriptions}
-                    action={JobsAction.constructFromObject({ID:actionId})}
+                    action={model}
                     onChange={(newAction) => { onSubmit(newAction); this.setState({actionId:''}) }}
-                    create={true}
+                    create={create}
                     inDialog={true}
                     onDismiss={()=>{this.dismiss()}}
                     style={{margin:'10px -10px -10px'}}
@@ -71,26 +107,36 @@ class CreateActions extends React.Component {
         } else {
 
             const ss = {};
-            if(descriptions){
-                Object.keys(descriptions).forEach(k => {
-                    const action = descriptions[k];
-                    if(filter && action.Label.toLowerCase().indexOf(filter.toLowerCase()) === -1 && action.Description.toLowerCase().indexOf(filter.toLowerCase()) === -1) {
-                        return;
+            const all = {...descriptions, ...templates};
+            Object.keys(all).forEach(k => {
+                const action = all[k];
+                if(filter && action.Label.toLowerCase().indexOf(filter.toLowerCase()) === -1 && action.Description.toLowerCase().indexOf(filter.toLowerCase()) === -1) {
+                    return;
+                }
+                const sName = action.Category;
+                if(!ss[sName]){
+                    const sp = sName.split(' - ');
+                    ss[sName] = {title:sp[sp.length-1], Actions:[]};
+                }
+                const a = {
+                    value: k,
+                    title: action.Label,
+                    icon: action.Icon ? 'mdi mdi-' + action.Icon : 'mdi mdi-chip',
+                    tint: action.Tint,
+                    description:action.Description
+                };
+                if(templates[k]){
+                    a.onDelete = () => {
+                        if (confirm('Do you want to delete this template?')){
+                            TplManager.getInstance().deleteAction(actionId).then(() => {
+                                this.loadTemplates();
+                            })
+                        }
                     }
-                    const sName = action.Category;
-                    if(!ss[sName]){
-                        const sp = sName.split(' - ');
-                        ss[sName] = {title:sp[sp.length-1], Actions:[]};
-                    }
-                    ss[sName].Actions.push({
-                        value: k,
-                        title: action.Label,
-                        icon: action.Icon ? 'mdi mdi-' + action.Icon : 'mdi mdi-chip',
-                        tint: action.Tint,
-                        description:action.Description
-                    });
-                });
-            }
+                }
+                ss[sName].Actions.push(a);
+            });
+
             const keys = Object.keys(ss);
             keys.sort();
             const model = {
@@ -99,10 +145,7 @@ class CreateActions extends React.Component {
 
             title = "Create Action";
             content = (
-                <PanelBigButtons
-                    model={model}
-                    onPick={(actionId) => {this.setState({actionId, filter:''})}}
-                />
+                <PanelBigButtons model={model} onPick={(actionId) => this.setState({actionId, filter:''})} />
             );
             dialogFilter = (v)=>{this.setState({filter: v})}
 

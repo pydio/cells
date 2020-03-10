@@ -43112,6 +43112,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -43134,6 +43136,10 @@ var _builderFormPanel = require('./builder/FormPanel');
 
 var _builderFormPanel2 = _interopRequireDefault(_builderFormPanel);
 
+var _graphTplManager = require('./graph/TplManager');
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _materialUi = require('material-ui');
@@ -43151,10 +43157,41 @@ var CreateActions = (function (_React$Component) {
         _classCallCheck(this, CreateActions);
 
         _get(Object.getPrototypeOf(CreateActions.prototype), 'constructor', this).call(this, props);
-        this.state = { filter: '' };
+        this.state = { filter: '', templates: [] };
     }
 
     _createClass(CreateActions, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.open && !this.props.open) {
+                this.loadTemplates();
+            }
+        }
+    }, {
+        key: 'loadTemplates',
+        value: function loadTemplates() {
+            var _this = this;
+
+            var descriptions = this.props.descriptions;
+
+            _graphTplManager2['default'].getInstance().listActions().then(function (aa) {
+                var templates = {};
+                aa.map(function (a, i) {
+                    var ID = a.ID;
+                    if (descriptions[ID]) {
+                        var TemplateName = a.TemplateName;
+
+                        templates[TemplateName] = _extends({}, descriptions[ID], {
+                            Label: a.Label,
+                            Description: a.Description,
+                            Parameters: a.Parameters
+                        });
+                    }
+                });
+                _this.setState({ templates: templates });
+            });
+        }
+    }, {
         key: 'dismiss',
         value: function dismiss() {
             this.setState({ actionId: '', random: null });
@@ -43165,7 +43202,7 @@ var CreateActions = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
+            var _this2 = this;
 
             var _props = this.props;
             var descriptions = _props.descriptions;
@@ -43175,13 +43212,25 @@ var CreateActions = (function (_React$Component) {
             var filter = _state.filter;
             var actionId = _state.actionId;
             var random = _state.random;
+            var templates = _state.templates;
 
             var title = undefined,
                 content = undefined,
                 dialogFilter = undefined,
                 dialogProps = {};
             if (actionId) {
-                var action = descriptions[actionId];
+                var model = undefined,
+                    action = undefined,
+                    create = true;
+                if (descriptions[actionId]) {
+                    action = descriptions[actionId];
+                    model = _pydioHttpRestApi.JobsAction.constructFromObject({ ID: actionId });
+                } else if (templates[actionId]) {
+                    create = false;
+                    var tpl = templates[actionId];
+                    action = descriptions[tpl.Name];
+                    model = _pydioHttpRestApi.JobsAction.constructFromObject(_extends({ ID: action.Name }, tpl));
+                }
                 var icon = 'mdi mdi-' + action.Icon || 'mdi mdi-chip';
                 title = _react2['default'].createElement(
                     'span',
@@ -43191,18 +43240,18 @@ var CreateActions = (function (_React$Component) {
                 );
                 content = _react2['default'].createElement(_builderFormPanel2['default'], {
                     actions: descriptions,
-                    action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: actionId }),
+                    action: model,
                     onChange: function (newAction) {
-                        onSubmit(newAction);_this.setState({ actionId: '' });
+                        onSubmit(newAction);_this2.setState({ actionId: '' });
                     },
-                    create: true,
+                    create: create,
                     inDialog: true,
                     onDismiss: function () {
-                        _this.dismiss();
+                        _this2.dismiss();
                     },
                     style: { margin: '10px -10px -10px' },
                     onLoaded: function () {
-                        _this.setState({ random: Math.random() });
+                        _this2.setState({ random: Math.random() });
                     }
                 });
                 dialogProps = {
@@ -43217,26 +43266,36 @@ var CreateActions = (function (_React$Component) {
                 (function () {
 
                     var ss = {};
-                    if (descriptions) {
-                        Object.keys(descriptions).forEach(function (k) {
-                            var action = descriptions[k];
-                            if (filter && action.Label.toLowerCase().indexOf(filter.toLowerCase()) === -1 && action.Description.toLowerCase().indexOf(filter.toLowerCase()) === -1) {
-                                return;
-                            }
-                            var sName = action.Category;
-                            if (!ss[sName]) {
-                                var sp = sName.split(' - ');
-                                ss[sName] = { title: sp[sp.length - 1], Actions: [] };
-                            }
-                            ss[sName].Actions.push({
-                                value: k,
-                                title: action.Label,
-                                icon: action.Icon ? 'mdi mdi-' + action.Icon : 'mdi mdi-chip',
-                                tint: action.Tint,
-                                description: action.Description
-                            });
-                        });
-                    }
+                    var all = _extends({}, descriptions, templates);
+                    Object.keys(all).forEach(function (k) {
+                        var action = all[k];
+                        if (filter && action.Label.toLowerCase().indexOf(filter.toLowerCase()) === -1 && action.Description.toLowerCase().indexOf(filter.toLowerCase()) === -1) {
+                            return;
+                        }
+                        var sName = action.Category;
+                        if (!ss[sName]) {
+                            var sp = sName.split(' - ');
+                            ss[sName] = { title: sp[sp.length - 1], Actions: [] };
+                        }
+                        var a = {
+                            value: k,
+                            title: action.Label,
+                            icon: action.Icon ? 'mdi mdi-' + action.Icon : 'mdi mdi-chip',
+                            tint: action.Tint,
+                            description: action.Description
+                        };
+                        if (templates[k]) {
+                            a.onDelete = function () {
+                                if (confirm('Do you want to delete this template?')) {
+                                    _graphTplManager2['default'].getInstance().deleteAction(actionId).then(function () {
+                                        _this2.loadTemplates();
+                                    });
+                                }
+                            };
+                        }
+                        ss[sName].Actions.push(a);
+                    });
+
                     var keys = Object.keys(ss);
                     keys.sort();
                     var model = {
@@ -43246,14 +43305,11 @@ var CreateActions = (function (_React$Component) {
                     };
 
                     title = "Create Action";
-                    content = _react2['default'].createElement(PanelBigButtons, {
-                        model: model,
-                        onPick: function (actionId) {
-                            _this.setState({ actionId: actionId, filter: '' });
-                        }
-                    });
+                    content = _react2['default'].createElement(PanelBigButtons, { model: model, onPick: function (actionId) {
+                            return _this2.setState({ actionId: actionId, filter: '' });
+                        } });
                     dialogFilter = function (v) {
-                        _this.setState({ filter: v });
+                        _this2.setState({ filter: v });
                     };
                 })();
             }
@@ -43265,7 +43321,7 @@ var CreateActions = (function (_React$Component) {
                     open: open,
                     dialogProps: dialogProps,
                     onDismiss: function () {
-                        _this.dismiss();
+                        _this2.dismiss();
                     },
                     onFilter: dialogFilter,
                     random: random
@@ -43281,7 +43337,508 @@ var CreateActions = (function (_React$Component) {
 exports['default'] = CreateActions;
 module.exports = exports['default'];
 
-},{"./builder/FormPanel":305,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],297:[function(require,module,exports){
+},{"./builder/FormPanel":307,"./graph/TplManager":326,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],297:[function(require,module,exports){
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _materialUi = require('material-ui');
+
+var _builderQueryBuilder = require("./builder/QueryBuilder");
+
+var _builderQueryBuilder2 = _interopRequireDefault(_builderQueryBuilder);
+
+var _graphTplManager = require("./graph/TplManager");
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib("components");
+
+var Stepper = _Pydio$requireLib.Stepper;
+var Dialog = Stepper.Dialog;
+var PanelBigButtons = Stepper.PanelBigButtons;
+
+var tints = {
+    nodes: '',
+    idm: '#438db3',
+    context: '#795649',
+    output: '#009688',
+    preset: '#F57C00'
+};
+
+var presetTagStyle = {
+    display: 'inline-block',
+    backgroundColor: tints.preset,
+    padding: '0 5px',
+    marginRight: 5,
+    borderRadius: 5,
+    color: 'white',
+    fontSize: 12,
+    lineHeight: '17px'
+};
+
+var types = {
+    filters: {
+        nodes: {
+            title: 'Files and folders',
+            Actions: [{
+                title: 'Filter file or folder',
+                description: 'Exclude files or folders based on various criteria',
+                icon: 'mdi mdi-file-tree',
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({}), type: '' };
+                }
+            }, {
+                title: 'Folders only',
+                description: 'Match folders only, no files',
+                icon: 'mdi mdi-folder',
+                preset: true,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({ "Query": { "SubQueries": [{ "@type": "type.googleapis.com/tree.Query", "Type": "COLLECTION" }], "Operation": "OR" } }), type: '', preset: true };
+                }
+            }, {
+                title: 'Files only',
+                description: 'Match files only, no folders',
+                icon: 'mdi mdi-file',
+                preset: true,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({ "Query": { "SubQueries": [{ "@type": "type.googleapis.com/tree.Query", "Type": "LEAF" }], "Operation": "OR" } }), type: '', preset: true };
+                }
+            }]
+        },
+        idm: {
+            title: 'Identity Management',
+            Actions: [{
+                title: 'Filter User',
+                description: 'Set criteria like profile, roles, group, etc... to match specific users or groups',
+                icon: 'mdi mdi-account',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), type: 'idm' };
+                }
+            }, {
+                title: 'Filter Workspaces',
+                description: 'Set criteria like Scope (workspace/cell/link), uuid, etc... to match specific workspaces',
+                icon: 'mdi mdi-folder',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), type: 'idm' };
+                }
+            }, {
+                title: 'Filter Roles',
+                description: 'Set criteria to match specific roles. You can differentiate admin-defined roles, user teams, user roles, etc.',
+                icon: 'mdi mdi-account-card-details',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), type: 'idm' };
+                }
+            }, {
+                title: 'Filter ACL',
+                description: 'Set criteria to match specific Access Control List, by node, role and workspace UUIDs',
+                icon: 'mdi mdi-view-list',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), type: 'idm' };
+                }
+            }]
+        },
+        context: {
+            title: 'Request Context',
+            Actions: [{
+                title: 'Request Metadata',
+                description: 'Match specific informations carried by request, like User-Agent, IP of client connection, etc.',
+                icon: 'mdi mdi-tag',
+                tint: tints.context,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({}), type: 'context' };
+                }
+            }, {
+                title: 'Request User',
+                description: 'Match currently logged user attributes (like profile, roles, etc.)',
+                icon: 'mdi mdi-account',
+                tint: tints.context,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({ Type: 'ContextUser' }), type: 'context' };
+                }
+            }]
+        },
+        output: {
+            title: 'Previous action output',
+            Actions: [{
+                title: 'Filter Action Output',
+                description: 'Actions append data to their input and send to the next one. This filter applies to the previous action output.',
+                icon: 'mdi mdi-code-braces',
+                tint: tints.output,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsActionOutputFilter.constructFromObject({}), type: 'output' };
+                }
+            }]
+        }
+
+    },
+    selectors: {
+        nodes: {
+            title: 'Files and folders',
+            Actions: [{
+                title: 'Select files or folders',
+                description: 'Lookup existing files and folders matching various search criteria',
+                icon: 'mdi mdi-file-tree',
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({}), type: '' };
+                }
+            }]
+        },
+        idm: {
+            title: 'Identity Management',
+            Actions: [{
+                title: 'Select Users',
+                description: 'Lookup existing users and groups matching various search criteria',
+                icon: 'mdi mdi-account',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), type: 'idm' };
+                }
+            }, {
+                title: 'Select Workspaces',
+                description: 'Lookup existing workspaces matching various search criteria',
+                icon: 'mdi mdi-folder',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), type: 'idm' };
+                }
+            }, {
+                title: 'Select Roles',
+                description: 'Lookup existing roles matching various search criteria',
+                icon: 'mdi mdi-account-card-details',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), type: 'idm' };
+                }
+            }, {
+                title: 'Select ACL',
+                description: 'Lookup specific ACLs matching your search criteria',
+                icon: 'mdi mdi-view-list',
+                tint: tints.idm,
+                value: function value() {
+                    return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl' }), type: 'idm' };
+                }
+            }]
+        }
+    }
+};
+
+var CreateFilters = (function (_React$Component) {
+    _inherits(CreateFilters, _React$Component);
+
+    function CreateFilters(props) {
+        _classCallCheck(this, CreateFilters);
+
+        _get(Object.getPrototypeOf(CreateFilters.prototype), 'constructor', this).call(this, props);
+        this.state = { filter: '', templates: {} };
+    }
+
+    _createClass(CreateFilters, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(next) {
+            if (next.open && !this.props.open) {
+                this.loadTemplates(next.open);
+            }
+        }
+    }, {
+        key: 'loadTemplates',
+        value: function loadTemplates(open) {
+            var _this = this;
+
+            _graphTplManager2['default'].getInstance().listSelectors().then(function (result) {
+                if (open === 'selector') {
+                    _this.setState({ templates: result['selectors'] });
+                } else {
+                    _this.setState({ templates: result['filters'] });
+                }
+            });
+        }
+    }, {
+        key: 'dismiss',
+        value: function dismiss() {
+            this.setState({ action: null, model: null, type: '', random: null });
+            var onDismiss = this.props.onDismiss;
+
+            onDismiss();
+        }
+    }, {
+        key: 'insert',
+        value: function insert(model, type) {
+            var onSubmit = this.props.onSubmit;
+
+            onSubmit(model, type);
+            console.log(model, type);
+            this.setState({ action: null, model: null, type: '', random: null });
+        }
+    }, {
+        key: 'actionFromList',
+        value: function actionFromList(value) {
+            var selectors = this.props.selectors;
+
+            var a = undefined;
+            var data = selectors ? types.selectors : types.filters;
+            Object.keys(data).forEach(function (k) {
+                data[k].Actions.forEach(function (action) {
+                    if (action.value === value) {
+                        a = action;
+                    }
+                });
+            });
+            return a;
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            var _props = this.props;
+            var open = _props.open;
+            var selectors = _props.selectors;
+            var _state = this.state;
+            var filter = _state.filter;
+            var model = _state.model;
+            var action = _state.action;
+            var random = _state.random;
+            var templates = _state.templates;
+
+            var title = undefined,
+                content = undefined,
+                dialogFilter = undefined,
+                dialogProps = {};
+            if (action) {
+                var icon = action.icon || (selectors ? 'mdi mdi-magnify' : 'mdi mdi-chip');
+                title = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { style: { marginRight: 8 }, className: icon, color: action.tint }),
+                    action.title
+                );
+                content = [_react2['default'].createElement(_builderQueryBuilder2['default'], {
+                    cloner: function (d) {
+                        return d;
+                    },
+                    query: model,
+                    queryType: selectors ? 'selector' : 'filter',
+                    style: {},
+                    autoSave: true,
+                    onRemoveFilter: function (modelType) {},
+                    onSave: function (newData) {
+                        _this2.setState({ model: newData, random: Math.random() });
+                    }
+                }), _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', padding: '24px 0 0' } },
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "<< Change", 'default': true, onTouchTap: function () {
+                            _this2.setState({ model: null, action: null, type: '' });
+                        } }),
+                    _react2['default'].createElement('span', { style: { flex: 1 } }),
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Insert", primary: true, onTouchTap: function () {
+                            var _state2 = _this2.state;
+                            var model = _state2.model;
+                            var type = _state2.type;
+
+                            _this2.insert(model, type);
+                        } })
+                )];
+
+                dialogProps = {
+                    bodyStyle: {
+                        backgroundColor: 'white',
+                        padding: 12,
+                        overflow: 'visible'
+                    },
+                    contentStyle: {
+                        maxWidth: 800
+                    }
+                };
+            } else {
+                (function () {
+
+                    var bbModel = { Sections: [] };
+                    var data = selectors ? types.selectors : types.filters;
+                    Object.keys(data).forEach(function (k) {
+                        // TODO : TRANSLATE
+                        var dd = data[k];
+                        var aa = dd.Actions;
+                        if (filter) {
+                            aa = aa.filter(function (a) {
+                                return a.title.toLowerCase().indexOf(filter) > -1 || a.description.toLowerCase().indexOf(filter) > -1;
+                            });
+                        }
+                        var section = { title: dd.title, Actions: [] };
+                        section.Actions = aa.map(function (a) {
+                            var title = a.title;
+                            if (a.preset) {
+                                title = _react2['default'].createElement(
+                                    'span',
+                                    null,
+                                    _react2['default'].createElement(
+                                        'span',
+                                        { style: presetTagStyle },
+                                        'preset'
+                                    ),
+                                    a.title
+                                );
+                            }
+                            return _extends({}, a, { title: title });
+                        });
+                        // Add templates
+                        if (templates[k] && templates[k].length) {
+                            templates[k].forEach(function (tpl) {
+                                var value = undefined,
+                                    icon = undefined,
+                                    tint = undefined;
+                                switch (k) {
+                                    case "nodes":
+                                        value = function () {
+                                            return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject(JSON.parse(JSON.stringify(tpl.NodesSelector))), type: k };
+                                        };
+                                        icon = 'mdi mdi-file-tree';
+                                        break;
+                                    case "idm":
+                                        value = function () {
+                                            return { model: _pydioHttpRestApi.JobsIdmSelector.constructFromObject(JSON.parse(JSON.stringify(tpl.IdmSelector))), type: k };
+                                        };
+                                        icon = 'mdi mdi-account';
+                                        break;
+                                    case "output":
+                                        value = function () {
+                                            return { model: _pydioHttpRestApi.JobsActionOutputFilter.constructFromObject(JSON.parse(JSON.stringify(tpl.ActionOutputFilter))), type: k };
+                                        };
+                                        icon = 'mdi mdi-code-braces';
+                                        break;
+                                    case "context":
+                                        value = function () {
+                                            return { model: _pydioHttpRestApi.JobsContextMetaFilter.constructFromObject(JSON.parse(JSON.stringify(tpl.ContextMetaFilter))), type: k };
+                                        };
+                                        icon = 'mdi mdi-tag';
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                section.Actions.push({
+                                    title: _react2['default'].createElement(
+                                        'span',
+                                        null,
+                                        _react2['default'].createElement(
+                                            'span',
+                                            { style: presetTagStyle },
+                                            'preset'
+                                        ),
+                                        tpl.Label
+                                    ),
+                                    description: tpl.Description,
+                                    icon: icon,
+                                    tint: tints[k],
+                                    value: value
+                                });
+                            });
+                        }
+                        if (section.Actions.length) {
+                            bbModel.Sections.push(section);
+                        }
+                    });
+                    console.log(bbModel);
+
+                    title = selectors ? "Feed input with data" : "Filter data input";
+                    content = _react2['default'].createElement(PanelBigButtons, {
+                        model: bbModel,
+                        onPick: function (constructor) {
+                            var action = _this2.actionFromList(constructor);
+
+                            var _constructor = constructor();
+
+                            var model = _constructor.model;
+                            var type = _constructor.type;
+
+                            var preset = true;
+                            if (action) {
+                                preset = action.preset;
+                            }
+                            if (preset) {
+                                _this2.insert(model, type);
+                            } else {
+                                _this2.setState({ model: model, type: type, action: action, filter: '' });
+                            }
+                        }
+                    });
+                    dialogFilter = function (v) {
+                        _this2.setState({ filter: v.toLowerCase() });
+                    };
+                })();
+            }
+
+            return _react2['default'].createElement(
+                Dialog,
+                {
+                    title: title,
+                    open: open,
+                    dialogProps: dialogProps,
+                    onDismiss: function () {
+                        _this2.dismiss();
+                    },
+                    onFilter: dialogFilter,
+                    random: random
+                },
+                content
+            );
+        }
+    }]);
+
+    return CreateFilters;
+})(_react2['default'].Component);
+
+exports['default'] = CreateFilters;
+module.exports = exports['default'];
+
+},{"./builder/QueryBuilder":310,"./graph/TplManager":326,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],298:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -43545,7 +44102,7 @@ var Dashboard = _react2['default'].createClass({
                     _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events') }),
                     ' ',
                     job.EventNames.map(function (e) {
-                        return _builderTriggers.Events.eventLabel(e, m);
+                        return _builderTriggers.Events.eventData(e).title;
                     }).join(', ')
                 );
             } else {
@@ -43811,7 +44368,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":298,"./JobSchedule":300,"./builder/Triggers":314,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":295}],298:[function(require,module,exports){
+},{"./JobBoard":299,"./JobSchedule":302,"./builder/Triggers":316,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":295}],299:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -44298,7 +44855,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobGraph":299,"./TaskActivity":301,"material-ui":"material-ui","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],299:[function(require,module,exports){
+},{"./JobGraph":300,"./TaskActivity":303,"material-ui":"material-ui","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],300:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -44307,7 +44864,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44404,6 +44961,14 @@ var _graphActionFilter2 = _interopRequireDefault(_graphActionFilter);
 var _CreateActions = require('./CreateActions');
 
 var _CreateActions2 = _interopRequireDefault(_CreateActions);
+
+var _CreateFilters = require("./CreateFilters");
+
+var _CreateFilters2 = _interopRequireDefault(_CreateFilters);
+
+var _JobParameters = require("./JobParameters");
+
+var _JobParameters2 = _interopRequireDefault(_JobParameters);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -44556,8 +45121,10 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onRemoveModel: function onRemoveModel(model, parentModel) {
+            var removeFilter = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
             dispatch(function (d) {
-                d((0, _actionsEditor.removeModelAction)(model, parentModel));
+                d((0, _actionsEditor.removeModelAction)(model, parentModel, removeFilter));
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
@@ -44897,8 +45464,8 @@ var JobGraph = (function (_React$Component) {
             };
             var _this = this;
 
-            var templates = new _graphTemplates2['default'](graph);
-            templates.addTo(graph);
+            //const templates = new Templates(graph);
+            //templates.addTo(graph);
 
             onPaperBind(_reactDom2['default'].findDOMNode(this.refs.placeholder), graph, {
                 'element:pointerdown': function elementPointerdown(elementView, event) {
@@ -44911,11 +45478,11 @@ var JobGraph = (function (_React$Component) {
                             model.select();
                             _this4.select(model);
                         }
-                    } else if (model.isTemplate && model !== templates) {
-                        // Start dragging new model and duplicate
-                        templates.replicate(model, graph);
-                        model.toFront();
-                    }
+                    } else if (model.isTemplate /*&& model !== templates*/) {
+                            // Start dragging new model and duplicate
+                            //templates.replicate(model, graph);
+                            model.toFront();
+                        }
                 },
                 'element:filter:pointerdown': function elementFilterPointerdown(elementView, event) {
                     var model = elementView.model;
@@ -45054,6 +45621,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'isDroppable',
         value: function isDroppable(elementAbove, elementBelow) {
+            if (elementAbove instanceof _graphAction2['default']) {
+                return false;
+            }
             if (elementAbove instanceof _graphFilter2['default'] && elementBelow instanceof _graphActionFilter2['default']) {
                 // Replace with parent action Action model
                 elementBelow = elementBelow.getJobsAction().model;
@@ -45093,23 +45663,36 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'deleteAction',
         value: function deleteAction() {
-            if (!window.confirm('Do you want to delete this action?')) {
-                return;
-            }
             var _state5 = this.state;
             var selectionModel = _state5.selectionModel;
             var paper = _state5.paper;
             var graph = _state5.graph;
             var onRemoveModel = _state5.onRemoveModel;
 
-            var parentModel = undefined;
+            var parentModel = undefined,
+                removeFilter = undefined;
             graph.getConnectedLinks(selectionModel).forEach(function (link) {
                 var linkView = link.findView(paper);
                 if (linkView.targetView.model === selectionModel) {
                     parentModel = linkView.sourceView.model;
                 }
             });
-            onRemoveModel(selectionModel, parentModel);
+            if (parentModel instanceof _graphActionFilter2['default']) {
+                // Step up one level
+                if (!window.confirm('This will also remove the filters on the left of this action, are you sure you want to do this?')) {
+                    return;
+                }
+                removeFilter = parentModel;
+                graph.getConnectedLinks(parentModel).forEach(function (link) {
+                    var linkView = link.findView(paper);
+                    if (linkView.targetView.model === parentModel) {
+                        parentModel = linkView.sourceView.model;
+                    }
+                });
+            } else if (!window.confirm('Do you want to delete this action?')) {
+                return;
+            }
+            onRemoveModel(selectionModel, parentModel, removeFilter);
             this.clearSelection();
         }
     }, {
@@ -45118,7 +45701,13 @@ var JobGraph = (function (_React$Component) {
             var _state6 = this.state;
             var onToggleEdit = _state6.onToggleEdit;
             var editMode = _state6.editMode;
+            var dirty = _state6.dirty;
 
+            if (editMode && dirty) {
+                if (!confirm('There are unsaved changes, are you sure you want to close?')) {
+                    return;
+                }
+            }
             this.clearSelection();
             onToggleEdit(!editMode);
         }
@@ -45214,6 +45803,7 @@ var JobGraph = (function (_React$Component) {
             var onLabelChange = _state10.onLabelChange;
             var onJobPropertyChange = _state10.onJobPropertyChange;
             var createNewAction = _state10.createNewAction;
+            var createNewFilter = _state10.createNewFilter;
             var onToggleFilterAsCondition = _state10.onToggleFilterAsCondition;
             var onRemoveFilter = _state10.onRemoveFilter;
             var dirty = _state10.dirty;
@@ -45224,6 +45814,8 @@ var JobGraph = (function (_React$Component) {
             var job = _state10.job;
             var showJsonDialog = _state10.showJsonDialog;
             var jsonJobInvalid = _state10.jsonJobInvalid;
+            var requireLayout = _state10.requireLayout;
+            var showParameters = _state10.showParameters;
 
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
@@ -45304,18 +45896,19 @@ var JobGraph = (function (_React$Component) {
                 { style: { flex: 1, padding: '14px 24px' } },
                 'Job Workflow'
             );
-            var footer = undefined;
+            var footer = undefined,
+                actionBar = undefined;
             if (jobsEditable && editMode) {
                 header = _react2['default'].createElement(
                     'span',
                     { style: { flex: 1, padding: '0 6px' } },
-                    _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, style: { maxWidth: 500 }, value: job.Label, onChange: function (e, v) {
                             onLabelChange(v);
                         }, inputStyle: { color: 'white' } })
                 );
                 footer = _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0' } },
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: 'rgb(251, 251, 252)', borderTop: '1px solid rgb(236, 239, 241)' } },
                     _react2['default'].createElement(
                         'div',
                         { style: { display: 'flex', alignItems: 'center', padding: '0 16px' } },
@@ -45332,6 +45925,27 @@ var JobGraph = (function (_React$Component) {
                             _this6.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
+
+                actionBar = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: 'rgb(251, 251, 252)', borderBottom: '1px solid rgb(236, 239, 241)', padding: 5 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Action", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewAction: true });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-chip" }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Filter", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewFilter: 'filter' });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-filter-outline" }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Selector", primary: true, onTouchTap: function () {
+                            return _this6.setState({ createNewFilter: 'selector' });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-magnify" }) }),
+                    _react2['default'].createElement('span', { style: { display: 'block', height: 30, width: 1, backgroundColor: '#E0E0E0' } }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Parameters", secondary: !!showParameters, onTouchTap: function () {
+                            return _this6.setState({ showParameters: !showParameters });
+                        }, icon: _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: "mdi mdi-chevron-" + (showParameters ? 'up' : 'down') }) }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Reflow", 'default': true, onTouchTap: function () {
+                            requireLayout();
+                        } })
+                );
             }
 
             return _react2['default'].createElement(
@@ -45346,6 +45960,24 @@ var JobGraph = (function (_React$Component) {
                     },
                     onDismiss: function () {
                         _this6.setState({ createNewAction: false });
+                    }
+                }),
+                _react2['default'].createElement(_CreateFilters2['default'], {
+                    open: createNewFilter,
+                    selectors: createNewFilter === 'selector',
+                    onSubmit: function (newData, newType) {
+                        var emptyModel = undefined;
+                        if (createNewFilter === 'selector') {
+                            emptyModel = new _graphSelector2['default'](newData, newType);
+                        } else {
+                            emptyModel = new _graphFilter2['default'](newData, newType);
+                        }
+                        emptyModel.isTemplate = true;
+                        onEmptyModel(emptyModel);
+                        _this6.setState({ createNewFilter: '' });
+                    },
+                    onDismiss: function () {
+                        _this6.setState({ createNewFilter: '' });
                     }
                 }),
                 _react2['default'].createElement(
@@ -45381,15 +46013,19 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this6.props.onJobSave);
-                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
-                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this6.revertAction();
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onSave(job, _this6.props.onJobSave);
+                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             _this6.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
+                actionBar,
+                editMode && showParameters && _react2['default'].createElement(_JobParameters2['default'], { parameters: job.Parameters, onChange: function (v) {
+                        onJobPropertyChange('Parameters', v);
+                    } }),
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', display: 'flex', minHeight: editMode ? editWindowHeight : null }, ref: "boundingBox" },
@@ -45427,7 +46063,324 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./CreateActions":296,"./actions/editor":302,"./builder/Filters":303,"./builder/FormPanel":305,"./builder/Triggers":314,"./builder/styles":315,"./graph/Action":316,"./graph/ActionFilter":317,"./graph/Configs":318,"./graph/Filter":319,"./graph/JobInput":320,"./graph/Link":321,"./graph/Selector":322,"./graph/Templates":323,"./reducers":326,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],300:[function(require,module,exports){
+},{"./CreateActions":296,"./CreateFilters":297,"./JobParameters":301,"./actions/editor":304,"./builder/Filters":305,"./builder/FormPanel":307,"./builder/Triggers":316,"./builder/styles":317,"./graph/Action":318,"./graph/ActionFilter":319,"./graph/Configs":320,"./graph/Filter":321,"./graph/JobInput":322,"./graph/Link":323,"./graph/Selector":324,"./graph/Templates":325,"./reducers":329,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":293}],301:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+
+var Parameter = (function (_React$Component) {
+    _inherits(Parameter, _React$Component);
+
+    function Parameter(props) {
+        _classCallCheck(this, Parameter);
+
+        _get(Object.getPrototypeOf(Parameter.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            edit: props.edit || false,
+            editParameter: _pydioHttpRestApi.JobsJobParameter.constructFromObject(JSON.parse(JSON.stringify(props.parameter)))
+        };
+    }
+
+    _createClass(Parameter, [{
+        key: 'save',
+        value: function save() {
+            var editParameter = this.state.editParameter;
+            var onChange = this.props.onChange;
+
+            onChange(editParameter);
+            this.setState({ edit: false });
+        }
+    }, {
+        key: 'toggleEdit',
+        value: function toggleEdit() {
+            var edit = this.state.edit;
+
+            this.setState({
+                editParameter: _pydioHttpRestApi.JobsJobParameter.constructFromObject(JSON.parse(JSON.stringify(this.props.parameter))),
+                edit: !edit
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props = this.props;
+            var parameter = _props.parameter;
+            var onChange = _props.onChange;
+            var onDelete = _props.onDelete;
+            var _state = this.state;
+            var edit = _state.edit;
+            var editParameter = _state.editParameter;
+
+            var editChange = function editChange(val) {
+                _this.setState({ editParameter: val });
+            };
+            var blockStyle = { margin: '0 5px' };
+            if (!edit) {
+                var _ret = (function () {
+                    var choices = {};
+                    try {
+                        choices = JSON.parse(parameter.JsonChoices);
+                    } catch (e) {}
+                    return {
+                        v: _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex', alignItems: 'center' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: _extends({}, blockStyle, { fontSize: 15, width: 120 }) },
+                                parameter.Name
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { blockStyle: blockStyle, width: 200 } },
+                                parameter.Type === 'select' && _react2['default'].createElement(
+                                    ModernSelectField,
+                                    { fullWidth: true, hintText: "Value", value: parameter.Value, onChange: function (e, i, v) {
+                                            onChange(_extends({}, parameter, { Value: v }));
+                                        } },
+                                    Object.keys(choices).map(function (k) {
+                                        return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: choices[k] });
+                                    })
+                                ),
+                                parameter.Type === 'text' && _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: "Value", value: parameter.Value, onChange: function (e, v) {
+                                        onChange(_extends({}, parameter, { Value: v }));
+                                    } }),
+                                parameter.Type === 'integer' && _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: "Value", value: parseInt(parameter.Value), type: "number", onChange: function (e, v) {
+                                        onChange(_extends({}, parameter, { Value: parseInt(v) }));
+                                    } }),
+                                parameter.Type === 'boolean' && _react2['default'].createElement(
+                                    ModernSelectField,
+                                    { fullWidth: true, hintText: "Value", value: parameter.Value, onChange: function (e, i, v) {
+                                            onChange(_extends({}, parameter, { Value: v }));
+                                        } },
+                                    _react2['default'].createElement(_materialUi.MenuItem, { value: "true", primaryText: "Yes" }),
+                                    _react2['default'].createElement(_materialUi.MenuItem, { value: "false", primaryText: "No" })
+                                )
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: blockStyle },
+                                parameter.Description
+                            ),
+                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-pencil", tooltip: "Edit", onTouchTap: function () {
+                                    return _this.toggleEdit();
+                                }, iconStyle: { color: '#e0e0e0' } })
+                        )
+                    };
+                })();
+
+                if (typeof _ret === 'object') return _ret.v;
+            }
+            return _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255, 243, 224, 0.22)', borderRadius: 4, border: '1px solid #FFE0B2' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: blockStyle },
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: "Name", value: editParameter.Name, onChange: function (e, v) {
+                            editChange(_extends({}, editParameter, { Name: v }));
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: blockStyle },
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: "Default Value", value: editParameter.Value, onChange: function (e, v) {
+                            editChange(_extends({}, editParameter, { Value: v }));
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: blockStyle },
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: "Description", value: editParameter.Description, onChange: function (e, v) {
+                            editChange(_extends({}, editParameter, { Description: v }));
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, blockStyle, { width: 120 }) },
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: editParameter.Type, onChange: function (e, i, v) {
+                                editChange(_extends({}, editParameter, { Type: v }));
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "text", primaryText: "Text" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "integer", primaryText: "Integer" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "boolean", primaryText: "Boolean" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "select", primaryText: "SelectField" })
+                    )
+                ),
+                editParameter.Type === 'select' && _react2['default'].createElement(
+                    'div',
+                    { style: blockStyle },
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: '{"key":"value"} pairs', value: editParameter.JsonChoices, onChange: function (e, v) {
+                            editChange(_extends({}, editParameter, { JsonChoices: v }));
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: blockStyle },
+                    _react2['default'].createElement(_materialUi.Checkbox, { label: "Mandatory", checked: editParameter.Mandatory, onCheck: function (e, v) {
+                            editChange(_extends({}, editParameter, { Mandatory: v }));
+                        } })
+                ),
+                _react2['default'].createElement('div', { style: { flex: 1 } }),
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo", tooltip: "Close", onTouchTap: function () {
+                        return _this.toggleEdit();
+                    }, iconStyle: { color: '#9e9e9e' } }),
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-check", tooltip: "Save", onTouchTap: function () {
+                        return _this.save();
+                    }, iconStyle: { color: '#9e9e9e' } }),
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: "Remove", onTouchTap: function () {
+                        onDelete();
+                    }, iconStyle: { color: '#9e9e9e' } })
+            );
+        }
+    }]);
+
+    return Parameter;
+})(_react2['default'].Component);
+
+var JobParameters = (function (_React$Component2) {
+    _inherits(JobParameters, _React$Component2);
+
+    function JobParameters(props) {
+        _classCallCheck(this, JobParameters);
+
+        _get(Object.getPrototypeOf(JobParameters.prototype), 'constructor', this).call(this, props);
+        /*
+        // For testing
+        parameters = [
+            {"Name":"RecyclePath","Description":"This is a description","Value":"recycle_bin","Type":"text","edit":true},
+            {"Name":"AnotherParam","Description":"","Value":"true","Type":"boolean","edit":true},
+            {"Name":"SelectValues","Description":"Delete users recycles as well","Value":"key1","Type":"select","JsonChoices":"{\"key1\":\"value1\"}","edit":true}
+            ];
+        */
+    }
+
+    _createClass(JobParameters, [{
+        key: 'changeParam',
+        value: function changeParam(index, newParam) {
+            var _props2 = this.props;
+            var onChange = _props2.onChange;
+            var _props2$parameters = _props2.parameters;
+            var parameters = _props2$parameters === undefined ? [] : _props2$parameters;
+
+            var pp = parameters.map(function (p, i) {
+                return i === index ? newParam : p;
+            });
+            onChange(pp);
+        }
+    }, {
+        key: 'removeParam',
+        value: function removeParam(index) {
+            var _props3 = this.props;
+            var onChange = _props3.onChange;
+            var _props3$parameters = _props3.parameters;
+            var parameters = _props3$parameters === undefined ? [] : _props3$parameters;
+
+            var pp = parameters.filter(function (p, i) {
+                return i !== index;
+            });
+            onChange(pp);
+        }
+    }, {
+        key: 'addParam',
+        value: function addParam() {
+            var _props4 = this.props;
+            var onChange = _props4.onChange;
+            var _props4$parameters = _props4.parameters;
+            var parameters = _props4$parameters === undefined ? [] : _props4$parameters;
+
+            var newP = new _pydioHttpRestApi.JobsJobParameter();
+            newP.Type = 'text';
+            newP.edit = true;
+            onChange([].concat(_toConsumableArray(parameters), [newP]));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            var _props$parameters = this.props.parameters;
+            var parameters = _props$parameters === undefined ? [] : _props$parameters;
+
+            return _react2['default'].createElement(
+                'div',
+                { style: { borderBottom: '1px solid rgb(236, 239, 241)' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', padding: '0 10px' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1, padding: '16px 10px' } },
+                        'Job-level parameters can be used by actions, filters and selectors.'
+                    ),
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", tooltip: "Add Parameter", onTouchTap: function () {
+                            return _this2.addParam();
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16, paddingTop: 0 } },
+                    parameters.length === 0 && _react2['default'].createElement(
+                        'div',
+                        { style: { textAlign: 'center', fontStyle: 'italic', fontWeight: 500, color: '#90A4AE' } },
+                        'No parameters defined'
+                    ),
+                    parameters.map(function (p, i) {
+                        return _react2['default'].createElement(Parameter, { key: p.Name || "p-" + i, onChange: function (v) {
+                                _this2.changeParam(i, v);
+                            }, onDelete: function () {
+                                return _this2.removeParam(i);
+                            }, parameter: p, edit: p.edit });
+                    })
+                )
+            );
+        }
+    }]);
+
+    return JobParameters;
+})(_react2['default'].Component);
+
+exports['default'] = JobParameters;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],302:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45812,7 +46765,7 @@ var JobSchedule = (function (_React$Component) {
 
             var dTRead = '0:00';
             if (daytime) {
-                dTRead = moment(daytime).format('h:mm');
+                dTRead = moment(daytime).format('h:mm a');
             }
             switch (frequency) {
                 case "manual":
@@ -45850,7 +46803,7 @@ var JobSchedule = (function (_React$Component) {
 exports['default'] = JobSchedule;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],301:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],303:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -46120,7 +47073,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],302:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],304:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46314,11 +47267,12 @@ function jobChangedAction(job, descriptions, editMode) {
     };
 }
 
-function removeModelAction(model, parentModel) {
+function removeModelAction(model, parentModel, removeFilter) {
     return {
         type: REMOVE_MODEL_ACTION,
         model: model,
-        parentModel: parentModel
+        parentModel: parentModel,
+        removeFilter: removeFilter
     };
 }
 
@@ -46388,7 +47342,7 @@ function revertAction(original) {
     };
 }
 
-},{}],303:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46544,7 +47498,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"../graph/Configs":318,"./QueryBuilder":308,"./styles":315,"material-ui":"material-ui","react":"react"}],304:[function(require,module,exports){
+},{"../graph/Configs":320,"./QueryBuilder":310,"./styles":317,"material-ui":"material-ui","react":"react"}],306:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46620,7 +47574,7 @@ FormLoader.FormsCache = {};
 exports['default'] = FormLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],305:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],307:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46656,6 +47610,14 @@ var _actionsEditor = require("../actions/editor");
 var _FormLoader = require('./FormLoader');
 
 var _FormLoader2 = _interopRequireDefault(_FormLoader);
+
+var _graphTplManager = require('../graph/TplManager');
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -46919,6 +47881,20 @@ var FormPanel = (function (_React$Component) {
             );
         }
     }, {
+        key: 'saveAsTemplate',
+        value: function saveAsTemplate() {
+            var action = this.state.action;
+
+            var copy = _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action)));
+            delete copy.ChainedActions;
+            delete copy.FailedActions;
+            _graphTplManager2['default'].getInstance().saveAction((0, _uuid42['default'])(), copy).then(function () {
+                _pydio2['default'].getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
+            })['catch'](function (e) {
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', e.message);
+            });
+        }
+    }, {
         key: 'save',
         value: function save() {
             var _props2 = this.props;
@@ -47063,7 +48039,7 @@ var FormPanel = (function (_React$Component) {
                         }, fullWidth: true })
                 ));
             }
-            if (create) {
+            if (inDialog) {
                 children.push(_react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
@@ -47073,6 +48049,14 @@ var FormPanel = (function (_React$Component) {
                         disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY || !valid,
                         onTouchTap: function () {
                             _this4.save();onDismiss();
+                        } })
+                ));
+            } else {
+                children.push(_react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Save as template", onTouchTap: function () {
+                            _this4.saveAsTemplate();
                         } })
                 ));
             }
@@ -47089,7 +48073,7 @@ var FormPanel = (function (_React$Component) {
                         title: actionInfo.Label,
                         icon: actionInfo.Icon,
                         onDismiss: onDismiss,
-                        saveButtons: !create,
+                        saveButtons: !create && !inDialog,
                         onSave: save,
                         onRevert: revert,
                         onRemove: onRemove
@@ -47106,7 +48090,7 @@ var FormPanel = (function (_React$Component) {
 exports['default'] = FormPanel;
 module.exports = exports['default'];
 
-},{"../actions/editor":302,"./FormLoader":304,"./styles":315,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],306:[function(require,module,exports){
+},{"../actions/editor":304,"../graph/TplManager":326,"./FormLoader":306,"./styles":317,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":295}],308:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47392,7 +48376,7 @@ var ProtoValue = (function (_React$Component) {
 exports['default'] = ProtoValue;
 module.exports = exports['default'];
 
-},{"./FormLoader":304,"material-ui":"material-ui","pydio":"pydio","react":"react"}],307:[function(require,module,exports){
+},{"./FormLoader":306,"material-ui":"material-ui","pydio":"pydio","react":"react"}],309:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47509,7 +48493,7 @@ var Query = (function (_shapes$devs$Model) {
 exports["default"] = Query;
 module.exports = exports["default"];
 
-},{"../graph/Configs":318,"jointjs":52}],308:[function(require,module,exports){
+},{"../graph/Configs":320,"jointjs":52}],310:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47535,6 +48519,10 @@ var _react2 = _interopRequireDefault(_react);
 var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
@@ -47579,6 +48567,14 @@ var _ProtoValue = require("./ProtoValue");
 var _ProtoValue2 = _interopRequireDefault(_ProtoValue);
 
 var _styles = require("./styles");
+
+var _graphTplManager = require("../graph/TplManager");
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _uuid4 = require("uuid4");
+
+var _uuid42 = _interopRequireDefault(_uuid4);
 
 var margin = 20;
 
@@ -48235,7 +49231,13 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'setDirty',
         value: function setDirty() {
-            this.setState({ dirty: true });
+            var autoSave = this.props.autoSave;
+
+            if (autoSave) {
+                this.save();
+            } else {
+                this.setState({ dirty: true });
+            }
         }
     }, {
         key: 'revert',
@@ -48264,6 +49266,28 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'saveAsTemplate',
+        value: function saveAsTemplate() {
+            var _state3 = this.state;
+            var query = _state3.query;
+            var queryType = _state3.queryType;
+
+            var label = prompt('provide a label');
+
+            var _detectTypes8 = this.detectTypes(query);
+
+            var modelType = _detectTypes8.modelType;
+
+            if (modelType === 'node') {
+                modelType = 'nodes';
+            }
+            _graphTplManager2['default'].getInstance().saveSelector((0, _uuid42['default'])(), queryType !== 'selector', label, label, modelType, query).then(function () {
+                _pydio2['default'].getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
+            })['catch'](function (e) {
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', e.message);
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this7 = this;
@@ -48271,19 +49295,20 @@ var QueryBuilder = (function (_React$Component) {
             var _props3 = this.props;
             var queryType = _props3.queryType;
             var style = _props3.style;
-            var _state3 = this.state;
-            var query = _state3.query;
-            var selectedProto = _state3.selectedProto;
-            var selectedFieldName = _state3.selectedFieldName;
-            var dirty = _state3.dirty;
-            var aPosition = _state3.aPosition;
-            var aSize = _state3.aSize;
-            var aScrollLeft = _state3.aScrollLeft;
+            var autoSave = _props3.autoSave;
+            var _state4 = this.state;
+            var query = _state4.query;
+            var selectedProto = _state4.selectedProto;
+            var selectedFieldName = _state4.selectedFieldName;
+            var dirty = _state4.dirty;
+            var aPosition = _state4.aPosition;
+            var aSize = _state4.aSize;
+            var aScrollLeft = _state4.aScrollLeft;
 
-            var _detectTypes8 = this.detectTypes(query);
+            var _detectTypes9 = this.detectTypes(query);
 
-            var objectType = _detectTypes8.objectType;
-            var singleQuery = _detectTypes8.singleQuery;
+            var objectType = _detectTypes9.objectType;
+            var singleQuery = _detectTypes9.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
@@ -48303,13 +49328,13 @@ var QueryBuilder = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
-                    _react2['default'].createElement(
+                    !autoSave && _react2['default'].createElement(
                         'div',
                         null,
                         _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: dirty ? function () {
                                 _this7.revert();
                             } : function () {}, style: bStyles }),
-                        _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: dirty ? function () {
+                        _react2['default'].createElement('span', { className: "mdi mdi-check", onClick: dirty ? function () {
                                 _this7.save();
                             } : function () {}, style: bStyles }),
                         _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
@@ -48348,7 +49373,14 @@ var QueryBuilder = (function (_React$Component) {
                         _this7.clearSelection();
                     },
                     style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
-                })
+                }),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Save as template", onTouchTap: function () {
+                            _this7.saveAsTemplate();
+                        } })
+                )
             );
         }
     }], [{
@@ -48396,7 +49428,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":321,"./ProtoValue":306,"./Query":307,"./QueryCluster":309,"./QueryConnector":310,"./QueryInput":311,"./QueryOutput":312,"./styles":315,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],309:[function(require,module,exports){
+},{"../graph/Link":323,"../graph/TplManager":326,"./ProtoValue":308,"./Query":309,"./QueryCluster":311,"./QueryConnector":312,"./QueryInput":313,"./QueryOutput":314,"./styles":317,"dagre":2,"graphlib":32,"jointjs":52,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","uuid4":295}],311:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48513,7 +49545,7 @@ var QueryCluster = (function (_shapes$basic$Rect) {
 exports['default'] = QueryCluster;
 module.exports = exports['default'];
 
-},{"../graph/Configs":318,"jointjs":52}],310:[function(require,module,exports){
+},{"../graph/Configs":320,"jointjs":52}],312:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48560,7 +49592,7 @@ var QueryConnector = (function (_shapes$devs$Model) {
 exports['default'] = QueryConnector;
 module.exports = exports['default'];
 
-},{"../graph/Configs":318,"jointjs":52}],311:[function(require,module,exports){
+},{"../graph/Configs":320,"jointjs":52}],313:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48610,7 +49642,7 @@ var QueryInput = (function (_shapes$devs$Model) {
 exports['default'] = QueryInput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":318,"jointjs":52}],312:[function(require,module,exports){
+},{"../graph/Configs":320,"jointjs":52}],314:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48655,7 +49687,7 @@ var QueryOutput = (function (_shapes$devs$Model) {
 exports['default'] = QueryOutput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":318,"jointjs":52}],313:[function(require,module,exports){
+},{"../graph/Configs":320,"jointjs":52}],315:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -48998,7 +50030,7 @@ var ScheduleForm = (function (_React$Component) {
 
             var dTRead = '0:00';
             if (daytime) {
-                dTRead = moment(daytime).format('h:mm');
+                dTRead = moment(daytime).format('h:mm a');
             }
             switch (frequency) {
                 case "manual":
@@ -49036,12 +50068,14 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"../graph/Configs":318,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],314:[function(require,module,exports){
+},{"../graph/Configs":320,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],316:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -49075,41 +50109,151 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _graphConfigs = require("../graph/Configs");
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
-var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var Stepper = _Pydio$requireLib.Stepper;
+var Dialog = Stepper.Dialog;
+var PanelBigButtons = Stepper.PanelBigButtons;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
 
 var eventMessages = {
     NODE_CHANGE: {
-        '0': 'trigger.create.node',
-        '1': 'trigger.read.node',
-        '2': 'trigger.update.path',
-        '3': 'trigger.update.content',
-        '4': 'trigger.update.metadata',
-        '5': 'trigger.delete.node',
-        '6': 'trigger.update.user-metadata'
+        title: 'Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically.',
+        '0': {
+            title: 'trigger.create.node',
+            icon: 'file-plus',
+            description: 'A new file was uploaded or a new folder was created'
+        },
+        '1': {
+            title: 'trigger.read.node',
+            icon: 'eye',
+            description: 'A file was downloaded or a folder content was listed'
+        },
+        '2': {
+            title: 'trigger.update.path',
+            icon: 'folder-move',
+            description: 'A file or folder was moved or renamed'
+        },
+        '3': {
+            title: 'trigger.update.content',
+            icon: 'content-save',
+            description: 'A file content was updated by edition or upload overwriting'
+        },
+        '5': {
+            title: 'trigger.delete.node',
+            icon: 'delete',
+            description: 'A file or a folder was definitively deleted'
+        },
+        '4': {
+            title: 'trigger.update.metadata',
+            icon: 'tag',
+            description: 'Internal metadata were modified on file or folder'
+        },
+        '6': {
+            title: 'trigger.update.user-metadata',
+            icon: 'tag-multiple',
+            description: 'User-defined metadata were modified (event contains updated metadata)'
+        }
     },
     IDM_CHANGE: {
         USER: {
-            '0': 'trigger.create.user',
-            '1': 'trigger.read.user',
-            '2': 'trigger.update.user',
-            '3': 'trigger.delete.user',
-            '4': 'trigger.bind.user',
-            '5': 'trigger.logout.user'
+            title: 'User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses.',
+            '0': {
+                title: 'trigger.create.user',
+                icon: 'account-plus',
+                tint: '#009688',
+                description: 'A user or a group was created'
+            },
+            '1': {
+                title: 'trigger.read.user',
+                icon: 'account',
+                tint: '#009688',
+                description: 'A user or a group was accessed'
+            },
+            '2': {
+                title: 'trigger.update.user',
+                icon: 'account-box',
+                tint: '#009688',
+                description: 'A user or a group data was updated'
+            },
+            '3': {
+                title: 'trigger.delete.user',
+                icon: 'account-minus',
+                tint: '#009688',
+                description: 'A user or a group was deleted'
+            },
+            '4': {
+                title: 'trigger.bind.user',
+                icon: 'login',
+                tint: '#009688',
+                description: 'A user has logged in'
+            },
+            '5': {
+                title: 'trigger.logout.user',
+                icon: 'logout',
+                tint: '#009688',
+                description: 'A user has logged out'
+            }
         },
-        // TODO I18N
         ROLE: {
-            '0': 'Create Role',
-            '3': 'Delete Role'
+            title: 'Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles.',
+            '0': {
+                title: 'Create Role',
+                icon: 'account-card-details',
+                tint: '#607d8b',
+                description: 'New role created.'
+            },
+            '2': {
+                title: 'Update Role',
+                icon: 'pencil',
+                tint: '#607d8b',
+                description: 'A role has been updated'
+            },
+            '3': {
+                title: 'Delete Role',
+                icon: 'delete-forever',
+                tint: '#607d8b',
+                description: 'A role has been deleted'
+            }
         },
         WORKSPACE: {
-            '0': 'Create Workspace',
-            '3': 'Delete Workspace'
+            title: 'Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells',
+            '0': {
+                title: 'Create Workspace',
+                icon: 'folder-plus',
+                tint: '#ff9800',
+                description: 'A workspace has been created'
+            },
+            '2': {
+                title: 'Update Workspace',
+                icon: 'pencil',
+                tint: '#ff9800',
+                description: 'A workspace has been updated'
+            },
+            '3': {
+                title: 'Delete Workspace',
+                icon: 'delete-forever',
+                tint: '#ff9800',
+                description: 'New file uploaded or folder created'
+            }
         },
         ACL: {
-            '0': 'Create Acl',
-            '3': 'Delete Acl'
+            title: 'ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data.',
+            '0': {
+                title: 'Create Acl',
+                icon: 'view-list',
+                tint: '#795548',
+                description: 'An access control has been opened'
+            },
+            '3': {
+                title: 'Delete Acl',
+                icon: 'delete-forever',
+                tint: '#795548',
+                description: 'An access control has been closed'
+            }
         }
     }
 };
@@ -49165,31 +50309,43 @@ var Events = (function (_React$Component) {
 
             var data = [];
             Object.keys(s).forEach(function (k) {
+                if (k === 'title') {
+                    return;
+                }
                 if (isNaN(k) && k !== 'IDM_CHANGE') {
-                    data.push({ header: k });
+                    data.push({ header: s[k].title });
                 }
                 var v = s[k];
-                if (typeof v === 'string') {
-                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
-                } else {
+                if (isNaN(k)) {
                     data.push.apply(data, _toConsumableArray(_this.flatStruct(v, [].concat(_toConsumableArray(pref), [k]))));
+                } else {
+                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
                 }
             });
             return data;
+        }
+    }, {
+        key: 'dismiss',
+        value: function dismiss() {
+            this.setState({ open: false, filter: '' });
         }
     }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
 
-            var objEvents = this.state.objEvents;
+            var _state = this.state;
+            var objEvents = _state.objEvents;
+            var open = _state.open;
+            var filter = _state.filter;
 
             var flat = this.flatStruct(eventMessages);
             var list = [];
             Object.keys(objEvents).forEach(function (e) {
                 list.push(_react2['default'].createElement(_materialUi.ListItem, {
                     key: e,
-                    primaryText: Events.eventLabel(e, Events.T),
+                    disabled: true,
+                    primaryText: Events.eventData(e).title,
                     rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: _graphConfigs.LightGrey }, onTouchTap: function () {
                             _this2.remove(e);
                         } })
@@ -49198,31 +50354,54 @@ var Events = (function (_React$Component) {
             });
             list.pop();
 
+            var model = { Sections: [] };
+            var section = undefined;
+            flat.forEach(function (k) {
+                if (k.header) {
+                    if (section && section.Actions.length) {
+                        model.Sections.push(section);
+                    }
+                    // Reset section
+                    section = { title: k.header, Actions: [] };
+                } else {
+                    var eData = Events.eventData(k);
+                    if (filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1) {
+                        return;
+                    }
+                    section.Actions.push(_extends({}, eData, { value: k }));
+                }
+            });
+            // Append last
+            if (section) {
+                model.Sections.push(section);
+            }
+
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    ModernSelectField,
-                    { fullWidth: true, value: -1, onChange: function (e, i, v) {
-                            _this2.add(v);
-                        } },
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
-                    flat.map(function (f) {
-                        if (f.header) {
-                            return _react2['default'].createElement(
-                                _materialUi.Subheader,
-                                null,
-                                f.header
-                            );
-                        } else {
-                            if (objEvents[f]) {
-                                // already registered
-                                return null;
-                            }
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                    Dialog,
+                    {
+                        title: "Trigger job on...",
+                        open: open,
+                        dialogProps: {},
+                        onDismiss: function () {
+                            _this2.dismiss();
+                        },
+                        onFilter: function (v) {
+                            _this2.setState({ filter: v.toLowerCase() });
+                        }
+                    },
+                    _react2['default'].createElement(PanelBigButtons, {
+                        model: model,
+                        onPick: function (eventId) {
+                            _this2.add(eventId);_this2.dismiss();
                         }
                     })
                 ),
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onTouchTap: function () {
+                        return _this2.setState({ open: true });
+                    }, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pulse" }) }),
                 _react2['default'].createElement(
                     _materialUi.List,
                     null,
@@ -49231,17 +50410,24 @@ var Events = (function (_React$Component) {
             );
         }
     }], [{
-        key: 'eventLabel',
-        value: function eventLabel(e, T) {
+        key: 'eventData',
+        value: function eventData(e) {
 
             var parts = e.split(':');
+            var data = undefined;
             if (parts.length === 2 && eventMessages[parts[0]]) {
-                return T(eventMessages[parts[0]][parts[1]]);
+                data = eventMessages[parts[0]][parts[1]];
             } else if (parts.length === 3 && eventMessages[parts[0]] && eventMessages[parts[0]][parts[1]] && eventMessages[parts[0]][parts[1]][parts[2]]) {
-                return T(eventMessages[parts[0]][parts[1]][parts[2]]);
+                data = eventMessages[parts[0]][parts[1]][parts[2]];
             } else {
-                return e;
+                data = { title: e, icon: 'pulse', description: '' };
             }
+            return {
+                title: Events.T(data.title),
+                description: Events.T(data.description),
+                icon: 'mdi mdi-' + data.icon,
+                tint: data.tint
+            };
         }
     }, {
         key: 'T',
@@ -49327,7 +50513,7 @@ var Triggers = (function (_React$Component2) {
 exports.Triggers = Triggers;
 exports.Events = Events;
 
-},{"../graph/Configs":318,"./ScheduleForm":313,"./styles":315,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],315:[function(require,module,exports){
+},{"../graph/Configs":320,"./ScheduleForm":315,"./styles":317,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],317:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49443,7 +50629,7 @@ var RightPanel = (function (_React$Component) {
                     ),
                     titleAdditional,
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
-                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-check', onClick: onSave, style: bStyles }),
                     onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
@@ -49476,7 +50662,7 @@ exports.position = position;
 exports.RightPanel = RightPanel;
 exports.getCssStyle = getCssStyle;
 
-},{"material-ui":"material-ui","react":"react"}],316:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],318:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49545,8 +50731,10 @@ var Action = (function (_shapes$devs$Model) {
                 'separator': { display: 'none', x1: 44, y1: 0, x2: 44, y2: _Configs.BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
+                'filter-count': { display: 'none', refX: 33 },
                 'selector-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
                 'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Stale, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'selector-count': { display: 'none', refX: 33 },
                 'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle' }
             },
             ports: _Configs.PortsConfig
@@ -49593,8 +50781,8 @@ var Action = (function (_shapes$devs$Model) {
         value: function notifyJobModel(action) {
             this._jobModel = action;
             action.model = this;
-            this.setFilter(false);
-            this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
+            this.setFilter(0);
+            this.setSelector((action.NodesSelector ? 1 : 0) + (action.IdmSelector ? 1 : 0) + (action.UsersSelector ? 1 : 0));
             this.attr('text/text', Action.computeLabel(action, this._descriptions));
         }
     }, {
@@ -49674,7 +50862,7 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"../actions/editor":302,"./ActionFilter":317,"./Configs":318,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],317:[function(require,module,exports){
+},{"../actions/editor":304,"./ActionFilter":319,"./Configs":320,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],319:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49790,7 +50978,7 @@ var ActionFilter = (function (_shapes$devs$Model) {
 exports['default'] = ActionFilter;
 module.exports = exports['default'];
 
-},{"./Configs":318,"jointjs":52}],318:[function(require,module,exports){
+},{"./Configs":320,"jointjs":52}],320:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49870,11 +51058,17 @@ var TextIconFilterMarkup = [{
     tagName: 'text',
     selector: 'filter-icon'
 }, {
+    tagName: 'text',
+    selector: 'filter-count'
+}, {
     tagName: 'rect',
     selector: 'selector-rect'
 }, {
     tagName: 'text',
     selector: 'selector-icon'
+}, {
+    tagName: 'text',
+    selector: 'selector-count'
 }, {
     tagName: 'text',
     selector: 'legend'
@@ -50046,8 +51240,10 @@ function positionFilters(model, originalBox, filter, selector) {
             'separator': { display: 'none' },
             'filter-rect': { display: 'none' },
             'filter-icon': { display: 'none' },
+            'filter-count': { display: 'none' },
             'selector-rect': { display: 'none' },
-            'selector-icon': { display: 'none' }
+            'selector-icon': { display: 'none' },
+            'selector-count': { display: 'none' }
         });
         return;
     }
@@ -50064,30 +51260,33 @@ function positionFilters(model, originalBox, filter, selector) {
     var multiple = selector && filter;
 
     var position = undefined;
-    position = function (i) {
+    position = function (i, count) {
         return {
             rect: { display: 'initial', refY: '50%', refY2: i * 14 - 12 },
-            icon: { display: 'initial', refY: '50%', refY2: i * 14 - 3 }
+            icon: { display: 'initial', refY: '50%', refY2: i * 14 - 3 },
+            count: { text: count, 'font-size': 12, display: count > 1 ? 'initial' : 'none', refY: '50%', refY2: i * 14 - 17 }
         };
     };
     var filterPosition = undefined,
         selectorPosition = undefined;
-    var hide = { rect: { display: 'none' }, icon: { display: 'none' } };
+    var hide = { rect: { display: 'none' }, icon: { display: 'none' }, count: { display: 'none' } };
     if (multiple) {
-        filterPosition = position(-1);
-        selectorPosition = position(1);
+        filterPosition = position(-1, filter);
+        selectorPosition = position(1, selector);
     } else if (filter) {
-        filterPosition = position(0);
+        filterPosition = position(0, filter);
         selectorPosition = hide;
     } else if (selector) {
         filterPosition = hide;
-        selectorPosition = position(0);
+        selectorPosition = position(0, selector);
     }
     model.attr({
         'filter-rect': filterPosition.rect,
         'filter-icon': filterPosition.icon,
+        'filter-count': filterPosition.count,
         'selector-rect': selectorPosition.rect,
-        'selector-icon': selectorPosition.icon
+        'selector-icon': selectorPosition.icon,
+        'selector-count': selectorPosition.count
     });
 }
 
@@ -50176,7 +51375,7 @@ exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
 exports.DropShadow = dropShadow;
 
-},{"pydio/http/rest-api":"pydio/http/rest-api"}],319:[function(require,module,exports){
+},{"pydio/http/rest-api":"pydio/http/rest-api"}],321:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50281,7 +51480,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports["default"] = Filter;
 module.exports = exports["default"];
 
-},{"./Configs":318,"jointjs":52}],320:[function(require,module,exports){
+},{"./Configs":320,"jointjs":52}],322:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50294,13 +51493,23 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _jointjs = require('jointjs');
 
 var _Configs = require("./Configs");
+
+var _builderScheduleForm = require('../builder/ScheduleForm');
+
+var _builderScheduleForm2 = _interopRequireDefault(_builderScheduleForm);
 
 var JobInput = (function (_shapes$devs$Model) {
     _inherits(JobInput, _shapes$devs$Model);
@@ -50324,8 +51533,10 @@ var JobInput = (function (_shapes$devs$Model) {
                 'separator': { display: 'none', x1: largeBoxWidth - 44, y1: 0, x2: largeBoxWidth - 44, y2: _Configs.BoxSize.height, stroke: _Configs.LightGrey, 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
+                'filter-count': { display: 'none', stroke: 'rgba(0,0,0,.5)', 'font-weight': 300, refX: largeBoxWidth - 12 },
                 'selector-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
                 'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'selector-count': { display: 'none', stroke: 'rgba(0,0,0,.5)', 'font-weight': 300, refX: largeBoxWidth - 12 },
                 'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '120%', 'font-weight': 500, 'text-anchor': 'middle', textWrap: { width: -10, height: '50%' } }
             },
             ports: _Configs.PortsConfig
@@ -50336,33 +51547,32 @@ var JobInput = (function (_shapes$devs$Model) {
     _createClass(JobInput, [{
         key: 'notifyJobModel',
         value: function notifyJobModel(job) {
-            this.setFilter(false);
-            this.setSelector(false);
-            if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter || job.ContextMetaFilter) {
-                this.setFilter(true);
-            }
-            if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
-                this.setSelector(true);
-            }
+
+            this.setFilter((job.NodeEventFilter ? 1 : 0) + (job.IdmFilter ? 1 : 0) + (job.UserEventFilter ? 1 : 0) + (job.ContextMetaFilter ? 1 : 0));
+            this.setSelector((job.NodesSelector ? 1 : 0) + (job.IdmSelector ? 1 : 0) + (job.UsersSelector ? 1 : 0));
 
             var label = 'Manual Trigger';
             var icon = (0, _Configs.IconToUnicode)('gesture-tap');
             if (job.EventNames) {
-                var parts = job.EventNames[0].split(":");
-                var eventType = parts.shift();
-                if (eventType === 'IDM_CHANGE') {
-                    eventType = parts.shift().toLowerCase();
-                    eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
-                } else {
-                    eventType = 'Node';
+                label = 'Event';
+                if (job.EventNames.length) {
+                    var parts = job.EventNames[0].split(":");
+                    var eventType = parts.shift();
+                    if (eventType === 'IDM_CHANGE') {
+                        eventType = parts.shift().toLowerCase();
+                        eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
+                    } else {
+                        eventType = 'Node';
+                    }
+                    label = eventType + ' Events';
                 }
-                label = eventType + ' Events';
                 // mdi-pulse
                 icon = (0, _Configs.IconToUnicode)('pulse');
             } else if (job.Schedule) {
-                //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
-                label = 'Schedule';
-                // mdi-clock
+                var state = _builderScheduleForm2['default'].parseIso8601(job.Schedule.Iso8601Schedule);
+                label = _builderScheduleForm2['default'].readableString(state, function (id) {
+                    return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
+                }, true);
                 icon = (0, _Configs.IconToUnicode)('clock');
             }
 
@@ -50427,7 +51637,7 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":318,"jointjs":52}],321:[function(require,module,exports){
+},{"../builder/ScheduleForm":315,"./Configs":320,"jointjs":52,"pydio":"pydio"}],323:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50474,7 +51684,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":318,"jointjs":52}],322:[function(require,module,exports){
+},{"./Configs":320,"jointjs":52}],324:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50567,7 +51777,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":318,"jointjs":52}],323:[function(require,module,exports){
+},{"./Configs":320,"jointjs":52}],325:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50849,7 +52059,189 @@ var Templates = (function (_shapes$standard$Path) {
 exports["default"] = Templates;
 module.exports = exports["default"];
 
-},{"./Configs":318,"./Filter":319,"./Selector":322,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],324:[function(require,module,exports){
+},{"./Configs":320,"./Filter":321,"./Selector":324,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],326:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var TplManager = (function () {
+    _createClass(TplManager, null, [{
+        key: 'getInstance',
+        value: function getInstance() {
+            if (!TplManager.instance) {
+                TplManager.instance = new TplManager();
+            }
+            return TplManager.instance;
+        }
+    }]);
+
+    function TplManager() {
+        _classCallCheck(this, TplManager);
+    }
+
+    _createClass(TplManager, [{
+        key: 'getSdk',
+        value: function getSdk() {
+            return _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK');
+        }
+    }, {
+        key: 'listJobs',
+        value: function listJobs() {}
+    }, {
+        key: 'saveJob',
+        value: function saveJob(id, job) {}
+    }, {
+        key: 'deleteJob',
+        value: function deleteJob(id) {}
+    }, {
+        key: 'listSelectors',
+        value: function listSelectors() {
+            return this.getSdk().then(function (sdk) {
+                var EntListSelectorTemplatesRequest = sdk.EntListSelectorTemplatesRequest;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.listSelectorTemplates(new EntListSelectorTemplatesRequest()).then(function (result) {
+                    var data = {
+                        filters: { nodes: [], idm: [], context: [], output: [] },
+                        selectors: { nodes: [], idm: [], context: [], output: [] }
+                    };
+                    var tt = result.Templates || [];
+                    tt.forEach(function (t) {
+                        var first = 'selectors';
+                        var second = undefined;
+                        if (t.AsFilter) {
+                            first = 'filters';
+                        }
+                        if (t.IdmSelector) {
+                            second = 'idm';
+                        } else if (t.ActionOutputFilter) {
+                            second = 'output';
+                        } else if (t.ContextMetaFilter) {
+                            second = 'context';
+                        } else {
+                            second = 'nodes';
+                        }
+                        data[first][second].push(t);
+                    });
+                    return data;
+                });
+            });
+        }
+    }, {
+        key: 'saveSelector',
+        value: function saveSelector(id, asFilter, label, description, type, data) {
+            return this.getSdk().then(function (sdk) {
+                var EntPutSelectorTemplateRequest = sdk.EntPutSelectorTemplateRequest;
+                var EntSelectorTemplate = sdk.EntSelectorTemplate;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var req = new EntPutSelectorTemplateRequest();
+                var tpl = new EntSelectorTemplate();
+                tpl.Name = id;
+                tpl.AsFilter = asFilter;
+                tpl.Label = label;
+                tpl.Description = description;
+                switch (type) {
+                    case "idm":
+                        tpl.IdmSelector = data;
+                        break;
+                    case "context":
+                        tpl.ContextMetaFilter = data;
+                        break;
+                    case "output":
+                        tpl.ActionOutputFilter = data;
+                        break;
+                    default:
+                        tpl.NodesSelector = data;
+                        break;
+
+                }
+                req.Template = tpl;
+                return api.putSelectorTemplate(req);
+            });
+        }
+    }, {
+        key: 'deleteSelector',
+        value: function deleteSelector(id) {
+            return this.getSdk().then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.deleteSelectorTemplate(id);
+            });
+        }
+    }, {
+        key: 'listActions',
+        value: function listActions() {
+            return this.getSdk().then(function (sdk) {
+                var EntListActionTemplatesRequest = sdk.EntListActionTemplatesRequest;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.listActionTemplates(new EntListActionTemplatesRequest()).then(function (result) {
+                    var tt = result.Templates || [];
+                    return tt.map(function (t) {
+                        var a = t.Action;
+                        a.TemplateName = t.Name;
+                        return a;
+                    });
+                });
+            });
+        }
+    }, {
+        key: 'saveAction',
+        value: function saveAction(id, action) {
+            return this.getSdk().then(function (sdk) {
+                var EntPutActionTemplateRequest = sdk.EntPutActionTemplateRequest;
+                var EntActionTemplate = sdk.EntActionTemplate;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var req = new EntPutActionTemplateRequest();
+                var tpl = new EntActionTemplate();
+                tpl.Name = id;
+                tpl.Action = action;
+                req.Template = tpl;
+                return api.putActionTemplate(req);
+            });
+        }
+    }, {
+        key: 'deleteAction',
+        value: function deleteAction(tplName) {
+            return this.getSdk().then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.deleteActionTemplate(tplName);
+            });
+        }
+    }]);
+
+    return TplManager;
+})();
+
+exports['default'] = TplManager;
+module.exports = exports['default'];
+
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager"}],327:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -50925,7 +52317,7 @@ function descriptions(state, action) {
 
 exports["default"] = editor;
 
-},{"../actions/editor":302,"pydio/http/rest-api":"pydio/http/rest-api"}],325:[function(require,module,exports){
+},{"../actions/editor":304,"pydio/http/rest-api":"pydio/http/rest-api"}],328:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51022,7 +52414,7 @@ function layoutReducer(state, action) {
                 edgeSep: 48,
                 rankSep: 128,
                 rankDir: "LR",
-                marginX: editMode ? 160 : 32,
+                marginX: /*editMode ? 160 :*/32, // OFFSET FOR TEMPLATE PANEL
                 marginY: 32,
                 dagre: _dagre2["default"],
                 graphlib: _graphlib2["default"]
@@ -51115,7 +52507,8 @@ function graphReducer(graph, action) {
         case _actionsEditor.EMPTY_MODEL_ACTION:
             var model = action.model;
 
-            model.position(160, 200);
+            //model.position(160, 200);
+            model.position(32, 200);
             model.addTo(graph);
             return graph;
         default:
@@ -51126,7 +52519,7 @@ function graphReducer(graph, action) {
 exports.graphReducer = graphReducer;
 exports.layoutReducer = layoutReducer;
 
-},{"../JobGraph":299,"../actions/editor":302,"../graph/Action":316,"../graph/JobInput":320,"../graph/Link":321,"../graph/Templates":323,"dagre":2,"graphlib":32,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],326:[function(require,module,exports){
+},{"../JobGraph":300,"../actions/editor":304,"../graph/Action":318,"../graph/JobInput":322,"../graph/Link":323,"../graph/Templates":325,"dagre":2,"graphlib":32,"jointjs":52,"pydio/http/rest-api":"pydio/http/rest-api"}],329:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51169,7 +52562,7 @@ var allReducers = (0, _redux.combineReducers)({
 exports["default"] = allReducers;
 module.exports = exports["default"];
 
-},{"./editor":324,"./graph":325,"./job":327,"./paper":328,"redux":"redux"}],327:[function(require,module,exports){
+},{"./editor":327,"./graph":328,"./job":330,"./paper":331,"redux":"redux"}],330:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51407,9 +52800,11 @@ exports["default"] = function (job, action) {
 
         case _actionsEditor.REMOVE_MODEL_ACTION:
             var model = action.model,
-                parentModel = action.parentModel;
+                parentModel = action.parentModel,
+                removeFilter = action.removeFilter;
 
             if (model instanceof _graphAction2["default"]) {
+                console.log(model, parentModel);
                 if (parentModel) {
                     // Action is connected from Action
                     if (parentModel instanceof _graphAction2["default"]) {
@@ -51423,6 +52818,9 @@ exports["default"] = function (job, action) {
                     }
                 }
                 model.remove();
+                if (removeFilter) {
+                    removeFilter.remove();
+                }
             }
             return job;
 
@@ -51463,7 +52861,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../JobGraph":299,"../actions/editor":302,"../graph/Action":316,"../graph/ActionFilter":317,"../graph/Configs":318,"../graph/JobInput":320,"pydio/http/rest-api":"pydio/http/rest-api"}],328:[function(require,module,exports){
+},{"../JobGraph":300,"../actions/editor":304,"../graph/Action":318,"../graph/ActionFilter":319,"../graph/Configs":320,"../graph/JobInput":322,"pydio/http/rest-api":"pydio/http/rest-api"}],331:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51586,7 +52984,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":302,"../graph/Action":316,"../graph/JobInput":320,"../graph/Link":321,"jointjs":52}],329:[function(require,module,exports){
+},{"../actions/editor":304,"../graph/Action":318,"../graph/JobInput":322,"../graph/Link":323,"jointjs":52}],332:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -51619,4 +53017,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":297}]},{},[329]);
+},{"./board/Dashboard":298}]},{},[332]);

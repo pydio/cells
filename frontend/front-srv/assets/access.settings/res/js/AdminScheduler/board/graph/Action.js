@@ -51,8 +51,10 @@ class Action extends shapes.devs.Model{
                 'separator': {display:'none', x1:44, y1:0, x2: 44, y2:BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'},
                 'filter-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},
+                'filter-count':{display:'none', refX: 33},
                 'selector-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:selector:pointerdown'},
                 'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: Stale, refX: 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'},
+                'selector-count':{display:'none', refX: 33},
                 'legend':{display: 'none', fill: Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle'}
             },
             ports:PortsConfig
@@ -93,8 +95,8 @@ class Action extends shapes.devs.Model{
     notifyJobModel(action){
         this._jobModel = action;
         action.model = this;
-        this.setFilter(false);
-        this.setSelector(action.NodesSelector || action.IdmSelector || action.UsersSelector);
+        this.setFilter(0);
+        this.setSelector( (action.NodesSelector?1:0) + (action.IdmSelector?1:0)  + (action.UsersSelector?1:0));
         this.attr('text/text', Action.computeLabel(action, this._descriptions))
     }
 

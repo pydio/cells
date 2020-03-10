@@ -35,6 +35,10 @@ var _JobsIdmSelector = require('./JobsIdmSelector');
 
 var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
 
+var _JobsJobParameter = require('./JobsJobParameter');
+
+var _JobsJobParameter2 = _interopRequireDefault(_JobsJobParameter);
+
 var _JobsNodesSelector = require('./JobsNodesSelector');
 
 var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
@@ -84,6 +88,7 @@ var JobsJob = (function () {
         this.UserEventFilter = undefined;
         this.IdmFilter = undefined;
         this.ContextMetaFilter = undefined;
+        this.Parameters = undefined;
     }
 
     /**
@@ -148,6 +153,9 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('ContextMetaFilter')) {
                 obj['ContextMetaFilter'] = _JobsContextMetaFilter2['default'].constructFromObject(data['ContextMetaFilter']);
+            }
+            if (data.hasOwnProperty('Parameters')) {
+                obj['Parameters'] = _ApiClient2['default'].convertToType(data['Parameters'], [_JobsJobParameter2['default']]);
             }
         }
         return obj;
@@ -224,4 +232,8 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsContextMetaFilter} ContextMetaFilter
+*/
+
+/**
+* @member {Array.<module:model/JobsJobParameter>} Parameters
 */

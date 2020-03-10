@@ -24,6 +24,10 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _jointjs = require('jointjs');
@@ -67,6 +71,14 @@ var _ProtoValue = require("./ProtoValue");
 var _ProtoValue2 = _interopRequireDefault(_ProtoValue);
 
 var _styles = require("./styles");
+
+var _graphTplManager = require("../graph/TplManager");
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _uuid4 = require("uuid4");
+
+var _uuid42 = _interopRequireDefault(_uuid4);
 
 var margin = 20;
 
@@ -723,7 +735,13 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'setDirty',
         value: function setDirty() {
-            this.setState({ dirty: true });
+            var autoSave = this.props.autoSave;
+
+            if (autoSave) {
+                this.save();
+            } else {
+                this.setState({ dirty: true });
+            }
         }
     }, {
         key: 'revert',
@@ -752,6 +770,28 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'saveAsTemplate',
+        value: function saveAsTemplate() {
+            var _state3 = this.state;
+            var query = _state3.query;
+            var queryType = _state3.queryType;
+
+            var label = prompt('provide a label');
+
+            var _detectTypes8 = this.detectTypes(query);
+
+            var modelType = _detectTypes8.modelType;
+
+            if (modelType === 'node') {
+                modelType = 'nodes';
+            }
+            _graphTplManager2['default'].getInstance().saveSelector((0, _uuid42['default'])(), queryType !== 'selector', label, label, modelType, query).then(function () {
+                _pydio2['default'].getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
+            })['catch'](function (e) {
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', e.message);
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this7 = this;
@@ -759,19 +799,20 @@ var QueryBuilder = (function (_React$Component) {
             var _props3 = this.props;
             var queryType = _props3.queryType;
             var style = _props3.style;
-            var _state3 = this.state;
-            var query = _state3.query;
-            var selectedProto = _state3.selectedProto;
-            var selectedFieldName = _state3.selectedFieldName;
-            var dirty = _state3.dirty;
-            var aPosition = _state3.aPosition;
-            var aSize = _state3.aSize;
-            var aScrollLeft = _state3.aScrollLeft;
+            var autoSave = _props3.autoSave;
+            var _state4 = this.state;
+            var query = _state4.query;
+            var selectedProto = _state4.selectedProto;
+            var selectedFieldName = _state4.selectedFieldName;
+            var dirty = _state4.dirty;
+            var aPosition = _state4.aPosition;
+            var aSize = _state4.aSize;
+            var aScrollLeft = _state4.aScrollLeft;
 
-            var _detectTypes8 = this.detectTypes(query);
+            var _detectTypes9 = this.detectTypes(query);
 
-            var objectType = _detectTypes8.objectType;
-            var singleQuery = _detectTypes8.singleQuery;
+            var objectType = _detectTypes9.objectType;
+            var singleQuery = _detectTypes9.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
@@ -791,13 +832,13 @@ var QueryBuilder = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
-                    _react2['default'].createElement(
+                    !autoSave && _react2['default'].createElement(
                         'div',
                         null,
                         _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: dirty ? function () {
                                 _this7.revert();
                             } : function () {}, style: bStyles }),
-                        _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: dirty ? function () {
+                        _react2['default'].createElement('span', { className: "mdi mdi-check", onClick: dirty ? function () {
                                 _this7.save();
                             } : function () {}, style: bStyles }),
                         _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
@@ -836,7 +877,14 @@ var QueryBuilder = (function (_React$Component) {
                         _this7.clearSelection();
                     },
                     style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
-                })
+                }),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Save as template", onTouchTap: function () {
+                            _this7.saveAsTemplate();
+                        } })
+                )
             );
         }
     }], [{

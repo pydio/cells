@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {Paper, FontIcon} from 'material-ui'
+import {Paper, FontIcon, IconButton} from 'material-ui'
 
 const styles = {
     root:{
@@ -36,6 +36,20 @@ const styles = {
         icon:{},
         title:{},
         description:{}
+    },
+    deleteButton:{
+
+    },
+    deleteIconProps:{
+        style:{
+            position:'absolute',
+            top: 0,
+            right:0,
+        },
+        iconStyle:{
+            color:'#bdbdbd',
+            hoverColor:'#9e9e9e'
+        }
     }
 };
 
@@ -67,6 +81,7 @@ const css = `
     border-radius: 6px !important;
     box-shadow: 1px 10px 20px 0 rgba(40,60,75,.15);
     cursor: pointer;
+    position:relative;
 }
 
 .react-mui-context .bbpanel .stepper-action-container:hover {
@@ -133,6 +148,17 @@ class PanelBigButtons extends React.Component {
                                 }
                                 return (
                                     <Paper zDepth={0} {...this.stProps('action', 'container')} onClick={()=>{onPick(a.value)}}>
+                                        {a.onDelete &&
+                                            <div {...this.stProps('action', 'deleteButton')}>
+                                                <IconButton
+                                                    iconClassName={"mdi mdi-close"}
+                                                    tooltip={"Remove"}
+                                                    onTouchTap={(e) => {a.onDelete();}}
+                                                    onClick={(e) => {e.stopPropagation(); e.preventDefault()}}
+                                                    {...styles.deleteIconProps}
+                                                />
+                                            </div>
+                                        }
                                         <div  {...this.stProps('action', 'icon')}><FontIcon color={a.tint||'#03A9F4'} className={a.icon}/></div>
                                         <div  {...this.stProps('action', 'title')}>{a.title}</div>
                                         <div  {...this.stProps('action', 'description')}>{d}</div>

@@ -75,11 +75,17 @@ const TextIconFilterMarkup = [{
     tagName: 'text',
     selector: 'filter-icon'
 }, {
+    tagName: 'text',
+    selector: 'filter-count'
+}, {
     tagName: 'rect',
     selector: 'selector-rect'
 }, {
     tagName: 'text',
     selector: 'selector-icon'
+}, {
+    tagName: 'text',
+    selector: 'selector-count'
 }, {
     tagName: 'text',
     selector: 'legend'
@@ -249,8 +255,10 @@ function positionFilters(model, originalBox, filter, selector, anchor = 'left') 
             'separator': {display:'none'},
             'filter-rect': {display:'none'},
             'filter-icon': {display:'none'},
+            'filter-count':{display:'none'},
             'selector-rect': {display:'none'},
-            'selector-icon': {display:'none'}
+            'selector-icon': {display:'none'},
+            'selector-count':{display:'none'},
         });
         return;
     }
@@ -267,31 +275,33 @@ function positionFilters(model, originalBox, filter, selector, anchor = 'left') 
     const multiple = (selector && filter);
 
     let position;
-    position = (i) => {
+    position = (i, count) => {
         return {
             rect: {display:'initial', refY: '50%', refY2: i *14 - 12},
-            icon: {display:'initial', refY: '50%', refY2: i *14 - 3},
+            icon: {display:'initial', refY: '50%', refY2: i * 14 - 3},
+            count:{text: count, 'font-size':12, display:count>1?'initial':'none', refY: '50%', refY2: i * 14 - 17}
         }
     };
     let filterPosition, selectorPosition;
-    const hide = {rect:{display:'none'},icon:{display:'none'}};
+    const hide = {rect:{display:'none'},icon:{display:'none'}, count:{display:'none'}};
     if(multiple){
-        filterPosition = position(-1);
-        selectorPosition = position(1);
+        filterPosition = position(-1, filter);
+        selectorPosition = position(1, selector);
     } else if(filter){
-        filterPosition = position(0);
+        filterPosition = position(0, filter);
         selectorPosition = hide;
     } else if(selector){
         filterPosition= hide;
-        selectorPosition = position(0);
+        selectorPosition = position(0, selector);
     }
     model.attr({
         'filter-rect': filterPosition.rect,
         'filter-icon': filterPosition.icon,
+        'filter-count': filterPosition.count,
         'selector-rect': selectorPosition.rect,
         'selector-icon': selectorPosition.icon,
-    })
-
+        'selector-count': selectorPosition.count
+    });
 
 }
 

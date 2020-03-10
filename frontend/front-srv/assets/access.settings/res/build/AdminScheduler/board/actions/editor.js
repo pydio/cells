@@ -191,11 +191,12 @@ function jobChangedAction(job, descriptions, editMode) {
     };
 }
 
-function removeModelAction(model, parentModel) {
+function removeModelAction(model, parentModel, removeFilter) {
     return {
         type: REMOVE_MODEL_ACTION,
         model: model,
-        parentModel: parentModel
+        parentModel: parentModel,
+        removeFilter: removeFilter
     };
 }
 
