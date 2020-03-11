@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Pydio from 'pydio'
-import {FlatButton, Paper, Toggle, RaisedButton} from 'material-ui'
+import {FlatButton, Paper, Toggle, IconButton} from 'material-ui'
 import {dia, layout} from 'jointjs'
 import dagre from 'dagre'
 import graphlib from 'graphlib'
@@ -22,8 +22,7 @@ import QueryInput from "./QueryInput";
 import QueryOutput from "./QueryOutput";
 import ProtoValue from "./ProtoValue";
 import {position, styles} from "./styles";
-import TplManager from "../graph/TplManager";
-import uuid from "uuid4";
+import TemplateDialog from "./TemplateDialog";
 
 
 const margin = 20;
@@ -611,26 +610,11 @@ class QueryBuilder extends React.Component {
         });
     }
 
-    saveAsTemplate(){
-        const {query, queryType} = this.state;
-        const label = prompt('provide a label');
-        let {modelType} = this.detectTypes(query);
-        if(modelType === 'node') {
-            modelType = 'nodes';
-        }
-        TplManager.getInstance().saveSelector(uuid(), queryType !== 'selector', label, label, modelType, query).then(() => {
-            Pydio.getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
-        }).catch(e => {
-            Pydio.getInstance().UI.displayMessage('ERROR', e.message);
-        });
-    }
-
-
     render() {
 
-        const {queryType, style, autoSave} = this.props;
-        const {query, selectedProto, selectedFieldName, dirty, aPosition, aSize, aScrollLeft} = this.state;
-        const {objectType, singleQuery} = this.detectTypes(query);
+        const {queryType, style, autoSave, inDialog} = this.props;
+        const {query, selectedProto, selectedFieldName, dirty, aPosition, aSize, aScrollLeft, showTemplateDialog} = this.state;
+        const {objectType, singleQuery, modelType} = this.detectTypes(query);
         const title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' +  objectType + (queryType === 'filter' ? '' : 's');
 
         let bStyles = {...styles.button};
@@ -646,6 +630,7 @@ class QueryBuilder extends React.Component {
                         <div>
                             <span className={"mdi mdi-undo"} onClick={dirty?()=>{this.revert()}:()=>{}} style={bStyles}/>
                             <span className={"mdi mdi-check"} onClick={dirty?()=>{this.save()}:()=>{}} style={bStyles}/>
+                            <span className={"mdi mdi-book-plus"} onClick={()=>{this.setState({showTemplateDialog:true})}} style={{...styles.button}}/>
                             <span className={"mdi mdi-delete"} onClick={()=>{this.remove()}} style={{...styles.button, ...styles.delete}}/>
                         </div>
                     }
@@ -676,9 +661,15 @@ class QueryBuilder extends React.Component {
                     style={position(300, aSize, aPosition, aScrollLeft, 40)}
                 />
                 }
-                <div>
-                    <RaisedButton label={"Save as template"} onTouchTap={()=>{this.saveAsTemplate()}}/>
-                </div>
+                {showTemplateDialog &&
+                <TemplateDialog
+                    type={"selector"}
+                    data={query}
+                    isFilter={queryType!=='selector'}
+                    selectorType={modelType === 'node' ? 'nodes' : modelType}
+                    onDismiss={()=>{this.setState({showTemplateDialog: false})}}
+                />
+                }
             </div>
         );
     }

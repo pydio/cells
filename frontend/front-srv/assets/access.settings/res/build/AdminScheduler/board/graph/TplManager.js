@@ -40,13 +40,41 @@ var TplManager = (function () {
         }
     }, {
         key: 'listJobs',
-        value: function listJobs() {}
+        value: function listJobs() {
+            return this.getSdk().then(function (sdk) {
+                var EntListJobTemplatesRequest = sdk.EntListJobTemplatesRequest;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var req = new EntListJobTemplatesRequest();
+                return api.listJobTemplates(req).then(function (result) {
+                    return result.Jobs || [];
+                });
+            });
+        }
     }, {
         key: 'saveJob',
-        value: function saveJob(id, job) {}
+        value: function saveJob(job) {
+            return this.getSdk().then(function (sdk) {
+                var EntPutJobTemplateRequest = sdk.EntPutJobTemplateRequest;
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var req = new EntPutJobTemplateRequest();
+                req.Job = job;
+                return api.putJobTemplate(job.ID, req);
+            });
+        }
     }, {
         key: 'deleteJob',
-        value: function deleteJob(id) {}
+        value: function deleteJob(id) {
+            return this.getSdk().then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.deleteJobTemplate(id);
+            });
+        }
     }, {
         key: 'listSelectors',
         value: function listSelectors() {

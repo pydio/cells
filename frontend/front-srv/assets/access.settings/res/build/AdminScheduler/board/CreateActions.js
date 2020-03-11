@@ -61,6 +61,17 @@ var Stepper = _Pydio$requireLib.Stepper;
 var Dialog = Stepper.Dialog;
 var PanelBigButtons = Stepper.PanelBigButtons;
 
+var presetTagStyle = {
+    display: 'inline-block',
+    backgroundColor: '#F57C00',
+    padding: '0 5px',
+    marginRight: 5,
+    borderRadius: 5,
+    color: 'white',
+    fontSize: 12,
+    lineHeight: '17px'
+};
+
 var CreateActions = (function (_React$Component) {
     _inherits(CreateActions, _React$Component);
 
@@ -196,9 +207,19 @@ var CreateActions = (function (_React$Component) {
                             description: action.Description
                         };
                         if (templates[k]) {
+                            a.title = _react2['default'].createElement(
+                                'span',
+                                null,
+                                _react2['default'].createElement(
+                                    'span',
+                                    { style: presetTagStyle },
+                                    'preset'
+                                ),
+                                a.title
+                            );
                             a.onDelete = function () {
                                 if (confirm('Do you want to delete this template?')) {
-                                    _graphTplManager2['default'].getInstance().deleteAction(actionId).then(function () {
+                                    _graphTplManager2['default'].getInstance().deleteAction(k).then(function () {
                                         _this2.loadTemplates();
                                     });
                                 }

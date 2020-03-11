@@ -52,6 +52,7 @@ const (
 
 var (
 	PubSub *pubsub.PubSub
+	ContextJobParametersKey = struct{}{}
 )
 
 // Subscriber handles incoming events, applies selectors if any
@@ -219,6 +220,32 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	return nil
 }
 
+func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool) context.Context {
+
+	// Add System User if necessary
+	if addSystemUser {
+		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+			ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+		}
+	}
+
+	// Add service info
+	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
+	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+
+	// Inject evaluated job parameters
+	if len(job.Parameters) > 0{
+		params := make(map[string]string, len(job.Parameters))
+		for _, p := range job.Parameters {
+			params[p.Name] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, p.Value)
+		}
+		ctx = context.WithValue(ctx, ContextJobParametersKey, params)
+	}
+
+	return ctx
+}
+
 // Reacts to a trigger sent by the timer service
 func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent) error {
 	jobId := event.JobID
@@ -238,17 +265,10 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	if j.Inactive {
 		return nil
 	}
-	// This timer event probably comes without user in context at that point
-	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-		ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-		ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-	}
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+	ctx = s.prepareTaskContext(ctx, j, true)
+
 	log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
-
 	task := NewTaskFromEvent(ctx, j, event)
-
 	go task.EnqueueRunnables(s.Client, s.MainQueue)
 
 	return nil
@@ -265,9 +285,6 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 	if event.Target != nil && event.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
 		return nil
 	}
-
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
 	s.batcher.Events <- &cache.EventWithContext{
 		NodeChangeEvent: *event,
@@ -286,6 +303,8 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
+		ctx = s.prepareTaskContext(ctx, jobData, false)
+
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
 			continue
 		}
@@ -313,20 +332,12 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 
 	s.jobsLock.Lock()
 	defer s.jobsLock.Unlock()
-
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
-
-	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-		log.Logger(ctx).Info("IdmEvent: adding system user in context")
-		ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-		ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-	}
-
+	
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
 			continue
 		}
+		ctx = s.prepareTaskContext(ctx, jobData, true)
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
 			continue
 		}

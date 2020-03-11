@@ -88,10 +88,6 @@ var _builderFilters = require("./builder/Filters");
 
 var _builderFilters2 = _interopRequireDefault(_builderFilters);
 
-var _graphTemplates = require("./graph/Templates");
-
-var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
-
 var _graphConfigs = require("./graph/Configs");
 
 var _builderStyles = require("./builder/styles");
@@ -111,6 +107,18 @@ var _CreateFilters2 = _interopRequireDefault(_CreateFilters);
 var _JobParameters = require("./JobParameters");
 
 var _JobParameters2 = _interopRequireDefault(_JobParameters);
+
+var _graphTplManager = require("./graph/TplManager");
+
+var _graphTplManager2 = _interopRequireDefault(_graphTplManager);
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
+
+var _builderTemplateDialog = require("./builder/TemplateDialog");
+
+var _builderTemplateDialog2 = _interopRequireDefault(_builderTemplateDialog);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -925,6 +933,20 @@ var JobGraph = (function (_React$Component) {
             onSave(jsonJob, this.props.onJsonSave);
         }
     }, {
+        key: 'saveAsTemplate',
+        value: function saveAsTemplate() {
+            var job = this.state.job;
+
+            var tpl = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+            tpl.ID = (0, _uuid42['default'])();
+            tpl.Tasks = [];
+            _graphTplManager2['default'].getInstance().saveJob(tpl).then(function () {
+                _pydio2['default'].getInstance().UI.displayMessage('SUCCESS', 'Successfully saved job as template');
+            })['catch'](function (e) {
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', 'Could not save template: ' + e.message);
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this6 = this;
@@ -954,6 +976,7 @@ var JobGraph = (function (_React$Component) {
             var onSave = _state10.onSave;
             var original = _state10.original;
             var job = _state10.job;
+            var showTemplateDialog = _state10.showTemplateDialog;
             var showJsonDialog = _state10.showJsonDialog;
             var jsonJobInvalid = _state10.jsonJobInvalid;
             var requireLayout = _state10.requireLayout;
@@ -1063,7 +1086,10 @@ var JobGraph = (function (_React$Component) {
                             onJobPropertyChange('AutoStart', v);
                         }, label: "Run-On-Save" }),
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-book-plus", iconStyle: { color: 'rgba(0,0,0,.43)' }, onTouchTap: function () {
+                            _this6.setState({ showTemplateDialog: true });
+                        }, tooltip: "Save job as template", tooltipPosition: "top-left" }),
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", iconStyle: { color: 'rgba(0,0,0,.43)' }, onTouchTap: function () {
                             _this6.setState({ showJsonDialog: true });
                         }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
@@ -1121,6 +1147,15 @@ var JobGraph = (function (_React$Component) {
                     onDismiss: function () {
                         _this6.setState({ createNewFilter: '' });
                     }
+                }),
+                showTemplateDialog && _react2['default'].createElement(_builderTemplateDialog2['default'], {
+                    type: "job",
+                    data: job,
+                    defaultLabel: job.Label,
+                    onDismiss: function () {
+                        _this6.setState({ showTemplateDialog: false });
+                    },
+                    actionsDescriptions: descriptions
                 }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,

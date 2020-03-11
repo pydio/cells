@@ -203,7 +203,7 @@ class Events extends React.Component{
         this.setState({objEvents}, this.onChange.bind(this));
     }
 
-    flatStruct(s, pref = []) {
+    static flatStruct(s, pref = []) {
         const data = [];
         Object.keys(s).forEach((k) => {
             if(k === 'title'){
@@ -214,7 +214,7 @@ class Events extends React.Component{
             }
             const v = s[k];
             if (isNaN(k)) {
-                data.push(...this.flatStruct(v, [...pref, k]))
+                data.push(...Events.flatStruct(v, [...pref, k]))
             } else {
                 data.push([...pref, k].join(':'))
             }
@@ -222,26 +222,8 @@ class Events extends React.Component{
         return data;
     }
 
-    dismiss(){
-        this.setState({open: false, filter:''})
-    }
-
-    render() {
-        const {objEvents, open, filter} = this.state;
-        const flat = this.flatStruct(eventMessages);
-        const list = [];
-        Object.keys(objEvents).forEach(e => {
-            list.push(<ListItem
-                key={e}
-                disabled={true}
-                primaryText={Events.eventData(e).title}
-                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
-            />);
-            list.push(<Divider/>)
-        });
-        list.pop();
-
-
+    static eventsAsBBModel(filter){
+        const flat = Events.flatStruct(eventMessages);
         const model = {Sections:[]};
         let section;
         flat.forEach(k => {
@@ -263,6 +245,29 @@ class Events extends React.Component{
         if(section){
             model.Sections.push(section);
         }
+        return model;
+    }
+
+    dismiss(){
+        this.setState({open: false, filter:''})
+    }
+
+    render() {
+        const {objEvents, open, filter} = this.state;
+
+        const list = [];
+        Object.keys(objEvents).forEach(e => {
+            list.push(<ListItem
+                key={e}
+                disabled={true}
+                primaryText={Events.eventData(e).title}
+                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
+            />);
+            list.push(<Divider/>)
+        });
+        list.pop();
+
+        const model = Events.eventsAsBBModel(filter);
 
         return (
             <div>

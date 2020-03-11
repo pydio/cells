@@ -6,7 +6,7 @@ import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
-import {linkTools, dia, layout, g} from 'jointjs'
+import {linkTools, dia, g} from 'jointjs'
 import JobInput from './graph/JobInput'
 import Filter from "./graph/Filter";
 import Link from "./graph/Link";
@@ -45,14 +45,16 @@ import {
     toggleFilterAsConditionAction
 } from "./actions/editor";
 import Filters from "./builder/Filters"
-import Templates from "./graph/Templates"
 import {AllowedKeys, linkAttr} from "./graph/Configs"
 import {getCssStyle} from "./builder/styles"
 import ActionFilter from "./graph/ActionFilter"
 import CreateActions from './CreateActions'
 import CreateFilters from "./CreateFilters";
 import JobParameters from "./JobParameters";
+import TplManager from "./graph/TplManager";
 const {ModernTextField} = Pydio.requireLib('hoc');
+import uuid from 'uuid4'
+import TemplateDialog from "./builder/TemplateDialog";
 
 const mapStateToProps = state => {
     console.debug(state);
@@ -641,13 +643,25 @@ class JobGraph extends React.Component {
         onSave(jsonJob, this.props.onJsonSave);
     }
 
+    saveAsTemplate(){
+        const {job} = this.state;
+        const tpl = JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+        tpl.ID = uuid();
+        tpl.Tasks = [];
+        TplManager.getInstance().saveJob(tpl).then(() => {
+            Pydio.getInstance().UI.displayMessage('SUCCESS', 'Successfully saved job as template')
+        }).catch(e => {
+            Pydio.getInstance().UI.displayMessage('ERROR', 'Could not save template: ' + e.message);
+        });
+    }
+
     render() {
 
         let selBlock;
         const {jobsEditable, create, adminStyles} = this.props;
         const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange,
             onLabelChange, onJobPropertyChange, createNewAction, createNewFilter, onToggleFilterAsCondition,
-            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid, requireLayout, showParameters} = this.state;
+            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showTemplateDialog, showJsonDialog, jsonJobInvalid, requireLayout, showParameters} = this.state;
         let fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
@@ -728,7 +742,8 @@ class JobGraph extends React.Component {
                     </div>
                     <Checkbox style={{width:200}} checked={job.AutoStart} onCheck={(e,v) => {onJobPropertyChange('AutoStart', v)}} label={"Run-On-Save"}/>
                     <span style={{flex: 1}}></span>
-                    <IconButton iconClassName={"mdi mdi-json"} onTouchTap={()=>{this.setState({showJsonDialog: true})}} tooltip={"Import/Export JSON"} tooltipPosition={"top-left"}/>
+                    <IconButton iconClassName={"mdi mdi-book-plus"} iconStyle={{color:'rgba(0,0,0,.43)'}} onTouchTap={()=>{this.setState({showTemplateDialog: true})}} tooltip={"Save job as template"} tooltipPosition={"top-left"}/>
+                    <IconButton iconClassName={"mdi mdi-json"} iconStyle={{color:'rgba(0,0,0,.43)'}} onTouchTap={()=>{this.setState({showJsonDialog: true})}} tooltip={"Import/Export JSON"} tooltipPosition={"top-left"}/>
                 </div>
             );
 
@@ -775,6 +790,15 @@ class JobGraph extends React.Component {
                         this.setState({createNewFilter: ''})}
                     }
                 />
+                {showTemplateDialog &&
+                    <TemplateDialog
+                        type={"job"}
+                        data={job}
+                        defaultLabel={job.Label}
+                        onDismiss={()=>{this.setState({showTemplateDialog: false})}}
+                        actionsDescriptions={descriptions}
+                    />
+                }
                 <Dialog
                     title={"Import/Export JSON"}
                     onRequestClose={()=>{this.setState({showJsonDialog: false})}}

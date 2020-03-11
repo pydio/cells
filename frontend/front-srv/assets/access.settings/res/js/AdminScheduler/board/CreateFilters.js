@@ -65,24 +65,6 @@ const types = {
                         return {model: JobsNodesSelector.constructFromObject({}), type:''}
                     }
                 },
-                {
-                    title:'Folders only',
-                    description:'Match folders only, no files',
-                    icon:'mdi mdi-folder',
-                    preset: true,
-                    value:()=>{
-                        return {model: JobsNodesSelector.constructFromObject({"Query":{"SubQueries":[{"@type":"type.googleapis.com/tree.Query","Type":"COLLECTION"}],"Operation":"OR"}}), type:'', preset: true}
-                    }
-                },
-                {
-                    title:'Files only',
-                    description:'Match files only, no folders',
-                    icon:'mdi mdi-file',
-                    preset: true,
-                    value:()=>{
-                        return {model: JobsNodesSelector.constructFromObject({"Query":{"SubQueries":[{"@type":"type.googleapis.com/tree.Query","Type":"LEAF"}],"Operation":"OR"}}), type:'', preset: true}
-                    }
-                },
             ],
         },
         idm:{
@@ -288,6 +270,7 @@ class CreateFilters extends React.Component {
                     queryType={selectors?'selector':'filter'}
                     style={{}}
                     autoSave={true}
+                    inDialog={true}
                     onRemoveFilter={(modelType) => {}}
                     onSave={(newData) => {
                         this.setState({model: newData, random:Math.random()});
@@ -372,6 +355,13 @@ class CreateFilters extends React.Component {
                             description: tpl.Description,
                             icon: icon,
                             tint: tints[k],
+                            onDelete:()=>{
+                                if(confirm('Do you want to remove this tempalte?')){
+                                    TplManager.getInstance().deleteSelector(tpl.Name).then(()=>{
+                                        this.loadTemplates(open);
+                                    })
+                                }
+                            },
                             value
                         })
                     })

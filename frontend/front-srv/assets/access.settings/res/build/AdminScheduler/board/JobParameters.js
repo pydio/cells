@@ -76,6 +76,7 @@ var Parameter = (function (_React$Component) {
             var parameter = _props.parameter;
             var onChange = _props.onChange;
             var onDelete = _props.onDelete;
+            var editable = _props.editable;
             var _state = this.state;
             var edit = _state.edit;
             var editParameter = _state.editParameter;
@@ -131,7 +132,7 @@ var Parameter = (function (_React$Component) {
                                 { style: blockStyle },
                                 parameter.Description
                             ),
-                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-pencil", tooltip: "Edit", onTouchTap: function () {
+                            editable && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-pencil", tooltip: "Edit", onTouchTap: function () {
                                     return _this.toggleEdit();
                                 }, iconStyle: { color: '#e0e0e0' } })
                         )
@@ -270,13 +271,15 @@ var JobParameters = (function (_React$Component2) {
         value: function render() {
             var _this2 = this;
 
-            var _props$parameters = this.props.parameters;
-            var parameters = _props$parameters === undefined ? [] : _props$parameters;
+            var _props5 = this.props;
+            var _props5$parameters = _props5.parameters;
+            var parameters = _props5$parameters === undefined ? [] : _props5$parameters;
+            var inDialog = _props5.inDialog;
 
             return _react2['default'].createElement(
                 'div',
                 { style: { borderBottom: '1px solid rgb(236, 239, 241)' } },
-                _react2['default'].createElement(
+                !inDialog && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', padding: '0 10px' } },
                     _react2['default'].createElement(
@@ -297,11 +300,18 @@ var JobParameters = (function (_React$Component2) {
                         'No parameters defined'
                     ),
                     parameters.map(function (p, i) {
-                        return _react2['default'].createElement(Parameter, { key: p.Name || "p-" + i, onChange: function (v) {
+                        return _react2['default'].createElement(Parameter, {
+                            key: p.Name || "p-" + i,
+                            onChange: function (v) {
                                 _this2.changeParam(i, v);
-                            }, onDelete: function () {
+                            },
+                            onDelete: function () {
                                 return _this2.removeParam(i);
-                            }, parameter: p, edit: p.edit });
+                            },
+                            parameter: p,
+                            edit: p.edit,
+                            editable: !inDialog
+                        });
                     })
                 )
             );

@@ -91,22 +91,6 @@ var types = {
                 value: function value() {
                     return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({}), type: '' };
                 }
-            }, {
-                title: 'Folders only',
-                description: 'Match folders only, no files',
-                icon: 'mdi mdi-folder',
-                preset: true,
-                value: function value() {
-                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({ "Query": { "SubQueries": [{ "@type": "type.googleapis.com/tree.Query", "Type": "COLLECTION" }], "Operation": "OR" } }), type: '', preset: true };
-                }
-            }, {
-                title: 'Files only',
-                description: 'Match files only, no folders',
-                icon: 'mdi mdi-file',
-                preset: true,
-                value: function value() {
-                    return { model: _pydioHttpRestApi.JobsNodesSelector.constructFromObject({ "Query": { "SubQueries": [{ "@type": "type.googleapis.com/tree.Query", "Type": "LEAF" }], "Operation": "OR" } }), type: '', preset: true };
-                }
             }]
         },
         idm: {
@@ -328,6 +312,7 @@ var CreateFilters = (function (_React$Component) {
                     queryType: selectors ? 'selector' : 'filter',
                     style: {},
                     autoSave: true,
+                    inDialog: true,
                     onRemoveFilter: function (modelType) {},
                     onSave: function (newData) {
                         _this2.setState({ model: newData, random: Math.random() });
@@ -437,6 +422,13 @@ var CreateFilters = (function (_React$Component) {
                                     description: tpl.Description,
                                     icon: icon,
                                     tint: tints[k],
+                                    onDelete: function onDelete() {
+                                        if (confirm('Do you want to remove this tempalte?')) {
+                                            _graphTplManager2['default'].getInstance().deleteSelector(tpl.Name).then(function () {
+                                                _this2.loadTemplates(open);
+                                            });
+                                        }
+                                    },
                                     value: value
                                 });
                             });

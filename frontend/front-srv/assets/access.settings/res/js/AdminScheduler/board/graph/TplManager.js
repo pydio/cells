@@ -16,9 +16,34 @@ class TplManager {
         return ResourcesManager.loadClass('EnterpriseSDK');
     }
 
-    listJobs(){}
-    saveJob(id, job){}
-    deleteJob(id){}
+    listJobs(){
+        return this.getSdk().then(sdk => {
+            const {EntListJobTemplatesRequest, SchedulerServiceApi} = sdk;
+            const api = new SchedulerServiceApi(PydioApi.getRestClient());
+            const req = new EntListJobTemplatesRequest();
+            return api.listJobTemplates(req).then(result => {
+                return result.Jobs || [];
+            })
+        })
+    }
+
+    saveJob(job){
+        return this.getSdk().then(sdk => {
+            const {EntPutJobTemplateRequest, SchedulerServiceApi} = sdk;
+            const api = new SchedulerServiceApi(PydioApi.getRestClient());
+            const req = new EntPutJobTemplateRequest();
+            req.Job = job;
+            return api.putJobTemplate(job.ID, req);
+        });
+    }
+
+    deleteJob(id){
+        return this.getSdk().then(sdk => {
+            const {SchedulerServiceApi} = sdk;
+            const api = new SchedulerServiceApi(PydioApi.getRestClient());
+            return api.deleteJobTemplate(id);
+        });
+    }
 
     listSelectors(){
         return this.getSdk().then(sdk => {

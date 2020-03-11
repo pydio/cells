@@ -31,6 +31,7 @@ import debounce from 'lodash.debounce'
 import {Events} from './builder/Triggers'
 import {JobsJob} from 'pydio/http/rest-api';
 import uuid from 'uuid4'
+import CreateJobs from './CreateJobs'
 
 let Dashboard = React.createClass({
 
@@ -193,17 +194,6 @@ let Dashboard = React.createClass({
         return {system, other};
     },
 
-    jobPrompted(){
-        const {newJobLabel} = this.state;
-        const newJob = JobsJob.constructFromObject({
-            ID: uuid(),
-            Label: newJobLabel,
-            Owner: 'pydio.system.user',
-            Actions:[],
-        });
-        this.setState({createJob: newJob, promptJob: false, newJobLabel : ''});
-    },
-
     render(){
 
         const {pydio, jobsEditable, muiTheme} = this.props;
@@ -253,7 +243,7 @@ let Dashboard = React.createClass({
             hideSmall: true
         };
 
-        const {result, loading, selectJob, createJob, promptJob, newJobLabel} = this.state;
+        const {result, loading, selectJob, createJob, promptJob} = this.state;
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
@@ -298,26 +288,12 @@ let Dashboard = React.createClass({
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
-                <Dialog
-                    title={"Create a new Job"}
-                    onRequestClose={()=>{this.setState({promptJob: false})}}
+
+                <CreateJobs
                     open={promptJob}
-                    contentStyle={{width: 300}}
-                    actions={[
-                        <FlatButton onTouchTap={() => {this.setState({promptJob:false})}} label={"Cancel"}/>,
-                        <FlatButton primary={true} onTouchTap={()=>{this.jobPrompted()}} disabled={!newJobLabel} label={"Create"}/>
-                    ]}
-                >
-                    <div>
-                        <ModernTextField
-                            fullWidth={true}
-                            hintText={"New Job Label"}
-                            value={newJobLabel}
-                            onChange={(e,v)=>{this.setState({newJobLabel:v})}}
-                            onKeyPress={(e) => {if(e.Key === 'Enter') this.jobPrompted()}}
-                        />
-                    </div>
-                </Dialog>
+                    onCreate={(job)=>{this.setState({createJob:job, promptJob:false})}}
+                    onDismiss={() => {this.setState({promptJob: false})}}
+                />
 
                 <AdminComponents.Header
                     title={m('title')}

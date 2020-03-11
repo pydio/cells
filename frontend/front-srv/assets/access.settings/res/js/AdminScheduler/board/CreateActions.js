@@ -26,6 +26,18 @@ import {FontIcon} from 'material-ui'
 const {Stepper} = Pydio.requireLib("components");
 const {Dialog, PanelBigButtons} = Stepper;
 
+const presetTagStyle = {
+    display: 'inline-block',
+    backgroundColor: '#F57C00',
+    padding: '0 5px',
+    marginRight: 5,
+    borderRadius: 5,
+    color: 'white',
+    fontSize: 12,
+    lineHeight:'17px'
+};
+
+
 class CreateActions extends React.Component {
 
     constructor(props){
@@ -126,9 +138,10 @@ class CreateActions extends React.Component {
                     description:action.Description
                 };
                 if(templates[k]){
+                    a.title = <span><span style={presetTagStyle}>preset</span>{a.title}</span>;
                     a.onDelete = () => {
                         if (confirm('Do you want to delete this template?')){
-                            TplManager.getInstance().deleteAction(actionId).then(() => {
+                            TplManager.getInstance().deleteAction(k).then(() => {
                                 this.loadTemplates();
                             })
                         }

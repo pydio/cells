@@ -230,30 +230,6 @@ var Events = (function (_React$Component) {
             this.setState({ objEvents: objEvents }, this.onChange.bind(this));
         }
     }, {
-        key: 'flatStruct',
-        value: function flatStruct(s) {
-            var _this = this;
-
-            var pref = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-
-            var data = [];
-            Object.keys(s).forEach(function (k) {
-                if (k === 'title') {
-                    return;
-                }
-                if (isNaN(k) && k !== 'IDM_CHANGE') {
-                    data.push({ header: s[k].title });
-                }
-                var v = s[k];
-                if (isNaN(k)) {
-                    data.push.apply(data, _toConsumableArray(_this.flatStruct(v, [].concat(_toConsumableArray(pref), [k]))));
-                } else {
-                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
-                }
-            });
-            return data;
-        }
-    }, {
         key: 'dismiss',
         value: function dismiss() {
             this.setState({ open: false, filter: '' });
@@ -261,14 +237,13 @@ var Events = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
+            var _this = this;
 
             var _state = this.state;
             var objEvents = _state.objEvents;
             var open = _state.open;
             var filter = _state.filter;
 
-            var flat = this.flatStruct(eventMessages);
             var list = [];
             Object.keys(objEvents).forEach(function (e) {
                 list.push(_react2['default'].createElement(_materialUi.ListItem, {
@@ -276,34 +251,14 @@ var Events = (function (_React$Component) {
                     disabled: true,
                     primaryText: Events.eventData(e).title,
                     rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: _graphConfigs.LightGrey }, onTouchTap: function () {
-                            _this2.remove(e);
+                            _this.remove(e);
                         } })
                 }));
                 list.push(_react2['default'].createElement(_materialUi.Divider, null));
             });
             list.pop();
 
-            var model = { Sections: [] };
-            var section = undefined;
-            flat.forEach(function (k) {
-                if (k.header) {
-                    if (section && section.Actions.length) {
-                        model.Sections.push(section);
-                    }
-                    // Reset section
-                    section = { title: k.header, Actions: [] };
-                } else {
-                    var eData = Events.eventData(k);
-                    if (filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1) {
-                        return;
-                    }
-                    section.Actions.push(_extends({}, eData, { value: k }));
-                }
-            });
-            // Append last
-            if (section) {
-                model.Sections.push(section);
-            }
+            var model = Events.eventsAsBBModel(filter);
 
             return _react2['default'].createElement(
                 'div',
@@ -315,21 +270,21 @@ var Events = (function (_React$Component) {
                         open: open,
                         dialogProps: {},
                         onDismiss: function () {
-                            _this2.dismiss();
+                            _this.dismiss();
                         },
                         onFilter: function (v) {
-                            _this2.setState({ filter: v.toLowerCase() });
+                            _this.setState({ filter: v.toLowerCase() });
                         }
                     },
                     _react2['default'].createElement(PanelBigButtons, {
                         model: model,
                         onPick: function (eventId) {
-                            _this2.add(eventId);_this2.dismiss();
+                            _this.add(eventId);_this.dismiss();
                         }
                     })
                 ),
                 _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onTouchTap: function () {
-                        return _this2.setState({ open: true });
+                        return _this.setState({ open: true });
                     }, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pulse" }) }),
                 _react2['default'].createElement(
                     _materialUi.List,
@@ -363,6 +318,55 @@ var Events = (function (_React$Component) {
         value: function T(id) {
             return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
         }
+    }, {
+        key: 'flatStruct',
+        value: function flatStruct(s) {
+            var pref = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+            var data = [];
+            Object.keys(s).forEach(function (k) {
+                if (k === 'title') {
+                    return;
+                }
+                if (isNaN(k) && k !== 'IDM_CHANGE') {
+                    data.push({ header: s[k].title });
+                }
+                var v = s[k];
+                if (isNaN(k)) {
+                    data.push.apply(data, _toConsumableArray(Events.flatStruct(v, [].concat(_toConsumableArray(pref), [k]))));
+                } else {
+                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
+                }
+            });
+            return data;
+        }
+    }, {
+        key: 'eventsAsBBModel',
+        value: function eventsAsBBModel(filter) {
+            var flat = Events.flatStruct(eventMessages);
+            var model = { Sections: [] };
+            var section = undefined;
+            flat.forEach(function (k) {
+                if (k.header) {
+                    if (section && section.Actions.length) {
+                        model.Sections.push(section);
+                    }
+                    // Reset section
+                    section = { title: k.header, Actions: [] };
+                } else {
+                    var eData = Events.eventData(k);
+                    if (filter && eData.title.toLowerCase().indexOf(filter) === -1 && eData.description.toLowerCase().indexOf(filter) === -1) {
+                        return;
+                    }
+                    section.Actions.push(_extends({}, eData, { value: k }));
+                }
+            });
+            // Append last
+            if (section) {
+                model.Sections.push(section);
+            }
+            return model;
+        }
     }]);
 
     return Events;
@@ -393,7 +397,7 @@ var Triggers = (function (_React$Component2) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this2 = this;
 
             var _props = this.props;
             var job = _props.job;
@@ -415,7 +419,7 @@ var Triggers = (function (_React$Component2) {
                     _react2['default'].createElement(
                         ModernSelectField,
                         { fullWidth: true, value: type, onChange: function (e, i, v) {
-                                return _this3.onSwitch(v);
+                                return _this2.onSwitch(v);
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
                         _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),

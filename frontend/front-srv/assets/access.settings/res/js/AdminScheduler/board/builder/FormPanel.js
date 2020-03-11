@@ -1,12 +1,11 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {MenuItem, Paper, RaisedButton, SelectField, Subheader} from 'material-ui'
+import {MenuItem, Paper, RaisedButton, IconButton, SelectField, Subheader} from 'material-ui'
 import {RightPanel} from './styles'
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import FormLoader from './FormLoader'
-import TplManager from '../graph/TplManager'
-import uuid from 'uuid4';
 import {ConfigServiceApi, JobsAction, JobsJob, RestConfiguration} from 'pydio/http/rest-api'
+import TemplateDialog from "./TemplateDialog";
 
 const PydioForm = Pydio.requireLib('form');
 const {ModernSelectField, ModernTextField} = Pydio.requireLib('hoc');
@@ -219,18 +218,6 @@ class FormPanel extends React.Component {
         )
     }
 
-    saveAsTemplate(){
-        const {action} = this.state;
-        const copy = JobsAction.constructFromObject(JSON.parse(JSON.stringify(action)));
-        delete(copy.ChainedActions);
-        delete(copy.FailedActions);
-        TplManager.getInstance().saveAction(uuid(), copy).then(() => {
-            Pydio.getInstance().UI.displayMessage('SUCCESS', 'Successfully saved as template');
-        }).catch(e => {
-            Pydio.getInstance().UI.displayMessage('ERROR', e.message);
-        });
-    }
-
     save(){
         const {onChange, onDismiss} = this.props;
         const {action} = this.state;
@@ -265,7 +252,7 @@ class FormPanel extends React.Component {
     render(){
 
         const {onDismiss, onRemove, create, inDialog} = this.props;
-        const {actionInfo, action, formParams, dirty, valid} = this.state;
+        const {actionInfo, action, formParams, dirty, valid, showTemplateDialog} = this.state;
         let save, revert;
         if(!create && dirty && valid) {
             save = () => this.save();
@@ -341,11 +328,17 @@ class FormPanel extends React.Component {
                 </div>
             );
         } else {
-            children.push(
-                <div>
-                    <RaisedButton label={"Save as template"} onTouchTap={()=>{this.saveAsTemplate()}}/>
-                </div>
-            )
+            if(showTemplateDialog){
+                children.push(
+                    <TemplateDialog
+                        type={"action"}
+                        data={action}
+                        defaultLabel={action.Label}
+                        defaultDescription={action.Description}
+                        onDismiss={()=>{this.setState({showTemplateDialog: false})}}
+                    />
+                )
+            }
         }
         if (inDialog) {
             return <div style={this.props.style}>{children}</div>
@@ -356,6 +349,9 @@ class FormPanel extends React.Component {
                     icon={actionInfo.Icon}
                     onDismiss={onDismiss}
                     saveButtons={!create && !inDialog}
+                    onTplSave={inDialog ? null : () => {
+                        this.setState({showTemplateDialog: true})
+                    }}
                     onSave={save}
                     onRevert={revert}
                     onRemove={onRemove}

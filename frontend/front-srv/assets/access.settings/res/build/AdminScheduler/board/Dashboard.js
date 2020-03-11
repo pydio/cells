@@ -60,6 +60,10 @@ var _uuid4 = require('uuid4');
 
 var _uuid42 = _interopRequireDefault(_uuid4);
 
+var _CreateJobs = require('./CreateJobs');
+
+var _CreateJobs2 = _interopRequireDefault(_CreateJobs);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -311,18 +315,6 @@ var Dashboard = _react2['default'].createClass({
         return { system: system, other: other };
     },
 
-    jobPrompted: function jobPrompted() {
-        var newJobLabel = this.state.newJobLabel;
-
-        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
-            ID: (0, _uuid42['default'])(),
-            Label: newJobLabel,
-            Owner: 'pydio.system.user',
-            Actions: []
-        });
-        this.setState({ createJob: newJob, promptJob: false, newJobLabel: '' });
-    },
-
     render: function render() {
         var _this5 = this;
 
@@ -383,7 +375,6 @@ var Dashboard = _react2['default'].createClass({
         var selectJob = _state2.selectJob;
         var createJob = _state2.createJob;
         var promptJob = _state2.promptJob;
-        var newJobLabel = _state2.newJobLabel;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
@@ -440,37 +431,15 @@ var Dashboard = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
-            _react2['default'].createElement(
-                _materialUi.Dialog,
-                {
-                    title: "Create a new Job",
-                    onRequestClose: function () {
-                        _this5.setState({ promptJob: false });
-                    },
-                    open: promptJob,
-                    contentStyle: { width: 300 },
-                    actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this5.setState({ promptJob: false });
-                        }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
-                            _this5.jobPrompted();
-                        }, disabled: !newJobLabel, label: "Create" })]
+            _react2['default'].createElement(_CreateJobs2['default'], {
+                open: promptJob,
+                onCreate: function (job) {
+                    _this5.setState({ createJob: job, promptJob: false });
                 },
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(ModernTextField, {
-                        fullWidth: true,
-                        hintText: "New Job Label",
-                        value: newJobLabel,
-                        onChange: function (e, v) {
-                            _this5.setState({ newJobLabel: v });
-                        },
-                        onKeyPress: function (e) {
-                            if (e.Key === 'Enter') _this5.jobPrompted();
-                        }
-                    })
-                )
-            ),
+                onDismiss: function () {
+                    _this5.setState({ promptJob: false });
+                }
+            }),
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',

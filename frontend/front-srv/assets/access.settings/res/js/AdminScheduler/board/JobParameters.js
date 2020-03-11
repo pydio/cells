@@ -31,7 +31,7 @@ class Parameter extends React.Component{
     }
 
     render() {
-        let {parameter, onChange, onDelete} = this.props;
+        let {parameter, onChange, onDelete, editable} = this.props;
         const {edit, editParameter} = this.state;
         const editChange = (val => {
             this.setState({editParameter: val});
@@ -49,27 +49,27 @@ class Parameter extends React.Component{
                     </div>
                     <div style={{blockStyle, width: 200}}>
                         {parameter.Type === 'select' &&
-                            <ModernSelectField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
-                                {Object.keys(choices).map(k => {
-                                    return <MenuItem value={k} primaryText={choices[k]}/>
-                                })}
-                            </ModernSelectField>
+                        <ModernSelectField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
+                            {Object.keys(choices).map(k => {
+                                return <MenuItem value={k} primaryText={choices[k]}/>
+                            })}
+                        </ModernSelectField>
                         }
                         {parameter.Type === 'text' &&
-                            <ModernTextField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,v) => {onChange({...parameter, Value: v})}}/>
+                        <ModernTextField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,v) => {onChange({...parameter, Value: v})}}/>
                         }
                         {parameter.Type === 'integer' &&
-                            <ModernTextField fullWidth={true} hintText={"Value"} value={parseInt(parameter.Value)} type={"number"} onChange={(e,v) => {onChange({...parameter, Value: parseInt(v)})}}/>
+                        <ModernTextField fullWidth={true} hintText={"Value"} value={parseInt(parameter.Value)} type={"number"} onChange={(e,v) => {onChange({...parameter, Value: parseInt(v)})}}/>
                         }
                         {parameter.Type === 'boolean' &&
-                            <ModernSelectField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
-                                <MenuItem value={"true"} primaryText={"Yes"}/>
-                                <MenuItem value={"false"} primaryText={"No"}/>
-                            </ModernSelectField>
+                        <ModernSelectField fullWidth={true} hintText={"Value"} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
+                            <MenuItem value={"true"} primaryText={"Yes"}/>
+                            <MenuItem value={"false"} primaryText={"No"}/>
+                        </ModernSelectField>
                         }
                     </div>
                     <div style={blockStyle}>{parameter.Description}</div>
-                    <IconButton iconClassName={"mdi mdi-pencil"} tooltip={"Edit"} onTouchTap={()=>this.toggleEdit()} iconStyle={{color:'#e0e0e0'}}/>
+                    {editable && <IconButton iconClassName={"mdi mdi-pencil"} tooltip={"Edit"} onTouchTap={()=>this.toggleEdit()} iconStyle={{color:'#e0e0e0'}}/>}
                 </div>
             );
         }
@@ -93,9 +93,9 @@ class Parameter extends React.Component{
                     </ModernSelectField>
                 </div>
                 {editParameter.Type === 'select' &&
-                    <div style={blockStyle}>
-                        <ModernTextField fullWidth={true} hintText={'{"key":"value"} pairs'} value={editParameter.JsonChoices} onChange={(e,v)=>{editChange({...editParameter, JsonChoices:v})}}/>
-                    </div>
+                <div style={blockStyle}>
+                    <ModernTextField fullWidth={true} hintText={'{"key":"value"} pairs'} value={editParameter.JsonChoices} onChange={(e,v)=>{editChange({...editParameter, JsonChoices:v})}}/>
+                </div>
                 }
                 <div style={blockStyle}>
                     <Checkbox label={"Mandatory"} checked={editParameter.Mandatory} onCheck={(e,v)=>{editChange({...editParameter, Mandatory:v})}}/>
@@ -147,19 +147,28 @@ class JobParameters extends React.Component {
     }
 
     render(){
-        const {parameters = []} = this.props;
+        const {parameters = [], inDialog} = this.props;
 
         return (
             <div style={{borderBottom:'1px solid rgb(236, 239, 241)'}}>
+                {!inDialog &&
                 <div style={{display:'flex', padding:'0 10px'}}>
                     <div style={{flex: 1, padding:'16px 10px'}}>Job-level parameters can be used by actions, filters and selectors.</div>
                     <IconButton iconClassName={"mdi mdi-plus"} tooltip={"Add Parameter"} onTouchTap={()=>this.addParam()}/>
                 </div>
+                }
                 <div style={{padding:16, paddingTop: 0}}>
                     {parameters.length === 0 &&
-                        <div style={{textAlign:'center', fontStyle: 'italic', fontWeight: 500, color: '#90A4AE'}}>No parameters defined</div>
+                    <div style={{textAlign:'center', fontStyle: 'italic', fontWeight: 500, color: '#90A4AE'}}>No parameters defined</div>
                     }
-                    {parameters.map((p,i) => <Parameter key={p.Name || "p-" + i} onChange={(v)=>{this.changeParam(i, v)}} onDelete={() => this.removeParam(i)} parameter={p} edit={p.edit}/>)}
+                    {parameters.map((p,i) => <Parameter
+                        key={p.Name || "p-" + i}
+                        onChange={(v)=>{this.changeParam(i, v)}}
+                        onDelete={() => this.removeParam(i)}
+                        parameter={p}
+                        edit={p.edit}
+                        editable={!inDialog}
+                    />)}
                 </div>
             </div>
 
