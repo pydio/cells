@@ -101,7 +101,8 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in the system")
 		return input, false
 	}
-	tmpInput := ActionMessage{Users: []*idm.User{user}}
+	// replace user
+	tmpInput := input.WithUser(user)
 	_, _, pass := selector.Filter(ctx, tmpInput)
 	return input, pass
 }
