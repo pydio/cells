@@ -138,97 +138,11 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
-	fakeLongJob := &jobs.Job{
-		ID:             "fake-long-job",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.FakeLongJob",
-		Inactive:       true,
-		MaxConcurrency: 1,
-		Actions: []*jobs.Action{
-			{
-				ID: "actions.test.fake",
-				Parameters: map[string]string{
-					"timer":  "10000",
-					"ticker": "5",
-				},
-			},
-		},
-	}
-
-	fakeUsersJob := &jobs.Job{
-		ID:             "fake-users-job",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.FakeUsersJob",
-		Inactive:       true,
-		MaxConcurrency: 1,
-		Actions: []*jobs.Action{
-			{
-				ID: "fake.users.creation",
-				Parameters: map[string]string{
-					"number": "100",
-					"prefix": "fakeUser-",
-				},
-			},
-		},
-	}
-
-	fakeRPCJob := &jobs.Job{
-		ID:             "fake-rpc-job",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.FakeGrpcJob",
-		MaxConcurrency: 1,
-		Inactive:       true,
-		Actions: []*jobs.Action{
-			{
-				ID: "actions.cmd.rpc",
-				Parameters: map[string]string{
-					"service": "pydio.grpc.role",
-					"method":  "RoleService.CreateRole",
-					"request": `{"Role": {"Label": "test"}}`,
-				},
-			},
-		},
-	}
-
-	selectorQuery, _ := ptypes.MarshalAny(&tree.Query{
-		// Use the Tree search
-		MaxSize:    5 * 1024 * 1024,
-		Type:       tree.NodeType_LEAF,
-		PathPrefix: []string{"/"},
-		Extension:  "jpg|png",
-		// Use the Search Server instead
-		//FreeString: "+Meta.ImageDimensions.Height:>=2000",
-	})
-	fakeSelectorJob := &jobs.Job{
-		ID:             "fake-nodes-selector",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Perform a fake action on a subset (images smaller than 5MB)",
-		MaxConcurrency: 1,
-		Inactive:       true,
-		Actions: []*jobs.Action{
-			{
-				ID: "actions.test.fake",
-				Parameters: map[string]string{
-					"timer":  "100",
-					"ticker": "1",
-				},
-				NodesSelector: &jobs.NodesSelector{
-					Query: &service.Query{SubQueries: []*any.Any{selectorQuery}},
-				},
-			},
-		},
-	}
-
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
 		cleanThumbsJob,
 		stuckTasksJob,
 		cleanUserDataJob,
-		// Testing Jobs
-		fakeLongJob,
-		fakeRPCJob,
-		fakeUsersJob,
-		fakeSelectorJob,
 	}
 
 	return defJobs
