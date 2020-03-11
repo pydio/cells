@@ -50,7 +50,7 @@ var (
 
 type FakeUsersAction struct {
 	prefix string
-	number int64
+	number string
 }
 
 func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -61,12 +61,35 @@ func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescripti
 		Category:        actions.ActionCategoryIDM,
 		Description:     "For debugging purpose, create many users using a remote API for generating names",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (f *FakeUsersAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "number",
+					Type:        forms.ParamString,
+					Label:       "Number of users",
+					Description: "Total number of users to create",
+					Default:     "100",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "prefix",
+					Type:        forms.ParamString,
+					Label:       "Ticks",
+					Description: "Optional prefix to use for users logins",
+					Default:     "user-",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier
@@ -92,14 +115,12 @@ func (f *FakeUsersAction) ProvidesProgress() bool {
 // Init passes parameters to the action
 func (f *FakeUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	f.prefix = "user-"
-	f.number = 200
 	if prefix, ok := action.Parameters["prefix"]; ok {
 		f.prefix = prefix
 	}
-	if strNumber, ok := action.Parameters["ticker"]; ok {
-		if number, err := strconv.ParseInt(strNumber, 10, 64); err == nil {
-			f.number = number
-		}
+	f.number = "200"
+	if strNumber, ok := action.Parameters["number"]; ok {
+		f.number = strNumber
 	}
 	return nil
 }
@@ -107,6 +128,18 @@ func (f *FakeUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Act
 // Run the actual action code
 func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 	log.TasksLogger(ctx).Info("Starting fake users creation")
+
+	var number int64
+	if n, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.number), 10, 64); err == nil {
+		number = n
+	} else {
+		return input.WithError(err), err
+	}
+
+	prefix := f.prefix
+	if f.prefix != "" {
+		prefix = jobs.EvaluateFieldStr(ctx, input, f.prefix)
+	}
 
 	outputMessage := input
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
@@ -140,7 +173,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		}
 	}
 
-	steps := float32(f.number)
+	steps := float32(number)
 	step := float32(0)
 	rand.Seed(time.Now().Unix())
 	type Value struct {
@@ -150,7 +183,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	}
 	var values []Value
 
-	if response, err := http.Get(fmt.Sprintf("https://uinames.com/api/?region=france&amount=%d", f.number)); err == nil {
+	if response, err := http.Get(fmt.Sprintf("https://uinames.com/api/?region=france&amount=%d", number)); err == nil {
 		if contents, err := ioutil.ReadAll(response.Body); err == nil {
 			type Response struct {
 				Name    string `json:"name"`
@@ -173,9 +206,9 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		response.Body.Close()
 	}
 	if len(values) == 0 {
-		for i := int64(0); i < f.number; i++ {
+		for i := int64(0); i < number; i++ {
 			s := uniuri.NewLen(4)
-			login := fmt.Sprintf("%s-%s-%d", f.prefix, s, i+1)
+			login := fmt.Sprintf("%s-%s-%d", prefix, s, i+1)
 			values = append(values, Value{
 				Login:  login,
 				Label:  login,
