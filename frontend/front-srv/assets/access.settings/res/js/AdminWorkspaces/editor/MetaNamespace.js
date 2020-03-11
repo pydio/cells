@@ -253,13 +253,13 @@ class MetaNamespace extends React.Component{
                 {type === 'choice' && this.renderSelectionBoard()}
 
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
-                <div style={{padding:'6px 0 10px'}}>
+                <div style={{padding:'6px 0'}}>
                     <Toggle label={m('toggle.index')} disabled={readonly} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
                 </div>
-                <div style={{padding:'6px 0 10px'}}>
+                <div style={{padding:'6px 0'}}>
                     <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
                 </div>
-                <div style={{padding:'6px 0 10px'}}>
+                <div style={{padding:'6px 0'}}>
                     <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
                 </div>
 

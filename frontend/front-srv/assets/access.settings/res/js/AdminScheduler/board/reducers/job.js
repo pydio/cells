@@ -202,7 +202,7 @@ export default function(job = new JobsJob(), action) {
         case REMOVE_MODEL_ACTION:
             const {model, parentModel, removeFilter} = action;
             if(model instanceof Action) {
-                console.log(model, parentModel);
+                //console.log(model, parentModel);
                 if(parentModel) {
                     // Action is connected from Action
                     if(parentModel instanceof Action){

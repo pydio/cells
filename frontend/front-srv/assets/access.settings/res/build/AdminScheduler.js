@@ -43619,7 +43619,7 @@ var CreateFilters = (function (_React$Component) {
             var onSubmit = this.props.onSubmit;
 
             onSubmit(model, type);
-            console.log(model, type);
+            //console.log(model, type);
             this.setState({ action: null, model: null, type: '', random: null });
         }
     }, {
@@ -43798,7 +43798,7 @@ var CreateFilters = (function (_React$Component) {
                             bbModel.Sections.push(section);
                         }
                     });
-                    console.log(bbModel);
+                    //console.log(bbModel);
 
                     title = selectors ? "Feed input with data" : "Filter data input";
                     content = _react2['default'].createElement(PanelBigButtons, {
@@ -48428,7 +48428,7 @@ var FormPanel = (function (_React$Component) {
             if (action.ID !== _actionsEditor.JOB_ACTION_EMPTY) {
                 children.push(_react2['default'].createElement(
                     'div',
-                    { style: { padding: '0 12px', marginTop: -6 } },
+                    { style: { padding: '0 12px', marginTop: -12 } },
                     _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
                             _this4.onLabelChange(v);
                         }, fullWidth: true }),
@@ -53419,7 +53419,7 @@ exports["default"] = function (job, action) {
                 removeFilter = action.removeFilter;
 
             if (model instanceof _graphAction2["default"]) {
-                console.log(model, parentModel);
+                //console.log(model, parentModel);
                 if (parentModel) {
                     // Action is connected from Action
                     if (parentModel instanceof _graphAction2["default"]) {

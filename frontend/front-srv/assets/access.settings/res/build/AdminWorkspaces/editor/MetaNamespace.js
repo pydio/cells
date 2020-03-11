@@ -411,21 +411,21 @@ var MetaNamespace = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
+                    { style: { padding: '6px 0' } },
                     _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), disabled: readonly, labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
+                    { style: { padding: '6px 0' } },
                     _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), disabled: readonly, labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
+                    { style: { padding: '6px 0' } },
                     _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead || readonly, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
                         } }, ModernStyles.toggleField))

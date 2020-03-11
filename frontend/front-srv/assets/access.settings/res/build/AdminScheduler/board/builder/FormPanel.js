@@ -436,7 +436,7 @@ var FormPanel = (function (_React$Component) {
             if (action.ID !== _actionsEditor.JOB_ACTION_EMPTY) {
                 children.push(_react2['default'].createElement(
                     'div',
-                    { style: { padding: '0 12px', marginTop: -6 } },
+                    { style: { padding: '0 12px', marginTop: -12 } },
                     _react2['default'].createElement(ModernTextField, { hintText: "Custom label (optional - 20 chars max)", value: action.Label, onChange: function (e, v) {
                             _this4.onLabelChange(v);
                         }, fullWidth: true }),

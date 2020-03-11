@@ -239,7 +239,7 @@ exports["default"] = function (job, action) {
                 removeFilter = action.removeFilter;
 
             if (model instanceof _graphAction2["default"]) {
-                console.log(model, parentModel);
+                //console.log(model, parentModel);
                 if (parentModel) {
                     // Action is connected from Action
                     if (parentModel instanceof _graphAction2["default"]) {

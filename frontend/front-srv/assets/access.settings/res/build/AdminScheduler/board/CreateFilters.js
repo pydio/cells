@@ -258,7 +258,7 @@ var CreateFilters = (function (_React$Component) {
             var onSubmit = this.props.onSubmit;
 
             onSubmit(model, type);
-            console.log(model, type);
+            //console.log(model, type);
             this.setState({ action: null, model: null, type: '', random: null });
         }
     }, {
@@ -437,7 +437,7 @@ var CreateFilters = (function (_React$Component) {
                             bbModel.Sections.push(section);
                         }
                     });
-                    console.log(bbModel);
+                    //console.log(bbModel);
 
                     title = selectors ? "Feed input with data" : "Filter data input";
                     content = _react2['default'].createElement(PanelBigButtons, {

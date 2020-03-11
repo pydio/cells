@@ -311,7 +311,7 @@ class FormPanel extends React.Component {
 
         if(action.ID !== JOB_ACTION_EMPTY){
             children.push(
-                <div style={{padding: '0 12px', marginTop: -6}}>
+                <div style={{padding: '0 12px', marginTop: -12}}>
                     <ModernTextField hintText={"Custom label (optional - 20 chars max)"} value={action.Label} onChange={(e,v) => {this.onLabelChange(v)}} fullWidth={true}/>
                     <ModernTextField hintText={"Comment (optional)"} style={{marginTop: -2 }} multiLine={true} value={action.Description} onChange={(e,v) => {this.onDescriptionChange(v)}} fullWidth={true}/>
                 </div>

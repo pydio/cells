@@ -237,7 +237,7 @@ class CreateFilters extends React.Component {
     insert(model, type){
         const {onSubmit} = this.props;
         onSubmit(model, type);
-        console.log(model, type);
+        //console.log(model, type);
         this.setState({action: null, model:null, type:'', random: null});
     }
 
@@ -370,7 +370,7 @@ class CreateFilters extends React.Component {
                     bbModel.Sections.push(section);
                 }
             });
-            console.log(bbModel);
+            //console.log(bbModel);
 
             title = selectors? "Feed input with data" : "Filter data input";
             content = (
