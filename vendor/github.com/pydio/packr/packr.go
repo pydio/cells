@@ -4,11 +4,16 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"runtime"
+	"strings"
 	"sync"
 )
 
 var gil = &sync.Mutex{}
 var data = map[string]map[string][]byte{}
+
+var gil2 = &sync.Mutex{}
+var loaders = map[string]func(){}
 
 // PackBytes packs bytes for a file into a box.
 func PackBytes(box string, name string, bb []byte) {
@@ -45,4 +50,34 @@ func PackJSONBytes(box string, name string, jbb string) error {
 	}
 	PackBytes(box, name, bb)
 	return nil
+}
+
+func PackBoxLoader(box string, loader func()) {
+	gil2.Lock()
+	defer gil2.Unlock()
+	loaders[box] = loader
+}
+
+// UnpackBytes unpacks bytes for specific box.
+func UnpackBytes(box string) {
+	gil.Lock()
+	defer gil.Unlock()
+	delete(data, box)
+}
+
+func osPaths(paths ...string) []string {
+	if runtime.GOOS == "windows" {
+		for i, path := range paths {
+			paths[i] = strings.Replace(path, "/", "\\", -1)
+		}
+	}
+
+	return paths
+}
+
+func osPath(path string) string {
+	if runtime.GOOS == "windows" {
+		return strings.Replace(path, "/", "\\", -1)
+	}
+	return path
 }
