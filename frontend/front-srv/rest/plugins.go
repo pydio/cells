@@ -24,7 +24,7 @@ package rest
 import (
 	"encoding/gob"
 
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"

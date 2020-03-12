@@ -25,11 +25,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/packr"
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/ladon"
 	manager "github.com/ory/ladon/manager/sql"
 	"github.com/pborman/uuid"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 

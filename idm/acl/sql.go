@@ -25,9 +25,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	goqu "gopkg.in/doug-martin/goqu.v4"

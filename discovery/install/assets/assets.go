@@ -32,7 +32,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 )
 
 var (

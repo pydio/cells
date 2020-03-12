@@ -23,8 +23,8 @@ package meta
 import (
 	"time"
 
-	"github.com/gobuffalo/packr"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common"

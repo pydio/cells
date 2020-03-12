@@ -23,9 +23,9 @@ package i18n
 import (
 	"strings"
 
-	"github.com/gobuffalo/packr"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/pydio/packr"
 )
 
 type I18nBundle struct {

@@ -25,10 +25,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
