@@ -22,7 +22,7 @@
 package lang
 
 import (
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 
 	"github.com/pydio/cells/common/utils/i18n"
 )

@@ -24,8 +24,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/gobuffalo/packr"
 	"github.com/pborman/uuid"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 

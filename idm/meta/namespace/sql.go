@@ -21,12 +21,12 @@
 package namespace
 
 import (
-	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 )
 

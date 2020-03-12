@@ -21,7 +21,7 @@
 package frontend
 
 import (
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 )
 
 var (

@@ -23,12 +23,12 @@ package key
 import (
 	"sync/atomic"
 
-	"github.com/gobuffalo/packr"
 	"github.com/gogo/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 )
 

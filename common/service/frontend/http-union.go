@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin/json"
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 )
 
 type UnionHttpFs struct {

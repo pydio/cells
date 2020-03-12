@@ -23,7 +23,7 @@ package resources
 import (
 	"fmt"
 
-	"github.com/gobuffalo/packr"
+	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common"

@@ -29,10 +29,10 @@ import (
 
 	sqldb "database/sql"
 
-	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/packr"
 	"github.com/rubenv/sql-migrate"
 )
 

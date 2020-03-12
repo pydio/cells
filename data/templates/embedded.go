@@ -6,9 +6,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/gobuffalo/packr"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/packr"
 )
 
 func init() {
