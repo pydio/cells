@@ -57,7 +57,7 @@ var InlineLabel = (function (_React$Component) {
     }, {
         key: 'onEnter',
         value: function onEnter(event) {
-            if (event.key == "Enter") {
+            if (event.key === "Enter") {
                 this.setState({ edit: false });
                 this.props.onChange(this.state.label);
             }

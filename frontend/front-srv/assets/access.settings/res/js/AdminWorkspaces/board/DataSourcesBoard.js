@@ -29,7 +29,7 @@ import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
-import uuid from 'uuid4'
+import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
 import {muiThemeable} from 'material-ui/styles'

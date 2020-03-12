@@ -1,15 +1,31 @@
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from 'react'
 import Pydio from 'pydio'
-import {RightPanel} from './styles'
 import {Divider, FontIcon, IconButton, FlatButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
-import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
-import {LightGrey} from "../graph/Configs";
 const {Stepper} = Pydio.requireLib("components");
 const {Dialog, PanelBigButtons} = Stepper;
 
-
-const {ModernSelectField} = Pydio.requireLib('hoc');
+const LightGrey = '#e0e0e0';
 
 const eventMessages = {
     NODE_CHANGE:{
@@ -292,44 +308,5 @@ class Events extends React.Component{
 
 }
 
-class Triggers extends React.Component {
 
-    onSwitch(type){
-        const {onChange} = this.props;
-        let data = null;
-        if(type === 'manual'){
-            data = [];
-        } else if(type === 'schedule') {
-            data = JobsSchedule.constructFromObject({Iso8601Schedule : ''});
-        }
-        onChange(type, data);
-    }
-
-    render() {
-        const {job, onDismiss, onChange} = this.props;
-        let type = 'manual';
-        if(job.Schedule){
-            type = 'schedule';
-        } else if (job.EventNames !== undefined) {
-            type = 'event'
-        }
-        return (
-            <RightPanel title={"Job Trigger"} onDismiss={onDismiss}>
-                <div style={{padding: 10}}>
-                    <ModernSelectField fullWidth={true} value={type} onChange={(e,i,v) => this.onSwitch(v)}>
-                        <MenuItem value={"manual"} primaryText={"Manual Trigger"}/>
-                        <MenuItem value={"schedule"} primaryText={"Scheduled"}/>
-                        <MenuItem value={"event"} primaryText={"Events"}/>
-                    </ModernSelectField>
-                    <div>
-                        {type === 'schedule' && <ScheduleForm schedule={job.Schedule} onChange={(newSched) => {onChange('schedule', newSched)}} edit={true}/>}
-                        {type === 'event' && <Events events={job.EventNames || []}  onChange={(newEv) => {onChange('event', newEv)}} />}
-                    </div>
-                </div>
-            </RightPanel>
-        )
-    }
-
-}
-
-export {Triggers, Events}
+export default Events;

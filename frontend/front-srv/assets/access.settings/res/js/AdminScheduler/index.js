@@ -19,7 +19,15 @@
  */
 
 import Dashboard from './board/Dashboard'
+import JobsList from './board/JobsList'
+import TasksList from './board/TasksList'
+import ScheduleForm from './board/ScheduleForm'
+import Events from './board/Events'
 
 window.AdminScheduler = {
-    Dashboard       : Dashboard,
+    Dashboard,
+    JobsList,
+    TasksList,
+    ScheduleForm,
+    Events
 };

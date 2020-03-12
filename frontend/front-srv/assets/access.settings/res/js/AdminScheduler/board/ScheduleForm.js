@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -22,10 +22,12 @@ import React from 'react'
 import Pydio from 'pydio'
 import {JobsJob} from 'pydio/http/rest-api'
 import {Dialog, FlatButton, FontIcon, MenuItem, SelectField, TextField, TimePicker} from 'material-ui'
-import {Blue, LightGrey} from "../graph/Configs";
 
 const {moment} = Pydio.requireLib('boot');
 const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+
+const Blue = '#2196f3';
+const LightGrey = '#e0e0e0';
 
 class ScheduleForm extends React.Component {
 
@@ -176,7 +178,7 @@ class ScheduleForm extends React.Component {
     render() {
         const {edit} = this.props;
         if(!edit){
-            return <div>{ScheduleForm.readableString(this.state, this.T, true)}</div>
+            return <span>{ScheduleForm.readableString(this.state, this.T, true)}</span>
         }
         const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
         let monthdays = [];

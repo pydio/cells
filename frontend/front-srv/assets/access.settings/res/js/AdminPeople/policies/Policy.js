@@ -21,8 +21,8 @@
 import React from 'react'
 import Rule from './Rule'
 import {ListItem, FontIcon, RaisedButton} from 'material-ui'
-import InlineLabel from './editor/InlineLabel'
-import uuid from 'uuid4'
+import InlineLabel from './InlineLabel'
+import {v4 as uuid} from 'uuid'
 
 class Policy extends React.Component{
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -44,29 +44,25 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _materialUi = require('material-ui');
+var _pydioHttpApi = require('pydio/http/api');
 
-var _TaskActivity = require('./TaskActivity');
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
-
-var _JobGraph = require("./JobGraph");
-
-var _JobGraph2 = _interopRequireDefault(_JobGraph);
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
+var _materialUi = require('material-ui');
+
+var _TasksList = require('./TasksList');
+
+var _TasksList2 = _interopRequireDefault(_TasksList);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
-var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
-var moment = _Pydio$requireLib.moment;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib2.MaterialTable;
 
 var JobBoard = (function (_React$Component) {
     _inherits(JobBoard, _React$Component);
@@ -78,7 +74,7 @@ var JobBoard = (function (_React$Component) {
         this.state = {
             mode: 'log', // 'log' or 'selection'
             selectedRows: [],
-            working: false,
+            loading: false,
             taskLogs: null,
             job: props.job,
             create: props.create,
@@ -87,94 +83,21 @@ var JobBoard = (function (_React$Component) {
     }
 
     _createClass(JobBoard, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            // Load descriptions
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.schedulerActionsDiscovery().then(function (data) {
+                _this.setState({ descriptions: data.Actions });
+            });
+        }
+    }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
                 this.setState({ job: nextProps.job });
-            }
-        }
-    }, {
-        key: 'renderActions',
-        value: function renderActions(row) {
-            var pydio = this.props.pydio;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.scheduler.task.action.' + id] || id;
-            };
-
-            var store = JobsStore.getInstance();
-            var actions = [];
-            var icProps = {
-                iconStyle: { color: 'rgba(0,0,0,.3)' },
-                onClick: function onClick(e) {
-                    return e.stopPropagation();
-                }
-            };
-            if (row.Status === 'Running' && row.CanPause) {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
-                        store.controlTask(row, 'Pause');
-                    } }, icProps)));
-            }
-            if (row.Status === 'Paused') {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
-                        store.controlTask(row, 'Resume');
-                    } }, icProps)));
-            }
-            if (row.Status === 'Running' || row.Status === 'Paused') {
-                if (row.CanStop) {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
-                            store.controlTask(row, 'Stop');
-                        } }, icProps)));
-                } else if (row.StatusMessage === 'Pending') {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
-                            store.controlTask(row, 'Delete');
-                        } }, icProps)));
-                }
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
-                        store.controlTask(row, 'Delete');
-                    } }, icProps)));
-            }
-            return actions;
-        }
-    }, {
-        key: 'onSelectTaskRows',
-        value: function onSelectTaskRows(rows) {
-            var mode = this.state.mode;
-
-            if (mode === 'selection') {
-                this.setState({ selectedRows: rows });
-            } else if (rows.length === 1) {
-                this.setState({ taskLogs: rows[0] });
-            }
-        }
-    }, {
-        key: 'deleteSelection',
-        value: function deleteSelection() {
-            var _this = this;
-
-            var selectedRows = this.state.selectedRows;
-            var job = this.state.job;
-
-            var store = JobsStore.getInstance();
-            this.setState({ working: true });
-            store.deleteTasks(job.ID, selectedRows).then(function () {
-                _this.setState({ working: false, selectedRows: [], mode: 'log' });
-            });
-        }
-    }, {
-        key: 'deleteAll',
-        value: function deleteAll() {
-            var _this2 = this;
-
-            if (window.confirm('Are you sure?')) {
-                this.setState({ working: true });
-                var job = this.state.job;
-
-                var store = JobsStore.getInstance();
-                store.deleteAllTasksForJob(job.ID).then(function () {
-                    _this2.setState({ working: false });
-                });
             }
         }
     }, {
@@ -199,7 +122,7 @@ var JobBoard = (function (_React$Component) {
             _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                 var SchedulerServiceApi = sdk.SchedulerServiceApi;
 
-                var api = new SchedulerServiceApi(PydioApi.getRestClient());
+                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
                 return api.deleteJob(job.ID);
             }).then(function () {
                 onRequestClose(true);
@@ -213,61 +136,28 @@ var JobBoard = (function (_React$Component) {
     }, {
         key: 'onJsonSave',
         value: function onJsonSave(job) {
-            var _this3 = this;
+            var _this2 = this;
 
             // Artificial redraw : go null and back to job
             this.setState({ job: null, create: false }, function () {
-                _this3.setState({ job: job });
-            });
-        }
-    }, {
-        key: 'insertTaskLogRow',
-        value: function insertTaskLogRow(rows) {
-            var _this4 = this;
-
-            var pydio = this.props.pydio;
-            var _state2 = this.state;
-            var job = _state2.job;
-            var descriptions = _state2.descriptions;
-            var taskLogs = _state2.taskLogs;
-            var mode = _state2.mode;
-
-            if (mode === 'selection') {
-                return rows;
-            }
-            return rows.map(function (t) {
-                if (taskLogs && t.ID === taskLogs.ID) {
-                    var expandedRow = _react2['default'].createElement(_TaskActivity2['default'], {
-                        pydio: pydio,
-                        task: taskLogs,
-                        job: job,
-                        descriptions: descriptions,
-                        onRequestClose: function () {
-                            _this4.setState({ taskLogs: null });
-                        }
-                    });
-                    return _extends({}, t, { expandedRow: expandedRow });
-                } else {
-                    return t;
-                }
+                _this2.setState({ job: job });
             });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this5 = this;
+            var _this3 = this;
 
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
             var onRequestClose = _props2.onRequestClose;
             var adminStyles = _props2.adminStyles;
-            var _state3 = this.state;
-            var selectedRows = _state3.selectedRows;
-            var working = _state3.working;
-            var mode = _state3.mode;
-            var create = _state3.create;
-            var job = _state3.job;
+            var _state2 = this.state;
+            var loading = _state2.loading;
+            var create = _state2.create;
+            var job = _state2.job;
+            var descriptions = _state2.descriptions;
 
             if (!job) {
                 return null;
@@ -275,76 +165,6 @@ var JobBoard = (function (_React$Component) {
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
             };
-
-            var actionsHeader = _react2['default'].createElement(
-                'div',
-                { style: { lineHeight: 'initial', marginLeft: 5 } },
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
-            );
-            var idHeader = _react2['default'].createElement(
-                'div',
-                { style: { display: 'flex', alignItems: 'center', marginLeft: -20 } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { lineHeight: 'initial', marginLeft: 5 } },
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                            _this5.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
-                        }, disabled: working })
-                ),
-                _react2['default'].createElement(
-                    'span',
-                    null,
-                    m('task.id')
-                )
-            );
-
-            var keys = [{ name: 'ID', label: idHeader, hideSmall: true, style: { width: 110, fontSize: 15, paddingLeft: 20 }, headerStyle: { width: 110, paddingLeft: 20 }, renderCell: function renderCell(row) {
-                    return row.ID.substr(0, 8);
-                } }, { name: 'StartTime', style: { width: 100, paddingRight: 10 }, headerStyle: { width: 100, paddingRight: 10 }, label: m('task.start'), renderCell: function renderCell(row) {
-                    var m = moment(row.StartTime * 1000);
-                    var dateString = undefined;
-                    if (m.isSame(Date.now(), 'day')) {
-                        dateString = m.format('HH:mm:ss');
-                    } else {
-                        dateString = m.fromNow();
-                    }
-                    return dateString;
-                } }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, renderCell: function renderCell(row) {
-                    if (row.Status === 'Error') {
-                        return _react2['default'].createElement(
-                            'span',
-                            { style: { fontWeight: 500, color: '#E53935' } },
-                            row.StatusMessage
-                        );
-                    } else if (row.Status === 'Running') {
-                        return _react2['default'].createElement(SingleJobProgress, { pydio: pydio, jobID: row.JobID, taskID: row.ID });
-                    } else {
-                        return row.StatusMessage;
-                    }
-                } }, { name: 'EndTime', style: { width: 100 }, headerStyle: { width: 100 }, label: m('task.duration'), hideSmall: true, renderCell: function renderCell(row) {
-                    var e = moment(Date.now());
-                    if (row.EndTime) {
-                        e = moment(row.EndTime * 1000);
-                    }
-                    var d = e.diff(moment(row.StartTime * 1000));
-                    var f = moment.utc(d);
-                    var h = f.format('H');
-                    var mn = f.format('m');
-                    var ss = f.format('s');
-                    if (h === '0' && mn === '0' && ss === '0') {
-                        return '< 1s';
-                    }
-                    return (h === '0' ? '' : h + 'h:') + (h === '0' && mn === '0' ? '' : mn + 'mn:') + ss + 's';
-                } }, { name: 'Actions', label: actionsHeader, style: { textAlign: 'right', width: 120, paddingLeft: 0 }, headerStyle: { width: 120, paddingLeft: 0, paddingRight: 20, textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
-            var tasks = job.Tasks || [];
-            var runningStatus = ['Running', 'Paused'];
-
-            tasks.sort(function (a, b) {
-                if (!a.StartTime || !b.StartTime || a.StartTime === b.StartTime) {
-                    return a.ID > b.ID ? 1 : -1;
-                }
-                return a.StartTime > b.StartTime ? -1 : 1;
-            });
 
             var actions = [];
             var flatProps = _extends({}, adminStyles.props.header.flatButton);
@@ -370,18 +190,10 @@ var JobBoard = (function (_React$Component) {
                 }
                 if (jobsEditable) {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete", color: iconColor }), label: m('job.delete'), primary: true, onTouchTap: function () {
-                            _this5.deleteJob();
+                            _this3.deleteJob();
                         } }, flatProps)));
                 }
             }
-            var running = tasks.filter(function (t) {
-                return runningStatus.indexOf(t.Status) !== -1;
-            });
-            running = this.insertTaskLogRow(running);
-            var other = tasks.filter(function (t) {
-                return runningStatus.indexOf(t.Status) === -1;
-            });
-            other = this.insertTaskLogRow(other);
 
             return _react2['default'].createElement(
                 'div',
@@ -402,77 +214,20 @@ var JobBoard = (function (_React$Component) {
                     ),
                     backButtonAction: onRequestClose,
                     actions: actions,
-                    loading: working
+                    loading: loading
                 }),
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], {
+                    _react2['default'].createElement(_TasksList2['default'], {
+                        pydio: pydio,
                         job: job,
-                        random: Math.random(),
-                        jobsEditable: jobsEditable,
-                        create: create,
-                        adminStyles: adminStyles,
-                        onJobSave: this.onJobSave.bind(this),
-                        onJsonSave: this.onJsonSave.bind(this),
-                        onUpdateDescriptions: function (desc) {
-                            _this5.setState({ descriptions: desc });
-                        }
-                    }),
-                    !create && _react2['default'].createElement(
-                        'div',
-                        null,
-                        running.length > 0 && _react2['default'].createElement(AdminComponents.SubHeader, { title: m('tasks.running') }),
-                        running.length > 0 && _react2['default'].createElement(
-                            _materialUi.Paper,
-                            adminStyles.body.block.props,
-                            _react2['default'].createElement(MaterialTable, {
-                                data: running,
-                                columns: keys,
-                                hideHeaders: true,
-                                showCheckboxes: false,
-                                emptyStateString: m('tasks.running.empty'),
-                                onSelectRows: function (rows) {
-                                    if (rows.length === 1 && running.length) {
-                                        _this5.setState({ taskLogs: rows[0] });
-                                    }
-                                },
-                                masterStyles: adminStyles.body.tableMaster
-                            })
-                        ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, {
-                            title: _react2['default'].createElement(
-                                'div',
-                                { style: { display: 'flex', width: '100%', alignItems: 'baseline' } },
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { flex: 1 } },
-                                    m('tasks.history')
-                                ),
-                                mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
-                                    'div',
-                                    { style: { lineHeight: 'initial' } },
-                                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
-                                )
-                            )
-                        }),
-                        _react2['default'].createElement(
-                            _materialUi.Paper,
-                            adminStyles.body.block.props,
-                            _react2['default'].createElement(MaterialTable, {
-                                data: other,
-                                columns: keys,
-                                showCheckboxes: mode === 'selection',
-                                onSelectRows: this.onSelectTaskRows.bind(this),
-                                emptyStateString: m('tasks.history.empty'),
-                                selectedRows: selectedRows,
-                                deselectOnClickAway: true,
-                                masterStyles: adminStyles.body.tableMaster,
-                                paginate: [10, 25, 50, 100],
-                                defaultPageSize: 10
-                            })
-                        )
-                    )
+                        onLoading: function (l) {
+                            _this3.setState({ loading: l });
+                        },
+                        descriptions: descriptions,
+                        adminStyles: adminStyles
+                    })
                 )
             );
         }

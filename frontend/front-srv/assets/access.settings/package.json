@@ -26,6 +26,6 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
     "swagger-ui-react": "3.24.0",
-    "uuid4": "1.1.4"
+    "uuid": "^7.0.2"
   }
 }

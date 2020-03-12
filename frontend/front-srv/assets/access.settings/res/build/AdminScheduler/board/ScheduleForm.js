@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -26,6 +26,8 @@ Object.defineProperty(exports, '__esModule', {
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -44,14 +46,6 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _materialUi = require('material-ui');
@@ -60,60 +54,47 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib.moment;
 
-var JobSchedule = (function (_React$Component) {
-    _inherits(JobSchedule, _React$Component);
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 
-    function JobSchedule(props) {
-        _classCallCheck(this, JobSchedule);
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
 
-        _get(Object.getPrototypeOf(JobSchedule.prototype), 'constructor', this).call(this, props);
-        var job = props.job;
+var Blue = '#2196f3';
+var LightGrey = '#e0e0e0';
 
-        if (job.Schedule && job.Schedule.Iso8601Schedule) {
-            this.state = JobSchedule.parseIso8601(job.Schedule.Iso8601Schedule);
+var ScheduleForm = (function (_React$Component) {
+    _inherits(ScheduleForm, _React$Component);
+
+    function ScheduleForm(props) {
+        _classCallCheck(this, ScheduleForm);
+
+        _get(Object.getPrototypeOf(ScheduleForm.prototype), 'constructor', this).call(this, props);
+        var schedule = props.schedule;
+
+        if (schedule.Iso8601Schedule) {
+            this.state = ScheduleForm.parseIso8601(schedule.Iso8601Schedule);
         } else {
-            this.state = { frequency: 'manual' };
+            this.state = { frequency: 'daily', daytime: new Date() };
         }
-        this.state['open'] = false;
     }
 
-    _createClass(JobSchedule, [{
-        key: 'updateJob',
-        value: function updateJob() {
-            var _this = this;
-
+    _createClass(ScheduleForm, [{
+        key: 'onUpdate',
+        value: function onUpdate() {
             var _props = this.props;
-            var job = _props.job;
-            var onUpdate = _props.onUpdate;
-            var frequency = this.state.frequency;
+            var schedule = _props.schedule;
+            var onChange = _props.onChange;
 
-            if (frequency === 'manual') {
-                if (job.Schedule !== undefined) {
-                    delete job.Schedule;
-                }
-                job.AutoStart = true;
-            } else {
-                job.Schedule = { Iso8601Schedule: JobSchedule.makeIso8601FromState(this.state) };
-                if (job.AutoStart !== undefined) {
-                    delete job.AutoStart;
-                }
+            schedule.Iso8601Schedule = ScheduleForm.makeIso8601FromState(this.state);
+            onChange(schedule);
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps, prevState) {
+            if (prevState !== this.state) {
+                this.onUpdate();
             }
-            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                var SchedulerServiceApi = sdk.SchedulerServiceApi;
-                var JobsPutJobRequest = sdk.JobsPutJobRequest;
-
-                var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var req = new JobsPutJobRequest();
-                // Clone and remove tasks
-                req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
-                if (req.Job.Tasks !== undefined) {
-                    delete req.Job.Tasks;
-                }
-                api.putJob(req).then(function () {
-                    onUpdate();
-                    _this.setState({ open: false });
-                });
-            });
         }
     }, {
         key: 'T',
@@ -150,7 +131,7 @@ var JobSchedule = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
+            var _this = this;
 
             var edit = this.props.edit;
 
@@ -158,7 +139,7 @@ var JobSchedule = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'span',
                     null,
-                    JobSchedule.readableString(this.state, this.T, true)
+                    ScheduleForm.readableString(this.state, this.T, true)
                 );
             }
             var _state2 = this.state;
@@ -176,120 +157,98 @@ var JobSchedule = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), label: JobSchedule.readableString(this.state, this.T, true), onTouchTap: function () {
-                        _this2.setState({ open: true });
-                    } }),
                 _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        title: 'Job Schedule',
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onTouchTap: function () {
-                                _this2.setState({ open: false });
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Save", onTouchTap: function () {
-                                _this2.updateJob();
-                            } })],
-                        modal: false,
-                        open: this.state.open,
-                        contentStyle: { width: 320 }
-                    },
+                    'div',
+                    { style: { padding: '10px 0', textAlign: 'center' } },
                     _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { color: '#212121' } },
-                                JobSchedule.readableString(this.state, this.T, false)
-                            ),
-                            frequency !== 'manual' && _react2['default'].createElement(
-                                'div',
-                                { style: { fontSize: 11, paddingTop: 5 } },
-                                'ISO8601: ',
-                                JobSchedule.makeIso8601FromState(this.state)
-                            )
-                        ),
-                        _react2['default'].createElement(
-                            _materialUi.SelectField,
-                            {
-                                floatingLabelText: this.T('schedule.type'),
-                                value: frequency,
-                                onChange: function (e, i, val) {
-                                    _this2.changeFrequency(val);
-                                },
-                                fullWidth: true
-                            },
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.T('schedule.type.manual') }),
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: 'monthly', primaryText: this.T('schedule.type.monthly') }),
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: 'weekly', primaryText: this.T('schedule.type.weekly') }),
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: 'daily', primaryText: this.T('schedule.type.daily') }),
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: 'timely', primaryText: this.T('schedule.type.timely') })
-                        ),
-                        frequency === 'monthly' && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                _materialUi.SelectField,
-                                {
-                                    floatingLabelText: this.T('schedule.detail.monthday'),
-                                    value: monthday,
-                                    onChange: function (e, i, val) {
-                                        _this2.setState({ monthday: val });
-                                    },
-                                    fullWidth: true
-                                },
-                                monthdays.map(function (d) {
-                                    return _react2['default'].createElement(_materialUi.MenuItem, { value: d, primaryText: d });
-                                })
-                            )
-                        ),
-                        frequency === 'weekly' && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                _materialUi.SelectField,
-                                {
-                                    floatingLabelText: this.T('schedule.detail.weekday'),
-                                    value: weekday,
-                                    onChange: function (e, i, val) {
-                                        _this2.setState({ weekday: val });
-                                    },
-                                    fullWidth: true
-                                },
-                                weekdays.map(function (d, i) {
-                                    return _react2['default'].createElement(_materialUi.MenuItem, { value: i, primaryText: d });
-                                })
-                            )
-                        ),
-                        (frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(_materialUi.TimePicker, {
-                                format: 'ampm',
-                                minutesStep: 5,
-                                floatingLabelText: this.T('schedule.detail.daytime'),
-                                value: daytime,
-                                onChange: function (e, v) {
-                                    _this2.setState({ daytime: v });
-                                },
-                                fullWidth: true
-                            })
-                        ),
-                        frequency === 'timely' && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(_materialUi.TextField, {
-                                floatingLabelText: this.T('schedule.detail.minutes'),
-                                value: everyminutes,
-                                type: "number",
-                                onChange: function (e, val) {
-                                    _this2.setState({ everyminutes: parseInt(val) });
-                                },
-                                fullWidth: true
-                            })
-                        )
+                        { style: { color: Blue, fontSize: 15, fontWeight: 500 } },
+                        ScheduleForm.readableString(this.state, this.T, false)
+                    ),
+                    frequency !== 'manual' && _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 11, paddingTop: 5, color: LightGrey } },
+                        'ISO8601: ',
+                        ScheduleForm.makeIso8601FromState(this.state)
                     )
+                ),
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    {
+                        floatingLabelText: this.T('schedule.type'),
+                        value: frequency,
+                        onChange: function (e, i, val) {
+                            _this.changeFrequency(val);
+                        },
+                        fullWidth: true
+                    },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'monthly', primaryText: this.T('schedule.type.monthly') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'weekly', primaryText: this.T('schedule.type.weekly') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'daily', primaryText: this.T('schedule.type.daily') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'timely', primaryText: this.T('schedule.type.timely') })
+                ),
+                frequency === 'monthly' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        {
+                            floatingLabelText: this.T('schedule.detail.monthday'),
+                            value: monthday,
+                            onChange: function (e, i, val) {
+                                _this.setState({ monthday: val });
+                            },
+                            fullWidth: true
+                        },
+                        monthdays.map(function (d) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: d, primaryText: d });
+                        })
+                    )
+                ),
+                frequency === 'weekly' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        {
+                            floatingLabelText: this.T('schedule.detail.weekday'),
+                            value: weekday,
+                            onChange: function (e, i, val) {
+                                _this.setState({ weekday: val });
+                            },
+                            fullWidth: true
+                        },
+                        weekdays.map(function (d, i) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: i, primaryText: d });
+                        })
+                    )
+                ),
+                (frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({
+                        format: 'ampm',
+                        minutesStep: 5,
+                        hintText: this.T('schedule.detail.daytime'),
+                        value: daytime,
+                        onChange: function (e, v) {
+                            _this.setState({ daytime: v });
+                        },
+                        fullWidth: true
+                    }, ModernStyles.textField))
+                ),
+                frequency === 'timely' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(ModernTextField, {
+                        floatingLabelText: this.T('schedule.detail.minutes'),
+                        value: everyminutes,
+                        type: "number",
+                        onChange: function (e, val) {
+                            _this.setState({ everyminutes: parseInt(val) });
+                        },
+                        fullWidth: true
+                    })
                 )
             );
         }
@@ -414,8 +373,8 @@ var JobSchedule = (function (_React$Component) {
         }
     }]);
 
-    return JobSchedule;
+    return ScheduleForm;
 })(_react2['default'].Component);
 
-exports['default'] = JobSchedule;
+exports['default'] = ScheduleForm;
 module.exports = exports['default'];

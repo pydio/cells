@@ -26,7 +26,7 @@ import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconM
 import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
-import uuid from 'uuid4'
+import {v4 as uuid} from 'uuid'
 
 import Policy from '../policies/Policy'
 

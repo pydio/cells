@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26,17 +46,9 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _styles = require('./styles');
-
 var _materialUi = require('material-ui');
 
-var _ScheduleForm = require('./ScheduleForm');
-
-var _ScheduleForm2 = _interopRequireDefault(_ScheduleForm);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _graphConfigs = require("../graph/Configs");
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
@@ -44,9 +56,7 @@ var Stepper = _Pydio$requireLib.Stepper;
 var Dialog = Stepper.Dialog;
 var PanelBigButtons = Stepper.PanelBigButtons;
 
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
-
-var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var LightGrey = '#e0e0e0';
 
 var eventMessages = {
     NODE_CHANGE: {
@@ -250,7 +260,7 @@ var Events = (function (_React$Component) {
                     key: e,
                     disabled: true,
                     primaryText: Events.eventData(e).title,
-                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: _graphConfigs.LightGrey }, onTouchTap: function () {
+                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: LightGrey }, onTouchTap: function () {
                             _this.remove(e);
                         } })
                 }));
@@ -372,76 +382,5 @@ var Events = (function (_React$Component) {
     return Events;
 })(_react2['default'].Component);
 
-var Triggers = (function (_React$Component2) {
-    _inherits(Triggers, _React$Component2);
-
-    function Triggers() {
-        _classCallCheck(this, Triggers);
-
-        _get(Object.getPrototypeOf(Triggers.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(Triggers, [{
-        key: 'onSwitch',
-        value: function onSwitch(type) {
-            var onChange = this.props.onChange;
-
-            var data = null;
-            if (type === 'manual') {
-                data = [];
-            } else if (type === 'schedule') {
-                data = _pydioHttpRestApi.JobsSchedule.constructFromObject({ Iso8601Schedule: '' });
-            }
-            onChange(type, data);
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _props = this.props;
-            var job = _props.job;
-            var onDismiss = _props.onDismiss;
-            var onChange = _props.onChange;
-
-            var type = 'manual';
-            if (job.Schedule) {
-                type = 'schedule';
-            } else if (job.EventNames !== undefined) {
-                type = 'event';
-            }
-            return _react2['default'].createElement(
-                _styles.RightPanel,
-                { title: "Job Trigger", onDismiss: onDismiss },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, value: type, onChange: function (e, i, v) {
-                                return _this2.onSwitch(v);
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "event", primaryText: "Events" })
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        null,
-                        type === 'schedule' && _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, onChange: function (newSched) {
-                                onChange('schedule', newSched);
-                            }, edit: true }),
-                        type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [], onChange: function (newEv) {
-                                onChange('event', newEv);
-                            } })
-                    )
-                )
-            );
-        }
-    }]);
-
-    return Triggers;
-})(_react2['default'].Component);
-
-exports.Triggers = Triggers;
-exports.Events = Events;
+exports['default'] = Events;
+module.exports = exports['default'];

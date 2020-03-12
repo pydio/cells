@@ -72,9 +72,7 @@ var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var _editorVersionPolicyPeriods = require('../editor/VersionPolicyPeriods');
 
@@ -284,7 +282,7 @@ var DataSourcesBoard = (function (_React$Component) {
             if (versionPolicies === undefined) {
                 create = true;
                 versionPolicy = new _pydioHttpRestApi.TreeVersioningPolicy();
-                versionPolicy.Uuid = (0, _uuid42['default'])();
+                versionPolicy.Uuid = (0, _uuid.v4)();
                 versionPolicy.VersionsDataSourceName = "default";
                 versionPolicy.VersionsDataSourceBucket = "versions";
                 var period = new _pydioHttpRestApi.TreeVersioningKeepPeriod();

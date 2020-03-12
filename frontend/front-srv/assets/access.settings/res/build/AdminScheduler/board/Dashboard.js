@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,8 +24,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydio = require('pydio');
@@ -36,46 +34,25 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _materialUi = require('material-ui');
-
 var _materialUiStyles = require('material-ui/styles');
 
 var _JobBoard = require('./JobBoard');
 
 var _JobBoard2 = _interopRequireDefault(_JobBoard);
 
-var _JobSchedule = require('./JobSchedule');
-
-var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
-
 var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
-var _builderTriggers = require('./builder/Triggers');
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
+var _JobsList = require("./JobsList");
 
-var _uuid42 = _interopRequireDefault(_uuid4);
-
-var _CreateJobs = require('./CreateJobs');
-
-var _CreateJobs2 = _interopRequireDefault(_CreateJobs);
+var _JobsList2 = _interopRequireDefault(_JobsList);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
-var moment = _Pydio$requireLib.moment;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib2.MaterialTable;
-
-var _Pydio$requireLib3 = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib3.ModernTextField;
 
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
@@ -172,149 +149,6 @@ var Dashboard = _react2['default'].createClass({
         }
     },
 
-    extractRowsInfo: function extractRowsInfo(jobs, m) {
-
-        var tagStyle = {
-            color: 'white',
-            borderRadius: 4,
-            textAlign: 'center',
-            padding: 4,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-        };
-        var system = [];
-        var other = [];
-        if (jobs === undefined) {
-            return { system: system, other: other };
-        }
-        jobs.map(function (job) {
-
-            var data = _extends({}, job);
-            if (job.Tasks !== undefined) {
-                // Sort task by StartTime
-                job.Tasks.sort(function (a, b) {
-                    if (!a.StartTime || !b.StartTime || a.StartTime === b.StartTime) {
-                        return a.ID > b.ID ? 1 : -1;
-                    }
-                    return a.StartTime > b.StartTime ? -1 : 1;
-                });
-                var t = job.Tasks[0];
-                data.TaskStartTime = moment(new Date(parseInt(t.StartTime) * 1000)).fromNow();
-                if (t.EndTime) {
-                    data.TaskEndTime = moment(new Date(parseInt(t.EndTime) * 1000)).fromNow();
-                } else {
-                    data.TaskEndTime = '-';
-                }
-                if (t.Status === 'Finished') {
-                    data.TaskStatus = t.Status;
-                } else if (t.Status === 'Running') {
-                    // There might be many tasks running
-                    var count = job.Tasks.filter(function (ft) {
-                        return ft.Status === 'Running';
-                    }).length;
-                    data.TaskStatus = _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, color: '#388e3c' } },
-                        count,
-                        ' tasks running'
-                    );
-                } else if (t.Status === 'Error') {
-                    data.TaskStatus = _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, color: '#E53935' } },
-                        t.StatusMessage
-                    );
-                } else if (t.Status === 'Queued') {
-                    data.TaskStatus = _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, color: '#fb8c00' } },
-                        t.StatusMessage
-                    );
-                } else {
-                    data.TaskStatus = _react2['default'].createElement(
-                        'span',
-                        null,
-                        t.Status,
-                        ' (',
-                        t.StatusMessage,
-                        ')'
-                    );
-                }
-            } else {
-                data.TaskStatus = "-";
-                data.TaskEndTime = "-";
-                data.TaskStartTime = "-";
-            }
-            var tagOpacity = undefined;
-            if (job.Inactive) {
-                tagOpacity = { opacity: .43 };
-            }
-            if (job.Schedule) {
-                data.Trigger = _react2['default'].createElement(
-                    'div',
-                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#03A9F4' }) },
-                    _react2['default'].createElement('span', { className: "mdi mdi-timer" }),
-                    _react2['default'].createElement(_JobSchedule2['default'], { job: job })
-                );
-                data.SortValue = '0-' + job.Label;
-            } else if (job.EventNames) {
-                data.SortValue = '1-' + job.Label;
-                data.Trigger = _react2['default'].createElement(
-                    'div',
-                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#43a047' }) },
-                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events') }),
-                    ' ',
-                    job.EventNames.map(function (e) {
-                        return _builderTriggers.Events.eventData(e).title;
-                    }).join(', ')
-                );
-            } else {
-                data.Trigger = _react2['default'].createElement(
-                    'div',
-                    { style: _extends({}, tagStyle, tagOpacity, { backgroundColor: '#607d8b' }) },
-                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap" }),
-                    ' ',
-                    m('trigger.manual')
-                );
-                data.SortValue = '2-' + job.Label;
-            }
-            if (job.Inactive) {
-                data.Label = _react2['default'].createElement(
-                    'span',
-                    { style: { color: 'rgba(0,0,0,0.43)' } },
-                    '[',
-                    m('job.disabled'),
-                    '] ',
-                    data.Label
-                );
-                data.TaskStartTime = _react2['default'].createElement(
-                    'span',
-                    { style: { opacity: 0.43 } },
-                    data.TaskStartTime
-                );
-                data.TaskEndTime = _react2['default'].createElement(
-                    'span',
-                    { style: { opacity: 0.43 } },
-                    data.TaskEndTime
-                );
-                data.TaskStatus = _react2['default'].createElement(
-                    'span',
-                    { style: { opacity: 0.43 } },
-                    data.TaskStatus
-                );
-                data.SortValue = '3-' + job.Label;
-            }
-
-            if (job.Owner === 'pydio.system.user') {
-                system.push(data);
-            } else {
-                other.push(data);
-            }
-        });
-
-        return { system: system, other: other };
-    },
-
     render: function render() {
         var _this5 = this;
 
@@ -328,53 +162,10 @@ var Dashboard = _react2['default'].createClass({
         };
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        var keys = [{
-            name: 'Trigger',
-            label: m('job.trigger'),
-            style: { width: 180, textAlign: 'left', paddingRight: 0 },
-            headerStyle: { width: 180, paddingRight: 0 },
-            hideSmall: true
-        }, {
-            name: 'Label',
-            label: m('job.label'),
-            style: { width: '40%', fontSize: 15 },
-            headerStyle: { width: '40%' }
-        }, {
-            name: 'TaskEndTime',
-            label: m('job.endTime'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
-            hideSmall: true
-        }, {
-            name: 'TaskStatus',
-            label: m('job.status')
-        }, {
-            name: 'More',
-            label: '',
-            style: { width: 100 }, headerStyle: { width: 100 },
-            renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
-                        _this5.setState({ selectJob: row.ID });
-                    } });
-            }
-        }];
-
-        var userKeys = [].concat(keys);
-        // Replace Trigger by Owner
-        userKeys[1] = {
-            name: 'Owner',
-            label: m('job.owner'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
-            hideSmall: true
-        };
-
         var _state2 = this.state;
         var result = _state2.result;
         var loading = _state2.loading;
         var selectJob = _state2.selectJob;
-        var createJob = _state2.createJob;
-        var promptJob = _state2.promptJob;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
@@ -397,96 +188,25 @@ var Dashboard = _react2['default'].createClass({
                     }
                 });
             }
-        } else if (createJob) {
-            return _react2['default'].createElement(_JobBoard2['default'], {
-                pydio: pydio,
-                job: createJob,
-                create: true,
-                jobsEditable: jobsEditable,
-                onSave: function () {
-                    _this5.load(true);
-                },
-                onRequestClose: function () {
-                    return _this5.setState({ createJob: null });
-                },
-                adminStyles: adminStyles
-            });
-        }
-
-        var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);
-
-        var system = _extractRowsInfo.system;
-        var other = _extractRowsInfo.other;
-
-        system.sort(function (a, b) {
-            return a.SortValue === b.SortValue ? 0 : a.SortValue > b.SortValue ? 1 : -1;
-        });
-        var actions = [];
-        if (jobsEditable) {
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ label: "+ Job", onTouchTap: function () {
-                    _this5.setState({ promptJob: true });
-                } }, adminStyles.props.header.flatButton)));
         }
 
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
-            _react2['default'].createElement(_CreateJobs2['default'], {
-                open: promptJob,
-                onCreate: function (job) {
-                    _this5.setState({ createJob: job, promptJob: false });
-                },
-                onDismiss: function () {
-                    _this5.setState({ promptJob: false });
-                }
-            }),
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                actions: actions,
                 reloadAction: this.load.bind(this),
                 loading: loading
             }),
-            _react2['default'].createElement(
-                'div',
-                { style: { flex: 1, overflowY: 'auto' } },
-                _react2['default'].createElement(AdminComponents.SubHeader, {
-                    title: m('system.title'),
-                    legend: m('system.legend')
-                }),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    adminStyles.body.block.props,
-                    _react2['default'].createElement(MaterialTable, {
-                        data: system,
-                        columns: keys,
-                        onSelectRows: function (rows) {
-                            _this5.selectRows(rows);
-                        },
-                        showCheckboxes: false,
-                        emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty'),
-                        masterStyles: adminStyles.body.tableMaster
-                    })
-                ),
-                _react2['default'].createElement(AdminComponents.SubHeader, {
-                    title: m('users.title'),
-                    legend: m('users.legend')
-                }),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    adminStyles.body.block.props,
-                    _react2['default'].createElement(MaterialTable, {
-                        data: other,
-                        columns: userKeys,
-                        onSelectRows: function (rows) {
-                            _this5.selectRows(rows);
-                        },
-                        showCheckboxes: false,
-                        emptyStateString: m('users.empty'),
-                        masterStyles: adminStyles.body.tableMaster
-                    })
-                )
-            )
+            _react2['default'].createElement(_JobsList2['default'], {
+                pydio: pydio,
+                selectRows: function (rows) {
+                    _this5.selectRows(rows);
+                },
+                jobs: result ? result.Jobs : [],
+                loading: loading
+            })
         );
     }
 

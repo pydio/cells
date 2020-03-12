@@ -57,9 +57,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var _policiesPolicy = require('../policies/Policy');
 
@@ -170,7 +168,7 @@ var PoliciesBoard = _react2['default'].createClass({
         var newPolicyDescription = _refs.newPolicyDescription;
         var newPolicyType = this.state.newPolicyType;
 
-        var newId = (0, _uuid42['default'])();
+        var newId = (0, _uuid.v4)();
 
         var policy = {
             Uuid: newId,
