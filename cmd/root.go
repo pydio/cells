@@ -118,7 +118,7 @@ You can customize the various storage locations with the following ENV variables
 
 		// These commands do not need to init the configuration
 		switch cmd.Name() {
-		case "version", "completion", "doc", "help", os.Args[0]:
+		case "version", "completion", "doc", "help", "bash", "zsh", os.Args[0]:
 			return
 		default:
 			break
