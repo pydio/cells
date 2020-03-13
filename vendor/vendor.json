@@ -4144,6 +4144,18 @@
 			"revisionTime": "2020-01-13T18:21:54Z"
 		},
 		{
+			"checksumSHA1": "ifzHrfsouyyU1aki9zSETFwMHqE=",
+			"path": "github.com/rogpeppe/go-internal/module",
+			"revision": "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8",
+			"revisionTime": "2020-01-13T18:21:54Z"
+		},
+		{
+			"checksumSHA1": "Uqh8Y4U7Bgbv6R02o/rCXW5Uijs=",
+			"path": "github.com/rogpeppe/go-internal/semver",
+			"revision": "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8",
+			"revisionTime": "2020-01-13T18:21:54Z"
+		},
+		{
 			"checksumSHA1": "hev23KrSfQ4KfosxH+gJKziFVtA=",
 			"path": "github.com/rs/cors",
 			"revision": "76f58f330d76a55c5badc74f6212e8a15e742c77",
