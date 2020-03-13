@@ -110,11 +110,18 @@ You can customize the various storage locations with the following ENV variables
  - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services) 
 
 `,
-	PreRun: func(cmd *cobra.Command, args []string) {},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Special case
 		if cmd.Long == StartCmd.Long {
 			common.LogCaptureStdOut = true
+		}
+
+		// These commands do not need to init the configuration
+		switch cmd.Name() {
+		case "version", "completion", "doc", "help", os.Args[0]:
+			return
+		default:
+			break
 		}
 
 		// Initialise the default registry
