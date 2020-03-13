@@ -55,7 +55,7 @@ Or persistently:
 	Add to current zsh session:
 		source <(` + os.Args[0] + ` completion zsh)
 
-	Add in persistently:
+	Add persistently:
 		` + os.Args[0] + ` completion zsh | sudo tee <path>/<to>/<your-zsh-completion-folder>
 	
 	On macOS
