@@ -26,14 +26,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "Add auto-completion helper to Cells",
-	Long: `
-Install completion helper for Pydio Cells.
-
-This command installs an additional plugin to provide suggestions when working with the Cells and hitting the 'tab' key.
-
+var completionExample = `
 1) Using Bash
 
 On Linux, you must insure the 'bash-completion' library is installed:
@@ -50,7 +43,7 @@ On Linux, you must insure the 'bash-completion' library is installed:
 Then, to enable completion in your current session:
 	source <(` + os.Args[0] + ` completion bash)
 
-Or in a persistent manner:
+Or persistently:
 	Debian/Ubuntu/CentOS
 		` + os.Args[0] + ` completion bash | sudo tee /etc/bash_completion.d/cells
 
@@ -62,16 +55,25 @@ Or in a persistent manner:
 	Add to current zsh session:
 		source <(` + os.Args[0] + ` completion zsh)
 
-	Add in a persistent manner:
+	Add persistently:
 		` + os.Args[0] + ` completion zsh | sudo tee <path>/<to>/<your-zsh-completion-folder>
 	
 	On macOS
 		` + os.Args[0] + ` completion zsh | tee /Users/<your current user>/.zsh/completion/_cells
-	 `,
+`
+
+var completionCmd = &cobra.Command{
+	Use:   "completion",
+	Short: "Add auto-completion helper to Cells",
+	Long: `Install completion helper for Pydio Cells.
+
+This command installs an additional plugin to provide suggestions when working with the Cells and hitting the 'tab' key.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 	ValidArgs: []string{"zsh", "bash"},
+	Args:      cobra.MinimumNArgs(1),
+	Example:   completionExample,
 }
 
 var bashCompletionCmd = &cobra.Command{

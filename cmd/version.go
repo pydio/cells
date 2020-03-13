@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Display current version of this software",
+	Short: "Display the current version of this software",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var t time.Time
@@ -42,9 +43,11 @@ var versionCmd = &cobra.Command{
 		}
 
 		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
+		fmt.Println("    " + fmt.Sprintf("%s %s", common.PackageLabel, common.Version().String()))
 		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
 		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
+		fmt.Println("    " + fmt.Sprintf("Os (%s) Arch (%s)", runtime.GOOS, runtime.GOARCH))
+		fmt.Println("    " + fmt.Sprintf("Go Version (%s) ", runtime.Version()))
 		fmt.Println("")
 
 	},
