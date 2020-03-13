@@ -21,6 +21,7 @@
 package tree
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -33,6 +34,7 @@ const (
 	MetaFilterNoGrep = "no-grep"
 	MetaFilterTime = "time"
 	MetaFilterSize = "size"
+	MetaFilterDepth = "depth"
 )
 
 var (
@@ -72,6 +74,16 @@ func (m *MetaFilter) Parse() bool {
 	m.parseIntExpr(MetaFilterTime)
 	m.parseIntExpr(MetaFilterSize)
 	return m.grep != nil || m.negativeGrep != nil || len(m.intComps) > 0
+}
+
+func (m *MetaFilter) LimitDepth() int {
+	var d *int
+	if meta := m.reqNode.GetStringMeta(MetaFilterDepth); meta != "" {
+		if e := json.Unmarshal([]byte(meta), &d); e == nil {
+			return *d
+		}
+	}
+	return 0
 }
 
 func (m *MetaFilter) parseIntExpr(meta string) bool {
