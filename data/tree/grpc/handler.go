@@ -362,26 +362,33 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 	if dsName == "" {
 
 		log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
+		metaFilter := tree.NewMetaFilter(node)
+		hasFilter := metaFilter.Parse()
+		limitDepth := metaFilter.LimitDepth()
+
 		for name := range s.DataSources {
 
 			if offset > 0 && offset < int64(len(s.DataSources)) && offset > *cursorIndex {
 				*cursorIndex++
 				continue
 			}
-			metaFilter := tree.NewMetaFilter(node)
-			hasFilter := metaFilter.Parse()
 			outputNode := &tree.Node{
 				Uuid: "DATASOURCE:" + name,
 				Path: name,
 			}
 			outputNode.SetMeta("name", name)
+			if size, er := s.dsSize(ctx, s.DataSources[name]); er == nil {
+				outputNode.Size = size
+			} else {
+				log.Logger(ctx).Error("Cannot compute DataSource size, skipping", zap.String("dsName", name), zap.Error(er))
+			}
 			if req.FilterType == tree.NodeType_UNKNOWN && (!hasFilter || metaFilter.Match(name, outputNode)) {
 				resp.Send(&tree.ListNodesResponse{
 					Node: outputNode,
 				})
 			}
 			*cursorIndex++
-			if req.Recursive {
+			if req.Recursive && limitDepth != 1 {
 				subNode := node.Clone()
 				subNode.Path = name
 				s.ListNodesWithLimit(ctx, &tree.ListNodesRequest{
@@ -452,6 +459,25 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 	}
 
 	return errors.NotFound(node.GetPath(), "Not found")
+}
+
+func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
+	st, er := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
+		Node:         &tree.Node{Path: ""},
+	})
+	if er != nil {
+		return 0 , er
+	}
+	defer st.Close()
+	var size int64
+	for {
+		if r, e := st.Recv(); e != nil {
+			break
+		} else {
+			size += r.GetNode().GetSize()
+		}
+	}
+	return size, nil
 }
 
 // UpdateNode implementation for the TreeServer

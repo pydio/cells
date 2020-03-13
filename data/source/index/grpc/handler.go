@@ -386,6 +386,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		// Additional filters
 		metaFilter := tree.NewMetaFilter(reqNode)
 		hasFilter := metaFilter.Parse()
+		limitDepth := metaFilter.LimitDepth()
 
 		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
 
@@ -416,6 +417,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				continue
 			}
 			if req.FilterType == tree.NodeType_LEAF && node.Type == tree.NodeType_COLLECTION {
+				continue
+			}
+			if limitDepth > 0 && node.Level != limitDepth {
 				continue
 			}
 

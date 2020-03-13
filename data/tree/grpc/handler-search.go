@@ -131,6 +131,9 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 			listReq.Node.SetMeta(tree.MetaFilterGrep, strings.Join(greps, "|"))
 		}
 	}
+	if q.PathDepth > 0 {
+		listReq.Node.SetMeta(tree.MetaFilterDepth, q.PathDepth)
+	}
 
 	for _, p := range q.PathPrefix {
 		listReq.Node.Path = p
