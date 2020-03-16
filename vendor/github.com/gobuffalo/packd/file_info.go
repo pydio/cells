@@ -1,16 +1,17 @@
-package packr
+package packd
 
 import (
 	"os"
 	"time"
 )
 
+var _ os.FileInfo = fileInfo{}
+
 type fileInfo struct {
-	Path     string
-	Contents []byte
-	size     int64
-	modTime  time.Time
-	isDir    bool
+	Path    string
+	size    int64
+	modTime time.Time
+	isDir   bool
 }
 
 func (f fileInfo) Name() string {

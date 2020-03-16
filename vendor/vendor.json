@@ -1227,10 +1227,28 @@
 			"versionExact": "v1.4.1"
 		},
 		{
-			"checksumSHA1": "mBilwl7QZtl//Lzq/XwAIuISIlc=",
+			"checksumSHA1": "j6p88dIULpIKgGZ61LRZxttJzAk=",
+			"path": "github.com/gobuffalo/envy",
+			"revision": "3dbe4c98c1c77e4a8fac053251c262a85e048f21",
+			"revisionTime": "2020-02-01T14:52:20Z"
+		},
+		{
+			"checksumSHA1": "Y043hAmyHYnAd78aNFShjvnx0k4=",
+			"path": "github.com/gobuffalo/packd",
+			"revision": "128b5da43f114d0f9af8b4bba549b02e3496dfa8",
+			"revisionTime": "2020-01-31T18:19:23Z"
+		},
+		{
+			"checksumSHA1": "0ISVV0dxn0dEiOCKcMOVsX/a3/s=",
+			"path": "github.com/gobuffalo/packd/internal/takeon/github.com/markbates/errx",
+			"revision": "128b5da43f114d0f9af8b4bba549b02e3496dfa8",
+			"revisionTime": "2020-01-31T18:19:23Z"
+		},
+		{
+			"checksumSHA1": "LDedLFkriq2gpvfaf1Mzgd6H+Pw=",
 			"path": "github.com/gobuffalo/packr",
-			"revision": "09d0f14000ca4066aa9d9ecf2fe2b85c2df5a1cf",
-			"revisionTime": "2018-03-14T19:29:06Z"
+			"revision": "c6a5045204dacffbe11d9f6c68485ae7e7fe3d19",
+			"revisionTime": "2020-03-08T17:58:19Z"
 		},
 		{
 			"checksumSHA1": "ApSLjc10RxzqUffxOBlTMqJmiGk=",
@@ -2304,6 +2322,12 @@
 			"path": "github.com/jmoiron/sqlx/reflectx",
 			"revision": "cf35089a197953c69420c8d0cecda90809764b1d",
 			"revisionTime": "2018-02-28T18:46:24Z"
+		},
+		{
+			"checksumSHA1": "j7Ia6Oa+YC3CPhr9tEudFVJcqkw=",
+			"path": "github.com/joho/godotenv",
+			"revision": "d6ee6871f21dd95e76563a90f522ce9fe75443f8",
+			"revisionTime": "2020-03-01T20:46:15Z"
 		},
 		{
 			"checksumSHA1": "zlcfqKFPHDWeH/s3486mhMZw2yA=",
@@ -4059,6 +4083,12 @@
 			"tree": true
 		},
 		{
+			"checksumSHA1": "K84HZD8+miP1cMmU2gE6GlW8jdc=",
+			"path": "github.com/pydio/packr",
+			"revision": "5c45b71be90b398d2526639c1bfecc2eef37a981",
+			"revisionTime": "2020-03-12T17:20:08Z"
+		},
+		{
 			"checksumSHA1": "kkYqEi0iUICktn03od75Zb0dKmA=",
 			"path": "github.com/pydio/pydio-sdk-go/client",
 			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
@@ -4172,6 +4202,24 @@
 			"path": "github.com/robertkrimen/otto/token",
 			"revision": "6c383dd335ef8dcccef05e651ce1eccfe4d0f011",
 			"revisionTime": "2018-03-05T04:20:45Z"
+		},
+		{
+			"checksumSHA1": "DJYgNb0a6KOnjF5oTTv6/MthlJc=",
+			"path": "github.com/rogpeppe/go-internal/modfile",
+			"revision": "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8",
+			"revisionTime": "2020-01-13T18:21:54Z"
+		},
+		{
+			"checksumSHA1": "ifzHrfsouyyU1aki9zSETFwMHqE=",
+			"path": "github.com/rogpeppe/go-internal/module",
+			"revision": "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8",
+			"revisionTime": "2020-01-13T18:21:54Z"
+		},
+		{
+			"checksumSHA1": "Uqh8Y4U7Bgbv6R02o/rCXW5Uijs=",
+			"path": "github.com/rogpeppe/go-internal/semver",
+			"revision": "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8",
+			"revisionTime": "2020-01-13T18:21:54Z"
 		},
 		{
 			"checksumSHA1": "hev23KrSfQ4KfosxH+gJKziFVtA=",
