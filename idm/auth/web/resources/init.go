@@ -20,6 +20,6 @@
 
 package resources
 
-import "github.com/gobuffalo/packr"
+import "github.com/pydio/packr"
 
 var WebAuthResources = packr.NewBox("../../../../idm/auth/web/resources/dex")
