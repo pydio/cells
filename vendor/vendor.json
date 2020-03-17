@@ -5045,10 +5045,10 @@
 			"revisionTime": "2018-11-14T21:44:15Z"
 		},
 		{
-			"checksumSHA1": "yppNZB5y0GmJrt/TYOASrhe2oVc=",
+			"checksumSHA1": "9JpjdGNodI1H9uQF9bzVCgCUefY=",
 			"path": "golang.org/x/net/webdav",
-			"revision": "61147c48b25b599e5b561d2e9c4f3e1ef489ca41",
-			"revisionTime": "2017-03-19T02:15:06Z"
+			"revision": "c0dbc17a35534bf2e581d7a942408dc936316da4",
+			"revisionTime": "2019-11-08T21:16:37Z"
 		},
 		{
 			"checksumSHA1": "XgtZlzd39qIkBHs6XYrq9dhTCog=",
