@@ -336,7 +336,6 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 		}
 	}
 	return userName, claims
-
 }
 
 // AccessListFromContextClaims uses package function to compile ACL and Workspaces for a given user ( = list of roles inside the Claims)
@@ -363,6 +362,8 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList.Workspaces[workspace.UUID] = workspace
 	}
 
+	log.Logger(ctx).Info("ACCESS LIST IN CTX CLAIMS IS ", zap.Any("list", accessList))
+
 	return accessList, nil
 }
 
@@ -378,6 +379,8 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 
 	accessList, err = AccessListFromRoles(ctx, user.Roles, false, true)
+
+	log.Logger(ctx).Info("ACCESS LIST IS ", zap.Any("list", accessList))
 
 	return
 }

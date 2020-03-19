@@ -22,12 +22,16 @@ package grpc
 
 import (
 	"context"
+	"time"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
+	protoservice "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -44,11 +48,38 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest, resp
 		return err
 	}
 
+	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		Actions:      []*idm.ACLAction{req.ACL.Action},
+		RoleIDs:      []string{req.ACL.RoleID},
+		WorkspaceIDs: []string{req.ACL.WorkspaceID},
+		NodeIDs:      []string{req.ACL.NodeID},
+	})
+
+	_, err := dao.SetExpiry(&protoservice.Query{SubQueries: []*any.Any{q}}, time.Now().Add(time.Second*time.Duration(req.ExpiresIn)))
+	if err != nil {
+		return err
+	}
+
 	resp.ACL = req.ACL
 	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
 		Type: idm.ChangeEventType_UPDATE,
 		Acl:  req.ACL,
 	}))
+	return nil
+}
+
+// ExpireACL in database
+func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest, resp *idm.ExpireACLResponse) error {
+
+	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+
+	numRows, err := dao.SetExpiry(req.Query, time.Unix(req.Timestamp, 0))
+	if err != nil {
+		return err
+	}
+
+	resp.Rows = numRows
+
 	return nil
 }
 
