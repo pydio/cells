@@ -104,6 +104,7 @@ func (a *AbstractHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeReq
 	if err != nil {
 		return nil, err
 	}
+	log.Logger(ctx).Info("IN UPDATE NODE ")
 	return a.next.UpdateNode(ctx, in, opts...)
 }
 
@@ -112,6 +113,7 @@ func (a *AbstractHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReq
 	if err != nil {
 		return nil, err
 	}
+	log.Logger(ctx).Info("IN DELETE NODE")
 	return a.next.DeleteNode(ctx, in, opts...)
 }
 

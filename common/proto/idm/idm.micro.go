@@ -37,6 +37,8 @@ It has these top-level messages:
 	WorkspaceSingleQuery
 	CreateACLRequest
 	CreateACLResponse
+	ExpireACLRequest
+	ExpireACLResponse
 	DeleteACLRequest
 	DeleteACLResponse
 	SearchACLRequest
@@ -845,6 +847,7 @@ func (x *workspaceServiceStreamWorkspaceStream) Recv() (*SearchWorkspaceRequest,
 
 type ACLServiceClient interface {
 	CreateACL(ctx context.Context, in *CreateACLRequest, opts ...client.CallOption) (*CreateACLResponse, error)
+	ExpireACL(ctx context.Context, in *ExpireACLRequest, opts ...client.CallOption) (*ExpireACLResponse, error)
 	DeleteACL(ctx context.Context, in *DeleteACLRequest, opts ...client.CallOption) (*DeleteACLResponse, error)
 	SearchACL(ctx context.Context, in *SearchACLRequest, opts ...client.CallOption) (ACLService_SearchACLClient, error)
 	StreamACL(ctx context.Context, opts ...client.CallOption) (ACLService_StreamACLClient, error)
@@ -871,6 +874,16 @@ func NewACLServiceClient(serviceName string, c client.Client) ACLServiceClient {
 func (c *aCLServiceClient) CreateACL(ctx context.Context, in *CreateACLRequest, opts ...client.CallOption) (*CreateACLResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "ACLService.CreateACL", in)
 	out := new(CreateACLResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aCLServiceClient) ExpireACL(ctx context.Context, in *ExpireACLRequest, opts ...client.CallOption) (*ExpireACLResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ACLService.ExpireACL", in)
+	out := new(ExpireACLResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -982,6 +995,7 @@ func (x *aCLServiceStreamACLClient) Recv() (*SearchACLResponse, error) {
 
 type ACLServiceHandler interface {
 	CreateACL(context.Context, *CreateACLRequest, *CreateACLResponse) error
+	ExpireACL(context.Context, *ExpireACLRequest, *ExpireACLResponse) error
 	DeleteACL(context.Context, *DeleteACLRequest, *DeleteACLResponse) error
 	SearchACL(context.Context, *SearchACLRequest, ACLService_SearchACLStream) error
 	StreamACL(context.Context, ACLService_StreamACLStream) error
@@ -997,6 +1011,10 @@ type ACLService struct {
 
 func (h *ACLService) CreateACL(ctx context.Context, in *CreateACLRequest, out *CreateACLResponse) error {
 	return h.ACLServiceHandler.CreateACL(ctx, in, out)
+}
+
+func (h *ACLService) ExpireACL(ctx context.Context, in *ExpireACLRequest, out *ExpireACLResponse) error {
+	return h.ACLServiceHandler.ExpireACL(ctx, in, out)
 }
 
 func (h *ACLService) DeleteACL(ctx context.Context, in *DeleteACLRequest, out *DeleteACLResponse) error {

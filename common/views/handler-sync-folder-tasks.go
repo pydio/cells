@@ -2,6 +2,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 	"time"
@@ -72,6 +73,7 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 // UpdateNode synchronously and recursively performs a Move operation of a node
 func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
 
+	fmt.Println("Updating node in here")
 	source := in.From
 	target := in.To
 	status := make(chan string)
@@ -102,6 +104,7 @@ func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.Update
 			}
 		}
 	}()
+
 	// TODO CHECK ACLs TO MAKE SURE THE WHOLE TREE IS MOVABLE
 	log.Logger(ctx).Info("Should Copy/Move", source.Zap("from"), target.Zap("target"))
 

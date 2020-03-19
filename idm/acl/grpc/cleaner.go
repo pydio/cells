@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/protobuf/ptypes"
@@ -69,16 +70,18 @@ type NodesCleaner struct {
 }
 
 func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
+	if msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
-	// Delete ACL's for this workspace
+
+	// Mark ACLs for deletion
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{msg.Source.Uuid},
 	})
-	return c.Handler.DeleteACL(ctx, &idm.DeleteACLRequest{
+	return c.Handler.ExpireACL(ctx, &idm.ExpireACLRequest{
 		Query: &service.Query{
 			SubQueries: []*any.Any{q},
 		},
-	}, &idm.DeleteACLResponse{})
+		Timestamp: time.Now().Unix(),
+	}, &idm.ExpireACLResponse{})
 }

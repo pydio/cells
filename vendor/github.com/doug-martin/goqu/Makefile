@@ -1,0 +1,6 @@
+#phony dependency task that does nothing
+#"make executable" does not run if there is a ./executable directory, unless the task has a dependency
+phony:
+
+lint:
+	docker run --rm -v ${CURDIR}:/app -w /app golangci/golangci-lint:v1.21.0 golangci-lint run -v
