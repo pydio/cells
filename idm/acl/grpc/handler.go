@@ -24,14 +24,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
-	protoservice "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -45,18 +42,6 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest, resp
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
 
 	if err := dao.Add(req.ACL); err != nil {
-		return err
-	}
-
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-		Actions:      []*idm.ACLAction{req.ACL.Action},
-		RoleIDs:      []string{req.ACL.RoleID},
-		WorkspaceIDs: []string{req.ACL.WorkspaceID},
-		NodeIDs:      []string{req.ACL.NodeID},
-	})
-
-	_, err := dao.SetExpiry(&protoservice.Query{SubQueries: []*any.Any{q}}, time.Now().Add(time.Second*time.Duration(req.ExpiresIn)))
-	if err != nil {
 		return err
 	}
 

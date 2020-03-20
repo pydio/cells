@@ -27,6 +27,21 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+type (
+	sessionIDKey struct{}
+)
+
+// WithSessionID returns a context which knows its service assigned color
+func WithSessionID(ctx context.Context, session string) context.Context {
+	return context.WithValue(ctx, sessionIDKey{}, session)
+}
+
+// GetSessionID returns the session ID in context
+func GetSessionID(ctx context.Context) (string, bool) {
+	res, ok := ctx.Value(sessionIDKey{}).(string)
+	return res, ok
+}
+
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
 // It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
 // reconciliate creates and deletes when move is done between two differing datasources).
@@ -35,6 +50,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	session := uuid.New()
 	childrenMoved := 0
 	var totalSize int64
+
+	ctx = WithSessionID(ctx, session)
 
 	// Make sure all sessions are purged !
 	defer func() {
@@ -88,26 +105,35 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 	}
 
+	lock := permissions.AclLock
+	lock.Value = session
+
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-	_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+	if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &idm.ACL{
 			NodeID: sourceNode.Uuid,
-			Action: permissions.AclLock,
+			Action: lock,
 		},
-		ExpiresIn: 10000,
+	}); err != nil {
+		return err
+	}
+
+	// First of all we set a lock on the node
+	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		Actions: []*idm.ACLAction{lock},
+		NodeIDs: []string{sourceNode.Uuid},
 	})
 
-	if err != nil {
+	if _, err := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
+		Query: &service.Query{
+			SubQueries: []*any.Any{q},
+		},
+		Timestamp: time.Now().Add(time.Second * 10000).Unix(),
+	}); err != nil {
 		return err
 	}
 
 	defer func() {
-		// First of all we set a lock on the node
-		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{permissions.AclLock},
-			NodeIDs: []string{sourceNode.Uuid},
-		})
-
 		aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{q},
@@ -115,7 +141,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		})
 	}()
 
-	<-time.After(10 * time.Second)
+	<-time.After(30 * time.Second)
 
 	if recursive && !sourceNode.IsLeaf() {
 

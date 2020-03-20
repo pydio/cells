@@ -22,49 +22,13 @@ package views
 
 import (
 	"context"
-	"io"
 
-	"github.com/micro/go-micro/client"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
-type AclLockFilter struct {
-	AbstractHandler
-}
-
 type AclContentLockFilter struct {
 	AbstractHandler
-}
-
-// UpdateNode synchronously and recursively performs a Move operation of a node
-func (h *AclLockFilter) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the create lock during operation")
-	return h.next.CreateNode(ctx, in, opts...)
-}
-
-// DeleteNode synchronously and recursively delete a node
-func (h *AclLockFilter) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the delete lock during operation")
-	return h.next.DeleteNode(ctx, in, opts...)
-}
-
-// UpdateNode synchronously and recursively performs a Move operation of a node
-func (h *AclLockFilter) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the update lock during operation")
-	return h.next.UpdateNode(ctx, in, opts...)
-}
-
-// PutObject check locks before allowing Put operation.
-func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
-		return a.next.PutObject(ctx, node, reader, requestData)
-	}
-	if err := permissions.CheckContentLock(ctx, node); err != nil {
-		return 0, err
-	}
-	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
 func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {

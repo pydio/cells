@@ -1,6 +1,6 @@
 -- +migrate Up
 ALTER TABLE idm_acls ADD (
-    created_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NULL DEFAULT NULL
 );
 
