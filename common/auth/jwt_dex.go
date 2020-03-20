@@ -123,6 +123,11 @@ func (p *dexprovider) Exchange(ctx context.Context, code string) (*oauth2.Token,
 }
 
 func (p *dexprovider) PasswordCredentialsToken(ctx context.Context, username string, password string) (*oauth2.Token, error) {
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
+	})
 	return p.oauth2Config.PasswordCredentialsToken(ctx, username, password)
 }
 
