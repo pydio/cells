@@ -82,6 +82,10 @@ var (
 			RoleID:      "root",
 			Action:      &idm.ACLAction{Name: "other-acl", Value: "no-node-id, must be ignored"},
 		},
+		{
+			NodeID: "root/folder1/subfolder1",
+			Action: &idm.ACLAction{Name: "lock", Value: "1"},
+		},
 	}
 )
 

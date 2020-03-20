@@ -61,6 +61,12 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 		return nil, err
 	}
 
+	log.Logger(ctx).Info("ARE WE LOCKED ", zap.Bool("locked ", accessList.IsLocked(ctx, parents...)))
+
+	if accessList.IsLocked(ctx, parents...) {
+		return nil, errors.Forbidden("parent.locked", "Node is currently locked")
+	}
+
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
