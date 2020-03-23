@@ -32,6 +32,17 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
+const exampleDataSync = `For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
+
+1) by name:
+	./cells data sync --datasource=pydiods1
+
+2) by service name:
+	./cells data sync --service=pydio.grpc.data.sync.pydiods1 
+
+Else to refresh the search engine entirely:
+	./cells data sync --service=pydio.grpc.search --path=/`
+
 var (
 	syncDsName  string
 	syncService string
@@ -41,21 +52,17 @@ var (
 var dataSyncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Trigger index resync",
-	Long: `Trigger a re-indexation of a given service. 
-This can be currently used for datasource indexes and search engine.
-
-For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
-$> ./cells data sync --datasource=pydiods1
-
-Or to refresh the search engine entirely
-$> ./cells data sync --service=pydio.grpc.search --path=/
-
-`,
+	Long: `
+Trigger a re-indexation of a given service. 
+This can be currently used for datasource indexes and search engine.`,
+	Example: exampleDataSync,
 	Run: func(cmd *cobra.Command, args []string) {
 		if syncDsName != "" {
 			syncService = "pydio.grpc.data.sync." + syncDsName
 		} else if syncService == "" {
 			cmd.Println("Please provide at least a datasource name or a service name!")
+			cmd.Help()
+			return
 		}
 		client := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
@@ -74,6 +81,5 @@ func init() {
 	dataSyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
-
 	dataCmd.AddCommand(dataSyncCmd)
 }
