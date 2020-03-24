@@ -24,11 +24,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -38,59 +35,54 @@ type AclLockFilter struct {
 }
 
 // UpdateNode synchronously and recursively performs a Move operation of a node
-func (h *AclLockFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
-	session, _ := GetSessionID(ctx)
-	log.Logger(ctx).Info("Going through the read lock during operation", zap.String("session", session))
+// func (h *AclLockFilter) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
+// 	log.Logger(ctx).Info("Going through the create lock during operation")
+// 	return h.next.CreateNode(ctx, in, opts...)
+// }
 
-	accessList, _ := permissions.AccessListForLockedNodes(ctx, session)
+// // DeleteNode synchronously and recursively delete a node
+// func (h *AclLockFilter) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
+// 	log.Logger(ctx).Info("Going through the delete lock during operation")
+// 	return h.next.DeleteNode(ctx, in, opts...)
+// }
 
-	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", h.clientsPool, false)
-	if err != nil {
-		return nil, err
-	}
-
-	if accessList.IsLocked(ctx, parents...) {
-		return nil, errors.Forbidden("parent.locked", "Node is currently locked")
-	}
-
-	return h.next.ReadNode(ctx, in, opts...)
-}
-
-// UpdateNode synchronously and recursively performs a Move operation of a node
-func (h *AclLockFilter) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the create lock during operation")
-
-	return h.next.CreateNode(ctx, in, opts...)
-}
-
-// DeleteNode synchronously and recursively delete a node
-func (h *AclLockFilter) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the delete lock during operation")
-	return h.next.DeleteNode(ctx, in, opts...)
-}
-
-// UpdateNode synchronously and recursively performs a Move operation of a node
-func (h *AclLockFilter) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
-	log.Logger(ctx).Info("Going through the update lock during operation")
-	return h.next.UpdateNode(ctx, in, opts...)
-}
+// // UpdateNode synchronously and recursively performs a Move operation of a node
+// func (h *AclLockFilter) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
+// 	log.Logger(ctx).Info("Going through the update lock during operation")
+// 	return h.next.UpdateNode(ctx, in, opts...)
+// }
 
 // PutObject check locks before allowing Put operation.
 func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	branchInfo, ok := GetBranchInfo(ctx, "in")
+	if !ok {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
-	if err := permissions.CheckContentLock(ctx, node); err != nil {
+
+	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	if err != nil {
 		return 0, err
 	}
+
+	nodes := []*tree.Node{node}
+	for _, ancestorNodes := range branchInfo.AncestorsList {
+		nodes = append(nodes, ancestorNodes...)
+	}
+
+	if accessList.IsLocked(ctx, nodes...) {
+		return 0, errors.Forbidden("parent.locked", "Node is currently locked")
+	}
+
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
 // WrappedCanApply will perform checks on quota to make sure an operation is authorized
 func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 
-	accessList, _ := permissions.AccessListForLockedNodes(srcCtx)
+	accessList, err := permissions.AccessListForLockedNodes(srcCtx)
+	if err != nil {
+		return err
+	}
 
 	var node *tree.Node
 	switch operation.GetType() {
@@ -106,7 +98,9 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 		return err
 	}
 
-	if accessList.IsLocked(srcCtx, parents...) {
+	nodes := append([]*tree.Node{node}, parents...)
+
+	if accessList.IsLocked(srcCtx, nodes...) {
 		return errors.Forbidden("parent.locked", "Node is currently locked")
 	}
 

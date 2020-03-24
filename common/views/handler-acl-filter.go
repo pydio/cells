@@ -22,15 +22,12 @@ package views
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -59,12 +56,6 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
 		return nil, err
-	}
-
-	log.Logger(ctx).Info("ARE WE LOCKED ", zap.Bool("locked ", accessList.IsLocked(ctx, parents...)))
-
-	if accessList.IsLocked(ctx, parents...) {
-		return nil, errors.Forbidden("parent.locked", "Node is currently locked")
 	}
 
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
@@ -96,7 +87,6 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
-	log.Logger(ctx).Debug("Parent Ancestors", zap.Any("parents", parents), zap.Any("acl", accessList))
 
 	stream, err := a.next.ListNodes(ctx, in, opts...)
 	if err != nil {
@@ -144,9 +134,6 @@ func (a *AclFilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRe
 	if err != nil {
 		return nil, err
 	}
-	if accessList.IsLocked(ctx, toParents...) {
-		return nil, errors.Forbidden("parent.locked", "Target Location is currently locked (CreateNode)")
-	}
 	if !accessList.CanWrite(ctx, toParents...) {
 		return nil, errors.Forbidden("parent.not.writeable", "Target Location is not writeable (CreateNode)")
 	}
@@ -162,18 +149,12 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 	if err != nil {
 		return nil, err
 	}
-	if accessList.IsLocked(ctx, fromParents...) {
-		return nil, errors.Forbidden("parent.locked", "Source Location is currently locked")
-	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
 	}
 	ctx, toParents, err := AncestorsListFromContext(ctx, in.To, "to", a.clientsPool, true)
 	if err != nil {
 		return nil, err
-	}
-	if accessList.IsLocked(ctx, toParents...) {
-		return nil, errors.Forbidden("parent.locked", "Target Location is currently locked")
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Node is not writeable")
@@ -189,9 +170,6 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 	ctx, delParents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
 		return nil, err
-	}
-	if accessList.IsLocked(ctx, delParents...) {
-		return nil, errors.Forbidden("parent.locked", "Node is currently locked")
 	}
 	if !accessList.CanWrite(ctx, delParents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable, cannot delete!")
@@ -209,9 +187,6 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	if err != nil {
 		return nil, err
 	}
-	if accessList.IsLocked(ctx, parents...) {
-		return nil, errors.Forbidden("parent.locked", "Node is currently locked")
-	}
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
@@ -228,9 +203,6 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 	if err != nil {
 		return 0, err
 	}
-	if accessList.IsLocked(ctx, parents...) {
-		return 0, errors.Forbidden("parent.locked", "Node is currently locked")
-	}
 	if !accessList.CanWrite(ctx, parents...) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
 	}
@@ -246,18 +218,12 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 	if err != nil {
 		return 0, err
 	}
-	if accessList.IsLocked(ctx, fromParents...) {
-		return 0, errors.Forbidden("parent.locked", "Source Node is currently locked")
-	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
 	}
 	ctx, toParents, err := AncestorsListFromContext(ctx, to, "to", a.clientsPool, true)
 	if err != nil {
 		return 0, err
-	}
-	if accessList.IsLocked(ctx, toParents...) {
-		return 0, errors.Forbidden("parent.locked", "Target location is currently locked")
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable (CopyObject)")
@@ -303,7 +269,6 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	if err != nil {
 		return err
 	}
-	fmt.Println(parents)
 	if write && !accessList.CanWrite(ctx, parents...) {
 		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not writeable")
 	}

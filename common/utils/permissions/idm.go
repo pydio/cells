@@ -346,48 +346,6 @@ func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*
 	return acls, nil
 }
 
-// func GetNodesForACLS(ctx context.Context, list *AccessList) []*tree.Node {
-
-// 	var nodes []*tree.Node
-
-// 	treeClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-
-// 	var queries []*any.Any
-// 	for ID := range workspaceNodes {
-// 		query, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: workspaceID})
-// 		queries = append(queries, query)
-// 	}
-
-// 	stream, err := workspaceClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
-// 		Query: &service.Query{
-// 			SubQueries: queries,
-// 			Operation:  service.OperationType_OR,
-// 		},
-// 	})
-// 	if err != nil {
-// 		log.Logger(ctx).Error("search workspace request has failed", zap.Error(err))
-// 		return nil
-// 	}
-
-// 	defer stream.Close()
-
-// 	for {
-// 		response, err := stream.Recv()
-
-// 		if err != nil {
-// 			break
-// 		}
-
-// 		ws := response.GetWorkspace()
-// 		for nodeUuid := range nodes[ws.UUID] {
-// 			ws.RootUUIDs = append(ws.RootUUIDs, nodeUuid)
-// 		}
-// 		nodes = append(nodes, ws)
-// 	}
-
-// 	return nodes
-// }
-
 func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 
 	var userName string
@@ -438,6 +396,20 @@ func AccessListForLockedNodes(ctx context.Context, excludedSessions ...string) (
 		accessList.NodesAcls[acl.NodeID] = b
 	}
 
+	accessList.NodesPathsAcls = make(map[string]Bitmask)
+
+	cli := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+
+	// Retrieving path foreach ids
+	for nodeID := range accessList.NodesAcls {
+		resp, err := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		if err != nil {
+			return nil, err
+		}
+
+		accessList.NodesPathsAcls[resp.Node.Path] = b
+	}
+
 	return accessList, nil
 }
 
@@ -465,8 +437,6 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList.Workspaces[workspace.UUID] = workspace
 	}
 
-	log.Logger(ctx).Info("ACCESS LIST IN CTX CLAIMS IS ", zap.Any("list", accessList))
-
 	return accessList, nil
 }
 
@@ -482,8 +452,6 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 
 	accessList, err = AccessListFromRoles(ctx, user.Roles, false, true)
-
-	log.Logger(ctx).Info("ACCESS LIST IS ", zap.Any("list", accessList))
 
 	return
 }
