@@ -128,9 +128,17 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
-				if content {
+				if content && previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
+				node.Path = req.GetNode().GetPath()
+				node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
+				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
+					return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents: %s", err.Error())
+				}
+				resp.Success = true
+				resp.Node = node.Node
+				return nil
 			}
 		} else if node != nil {
 			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
@@ -163,7 +171,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
-				if content {
+				if content && previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
 			}
@@ -189,13 +197,15 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}
 
-	// Updating Commits and Parent Nodes in Batch
-	newEtag := req.GetNode().GetEtag()
-	if node.IsLeaf() && newEtag != common.NODE_FLAG_ETAG_TEMPORARY && (previousEtag == "" || newEtag != previousEtag) {
-		if err := dao.PushCommit(node); err != nil {
-			log.Logger(ctx).Error("Error while pushing commit for node", node.Zap(), zap.Error(err))
+	// Updating Commits - This is never used, avoid overhead of an insert
+	/*
+		newEtag := req.GetNode().GetEtag()
+		if node.IsLeaf() && newEtag != common.NODE_FLAG_ETAG_TEMPORARY && (previousEtag == "" || newEtag != previousEtag) {
+			if err := dao.PushCommit(node); err != nil {
+				log.Logger(ctx).Error("Error while pushing commit for node", node.Zap(), zap.Error(err))
+			}
 		}
-	}
+	*/
 
 	node.Path = reqPath
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
