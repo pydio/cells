@@ -141,8 +141,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		})
 	}()
 
-	<-time.After(30 * time.Second)
-
 	if recursive && !sourceNode.IsLeaf() {
 
 		prefixPathSrc := strings.TrimRight(sourceNode.Path, "/")

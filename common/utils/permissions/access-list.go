@@ -23,6 +23,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"go.uber.org/zap"
@@ -173,6 +174,7 @@ type AccessList struct {
 	Workspaces         map[string]*idm.Workspace
 	Acls               []*idm.ACL
 	NodesAcls          map[string]Bitmask
+	NodesPathsAcls     map[string]Bitmask
 	WorkspacesNodes    map[string]map[string]Bitmask
 	OrderedRoles       []*idm.Role
 	FrontPluginsValues []*idm.ACL
@@ -331,6 +333,22 @@ func (a *AccessList) FirstMaskForParents(ctx context.Context, nodes ...*tree.Nod
 	return Bitmask{}, nil
 }
 
+// FirstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
+func (a *AccessList) FirstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
+	keys := make([]string, 0, len(a.NodesPathsAcls))
+	for k := range a.NodesPathsAcls {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, path := range keys {
+		if strings.HasPrefix(path, node.Path) {
+			return a.NodesPathsAcls[path]
+		}
+	}
+	return Bitmask{}
+}
+
 // ParentMaskOrDeny browses access list from current node to ROOT, going through each parent.
 // If there is a deny anywhere up the path, it returns that deny,
 // otherwise it sends the first Bitmask found (closest parent having a Bitmask set).
@@ -364,8 +382,17 @@ func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
+	// First we check for parents
 	mask, _ := a.FirstMaskForParents(ctx, nodes...)
-	return mask.HasFlag(ctx, FlagLock, nodes[0])
+	if mask.HasFlag(ctx, FlagLock, nodes[0]) {
+		return true
+	}
+
+	if mask := a.FirstMaskForChildren(ctx, nodes[0]); mask.HasFlag(ctx, FlagLock, nodes[0]) {
+		return true
+	}
+
+	return false
 }
 
 // BelongsToWorkspaces finds corresponding workspace parents for this node.
