@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -158,6 +159,10 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 		goqu.I("n.id").Eq(goqu.I("a.node_id")),
 		goqu.I("w.id").Eq(goqu.I("a.workspace_id")),
 		goqu.I("r.id").Eq(goqu.I("a.role_id")),
+		goqu.Or(
+			goqu.I("a.expires_at").IsNull(),
+			goqu.I("a.expires_at").Gt(time.Now()),
+		),
 	}
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
@@ -222,6 +227,30 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 	}
 
 	return nil
+}
+
+// SetExpiry sets an expiry timestamp on the acl
+func (dao *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time) (int64, error) {
+
+	db := goqu.New(dao.Driver(), dao.DB())
+
+	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
+
+	dataset := db.From("idm_acls").Where(whereExpression).Update(
+		goqu.Record{"expires_at": t},
+	)
+
+	res, err := dataset.Exec()
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rows, nil
 }
 
 // Del from the sql DB.

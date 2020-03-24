@@ -22,6 +22,8 @@
 package acl
 
 import (
+	"time"
+
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/sql"
 )
@@ -31,6 +33,7 @@ type DAO interface {
 	dao.DAO
 
 	Add(interface{}) error
+	SetExpiry(sql.Enquirer, time.Time) (int64, error)
 	Del(sql.Enquirer) (numRows int64, e error)
 	Search(sql.Enquirer, *[]interface{}) error
 }

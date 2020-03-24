@@ -284,6 +284,7 @@ message WorkspaceSingleQuery {
 // *****************************************************************************
 service ACLService {
     rpc CreateACL (CreateACLRequest) returns (CreateACLResponse) {};
+    rpc ExpireACL (ExpireACLRequest) returns (ExpireACLResponse) {};
     rpc DeleteACL (DeleteACLRequest) returns (DeleteACLResponse) {};
     rpc SearchACL (SearchACLRequest) returns (stream SearchACLResponse) {};
     rpc StreamACL (stream SearchACLRequest) returns (stream SearchACLResponse) {};
@@ -294,10 +295,20 @@ service ACLService {
 // *****************************************************************************
 message CreateACLRequest{
     ACL ACL = 1;
+    int64 ExpiresIn = 2;
 }
 
 message CreateACLResponse{
     ACL ACL = 1;
+}
+
+message ExpireACLRequest{
+    service.Query Query = 1;
+    int64 Timestamp = 2;
+}
+
+message ExpireACLResponse{
+    int64 Rows = 1;
 }
 
 message DeleteACLRequest{

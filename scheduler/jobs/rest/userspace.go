@@ -301,6 +301,8 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			}
 		}
 
+		fmt.Println("HERE")
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,

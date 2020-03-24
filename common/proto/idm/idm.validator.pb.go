@@ -232,6 +232,17 @@ func (this *CreateACLResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ExpireACLRequest) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *ExpireACLResponse) Validate() error {
+	return nil
+}
 func (this *DeleteACLRequest) Validate() error {
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {

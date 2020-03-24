@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/pborman/uuid"
@@ -17,9 +19,28 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	service "github.com/pydio/cells/common/service/proto"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/utils/permissions"
 )
+
+type (
+	sessionIDKey struct{}
+)
+
+// WithSessionID returns a context which knows its service assigned color
+func WithSessionID(ctx context.Context, session string) context.Context {
+	return context.WithValue(ctx, sessionIDKey{}, session)
+}
+
+// GetSessionID returns the session ID in context
+func GetSessionID(ctx context.Context) (string, bool) {
+	res, ok := ctx.Value(sessionIDKey{}).(string)
+	return res, ok
+}
 
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
 // It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
@@ -27,8 +48,13 @@ import (
 func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
 
 	session := uuid.New()
+	childrenMoved := 0
+	var totalSize int64
+
+	ctx = WithSessionID(ctx, session)
+
+	// Make sure all sessions are purged !
 	defer func() {
-		// Make sure all sessions are purged !
 		if p := recover(); p != nil {
 			log.Logger(ctx).Error("Error during copy/move", zap.Error(p.(error)))
 			oErr = p.(error)
@@ -41,6 +67,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}()
 		}
 	}()
+
+	// TODO - should be its own function really ?
 	publishError := func(dsName, errorPath string) {
 		client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
 			ErrorDetected:  true,
@@ -48,8 +76,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			ErrorPath:      errorPath,
 		}))
 	}
-	childrenMoved := 0
-	var totalSize int64
+
+	// Setting up logger
 	logger := log.Logger(ctx)
 	var taskLogger *zap.Logger
 	if isTask {
@@ -57,6 +85,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	} else {
 		taskLogger = zap.New(zapcore.NewNopCore())
 	}
+
 	// Read root of target to detect if it is on the same datasource as sourceNode
 	var crossDs bool
 	var sourceDs, targetDs string
@@ -75,6 +104,42 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}
 		}
 	}
+
+	lock := permissions.AclLock
+	lock.Value = session
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+		ACL: &idm.ACL{
+			NodeID: sourceNode.Uuid,
+			Action: lock,
+		},
+	}); err != nil {
+		return err
+	}
+
+	// First of all we set a lock on the node
+	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		Actions: []*idm.ACLAction{lock},
+		NodeIDs: []string{sourceNode.Uuid},
+	})
+
+	if _, err := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
+		Query: &service.Query{
+			SubQueries: []*any.Any{q},
+		},
+		Timestamp: time.Now().Add(time.Second * 10000).Unix(),
+	}); err != nil {
+		return err
+	}
+
+	defer func() {
+		aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
+			Query: &service.Query{
+				SubQueries: []*any.Any{q},
+			},
+		})
+	}()
 
 	if recursive && !sourceNode.IsLeaf() {
 

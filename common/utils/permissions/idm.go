@@ -317,6 +317,35 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 	return workspaces
 }
 
+func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*idm.ACL, err error) {
+	var subQueries []*any.Any
+	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: actions})
+	subQueries = append(subQueries, q1)
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
+		Query: &service.Query{
+			SubQueries: subQueries,
+		},
+	})
+
+	if err != nil {
+		log.Logger(ctx).Error("GetACLsForActions", zap.Error(err))
+		return nil, err
+	}
+
+	defer stream.Close()
+	for {
+		response, err := stream.Recv()
+		if err != nil {
+			break
+		}
+		acls = append(acls, response.GetACL())
+	}
+
+	return acls, nil
+}
+
 func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 
 	var userName string
@@ -336,7 +365,52 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 		}
 	}
 	return userName, claims
+}
 
+// AccessListForLockedNodes builds a flattened node list containing all currently locked nodes
+func AccessListForLockedNodes(ctx context.Context, excludedSessions ...string) (accessList *AccessList, err error) {
+	accessList = NewAccessList([]*idm.Role{})
+
+	acls, _ := GetACLsForActions(ctx, AclLock)
+
+	if len(excludedSessions) > 0 {
+		var a []*idm.ACL
+		for _, excludedSession := range excludedSessions {
+			for _, acl := range acls {
+				if acl.Action.Value != excludedSession {
+					a = append(a, acl)
+				}
+			}
+
+			acls = a
+		}
+	}
+
+	accessList.Append(acls)
+	accessList.NodesAcls = make(map[string]Bitmask)
+
+	b := Bitmask{}
+	b.AddFlag(FlagLock)
+
+	for _, acl := range acls {
+		accessList.NodesAcls[acl.NodeID] = b
+	}
+
+	accessList.NodesPathsAcls = make(map[string]Bitmask)
+
+	cli := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+
+	// Retrieving path foreach ids
+	for nodeID := range accessList.NodesAcls {
+		resp, err := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		if err != nil {
+			return nil, err
+		}
+
+		accessList.NodesPathsAcls[resp.Node.Path] = b
+	}
+
+	return accessList, nil
 }
 
 // AccessListFromContextClaims uses package function to compile ACL and Workspaces for a given user ( = list of roles inside the Claims)

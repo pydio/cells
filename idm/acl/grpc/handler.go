@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -49,6 +50,21 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest, resp
 		Type: idm.ChangeEventType_UPDATE,
 		Acl:  req.ACL,
 	}))
+	return nil
+}
+
+// ExpireACL in database
+func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest, resp *idm.ExpireACLResponse) error {
+
+	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+
+	numRows, err := dao.SetExpiry(req.Query, time.Unix(req.Timestamp, 0))
+	if err != nil {
+		return err
+	}
+
+	resp.Rows = numRows
+
 	return nil
 }
 

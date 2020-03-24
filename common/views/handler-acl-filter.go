@@ -22,15 +22,12 @@ package views
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -90,7 +87,6 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
-	log.Logger(ctx).Debug("Parent Ancestors", zap.Any("parents", parents), zap.Any("acl", accessList))
 
 	stream, err := a.next.ListNodes(ctx, in, opts...)
 	if err != nil {
@@ -273,7 +269,6 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	if err != nil {
 		return err
 	}
-	fmt.Println(parents)
 	if write && !accessList.CanWrite(ctx, parents...) {
 		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not writeable")
 	}

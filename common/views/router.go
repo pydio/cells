@@ -83,9 +83,10 @@ func NewStandardRouter(options RouterOptions) *Router {
 	}
 
 	handlers = append(handlers, &PutHandler{})
+	handlers = append(handlers, &AclLockFilter{})
 	if !options.AdminView {
 		handlers = append(handlers, &UploadLimitFilter{})
-		handlers = append(handlers, &AclLockFilter{})
+		handlers = append(handlers, &AclContentLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
 	}
 
