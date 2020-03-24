@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 type WsRolesCleaner struct {
@@ -70,9 +70,10 @@ type NodesCleaner struct {
 }
 
 func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
+	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
+	// fmt.Println("Received a nodes cleaner handle message ", msg)
 
 	// Mark ACLs for deletion
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
