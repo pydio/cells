@@ -108,38 +108,40 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	lock := permissions.AclLock
 	lock.Value = session
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-	if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-		ACL: &idm.ACL{
-			NodeID: sourceNode.Uuid,
-			Action: lock,
-		},
-	}); err != nil {
-		return err
-	}
+	if !IsUnitTestEnv {
+		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+			ACL: &idm.ACL{
+				NodeID: sourceNode.Uuid,
+				Action: lock,
+			},
+		}); err != nil {
+			return err
+		}
 
-	// First of all we set a lock on the node
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-		Actions: []*idm.ACLAction{lock},
-		NodeIDs: []string{sourceNode.Uuid},
-	})
+		// First of all we set a lock on the node
+		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			Actions: []*idm.ACLAction{lock},
+			NodeIDs: []string{sourceNode.Uuid},
+		})
 
-	if _, err := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
-		Query: &service.Query{
-			SubQueries: []*any.Any{q},
-		},
-		Timestamp: time.Now().Add(time.Second * 10000).Unix(),
-	}); err != nil {
-		return err
-	}
-
-	defer func() {
-		aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
+		if _, err := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{q},
 			},
-		})
-	}()
+			Timestamp: time.Now().Add(time.Second * 10000).Unix(),
+		}); err != nil {
+			return err
+		}
+
+		defer func() {
+			aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
+				Query: &service.Query{
+					SubQueries: []*any.Any{q},
+				},
+			})
+		}()
+	}
 
 	if recursive && !sourceNode.IsLeaf() {
 
