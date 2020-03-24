@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS idm_acls (
     action_value VARCHAR(500),
     role_id      INTEGER,
     workspace_id INTEGER,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at   TIMESTAMP NULL DEFAULT NULL,
 
     FOREIGN KEY (node_id) REFERENCES idm_acl_nodes(id),
     FOREIGN KEY (workspace_id) REFERENCES idm_acl_workspaces(id),
