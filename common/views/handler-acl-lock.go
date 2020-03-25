@@ -70,7 +70,7 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 	}
 
 	if accessList.IsLocked(ctx, nodes...) {
-		return 0, errors.Forbidden("parent.locked", "Node is currently locked")
+		return 0, errors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.next.PutObject(ctx, node, reader, requestData)
@@ -79,29 +79,33 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 // WrappedCanApply will perform checks on quota to make sure an operation is authorized
 func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 
-	accessList, err := permissions.AccessListForLockedNodes(srcCtx)
+	// Always use target, srcCtx can be nil
+	accessList, err := permissions.AccessListForLockedNodes(targetCtx)
 	if err != nil {
 		return err
 	}
 
 	var node *tree.Node
+	var ctx context.Context
+
 	switch operation.GetType() {
 	case tree.NodeChangeEvent_CREATE:
 		node = operation.GetTarget()
+		ctx = targetCtx
 	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
 		node = operation.GetSource()
+		ctx = srcCtx
 	}
 
 	// First load ancestors or grab them from BranchInfo
-	_, parents, err := AncestorsListFromContext(srcCtx, node, "in", a.clientsPool, false)
+	_, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, false)
 	if err != nil {
 		return err
 	}
 
 	nodes := append([]*tree.Node{node}, parents...)
-
-	if accessList.IsLocked(srcCtx, nodes...) {
-		return errors.Forbidden("parent.locked", "Node is currently locked")
+	if accessList.IsLocked(ctx, nodes...) {
+		return errors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
