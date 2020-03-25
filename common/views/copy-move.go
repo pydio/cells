@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"path"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/pborman/uuid"
@@ -19,16 +18,18 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type (
 	sessionIDKey struct{}
+)
+
+const (
+	// Consider move takes 1s per 100MB of data to copy
+	lockExpirationRatio = 1024 * 1024 * 100
 )
 
 // WithSessionID returns a context which knows its service assigned color
@@ -105,42 +106,14 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 	}
 
-	lock := permissions.AclLock
-	lock.Value = session
-
-	if !IsUnitTestEnv {
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-		if _, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-			ACL: &idm.ACL{
-				NodeID: sourceNode.Uuid,
-				Action: lock,
-			},
-		}); err != nil {
-			return err
+	var locker *permissions.LockSession
+	if move && !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
+		log.Logger(ctx).Info("Setting Lock on Node with session " + session)
+		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*2)
+		// Will be unlocked by sync process
+		if err := locker.Lock(ctx); err != nil {
+			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))
 		}
-
-		// First of all we set a lock on the node
-		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{lock},
-			NodeIDs: []string{sourceNode.Uuid},
-		})
-
-		if _, err := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
-			Query: &service.Query{
-				SubQueries: []*any.Any{q},
-			},
-			Timestamp: time.Now().Add(time.Second * 10000).Unix(),
-		}); err != nil {
-			return err
-		}
-
-		defer func() {
-			aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
-				Query: &service.Query{
-					SubQueries: []*any.Any{q},
-				},
-			})
-		}()
 	}
 
 	if recursive && !sourceNode.IsLeaf() {
@@ -191,8 +164,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		//total := len(children)
 
-		// For Copy case, first create new folders with fresh UUID
 		if !move {
+			// For Copy case, first create new folders with fresh UUID
 			for _, childNode := range children {
 				if childNode.IsLeaf() {
 					continue
@@ -219,6 +192,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				logger.Debug("-- Copy Folder Success ", zap.String("to", targetPath), childNode.Zap())
 				taskLogger.Info("-- Copied Folder To " + targetPath)
 			}
+		} else {
+			// For move, update lock expiration based on total size
+			updateLockerForByteSize(ctx, locker, totalSize)
 		}
 
 		wg := &sync.WaitGroup{}
@@ -280,6 +256,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	// Now Copy/Move initial node
 	if sourceNode.IsLeaf() {
+
+		updateLockerForByteSize(ctx, locker, sourceNode.Size)
 
 		// Prepare Meta for Copy/Delete operations. If Move accross DS or Copy, we send directly the close- session
 		// as this will be a one shot operation on each datasource.
@@ -350,6 +328,18 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	}
 
 	return
+}
+
+func updateLockerForByteSize(ctx context.Context, locker *permissions.LockSession, totalSize int64) {
+	if locker == nil {
+		return
+	}
+	ratio := math.Ceil(float64(totalSize) / float64(lockExpirationRatio))
+	if ratio > 2 {
+		newD := time.Duration(int64(ratio) * int64(time.Second))
+		log.Logger(ctx).Info("Updating lock expiration to ", zap.Duration("duration", newD))
+		locker.UpdateExpiration(ctx, newD)
+	}
 }
 
 func copyMoveStatusKey(keyPath string, move bool, tFunc ...i18n.TranslateFunc) string {

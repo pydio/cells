@@ -166,7 +166,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
-					go ev.processEvents(ev.batchCache[session])
+					go ev.processEvents(ev.batchCache[session], session)
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
 				} else {
@@ -185,7 +185,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			ev.batchCacheMutex.Lock()
 			if events, ok := ev.batchCache[session]; ok {
 				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
-				go ev.processEvents(events)
+				go ev.processEvents(events, session)
 				delete(ev.batchCache, session)
 			}
 			ev.batchCacheMutex.Unlock()
@@ -193,7 +193,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			// Process Queue
 			if len(batch) > 0 {
 				log.Logger(ev.globalContext).Info("[batcher] Processing batch after timeout")
-				go ev.processEvents(batch)
+				go ev.processEvents(batch, "")
 				batch = nil
 			}
 		}
@@ -202,12 +202,14 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 
 }
 
-func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
+func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession string) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})
 	patch.SetupChannels(ev.statuses, ev.done, ev.cmd)
-	if len(events) > 10 {
+	if batchSession != "" {
+		patch.SetSessionData(events[0].CreateContext(ev.globalContext), false, batchSession)
+	} else if len(events) > 10 {
 		patch.SetSessionData(events[0].CreateContext(ev.globalContext), false)
 	}
 

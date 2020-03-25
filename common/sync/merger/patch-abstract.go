@@ -25,6 +25,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common/log"
+
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -40,6 +42,7 @@ type AbstractPatch struct {
 
 	sessionProviderContext context.Context
 	sessionSilent          bool
+	lockSession            string
 
 	skipFilterToTarget bool
 	postFilter         func()
@@ -130,9 +133,12 @@ func (b *AbstractPatch) Target(newTarget ...model.PathSyncTarget) model.PathSync
 	return b.target
 }
 
-func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSession bool) {
+func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSession bool, lockSession ...string) {
 	b.sessionProviderContext = providerContext
 	b.sessionSilent = silentSession
+	if len(lockSession) > 0 {
+		b.lockSession = lockSession[0]
+	}
 }
 
 func (b *AbstractPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
@@ -150,11 +156,15 @@ func (b *AbstractPatch) FlushSession(sessionUuid string) error {
 	return nil
 }
 
-func (b *AbstractPatch) FinishSession(sessionUuid string) error {
+func (b *AbstractPatch) FinishSession(sessionUuid string) (err error) {
 	if sessionProvider, ok := b.Target().(model.SessionProvider); ok && b.sessionProviderContext != nil {
-		return sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
+		err = sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
 	}
-	return nil
+	if lockBranchProvider, ok := b.Target().(model.LockBranchProvider); ok && b.lockSession != "" {
+		log.Logger(b.sessionProviderContext).Info("Unlocking branch with session " + b.lockSession)
+		err = lockBranchProvider.UnlockBranch(b.sessionProviderContext, b.lockSession)
+	}
+	return
 }
 
 func (b *AbstractPatch) HasTransfers() bool {

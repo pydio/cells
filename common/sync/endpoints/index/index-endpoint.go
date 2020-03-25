@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
@@ -37,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type Client struct {
@@ -51,7 +53,7 @@ type Client struct {
 func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "index://" + i.dsName,
+		URI: "index://" + i.dsName,
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
@@ -214,6 +216,19 @@ func (i *Client) FinishSession(ctx context.Context, sessionUuid string) error {
 	_, err := i.sessionClient.CloseSession(ctx, &tree.CloseSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
 	i.internalSession = nil
 	return err
+}
+
+func (i *Client) LockBranch(ctx context.Context, node *tree.Node, sessionUUID string, expireAfter time.Duration) error {
+	if node.Uuid == "" {
+		return fmt.Errorf("missing uuid for creating lock session ACL")
+	}
+	locker := permissions.NewLockSession(node.Uuid, sessionUUID, expireAfter)
+	return locker.Lock(ctx)
+}
+
+func (i *Client) UnlockBranch(ctx context.Context, sessionUUID string) error {
+	locker := permissions.NewLockSession("", sessionUUID, 0)
+	return locker.Unlock(ctx)
 }
 
 // GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB

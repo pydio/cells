@@ -247,7 +247,7 @@ type Patch interface {
 
 	// SetSessionData sets some internal information to be used if Source or Target
 	// implement the SessionProvider interface
-	SetSessionData(providerContext context.Context, silentSession bool)
+	SetSessionData(providerContext context.Context, silentSession bool, lockSession ...string)
 	// StartSession calls StartSession on the underlying provider if it is set
 	StartSession(rootNode *tree.Node) (*tree.IndexationSession, error)
 	// FlushSession calls FlushSession on the underlying provider if it is set

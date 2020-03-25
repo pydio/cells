@@ -342,7 +342,7 @@ func (a *AccessList) FirstMaskForChildren(ctx context.Context, node *tree.Node) 
 	sort.Strings(keys)
 
 	for _, path := range keys {
-		if strings.HasPrefix(path, node.Path) {
+		if strings.HasPrefix(path, strings.TrimRight(node.Path, "/")+"/") {
 			return a.NodesPathsAcls[path]
 		}
 	}

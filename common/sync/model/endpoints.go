@@ -208,6 +208,14 @@ type SessionProvider interface {
 	FinishSession(ctx context.Context, sessionUuid string) error
 }
 
+// LockBranchProvider can set/remove a lock on a branch, with automatic expiration
+type LockBranchProvider interface {
+	// Lock set a lock on a branch, with a preset sessionUUID and an expiration time
+	LockBranch(ctx context.Context, node *tree.Node, sessionUUID string, expireAfter time.Duration) error
+	// Unlock removes lock manually from this branch, if it was not expired already
+	UnlockBranch(ctx context.Context, sessionUUID string) error
+}
+
 // Snapshoter is an extended version of PathSyncSource that can capture another source at once.
 type Snapshoter interface {
 	PathSyncSource
