@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"io"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
@@ -29,6 +30,17 @@ import (
 
 type AclContentLockFilter struct {
 	AbstractHandler
+}
+
+// PutObject check locks before allowing Put operation.
+func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+		return a.next.PutObject(ctx, node, reader, requestData)
+	}
+	if err := permissions.CheckContentLock(ctx, node); err != nil {
+		return 0, err
+	}
+	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
 func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
