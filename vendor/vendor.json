@@ -947,12 +947,6 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "4fe2N7wlH7zZk3uR4F5qubpgAI0=",
-			"path": "github.com/doug-martin/goqu",
-			"revision": "38a583ff9fc90cd7f21629b14c5628e98391e581",
-			"revisionTime": "2020-03-13T03:05:02Z"
-		},
-		{
 			"checksumSHA1": "kQvcgAP03E4wJi0M7d7BBcbaCKY=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/dustin/go-humanize",
 			"path": "github.com/dustin/go-humanize",
