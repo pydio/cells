@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/emicklei/go-restful"
@@ -50,7 +51,6 @@ SERVICES MANAGEMENT
 *********************/
 // List all services with their status
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
-
 	all, err := registry.ListServices(true)
 	if err != nil {
 		service.RestError500(req, resp, err)
@@ -86,7 +86,6 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	output.Total = int32(len(output.Services))
 
 	resp.WriteEntity(output)
-
 }
 
 // List all Peers (servers) on which any pydio service is running
@@ -101,12 +100,13 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		}
 		accu[p.GetAddress()] = p.GetAddress()
 		if h := p.GetHostname(); h != "" {
-			accu[h] = h
+			// Replace value with "HostName|IP"
+			accu[p.GetAddress()] = h + "|" + p.GetAddress()
 		}
 	}
 
-	for k, _ := range accu {
-		response.PeerAddresses = append(response.PeerAddresses, k)
+	for _, v := range accu {
+		response.PeerAddresses = append(response.PeerAddresses, v)
 	}
 
 	resp.WriteEntity(response)
@@ -325,6 +325,9 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 			Metadata: node.Metadata,
 		})
 	}
+	sort.Slice(protoSrv.RunningPeers, func(i, j int) bool {
+		return protoSrv.RunningPeers[i].Id > protoSrv.RunningPeers[j].Id
+	})
 	if len(protoSrv.RunningPeers) == 0 {
 		protoSrv.Status = ctl.ServiceStatus_STOPPED
 	}

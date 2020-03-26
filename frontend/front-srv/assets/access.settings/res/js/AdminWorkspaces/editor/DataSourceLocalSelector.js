@@ -185,14 +185,31 @@ class DataSourceLocalSelector extends React.Component{
         }
     }
 
+    compareAddresses(a1, a2) {
+        const p1 = a1.split("|");
+        const p2 = a2.split("|");
+        return (p2.filter(p => p1.indexOf(p) > -1).length || p1.filter(p => p2.indexOf(p) > -1).length);
+    }
+
     componentDidMount(){
         const {model} = this.props;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.listPeersAddresses().then(res => {
-            if(res.PeerAddresses && res.PeerAddresses.length === 1 && !model.PeerAddress){
-                model.PeerAddress = res.PeerAddresses[0];
+            const aa = res.PeerAddresses || [];
+            if(aa === 1 && !model.PeerAddress){
+                model.PeerAddress = aa[0];
             }
-            this.setState({peerAddresses: res.PeerAddresses});
+            this.setState({peerAddresses: aa});
+            if(model.PeerAddress && aa.indexOf(model.PeerAddress) === -1){
+                const rep = aa.filter(a => this.compareAddresses(a, model.PeerAddress));
+                if (rep.length) {
+                    // If model address is contained in one of the res, replace it
+                    model.PeerAddress = rep[0];
+                } else {
+                    // Otherwise show it as invalid
+                    this.setState({invalidAddress: model.PeerAddress});
+                }
+            }
         })
     }
 
@@ -222,47 +239,62 @@ class DataSourceLocalSelector extends React.Component{
         this.setState({invalid: invalid});
     }
 
+    onPeerChange(newValue) {
+        const {model} = this.props;
+        const {invalidAddress} = this.state;
+        if(newValue === invalidAddress) {
+            return;
+        }
+        model.PeerAddress = newValue;
+        if(invalidAddress){
+            // Now remove from choices
+            this.setState({invalidAddress: null})
+        }
+    }
+
     render(){
 
         const {model} = this.props;
-        const {peerAddresses, invalid, m} = this.state;
+        const {peerAddresses, invalidAddress, invalid, m} = this.state;
+        let pAds = peerAddresses || [];
+        if(invalidAddress){
+            pAds = [...pAds, invalidAddress];
+        }
 
         return (
             <div>
-                <div style={{display:'flex', alignItems:'center'}}>
-                    <div style={{width: 180, marginRight: 10}}>
-                        <ModernSelectField
-                            value={model.PeerAddress || ''}
-                            hintText={m('selector.peer') + ' *'}
-                            onChange={(e,i,v) => {model.PeerAddress = v}}
-                            fullWidth={true}
-                        >
-                            {peerAddresses.map(address => {
-                                return <MenuItem value={address} primaryText={address}/>
-                            })}
-                        </ModernSelectField>
-                    </div>
-                    <div style={{flex: 1, height: 36}}>
-                        {model.PeerAddress &&
-                            <AutocompleteTree
-                                value={model.StorageConfiguration.folder}
-                                peerAddress={model.PeerAddress}
-                                onChange={this.onPathChange.bind(this)}
-                                fieldLabel={m('selector.completer') + (model.StorageConfiguration.create ? ' ('+m('selector.completer.create')+')':'') + ' *'}
-                                hintText={m('selector.completer.hint')}
-                            />
-                        }
-                        {!model.PeerAddress &&
-                            <ModernTextField
-                                style={{marginTop: -3}}
-                                fullWidth={true}
-                                disabled={true}
-                                value={model.StorageConfiguration.folder}
-                                floatingLabelText={m('selector.folder') + ' *'}
-                                hintText={m('selector.folder.hint')}
-                            />
-                        }
-                    </div>
+                <div style={{paddingBottom: 8}}>
+                    <ModernSelectField
+                        value={model.PeerAddress || ''}
+                        hintText={m('selector.peer') + ' *'}
+                        onChange={(e,i,v) => this.onPeerChange(v)}
+                        fullWidth={true}
+                    >
+                        {pAds.map(address => {
+                            return <MenuItem value={address} primaryText={"Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)":"")}/>
+                        })}
+                    </ModernSelectField>
+                </div>
+                <div>
+                    {model.PeerAddress &&
+                    <AutocompleteTree
+                        value={model.StorageConfiguration.folder}
+                        peerAddress={model.PeerAddress}
+                        onChange={this.onPathChange.bind(this)}
+                        fieldLabel={m('selector.completer') + (model.StorageConfiguration.create ? ' ('+m('selector.completer.create')+')':'') + ' *'}
+                        hintText={m('selector.completer.hint')}
+                    />
+                    }
+                    {!model.PeerAddress &&
+                    <ModernTextField
+                        style={{marginTop: -3}}
+                        fullWidth={true}
+                        disabled={true}
+                        value={model.StorageConfiguration.folder}
+                        floatingLabelText={m('selector.folder') + ' *'}
+                        hintText={m('selector.folder.hint')}
+                    />
+                    }
                 </div>
                 {invalid &&  <div style={{color: '#c62828'}}>{invalid}</div>}
             </div>

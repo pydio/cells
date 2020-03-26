@@ -19750,6 +19750,8 @@ var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_a
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -20014,6 +20016,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
     }
 
     _createClass(DataSourceLocalSelector, [{
+        key: 'compareAddresses',
+        value: function compareAddresses(a1, a2) {
+            var p1 = a1.split("|");
+            var p2 = a2.split("|");
+            return p2.filter(function (p) {
+                return p1.indexOf(p) > -1;
+            }).length || p1.filter(function (p) {
+                return p2.indexOf(p) > -1;
+            }).length;
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this3 = this;
@@ -20022,10 +20035,23 @@ var DataSourceLocalSelector = (function (_React$Component2) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listPeersAddresses().then(function (res) {
-                if (res.PeerAddresses && res.PeerAddresses.length === 1 && !model.PeerAddress) {
-                    model.PeerAddress = res.PeerAddresses[0];
+                var aa = res.PeerAddresses || [];
+                if (aa === 1 && !model.PeerAddress) {
+                    model.PeerAddress = aa[0];
                 }
-                _this3.setState({ peerAddresses: res.PeerAddresses });
+                _this3.setState({ peerAddresses: aa });
+                if (model.PeerAddress && aa.indexOf(model.PeerAddress) === -1) {
+                    var rep = aa.filter(function (a) {
+                        return _this3.compareAddresses(a, model.PeerAddress);
+                    });
+                    if (rep.length) {
+                        // If model address is contained in one of the res, replace it
+                        model.PeerAddress = rep[0];
+                    } else {
+                        // Otherwise show it as invalid
+                        _this3.setState({ invalidAddress: model.PeerAddress });
+                    }
+                }
             });
         }
     }, {
@@ -20059,57 +20085,76 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             this.setState({ invalid: invalid });
         }
     }, {
+        key: 'onPeerChange',
+        value: function onPeerChange(newValue) {
+            var model = this.props.model;
+            var invalidAddress = this.state.invalidAddress;
+
+            if (newValue === invalidAddress) {
+                return;
+            }
+            model.PeerAddress = newValue;
+            if (invalidAddress) {
+                // Now remove from choices
+                this.setState({ invalidAddress: null });
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this4 = this;
+
             var model = this.props.model;
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
+            var invalidAddress = _state2.invalidAddress;
             var invalid = _state2.invalid;
             var m = _state2.m;
+
+            var pAds = peerAddresses || [];
+            if (invalidAddress) {
+                pAds = [].concat(_toConsumableArray(pAds), [invalidAddress]);
+            }
 
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center' } },
+                    { style: { paddingBottom: 8 } },
                     _react2['default'].createElement(
-                        'div',
-                        { style: { width: 180, marginRight: 10 } },
-                        _react2['default'].createElement(
-                            ModernSelectField,
-                            {
-                                value: model.PeerAddress || '',
-                                hintText: m('selector.peer') + ' *',
-                                onChange: function (e, i, v) {
-                                    model.PeerAddress = v;
-                                },
-                                fullWidth: true
+                        ModernSelectField,
+                        {
+                            value: model.PeerAddress || '',
+                            hintText: m('selector.peer') + ' *',
+                            onChange: function (e, i, v) {
+                                return _this4.onPeerChange(v);
                             },
-                            peerAddresses.map(function (address) {
-                                return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: address });
-                            })
-                        )
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1, height: 36 } },
-                        model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
-                            value: model.StorageConfiguration.folder,
-                            peerAddress: model.PeerAddress,
-                            onChange: this.onPathChange.bind(this),
-                            fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
-                            hintText: m('selector.completer.hint')
-                        }),
-                        !model.PeerAddress && _react2['default'].createElement(ModernTextField, {
-                            style: { marginTop: -3 },
-                            fullWidth: true,
-                            disabled: true,
-                            value: model.StorageConfiguration.folder,
-                            floatingLabelText: m('selector.folder') + ' *',
-                            hintText: m('selector.folder.hint')
+                            fullWidth: true
+                        },
+                        pAds.map(function (address) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "") });
                         })
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
+                        value: model.StorageConfiguration.folder,
+                        peerAddress: model.PeerAddress,
+                        onChange: this.onPathChange.bind(this),
+                        fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
+                        hintText: m('selector.completer.hint')
+                    }),
+                    !model.PeerAddress && _react2['default'].createElement(ModernTextField, {
+                        style: { marginTop: -3 },
+                        fullWidth: true,
+                        disabled: true,
+                        value: model.StorageConfiguration.folder,
+                        floatingLabelText: m('selector.folder') + ' *',
+                        hintText: m('selector.folder.hint')
+                    })
                 ),
                 invalid && _react2['default'].createElement(
                     'div',

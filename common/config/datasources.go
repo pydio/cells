@@ -23,9 +23,14 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/micro/go-micro/errors"
+
+	"github.com/pydio/cells/common/utils/net"
 
 	"github.com/dchest/uniuri"
 
@@ -154,7 +159,7 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 }
 
 // FactorizeMinioServers tries to find exisiting MinioConfig that can be directly reused by the new source, or creates a new one
-func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig) {
+func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig, e error) {
 
 	if newSource.StorageType == object.StorageType_S3 {
 		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration["customEndpoint"]); gateway != nil {
@@ -246,7 +251,9 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 		dsDir, bucket := filepath.Split(newSource.StorageConfiguration["folder"])
 		peerAddress := newSource.PeerAddress
 		dsDir = strings.TrimRight(dsDir, "/")
-		if minioConfig := filterMiniosWithBaseFolder(existingConfigs, peerAddress, dsDir); minioConfig != nil {
+		if minioConfig, e := filterMiniosWithBaseFolder(existingConfigs, peerAddress, dsDir); e != nil {
+			return nil, e
+		} else if minioConfig != nil {
 			config = minioConfig
 			newSource.ApiKey = config.ApiKey
 			newSource.ApiSecret = config.ApiSecret
@@ -273,7 +280,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 	}
 
 	newSource.ObjectsServiceName = config.Name
-	return config
+	return config, nil
 }
 
 // createConfigName creates a new name for a minio config (local or gateway suffixed with an index)
@@ -343,13 +350,18 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 }
 
 // filterGatewaysWithKeys finds local folder configs that share the same base folder
-func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) *object.MinioConfig {
+func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) (*object.MinioConfig, error) {
 
 	for _, source := range configs {
-		if source.StorageType == object.StorageType_LOCAL && source.PeerAddress == peerAddress && source.LocalFolder == folder {
-			return source
+		if source.StorageType == object.StorageType_LOCAL && net.PeerAddressesAreSameNode(source.PeerAddress, peerAddress) {
+			sep := string(os.PathSeparator)
+			if source.LocalFolder == folder {
+				return source, nil
+			} else if strings.HasPrefix(source.LocalFolder, strings.TrimRight(folder, sep)+sep) || strings.HasPrefix(folder, strings.TrimRight(source.LocalFolder, sep)+sep) {
+				return nil, errors.Conflict("datasource.nested.path", "object service %s is already pointing to %s, make sure to avoid using nested paths for different datasources", source.Name, source.LocalFolder)
+			}
 		}
 	}
-	return nil
+	return nil, nil
 
 }

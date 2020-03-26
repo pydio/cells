@@ -25,6 +25,7 @@ import (
 	"errors"
 	"net"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -123,24 +124,50 @@ func GetOutboundIP() (net.IP, error) {
 
 // PeerAddressIsLocal compares and address (can be an IP or Hostname) to the current server values
 func PeerAddressIsLocal(address string) bool {
-	if address == "localhost" {
-		return true
-	}
 
-	if host, e := os.Hostname(); e == nil && address == host {
-		return true
-	}
-	peerIP := net.ParseIP(address)
-	localIPs, _ := GetAvailableIPs()
+	for _, a := range strings.Split(address, "|") {
 
-	found := false
-	for _, localIP := range localIPs {
-		if peerIP.Equal(localIP) {
-			found = true
+		// Check localhost
+		if a == "localhost" {
+			return true
+		}
+
+		// Check as Hostname
+		if host, e := os.Hostname(); e == nil && a == host {
+			return true
+		}
+
+		// Check as IP
+		peerIP := net.ParseIP(a)
+		localIPs, _ := GetAvailableIPs()
+		for _, localIP := range localIPs {
+			if peerIP.Equal(localIP) {
+				return true
+			}
 		}
 	}
 
-	return found
+	return false
+}
+
+// PeerAddressesAreSameNode compares two addresses composed of multiple segments (separated by |) and check if any segments are similar
+func PeerAddressesAreSameNode(a1, a2 string) bool {
+
+	parts1 := strings.Split(a1, "|")
+	parts2 := strings.Split(a2, "|")
+	var eq bool
+
+loop:
+	for _, p1 := range parts1 {
+		for _, p2 := range parts2 {
+			if p1 == p2 {
+				eq = true
+				break loop
+			}
+		}
+	}
+
+	return eq
 }
 
 // GetAvailablePort finds an available TCP port on which to listen to.

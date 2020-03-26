@@ -133,7 +133,7 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		if p == "" {
 			p = "/"
 		}
-		log.Logger(ctx).Info("ListNodes on file path", zap.String("p", p))
+		log.Logger(ctx).Debug("ListNodes on file path", zap.String("p", p))
 		if fileInfos, e := afero.ReadDir(t.FS, p); e == nil {
 			for _, info := range fileInfos {
 				fullPath := path.Join(p, info.Name())

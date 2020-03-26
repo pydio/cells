@@ -28,12 +28,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pydio/minio-go"
-
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -109,7 +108,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	currentMinios := config.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
 
-	minioConfig := config.FactorizeMinioServers(currentMinios, &ds, update)
+	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
+	if e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
 
