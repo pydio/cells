@@ -39,24 +39,45 @@ type EventSubscriber struct {
 	movesMux *sync.Mutex
 }
 
+func NewEventSubscriber(t *TreeServer, c client.Client) *EventSubscriber {
+	return &EventSubscriber{
+		TreeServer:  t,
+		EventClient: c,
+		moves:       make(map[string]chan *tree.NodeChangeEvent),
+		movesMux:    &sync.Mutex{},
+	}
+}
+
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
 	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
 	s.TreeServer.PublishChange(msg)
 }
 
-func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent) {
-	if s.moves == nil {
-		s.moves = make(map[string]chan *tree.NodeChangeEvent)
-		s.movesMux = &sync.Mutex{}
-	}
+func (s *EventSubscriber) mvGet(uuid string) (chan *tree.NodeChangeEvent, bool) {
 	s.movesMux.Lock()
-	if c, ok := s.moves[moveUuid]; ok {
+	defer s.movesMux.Unlock()
+	c, ok := s.moves[uuid]
+	return c, ok
+}
+
+func (s *EventSubscriber) mvSet(uuid string, c chan *tree.NodeChangeEvent) {
+	s.movesMux.Lock()
+	defer s.movesMux.Unlock()
+	s.moves[uuid] = c
+}
+
+func (s *EventSubscriber) mvDel(uuid string) {
+	s.movesMux.Lock()
+	defer s.movesMux.Unlock()
+	delete(s.moves, uuid)
+}
+
+func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent) {
+	if c, ok := s.mvGet(moveUuid); ok {
 		c <- event
-		s.movesMux.Unlock()
 	} else {
 		newB := make(chan *tree.NodeChangeEvent)
-		s.moves[moveUuid] = newB
-		s.movesMux.Unlock()
+		s.mvSet(moveUuid, newB)
 		go func() {
 			var del, create *tree.NodeChangeEvent
 			defer func() {
@@ -70,9 +91,7 @@ func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, eve
 				}
 				// Remove
 				close(newB)
-				s.movesMux.Lock()
-				delete(s.moves, moveUuid)
-				s.movesMux.Unlock()
+				s.mvDel(moveUuid)
 			}()
 			for {
 				select {

@@ -52,10 +52,7 @@ func init() {
 					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
 				}
 
-				eventSubscriber := &EventSubscriber{
-					TreeServer:  treeServer,
-					EventClient: defaults.NewClient(),
-				}
+				eventSubscriber := NewEventSubscriber(treeServer, defaults.NewClient())
 
 				updateServicesList(ctx, treeServer)
 
