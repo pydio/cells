@@ -79,12 +79,6 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 // WrappedCanApply will perform checks on quota to make sure an operation is authorized
 func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 
-	// Always use target, srcCtx can be nil
-	accessList, err := permissions.AccessListForLockedNodes(targetCtx)
-	if err != nil {
-		return err
-	}
-
 	var node *tree.Node
 	var ctx context.Context
 
@@ -95,6 +89,12 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
 		node = operation.GetSource()
 		ctx = srcCtx
+	}
+
+	// Load all nodes
+	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	if err != nil {
+		return err
 	}
 
 	// First load ancestors or grab them from BranchInfo
