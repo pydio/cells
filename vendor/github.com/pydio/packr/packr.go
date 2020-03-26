@@ -25,6 +25,15 @@ func PackBytes(box string, name string, bb []byte) {
 	data[box][name] = bb
 }
 
+func GetBox(box string) (map[string][]byte, bool) {
+	gil.Lock()
+	defer gil.Unlock()
+	if dd, ok := data[box]; ok {
+		return dd, ok
+	}
+	return nil, false
+}
+
 // PackBytesGzip packets the gzipped compressed bytes into a box.
 func PackBytesGzip(box string, name string, bb []byte) error {
 	var buf bytes.Buffer
