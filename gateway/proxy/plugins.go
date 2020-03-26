@@ -99,7 +99,7 @@ var (
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /dav/ {{.DAV | urls}} {
+	proxy /dav {{.DAV | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -160,7 +160,7 @@ var (
 		if {path} not_starts_with "/data"
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
-		if {path} not_starts_with "/dav/"
+		if {path} not_starts_with "/dav"
 		{{range .PluginPathes}}
 		if {path} not_starts_with "{{.}}"
 		{{end}}
