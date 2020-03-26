@@ -23,6 +23,7 @@ type VaultSource struct {
 	storePath    string
 	vaultKeyPath string
 	masterPass   []byte
+	masterKey    []byte
 
 	data     map[string]string
 	dataLock *sync.Mutex
@@ -174,7 +175,7 @@ func (v *VaultSource) initMasterPassword() {
 		kPass = v.getStorePassword(true)
 	}
 	v.masterPass = kPass
-
+	v.masterKey = crypto.KeyFromPassword(v.masterPass, 32)
 }
 
 // getStorePassword gets or generate a master key from file instead of keyring
@@ -206,7 +207,7 @@ func (v *VaultSource) generateStorePassword() []byte {
 
 // encrypt encrypts and base64 encode result to string
 func (v *VaultSource) encrypt(data []byte) (string, error) {
-	sealed, e := crypto.Seal(crypto.KeyFromPassword(v.masterPass, 32), data)
+	sealed, e := crypto.Seal(v.masterKey, data)
 	if e != nil {
 		return "", e
 	}
@@ -218,6 +219,6 @@ func (v *VaultSource) decrypt(value string) ([]byte, error) {
 	if data, e := base64.StdEncoding.DecodeString(value); e != nil {
 		return []byte{}, e
 	} else {
-		return crypto.Open(crypto.KeyFromPassword(v.masterPass, 32), data[:12], data[12:])
+		return crypto.Open(v.masterKey, data[:12], data[12:])
 	}
 }
