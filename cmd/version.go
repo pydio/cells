@@ -21,13 +21,37 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"os"
 	"runtime"
+	"text/template"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+)
+
+type CellsVersion struct {
+	CellsEdition    string
+	Version         string
+	PublicationTime string
+	BuildRevision   string
+	OS              string
+	Arch            string
+	GoVersion       string
+}
+
+var cellsVersionTpl = `Pydio Cells {{.CellsEdition}} Edition
+	Version: {{.Version}}
+	Published on : {{.PublicationTime}}
+	Git commit : {{.BuildRevision}}
+	OS/Arch : {{.OS}}/{{.Arch}}
+	Go version : {{.GoVersion}}
+`
+
+var (
+	format string
 )
 
 var versionCmd = &cobra.Command{
@@ -42,17 +66,37 @@ var versionCmd = &cobra.Command{
 			t = time.Now()
 		}
 
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s %s", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("    " + fmt.Sprintf("Os (%s) Arch (%s)", runtime.GOOS, runtime.GOARCH))
-		fmt.Println("    " + fmt.Sprintf("Go Version (%s) ", runtime.Version()))
-		fmt.Println("")
+		cv := &CellsVersion{
+			CellsEdition:    "Home",
+			Version:         common.Version().String(),
+			BuildRevision:   common.BuildRevision,
+			PublicationTime: t.Format(time.RFC822Z),
+			OS:              runtime.GOOS,
+			Arch:            runtime.GOARCH,
+			GoVersion:       runtime.Version(),
+		}
+
+		var runningTmpl string
+
+		if format != "" {
+			runningTmpl = format
+		} else {
+			// Default version template
+			runningTmpl = cellsVersionTpl
+		}
+
+		tmpl, err := template.New("cells").Parse(runningTmpl)
+		if err != nil {
+			log.Fatalln("failed to parse template", err)
+		}
+		if err = tmpl.Execute(os.Stdout, cv); err != nil {
+			log.Fatalln("could not execute template", err)
+		}
 
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
+	versionCmd.Flags().StringVarP(&format, "format", "f", "", "use template values to customize the output")
 }
