@@ -32,8 +32,10 @@ import (
 	"github.com/pydio/cells/common"
 )
 
+// CellsVersion contains version information for the current running binary
 type CellsVersion struct {
-	Distribution string
+	//Distribution string
+	PackageLabel string
 	Version      string
 	BuildTime    string
 	GitCommit    string
@@ -42,7 +44,15 @@ type CellsVersion struct {
 	GoVersion    string
 }
 
-var cellsVersionTpl = `Pydio Cells {{.Distribution}} Distribution
+// var cellsVersionTpl = `Pydio Cells {{.Distribution}} Distribution
+//  Version: 	{{.Version}}
+//  Built: 	{{.BuildTime}}
+//  Git commit: 	{{.GitCommit}}
+//  OS/Arch: 	{{.OS}}/{{.Arch}}
+//  Go version: 	{{.GoVersion}}
+// `
+
+var cellsVersionTpl = `{{.PackageLabel}}
  Version: 	{{.Version}}
  Built: 	{{.BuildTime}}
  Git commit: 	{{.GitCommit}}
@@ -67,7 +77,7 @@ var versionCmd = &cobra.Command{
 		}
 
 		cv := &CellsVersion{
-			Distribution: "Home",
+			PackageLabel: common.PackageLabel,
 			Version:      common.Version().String(),
 			BuildTime:    t.Format(time.RFC822Z),
 			GitCommit:    common.BuildRevision,
