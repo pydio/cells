@@ -33,21 +33,21 @@ import (
 )
 
 type CellsVersion struct {
-	CellsEdition    string
-	Version         string
-	PublicationTime string
-	BuildRevision   string
-	OS              string
-	Arch            string
-	GoVersion       string
+	Distribution string
+	Version      string
+	BuildTime    string
+	GitCommit    string
+	OS           string
+	Arch         string
+	GoVersion    string
 }
 
-var cellsVersionTpl = `Pydio Cells {{.CellsEdition}} Edition
-	Version: {{.Version}}
-	Published on : {{.PublicationTime}}
-	Git commit : {{.BuildRevision}}
-	OS/Arch : {{.OS}}/{{.Arch}}
-	Go version : {{.GoVersion}}
+var cellsVersionTpl = `Pydio Cells {{.Distribution}} Distribution
+ Version: 	{{.Version}}
+ Built: 	{{.BuildTime}}
+ Git commit: 	{{.GitCommit}}
+ OS/Arch: 	{{.OS}}/{{.Arch}}
+ Go version: 	{{.GoVersion}}
 `
 
 var (
@@ -56,7 +56,7 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Display the current version of this software",
+	Short: "Show Pydio Cells version information",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var t time.Time
@@ -67,13 +67,13 @@ var versionCmd = &cobra.Command{
 		}
 
 		cv := &CellsVersion{
-			CellsEdition:    "Home",
-			Version:         common.Version().String(),
-			BuildRevision:   common.BuildRevision,
-			PublicationTime: t.Format(time.RFC822Z),
-			OS:              runtime.GOOS,
-			Arch:            runtime.GOARCH,
-			GoVersion:       runtime.Version(),
+			Distribution: "Home",
+			Version:      common.Version().String(),
+			BuildTime:    t.Format(time.RFC822Z),
+			GitCommit:    common.BuildRevision,
+			OS:           runtime.GOOS,
+			Arch:         runtime.GOARCH,
+			GoVersion:    runtime.Version(),
 		}
 
 		var runningTmpl string
@@ -98,5 +98,5 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
-	versionCmd.Flags().StringVarP(&format, "format", "f", "", "use template values to customize the output")
+	versionCmd.Flags().StringVarP(&format, "format", "f", "", "Format the output using the given Go template")
 }
