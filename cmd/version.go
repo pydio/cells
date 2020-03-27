@@ -21,8 +21,10 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"os"
 	"runtime"
+	"text/template"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -30,9 +32,31 @@ import (
 	"github.com/pydio/cells/common"
 )
 
+type CellsVersion struct {
+	Distribution string
+	Version      string
+	BuildTime    string
+	GitCommit    string
+	OS           string
+	Arch         string
+	GoVersion    string
+}
+
+var cellsVersionTpl = `Pydio Cells {{.Distribution}} Distribution
+ Version: 	{{.Version}}
+ Built: 	{{.BuildTime}}
+ Git commit: 	{{.GitCommit}}
+ OS/Arch: 	{{.OS}}/{{.Arch}}
+ Go version: 	{{.GoVersion}}
+`
+
+var (
+	format string
+)
+
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Display the current version of this software",
+	Short: "Show Pydio Cells version information",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var t time.Time
@@ -42,17 +66,37 @@ var versionCmd = &cobra.Command{
 			t = time.Now()
 		}
 
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s %s", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("    " + fmt.Sprintf("Os (%s) Arch (%s)", runtime.GOOS, runtime.GOARCH))
-		fmt.Println("    " + fmt.Sprintf("Go Version (%s) ", runtime.Version()))
-		fmt.Println("")
+		cv := &CellsVersion{
+			Distribution: "Home",
+			Version:      common.Version().String(),
+			BuildTime:    t.Format(time.RFC822Z),
+			GitCommit:    common.BuildRevision,
+			OS:           runtime.GOOS,
+			Arch:         runtime.GOARCH,
+			GoVersion:    runtime.Version(),
+		}
+
+		var runningTmpl string
+
+		if format != "" {
+			runningTmpl = format
+		} else {
+			// Default version template
+			runningTmpl = cellsVersionTpl
+		}
+
+		tmpl, err := template.New("cells").Parse(runningTmpl)
+		if err != nil {
+			log.Fatalln("failed to parse template", err)
+		}
+		if err = tmpl.Execute(os.Stdout, cv); err != nil {
+			log.Fatalln("could not execute template", err)
+		}
 
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
+	versionCmd.Flags().StringVarP(&format, "format", "f", "", "Format the output using the given Go template")
 }
