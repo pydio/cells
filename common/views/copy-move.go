@@ -29,7 +29,8 @@ type (
 
 const (
 	// Consider move takes 1s per 100MB of data to copy
-	lockExpirationRatio = 1024 * 1024 * 100
+	lockExpirationRatioSize   = 1024 * 1024 * 100
+	lockExpirationRatioNumber = 25
 )
 
 // WithSessionID returns a context which knows its service assigned color
@@ -109,7 +110,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	var locker *permissions.LockSession
 	if move && !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
 		log.Logger(ctx).Info("Setting Lock on Node with session " + session)
-		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*2)
+		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*5)
 		// Will be unlocked by sync process
 		if err := locker.Lock(ctx); err != nil {
 			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))
@@ -194,7 +195,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}
 		} else {
 			// For move, update lock expiration based on total size
-			updateLockerForByteSize(ctx, locker, totalSize)
+			updateLockerForByteSize(ctx, locker, totalSize, len(children))
 		}
 
 		wg := &sync.WaitGroup{}
@@ -257,7 +258,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	// Now Copy/Move initial node
 	if sourceNode.IsLeaf() {
 
-		updateLockerForByteSize(ctx, locker, sourceNode.Size)
+		updateLockerForByteSize(ctx, locker, sourceNode.Size, 1)
 
 		// Prepare Meta for Copy/Delete operations. If Move accross DS or Copy, we send directly the close- session
 		// as this will be a one shot operation on each datasource.
@@ -330,16 +331,16 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	return
 }
 
-func updateLockerForByteSize(ctx context.Context, locker *permissions.LockSession, totalSize int64) {
+func updateLockerForByteSize(ctx context.Context, locker permissions.SessionLocker, totalSize int64, numberOfFiles int) {
 	if locker == nil {
 		return
 	}
-	ratio := math.Ceil(float64(totalSize) / float64(lockExpirationRatio))
-	if ratio > 2 {
-		newD := time.Duration(int64(ratio) * int64(time.Second))
-		log.Logger(ctx).Info("Updating lock expiration to ", zap.Duration("duration", newD))
-		locker.UpdateExpiration(ctx, newD)
-	}
+	countRatio := math.Ceil(float64(numberOfFiles) / float64(lockExpirationRatioNumber))
+	ratio := math.Ceil(float64(totalSize) / float64(lockExpirationRatioSize))
+	r := math.Max(countRatio, ratio) + 2
+	newD := time.Duration(int64(r) * int64(time.Second))
+	log.Logger(ctx).Info("Updating lock expiration to ", zap.Duration("duration", newD))
+	locker.UpdateExpiration(ctx, newD)
 }
 
 func copyMoveStatusKey(keyPath string, move bool, tFunc ...i18n.TranslateFunc) string {

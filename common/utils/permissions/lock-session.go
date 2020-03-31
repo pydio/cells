@@ -13,6 +13,12 @@ import (
 	service "github.com/pydio/cells/common/service/proto"
 )
 
+type SessionLocker interface {
+	Lock(ctx context.Context) error
+	UpdateExpiration(ctx context.Context, expireAfter time.Duration) error
+	Unlock(ctx context.Context) error
+}
+
 type LockSession struct {
 	nodeUUID    string
 	sessionUUID string
