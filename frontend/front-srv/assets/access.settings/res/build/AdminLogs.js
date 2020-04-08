@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -55,9 +54,9 @@ var _LogTools = require('./LogTools');
 
 var _LogTools2 = _interopRequireDefault(_LogTools);
 
-var _LogDetail = require('./LogDetail');
+var _modelLog = require('../model/Log');
 
-var _LogDetail2 = _interopRequireDefault(_LogDetail);
+var _modelLog2 = _interopRequireDefault(_modelLog);
 
 var LogBoard = (function (_React$Component) {
     _inherits(LogBoard, _React$Component);
@@ -69,7 +68,7 @@ var LogBoard = (function (_React$Component) {
         this.state = {
             page: 0,
             size: 100,
-            filter: "",
+            query: "",
             contentType: 'JSON',
             loading: false,
             results: 0
@@ -80,6 +79,13 @@ var LogBoard = (function (_React$Component) {
         key: 'handleLogToolsChange',
         value: function handleLogToolsChange(newState) {
             this.setState(_extends({}, newState));
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.query !== undefined && newProps.query !== this.state.query) {
+                this.setState({ query: newProps.query, page: 0 });
+            }
         }
     }, {
         key: 'handleReload',
@@ -97,6 +103,16 @@ var LogBoard = (function (_React$Component) {
             this.setState({ page: this.state.page + 1 });
         }
     }, {
+        key: 'handleTimestampContext',
+        value: function handleTimestampContext(ts) {
+            if (ts) {
+                var q = _modelLog2['default'].buildTsQuery(ts, 5);
+                this.setState({ tmpQuery: q, focus: ts });
+            } else {
+                this.setState({ tmpQuery: null, focus: null });
+            }
+        }
+    }, {
         key: 'handleLoadingStatusChange',
         value: function handleLoadingStatusChange(status, resultsCount) {
             if (this.props.onLoadingStatusChange) {
@@ -105,19 +121,6 @@ var LogBoard = (function (_React$Component) {
                 this.setState({ loading: status });
             }
             this.setState({ results: resultsCount });
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (typeof newProps.filter !== "undefined" && newProps.filter !== this.state.filter) {
-                this.setState({ filter: newProps.filter, page: 0 });
-            }
-            if (typeof newProps.filter !== "undefined" && newProps.date && newProps.date !== this.state.date) {
-                this.setState({ date: newProps.date, page: 0 });
-            }
-            if (typeof newProps.filter !== "undefined" && newProps.endDate && newProps.endDate !== this.state.endDate) {
-                this.setState({ endDate: newProps.endDate, page: 0 });
-            }
         }
     }, {
         key: 'render',
@@ -129,83 +132,63 @@ var LogBoard = (function (_React$Component) {
             var noHeader = _props.noHeader;
             var service = _props.service;
             var disableExport = _props.disableExport;
+            var currentNode = _props.currentNode;
             var _state = this.state;
-            var selectedLog = _state.selectedLog;
             var page = _state.page;
             var size = _state.size;
-            var date = _state.date;
-            var endDate = _state.endDate;
-            var filter = _state.filter;
+            var query = _state.query;
+            var tmpQuery = _state.tmpQuery;
+            var focus = _state.focus;
             var contentType = _state.contentType;
             var z = _state.z;
             var results = _state.results;
 
             var title = pydio.MessageHash["ajxp_admin.logs.1"];
+            var buttons = _react2['default'].createElement(_LogTools2['default'], {
+                pydio: pydio,
+                service: service,
+                focus: focus,
+                onStateChange: this.handleLogToolsChange.bind(this),
+                disableExport: disableExport
+            });
 
-            var buttons = _react2['default'].createElement(_LogTools2['default'], { pydio: pydio, service: service, onStateChange: this.handleLogToolsChange.bind(this), disableExport: disableExport });
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
 
-            var navItems = [];
-            if (page > 0) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "prev",
-                    label: 'Previous',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-left' }),
-                    onTouchTap: function () {
-                        return _this.handleDecrPage();
+            var body = _AdminComponents$AdminStyles.body;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
+            var prevDisabled = page === 0;
+            var nextDisabled = results < size;
+            var pageSizes = [50, 100, 500, 1000];
+            var paginationProps = undefined;
+            if (!(prevDisabled && results < pageSizes[0]) && !focus) {
+                paginationProps = {
+                    pageSizes: pageSizes, prevDisabled: prevDisabled, nextDisabled: nextDisabled,
+                    onPageNext: this.handleIncrPage.bind(this),
+                    onPagePrev: this.handleDecrPage.bind(this),
+                    onPageSizeChange: function onPageSizeChange(v) {
+                        _this.setState({ size: v, page: 0 });
                     }
-                }));
-            }
-            if (results === size) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "next",
-                    label: 'Next',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-right' }),
-                    onTouchTap: function () {
-                        return _this.handleIncrPage();
-                    }
-                }));
+                };
             }
 
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 } },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        modal: false,
-                        open: !!selectedLog,
-                        onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        },
-                        style: { padding: 0 },
-                        contentStyle: { maxWidth: 420 },
-                        bodyStyle: { padding: 0 },
-                        autoScrollBodyContent: true
-                    },
-                    selectedLog && _react2['default'].createElement(_LogDetail2['default'], { log: selectedLog, pydio: pydio, onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        } })
-                ),
-                _react2['default'].createElement(_LogTable2['default'], {
+                _extends({}, blockProps, { style: blockStyle }),
+                _react2['default'].createElement(_LogTable2['default'], _extends({
                     pydio: pydio,
                     service: service || 'syslog',
                     page: page,
                     size: size,
-                    date: date,
-                    endDate: endDate,
-                    filter: filter,
+                    query: tmpQuery ? tmpQuery : query,
+                    focus: focus,
                     contentType: contentType,
                     z: z,
                     onLoadingStatusChange: this.handleLoadingStatusChange.bind(this),
-                    onSelectLog: function (log) {
-                        _this.setState({ selectedLog: log });
-                    }
-                }),
-                navItems.length ? _react2['default'].createElement(
-                    _materialUi.BottomNavigation,
-                    { selectedIndex: this.state.selectedIndex },
-                    navItems
-                ) : null
+                    onTimestampContext: this.handleTimestampContext.bind(this)
+                }, paginationProps))
             );
 
             if (noHeader) {
@@ -219,6 +202,7 @@ var LogBoard = (function (_React$Component) {
                         { className: 'vertical-layout', style: { width: '100%' } },
                         _react2['default'].createElement(AdminComponents.Header, {
                             title: title,
+                            icon: currentNode.getMetadata().get('icon_class'),
                             actions: buttons,
                             reloadAction: this.handleReload.bind(this),
                             loading: this.state.loading
@@ -255,12 +239,33 @@ LogBoard.propTypes = {
 exports['default'] = LogBoard;
 module.exports = exports['default'];
 
-},{"./LogDetail":2,"./LogTable":3,"./LogTools":4,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","react":"react"}],2:[function(require,module,exports){
+},{"../model/Log":6,"./LogTable":3,"./LogTools":4,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","react":"react"}],2:[function(require,module,exports){
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -275,6 +280,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _pydio = require('pydio');
 
@@ -386,7 +395,7 @@ var LogDetail = (function (_React$Component2) {
 
             this.detachClipboard();
             if (this.refs['copy-button']) {
-                this._clip = new _clipboard2['default'](this.refs['copy-button'], {
+                this._clip = new _clipboard2['default'](_reactDom2['default'].findDOMNode(this.refs['copy-button']), {
                     text: (function (trigger) {
                         var data = [];
                         Object.keys(log).map(function (k) {
@@ -418,12 +427,40 @@ var LogDetail = (function (_React$Component2) {
             }
         }
     }, {
+        key: 'focusPeriod',
+        value: function focusPeriod() {
+            var _props3 = this.props;
+            var onSelectPeriod = _props3.onSelectPeriod;
+            var log = _props3.log;
+
+            var ts = log.Ts;
+            onSelectPeriod(ts);
+        }
+    }, {
+        key: 'unfocusPeriod',
+        value: function unfocusPeriod() {
+            var _props4 = this.props;
+            var onSelectPeriod = _props4.onSelectPeriod;
+            var focus = _props4.focus;
+
+            if (focus) {
+                onSelectPeriod(null);
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _props3 = this.props;
-            var log = _props3.log;
-            var pydio = _props3.pydio;
-            var onRequestClose = _props3.onRequestClose;
+            var _this2 = this;
+
+            var _props5 = this.props;
+            var log = _props5.log;
+            var pydio = _props5.pydio;
+            var onRequestClose = _props5.onRequestClose;
+            var onSelectPeriod = _props5.onSelectPeriod;
+            var style = _props5.style;
+            var focus = _props5.focus;
+            var _props5$userDisplay = _props5.userDisplay;
+            var userDisplay = _props5$userDisplay === undefined ? 'avatar' : _props5$userDisplay;
             var copySuccess = this.state.copySuccess;
 
             var styles = {
@@ -437,15 +474,17 @@ var LogDetail = (function (_React$Component2) {
                 },
                 buttons: {
                     position: 'absolute',
-                    top: 0,
-                    right: 0,
+                    top: 6,
+                    right: 6,
                     display: 'flex'
                 },
-                copyButton: {
-                    cursor: 'pointer',
-                    display: 'inline-block',
-                    fontSize: 18,
-                    padding: 14
+                button: {
+                    height: 36,
+                    width: 36,
+                    padding: 8
+                },
+                buttonIcon: {
+                    fontSize: 20
                 }
             };
 
@@ -469,17 +508,20 @@ var LogDetail = (function (_React$Component2) {
 
             return _react2['default'].createElement(
                 'div',
-                { style: { fontSize: 13, color: 'rgba(0,0,0,.87)', paddingBottom: 10 } },
+                { style: _extends({ fontSize: 13, color: 'rgba(0,0,0,.87)', paddingBottom: 10 }, style) },
                 _react2['default'].createElement(
                     _materialUi.Paper,
                     { zDepth: 1, style: { backgroundColor: '#f5f5f5', marginBottom: 10, position: 'relative' } },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.buttons },
-                        _react2['default'].createElement('span', { ref: "copy-button", style: styles.copyButton, className: copySuccess ? 'mdi mdi-check' : 'mdi mdi-content-copy', title: 'Copy log to clipboard' }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: onRequestClose })
+                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: copySuccess ? 'mdi mdi-check' : 'mdi mdi-content-copy', tooltip: 'Copy log to clipboard', tooltipPosition: "bottom-left", ref: "copy-button" }),
+                        onSelectPeriod && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: _extends({}, styles.buttonIcon, { color: focus ? '#ff5722' : null }), iconClassName: "mdi mdi-clock", onTouchTap: focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this), tooltip: "Show +/- 5 minutes", tooltipPosition: "bottom-left" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: "mdi mdi-close", onTouchTap: function () {
+                                _this2.unfocusPeriod();onRequestClose();
+                            }, tooltip: "Close log detail", tooltipPosition: "bottom-left" })
                     ),
-                    log.UserName && _react2['default'].createElement(UserAvatar, {
+                    userDisplay === 'avatar' && log.UserName && _react2['default'].createElement(UserAvatar, {
                         pydio: pydio,
                         userId: log.UserName,
                         richCard: true,
@@ -487,11 +529,18 @@ var LogDetail = (function (_React$Component2) {
                         displayAvatar: true,
                         noActionsPanel: true
                     }),
-                    userLegend && _react2['default'].createElement(
+                    userDisplay === "avatar" && userLegend && _react2['default'].createElement(
                         'div',
                         { style: styles.userLegend },
                         userLegend
                     )
+                ),
+                log.UserName && userDisplay === 'inline' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-account", legend: "User", data: log.UserName }),
+                    userLegend && _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-account-multiple", legend: "User Attributes", data: userLegend }),
+                    _react2['default'].createElement(_materialUi.Divider, { style: styles.divider })
                 ),
                 _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-calendar", legend: "Event Date", data: new Date(log.Ts * 1000).toLocaleString() }),
                 _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-comment-text", legend: "Event Message", data: msg }),
@@ -522,9 +571,9 @@ LogDetail.PropTypes = {
 exports['default'] = LogDetail;
 module.exports = exports['default'];
 
-},{"clipboard":"clipboard","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],3:[function(require,module,exports){
+},{"clipboard":"clipboard","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],3:[function(require,module,exports){
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -577,6 +626,10 @@ var _modelLog = require('../model/Log');
 
 var _modelLog2 = _interopRequireDefault(_modelLog);
 
+var _LogDetail = require('./LogDetail');
+
+var _LogDetail2 = _interopRequireDefault(_LogDetail);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
@@ -592,7 +645,7 @@ var LogTable = (function (_React$Component) {
         _classCallCheck(this, LogTable);
 
         _get(Object.getPrototypeOf(LogTable.prototype), 'constructor', this).call(this, props);
-        this.state = { logs: [], loading: false, rootSpans: {} };
+        this.state = { logs: [], loading: false, rootSpans: {}, selectedRows: [] };
     }
 
     _createClass(LogTable, [{
@@ -608,7 +661,7 @@ var LogTable = (function (_React$Component) {
                     l.SpanUuid = 'span-' + i;
                 }
                 if (!l.SpanRootUuid) {
-                    rootSpans[l.SpanUuid] = { open: false, children: [] };
+                    rootSpans[l.SpanUuid] = { open: true, children: [] };
                 }
                 return l;
             });
@@ -625,7 +678,7 @@ var LogTable = (function (_React$Component) {
                     var root = _extends({}, l);
                     root.SpanUuid = l.SpanRootUuid;
                     l.HasRoot = true;
-                    rootSpans[l.SpanRootUuid] = { open: false, children: [l] };
+                    rootSpans[l.SpanRootUuid] = { open: true, children: [l] };
                     result.push(root);
                     continue;
                 }
@@ -713,18 +766,15 @@ var LogTable = (function (_React$Component) {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             var service = nextProps.service;
-            var filter = nextProps.filter;
-            var date = nextProps.date;
-            var endDate = nextProps.endDate;
+            var query = nextProps.query;
             var page = nextProps.page;
             var size = nextProps.size;
             var onLoadingStatusChange = nextProps.onLoadingStatusChange;
             var z = nextProps.z;
 
-            if (filter === this.props.filter && date === this.props.date && endDate === this.props.endDate && size === this.props.size && page === this.props.page && z === this.props.z) {
+            if (query === this.props.query && size === this.props.size && page === this.props.page && z === this.props.z) {
                 return;
             }
-            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
             this.load(service, query, page, size, 'JSON', onLoadingStatusChange);
         }
     }, {
@@ -735,13 +785,47 @@ var LogTable = (function (_React$Component) {
             var _state2 = this.state;
             var loading = _state2.loading;
             var rootSpans = _state2.rootSpans;
+            var selectedRows = _state2.selectedRows;
             var _props2 = this.props;
             var pydio = _props2.pydio;
-            var onSelectLog = _props2.onSelectLog;
-            var filter = _props2.filter;
-            var date = _props2.date;
+            var onTimestampContext = _props2.onTimestampContext;
+            var query = _props2.query;
+            var focus = _props2.focus;
+            var _props3 = this.props;
+            var _onPageNext = _props3.onPageNext;
+            var _onPagePrev = _props3.onPagePrev;
+            var nextDisabled = _props3.nextDisabled;
+            var prevDisabled = _props3.prevDisabled;
+            var onPageSizeChange = _props3.onPageSizeChange;
+            var page = _props3.page;
+            var size = _props3.size;
+            var pageSizes = _props3.pageSizes;
 
             var logs = this.openSpans();
+            if (selectedRows.length) {
+                (function () {
+                    var expStyle = { paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10 };
+                    var first = JSON.stringify(selectedRows[0]);
+                    logs = logs.map(function (log) {
+                        if (JSON.stringify(log) === first) {
+                            return _extends({}, log, {
+                                expandedRow: _react2['default'].createElement(_LogDetail2['default'], {
+                                    style: expStyle,
+                                    userDisplay: "inline",
+                                    pydio: pydio,
+                                    log: log,
+                                    focus: focus,
+                                    onSelectPeriod: onTimestampContext,
+                                    onRequestClose: function () {
+                                        return _this2.setState({ selectedRows: [] });
+                                    }
+                                }) });
+                        } else {
+                            return log;
+                        }
+                    });
+                })();
+            }
             var MessageHash = pydio.MessageHash;
 
             var columns = [{
@@ -785,19 +869,51 @@ var LogTable = (function (_React$Component) {
                     return dateString;
                 }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], hideSmall: true, renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
-                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], hideSmall: true, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
+                }, style: { width: 130, padding: '12px 0' }, headerStyle: { width: 130, padding: '12px 0' } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'], renderCell: function renderCell(row) {
+                    var msg = row.Msg;
+                    if (row.NodePath) {
+                        msg += ' [' + row.NodePath + ']';
+                    } else if (row.NodeUuid) {
+                        msg += ' [' + row.NodeUuid + ']';
+                    }
+                    return msg;
+                } }];
+
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var pagination = undefined;
+            if (_onPageNext) {
+                pagination = {
+                    page: page + 1,
+                    pageSize: size,
+                    pageSizes: pageSizes,
+                    onPageNext: function onPageNext(v) {
+                        return _onPageNext(v - 1);
+                    },
+                    onPagePrev: function onPagePrev(v) {
+                        return _onPagePrev(v - 1);
+                    },
+                    onPageSizeChange: onPageSizeChange,
+                    nextDisabled: nextDisabled,
+                    prevDisabled: prevDisabled
+                };
+            }
 
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
                 columns: columns,
                 onSelectRows: function (rows) {
-                    if (rows.length && onSelectLog) {
-                        onSelectLog(rows[0]);
+                    _this2.setState({ selectedRows: rows });
+                    if (_this2.props.onTimestampContext) {
+                        _this2.props.onTimestampContext(null);
                     }
                 },
                 deselectOnClickAway: true,
                 showCheckboxes: false,
-                emptyStateString: loading ? MessageHash['settings.33'] : filter || date ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
+                emptyStateString: loading ? MessageHash['settings.33'] : query ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
                 computeRowStyle: function (row) {
                     var style = {};
                     if (row.HasRoot) {
@@ -807,7 +923,9 @@ var LogTable = (function (_React$Component) {
                         style.color = '#E53935';
                     }
                     return style;
-                }
+                },
+                masterStyles: tableMaster,
+                pagination: pagination
             });
         }
     }]);
@@ -815,31 +933,53 @@ var LogTable = (function (_React$Component) {
     return LogTable;
 })(_react2['default'].Component);
 
-LogTable.propTypes = {
-    date: _react2['default'].PropTypes.instanceOf(Date).isRequired,
-    endDate: _react2['default'].PropTypes.instanceOf(Date),
-    filter: _react2['default'].PropTypes.string.isRequired
-};
-
 exports['default'] = LogTable;
 module.exports = exports['default'];
 
-},{"../model/Log":6,"material-ui":"material-ui","pydio":"pydio","react":"react"}],4:[function(require,module,exports){
+},{"../model/Log":6,"./LogDetail":2,"material-ui":"material-ui","pydio":"pydio","react":"react"}],4:[function(require,module,exports){
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _react = require('react');
 
@@ -855,6 +995,18 @@ var _modelLog2 = _interopRequireDefault(_modelLog);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib2.moment;
+
 var LogTools = (function (_React$Component) {
     _inherits(LogTools, _React$Component);
 
@@ -864,33 +1016,72 @@ var LogTools = (function (_React$Component) {
         _get(Object.getPrototypeOf(LogTools.prototype), 'constructor', this).call(this, props);
         this.state = {
             filter: "",
-            filterMode: "fulltext"
+            filterMode: "fulltext",
+            levelShow: false,
+            serviceFilterShow: false
         };
-
-        this.handleFilterChange = (0, _lodashDebounce2['default'])(this.handleFilterChange.bind(this), 250);
-        this.handleDateChange = (0, _lodashDebounce2['default'])(this.handleDateChange.bind(this), 250);
+        this.publishStateChange = (0, _lodashDebounce2['default'])(this.publishStateChange.bind(this), 250);
     }
 
     _createClass(LogTools, [{
         key: 'publishStateChange',
         value: function publishStateChange() {
-            this.props.onStateChange(this.state);
+            var _state = this.state;
+            var filter = _state.filter;
+            var serviceFilter = _state.serviceFilter;
+            var level = _state.level;
+            var remoteAddress = _state.remoteAddress;
+            var userName = _state.userName;
+            var date = _state.date;
+            var endDate = _state.endDate;
+
+            var query = _modelLog2['default'].buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
+            this.props.onStateChange({ query: query });
+        }
+    }, {
+        key: 'handleToggleShow',
+        value: function handleToggleShow(field) {
+            var fieldName = field + 'Show';
+            var crt = this.state[fieldName];
+            var s = _defineProperty({}, fieldName, !crt);
+            if (crt) {
+                if (field === 'date' || field === 'endDate') {
+                    s['date'] = null;
+                    s['endDate'] = null;
+                    s['dateShow'] = false;
+                    s['endDateShow'] = false;
+                } else {
+                    s[field] = null;
+                }
+                s['page'] = 0;
+            } else if (field === 'date' && this.state.endDateShow) {
+                s['endDate'] = null;
+                s['endDateShow'] = false;
+            }
+            this.setState(s, this.publishStateChange.bind(this));
         }
     }, {
         key: 'handleFilterChange',
-        value: function handleFilterChange(val) {
-            this.setState({ filter: val ? val.toLowerCase() : val, page: 0 }, this.publishStateChange.bind(this));
+        value: function handleFilterChange(val, keyName) {
+            var _setState;
+
+            this.setState((_setState = {}, _defineProperty(_setState, keyName, val), _defineProperty(_setState, 'page', 0), _setState), this.publishStateChange.bind(this));
         }
     }, {
         key: 'handleDateChange',
         value: function handleDateChange(date) {
-            var _state = this.state;
-            var filterMode = _state.filterMode;
-            var endDate = _state.endDate;
+            var time = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
-            if (filterMode === 'period' && !endDate && date !== undefined) {
+            if (time) {
+                date.setHours(time.getHours(), time.getMinutes());
+            }
+            var _state2 = this.state;
+            var endDate = _state2.endDate;
+            var endDateShow = _state2.endDateShow;
+
+            if (endDateShow && !endDate && date !== undefined) {
                 var end = new Date();
-                //end.setDate(end.getDate() + 1);
+                end.setHours(23, 59, 59);
                 this.setState({ endDate: end });
             }
             this.setState({ date: date, page: 0 }, this.publishStateChange.bind(this));
@@ -898,6 +1089,11 @@ var LogTools = (function (_React$Component) {
     }, {
         key: 'handleEndDateChange',
         value: function handleEndDateChange(date) {
+            var time = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            if (time) {
+                date.setHours(time.getHours(), time.getMinutes());
+            }
             this.setState({ endDate: date, page: 0 }, this.publishStateChange.bind(this));
         }
     }, {
@@ -905,14 +1101,18 @@ var LogTools = (function (_React$Component) {
         value: function handleExport(format) {
             var _this = this;
 
-            var _state2 = this.state;
-            var filter = _state2.filter;
-            var date = _state2.date;
-            var endDate = _state2.endDate;
+            var _state3 = this.state;
+            var filter = _state3.filter;
+            var serviceFilter = _state3.serviceFilter;
+            var level = _state3.level;
+            var remoteAddress = _state3.remoteAddress;
+            var userName = _state3.userName;
+            var date = _state3.date;
+            var endDate = _state3.endDate;
             var service = this.props.service;
 
             var dateString = date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '';
-            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
+            var query = _modelLog2['default'].buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
             _modelLog2['default'].downloadLogs(service || 'sys', query, format).then(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 var filename = 'cells-logs-';
@@ -945,11 +1145,6 @@ var LogTools = (function (_React$Component) {
             });
         }
     }, {
-        key: 'handleFilterMode',
-        value: function handleFilterMode(filterMode) {
-            this.setState({ filterMode: filterMode, date: undefined, filter: '' }, this.publishStateChange.bind(this));
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -957,56 +1152,137 @@ var LogTools = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var disableExport = _props.disableExport;
-            var _state3 = this.state;
-            var filter = _state3.filter;
-            var date = _state3.date;
-            var filterMode = _state3.filterMode;
-            var exportUrl = _state3.exportUrl;
-            var exportFilename = _state3.exportFilename;
-            var exportOnClick = _state3.exportOnClick;
+            var muiTheme = _props.muiTheme;
+            var focus = _props.focus;
+
+            var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+            var focusBadge = {
+                backgroundColor: '#FBE9E7',
+                height: 35,
+                lineHeight: '35px',
+                fontSize: 15,
+                padding: '0 10px',
+                marginRight: 5,
+                color: '#FF5722',
+                borderRadius: 3
+            };
+
+            var _state4 = this.state;
+            var filter = _state4.filter;
+            var date = _state4.date;
+            var dateShow = _state4.dateShow;
+            var endDate = _state4.endDate;
+            var endDateShow = _state4.endDateShow;
+            var serviceFilter = _state4.serviceFilter;
+            var serviceFilterShow = _state4.serviceFilterShow;
+            var level = _state4.level;
+            var levelShow = _state4.levelShow;
+            var userName = _state4.userName;
+            var userNameShow = _state4.userNameShow;
+            var remoteAddress = _state4.remoteAddress;
+            var remoteAddressShow = _state4.remoteAddressShow;
+            var exportUrl = _state4.exportUrl;
+            var exportFilename = _state4.exportFilename;
+            var exportOnClick = _state4.exportOnClick;
             var MessageHash = pydio.MessageHash;
 
-            var hasFilter = filter || date;
+            var hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
             var checkIcon = _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-check" });
             return _react2['default'].createElement(
                 'div',
-                { style: { display: 'flex', alignItems: 'center', width: '100%' } },
-                filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
-                        return _this2.handleFilterChange(e.target.value);
-                    }, style: { margin: '0 5px', width: 180 } }),
-                filterMode === 'oneday' && _react2['default'].createElement(
+                { style: { display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 } },
+                focus && _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center' } },
-                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
-                            return _this2.handleDateChange(date);
-                        },
-                        autoOk: true, maxDate: new Date(), value: this.state.date,
-                        showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
-                            _this2.handleDateChange(undefined);
+                    { style: focusBadge },
+                    'Focus on +/- 5 minutes at ',
+                    moment(new Date(focus * 1000)).format('hh:mm:ss')
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 170 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'filter');
+                        }, fullWidth: true })
+                ),
+                levelShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, marginTop: -2, width: 100 } },
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { hintText: "Level", fullWidth: true, value: level,
+                            onChange: function (e, i, v) {
+                                return _this2.handleFilterChange(v, 'level');
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "ERROR", value: "ERROR" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "INFO", value: "INFO" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DEBUG", value: "DEBUG" })
+                    )
+                ),
+                serviceFilterShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Service", fullWidth: true, value: serviceFilter, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'serviceFilter');
                         } })
                 ),
-                filterMode === 'period' && _react2['default'].createElement(
+                remoteAddressShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "IP", fullWidth: true, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'remoteAddress');
+                        } })
+                ),
+                userNameShow && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 5, width: 80 } },
+                    _react2['default'].createElement(ModernTextField, { hintText: "Login", fullWidth: true, onChange: function (e, v) {
+                            return _this2.handleFilterChange(v, 'userName');
+                        } })
+                ),
+                dateShow && !endDateShow && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
-                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: 'From', onChange: function (e, date) {
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
                             return _this2.handleDateChange(date);
                         },
-                        autoOk: true, maxDate: new Date(), value: this.state.date,
-                        showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
-                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: 'To', onChange: function (e, date) {
+                        autoOk: true, maxDate: new Date(), value: date,
+                        showYearSelector: true, style: { width: 120 }, textFieldStyle: { width: 120 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
+                            _this2.handleDateChange(undefined);
+                        } }, adminStyles.props.header.iconButton))
+                ),
+                endDateShow && _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center' } },
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: 'From', onChange: function (e, date) {
+                            return _this2.handleDateChange(date);
+                        },
+                        autoOk: true, maxDate: new Date(), value: date,
+                        showYearSelector: true, style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({ hintText: 'at...', disabled: !date, onChange: function (e, time) {
+                            return _this2.handleDateChange(date, time);
+                        },
+                        autoOk: true, value: date,
+                        style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({ hintText: 'To', onChange: function (e, date) {
                             return _this2.handleEndDateChange(date);
                         },
-                        autoOk: true, minDate: this.state.date, maxDate: new Date(), value: this.state.endDate,
-                        showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
+                        autoOk: true, minDate: this.state.date, maxDate: new Date(), value: endDate,
+                        showYearSelector: true, style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({ hintText: 'at...', disabled: !endDate, onChange: function (e, time) {
+                            return _this2.handleEndDateChange(endDate, time);
+                        },
+                        autoOk: true, value: endDate,
+                        style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
                             _this2.handleDateChange(undefined);_this2.handleEndDateChange(undefined);
-                        } })
+                        } }, adminStyles.props.header.iconButton))
                 ),
                 _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant", tooltip: MessageHash['ajxp_admin.logs.3'] }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-filter-variant", tooltip: MessageHash['ajxp_admin.logs.3'] }, adminStyles.props.header.iconButton)),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -1016,20 +1292,29 @@ var LogTools = (function (_React$Component) {
                         null,
                         MessageHash['ajxp_admin.logs.filter.legend']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.fulltext'], rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('fulltext');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: dateShow && !endDateShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('date');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('oneday');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: endDateShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('endDate');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
-                            _this2.handleFilterMode('period');
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Level", rightIcon: levelShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('level');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Service", rightIcon: serviceFilterShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('serviceFilter');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "User Login", rightIcon: userNameShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('userName');
+                        } }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "IP", rightIcon: remoteAddressShow ? checkIcon : null, onTouchTap: function () {
+                            _this2.handleToggleShow('remoteAddress');
                         } })
                 ),
                 !disableExport && _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltip: MessageHash["ajxp_admin.logs.11"] }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-download", tooltip: MessageHash["ajxp_admin.logs.11"] }, adminStyles.props.header.iconButton)),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -1087,10 +1372,11 @@ var LogTools = (function (_React$Component) {
     return LogTools;
 })(_react2['default'].Component);
 
+exports['default'] = LogTools = (0, _materialUiStyles.muiThemeable)()(LogTools);
 exports['default'] = LogTools;
 module.exports = exports['default'];
 
-},{"../model/Log":6,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","react":"react"}],5:[function(require,module,exports){
+},{"../model/Log":6,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1174,21 +1460,33 @@ var Log = (function (_Observable) {
         /**
          * Build Bleve Query based on filter and date
          * @param filter {string}
+         * @param serviceFilter {string}
+         * @param level {string}
+         * @param remoteAddress {string}
+         * @param userName {string}
          * @param date {Date}
          * @param endDate {Date}
          * @return {string}
          */
-        value: function buildQuery(filter, date) {
-            var endDate = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+        value: function buildQuery(filter, serviceFilter, level, remoteAddress, userName, date) {
+            var endDate = arguments.length <= 6 || arguments[6] === undefined ? undefined : arguments[6];
 
             var arr = [];
 
             if (filter) {
-                arr.push('Msg:*' + filter + '*');
-                arr.push('RemoteAddress:*' + filter + '*');
-                arr.push('Level:*' + filter + '*');
-                arr.push('UserName:*' + filter + '*');
-                arr.push('Logger:*' + filter + '*');
+                arr.push('+Msg:"*' + filter + '*"');
+            }
+            if (serviceFilter) {
+                arr.push('+Logger:*' + serviceFilter + '*');
+            }
+            if (level) {
+                arr.push('+Level:' + level);
+            }
+            if (remoteAddress) {
+                arr.push('+RemoteAddress:*' + remoteAddress + '*');
+            }
+            if (userName) {
+                arr.push('+UserName:*' + userName + '*');
             }
 
             if (date) {
@@ -1203,6 +1501,14 @@ var Log = (function (_Observable) {
                 arr.push('+Ts:<' + Math.floor(to / 1000));
             }
 
+            return arr.join(' ');
+        }
+    }, {
+        key: "buildTsQuery",
+        value: function buildTsQuery(timestamp, minutesWindow) {
+            var arr = [];
+            arr.push('+Ts:>' + (timestamp - minutesWindow * 60));
+            arr.push('+Ts:<' + (timestamp + minutesWindow * 60));
             return arr.join(' ');
         }
 

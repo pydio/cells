@@ -724,120 +724,6 @@
 			"revisionTime": "2018-03-27T04:09:10Z"
 		},
 		{
-			"checksumSHA1": "gJqPpMcZ+8pC1D1dMIvnO09vO6w=",
-			"path": "github.com/coreos/dex",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "0a1SxY6u2ChUk16fhbO3pcFf41M=",
-			"path": "github.com/coreos/dex/api",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "tn7M0Hyr4yQ6F/uobr16SiFUF4U=",
-			"path": "github.com/coreos/dex/connector",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "dAgUYWnytoZyyInRjgV81RkO3kA=",
-			"path": "github.com/coreos/dex/connector/github",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "u6AxfFqDoEWv8cc2xZE6IoFId4U=",
-			"path": "github.com/coreos/dex/connector/gitlab",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "I83x46h/kPv+L2ua5ggRZqZvMyc=",
-			"path": "github.com/coreos/dex/connector/ldap",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "HugiEIGwuyKAwSYZ43k1o+1dtug=",
-			"path": "github.com/coreos/dex/connector/microsoft",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "g/87jFFJi/LTlSw7RGIOMK47W84=",
-			"path": "github.com/coreos/dex/connector/mock",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "0PwQyoc39/XOVnT6OeCie0SBfx8=",
-			"path": "github.com/coreos/dex/connector/oidc",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "y+/yleb47rjC5EC1YYYq26DhnyE=",
-			"path": "github.com/coreos/dex/connector/saml",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "P7bWArXNDqkhPs5gR3+joRHUITk=",
-			"path": "github.com/coreos/dex/pkg/groups",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "Ls9+0opTZ8u0l7JuIbthlsCrLs4=",
-			"path": "github.com/coreos/dex/server",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "zqifAxI1D9ALpAFGq6HDolxTa34=",
-			"path": "github.com/coreos/dex/server/internal",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "uTTd+zEIJTSfLCXSbyAgIl+hJbE=",
-			"path": "github.com/coreos/dex/storage",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "Q4h74qAaLQ1Oule+YnJeJfRdmKU=",
-			"path": "github.com/coreos/dex/storage/kubernetes",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "/zH14s/TiaZ3OzYH7Wl31bAns9Y=",
-			"path": "github.com/coreos/dex/storage/kubernetes/k8sapi",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "QrRicuwS/rpxs4b5oeI0z8fgFbM=",
-			"path": "github.com/coreos/dex/storage/memory",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "AZ5g81g3cca16Yc2fj0Z0kdjJZ4=",
-			"path": "github.com/coreos/dex/storage/sql",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
-			"checksumSHA1": "bUKVUnGHjs8pb4RNhoO+j6P5hKc=",
-			"path": "github.com/coreos/dex/version",
-			"revision": "6e834adab31f31544b60234d90abd4001929b786",
-			"revisionTime": "2019-10-29T09:30:32Z"
-		},
-		{
 			"checksumSHA1": "t6GkLUdf0ydkb/CuG90XPRY8H/o=",
 			"origin": "github.com/coreos/dex/vendor/github.com/coreos/go-oidc",
 			"path": "github.com/coreos/go-oidc",
@@ -915,6 +801,18 @@
 			"path": "github.com/denverdino/aliyungo/util",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
 			"revisionTime": "2018-04-06T17:35:14Z"
+		},
+		{
+			"checksumSHA1": "/Mqk6xlBI9JQnJK+6dTpOipUwEQ=",
+			"path": "github.com/dexidp/dex/connector",
+			"revision": "4bede5eb80822fc3a7fc9edca0ed2605cd339d17",
+			"revisionTime": "2019-10-03T09:49:18Z"
+		},
+		{
+			"checksumSHA1": "n2ajzaRfnSlsiSuMFoVnNcqH1+k=",
+			"path": "github.com/dexidp/dex/pkg/log",
+			"revision": "4bede5eb80822fc3a7fc9edca0ed2605cd339d17",
+			"revisionTime": "2019-10-03T09:49:18Z"
 		},
 		{
 			"checksumSHA1": "2Fy1Y6Z3lRRX1891WF/+HT4XS2I=",
@@ -4076,11 +3974,17 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "+a1WLhW7MZJ7Oklih9ni4eGkGTg=",
+			"checksumSHA1": "JnuhrjYUeBHShYpB7o0G5GA9to0=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "d0caaeb0ccac7e41f7a8fca7f55f8cea324f92d6",
-			"revisionTime": "2020-02-19T13:21:07Z",
+			"revision": "5133308b4a906deeb74ce938b200e270475b3716",
+			"revisionTime": "2020-03-31T14:16:55Z",
 			"tree": true
+		},
+		{
+			"checksumSHA1": "6k5WOrjYcKugmaBH6AlDKw6gGVk=",
+			"path": "github.com/pydio/nats-on-a-log",
+			"revision": "9db47696d02e5af33ccc7804d4fcc439a2317197",
+			"revisionTime": "2020-02-26T18:22:08Z"
 		},
 		{
 			"checksumSHA1": "1nhHAedLoZtrtPoroK3i13atfE4=",
@@ -5047,8 +4951,8 @@
 		{
 			"checksumSHA1": "9JpjdGNodI1H9uQF9bzVCgCUefY=",
 			"path": "golang.org/x/net/webdav",
-			"revision": "c0dbc17a35534bf2e581d7a942408dc936316da4",
-			"revisionTime": "2019-11-08T21:16:37Z"
+			"revision": "d3edc9973b7eb1fb302b0ff2c62357091cea9a30",
+			"revisionTime": "2020-03-24T14:35:11Z"
 		},
 		{
 			"checksumSHA1": "XgtZlzd39qIkBHs6XYrq9dhTCog=",

@@ -29,9 +29,10 @@ import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
-import uuid from 'uuid4'
+import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
+import {muiThemeable} from 'material-ui/styles'
 
 class DataSourcesBoard extends React.Component {
 
@@ -99,13 +100,15 @@ class DataSourcesBoard extends React.Component {
             return;
         }
         const dataSource = dataSources[0];
-        this.props.openRightPane({
+        const {openRightPane, accessByName, pydio, storageTypes} = this.props;
+        openRightPane({
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
-                pydio:this.props.pydio,
+                pydio:pydio,
                 dataSource:dataSource,
-                storageTypes:this.props.storageTypes,
+                storageTypes:storageTypes,
+                readonly:!accessByName('CreateDatasource'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -174,14 +177,15 @@ class DataSourcesBoard extends React.Component {
         }else{
             versionPolicy = versionPolicies[0];
         }
-        this.props.openRightPane({
+        const {openRightPane, pydio, versioningReadonly, accessByName} = this.props;
+        openRightPane({
             COMPONENT:VersionPolicyEditor,
             PROPS:{
                 ref:"editor",
                 versionPolicy:versionPolicy,
                 create: create,
-                pydio: this.props.pydio,
-                readonly: this.props.versioningReadonly,
+                pydio: pydio,
+                readonly: versioningReadonly || !accessByName('CreateVersioning'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -208,7 +212,16 @@ class DataSourcesBoard extends React.Component {
         dataSources.sort(LangUtils.arraySorter('Name'));
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
-        const {currentNode, pydio, versioningReadonly} = this.props;
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        const {body} = adminStyles;
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
+
+
+
+
+        const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
             {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}},
             {name:'Status', label:m('status'), renderCell:(row)=>{
@@ -245,11 +258,12 @@ class DataSourcesBoard extends React.Component {
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
-        let buttons = [
-            <FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)}/>,
-        ];
-        if(!versioningReadonly){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}}/>)
+        let buttons = [];
+        if(accessByName('CreateDatasource')){
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
+        }
+        if(!versioningReadonly && accessByName('CreateVersioning')){
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
         const policiesColumns = [
             {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}},
@@ -272,7 +286,7 @@ class DataSourcesBoard extends React.Component {
                     />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('board.ds.title')} legend={m('board.ds.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...blockProps} style={{...blockStyle}}>
                             <MaterialTable
                                 data={dataSources}
                                 columns={dsColumns}
@@ -280,22 +294,24 @@ class DataSourcesBoard extends React.Component {
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 emptyStateString={"No datasources created yet"}
+                                masterStyles={tableMaster}
                             />
                         </Paper>
 
                         <AdminComponents.SubHeader title={m('board.versioning.title')} legend={m('board.versioning.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...blockProps} style={{...blockStyle}}>
                             <MaterialTable
                                 data={versioningPolicies}
                                 columns={policiesColumns}
                                 onSelectRows={this.openVersionPolicy.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
+                                masterStyles={tableMaster}
                             />
                         </Paper>
 
                         <AdminComponents.SubHeader  title={m('board.enc.title')} legend={m('board.enc.legend')}/>
-                        <EncryptionKeys pydio={pydio} ref={"encKeys"}/>
+                        <EncryptionKeys pydio={pydio} ref={"encKeys"} accessByName={accessByName} adminStyles={adminStyles}/>
 
                     </div>
 
@@ -318,5 +334,7 @@ DataSourcesBoard.propTypes = {
     filter:React.PropTypes.string,
     versioningReadonly: React.PropTypes.bool,
 };
+
+DataSourcesBoard = muiThemeable()(DataSourcesBoard);
 
 export {DataSourcesBoard as default}

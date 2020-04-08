@@ -1,10 +1,11 @@
 import React from "react"
+import ReactDOM from 'react-dom'
 import CompositeModel from './CompositeModel'
 import ShareHelper from '../main/ShareHelper'
 import SharedUsers from '../cells/SharedUsers'
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import {Paper, Divider, RaisedButton, IconButton, Popover, Menu, List, ListItem, IconMenu, MenuItem} from 'material-ui'
+import {Paper, Divider, RaisedButton, IconButton, Popover, Menu, List, ListItem, IconMenu, MenuItem, FontIcon} from 'material-ui'
 
 class CellsList extends React.Component {
 
@@ -24,7 +25,7 @@ class CellsList extends React.Component {
                     this.setState({addMenuOpen:false});
                     compositeModel.addToExistingCell(repository.getId());
                 };
-                items.push(<MenuItem primaryText={repository.getLabel()} onTouchTap={touchTap}/>);
+                items.push(<MenuItem primaryText={repository.getLabel()} onTouchTap={touchTap} leftIcon={<FontIcon className={"icomoon-cells"}/>}/>);
             }
         });
         return items;
@@ -118,10 +119,11 @@ class CellsList extends React.Component {
         if(addCellItems.length){
             addToCellMenu = <span>
                 <RaisedButton
+                    ref={"addCellButton"}
                     style={{marginLeft: 10}}
                     primary={true}
                     label={m(263)}
-                    onTouchTap={(event)=>{this.setState({addMenuOpen:true, addMenuAnchor:event.target})}}
+                    onTouchTap={(event)=>{this.setState({addMenuOpen:true, addMenuAnchor:ReactDOM.findDOMNode(this.refs['addCellButton'])})}}
                 />
                 <Popover
                     open={this.state.addMenuOpen}

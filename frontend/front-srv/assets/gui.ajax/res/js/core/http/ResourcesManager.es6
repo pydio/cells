@@ -345,8 +345,8 @@ class ResourcesManager{
         return config.map && config.map[className];
     }
 
-    static loadClassesAndApply(classNames, callbackFunc){
-        if(!ResourcesManager.__configsParsed){
+    static loadClassesAndApply(classNames, callbackFunc, autoload = true){
+        if(autoload && !ResourcesManager.__configsParsed){
             ResourcesManager.loadAutoLoadResources();
         }
         Promise.all(classNames.map((c) => {return SystemJS.import(c)})).then(() => {

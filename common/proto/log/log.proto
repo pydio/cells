@@ -57,6 +57,9 @@ message LogMessage {
     // High Level Operation Info
     string OperationUuid = 21;
     string OperationLabel = 22;
+    string SchedulerJobUuid = 23;
+    string SchedulerTaskUuid = 24;
+    string SchedulerTaskActionPath = 25;
 }
 
 // ListLogRequest launches a parameterised query in the log repository and streams the results.

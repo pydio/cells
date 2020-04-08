@@ -51,9 +51,18 @@ func TestTreeNode(t *testing.T) {
 		r := NewRat()
 		r.SetMPath(mockMPath...)
 
+		PrintMemUsage("Before first node")
+
 		n := NewTreeNode()
 		n.SetRat(r)
 
+		PrintMemUsage("After first node")
+
 		So(n.MPath, ShouldResemble, mockMPath)
+
+		n1 := NewTreeNode()
+		n1.SetMPath([]uint64(mockMPath)...)
+
+		PrintMemUsage("After Second node")
 	})
 }

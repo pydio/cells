@@ -27,12 +27,51 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
 type Concrete func() ConcreteAction
+
+const (
+	ActionCategoryTree      = "01 - Files/Folders Operations"
+	ActionCategoryArchives  = "02 - Archives Operations"
+	ActionCategoryScheduler = "03 - Scheduler Tools / Internals"
+	ActionCategoryPutGet    = "04 - Upload/Download to External Servers"
+	ActionCategoryCmd       = "05 - Atomic Commands and Scripts"
+	ActionCategoryMedia     = "06 - Media Processing"
+	ActionCategoryIDM       = "07 - Identity Management"
+	ActionCategoryNotify    = "08 - Notifications and Emails"
+	ActionCategoryETL       = "09 - Extract/Load/Transform"
+)
+
+var CategoryTints = map[string]string{
+	ActionCategoryTree:      "#03a9f4",
+	ActionCategoryArchives:  "#fbc02d",
+	ActionCategoryScheduler: "#009688",
+	ActionCategoryPutGet:    "#4caf50",
+	ActionCategoryCmd:       "#795548",
+	ActionCategoryMedia:     "#f44336",
+	ActionCategoryIDM:       "#438db3",
+	ActionCategoryNotify:    "#ff9800",
+	ActionCategoryETL:       "#009688",
+}
+
+type ActionDescription struct {
+	ID                string
+	Label             string
+	Icon              string
+	Description       string
+	Category          string
+	Tint              string
+	InputDescription  string
+	OutputDescription string
+	SummaryTemplate   string
+	HasForm           bool
+}
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
@@ -55,10 +94,23 @@ type ProgressProviderAction interface {
 	ProvidesProgress() bool
 }
 
+// DescriptionProviderAction has a human-readable label
+type DescriptionProviderAction interface {
+	GetDescription(lang ...string) ActionDescription
+	GetParametersForm() *forms.Form
+}
+
 // Actions that implement this interface can eventually be stopped and/or paused+resumed
 type ControllableAction interface {
 	CanPause() bool
 	CanStop() bool
+}
+
+// Actions that implement this interface may perform some recursive nodes listing internally.
+// If the action definition has a NodeFilter set, pass this along to the running instance to
+// filter nodes on the go.
+type RecursiveNodeWalkerAction interface {
+	SetNodeFilterAsWalkFilter(*jobs.NodesSelector)
 }
 
 // RunnableChannels defines the API to communicate with a Runnable via Channels

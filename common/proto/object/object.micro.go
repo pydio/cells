@@ -15,6 +15,8 @@ It has these top-level messages:
 	DataSourceEvent
 	GetMinioConfigRequest
 	GetMinioConfigResponse
+	StorageStatsRequest
+	StorageStatsResponse
 	GetDataSourceConfigRequest
 	GetDataSourceConfigResponse
 */
@@ -51,6 +53,7 @@ var _ server.Option
 
 type ObjectsEndpointClient interface {
 	GetMinioConfig(ctx context.Context, in *GetMinioConfigRequest, opts ...client.CallOption) (*GetMinioConfigResponse, error)
+	StorageStats(ctx context.Context, in *StorageStatsRequest, opts ...client.CallOption) (*StorageStatsResponse, error)
 }
 
 type objectsEndpointClient struct {
@@ -81,10 +84,21 @@ func (c *objectsEndpointClient) GetMinioConfig(ctx context.Context, in *GetMinio
 	return out, nil
 }
 
+func (c *objectsEndpointClient) StorageStats(ctx context.Context, in *StorageStatsRequest, opts ...client.CallOption) (*StorageStatsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ObjectsEndpoint.StorageStats", in)
+	out := new(StorageStatsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for ObjectsEndpoint service
 
 type ObjectsEndpointHandler interface {
 	GetMinioConfig(context.Context, *GetMinioConfigRequest, *GetMinioConfigResponse) error
+	StorageStats(context.Context, *StorageStatsRequest, *StorageStatsResponse) error
 }
 
 func RegisterObjectsEndpointHandler(s server.Server, hdlr ObjectsEndpointHandler, opts ...server.HandlerOption) {
@@ -97,6 +111,10 @@ type ObjectsEndpoint struct {
 
 func (h *ObjectsEndpoint) GetMinioConfig(ctx context.Context, in *GetMinioConfigRequest, out *GetMinioConfigResponse) error {
 	return h.ObjectsEndpointHandler.GetMinioConfig(ctx, in, out)
+}
+
+func (h *ObjectsEndpoint) StorageStats(ctx context.Context, in *StorageStatsRequest, out *StorageStatsResponse) error {
+	return h.ObjectsEndpointHandler.StorageStats(ctx, in, out)
 }
 
 // Client API for DataSourceEndpoint service

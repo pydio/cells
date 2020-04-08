@@ -23,22 +23,9 @@ const Pydio = require('pydio');
 const {PydioContextConsumer, AsyncComponent} = Pydio.requireLib('boot');
 import {Paper, FlatButton, RaisedButton, DropDownMenu} from 'material-ui';
 
-let GridBuilder = React.createClass({
+class GridBuilder extends React.Component {
 
-    propTypes:{
-        namespaces          : React.PropTypes.array,
-        onCreateCard        : React.PropTypes.func,
-        onEditStatusChange  : React.PropTypes.func
-    },
-
-    getInitialState:function(){
-        return {
-            selectedIndex:0,
-            availableWidgets:this.listAvailableWidgets()
-        }
-    },
-
-    listAvailableWidgets:function(secondPass = false){
+    listAvailableWidgets(secondPass = false){
         var widgets = [];
         let additionalNamespaces = [];
         this.props.namespaces.map(function(ns){
@@ -63,9 +50,9 @@ let GridBuilder = React.createClass({
             }.bind(this));
         }
         return widgets;
-    },
+    }
 
-    onDropDownChange:function(event, index, item){
+    onDropDownChange(event, index, item){
         var defaultValues={};
         if(index != 0){
             item.payload['reactClass'].getBuilderFields().map(function(f){
@@ -80,20 +67,20 @@ let GridBuilder = React.createClass({
             selectedWidget:item.payload,
             currentFormValues:defaultValues
         });
-    },
+    }
 
-    cancel:function(){
+    cancel(){
         if(this.props.onEditStatusChange){
             this.props.onEditStatusChange(false);
         }
         this.setState({selectedIndex:0});
-    },
+    }
 
-    onFormValueChange:function(newValues){
+    onFormValueChange(newValues){
         this.setState({currentFormValues:newValues});
-    },
+    }
 
-    onFormSubmit:function(){
+    onFormSubmit(){
         var values = this.state.currentFormValues;
         var selectedWidget = this.state.selectedWidget;
         var title = (values.title?values.title:values.legend);
@@ -104,15 +91,23 @@ let GridBuilder = React.createClass({
             props:values
         });
         this.cancel();
-    },
+    }
 
-    resetLayout: function(){
+    resetLayout(){
         if(window.confirm(this.props.getMessage('home.51'))){
             this.props.onResetLayout();
         }
-    },
+    }
 
-    render:function(){
+    constructor(props){
+        super(props);
+        this.state = {
+            selectedIndex:0,
+            availableWidgets:this.listAvailableWidgets()
+        };
+    }
+
+    render() {
 
         const {getMessage} = this.props;
 
@@ -181,8 +176,7 @@ let GridBuilder = React.createClass({
             </Paper>
         );
     }
-
-});
+}
 
 GridBuilder = PydioContextConsumer(GridBuilder);
 export {GridBuilder as default}

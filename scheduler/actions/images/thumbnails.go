@@ -43,6 +43,7 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -81,6 +82,38 @@ type ThumbnailExtractor struct {
 	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
 	Client     client.Client
+}
+
+func (t *ThumbnailExtractor) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                thumbnailsActionName,
+		Label:             "Create Thumbs",
+		Icon:              "image-filter",
+		Description:       "Create thumbnails on image creation/modification",
+		SummaryTemplate:   "",
+		HasForm:           true,
+		Category:          actions.ActionCategoryMedia,
+		InputDescription:  "Single-selection of file. Temporary and zero-bytes will be ignored",
+		OutputDescription: "Input file with updated metadata",
+	}
+}
+
+func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "ThumbSizes",
+					Type:        "string",
+					Label:       "Sizes",
+					Description: "A JSON map describing each thumbnail to be created",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier.
@@ -134,7 +167,7 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	output := input
 	output.Nodes[0] = node
-	log.TasksLogger(ctx).Info("Created thumbnails for image", node.Zap())
+	log.TasksLogger(ctx).Info("Created thumbnails for "+node.GetPath(), node.ZapPath())
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
 	return output, nil
@@ -242,7 +275,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		node.SetMeta(METADATA_THUMBNAILS, nil)
 	}
 
-	log.Logger(ctx).Info("Thumbs Generated for", zap.String("path", errPath), zap.Any("meta", meta))
+	log.Logger(ctx).Info("Thumbs Generated for", zap.String(common.KEY_NODE_PATH, errPath), zap.Any("meta", meta))
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 	if err != nil {
 		err = errors.Wrap(err, errPath)

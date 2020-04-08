@@ -128,6 +128,8 @@ var MetaNodeProvider = (function () {
             if (this.properties.has('tmp_repository_id')) {
                 var repos = pydio.user.getRepositoriesList();
                 slug = repos.get(this.properties.get('tmp_repository_id')).getSlug();
+            } else if (node.getMetadata().has('repository_slug')) {
+                slug = node.getMetadata().get('repository_slug');
             } else {
                 slug = pydio.user.getActiveRepositoryObject().getSlug();
             }
@@ -220,6 +222,8 @@ var MetaNodeProvider = (function () {
                 if (repo) {
                     slug = repo.getSlug();
                 }
+            } else if (node.getMetadata().has('repository_slug')) {
+                slug = node.getMetadata().get('repository_slug');
             } else {
                 slug = pydio.user.getActiveRepositoryObject().getSlug();
             }
@@ -239,6 +243,33 @@ var MetaNodeProvider = (function () {
                 errorCallback(e);
             } else {
                 throw e;
+            }
+        });
+    };
+
+    MetaNodeProvider.loadRoots = function loadRoots(slugs) {
+        var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
+        var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
+        request.NodePaths = slugs;
+        return api.getBulkMeta(request).then(function (res) {
+            if (res.Nodes && res.Nodes.length) {
+                var _ret = (function () {
+                    var output = {};
+                    res.Nodes.forEach(function (n) {
+                        var slug = _utilPathUtils2['default'].getDirname(n.Path);
+                        var node = MetaNodeProvider.parseTreeNode(n, slug);
+                        node.getMetadata().set('repository_slug', slug);
+                        node.updateProvider(new MetaNodeProvider());
+                        output[slug] = node;
+                    });
+                    return {
+                        v: output
+                    };
+                })();
+
+                if (typeof _ret === 'object') return _ret.v;
+            } else {
+                return {};
             }
         });
     };
@@ -385,19 +416,19 @@ var MetaNodeProvider = (function () {
         // WATCHES
         if (meta.has('user_subscriptions')) {
             var subs = meta.get('user_subscriptions');
-            var read = subs.indexOf('read');
-            var changes = subs.indexOf('change');
+            var read = subs.indexOf('read') > -1;
+            var changes = subs.indexOf('change') > -1;
             var value = '';
             if (read && changes) {
                 value = 'META_WATCH_BOTH';
             } else if (read) {
                 value = 'META_WATCH_READ';
             } else if (changes) {
-                value = 'META_WATCH_CHANGES';
+                value = 'META_WATCH_CHANGE';
             }
             if (value) {
                 meta.set('meta_watched', value);
-                overlays.push('mdi mdi-rss');
+                overlays.push('mdi mdi-bell');
             }
         }
 

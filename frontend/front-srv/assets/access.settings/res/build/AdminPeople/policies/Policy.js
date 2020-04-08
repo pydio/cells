@@ -46,13 +46,11 @@ var _Rule2 = _interopRequireDefault(_Rule);
 
 var _materialUi = require('material-ui');
 
-var _editorInlineLabel = require('./editor/InlineLabel');
+var _InlineLabel = require('./InlineLabel');
 
-var _editorInlineLabel2 = _interopRequireDefault(_editorInlineLabel);
+var _InlineLabel2 = _interopRequireDefault(_InlineLabel);
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var Policy = (function (_React$Component) {
     _inherits(Policy, _React$Component);
@@ -136,7 +134,7 @@ var Policy = (function (_React$Component) {
             if (!policy.Policies) {
                 policy.Policies = [];
             }
-            var newId = (0, _uuid42['default'])();
+            var newId = (0, _uuid.v4)();
             var subjects = [],
                 resources = [],
                 actions = [];
@@ -217,11 +215,11 @@ var Policy = (function (_React$Component) {
                     policy.Description
                 );
             } else {
-                primaryText = _react2['default'].createElement(_editorInlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
+                primaryText = _react2['default'].createElement(_InlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
                 secondaryText = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_editorInlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
+                    _react2['default'].createElement(_InlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
                 );
             }
 

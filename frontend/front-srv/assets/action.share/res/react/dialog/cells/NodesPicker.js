@@ -117,7 +117,7 @@ class NodesPicker extends React.Component{
         return (
             <ListItem
                 disabled={true}
-                leftIcon={<FontIcon className="mdi mdi-folder"/>}
+                leftIcon={<FontIcon className={"mdi mdi-" + (node.Type === 'LEAF' ? 'file' : 'folder')}/>}
                 primaryText={model.getNodeLabelInContext(node)}
                 rightIconButton={<IconButton onTouchTap={()=>{model.removeRootNode(node.Uuid);}} iconClassName="mdi mdi-delete" tooltip="Remove" iconStyle={{color:'rgba(0,0,0,.43)'}}/>}
             />

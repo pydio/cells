@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -23,13 +23,14 @@ import Pydio from 'pydio'
 import {Paper, FontIcon, IconButton} from 'material-ui'
 const {MaterialTable} = Pydio.requireLib('components');
 import Log from '../model/Log'
+import LogDetail from './LogDetail'
 const {moment} = Pydio.requireLib('boot');
 
 class LogTable extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {logs: [], loading: false, rootSpans:{}};
+        this.state = {logs: [], loading: false, rootSpans:{}, selectedRows: []};
     }
 
     initRootSpans(logs){
@@ -43,7 +44,7 @@ class LogTable extends React.Component {
                 l.SpanUuid = 'span-' + i;
             }
             if (!l.SpanRootUuid) {
-                rootSpans[l.SpanUuid] = {open: false, children: []};
+                rootSpans[l.SpanUuid] = {open: true, children: []};
             }
             return l;
         });
@@ -60,7 +61,7 @@ class LogTable extends React.Component {
                 let root = {...l};
                 root.SpanUuid = l.SpanRootUuid;
                 l.HasRoot = true;
-                rootSpans[l.SpanRootUuid] = {open:false, children: [l]};
+                rootSpans[l.SpanRootUuid] = {open:true, children: [l]};
                 result.push(root);
                 continue;
             }
@@ -128,20 +129,41 @@ class LogTable extends React.Component {
 
     componentWillReceiveProps(nextProps) {
 
-        const {service, filter, date, endDate, page, size, onLoadingStatusChange, z} = nextProps;
-
-        if(filter === this.props.filter && date === this.props.date && endDate === this.props.endDate
-            && size === this.props.size && page === this.props.page && z === this.props.z){
+        const {service, query, page, size, onLoadingStatusChange, z} = nextProps;
+        if(query === this.props.query && size === this.props.size && page === this.props.page && z === this.props.z){
             return;
         }
-        const query = Log.buildQuery(filter, date, endDate);
         this.load(service, query, page, size, 'JSON', onLoadingStatusChange);
     }
 
     render(){
-        const {loading, rootSpans} = this.state;
-        const {pydio, onSelectLog, filter, date} = this.props;
-        const logs = this.openSpans();
+        const {loading, rootSpans, selectedRows} = this.state;
+        const {pydio, onTimestampContext, query, focus} = this.props;
+        const {onPageNext, onPagePrev, nextDisabled, prevDisabled, onPageSizeChange, page, size, pageSizes} = this.props;
+        let logs = this.openSpans();
+        if(selectedRows.length){
+            const expStyle = {paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10};
+            const first = JSON.stringify(selectedRows[0]);
+            logs = logs.map(log => {
+                if(JSON.stringify(log) === first){
+                    return {
+                        ...log,
+                        expandedRow:(
+                            <LogDetail
+                                style={expStyle}
+                                userDisplay={"inline"}
+                                pydio={pydio}
+                                log={log}
+                                focus={focus}
+                                onSelectPeriod={onTimestampContext}
+                                onRequestClose={()=> this.setState({selectedRows:[]})}
+                            />
+                        )}
+                } else {
+                    return log;
+                }
+            })
+        }
         const {MessageHash} = pydio;
 
         const columns = [
@@ -178,19 +200,47 @@ class LogTable extends React.Component {
                 }
                 return dateString;
             }, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 110, padding: '12px 0'}, headerStyle:{width: 110, padding: '12px 0'}},
-            {name:'UserName', label: pydio.MessageHash["settings.20"], hideSmall:true, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Msg', label:MessageHash['ajxp_admin.logs.message']},
+            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 130, padding: '12px 0'}, headerStyle:{width: 130, padding: '12px 0'}},
+            {name:'Msg', label:MessageHash['ajxp_admin.logs.message'], renderCell:(row)=>{
+                let msg = row.Msg;
+                if(row.NodePath){
+                    msg += ` [${row.NodePath}]`;
+                } else if(row.NodeUuid){
+                    msg += ` [${row.NodeUuid}]`;
+                }
+                return msg;
+            }},
         ];
+
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        let pagination;
+        if(onPageNext){
+            pagination = {
+                page:(page + 1),
+                pageSize: size,
+                pageSizes,
+                onPageNext:v => onPageNext(v -1 ),
+                onPagePrev:v => onPagePrev(v -1),
+                onPageSizeChange,
+                nextDisabled,
+                prevDisabled
+            };
+        }
 
         return (
             <MaterialTable
                 data={logs}
                 columns={columns}
-                onSelectRows={(rows) => {if(rows.length && onSelectLog){onSelectLog(rows[0])}}}
+                onSelectRows={(rows) => {
+                    this.setState({selectedRows: rows});
+                    if(this.props.onTimestampContext){
+                        this.props.onTimestampContext(null);
+                    }
+                }}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
-                emptyStateString={loading ? MessageHash['settings.33']: (filter || date) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
+                emptyStateString={loading ? MessageHash['settings.33']: (query) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
                 computeRowStyle={(row) => {
                     let style = {};
                     if (row.HasRoot){
@@ -201,16 +251,11 @@ class LogTable extends React.Component {
                     }
                     return style;
                 }}
+                masterStyles={tableMaster}
+                pagination={pagination}
             />
         );
     }
 }
-
-LogTable.propTypes = {
-    date: React.PropTypes.instanceOf(Date).isRequired,
-    endDate: React.PropTypes.instanceOf(Date),
-    filter: React.PropTypes.string.isRequired,
-};
-
 
 export {LogTable as default}

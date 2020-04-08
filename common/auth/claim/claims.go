@@ -35,29 +35,20 @@ const (
 )
 
 type Claims struct {
-	ClientApp   interface{} `json:"aud"`
-	Issuer      string      `json:"iss"`
-	Subject     string      `json:"sub"`
-	Nonce       string      `json:"nonce"`
-	Name        string      `json:"name"`
-	Email       string      `json:"email"`
-	Profile     string      `json:"profile"`
-	Verified    bool        `json:"email_verified"`
-	Roles       string      `json:"roles"`
-	Expiry      time.Time   `json:"expiry"`
-	AuthSource  string      `json:"authSource"`
-	DisplayName string      `json:"displayName"`
-	GroupPath   string      `json:"groupPath"`
-}
-
-// Decode Subject field of the claims
-func (c *Claims) DecodeUserUuid() (string, error) {
-	sub, err := c.DecodeSubject()
-	if err != nil {
-		return "", err
-	}
-
-	return sub.UserId, nil
+	ClientApp   interface{} `json:"aud" mapstructure:"aud"`
+	Issuer      string      `json:"iss" mapstructure:"iss"`
+	SessionID   string      `json:"sid" mapstructure:"sid"`
+	Subject     string      `json:"sub" mapstructure:"sub"`
+	Nonce       string      `json:"nonce" mapstructure:"nonce"`
+	Name        string      `json:"name" mapstructure:"name"`
+	Email       string      `json:"email" mapstructure:"email"`
+	Profile     string      `json:"profile" mapstructure:"profile"`
+	Verified    bool        `json:"email_verified" mapstructure:"email_verified"`
+	Roles       string      `json:"roles" mapstructure:"roles"`
+	Expiry      time.Time   `json:"expiry" mapstructure:"expiry"`
+	AuthSource  string      `json:"authSource" mapstructure:"authSource"`
+	DisplayName string      `json:"displayName" mapstructure:"displayName"`
+	GroupPath   string      `json:"groupPath" mapstructure:"groupPath"`
 }
 
 // Decode Subject field of the claims

@@ -67,6 +67,7 @@ type ServiceOptions struct {
 	AutoStart bool
 	Fork      bool
 	Unique    bool
+	Cluster   registry.Cluster
 
 	Registry registry.Registry
 
@@ -194,6 +195,12 @@ func Fork(b bool) ServiceOption {
 func Unique(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Unique = b
+	}
+}
+
+func Cluster(c registry.Cluster) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Cluster = c
 	}
 }
 

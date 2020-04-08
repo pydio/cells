@@ -23,7 +23,11 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _materialUi = require('material-ui');
 
 var _UserBadge = require('./UserBadge');
 
@@ -53,11 +57,12 @@ var SharedUserEntry = React.createClass({
         targets[userObject.getId()] = userObject;
         this.props.sendInvitations(targets);
     },
-    onUpdateRight: function onUpdateRight(event) {
-        var target = event.target;
-        this.props.onUserObjectUpdateRight(this.props.cellAcl.RoleId, target.name, target.checked);
+    onUpdateRight: function onUpdateRight(name, checked) {
+        this.props.onUserObjectUpdateRight(this.props.cellAcl.RoleId, name, checked);
     },
     render: function render() {
+        var _this = this;
+
         var _props = this.props;
         var cellAcl = _props.cellAcl;
         var pydio = _props.pydio;
@@ -70,7 +75,7 @@ var SharedUserEntry = React.createClass({
             return null;
         }
 
-        if (type != 'group') {
+        if (type !== 'group') {
             if (this.props.sendInvitations) {
                 // Send invitation
                 menuItems.push({
@@ -95,17 +100,17 @@ var SharedUserEntry = React.createClass({
                 avatar = cellAcl.User.Attributes["avatar"];
                 break;
             case "group":
-                if (!cellAcl.Group.Attributes) {
-                    label = cellAcl.Group.Uuid;
-                } else {
+                if (cellAcl.Group.Attributes) {
                     label = cellAcl.Group.Attributes["displayName"] || cellAcl.Group.GroupLabel;
+                } else {
+                    label = cellAcl.Group.Uuid;
                 }
                 break;
             case "team":
-                if (!cellAcl.Role) {
-                    label = "No role found";
-                } else {
+                if (cellAcl.Role) {
                     label = cellAcl.Role.Label;
+                } else {
+                    label = "No role found";
                 }
                 break;
             default:
@@ -115,9 +120,21 @@ var SharedUserEntry = React.createClass({
         var read = false,
             write = false;
         cellAcl.Actions.map(function (action) {
-            if (action.Name === 'read') read = true;
-            if (action.Name === 'write') write = true;
+            if (action.Name === 'read') {
+                read = true;
+            }
+            if (action.Name === 'write') {
+                write = true;
+            }
         });
+        var disabled = this.props.isReadonly() || this.props.readonly;
+        var style = {
+            display: 'flex',
+            width: 70
+        };
+        if (!menuItems.length) {
+            style = _extends({}, style, { marginRight: 48 });
+        }
 
         return React.createElement(
             _UserBadge2['default'],
@@ -129,9 +146,13 @@ var SharedUserEntry = React.createClass({
             },
             React.createElement(
                 'span',
-                { className: 'user-badge-rights-container', style: !menuItems.length ? { marginRight: 48 } : {} },
-                React.createElement('input', { type: 'checkbox', name: 'read', disabled: this.props.isReadonly() || this.props.readonly, checked: read, onChange: this.onUpdateRight }),
-                React.createElement('input', { type: 'checkbox', name: 'write', disabled: this.props.isReadonly() || this.props.readonly, checked: write, onChange: this.onUpdateRight })
+                { style: style },
+                React.createElement(_materialUi.Checkbox, { disabled: disabled, checked: read, onCheck: function (e, v) {
+                        _this.onUpdateRight('read', v);
+                    } }),
+                React.createElement(_materialUi.Checkbox, { disabled: disabled, checked: write, onCheck: function (e, v) {
+                        _this.onUpdateRight('write', v);
+                    } })
             )
         );
     }

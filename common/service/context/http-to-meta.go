@@ -32,16 +32,17 @@ import (
 )
 
 const (
-	HttpMetaExtracted      = "HttpMetaExtracted"
-	HttpMetaRemoteAddress  = "RemoteAddress"
-	HttpMetaRequestMethod  = "RequestMethod"
-	HttpMetaRequestURI     = "RequestURI"
-	HttpMetaProtocol       = "HttpProtocol"
-	HttpMetaUserAgent      = "UserAgent"
-	HttpMetaContentType    = "ContentType"
-	HttpMetaCoookiesString = "CookiesString"
-	ClientTime             = "ClientTime"
-	ServerTime             = "ServerTime"
+	HttpMetaExtracted     = "HttpMetaExtracted"
+	HttpMetaRemoteAddress = "RemoteAddress"
+	HttpMetaRequestMethod = "RequestMethod"
+	HttpMetaRequestURI    = "RequestURI"
+	HttpMetaProtocol      = "HttpProtocol"
+	HttpMetaUserAgent     = "UserAgent"
+	HttpMetaContentType   = "ContentType"
+	HttpMetaCookiesString = "CookiesString"
+	ClientTime            = "ClientTime"
+	ServerTime            = "ServerTime"
+	CtxWorkspaceUuid = "CtxWorkspaceUuid"
 )
 
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
@@ -102,7 +103,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 				cString = append(cString, c.String())
 			}
 		}
-		meta[HttpMetaCoookiesString] = strings.Join(cString, "//")
+		meta[HttpMetaCookiesString] = strings.Join(cString, "//")
 	}
 
 	return metadata.NewContext(ctx, meta)

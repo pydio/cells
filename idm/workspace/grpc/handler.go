@@ -58,18 +58,23 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 		return err
 	}
 
-	// Propagate creation or update event
-	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-		Type:      idm.ChangeEventType_UPDATE,
-		Workspace: req.Workspace,
-	}))
 	if update {
+		// Propagate creation or update event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type:      idm.ChangeEventType_UPDATE,
+			Workspace: req.Workspace,
+		}))
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated workspace [%s]", req.Workspace.Slug),
 			log.GetAuditId(common.AUDIT_WS_UPDATE),
 			req.Workspace.ZapUuid(),
 		)
 	} else {
+		// Propagate creation or update event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type:      idm.ChangeEventType_CREATE,
+			Workspace: req.Workspace,
+		}))
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Created workspace [%s]", req.Workspace.Slug),
 			log.GetAuditId(common.AUDIT_WS_CREATE),

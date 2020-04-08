@@ -283,6 +283,7 @@ var MetaNamespace = (function (_React$Component) {
             var create = _props.create;
             var namespaces = _props.namespaces;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var namespace = _state3.namespace;
             var m = _state3.m;
@@ -334,10 +335,10 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onTouchTap: function () {
                     _this4.save();
                 } })];
-            if (type === 'tags') {
+            if (type === 'tags' && !readonly) {
                 actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
                         var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
@@ -380,7 +381,8 @@ var MetaNamespace = (function (_React$Component) {
                         namespace.Label = v;_this4.setState({ namespace: namespace });
                     },
                     fullWidth: true,
-                    errorText: labelError
+                    errorText: labelError,
+                    disabled: readonly
                 }),
                 _react2['default'].createElement(
                     'div',
@@ -395,6 +397,7 @@ var MetaNamespace = (function (_React$Component) {
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
                         },
+                        disabled: readonly,
                         fullWidth: true },
                     Object.keys(_modelMetadata2['default'].MetaTypes).map(function (k) {
                         return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: _modelMetadata2['default'].MetaTypes[k] });
@@ -408,22 +411,22 @@ var MetaNamespace = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), disabled: readonly, labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), disabled: readonly, labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead || readonly, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
                         } }, ModernStyles.toggleField))
                 ),
@@ -439,7 +442,8 @@ var MetaNamespace = (function (_React$Component) {
                         namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
                     },
                     fullWidth: true,
-                    type: "number"
+                    type: "number",
+                    readOnly: readonly
                 })
             );
         }

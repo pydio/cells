@@ -18,15 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {ActivityServiceApi, ActivityStreamActivitiesRequest} from 'pydio/http/rest-api'
 
 class AS2Client{
 
-    static loadActivityStreams(callback = function(json){}, context = 'USER_ID', contextData = '', boxName = 'outbox', pointOfView = '', offset = -1, limit = -1) {
+    static loadActivityStreams(context = 'USER_ID', contextData = '', boxName = 'outbox', pointOfView = '', offset = -1, limit = -1) {
 
         if (!contextData) {
-            return;
+            return Promise.resolve([]);
         }
         const api = new ActivityServiceApi(PydioApi.getRestClient());
         let req = new ActivityStreamActivitiesRequest();
@@ -39,14 +40,11 @@ class AS2Client{
         if(limit > -1){
             req.Limit = limit;
         }
-        req.Language = pydio.user.getPreference("lang") || '';
+        req.Language = Pydio.getInstance().user.getPreference("lang") || '';
         if(pointOfView){
             req.PointOfView = pointOfView;
         }
-        api.stream(req).then((data) => {
-            callback(data);
-        });
-
+        return api.stream(req);
     }
 
     static UnreadInbox(userId, callback = function(count){}) {
@@ -57,9 +55,8 @@ class AS2Client{
         req.ContextData = userId;
         req.BoxName = 'inbox';
         req.UnreadCountOnly = true;
-        api.stream(req).then((data) => {
-            const count = data.totalItems || 0;
-            callback(count);
+        return api.stream(req).then((data) => {
+            return data.totalItems || 0;
         });
 
     }

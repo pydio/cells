@@ -109,6 +109,8 @@ func (t *TreePatch) Enqueue(op Operation) {
 		}
 	case OpRefreshUuid:
 		t.refreshUUIDs[op.GetRefPath()] = op
+	case OpUpdateMeta, OpCreateMeta, OpDeleteMeta:
+		t.QueueOperation(op)
 	}
 
 }

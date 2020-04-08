@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -39,8 +39,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _mainGenericCard = require('../main/GenericCard');
 
 var _compositeCompositeModel = require('../composite/CompositeModel');
 
@@ -99,6 +97,11 @@ var PaletteModifier = _Pydio$requireLib.PaletteModifier;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib("boot");
 
 var Tooltip = _Pydio$requireLib2.Tooltip;
+
+var _Pydio$requireLib3 = _pydio2['default'].requireLib('components');
+
+var GenericCard = _Pydio$requireLib3.GenericCard;
+var GenericLine = _Pydio$requireLib3.GenericLine;
 
 var CompositeCard = (function (_React$Component) {
     _inherits(CompositeCard, _React$Component);
@@ -349,31 +352,37 @@ var CompositeCard = (function (_React$Component) {
                         cells.push(cell.getLabel());
                     });
                     if (cells.length) {
-                        lines.push(_react2['default'].createElement(_mainGenericCard.GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(254), data: cells.join(', ') }));
+                        lines.push(_react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(254), data: cells.join(', ') }));
                     }
                     var links = model.getLinks();
-                    if (links.length && links[0].getLink()) {
-                        var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, links[0].getLink().LinkHash, mode === 'infoPanel');
-                        lines.push(_react2['default'].createElement(_mainGenericCard.GenericLine, { iconClassName: 'mdi mdi-link', legend: m(121), style: { overflow: 'visible' }, dataStyle: { overflow: 'visible' }, data: _react2['default'].createElement(
-                                'div',
-                                {
-                                    ref: 'copy-button',
-                                    style: { cursor: 'pointer', position: 'relative' },
-                                    onMouseOver: function () {
-                                        _this4.setState({ linkTooltip: true });
+                    if (links.length) {
+                        var ln = links[0];
+                        if (ln.hasError()) {
+                            var err = ln.hasError();
+                            lines.push(_react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-alert-outline", legend: "Error", data: err.Detail || err.Msg || err }));
+                        } else if (ln.getLink()) {
+                            var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, ln.getLink().LinkHash, mode === 'infoPanel');
+                            lines.push(_react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-link', legend: m(121), style: { overflow: 'visible' }, dataStyle: { overflow: 'visible' }, data: _react2['default'].createElement(
+                                    'div',
+                                    {
+                                        ref: 'copy-button',
+                                        style: { cursor: 'pointer', position: 'relative' },
+                                        onMouseOver: function () {
+                                            _this4.setState({ linkTooltip: true });
+                                        },
+                                        onMouseOut: function () {
+                                            _this4.setState({ linkTooltip: false });
+                                        }
                                     },
-                                    onMouseOut: function () {
-                                        _this4.setState({ linkTooltip: false });
-                                    }
-                                },
-                                _react2['default'].createElement(Tooltip, {
-                                    label: copyMessage ? copyMessage : m(191),
-                                    horizontalPosition: "left",
-                                    verticalPosition: "top",
-                                    show: linkTooltip
-                                }),
-                                publicLink
-                            ) }));
+                                    _react2['default'].createElement(Tooltip, {
+                                        label: copyMessage ? copyMessage : m(191),
+                                        horizontalPosition: "left",
+                                        verticalPosition: "top",
+                                        show: linkTooltip
+                                    }),
+                                    publicLink
+                                ) }));
+                        }
                     }
                     var deleteAction = function deleteAction() {
                         if (confirm(m(255))) {
@@ -385,7 +394,7 @@ var CompositeCard = (function (_React$Component) {
                     };
                     return {
                         v: _react2['default'].createElement(
-                            _mainGenericCard.GenericCard,
+                            GenericCard,
                             {
                                 pydio: pydio,
                                 title: pydio.MessageHash['share_center.50'],

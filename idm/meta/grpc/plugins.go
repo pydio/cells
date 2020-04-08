@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
 	meta2 "github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/meta"
@@ -49,6 +49,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
+			service.Unique(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -58,10 +59,11 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				ctx := m.Options().Context
 				server := NewHandler()
-				m.Init(micro.Metadata(map[string]string{
-					meta2.ServiceMetaProvider:   "stream",
-					meta2.ServiceMetaNsProvider: "list",
-				}))
+
+				metadata := m.Server().Options().Metadata
+				metadata[meta2.ServiceMetaProvider] = "stream"
+				metadata[meta2.ServiceMetaNsProvider] = "list"
+
 				m.Init(micro.BeforeStop(func() error {
 					server.Stop()
 					return nil

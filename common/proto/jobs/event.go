@@ -29,10 +29,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-const (
-	IdmEventObjectUser = "USER"
-)
-
 // NodeChangeEventName builds a simple string from a given event type
 func NodeChangeEventName(event tree.NodeChangeEvent_EventType) string {
 	return fmt.Sprintf("NODE_CHANGE:%v", int32(event))
@@ -58,8 +54,8 @@ func ParseNodeChangeEventName(eventName string) (tree.NodeChangeEvent_EventType,
 
 // IdmChangeEventName builds a string representation for scheduler events for listening
 // to a specific IDM event. For the moment ONLY USER EVENTS are supported
-func IdmChangeEventName(objectType string, eventType idm.ChangeEventType) string {
-	return fmt.Sprintf("IDM_CHANGE:%s:%v", objectType, int32(eventType))
+func IdmChangeEventName(objectType IdmSelectorType, eventType idm.ChangeEventType) string {
+	return fmt.Sprintf("IDM_CHANGE:%s:%v", strings.ToUpper(objectType.String()), int32(eventType))
 }
 
 // MatchesIdmChangeEvent compares a string representation of scheduler trigger event
@@ -75,7 +71,20 @@ func MatchesIdmChangeEvent(eventName string, event *idm.ChangeEvent) bool {
 	if parts[0] != "IDM_CHANGE" {
 		return false
 	}
-	if parts[1] != IdmEventObjectUser || event.User == nil {
+	if parts[1] != strings.ToUpper(IdmSelectorType_User.String()) && parts[1] != strings.ToUpper(IdmSelectorType_Workspace.String()) &&
+		parts[1] != strings.ToUpper(IdmSelectorType_Role.String()) && parts[1] != strings.ToUpper(IdmSelectorType_Acl.String()) {
+		return false
+	}
+	if parts[1] == strings.ToUpper(IdmSelectorType_User.String()) && event.User == nil {
+		return false
+	}
+	if parts[1] == strings.ToUpper(IdmSelectorType_Workspace.String()) && event.Workspace == nil {
+		return false
+	}
+	if parts[1] == strings.ToUpper(IdmSelectorType_Role.String()) && event.Role == nil {
+		return false
+	}
+	if parts[1] == strings.ToUpper(IdmSelectorType_Acl.String()) && event.Acl == nil {
 		return false
 	}
 	evType, e := strconv.ParseInt(parts[2], 10, 32)

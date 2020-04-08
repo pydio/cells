@@ -39,6 +39,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _EditCellDialog = require('./EditCellDialog');
 
 var _EditCellDialog2 = _interopRequireDefault(_EditCellDialog);
@@ -47,13 +51,20 @@ var _pydioModelCell = require('pydio/model/cell');
 
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
 
-var _materialUi = require('material-ui');
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
-var _mainGenericCard = require('../main/GenericCard');
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _materialUi = require('material-ui');
 
 var _mainShareHelper = require("../main/ShareHelper");
 
 var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib("components");
+
+var GenericCard = _Pydio$requireLib.GenericCard;
+var GenericLine = _Pydio$requireLib.GenericLine;
 
 var CellCard = (function (_React$Component) {
     _inherits(CellCard, _React$Component);
@@ -68,6 +79,34 @@ var CellCard = (function (_React$Component) {
         this._observer = function () {
             _this.forceUpdate();
         };
+        _pydioHttpResourcesManager2['default'].loadClassesAndApply(["PydioActivityStreams", "PydioCoreActions"], function () {
+            _this.setState({ extLibs: true });
+        });
+        var rootNode = this.props.rootNode;
+
+        if (rootNode) {
+            if (rootNode.getMetadata().has('virtual_root')) {
+                // Use node children instead
+                if (rootNode.isLoaded()) {
+                    this.state.rootNodes = [];
+                    rootNode.getChildren().forEach(function (n) {
+                        return _this.state.rootNodes.push(n);
+                    });
+                } else {
+                    // Trigger children load
+                    rootNode.observe('loaded', function () {
+                        var rootNodes = [];
+                        rootNode.getChildren().forEach(function (n) {
+                            return rootNodes.push(n);
+                        });
+                        _this.setState({ rootNodes: rootNodes });
+                    });
+                    rootNode.load();
+                }
+            } else {
+                this.state.rootNodes = [rootNode];
+            }
+        }
     }
 
     //CellCard = PaletteModifier({primary1Color:'#009688'})(CellCard);
@@ -115,6 +154,8 @@ var CellCard = (function (_React$Component) {
             var _state = this.state;
             var edit = _state.edit;
             var model = _state.model;
+            var extLibs = _state.extLibs;
+            var rootNodes = _state.rootNodes;
 
             var m = function m(id) {
                 return pydio.MessageHash['share_center.' + id];
@@ -130,7 +171,7 @@ var CellCard = (function (_React$Component) {
                     rootStyle = { width: 700, height: 500 };
                 }
                 content = _react2['default'].createElement(_EditCellDialog2['default'], _extends({}, this.props, { model: model, sendInvitations: this.usersInvitations.bind(this), editorOneColumn: editorOneColumn }));
-            } else {
+            } else if (model) {
                 var nodes = model.getRootNodes().map(function (node) {
                     return model.getNodeLabelInContext(node);
                 }).join(', ');
@@ -166,20 +207,30 @@ var CellCard = (function (_React$Component) {
                         moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(248), onTouchTap: deleteAction }));
                     }
                 }
+                var watchLine = undefined,
+                    bmButton = undefined;
+                if (extLibs && rootNodes) {
+
+                    var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
+                    watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: "Get notifications...", data: selector, iconStyle: { marginTop: 32 } });
+                    bmButton = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });
+                }
                 content = _react2['default'].createElement(
-                    _mainGenericCard.GenericCard,
+                    GenericCard,
                     {
                         pydio: pydio,
                         title: model.getLabel(),
                         onDismissAction: this.props.onDismiss,
+                        otherActions: bmButton,
                         onDeleteAction: deleteAction,
                         onEditAction: editAction,
                         headerSmall: mode === 'infoPanel',
                         moreMenuItems: moreMenuItems
                     },
-                    model.getDescription() && _react2['default'].createElement(_mainGenericCard.GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
-                    _react2['default'].createElement(_mainGenericCard.GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
-                    _react2['default'].createElement(_mainGenericCard.GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes })
+                    model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
+                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
+                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
+                    watchLine
                 );
                 if (mode === 'infoPanel') {
                     return content;

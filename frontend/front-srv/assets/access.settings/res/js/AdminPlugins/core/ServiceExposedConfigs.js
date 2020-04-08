@@ -120,6 +120,7 @@ class ServiceExposedConfigs extends React.Component{
     render() {
 
         const {parameters, values} = this.state;
+        const {accessByName} = this.props;
         if(!parameters) {
             return null;
         }
@@ -130,6 +131,7 @@ class ServiceExposedConfigs extends React.Component{
                 ref="formPanel"
                 parameters={parameters}
                 values={values}
+                disabled={!accessByName('Create')}
                 onChange={this.onChange.bind(this)}
             />
         );

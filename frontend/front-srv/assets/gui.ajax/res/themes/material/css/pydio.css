@@ -83,7 +83,6 @@ html {
   overflow-x: hidden;
 }
 * {
-  -moz-user-select: -moz-none;
   -webkit-user-select: none;
   -ms-user-select: none;
       user-select: none;
@@ -101,9 +100,6 @@ input {
 }
 *::-moz-focus-inner {
   border: none;
-}
-.no_select_bg::-moz-selection {
-  background: transparent;
 }
 .no_select_bg::selection {
   background: transparent;

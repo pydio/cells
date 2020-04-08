@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _materialUi = require('material-ui');
 
 var React = require('react');
@@ -34,23 +38,10 @@ var _Pydio$requireLib = Pydio.requireLib('boot');
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 var AsyncComponent = _Pydio$requireLib.AsyncComponent;
 
-var GridBuilder = React.createClass({
-    displayName: 'GridBuilder',
+var GridBuilder = (function (_React$Component) {
+    _inherits(GridBuilder, _React$Component);
 
-    propTypes: {
-        namespaces: React.PropTypes.array,
-        onCreateCard: React.PropTypes.func,
-        onEditStatusChange: React.PropTypes.func
-    },
-
-    getInitialState: function getInitialState() {
-        return {
-            selectedIndex: 0,
-            availableWidgets: this.listAvailableWidgets()
-        };
-    },
-
-    listAvailableWidgets: function listAvailableWidgets() {
+    GridBuilder.prototype.listAvailableWidgets = function listAvailableWidgets() {
         var secondPass = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 
         var widgets = [];
@@ -77,9 +68,9 @@ var GridBuilder = React.createClass({
             }).bind(this));
         }
         return widgets;
-    },
+    };
 
-    onDropDownChange: function onDropDownChange(event, index, item) {
+    GridBuilder.prototype.onDropDownChange = function onDropDownChange(event, index, item) {
         var defaultValues = {};
         if (index != 0) {
             item.payload['reactClass'].getBuilderFields().map(function (f) {
@@ -94,20 +85,20 @@ var GridBuilder = React.createClass({
             selectedWidget: item.payload,
             currentFormValues: defaultValues
         });
-    },
+    };
 
-    cancel: function cancel() {
+    GridBuilder.prototype.cancel = function cancel() {
         if (this.props.onEditStatusChange) {
             this.props.onEditStatusChange(false);
         }
         this.setState({ selectedIndex: 0 });
-    },
+    };
 
-    onFormValueChange: function onFormValueChange(newValues) {
+    GridBuilder.prototype.onFormValueChange = function onFormValueChange(newValues) {
         this.setState({ currentFormValues: newValues });
-    },
+    };
 
-    onFormSubmit: function onFormSubmit() {
+    GridBuilder.prototype.onFormSubmit = function onFormSubmit() {
         var values = this.state.currentFormValues;
         var selectedWidget = this.state.selectedWidget;
         var title = values.title ? values.title : values.legend;
@@ -118,15 +109,25 @@ var GridBuilder = React.createClass({
             props: values
         });
         this.cancel();
-    },
+    };
 
-    resetLayout: function resetLayout() {
+    GridBuilder.prototype.resetLayout = function resetLayout() {
         if (window.confirm(this.props.getMessage('home.51'))) {
             this.props.onResetLayout();
         }
-    },
+    };
 
-    render: function render() {
+    function GridBuilder(props) {
+        _classCallCheck(this, GridBuilder);
+
+        _React$Component.call(this, props);
+        this.state = {
+            selectedIndex: 0,
+            availableWidgets: this.listAvailableWidgets()
+        };
+    }
+
+    GridBuilder.prototype.render = function render() {
         var getMessage = this.props.getMessage;
 
         var selectorItems = [{ payload: 0, text: getMessage('home.50') }].concat(this.state.availableWidgets.map(function (w, index) {
@@ -202,9 +203,10 @@ var GridBuilder = React.createClass({
                 React.createElement(_materialUi.FlatButton, { disabled: this.state.selectedIndex != 0, label: getMessage('home.56'), secondary: true, onClick: this.resetLayout })
             )
         );
-    }
+    };
 
-});
+    return GridBuilder;
+})(React.Component);
 
 exports['default'] = GridBuilder = PydioContextConsumer(GridBuilder);
 exports['default'] = GridBuilder;

@@ -17,37 +17,43 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports['default'] = React.createClass({
-    displayName: 'ClipboardTextField',
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-    propTypes: {
-        floatingLabelText: React.PropTypes.string,
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-        inputValue: React.PropTypes.string,
-        inputClassName: React.PropTypes.string,
-        getMessage: React.PropTypes.func,
-        inputCopyMessage: React.PropTypes.string
-    },
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-    getInitialState: function getInitialState() {
-        return { copyMessage: null };
-    },
+var _react = require('react');
 
-    componentDidMount: function componentDidMount() {
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var ClipboardTextField = (function (_React$Component) {
+    _inherits(ClipboardTextField, _React$Component);
+
+    function ClipboardTextField(props) {
+        _classCallCheck(this, ClipboardTextField);
+
+        _React$Component.call(this, props);
+        this.state = { copyMessage: null };
+    }
+
+    ClipboardTextField.prototype.componentDidMount = function componentDidMount() {
         this.attachClipboard();
-    },
-    componentDidUpdate: function componentDidUpdate() {
-        this.attachClipboard();
-    },
+    };
 
-    attachClipboard: function attachClipboard() {
+    ClipboardTextField.prototype.componentDidUpdate = function componentDidUpdate() {
+        this.attachClipboard();
+    };
+
+    ClipboardTextField.prototype.attachClipboard = function attachClipboard() {
         if (this._clip) {
             this._clip.destroy();
         }
@@ -60,7 +66,7 @@ exports['default'] = React.createClass({
             }).bind(this)
         });
         this._clip.on('success', (function () {
-            this.setState({ copyMessage: this.props.getMessage(this.props.inputCopyMessage || '192') }, this.clearCopyMessage);
+            this.setState({ copyMessage: this.props.getMessage(this.props.inputCopyMessage || '192') }, this.clearCopyMessage.bind(this));
         }).bind(this));
         this._clip.on('error', (function () {
             var copyMessage;
@@ -70,28 +76,29 @@ exports['default'] = React.createClass({
                 copyMessage = this.props.getMessage('143');
             }
             this.refs['input'].focus();
-            this.setState({ copyMessage: copyMessage }, this.clearCopyMessage);
+            this.setState({ copyMessage: copyMessage }, this.clearCopyMessage.bind(this));
         }).bind(this));
-    },
+    };
 
-    clearCopyMessage: function clearCopyMessage() {
+    ClipboardTextField.prototype.clearCopyMessage = function clearCopyMessage() {
         global.setTimeout((function () {
             this.setState({ copyMessage: '' });
         }).bind(this), 3000);
-    },
+    };
 
-    render: function render() {
+    ClipboardTextField.prototype.render = function render() {
 
         var select = function select(e) {
             e.currentTarget.select();
         };
 
         var copyMessage = null;
+
         if (this.state.copyMessage) {
             var setHtml = (function () {
                 return { __html: this.state.copyMessage };
             }).bind(this);
-            copyMessage = React.createElement('div', { style: { color: 'rgba(0,0,0,0.23)' }, className: 'copy-message', dangerouslySetInnerHTML: setHtml() });
+            copyMessage = _react2['default'].createElement('div', { style: { color: 'rgba(0,0,0,0.23)' }, className: 'copy-message', dangerouslySetInnerHTML: setHtml() });
         }
 
         var buttonStyle = _extends({
@@ -108,13 +115,13 @@ exports['default'] = React.createClass({
             borderRadius: '50%'
         }, this.props.buttonStyle);
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             null,
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { style: { position: 'relative' } },
-                React.createElement(MaterialUI.TextField, {
+                _react2['default'].createElement(_materialUi.TextField, {
                     fullWidth: true,
                     ref: 'input',
                     floatingLabelText: this.props.floatingLabelText,
@@ -129,11 +136,14 @@ exports['default'] = React.createClass({
                     onClick: select,
                     style: { marginTop: -10, width: '92%', fontSize: 14 }
                 }),
-                React.createElement('span', { ref: 'copy-button', style: buttonStyle, title: this.props.getMessage('191'), className: 'copy-button mdi mdi-content-copy' })
+                _react2['default'].createElement('span', { ref: 'copy-button', style: buttonStyle, title: this.props.getMessage('191'), className: 'copy-button mdi mdi-content-copy' })
             ),
             copyMessage
         );
-    }
+    };
 
-});
+    return ClipboardTextField;
+})(_react2['default'].Component);
+
+exports['default'] = ClipboardTextField;
 module.exports = exports['default'];

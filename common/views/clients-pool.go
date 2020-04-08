@@ -34,11 +34,15 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	config2 "github.com/pydio/go-os/config"
+)
+
+var (
+	clientWithRetriesOnce = &sync.Once{}
 )
 
 type sourceAlias struct {
@@ -153,7 +157,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		}
 		delay := (retry + 1) * 2
 
-		log.Logger(context.Background()).Debug(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
+		log.Logger(context.Background()).Info(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
 
 		<-time.After(time.Duration(delay) * time.Second)
 		p.listDatasources()
@@ -189,13 +193,21 @@ func (p *ClientsPool) listDatasources() {
 		return strings.Contains(v, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
 	})
 
+	cli := defaults.NewClient()
+	clientWithRetriesOnce.Do(func() {
+		cli = defaults.NewClient(
+			client.Retries(3),
+			// client.RequestTimeout(1*time.Second),
+		)
+	})
+
 	ctx := context.Background()
 	for _, indexService := range indexServices {
 		dataSourceName := strings.TrimPrefix(indexService, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
 		if dataSourceName == "" {
 			continue
 		}
-		s3endpointClient := object.NewDataSourceEndpointClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, defaults.NewClient(client.Retries(3), client.RequestTimeout(1*time.Second)))
+		s3endpointClient := object.NewDataSourceEndpointClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, cli)
 		response, err := s3endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
 			log.Logger(ctx).Debug("Creating client for datasource " + dataSourceName)

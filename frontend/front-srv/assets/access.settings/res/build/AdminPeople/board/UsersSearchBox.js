@@ -35,6 +35,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -61,6 +65,10 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
 /**
  * Search input building a set of query parameters and calling
  * the callbacks to display / hide results
@@ -77,7 +85,8 @@ var UsersSearchBox = (function (_React$Component) {
         dm.setRootNode(new _pydioModelNode2['default']());
         this.state = {
             dataModel: dm,
-            displayResult: props.displayResultsState
+            displayResult: props.displayResultsState,
+            crtValue: ''
         };
         this.searchDebounced = (0, _lodashDebounce2['default'])(this.triggerSearch, 350);
     }
@@ -102,10 +111,12 @@ var UsersSearchBox = (function (_React$Component) {
         value: function triggerSearch() {
             var _this = this;
 
-            var value = this.refs.query.getValue();
+            var value = this.state.crtValue;
             if (!value) {
                 this.hideResultsState();
-                this.refs.query.blur();
+                try {
+                    this.refs.query.refs.input.blur();
+                } catch (e) {}
                 return;
             }
             var dm = this.state.dataModel;
@@ -148,32 +159,31 @@ var UsersSearchBox = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var crtValue = this.state.crtValue;
+
             return _react2['default'].createElement(
                 'div',
-                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center', maxWidth: 220 }, this.props.style) },
+                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center' }, this.props.style) },
+                _react2['default'].createElement('div', { style: { flex: 1 } }),
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1 } },
+                    { style: { maxWidth: 190 } },
                     _react2['default'].createElement(
                         'form',
                         { autoComplete: "off" },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                        _react2['default'].createElement(ModernTextField, {
+                            ref: "query",
                             onKeyDown: this.keyDown.bind(this),
-                            floatingLabelText: this.props.textLabel,
+                            hintText: this.props.textLabel,
                             fullWidth: true,
-                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                            value: crtValue,
+                            onChange: function (e, v) {
+                                _this2.setState({ crtValue: v });
+                            }
                         })
                     )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { paddingTop: 22, opacity: 0.3 } },
-                    _react2['default'].createElement(_materialUi.IconButton, {
-                        ref: 'button',
-                        onTouchTap: this.triggerSearch.bind(this),
-                        iconClassName: 'mdi mdi-account-search',
-                        tooltip: this.props.textLabel
-                    })
                 )
             );
         }

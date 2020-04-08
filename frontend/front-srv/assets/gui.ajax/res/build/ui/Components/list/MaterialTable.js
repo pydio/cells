@@ -43,6 +43,10 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var moment = _Pydio$requireLib.moment;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("hoc");
+
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+
 /**
  * Simple material table
  * columns are objects of shape {name, label, style, headerStyle}
@@ -51,13 +55,16 @@ var moment = _Pydio$requireLib.moment;
 var MaterialTable = (function (_React$Component) {
     _inherits(MaterialTable, _React$Component);
 
-    function MaterialTable() {
+    function MaterialTable(props) {
         _classCallCheck(this, MaterialTable);
 
-        _React$Component.apply(this, arguments);
+        _React$Component.call(this, props);
+        this.state = {};
     }
 
     MaterialTable.prototype.onRowSelection = function onRowSelection(indexes) {
+        var _this = this;
+
         var _props = this.props;
         var data = _props.data;
         var onSelectRows = _props.onSelectRows;
@@ -71,26 +78,153 @@ var MaterialTable = (function (_React$Component) {
             onSelectRows(data);
         } else {
             (function () {
+                var pagination = _this.computePagination();
+                var src = data;
+                if (pagination.use) {
+                    src = src.slice(pagination.sliceStart, pagination.sliceEnd);
+                }
                 var selection = [];
                 indexes.map(function (i) {
-                    selection.push(data[i]);
+                    // Find if previous data has expanded rows : do not count them in for selection
+                    var expanded = src.slice(0, i).filter(function (d) {
+                        return d.expandedRow;
+                    }).length;
+                    if (expanded) {
+                        i = i - expanded;
+                    }
+                    selection.push(src[i]);
                 });
                 onSelectRows(selection);
             })();
         }
     };
 
-    MaterialTable.prototype.render = function render() {
+    MaterialTable.prototype.computePagination = function computePagination() {
         var _props2 = this.props;
-        var columns = _props2.columns;
         var data = _props2.data;
-        var deselectOnClickAway = _props2.deselectOnClickAway;
-        var emptyStateString = _props2.emptyStateString;
-        var onSelectRows = _props2.onSelectRows;
-        var computeRowStyle = _props2.computeRowStyle;
+        var paginate = _props2.paginate;
+        var defaultPageSize = _props2.defaultPageSize;
+        var pagination = _props2.pagination;
+
+        if (pagination) {
+            // externally managed
+            return _extends({}, pagination, { use: true });
+        }
+        if (!paginate || !data || !data.length) {
+            return { use: false };
+        }
+        var pageSize = this.state.pageSize || defaultPageSize || paginate[0];
+        if (data.length <= pageSize) {
+            return { use: false };
+        }
+        var _state$page = this.state.page;
+        var page = _state$page === undefined ? 1 : _state$page;
+
+        var max = Math.ceil(data.length / pageSize);
+        var sliceStart = (page - 1) * pageSize;
+        var sliceEnd = Math.min(page * pageSize, data.length);
+        var pages = [];
+        for (var i = 1; i <= max; i++) {
+            pages.push(i);
+        }
+        return {
+            use: true,
+            sliceStart: sliceStart,
+            sliceEnd: sliceEnd,
+            pages: pages,
+            page: page,
+            pageSize: pageSize,
+            pageSizes: paginate
+        };
+    };
+
+    MaterialTable.prototype.renderPagination = function renderPagination(pagination) {
+        var _this2 = this;
+
+        var data = this.props.data;
+        var page = pagination.page;
+        var pageSize = pagination.pageSize;
+        var pages = pagination.pages;
+        var pageSizes = pagination.pageSizes;
+        var sliceStart = pagination.sliceStart;
+        var sliceEnd = pagination.sliceEnd;
+        var nextDisabled = pagination.nextDisabled;
+        var prevDisabled = pagination.prevDisabled;
+        var onPageNext = pagination.onPageNext;
+        var onPagePrev = pagination.onPagePrev;
+        var onPageSizeChange = pagination.onPageSizeChange;
+
+        return _react2['default'].createElement(
+            'div',
+            { style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', color: '#757575' } },
+            pageSizes.length > 1 && _react2['default'].createElement(
+                'div',
+                { style: { paddingRight: 10 } },
+                'Rows per page :'
+            ),
+            pageSizes.length > 1 && _react2['default'].createElement(
+                'div',
+                { style: { width: 90 } },
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    _extends({}, ModernStyles.selectField, { fullWidth: true, value: pageSize, onChange: function (e, i, v) {
+                            if (onPageSizeChange) {
+                                onPageSizeChange(v);
+                            } else {
+                                _this2.setState({ page: 1, pageSize: v });
+                            }
+                        } }),
+                    pageSizes.map(function (ps) {
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: ps, primaryText: ps });
+                    })
+                )
+            ),
+            onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: prevDisabled, onTouchTap: function () {
+                    return onPagePrev();
+                } }),
+            !onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
+                    return _this2.setState({ page: page - 1 });
+                } }),
+            (sliceStart || sliceEnd) && _react2['default'].createElement(
+                'div',
+                null,
+                sliceStart + 1,
+                '-',
+                sliceEnd,
+                ' of ',
+                data.length
+            ),
+            onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: nextDisabled, onTouchTap: function () {
+                    return onPageNext();
+                } }),
+            !onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
+                    return _this2.setState({ page: page + 1 });
+                } })
+        );
+    };
+
+    MaterialTable.prototype.render = function render() {
+        var _props3 = this.props;
+        var columns = _props3.columns;
+        var deselectOnClickAway = _props3.deselectOnClickAway;
+        var emptyStateString = _props3.emptyStateString;
+        var _props3$masterStyles = _props3.masterStyles;
+        var masterStyles = _props3$masterStyles === undefined ? {} : _props3$masterStyles;
+        var emptyStateStyle = _props3.emptyStateStyle;
+        var onSelectRows = _props3.onSelectRows;
+        var computeRowStyle = _props3.computeRowStyle;
+        var data = this.props.data;
         var showCheckboxes = this.props.showCheckboxes;
 
-        var rows = data.map(function (model) {
+        var pagination = this.computePagination();
+        var paginator = undefined;
+        if (pagination.use) {
+            data = data.slice(pagination.sliceStart, pagination.sliceEnd);
+            paginator = this.renderPagination(pagination);
+        }
+
+        var rows = [];
+        data.map(function (model) {
             var rowStyle = undefined;
             if (computeRowStyle) {
                 rowStyle = computeRowStyle(model);
@@ -99,38 +233,78 @@ var MaterialTable = (function (_React$Component) {
                 var headerStyle = _extends({
                     fontSize: 12, color: '#616161', backgroundColor: '#FAFAFA', fontWeight: 500
                 }, model.style);
-                return _react2['default'].createElement(
+                rows.push(_react2['default'].createElement(
                     _materialUi.TableRow,
-                    { className: "media-small-hide" },
+                    { className: "media-small-hide", style: _extends({}, masterStyles.row) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
                         { colSpan: columns.length, style: headerStyle },
                         model.Subheader
                     )
-                );
+                ));
+                return;
             }
-            return _react2['default'].createElement(
+            if (model.colSpan) {
+                rows.push(_react2['default'].createElement(
+                    _materialUi.TableRow,
+                    { style: _extends({}, model.rowStyle, masterStyles.row) },
+                    _react2['default'].createElement(
+                        _materialUi.TableRowColumn,
+                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        model.element
+                    )
+                ));
+                return;
+            }
+            var mainRowStyle = _extends({}, rowStyle, masterStyles.row);
+            if (model.expandedRow) {
+                mainRowStyle = _extends({}, mainRowStyle, masterStyles.expanderRow);
+            }
+            rows.push(_react2['default'].createElement(
                 _materialUi.TableRow,
-                { selectable: onSelectRows !== undefined, style: rowStyle },
+                { selectable: onSelectRows !== undefined, style: mainRowStyle },
                 columns.map(function (column) {
                     var value = model[column.name];
+                    var tip = value;
                     if (column.useMoment && value) {
                         value = moment(new Date(parseInt(value) * 1000)).fromNow();
+                        tip = value;
                     } else if (column.renderCell) {
                         value = column.renderCell(model);
+                        if (value && typeof value === 'object' && value.element && value.text) {
+                            tip = value.text;
+                            value = value.element;
+                        }
                     }
                     return _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { style: column.style || {}, title: value, className: column.hideSmall ? 'media-small-hide' : null },
+                        {
+                            style: column.style || {},
+                            title: typeof tip === 'object' ? null : tip,
+                            className: column.hideSmall ? 'media-small-hide' : null },
                         value
                     );
                 })
-            );
+            ));
+            if (model.expandedRow) {
+                rows.push(_react2['default'].createElement(
+                    _materialUi.TableRow,
+                    { selectable: false, style: _extends({}, masterStyles.row, masterStyles.expandedRow) },
+                    _react2['default'].createElement(
+                        _materialUi.TableRowColumn,
+                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        model.expandedRow
+                    )
+                ));
+            }
         });
         var headers = columns.map(function (column) {
             return _react2['default'].createElement(
                 _materialUi.TableHeaderColumn,
-                { style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }), className: column.hideSmall ? 'media-small-hide' : null },
+                {
+                    style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }, masterStyles.head),
+                    className: column.hideSmall ? 'media-small-hide' : null
+                },
                 column.label
             );
         });
@@ -141,7 +315,7 @@ var MaterialTable = (function (_React$Component) {
                 null,
                 _react2['default'].createElement(
                     _materialUi.TableRowColumn,
-                    { colSpan: columns.length },
+                    { colSpan: columns.length, style: emptyStateStyle },
                     emptyStateString
                 )
             )];
@@ -150,7 +324,7 @@ var MaterialTable = (function (_React$Component) {
             // Add fake first line to fix width
             rows.unshift(_react2['default'].createElement(
                 _materialUi.TableRow,
-                { style: { borderBottom: 'none', height: 0 } },
+                { style: _extends({ borderBottom: 'none', height: 0 }, masterStyles.row) },
                 columns.map(function (col) {
                     var s = col.style || {};
                     return _react2['default'].createElement(_materialUi.TableRowColumn, { style: _extends({}, s, { height: 0 }), className: col.hideSmall ? 'media-small-hide' : null });
@@ -158,15 +332,17 @@ var MaterialTable = (function (_React$Component) {
             ));
         }
 
+        var hideHeaders = this.props.hideHeaders;
+
         return _react2['default'].createElement(
             _materialUi.Table,
             { onRowSelection: this.onRowSelection.bind(this), multiSelectable: showCheckboxes },
-            _react2['default'].createElement(
+            !hideHeaders && _react2['default'].createElement(
                 _materialUi.TableHeader,
                 { displaySelectAll: showCheckboxes, adjustForCheckbox: showCheckboxes, enableSelectAll: showCheckboxes },
                 _react2['default'].createElement(
                     _materialUi.TableRow,
-                    null,
+                    { style: masterStyles.row },
                     headers
                 )
             ),
@@ -174,6 +350,19 @@ var MaterialTable = (function (_React$Component) {
                 _materialUi.TableBody,
                 { deselectOnClickaway: deselectOnClickAway, displayRowCheckbox: showCheckboxes },
                 rows
+            ),
+            paginator && _react2['default'].createElement(
+                _materialUi.TableFooter,
+                null,
+                _react2['default'].createElement(
+                    _materialUi.TableRow,
+                    { style: { backgroundColor: '#fafafa' } },
+                    _react2['default'].createElement(
+                        _materialUi.TableRowColumn,
+                        { colSpan: columns.length },
+                        paginator
+                    )
+                )
             )
         );
     };

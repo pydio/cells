@@ -43,24 +43,8 @@ type DexClient struct {
 }
 
 func actionConfigsSet(c *install.InstallConfig) error {
-
+	save := false
 	url := config.Get("defaults", "url").String("")
-	authGrpc := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
-
-	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "issuer")
-	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "web", "http")
-
-	// Rewrite Dex Static Clients
-	dexStaticClient := &DexClient{
-		Id:                     c.GetExternalDexID(),
-		Name:                   c.GetExternalDexID(),
-		Secret:                 c.GetExternalDexSecret(),
-		RedirectURIs:           []string{fmt.Sprintf("%s/login/callback", url)},
-		IdTokensExpiry:         "10m",
-		RefreshTokensExpiry:    "30m",
-		OfflineSessionsSliding: true,
-	}
-	config.Set([]*DexClient{dexStaticClient}, "services", authGrpc, "dex", "staticClients")
 
 	// OAuth web
 	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
@@ -72,51 +56,115 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	}
 	config.Set(string(secret), "services", oauthWeb, "secret")
 
-	// OIDC Static client - special case for srvUrl/oauth2/oob url
+	// Adding the config for activities and chat
+	acDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY)
+	chatDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT)
+
+	// Easy finding usage of srvUrl
+	configKeys := map[string]interface{}{
+		"services/" + oauthWeb + "/issuer":                                                  url + "/oidc/",
+		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY + "/driver": "boltdb",
+		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY + "/dsn":    filepath.Join(acDir, "activities.db"),
+		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT + "/driver":     "boltdb",
+		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT + "/dsn":        filepath.Join(chatDir, "chat.db"),
+	}
+
+	for path, def := range configKeys {
+		paths := strings.Split(path, "/")
+		val := config.Get(paths...)
+		var data interface{}
+		if val.Scan(&data); data != def {
+			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
+			config.Set(def, paths...)
+			save = true
+		}
+	}
+
+	configSliceKeys := map[string][]string{
+		"services/" + oauthWeb + "/insecureRedirects": []string{url + "/auth/callback"},
+	}
+
+	for path, def := range configSliceKeys {
+		paths := strings.Split(path, "/")
+		val := config.Get(paths...)
+		var data []string
+
+		if val.Scan(&data); !stringSliceEqual(data, def) {
+			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
+			config.Set(def, paths...)
+			save = true
+		}
+	}
+
+	oAuthFrontendConfig := map[string]interface{}{
+		"client_id":                 "cells-frontend",
+		"client_name":               "CellsFrontend Application",
+		"grant_types":               []string{"authorization_code", "refresh_token"},
+		"redirect_uris":             []string{url + "/auth/callback"},
+		"post_logout_redirect_uris": []string{url + "/auth/logout"},
+		"response_types":            []string{"code", "token", "id_token"},
+		"scope":                     "openid email profile pydio offline",
+	}
+
 	statics := config.Get("services", oauthWeb, "staticClients")
 	var data []map[string]interface{}
 	if err := statics.Scan(&data); err == nil {
 		var saveStatics bool
+		var addCellsFrontend = true
 		for _, static := range data {
-			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
-				var newRedirs []string
-				for _, redir := range redirs {
-					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
-						newRedirs = append(newRedirs, url+"/oauth2/oob")
-						saveStatics = true
-					} else {
-						newRedirs = append(newRedirs, redir.(string))
-					}
+			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
+				if clientID == "cells-frontend" {
+					addCellsFrontend = false
 				}
-				static["redirect_uris"] = newRedirs
+			}
+
+			for _, n := range []string{"redirect_uris", "post_logout_redirect_uris"} {
+				if redirs, ok := static[n].([]interface{}); ok {
+					var newRedirs []string
+					for _, redir := range redirs {
+						if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
+							newRedirs = append(newRedirs, url+"/oauth2/oob")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/callback") && redir.(string) != url+"/auth/callback" {
+							newRedirs = append(newRedirs, url+"/auth/callback")
+							saveStatics = true
+						} else if strings.HasSuffix(redir.(string), "/auth/logout") && redir.(string) != url+"/auth/logout" {
+							newRedirs = append(newRedirs, url+"/auth/logout")
+							saveStatics = true
+						} else {
+							newRedirs = append(newRedirs, redir.(string))
+						}
+					}
+					static[n] = newRedirs
+				}
 			}
 		}
+		if addCellsFrontend {
+			data = append([]map[string]interface{}{oAuthFrontendConfig}, data...)
+			saveStatics = true
+		}
 		if saveStatics {
+			fmt.Println("[Configs] Upgrading: updating staticClients")
 			config.Set(data, "services", oauthWeb, "staticClients")
+			save = true
 		}
 	}
 
-	// Adding the config for activities and chat
-	// TODO - make it better
-	acDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY)
-	if e != nil {
-		return e
+	if save {
+		config.Save("cli", "Install / Setting Dex default settings")
 	}
-	config.Set(map[string]string{
-		"driver": "boltdb",
-		"dsn":    filepath.Join(acDir, "activities.db"),
-	}, "databases", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACTIVITY)
-
-	chatDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT)
-	if e != nil {
-		return e
-	}
-	config.Set(map[string]string{
-		"driver": "boltdb",
-		"dsn":    filepath.Join(chatDir, "chat.db"),
-	}, "databases", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT)
-
-	config.Save("cli", "Install / Setting Dex default settings")
 
 	return nil
+}
+
+func stringSliceEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }

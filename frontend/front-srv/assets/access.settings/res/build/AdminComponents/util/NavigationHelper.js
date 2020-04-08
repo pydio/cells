@@ -26,7 +26,13 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _stylesAdminStyles = require("../styles/AdminStyles");
+
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var _require = require('material-ui');
 
@@ -40,40 +46,20 @@ function renderItem(palette, node) {
     var noIcon = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
     var advanced = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
-    var iconStyle = {
-        fontSize: 22,
-        lineHeight: '20px',
-        marginLeft: 20
-    };
-    var flagStyle = {
-        display: 'inline',
-        backgroundColor: palette.accent1Color,
-        color: 'white',
-        height: 22,
-        borderRadius: 10,
-        padding: '0 5px',
-        marginLeft: 5
-    };
-    var ellispsis = {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    };
-    var mainStyle = {};
-    if (advanced) {
-        mainStyle = { opacity: .7 };
-    }
+    var _AdminStyles = (0, _stylesAdminStyles2['default'])(palette);
+
+    var menu = _AdminStyles.menu;
 
     var label = text || node.getLabel();
     if (node.getMetadata().get('flag')) {
         label = React.createElement(
             'div',
-            { style: ellispsis },
+            { style: menu.menuLabel },
             node.getLabel(),
             ' ',
             React.createElement(
                 'span',
-                { style: flagStyle },
+                { style: menu.flag },
                 node.getMetadata().get('flag')
             ),
             ' '
@@ -81,16 +67,17 @@ function renderItem(palette, node) {
     } else {
         label = React.createElement(
             'div',
-            { style: ellispsis },
+            { style: menu.menuLabel },
             label
         );
     }
 
     return React.createElement(MenuItem, {
-        style: mainStyle,
+        style: menu.menuItem,
+        innerDivStyle: menu.menuItemInner,
         value: node,
         primaryText: label,
-        leftIcon: !noIcon && React.createElement(FontIcon, { className: node.getMetadata().get('icon_class'), style: iconStyle })
+        leftIcon: !noIcon && React.createElement(FontIcon, { className: node.getMetadata().get('icon_class'), style: menu.iconStyle })
     });
 }
 
@@ -113,6 +100,10 @@ var NavigationHelper = (function () {
                 textTransform: 'uppercase'
             };
 
+            var _AdminStyles2 = (0, _stylesAdminStyles2['default'])(palette);
+
+            var menu = _AdminStyles2.menu;
+
             if (rootNode.getMetadata().get('component')) {
                 items.push(renderItem(palette, rootNode, pydio.MessageHash['ajxp_admin.menu.0'], noIcon));
             }
@@ -134,14 +125,12 @@ var NavigationHelper = (function () {
                             };
                         }
                         if (header.getLabel()) {
-                            items.push(React.createElement(Divider, null));
-                            //if(showAdvanced){
+                            //items.push(<Divider/>);
                             items.push(React.createElement(
                                 Subheader,
-                                { style: headerStyle },
+                                { style: menu.subHeader },
                                 header.getLabel()
                             ));
-                            //}
                         }
                         items.push.apply(items, children);
                     })();

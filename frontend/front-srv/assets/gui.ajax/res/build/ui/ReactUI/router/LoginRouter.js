@@ -28,18 +28,15 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
+var PydioApi = require('pydio/http/api');
+
 var LoginRouterWrapper = function LoginRouterWrapper(pydio) {
     var LoginRouter = function LoginRouter(props) {
-        if (pydio.user) {
-            _reactRouterLibBrowserHistory2['default'].replace("/");
-            return null;
-        }
+        if (pydio.user) _reactRouterLibBrowserHistory2['default'].replace("/");
 
-        pydio.observeOnce('user_logged', function (u) {
-            _reactRouterLibBrowserHistory2['default'].replace('/');
+        pydio.observeOnce('user_logged', function () {
+            return _reactRouterLibBrowserHistory2['default'].replace("/");
         });
-
-        localStorage.removeItem("loginOrigin");
 
         return React.createElement(
             'div',

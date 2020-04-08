@@ -32,6 +32,7 @@ import (
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -297,6 +298,15 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 		if opLabel != "" {
 			logger = logger.With(zap.String(common.KEY_OPERATION_LABEL, opLabel))
 		}
+	}
+	if jobId, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
+		logger = logger.With(zap.String(common.KEY_SCHEDULER_JOB_ID, jobId))
+	}
+	if taskUuid, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
+		logger = logger.With(zap.String(common.KEY_SCHEDULER_TASK_ID, taskUuid))
+	}
+	if taskPath, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
+		logger = logger.With(zap.String(common.KEY_SCHEDULER_ACTION_PATH, taskPath))
 	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{

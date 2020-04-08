@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -98,7 +99,7 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 
 func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
 	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareLink.Uuid + "\" +SHARE_TYPE:minisite",
 	}})

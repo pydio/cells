@@ -33,6 +33,7 @@ import ActivityMonitor from './util/ActivityMonitor'
 import PydioWebSocket from './http/PydioWebSocket'
 import EmptyNodeProvider from "./model/EmptyNodeProvider";
 
+import qs from 'query-string'
 /**
  * This is the main class for launching the whole framework,
  * with or without a UI.
@@ -80,7 +81,7 @@ class Pydio extends Observable{
         if(!this.Parameters.has('START_REPOSITORY')){
             const uri = window.location.href.
                 replace(parameters.get('FRONTEND_URL'), '').
-                replace(window.location.search, '')
+                replace(window.location.search, '');
 
             const loadUriParts = LangUtils.trim(uri, '/').split('/');
             if(loadUriParts.length){
@@ -171,39 +172,41 @@ class Pydio extends Observable{
 
         });
 
-        const starterFunc = function(){
-
+        const starterFunc = () => {
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
                 this.UI = new window.PydioReactUI.Builder(this);
                 this.UI.initTemplates();
-                this.fire("registry_loaded", this.Registry.getXML());
-                this.fire('loaded');
-                //setTimeout(() => { this.fire('loaded'); }, 200);
-            });
 
-        }.bind(this);
+                this.fire("registry_loaded", this.Registry.getXML());
+                // this.fire('loaded');
+                setTimeout(() => { this.fire('loaded'); }, 200);
+            });
+        };
 
         // Prelogged user
         if(this.Parameters.has("PRELOG_USER") && !this.user) {
             const login = this.Parameters.get("PRELOG_USER");
             const pwd = login + "#$!Az1";
-            PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
-                this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-            }).catch(e => {
-                this.loadXmlRegistry(null, starterFunc);
-            })
+
+            PydioApi.getRestClient().sessionLoginWithCredentials(login, pwd)
+                .then(() => this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY")))
+                .catch(() => this.loadXmlRegistry(null, starterFunc))
         } else {
-            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-                if(jwt || !this.Parameters.has('PRELOADED_REGISTRY')) {
-                    // There is a jwt
-                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-                } else {
-                    // Not logged, used prefeteched registry to speed up login screen
-                    this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
-                    this.Parameters.delete("PRELOADED_REGISTRY");
-                    starterFunc();
-                }
-            });
+            PydioApi.getRestClient().getOrUpdateJwt().
+                then(jwt => {
+                    // Logged in
+                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                }).
+                catch(() => {
+                    if (!this.Parameters.has("PRELOADED_REGISTRY")) {
+                        this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                    } else {
+                        // Not logged, used prefeteched registry to speed up login screen
+                        this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
+                        this.Parameters.delete("PRELOADED_REGISTRY");
+                        starterFunc();
+                    }
+                })
         }
 
         this.observe("server_message", (xml) => {

@@ -19,10 +19,9 @@
  */
 
 import React from 'react'
-import XMLUtils from 'pydio/util/xml'
 import {ConfigServiceApi, RestConfiguration} from 'pydio/http/rest-api'
-import PydioApi from 'pydio/http/api'
 import {RaisedButton, FlatButton} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
@@ -33,7 +32,7 @@ import MailerTest from './MailerTest'
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-const PluginEditor = React.createClass({
+let PluginEditor = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -133,8 +132,9 @@ const PluginEditor = React.createClass({
 
     render: function(){
 
-        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs} = this.props;
+        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName, muiTheme} = this.props;
         const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, parameters, values, helperData} = this.state;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         let addPanes = {top:[], bottom:[]};
         if(additionalPanes){
@@ -143,7 +143,7 @@ const PluginEditor = React.createClass({
         }
         const {serviceName} = this.props;
         if(serviceName === 'pydio.grpc.mailer'){
-            addPanes.bottom.push(<MailerTest pydio={this.props.pydio}/>)
+            addPanes.bottom.push(<MailerTest pydio={this.props.pydio} adminStyles={adminStyles}/>)
         }
 
         let closeButton;
@@ -171,8 +171,14 @@ const PluginEditor = React.createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        if(accessByName('Create')){
+            let props = adminStyles.props.header.flatButton;
+            if(!dirty){
+                props = adminStyles.props.header.flatButtonDisabled;
+            }
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert} {...props}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save} {...props}/>);
+        }
         actions.push(closeButton);
 
 
@@ -197,11 +203,14 @@ const PluginEditor = React.createClass({
                     helperData={helperData}
                     close={this.closeHelper}
                 />
+                {adminStyles.formCss()}
             </div>
         );
 
 
     }
 });
+
+PluginEditor = muiThemeable()(PluginEditor);
 
 export {PluginEditor as default}

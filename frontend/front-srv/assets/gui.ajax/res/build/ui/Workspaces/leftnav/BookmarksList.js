@@ -33,39 +33,37 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _color = require('color');
+
+var _color2 = _interopRequireDefault(_color);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
+
+var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
+
 var _viewsFilePreview = require('../views/FilePreview');
 
 var _viewsFilePreview2 = _interopRequireDefault(_viewsFilePreview);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _pydioUtilPath = require('pydio/util/path');
-
-var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
-
-var _color = require('color');
-
-var _color2 = _interopRequireDefault(_color);
-
 var _materialUi = require('material-ui');
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
 var EmptyStateView = _Pydio$requireLib.EmptyStateView;
+
+var listCss = '\n.bmListEntry{\n    border-bottom: 1px solid rgba(0,0,0,0.025);\n    padding: 2px 0;\n}\n.bmListEntry:hover{\n    background-color:#FAFAFA;\n    border-bottom-color: #FAFAFA;\n}\n.bmListEntryWs:hover{\n    text-decoration:underline;\n}\n';
 
 var BookmarksList = (function (_React$Component) {
     _inherits(BookmarksList, _React$Component);
@@ -109,25 +107,46 @@ var BookmarksList = (function (_React$Component) {
         });
     };
 
-    BookmarksList.prototype.renderIcon = function renderIcon(node) {
-        return _react2['default'].createElement(_viewsFilePreview2['default'], {
-            loadThumbnail: true,
-            node: node,
-            pydio: this.props.pydio,
-            rounded: true
-        });
-    };
-
-    BookmarksList.prototype.renderSecondLine = function renderSecondLine(node) {
-        return node.getPath();
-    };
-
     BookmarksList.prototype.entryClicked = function entryClicked(node) {
         this.handleRequestClose();
         this.props.pydio.goTo(node);
     };
 
+    BookmarksList.prototype.removeBookmark = function removeBookmark(node) {
+        var _this2 = this;
+
+        var nodeUuid = node.getMetadata().get("uuid");
+        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var searchRequest = new _pydioHttpRestApi.IdmSearchUserMetaRequest();
+        searchRequest.NodeUuids = [nodeUuid];
+        searchRequest.Namespace = "bookmark";
+        var request = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+        return api.searchUserMeta(searchRequest).then(function (res) {
+            if (res.Metadatas && res.Metadatas.length) {
+                request.Operation = _pydioHttpRestApi.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
+                request.MetaDatas = res.Metadatas;
+                api.updateUserMeta(request).then(function () {
+                    _this2.load();
+                });
+            }
+        });
+    };
+
+    BookmarksList.prototype.bmToNodes = function bmToNodes(bm) {
+
+        return bm.AppearsIn.map(function (ws) {
+            var copy = _extends({}, bm);
+            copy.Path = ws.WsSlug + '/' + ws.Path;
+            var node = _pydioModelMetaNodeProvider2['default'].parseTreeNode(copy, ws.WsSlug);
+            node.getMetadata().set('repository_id', ws.WsUuid);
+            node.getMetadata().set('WsLabel', ws.WsLabel);
+            return node;
+        });
+    };
+
     BookmarksList.prototype.render = function render() {
+        var _this3 = this;
+
         var _props = this.props;
         var pydio = _props.pydio;
         var muiTheme = _props.muiTheme;
@@ -138,27 +157,87 @@ var BookmarksList = (function (_React$Component) {
         var anchorEl = _state.anchorEl;
         var bookmarks = _state.bookmarks;
 
+        var previewStyles = {
+            style: {
+                height: 40,
+                width: 40,
+                borderRadius: '50%'
+            },
+            mimeFontStyle: {
+                fontSize: 24,
+                lineHeight: '40px',
+                textAlign: 'center'
+            }
+        };
+
         if (!pydio.user.activeRepository) {
             return null;
         }
         var items = undefined;
         if (bookmarks) {
             items = bookmarks.map(function (n) {
-                return _react2['default'].createElement(_materialUi.ListItem, {
-                    primaryText: _pydioUtilPath2['default'].getBasename(n.Path),
-                    secondaryText: n.AppearsIn.map(function (ws) {
-                        return ws.WsLabel;
-                    }).join(', '),
-                    onTouchTap: function () {
-                        var path = n.AppearsIn[0].Path;
-                        if (!path) {
-                            path = '/';
-                        }
-                        var fakeNode = new _pydioModelNode2['default'](path, n.Type === 'LEAF');
-                        fakeNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                        pydio.goTo(fakeNode);
-                    }
-                });
+                var nodes = _this3.bmToNodes(n);
+                return _react2['default'].createElement(
+                    'div',
+                    { className: "bmListEntry", style: { display: 'flex', alignItems: 'center', width: '100%' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '12px 16px', cursor: 'pointer' }, onClick: function () {
+                                _this3.entryClicked(nodes[0]);
+                            } },
+                        _react2['default'].createElement(_viewsFilePreview2['default'], _extends({ pydio: pydio, node: nodes[0], loadThumbnail: true }, previewStyles))
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1, overflow: 'hidden', cursor: 'pointer' }, onClick: function () {
+                                _this3.entryClicked(nodes[0]);
+                            } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                            nodes[0].getLabel()
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { opacity: .33 } },
+                            'In ',
+                            nodes.map(function (n, i) {
+                                var click = function click(e) {
+                                    e.stopPropagation();
+                                    _this3.entryClicked(n);
+                                };
+                                var link = _react2['default'].createElement(
+                                    'a',
+                                    { className: "bmListEntryWs", onClick: click, style: { fontWeight: 500 } },
+                                    n.getMetadata().get('WsLabel')
+                                );
+                                if (i === nodes.length - 1) {
+                                    return link;
+                                } else {
+                                    return _react2['default'].createElement(
+                                        'span',
+                                        null,
+                                        link,
+                                        ', '
+                                    );
+                                }
+                            })
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-delete",
+                            iconStyle: { opacity: .33, fontSize: 18 },
+                            onTouchTap: function () {
+                                _this3.removeBookmark(nodes[0]);
+                            },
+                            tooltip: "Remove this bookmark",
+                            tooltipPosition: "bottom-left"
+                        })
+                    )
+                );
             });
         }
 
@@ -173,8 +252,9 @@ var BookmarksList = (function (_React$Component) {
             null,
             _react2['default'].createElement(_materialUi.IconButton, {
                 onTouchTap: this.handleTouchTap.bind(this),
-                iconClassName: "userActionIcon mdi mdi-star-outline",
+                iconClassName: "userActionIcon mdi mdi-star",
                 tooltip: pydio.MessageHash['147'],
+                tooltipPosition: "bottom-left",
                 className: 'userActionButton',
                 iconStyle: iconStyle,
                 style: buttonStyle
@@ -184,18 +264,23 @@ var BookmarksList = (function (_React$Component) {
                 {
                     open: open,
                     anchorEl: anchorEl,
-                    anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
+                    anchorOrigin: { horizontal: 'left', vertical: 'top' },
                     targetOrigin: { horizontal: 'left', vertical: 'top' },
                     onRequestClose: this.handleRequestClose.bind(this),
                     style: { width: 320 },
-                    zDepth: 2
+                    zDepth: 3
 
                 },
                 _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', padding: '12px 16px', width: '100%',
-                            backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)' } },
-                    pydio.MessageHash[147]
+                    { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', width: '100%',
+                            backgroundColor: '#f8fafc', borderBottom: '1px solid #ECEFF1', color: muiTheme.palette.primary1Color } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-star", style: { fontSize: 18, margin: '12px 8px 14px 16px' } }),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { fontSize: 15, fontWeight: 500 } },
+                        pydio.MessageHash[147]
+                    )
                 ),
                 loading && _react2['default'].createElement(
                     'div',
@@ -209,8 +294,8 @@ var BookmarksList = (function (_React$Component) {
                     })
                 ),
                 !loading && items && items.length && _react2['default'].createElement(
-                    _materialUi.List,
-                    { style: { maxHeight: 280, overflowY: 'auto', padding: 0 } },
+                    'div',
+                    { style: { maxHeight: 330, overflowY: 'auto', overflowX: 'hidden', padding: 0 } },
                     items
                 ),
                 !loading && (!items || !items.length) && _react2['default'].createElement(EmptyStateView, {
@@ -219,7 +304,8 @@ var BookmarksList = (function (_React$Component) {
                     primaryTextId: '145',
                     secondaryTextId: "482",
                     style: { minHeight: 260, backgroundColor: 'white' }
-                })
+                }),
+                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: listCss } })
             )
         );
     };

@@ -22,16 +22,19 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"time"
+
+	errorUtils "github.com/pydio/cells/common/utils/error"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -69,21 +72,48 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 				micro.Name(name),
 				micro.Metadata(registry.BuildServiceMeta()),
 				micro.BeforeStart(func() error {
-					r, c, s, err := f(s.Options().Context, s.Options().Cancel)
+					n := s.Options().Name
+					var runner Runner
+					var checker Checker
+					var stopper Stopper
+					var err error
+					loop := 0
+					for {
+						loop++
+						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
+						if err == nil || !errorUtils.IsServiceStartNeedsRetry(err) {
+							break
+						}
+						if loop == 1 {
+							log.Logger(s.Options().Context).Info("Runner generator returned ServiceStartNeedsRetry error, waiting for 10s")
+						}
+						<-time.After(10 * time.Second)
+					}
 					if err != nil {
 						return err
 					}
 
 					// Adding context watcher
 					go func() {
+						defer func() {
+							if e := recover(); e != nil {
+								fmt.Println("Panic recovered while stopping service", e)
+							}
+						}()
 						<-ctx.Done()
-						s.Stop()
+						stopper.Stop()
 					}()
+					if runner == nil {
+						fmt.Printf("Nil runner before start for %s, call runner generator again\n", n)
+						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
+						if err != nil {
+							return err
+						}
+					}
+					go runner.Run()
 
-					go r.Run()
-
-					if err := Retry(c.Check); err != nil {
-						s.Stop()
+					if err := Retry(checker.Check); err != nil {
+						stopper.Stop()
 					}
 
 					return nil
@@ -97,9 +127,6 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 					log.Logger(ctx).Info("stopping")
 
 					return nil
-				}),
-				micro.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)

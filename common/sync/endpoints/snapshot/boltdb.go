@@ -410,7 +410,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 
 func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI:                   "snapshot://" + s.name,
+		URI: "snapshot://" + s.name,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 	}
@@ -442,10 +442,6 @@ func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string, recursive 
 
 func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, fmt.Errorf("not.implemented")
-}
-
-func (s *BoltSnapshot) ComputeChecksum(node *tree.Node) error {
-	return fmt.Errorf("not.implemented")
 }
 
 func (s *BoltSnapshot) marshal(node *tree.Node) []byte {

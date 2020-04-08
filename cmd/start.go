@@ -26,13 +26,15 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -83,12 +85,16 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			}
 		}
 
-		// Removing install services
-		registry.Default.Filter(func(s registry.Service) bool {
-			re := regexp.MustCompile(common.SERVICE_INSTALL)
+		plugins.Init()
 
-			if re.MatchString(s.Name()) {
-				return true
+		// Filtering out services by exclusion
+		registry.Default.Filter(func(s registry.Service) bool {
+			for _, exclude := range FilterStartExclude {
+				re := regexp.MustCompile(exclude)
+
+				if strings.HasPrefix(s.Name(), exclude) || re.MatchString(s.Name()) {
+					return true
+				}
 			}
 
 			return false
@@ -96,11 +102,22 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		// Filtering services by tags
 		registry.Default.Filter(func(s registry.Service) bool {
+			// Unique exclude must be done here
+			for _, exclude := range FilterStartExclude {
+				if exclude == startTagUnique && s.MustBeUnique() {
+					return true
+				}
+			}
 			for _, t := range FilterStartTags {
-				for _, st := range s.Tags() {
-					if t == st {
-						registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
-						return false
+				if t == startTagUnique && s.MustBeUnique() {
+					registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
+					return false
+				} else {
+					for _, st := range s.Tags() {
+						if t == st {
+							registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
+							return false
+						}
 					}
 				}
 			}
@@ -143,6 +160,8 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 		} else {
 			allServices = s
 		}
+
+		initServices()
 
 		return nil
 	},
@@ -193,6 +212,9 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Filter by tags")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Filter")
+	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
+
+	viper.BindPFlag("healthcheck", StartCmd.Flags().Lookup("healthcheck"))
 
 	RootCmd.AddCommand(StartCmd)
 }

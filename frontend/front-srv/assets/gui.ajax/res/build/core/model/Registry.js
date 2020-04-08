@@ -45,6 +45,10 @@ var _httpResourcesManager = require('../http/ResourcesManager');
 
 var _httpResourcesManager2 = _interopRequireDefault(_httpResourcesManager);
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 var Registry = (function () {
     function Registry(pydioObject) {
         _classCallCheck(this, Registry);
@@ -95,55 +99,52 @@ var Registry = (function () {
         if (this._globalLoading) {
             return;
         }
+
+        var _pydioObject = this._pydioObject;
+        var user = _pydioObject.user;
+        var Parameters = _pydioObject.Parameters;
+
+        var params = _queryString2['default'].parse('');
+
+        if (user) {
+            params.ws = user.getActiveRepository();
+            params.lang = user.getPreference('lang');
+        }
+
+        if (repositoryId) {
+            params.ws = repositoryId;
+        }
+
+        var url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state';
+
         this._pydioObject.fire("registry_loading");
         this._globalLoading = true;
         _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var _pydioObject = _this._pydioObject;
-            var user = _pydioObject.user;
-            var Parameters = _pydioObject.Parameters;
-
-            var url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
-            var headers = {};
-
-            if (jwt) {
-                headers = { Authorization: 'Bearer ' + jwt };
-                if (user || repositoryId) {
-                    url += '?ws=' + (repositoryId ? repositoryId : user.getActiveRepository());
-                }
-            }
-            if (Parameters.has('MINISITE')) {
-                headers["X-Pydio-Minisite"] = Parameters.get('MINISITE');
-            }
-            if (user && user.getPreference('lang')) {
-                var lang = user.getPreference('lang');
-                if (url.indexOf('?') > 0) {
-                    url += '&lang=' + lang;
-                } else {
-                    url += '?lang=' + lang;
-                }
-            }
-            window.fetch(url, {
+            return fetch(url + '?' + _queryString2['default'].stringify(params), {
                 method: 'GET',
                 credentials: 'same-origin',
-                headers: headers
-            }).then(function (response) {
-                _this._globalLoading = false;
-                if (response.status !== 200) {
-                    _this._pydioObject.getController().fireAction("login");
-                    return;
+                headers: {
+                    "Authorization": 'Bearer ' + jwt,
+                    "X-Pydio-Minisite": Parameters.get('MINISITE')
                 }
-                response.text().then(function (text) {
-                    _this._registry = _utilXMLUtils2['default'].parseXml(text).documentElement;
-
-                    if (completeFunc) {
-                        completeFunc(_this._registry);
-                    } else {
-                        _this._pydioObject.fire("registry_loaded", _this._registry);
-                    }
-                });
-            })['catch'](function (e) {
-                _this._globalLoading = false;
             });
+        })['catch'](function () {
+            return fetch(url);
+        }).then(function (response) {
+            return response.text();
+        }).then(function (txt) {
+            _this._globalLoading = false;
+
+            _this._registry = _utilXMLUtils2['default'].parseXml(txt).documentElement;
+
+            if (completeFunc) {
+                completeFunc(_this._registry);
+            } else {
+                _this._pydioObject.fire("registry_loaded", _this._registry);
+            }
+        })['catch'](function (e) {
+            _this._pydioObject.getController().fireAction("login");
+            _this._globalLoading = false;
         });
     };
 

@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -53,6 +53,10 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		service.RestError500(req, rsp, e)
 		return
 	}
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
 
 	ctx := req.Request.Context()
 	var subjects []string
@@ -60,7 +64,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	var userId string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		admin = claims.Profile == common.PYDIO_PROFILE_ADMIN
-		userId, _ = claims.DecodeUserUuid()
+		userId = claims.Subject
 	}
 	if request.Subject != "" {
 		if !admin {
@@ -97,7 +101,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		},
 	})
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer streamer.Close()
@@ -123,7 +127,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 
 	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.AclRead, permissions.AclWrite, permissions.AclPolicy)
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		service.RestErrorDetect(req, rsp, e)
 		return
 	}
 

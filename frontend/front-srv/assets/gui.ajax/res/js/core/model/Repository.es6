@@ -20,6 +20,8 @@
 import Pydio from '../Pydio'
 import ResourcesManager from '../http/ResourcesManager'
 import CellModel from './CellModel'
+import AjxpNode from "./AjxpNode";
+import EmptyNodeProvider from "./EmptyNodeProvider";
 
 /** 
  * Container for a Repository.

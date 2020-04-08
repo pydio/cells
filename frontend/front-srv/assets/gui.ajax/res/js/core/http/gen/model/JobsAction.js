@@ -13,8 +13,10 @@
 
 
 import ApiClient from '../ApiClient';
+import JobsActionOutputFilter from './JobsActionOutputFilter';
+import JobsContextMetaFilter from './JobsContextMetaFilter';
+import JobsIdmSelector from './JobsIdmSelector';
 import JobsNodesSelector from './JobsNodesSelector';
-import JobsSourceFilter from './JobsSourceFilter';
 import JobsUsersSelector from './JobsUsersSelector';
 
 
@@ -62,6 +64,12 @@ export default class JobsAction {
             if (data.hasOwnProperty('ID')) {
                 obj['ID'] = ApiClient.convertToType(data['ID'], 'String');
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
+            }
             if (data.hasOwnProperty('NodesSelector')) {
                 obj['NodesSelector'] = JobsNodesSelector.constructFromObject(data['NodesSelector']);
             }
@@ -74,14 +82,26 @@ export default class JobsAction {
             if (data.hasOwnProperty('UsersFilter')) {
                 obj['UsersFilter'] = JobsUsersSelector.constructFromObject(data['UsersFilter']);
             }
-            if (data.hasOwnProperty('SourceFilter')) {
-                obj['SourceFilter'] = JobsSourceFilter.constructFromObject(data['SourceFilter']);
+            if (data.hasOwnProperty('IdmSelector')) {
+                obj['IdmSelector'] = JobsIdmSelector.constructFromObject(data['IdmSelector']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = JobsIdmSelector.constructFromObject(data['IdmFilter']);
+            }
+            if (data.hasOwnProperty('ActionOutputFilter')) {
+                obj['ActionOutputFilter'] = JobsActionOutputFilter.constructFromObject(data['ActionOutputFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = JobsContextMetaFilter.constructFromObject(data['ContextMetaFilter']);
             }
             if (data.hasOwnProperty('Parameters')) {
                 obj['Parameters'] = ApiClient.convertToType(data['Parameters'], {'String': 'String'});
             }
             if (data.hasOwnProperty('ChainedActions')) {
                 obj['ChainedActions'] = ApiClient.convertToType(data['ChainedActions'], [JobsAction]);
+            }
+            if (data.hasOwnProperty('FailedFilterActions')) {
+                obj['FailedFilterActions'] = ApiClient.convertToType(data['FailedFilterActions'], [JobsAction]);
             }
         }
         return obj;
@@ -91,6 +111,14 @@ export default class JobsAction {
     * @member {String} ID
     */
     ID = undefined;
+    /**
+    * @member {String} Label
+    */
+    Label = undefined;
+    /**
+    * @member {String} Description
+    */
+    Description = undefined;
     /**
     * @member {module:model/JobsNodesSelector} NodesSelector
     */
@@ -108,9 +136,21 @@ export default class JobsAction {
     */
     UsersFilter = undefined;
     /**
-    * @member {module:model/JobsSourceFilter} SourceFilter
+    * @member {module:model/JobsIdmSelector} IdmSelector
     */
-    SourceFilter = undefined;
+    IdmSelector = undefined;
+    /**
+    * @member {module:model/JobsIdmSelector} IdmFilter
+    */
+    IdmFilter = undefined;
+    /**
+    * @member {module:model/JobsActionOutputFilter} ActionOutputFilter
+    */
+    ActionOutputFilter = undefined;
+    /**
+    * @member {module:model/JobsContextMetaFilter} ContextMetaFilter
+    */
+    ContextMetaFilter = undefined;
     /**
     * @member {Object.<String, String>} Parameters
     */
@@ -119,6 +159,10 @@ export default class JobsAction {
     * @member {Array.<module:model/JobsAction>} ChainedActions
     */
     ChainedActions = undefined;
+    /**
+    * @member {Array.<module:model/JobsAction>} FailedFilterActions
+    */
+    FailedFilterActions = undefined;
 
 
 

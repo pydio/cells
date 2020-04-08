@@ -18,47 +18,29 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import AdminStyles from "../styles/AdminStyles";
+
 const {MenuItem, Divider, Subheader, FontIcon} = require('material-ui')
 
 function renderItem(palette, node, text = null, noIcon = false, advanced = false){
 
-    const iconStyle = {
-        fontSize: 22,
-        lineHeight: '20px',
-        marginLeft: 20
-    };
-    const flagStyle = {
-        display: 'inline',
-        backgroundColor: palette.accent1Color,
-        color: 'white',
-        height: 22,
-        borderRadius: 10,
-        padding: '0 5px',
-        marginLeft: 5
-    };
-    const ellispsis = {
-        whiteSpace:'nowrap',
-        overflow:'hidden',
-        textOverflow:'ellipsis'
-    };
-    let mainStyle = {};
-    if (advanced){
-        mainStyle = {opacity: .7};
-    }
+    const {menu} = AdminStyles(palette);
 
     let label = text || node.getLabel();
     if(node.getMetadata().get('flag')){
-        label = <div style={ellispsis}>{node.getLabel()} <span style={flagStyle}>{node.getMetadata().get('flag')}</span> </div>;
+        label = <div style={menu.menuLabel}>{node.getLabel()} <span style={menu.flag}>{node.getMetadata().get('flag')}</span> </div>;
     } else {
-        label = <div style={ellispsis}>{label}</div>
+        label = <div style={menu.menuLabel}>{label}</div>
+
     }
 
     return (
         <MenuItem
-            style={mainStyle}
+            style={menu.menuItem}
+            innerDivStyle={menu.menuItemInner}
             value={node}
             primaryText={label}
-            leftIcon={!noIcon && <FontIcon className={node.getMetadata().get('icon_class')} style={iconStyle}/>}
+            leftIcon={!noIcon && <FontIcon className={node.getMetadata().get('icon_class')} style={menu.iconStyle}/>}
         />);
 
 }
@@ -74,6 +56,7 @@ class NavigationHelper{
             color: 'rgba(0,0,0,0.25)',
             textTransform: 'uppercase'
         };
+        const {menu} = AdminStyles(palette);
 
         if(rootNode.getMetadata().get('component')){
             items.push(renderItem(palette, rootNode, pydio.MessageHash['ajxp_admin.menu.0'], noIcon));
@@ -93,10 +76,8 @@ class NavigationHelper{
                     return;
                 }
                 if(header.getLabel()){
-                    items.push(<Divider/>);
-                    //if(showAdvanced){
-                        items.push(<Subheader style={headerStyle}>{header.getLabel()}</Subheader>)
-                    //}
+                    //items.push(<Divider/>);
+                    items.push(<Subheader style={menu.subHeader}>{header.getLabel()}</Subheader>)
                 }
                 items.push(...children);
             }

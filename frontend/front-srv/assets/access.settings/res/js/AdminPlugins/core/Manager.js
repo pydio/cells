@@ -17,10 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import PluginsList from './PluginsList'
 import React from 'react'
-import {RaisedButton, Paper, TextField, FontIcon} from 'material-ui'
+import {RaisedButton, Paper} from 'material-ui'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 const PluginsManager = React.createClass({
 
@@ -36,6 +37,7 @@ const PluginsManager = React.createClass({
 
     render(){
         const {filter} = this.state;
+        const adminStyles = AdminComponents.AdminStyles();
 
         return (
             <div style={{height:'100%'}} className="vertical-layout">
@@ -44,11 +46,10 @@ const PluginsManager = React.createClass({
                     icon={this.props.currentNode.getMetadata().get('icon_class')}
                     reloadAction={this.reload}
                     actions={[
-                        <FontIcon className={"mdi mdi-filter"} style={{fontSize:16, marginRight: 10, color: 'rgba(0,0,0,0.2)'}}/>,
-                        <TextField style={{width:196}} placeholder={this.props.pydio.MessageHash['87']} value={filter} onChange={(e,v)=>{this.setState({filter: v})}}/>
+                        <ModernTextField style={{width:196}} hintText={this.props.pydio.MessageHash['87']} value={filter} onChange={(e,v)=>{this.setState({filter: v})}}/>
                     ]}
                 />
-                <Paper zDepth={1} style={{margin: 16}} className="vertical-layout layout-fill">
+                <Paper {...adminStyles.body.block.props} className="vertical-layout layout-fill">
                     <PluginsList {...this.props} hideToolbar={true} ref="list" filterString={filter}/>
                 </Paper>
             </div>

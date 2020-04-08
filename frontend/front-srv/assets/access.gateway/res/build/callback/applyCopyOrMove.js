@@ -63,6 +63,9 @@ exports['default'] = function (pydio) {
                 pydio.UI.displayMessage('SUCCESS', pydio.MessageHash['background.copy.selection']);
             }
             pydio.getContextHolder().setSelectedNodes([]);
+        })['catch'](function (err) {
+            var msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
     };
 };

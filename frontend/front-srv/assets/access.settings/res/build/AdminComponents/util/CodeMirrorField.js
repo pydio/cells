@@ -68,6 +68,25 @@ var CodeEditorField = (function (_React$Component) {
             this.props.onChange(null, value);
         }
     }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+            }, 0);
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps) {
+            var prevValue = prevProps.value ? prevProps.value.length : 0;
+            var newValue = this.props.value ? this.props.value.length : 0;
+            if (Math.abs(newValue - prevValue) > 50) {
+                // We can consider it's a copy, trigger a resize if necessary
+                setTimeout(function () {
+                    window.dispatchEvent(new Event('resize'));
+                }, 0);
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
             var value = this.props.value;

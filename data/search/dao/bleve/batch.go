@@ -26,7 +26,7 @@ import (
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
 type Batch struct {
 	sync.Mutex
-	inserts    map[string]*IndexableNode
+	inserts    map[string]*tree.IndexableNode
 	deletes    map[string]struct{}
 	nsProvider *meta.NamespacesProvider
 	options    BatchOptions
@@ -41,14 +41,14 @@ type BatchOptions struct {
 func NewBatch(options BatchOptions) *Batch {
 	b := &Batch{
 		options: options,
-		inserts: make(map[string]*IndexableNode),
+		inserts: make(map[string]*tree.IndexableNode),
 		deletes: make(map[string]struct{}),
 	}
 	b.ctx = b.createBackgroundContext()
 	return b
 }
 
-func (b *Batch) Index(i *IndexableNode) {
+func (b *Batch) Index(i *tree.IndexableNode) {
 	b.Lock()
 	b.inserts[i.GetUuid()] = i
 	delete(b.deletes, i.GetUuid())
@@ -95,8 +95,8 @@ func (b *Batch) Flush(index bleve.Index) error {
 	return index.Batch(batch)
 }
 
-func (b *Batch) LoadIndexableNode(indexNode *IndexableNode, excludes map[string]struct{}) error {
-	if indexNode.reloadCore {
+func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
+	if indexNode.ReloadCore {
 		if resp, e := b.getRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: &indexNode.Node}); e != nil {
 			return e
 		} else {
@@ -108,7 +108,7 @@ func (b *Batch) LoadIndexableNode(indexNode *IndexableNode, excludes map[string]
 			}
 			indexNode.Node = *rNode
 		}
-	} else if indexNode.reloadNs {
+	} else if indexNode.ReloadNs {
 		if resp, e := b.NamespacesProvider().ReadNode(&indexNode.Node); e != nil {
 			return e
 		} else {

@@ -484,7 +484,6 @@
     CodeMirror.on(hints, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
-    this.scrollToActive()
 
     CodeMirror.signal(data, "select", completions[this.selectedHint], hints.childNodes[this.selectedHint]);
     return true;
@@ -526,16 +525,11 @@
       if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
       node = this.hints.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
-      this.scrollToActive()
-      CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
-    },
-
-    scrollToActive: function() {
-      var node = this.hints.childNodes[this.selectedHint]
       if (node.offsetTop < this.hints.scrollTop)
         this.hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
         this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
+      CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
     screenAmount: function() {
@@ -1115,15 +1109,14 @@
           for (++i$7; i$7 < len && countsAsLeft.test(types[i$7]); ++i$7) {}
           order.push(new BidiSpan(0, start, i$7));
         } else {
-          var pos = i$7, at = order.length, isRTL = direction == "rtl" ? 1 : 0;
+          var pos = i$7, at = order.length;
           for (++i$7; i$7 < len && types[i$7] != "L"; ++i$7) {}
           for (var j$2 = pos; j$2 < i$7;) {
             if (countsAsNum.test(types[j$2])) {
-              if (pos < j$2) { order.splice(at, 0, new BidiSpan(1, pos, j$2)); at += isRTL; }
+              if (pos < j$2) { order.splice(at, 0, new BidiSpan(1, pos, j$2)); }
               var nstart = j$2;
               for (++j$2; j$2 < i$7 && countsAsNum.test(types[j$2]); ++j$2) {}
               order.splice(at, 0, new BidiSpan(2, nstart, j$2));
-              at += isRTL;
               pos = j$2;
             } else { ++j$2; }
           }
@@ -4181,7 +4174,7 @@
   }
 
   function setScrollTop(cm, val, forceScroll) {
-    val = Math.max(0, Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val));
+    val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val);
     if (cm.display.scroller.scrollTop == val && !forceScroll) { return }
     cm.doc.scrollTop = val;
     cm.display.scrollbars.setScrollTop(val);
@@ -4191,7 +4184,7 @@
   // Sync scroller and scrollbar, ensure the gutter elements are
   // aligned.
   function setScrollLeft(cm, val, isScroller, forceScroll) {
-    val = Math.max(0, Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth));
+    val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth);
     if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) { return }
     cm.doc.scrollLeft = val;
     alignHorizontally(cm);
@@ -4778,8 +4771,6 @@
         update.visible = visibleLines(cm.display, cm.doc, viewport);
         if (update.visible.from >= cm.display.viewFrom && update.visible.to <= cm.display.viewTo)
           { break }
-      } else if (first) {
-        update.visible = visibleLines(cm.display, cm.doc, viewport);
       }
       if (!updateDisplayIfNeeded(cm, update)) { break }
       updateHeightsInViewport(cm);
@@ -6864,12 +6855,7 @@
       for (var i$1 = 0; i$1 < hist.undone.length; i$1++) { if (!hist.undone[i$1].ranges) { ++undone; } }
       return {undo: done, redo: undone}
     },
-    clearHistory: function() {
-      var this$1 = this;
-
-      this.history = new History(this.history.maxGeneration);
-      linkedDocs(this, function (doc) { return doc.history = this$1.history; }, true);
-    },
+    clearHistory: function() {this.history = new History(this.history.maxGeneration);},
 
     markClean: function() {
       this.cleanGeneration = this.changeGeneration(true);
@@ -7120,39 +7106,28 @@
     // and insert it.
     if (files && files.length && window.FileReader && window.File) {
       var n = files.length, text = Array(n), read = 0;
-      var markAsReadAndPasteIfAllFilesAreRead = function () {
-        if (++read == n) {
-          operation(cm, function () {
+      var loadFile = function (file, i) {
+        if (cm.options.allowDropFileTypes &&
+            indexOf(cm.options.allowDropFileTypes, file.type) == -1)
+          { return }
+
+        var reader = new FileReader;
+        reader.onload = operation(cm, function () {
+          var content = reader.result;
+          if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) { content = ""; }
+          text[i] = content;
+          if (++read == n) {
             pos = clipPos(cm.doc, pos);
             var change = {from: pos, to: pos,
-                          text: cm.doc.splitLines(
-                              text.filter(function (t) { return t != null; }).join(cm.doc.lineSeparator())),
+                          text: cm.doc.splitLines(text.join(cm.doc.lineSeparator())),
                           origin: "paste"};
             makeChange(cm.doc, change);
-            setSelectionReplaceHistory(cm.doc, simpleSelection(clipPos(cm.doc, pos), clipPos(cm.doc, changeEnd(change))));
-          })();
-        }
-      };
-      var readTextFromFile = function (file, i) {
-        if (cm.options.allowDropFileTypes &&
-            indexOf(cm.options.allowDropFileTypes, file.type) == -1) {
-          markAsReadAndPasteIfAllFilesAreRead();
-          return
-        }
-        var reader = new FileReader;
-        reader.onerror = function () { return markAsReadAndPasteIfAllFilesAreRead(); };
-        reader.onload = function () {
-          var content = reader.result;
-          if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) {
-            markAsReadAndPasteIfAllFilesAreRead();
-            return
+            setSelectionReplaceHistory(cm.doc, simpleSelection(pos, changeEnd(change)));
           }
-          text[i] = content;
-          markAsReadAndPasteIfAllFilesAreRead();
-        };
+        });
         reader.readAsText(file);
       };
-      for (var i = 0; i < files.length; i++) { readTextFromFile(files[i], i); }
+      for (var i = 0; i < n; ++i) { loadFile(files[i], i); }
     } else { // Normal drop
       // Don't do a replace if the drop happened inside of the selected text.
       if (cm.state.draggingText && cm.doc.sel.contains(pos) > -1) {
@@ -7462,7 +7437,6 @@
 
   function endOfLine(visually, cm, lineObj, lineNo, dir) {
     if (visually) {
-      if (cm.doc.direction == "rtl") { dir = -dir; }
       var order = getOrder(lineObj, cm.doc.direction);
       if (order) {
         var part = dir < 0 ? lst(order) : order[0];
@@ -7717,7 +7691,7 @@
     var line = getLine(cm.doc, start.line);
     var order = getOrder(line, cm.doc.direction);
     if (!order || order[0].level == 0) {
-      var firstNonWS = Math.max(start.ch, line.text.search(/\S/));
+      var firstNonWS = Math.max(0, line.text.search(/\S/));
       var inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch;
       return Pos(start.line, inWS ? 0 : firstNonWS, start.sticky)
     }
@@ -8540,9 +8514,6 @@
     // which point we can't mess with it anymore. Context menu is
     // handled in onMouseDown for these browsers.
     on(d.scroller, "contextmenu", function (e) { return onContextMenu(cm, e); });
-    on(d.input.getField(), "contextmenu", function (e) {
-      if (!d.scroller.contains(e.target)) { onContextMenu(cm, e); }
-    });
 
     // Used to suppress mouse event handling when a touch happens
     var touchFinished, prevTouch = {end: 0};
@@ -9273,9 +9244,8 @@
     var oldPos = pos;
     var origDir = dir;
     var lineObj = getLine(doc, pos.line);
-    var lineDir = visually && doc.direction == "rtl" ? -dir : dir;
     function findNextLine() {
-      var l = pos.line + lineDir;
+      var l = pos.line + dir;
       if (l < doc.first || l >= doc.first + doc.size) { return false }
       pos = new Pos(l, pos.ch, pos.sticky);
       return lineObj = getLine(doc, l)
@@ -9289,7 +9259,7 @@
       }
       if (next == null) {
         if (!boundToLine && findNextLine())
-          { pos = endOfLine(visually, doc.cm, lineObj, pos.line, lineDir); }
+          { pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir); }
         else
           { return false }
       } else {
@@ -9438,7 +9408,7 @@
 
   ContentEditableInput.prototype.prepareSelection = function () {
     var result = prepareSelection(this.cm, false);
-    result.focus = document.activeElement == this.div;
+    result.focus = this.cm.state.focused;
     return result
   };
 
@@ -9534,7 +9504,7 @@
 
   ContentEditableInput.prototype.focus = function () {
     if (this.cm.options.readOnly != "nocursor") {
-      if (!this.selectionInEditor() || document.activeElement != this.div)
+      if (!this.selectionInEditor())
         { this.showSelection(this.prepareSelection(), true); }
       this.div.focus();
     }
@@ -10366,7 +10336,7 @@
 
   addLegacyProps(CodeMirror);
 
-  CodeMirror.version = "5.52.2";
+  CodeMirror.version = "5.50.2";
 
   return CodeMirror;
 
@@ -10792,7 +10762,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function parenExpr(type) {
     if (type != "(") return pass()
-    return cont(pushlex(")"), maybeexpression, expect(")"), poplex)
+    return cont(pushlex(")"), expression, expect(")"), poplex)
   }
   function expressionInner(type, value, noComma) {
     if (cx.state.fatArrowAt == cx.stream.start) {
@@ -10821,7 +10791,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
 
   function maybeoperatorComma(type, value) {
-    if (type == ",") return cont(maybeexpression);
+    if (type == ",") return cont(expression);
     return maybeoperatorNoComma(type, value, false);
   }
   function maybeoperatorNoComma(type, value, noComma) {
@@ -16701,7 +16671,7 @@ var CodeMirror = createReactClass({
 module.exports = CodeMirror;
 },{"classnames":"classnames","codemirror":3,"create-react-class":6,"lodash.debounce":"lodash.debounce","lodash.isequal":11,"prop-types":18,"react":"react","react-dom":"react-dom"}],21:[function(require,module,exports){
 (function (process){
-/** @license React v16.13.1
+/** @license React v16.12.0
  * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -16717,6 +16687,8 @@ module.exports = CodeMirror;
 if (process.env.NODE_ENV !== "production") {
   (function() {
 'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
 
 // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
 // nor polyfill, then a plain number is used for performance.
@@ -16737,15 +16709,69 @@ var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
 var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
 var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
 var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
-var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
 var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
 var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
 var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
 function isValidElementType(type) {
   return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
+  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE);
 }
+
+/**
+ * Forked from fbjs/warning:
+ * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
+ *
+ * Only change is we use console.warn instead of console.error,
+ * and do nothing when 'console' is not supported.
+ * This really simplifies the code.
+ * ---
+ * Similar to invariant but only logs a warning if the condition is not met.
+ * This can be used to log issues in development environments in critical
+ * paths. Removing the logging code for production environments will keep the
+ * same logic and follow the same code paths.
+ */
+var lowPriorityWarningWithoutStack = function () {};
+
+{
+  var printWarning = function (format) {
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var argIndex = 0;
+    var message = 'Warning: ' + format.replace(/%s/g, function () {
+      return args[argIndex++];
+    });
+
+    if (typeof console !== 'undefined') {
+      console.warn(message);
+    }
+
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+
+  lowPriorityWarningWithoutStack = function (condition, format) {
+    if (format === undefined) {
+      throw new Error('`lowPriorityWarningWithoutStack(condition, format, ...args)` requires a warning ' + 'message argument');
+    }
+
+    if (!condition) {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
+      }
+
+      printWarning.apply(void 0, [format].concat(args));
+    }
+  };
+}
+
+var lowPriorityWarningWithoutStack$1 = lowPriorityWarningWithoutStack;
 
 function typeOf(object) {
   if (typeof object === 'object' && object !== null) {
@@ -16807,9 +16833,8 @@ var hasWarnedAboutDeprecatedIsAsyncMode = false; // AsyncMode should be deprecat
 function isAsyncMode(object) {
   {
     if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-      hasWarnedAboutDeprecatedIsAsyncMode = true; // Using console['warn'] to evade Babel and ESLint
-
-      console['warn']('The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+      hasWarnedAboutDeprecatedIsAsyncMode = true;
+      lowPriorityWarningWithoutStack$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
     }
   }
 
@@ -16852,6 +16877,7 @@ function isSuspense(object) {
   return typeOf(object) === REACT_SUSPENSE_TYPE;
 }
 
+exports.typeOf = typeOf;
 exports.AsyncMode = AsyncMode;
 exports.ConcurrentMode = ConcurrentMode;
 exports.ContextConsumer = ContextConsumer;
@@ -16865,6 +16891,7 @@ exports.Portal = Portal;
 exports.Profiler = Profiler;
 exports.StrictMode = StrictMode;
 exports.Suspense = Suspense;
+exports.isValidElementType = isValidElementType;
 exports.isAsyncMode = isAsyncMode;
 exports.isConcurrentMode = isConcurrentMode;
 exports.isContextConsumer = isContextConsumer;
@@ -16878,14 +16905,12 @@ exports.isPortal = isPortal;
 exports.isProfiler = isProfiler;
 exports.isStrictMode = isStrictMode;
 exports.isSuspense = isSuspense;
-exports.isValidElementType = isValidElementType;
-exports.typeOf = typeOf;
   })();
 }
 
 }).call(this,require('_process'))
 },{"_process":14}],22:[function(require,module,exports){
-/** @license React v16.13.1
+/** @license React v16.12.0
  * react-is.production.min.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -16894,12 +16919,12 @@ exports.typeOf = typeOf;
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?
-Symbol.for("react.suspense_list"):60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.block"):60121,w=b?Symbol.for("react.fundamental"):60117,x=b?Symbol.for("react.responder"):60118,y=b?Symbol.for("react.scope"):60119;
-function z(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function A(a){return z(a)===m}exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;
-exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;exports.isAsyncMode=function(a){return A(a)||z(a)===l};exports.isConcurrentMode=A;exports.isContextConsumer=function(a){return z(a)===k};exports.isContextProvider=function(a){return z(a)===h};exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return z(a)===n};exports.isFragment=function(a){return z(a)===e};exports.isLazy=function(a){return z(a)===t};
-exports.isMemo=function(a){return z(a)===r};exports.isPortal=function(a){return z(a)===d};exports.isProfiler=function(a){return z(a)===g};exports.isStrictMode=function(a){return z(a)===f};exports.isSuspense=function(a){return z(a)===p};
-exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===w||a.$$typeof===x||a.$$typeof===y||a.$$typeof===v)};exports.typeOf=z;
+'use strict';Object.defineProperty(exports,"__esModule",{value:!0});
+var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.suspense_list"):
+60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.fundamental"):60117,w=b?Symbol.for("react.responder"):60118,x=b?Symbol.for("react.scope"):60119;function y(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function z(a){return y(a)===m}
+exports.typeOf=y;exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;
+exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===v||a.$$typeof===w||a.$$typeof===x)};exports.isAsyncMode=function(a){return z(a)||y(a)===l};exports.isConcurrentMode=z;exports.isContextConsumer=function(a){return y(a)===k};exports.isContextProvider=function(a){return y(a)===h};
+exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return y(a)===n};exports.isFragment=function(a){return y(a)===e};exports.isLazy=function(a){return y(a)===t};exports.isMemo=function(a){return y(a)===r};exports.isPortal=function(a){return y(a)===d};exports.isProfiler=function(a){return y(a)===g};exports.isStrictMode=function(a){return y(a)===f};exports.isSuspense=function(a){return y(a)===p};
 
 },{}],23:[function(require,module,exports){
 (function (process){
@@ -16974,63 +16999,14 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
+var _stylesAdminStyles = require("../styles/AdminStyles");
 
-var UserWidget = _Pydio$requireLib.UserWidget;
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var AsyncComponent = _Pydio$requireLib2.AsyncComponent;
-var TasksPanel = _Pydio$requireLib2.TasksPanel;
-
-var styles = {
-    appBar: {
-        zIndex: 10,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        //backgroundColor:muiTheme.palette.primary1Color,
-        color: 'white',
-        display: 'flex',
-        alignItems: 'center'
-    },
-    appBarTitle: {
-        flex: 1,
-        fontSize: 18,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    },
-    appBarButton: {
-        padding: 14
-    },
-    appBarButtonIcon: {
-        color: 'white',
-        fontSize: 20
-    },
-    appBarLeftIcon: {
-        color: 'white'
-    },
-    mainPanel: {
-        position: 'absolute',
-        top: 56,
-        left: 256, // can be changed by leftDocked state
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#eceff1'
-    },
-    userWidget: {
-        height: 56,
-        lineHeight: '16px',
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        width: 'auto',
-        marginRight: 16
-    }
-};
+var AsyncComponent = _Pydio$requireLib.AsyncComponent;
+var TasksPanel = _Pydio$requireLib.TasksPanel;
 
 var AdminDashboard = _react2['default'].createClass({
     displayName: 'AdminDashboard',
@@ -17058,6 +17034,13 @@ var AdminDashboard = _react2['default'].createClass({
             leftDocked: true,
             showAdvanced: showAdvanced
         };
+    },
+
+    toggleAdvanced: function toggleAdvanced() {
+        var showAdvanced = this.state.showAdvanced;
+
+        this.setState({ showAdvanced: !showAdvanced });
+        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
     },
 
     dmChangesToState: function dmChangesToState() {
@@ -17137,8 +17120,6 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        var _this2 = this;
-
         var dm = this.props.pydio.getContextHolder();
         dm.observe("context_changed", this.dmChangesToState);
         dm.observe("selection_changed", this.dmChangesToState);
@@ -17162,9 +17143,6 @@ var AdminDashboard = _react2['default'].createClass({
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         _pydioUtilDom2['default'].observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
-        _pydioHttpResourcesManager2['default'].loadClass("SettingsBoards").then(function (c) {
-            _this2.setState({ searchComponent: { namespace: 'SettingsBoards', componentName: 'GlobalSearch' } });
-        })['catch'](function (e) {});
     },
 
     componentWillUnmount: function componentWillUnmount() {
@@ -17189,51 +17167,51 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     routeMasterPanel: function routeMasterPanel(node, selectedNode) {
-        var path = node.getPath();
-        if (!selectedNode) selectedNode = node;
+        var pydio = this.props.pydio;
 
+        if (!selectedNode) {
+            selectedNode = node;
+        }
         var dynamicComponent = undefined;
         if (node.getMetadata().get('component')) {
             dynamicComponent = node.getMetadata().get('component');
         } else {
             return _react2['default'].createElement(
                 'div',
-                null,
-                'No Component Found'
+                { style: { width: '100%', height: '100%', minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 18, color: 'rgba(0,0,0,0.33)' } },
+                    pydio.MessageHash["466"]
+                )
             );
         }
         var parts = dynamicComponent.split('.');
         var additionalProps = node.getMetadata().has('props') ? JSON.parse(node.getMetadata().get('props')) : {};
         return _react2['default'].createElement(AsyncComponent, _extends({
-            pydio: this.props.pydio,
+            pydio: pydio,
             namespace: parts[0],
             componentName: parts[1],
-            dataModel: this.props.pydio.getContextHolder(),
+            dataModel: pydio.getContextHolder(),
             rootNode: node,
             currentNode: selectedNode,
             openEditor: this.openEditor,
             openRightPane: this.openRightPane,
             closeRightPane: this.closeRightPane
-        }, additionalProps));
-    },
-
-    backToHome: function backToHome() {
-        //this.props.pydio.triggerRepositoryChange("homepage");
-        window.open('https://pydio.com');
+        }, additionalProps, {
+            accessByName: function (permissionName) {
+                return !additionalProps.accesses || additionalProps.accesses[permissionName] === true;
+            }
+        }));
     },
 
     render: function render() {
-        var _this3 = this;
-
         var _state = this.state;
         var showAdvanced = _state.showAdvanced;
         var rightPanel = _state.rightPanel;
         var leftDocked = _state.leftDocked;
         var openLeftNav = _state.openLeftNav;
-        var searchComponent = _state.searchComponent;
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var muiTheme = _props.muiTheme;
+        var pydio = this.props.pydio;
 
         var dm = pydio.getContextHolder();
 
@@ -17241,101 +17219,66 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var searchIconButton = undefined,
-            leftIconButton = undefined,
-            toggleAdvancedButton = undefined,
-            aboutButton = undefined;
 
-        // LEFT BUTTON
-        var leftIcon = undefined,
-            leftIconClick = undefined;
+        /*
+        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
+        let leftIcon, leftIconClick;
         if (leftDocked) {
             leftIcon = "mdi mdi-tune-vertical";
-            leftIconClick = function () {
+            leftIconClick = () => {
                 dm.requireContextChange(dm.getRootNode());
-            };
+            }
         } else {
             leftIcon = "mdi mdi-menu";
-            leftIconClick = function () {
-                _this3.setState({ openLeftNav: !openLeftNav });
+            leftIconClick = () => {
+                this.setState({openLeftNav: !openLeftNav})
             };
         }
-        leftIconButton = _react2['default'].createElement(
-            'div',
-            { style: { margin: '0 12px' } },
-            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: leftIcon, onTouchTap: leftIconClick, iconStyle: styles.appBarLeftIcon })
+        const leftIconButton = (
+            <div style={{margin: '0 12px'}}>
+                <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
+            </div>
         );
+        */
 
-        // SEARCH BUTTON
-        if (searchComponent) {
-            searchIconButton = _react2['default'].createElement(AsyncComponent, _extends({}, searchComponent, { appBarStyles: styles, pydio: pydio }));
-        }
-
-        toggleAdvancedButton = _react2['default'].createElement(_materialUi.IconButton, {
-            iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
-            style: styles.appBarButton,
-            iconStyle: styles.appBarButtonIcon,
-            tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
-            onTouchTap: function () {
-                _this3.setState({ showAdvanced: !showAdvanced });
-                localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
+        var theme = (0, _materialUiStyles.getMuiTheme)({
+            palette: {
+                primary1Color: '#03a9f4',
+                primary2Color: '#f57c00',
+                accent1Color: '#f57c00',
+                accent2Color: '#324a57',
+                avatarsColor: '#438db3',
+                sharingColor: '#4aceb0'
             }
         });
-
-        aboutButton = _react2['default'].createElement(_materialUi.IconButton, {
-            iconClassName: "icomoon-cells",
-            onTouchTap: function () {
-                window.open('https://pydio.com');
-            },
-            tooltip: pydio.MessageHash['settings.topbar.button.about'],
-            style: styles.appBarButton,
-            iconStyle: styles.appBarButtonIcon
-        });
-
-        var appBarStyle = _extends({}, styles.appBar, { backgroundColor: muiTheme.palette.primary1Color });
+        var adminStyles = (0, _stylesAdminStyles2['default'])(theme.palette);
 
         return _react2['default'].createElement(
-            'div',
-            { className: 'app-canvas' },
-            _react2['default'].createElement(_AdminLeftNav2['default'], {
-                pydio: this.props.pydio,
-                dataModel: dm,
-                rootNode: dm.getRootNode(),
-                contextNode: dm.getContextNode(),
-                open: leftDocked || openLeftNav,
-                showAdvanced: showAdvanced
-            }),
-            _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
+            _materialUi.MuiThemeProvider,
+            { muiTheme: theme },
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, rounded: false, style: appBarStyle },
-                leftIconButton,
+                'div',
+                { className: 'app-canvas' },
+                _react2['default'].createElement(_AdminLeftNav2['default'], {
+                    pydio: this.props.pydio,
+                    dataModel: dm,
+                    rootNode: dm.getRootNode(),
+                    contextNode: dm.getContextNode(),
+                    open: leftDocked || openLeftNav,
+                    showAdvanced: showAdvanced,
+                    toggleAdvanced: this.toggleAdvanced.bind(this)
+                }),
+                _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
                 _react2['default'].createElement(
-                    'span',
-                    { style: styles.appBarTitle },
-                    pydio.MessageHash['settings.topbar.title']
+                    _materialUi.Paper,
+                    { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
+                    this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
                 ),
-                searchIconButton,
-                toggleAdvancedButton,
-                aboutButton,
-                _react2['default'].createElement(UserWidget, {
-                    pydio: pydio,
-                    style: styles.userWidget,
-                    hideActionBar: true,
-                    displayLabel: false,
-                    toolbars: ["aUser", "user", "zlogin"],
-                    controller: pydio.getController()
-                })
-            ),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 0, className: 'main-panel', style: _extends({}, styles.mainPanel, { left: leftDocked ? 256 : 0 }) },
-                this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
-            ),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
-                rPanelContent
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
+                    rPanelContent
+                )
             )
         );
     }
@@ -17345,7 +17288,7 @@ exports['default'] = AdminDashboard = (0, _materialUiStyles.muiThemeable)()(Admi
 exports['default'] = AdminDashboard;
 module.exports = exports['default'];
 
-},{"../util/Mixins":46,"./AdminLeftNav":25,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/util/dom":"pydio/util/dom","react":"react"}],25:[function(require,module,exports){
+},{"../styles/AdminStyles":28,"../util/Mixins":34,"./AdminLeftNav":25,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/util/dom":"pydio/util/dom","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17370,6 +17313,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -17393,95 +17338,101 @@ var _utilMenuItemListener = require('../util/MenuItemListener');
 
 var _utilMenuItemListener2 = _interopRequireDefault(_utilMenuItemListener);
 
+var _stylesAdminStyles = require("../styles/AdminStyles");
+
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
+
 var React = require('react');
 
 var _require = require('material-ui');
 
 var Paper = _require.Paper;
 var Menu = _require.Menu;
+var IconButton = _require.IconButton;
 
 var _require2 = require('material-ui/styles');
 
 var muiThemeable = _require2.muiThemeable;
 
-var AjxpNode = require('pydio/model/node');
-var PydioDataModel = require('pydio/model/data-model');
-//const {withVerticalScroll} = Pydio.requireLib('hoc');
+var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
-var AdminMenu = React.createClass({
-    displayName: 'AdminMenu',
+var UserWidget = _Pydio$requireLib.UserWidget;
 
-    propTypes: {
-        rootNode: React.PropTypes.instanceOf(AjxpNode),
-        contextNode: React.PropTypes.instanceOf(AjxpNode),
-        dataModel: React.PropTypes.instanceOf(PydioDataModel)
-    },
+var AdminMenu = (function (_React$Component) {
+    _inherits(AdminMenu, _React$Component);
 
-    componentDidMount: function componentDidMount() {
-        _utilMenuItemListener2['default'].getInstance().observe("item_changed", (function () {
-            this.forceUpdate();
-        }).bind(this));
-    },
+    function AdminMenu() {
+        _classCallCheck(this, AdminMenu);
 
-    componentWillUnmount: function componentWillUnmount() {
-        _utilMenuItemListener2['default'].getInstance().stopObserving("item_changed");
-    },
-
-    checkForUpdates: function checkForUpdates() {
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var rootNode = _props.rootNode;
-    },
-
-    onMenuChange: function onMenuChange(event, node) {
-        this.props.dataModel.setSelectedNodes([]);
-        this.props.dataModel.setContextNode(node);
-    },
-
-    render: function render() {
-        var _props2 = this.props;
-        var pydio = _props2.pydio;
-        var rootNode = _props2.rootNode;
-        var muiTheme = _props2.muiTheme;
-        var showAdvanced = _props2.showAdvanced;
-
-        // Fix for ref problems on context node
-        var contextNode = this.props.contextNode;
-
-        this.props.rootNode.getChildren().forEach(function (child) {
-            if (child.getPath() === contextNode.getPath()) {
-                contextNode = child;
-            } else {
-                child.getChildren().forEach(function (grandChild) {
-                    if (grandChild.getPath() === contextNode.getPath()) {
-                        contextNode = grandChild;
-                    }
-                });
-            }
-        });
-
-        var menuItems = _utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
-
-        return React.createElement(
-            Menu,
-            {
-                onChange: this.onMenuChange,
-                autoWidth: false,
-                width: 256,
-                listStyle: { display: 'block', maxWidth: 256 },
-                value: contextNode
-            },
-            menuItems
-        );
+        _get(Object.getPrototypeOf(AdminMenu.prototype), 'constructor', this).apply(this, arguments);
     }
 
-});
+    _createClass(AdminMenu, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            _utilMenuItemListener2['default'].getInstance().observe("item_changed", (function () {
+                this.forceUpdate();
+            }).bind(this));
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            _utilMenuItemListener2['default'].getInstance().stopObserving("item_changed");
+        }
+    }, {
+        key: 'onMenuChange',
+        value: function onMenuChange(event, node) {
+            this.props.dataModel.setSelectedNodes([]);
+            this.props.dataModel.setContextNode(node);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var rootNode = _props.rootNode;
+            var muiTheme = _props.muiTheme;
+            var showAdvanced = _props.showAdvanced;
 
-//AdminMenu = withVerticalScroll(AdminMenu, {id:'settings-menu'});
+            // Fix for ref problems on context node
+            var contextNode = this.props.contextNode;
+
+            this.props.rootNode.getChildren().forEach(function (child) {
+                if (child.getPath() === contextNode.getPath()) {
+                    contextNode = child;
+                } else {
+                    child.getChildren().forEach(function (grandChild) {
+                        if (grandChild.getPath() === contextNode.getPath()) {
+                            contextNode = grandChild;
+                        }
+                    });
+                }
+            });
+
+            var menuItems = _utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
+
+            return React.createElement(
+                Menu,
+                {
+                    onChange: this.onMenuChange.bind(this),
+                    autoWidth: false,
+                    width: 256,
+                    desktop: true,
+                    listStyle: (0, _stylesAdminStyles2['default'])(muiTheme.palette).menu.listStyle,
+                    value: contextNode
+                },
+                menuItems
+            );
+        }
+    }]);
+
+    return AdminMenu;
+})(React.Component);
+
 AdminMenu = muiThemeable()(AdminMenu);
 
-var AdminLeftNav = (function (_React$Component) {
-    _inherits(AdminLeftNav, _React$Component);
+var AdminLeftNav = (function (_React$Component2) {
+    _inherits(AdminLeftNav, _React$Component2);
 
     function AdminLeftNav() {
         _classCallCheck(this, AdminLeftNav);
@@ -17492,24 +17443,52 @@ var AdminLeftNav = (function (_React$Component) {
     _createClass(AdminLeftNav, [{
         key: 'render',
         value: function render() {
-            var open = this.props.open;
+            var _this = this;
 
-            var pStyle = {
-                position: 'fixed',
-                width: 256,
-                top: 56,
-                bottom: 0,
-                zIndex: 9,
-                overflowX: 'hidden',
-                overflowY: 'auto'
-            };
+            var _props2 = this.props;
+            var open = _props2.open;
+            var pydio = _props2.pydio;
+            var showAdvanced = _props2.showAdvanced;
+
+            var _AdminStyles = (0, _stylesAdminStyles2['default'])();
+
+            var menu = _AdminStyles.menu;
+            var props = _AdminStyles.props;
+
+            var pStyle = menu.leftNav;
             if (!open) {
                 pStyle.transform = 'translateX(-256px)';
             }
 
             return React.createElement(
                 Paper,
-                { zDepth: 2, className: "admin-main-nav", style: pStyle },
+                _extends({}, props.leftNav, { className: "admin-main-nav", style: pStyle }),
+                React.createElement(
+                    'div',
+                    { style: menu.header.container },
+                    React.createElement(
+                        'span',
+                        { style: menu.header.title },
+                        pydio.MessageHash['settings.topbar.title']
+                    ),
+                    React.createElement(IconButton, {
+                        iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
+                        style: { padding: 14 },
+                        iconStyle: { color: 'white', fontSize: 20 },
+                        tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
+                        onTouchTap: function () {
+                            return _this.props.toggleAdvanced();
+                        }
+                    }),
+                    React.createElement(UserWidget, {
+                        pydio: pydio,
+                        style: menu.header.userWidget,
+                        hideActionBar: true,
+                        displayLabel: false,
+                        toolbars: ["aUser", "user", "zlogin"],
+                        controller: pydio.getController()
+                    })
+                ),
                 React.createElement(AdminMenu, this.props)
             );
         }
@@ -17521,247 +17500,7 @@ var AdminLeftNav = (function (_React$Component) {
 exports['default'] = AdminLeftNav;
 module.exports = exports['default'];
 
-},{"../util/MenuItemListener":45,"../util/NavigationHelper":47,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],26:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var DynamicGrid = _Pydio$requireLib.DynamicGrid;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
-
-var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
-
-var AdvancedDashboard = (function (_React$Component) {
-    _inherits(AdvancedDashboard, _React$Component);
-
-    function AdvancedDashboard() {
-        _classCallCheck(this, AdvancedDashboard);
-
-        _get(Object.getPrototypeOf(AdvancedDashboard.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(AdvancedDashboard, [{
-        key: 'getDefaultCards',
-        value: function getDefaultCards() {
-
-            var getMessageFunc = this.props.getMessage;
-
-            return [
-            /*
-            {
-                id:'welcome_panel',
-                componentClass:'AdminComponents.WelcomePanel',
-                props:{},
-                defaultPosition:{
-                    x:0, y:0
-                }
-            },
-            */
-            {
-                id: 'quick_links',
-                componentClass: 'AdminComponents.QuickLinks',
-                props: {},
-                defaultPosition: {
-                    x: 0, y: 0
-                }
-            }, {
-                id: 'connections_today',
-                componentClass: 'AdminComponents.GraphBadge',
-                props: {
-                    queryName: "LoginSuccess",
-                    legend: getMessageFunc('home.57'),
-                    frequency: "D",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 0, y: 1
-                }
-            }, {
-                id: 'downloads_today',
-                componentClass: 'AdminComponents.GraphBadge',
-                props: {
-                    queryName: "ObjectGet",
-                    legend: getMessageFunc('home.58'),
-                    frequency: "D",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 2, y: 1
-                }
-            }, {
-                id: 'uploads_this_week',
-                componentClass: 'AdminComponents.GraphBadge',
-                props: {
-                    queryName: "ObjectPut",
-                    legend: getMessageFunc('home.59'),
-                    frequency: "D",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 4, y: 1
-                }
-            }, {
-                id: 'sharedfiles_per_today',
-                componentClass: 'AdminComponents.GraphBadge',
-                props: {
-                    queryName: "LinkCreated",
-                    legend: getMessageFunc('home.60'),
-                    frequency: "D",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 6, y: 1
-                }
-            },
-            /*
-            {
-                id:'most_active_user_today',
-                componentClass:'AdminComponents.MostActiveBadge',
-                props:{
-                    type:"user",
-                    legend:getMessageFunc('home.61'),
-                    range:"last_day"
-                },
-                defaultPosition:{
-                    x:0, y:6
-                }
-            },
-            {
-                id:'most_active_ip_last_week',
-                componentClass:'AdminComponents.MostActiveBadge',
-                props:{
-                    type:"ip",
-                    legend:getMessageFunc('home.62'),
-                    range:"last_week"
-                },
-                defaultPosition:{
-                    x:2, y:6
-                }
-            },
-            {
-                id:'most_downloaded_last_week',
-                componentClass:'AdminComponents.MostActiveBadge',
-                props:{
-                    type:"action",
-                    legend:getMessageFunc('home.63'),
-                    range:"last_week",
-                    actionName:"download"
-                },
-                defaultPosition:{
-                    x:4, y:6
-                }
-            },
-            {
-                id:'most_previewed_last_week',
-                componentClass:'AdminComponents.MostActiveBadge',
-                props:{
-                    type:"action",
-                    legend:getMessageFunc('home.64'),
-                    range:"last_week",
-                    actionName:"preview"
-                },
-                defaultPosition:{
-                    x:6, y:6
-                }
-            },
-            */
-            {
-                id: 'files_activity',
-                componentClass: 'AdminComponents.GraphCard',
-                props: {
-                    title: getMessageFunc('home.65'),
-                    queryName: "ObjectGet,ObjectPut,LinkCreated",
-                    frequency: "H",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 0, y: 12
-                }
-            }, {
-                id: 'webconnections_graph',
-                componentClass: 'AdminComponents.GraphCard',
-                props: {
-                    title: getMessageFunc('home.66'),
-                    queryName: "LoginSuccess",
-                    frequency: "H",
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 4, y: 12
-                }
-            }, {
-                id: 'recent_logs',
-                componentClass: 'AdminComponents.RecentLogs',
-                props: {
-                    interval: 60
-                },
-                defaultPosition: {
-                    x: 0, y: 26
-                }
-            }, {
-                id: 'services_status',
-                componentClass: 'AdminComponents.ServicesStatus',
-                props: {
-                    interval: 120
-                },
-                defaultPosition: {
-                    x: 3, y: 26
-                }
-            }, {
-                id: 'todo_list',
-                componentClass: 'AdminComponents.ToDoList',
-                defaultPosition: {
-                    x: 6, y: 26
-                }
-            }];
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-
-            return _react2['default'].createElement(DynamicGrid, {
-                storeNamespace: 'AdminHome.AdvancedDashboard',
-                builderNamespaces: ['AdminComponents'],
-                defaultCards: this.getDefaultCards(),
-                pydio: this.props.pydio,
-                style: { height: '100%' },
-                rglStyle: { position: 'absolute', top: 6, left: 6, right: 6, bottom: 6 },
-                disableEdit: true
-            });
-        }
-    }]);
-
-    return AdvancedDashboard;
-})(_react2['default'].Component);
-
-exports['default'] = AdvancedDashboard = PydioContextConsumer(AdvancedDashboard);
-exports['default'] = AdvancedDashboard;
-module.exports = exports['default'];
-
-},{"pydio":"pydio","react":"react"}],27:[function(require,module,exports){
+},{"../styles/AdminStyles":28,"../util/MenuItemListener":33,"../util/NavigationHelper":35,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17787,91 +17526,590 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _materialUi = require('material-ui');
 
 var _utilMixins = require('../util/Mixins');
 
-var GroupAdminDashboard = _react2['default'].createClass({
-    displayName: 'GroupAdminDashboard',
+var _lodashShuffle = require('lodash.shuffle');
+
+var _lodashShuffle2 = _interopRequireDefault(_lodashShuffle);
+
+var _stylesHeader = require('../styles/Header');
+
+var _stylesHeader2 = _interopRequireDefault(_stylesHeader);
+
+var _stylesAdminStyles = require("../styles/AdminStyles");
+
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
+
+var Dashboard = _react2['default'].createClass({
+    displayName: 'Dashboard',
 
     mixins: [_utilMixins.MessagesConsumerMixin],
 
-    renderLink: function renderLink(node) {
+    getInitialState: function getInitialState() {
+        return { kb: [] };
+    },
 
-        var label = _react2['default'].createElement(
-            'span',
-            null,
-            _react2['default'].createElement('span', { className: node.iconClass + ' button-icon' }),
-            ' ',
-            node.label
-        );
-        return _react2['default'].createElement(
-            'span',
-            { style: { display: 'inline-block', margin: '0 5px' } },
-            _react2['default'].createElement(_materialUi.RaisedButton, {
-                key: node.path,
-                secondary: true,
-                onTouchTap: function () {
-                    pydio.goTo(node.path);
-                },
-                label: label
-            })
-        );
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        PydioApi.getClient().loadFile('plug/access.settings/res/i18n/kb.json', function (transport) {
+            var data = transport.responseJSON;
+            _this.setState({ kb: data });
+        });
+    },
+
+    getOpenIcon: function getOpenIcon(link) {
+        return _react2['default'].createElement(_materialUi.IconButton, {
+            iconClassName: 'mdi mdi-arrow-right',
+            iconStyle: { color: 'rgba(0,0,0,.33)' },
+            tooltip: 'Open in new window',
+            tooltipPosition: 'bottom-left',
+            onTouchTap: function () {
+                window.open(link);
+            }
+        });
+    },
+
+    getDocButton: function getDocButton(icon, message, link) {
+        var props = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+        var icProps = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
+
+        return _react2['default'].createElement(_materialUi.FlatButton, _extends({
+            key: message,
+            label: message,
+            primary: true,
+            icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-" + icon }, icProps)),
+            onTouchTap: function () {
+                window.open(link);
+            }
+        }, props));
+    },
+
+    welcomeClick: function welcomeClick(e) {
+        if (e.target.getAttribute('data-path')) {
+            var p = e.target.getAttribute('data-path');
+            if (p === '/plugins/manager') {
+                p = '/parameters/manager';
+            }
+            this.props.pydio.goTo(p);
+        }
     },
 
     render: function render() {
+        var _this2 = this;
 
-        var baseNodes = [{
-            path: '/idm/users',
-            label: this.context.getMessage('249', ''),
-            iconClass: 'icon-user'
-        }, {
-            path: '/data/workspaces',
-            label: this.context.getMessage('250', ''),
-            iconClass: 'icon-hdd'
-        }];
-        return _react2['default'].createElement(
-            'div',
-            { style: { width: '100%', height: '100%' } },
+        var verticalFlex = { display: 'flex', flexDirection: 'column', height: '100%' };
+        var flexFill = { flex: 1 };
+        var flexContainerStyle = _extends({}, verticalFlex);
+        var accent2Color = this.props.muiTheme.palette.accent2Color;
+
+        var adminStyles = (0, _stylesAdminStyles2['default'])(this.props.muiTheme.palette);
+        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
+        var flatProps = _extends({}, adminStyles.props.header.flatButton);
+        var icProps = {
+            color: adminStyles.props.header.flatButton.labelStyle.color,
+            style: { fontSize: 20 }
+        };
+
+        var pydio = this.props.pydio;
+
+        var message = function message(id) {
+            return pydio.MessageHash['admin_dashboard.' + id];
+        };
+
+        // ADMIN GUIDE BUTTONS
+        var guidesButtons = [{ icon: 'clock-start', id: 'start', link: 'https://pydio.com/en/docs/cells/v2/quick-admin-tour' }, { icon: 'network', id: 'ws', link: 'https://pydio.com/en/docs/cells/v2/workspaces-cells' }, { icon: 'account-multiple', id: 'users', link: 'https://pydio.com/en/docs/cells/v2/users-roles-and-groups' }, { icon: 'professional-hexagon', id: 'advanced', link: 'https://pydio.com/en/docs/cells/v2/advanced' }];
+
+        // DOCS LIST
+        var kbItems = [];
+        (0, _lodashShuffle2['default'])(this.state.kb).forEach(function (object) {
+            kbItems.push(_react2['default'].createElement(_materialUi.ListItem, { key: object.title, primaryText: object.title, secondaryText: object.desc, rightIconButton: _this2.getOpenIcon(object.link), secondaryTextLines: 2, disabled: true }));
+            kbItems.push(_react2['default'].createElement(_materialUi.Divider, { key: object.title + '-divider' }));
+        });
+        // Remove last divider
+        if (kbItems.length) {
+            kbItems.pop();
+        }
+
+        var WELCOME_COMMUNITY_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { zDepth: 0, style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, style: { margin: 10 } },
+                'div',
+                { style: adminStyles.body.block.headerFull },
+                message('welc.subtitle')
+            ),
+            _react2['default'].createElement(
+                _materialUi.CardText,
+                { style: flexFill },
+                _react2['default'].createElement('style', { dangerouslySetInnerHTML: { __html: '.doc-link{color: ' + accent2Color + ';cursor: pointer;text-decoration:underline;}' } }),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: 10 } },
-                    this.context.getMessage('home.67')
+                    { style: { lineHeight: '1.6em' } },
+                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.intro') }, onClick: this.welcomeClick }),
+                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.import') }, onClick: this.welcomeClick })
                 ),
                 _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10, textAlign: 'center' } },
-                    baseNodes.map((function (n) {
-                        return this.renderLink(n);
-                    }).bind(this)),
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.FlatButton, {
-                        label: this.context.getMessage('home.68'),
-                        secondary: true,
-                        onTouchTap: function () {
-                            pydio.triggerRepositoryChange("homepage");
-                        }
-                    })
+                    'p',
+                    { style: { fontSize: 14 } },
+                    message('welc.guide')
                 )
+            ),
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
+                { style: { textAlign: 'right' } },
+                guidesButtons.map(function (object) {
+                    return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link, flatProps, icProps);
+                })
+            )
+        );
+
+        var PAY_IT_FORWARD_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { zDepth: 0, style: paperStyle, containerStyle: flexContainerStyle },
+            _react2['default'].createElement(_materialUi.CardTitle, { title: message('cont.title'), subtitle: message('cont.subtitle') }),
+            _react2['default'].createElement(
+                _materialUi.CardText,
+                { style: flexFill },
+                _react2['default'].createElement('div', { className: 'mdi mdi-github-circle', style: { fontSize: 60, display: 'inline-block', float: 'left', marginRight: 10, marginBottom: 10 } }),
+                message('cont.intro'),
+                _react2['default'].createElement(
+                    _materialUi.List,
+                    null,
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report'), rightIconButton: this.getOpenIcon('https://forum.pydio.com/') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report.2'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.pr'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.translate'), rightIconButton: this.getOpenIcon('https://pydio.com/en/community/contribute/adding-translation-pydio') })
+                )
+            ),
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
+                { style: { textAlign: 'right' } },
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-github-box' }, icProps)), onTouchTap: function () {
+                        window.open('https://github.com/pydio/cells');
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-twitter-box' }, icProps)), onTouchTap: function () {
+                        window.open('https://twitter.com/Pydio');
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-facebook-box' }, icProps)), onTouchTap: function () {
+                        window.open('https://facebook.com/Pydio/');
+                    } }, flatProps))
+            )
+        );
+
+        var DISCOVER_ENTERPRISE_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { zDepth: 0, style: paperStyle, containerStyle: flexContainerStyle },
+            _react2['default'].createElement(
+                _materialUi.CardMedia,
+                {
+                    overlay: _react2['default'].createElement(_materialUi.CardTitle, { title: message('ent.title'), subtitle: message('ent.subtitle') })
+                },
+                _react2['default'].createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
+            ),
+            _react2['default'].createElement(
+                _materialUi.List,
+                { style: flexFill },
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-certificate' }), primaryText: message('ent.features'), secondaryText: message('ent.features.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-chart-areaspline' }), primaryText: message('ent.advanced'), secondaryText: message('ent.advanced.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: message('ent.support'), secondaryText: message('ent.support.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-download' }), onTouchTap: function () {
+                        pydio.goTo('/admin/update');
+                    }, primaryText: _react2['default'].createElement(
+                        'span',
+                        { style: { color: 'rgb(1, 141, 204)' } },
+                        message('ent.upgrade')
+                    ), secondaryText: message('ent.upgrade.legend') })
+            ),
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
+                { style: { textAlign: 'right' } },
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "icomoon-cells" }, icProps)), primary: true, onTouchTap: function () {
+                        window.open('https://pydio.com/en/features/pydio-cells-overview');
+                    } }, flatProps)),
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-domain" }, icProps)), primary: true, onTouchTap: function () {
+                        window.open('https://pydio.com/en/pricing/contact');
+                    } }, flatProps))
+            )
+        );
+
+        var websiteButton = _react2['default'].createElement(_materialUi.IconButton, _extends({
+            iconClassName: "icomoon-cells",
+            onTouchTap: function () {
+                window.open('https://pydio.com');
+            },
+            tooltip: pydio.MessageHash['settings.topbar.button.about'],
+            tooltipPosition: "bottom-left"
+        }, adminStyles.props.header.iconButton));
+
+        return _react2['default'].createElement(
+            'div',
+            { className: "main-layout-nav-to-stack vertical-layout" },
+            _react2['default'].createElement(_stylesHeader2['default'], {
+                title: message('welc.title'),
+                icon: 'mdi mdi-view-dashboard',
+                actions: [websiteButton]
+            }),
+            _react2['default'].createElement(
+                'div',
+                { className: "layout-fill", style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap', padding: 5 } },
+                WELCOME_COMMUNITY_CARD,
+                DISCOVER_ENTERPRISE_CARD,
+                PAY_IT_FORWARD_CARD
             )
         );
     }
 
 });
 
-exports['default'] = GroupAdminDashboard;
+exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);
+exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../util/Mixins":46,"material-ui":"material-ui","react":"react"}],28:[function(require,module,exports){
+},{"../styles/AdminStyles":28,"../styles/Header":29,"../util/Mixins":34,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],27:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _boardAdminDashboard = require('./board/AdminDashboard');
+
+var _boardAdminDashboard2 = _interopRequireDefault(_boardAdminDashboard);
+
+var _boardSimpleDashboard = require('./board/SimpleDashboard');
+
+var _boardSimpleDashboard2 = _interopRequireDefault(_boardSimpleDashboard);
+
+var _utilMixins = require('./util/Mixins');
+
+var _utilNavigationHelper = require('./util/NavigationHelper');
+
+var _utilNavigationHelper2 = _interopRequireDefault(_utilNavigationHelper);
+
+var _utilMenuItemListener = require('./util/MenuItemListener');
+
+var _utilMenuItemListener2 = _interopRequireDefault(_utilMenuItemListener);
+
+var _utilDNDActionsManager = require('./util/DNDActionsManager');
+
+var _utilDNDActionsManager2 = _interopRequireDefault(_utilDNDActionsManager);
+
+var _utilCodeMirrorField = require('./util/CodeMirrorField');
+
+var _utilCodeMirrorField2 = _interopRequireDefault(_utilCodeMirrorField);
+
+var _utilPluginsLoader = require('./util/PluginsLoader');
+
+var _utilPluginsLoader2 = _interopRequireDefault(_utilPluginsLoader);
+
+var _utilQuotaField = require('./util/QuotaField');
+
+var _utilQuotaField2 = _interopRequireDefault(_utilQuotaField);
+
+var _stylesAdminStyles = require('./styles/AdminStyles');
+
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
+
+var _stylesHeader = require('./styles/Header');
+
+var _stylesHeader2 = _interopRequireDefault(_stylesHeader);
+
+var _stylesSubHeader = require('./styles/SubHeader');
+
+var _stylesSubHeader2 = _interopRequireDefault(_stylesSubHeader);
+
+window.AdminComponents = {
+  AdminDashboard: _boardAdminDashboard2['default'],
+  SimpleDashboard: _boardSimpleDashboard2['default'],
+
+  MessagesConsumerMixin: _utilMixins.MessagesConsumerMixin,
+  PydioConsumerMixin: _utilMixins.PydioConsumerMixin,
+  NavigationHelper: _utilNavigationHelper2['default'],
+  MenuItemListener: _utilMenuItemListener2['default'],
+  DNDActionsManager: _utilDNDActionsManager2['default'],
+  PluginsLoader: _utilPluginsLoader2['default'],
+  CodeMirrorField: _utilCodeMirrorField2['default'],
+  QuotaField: _utilQuotaField2['default'],
+
+  AdminStyles: _stylesAdminStyles2['default'],
+  Header: _stylesHeader2['default'],
+  SubHeader: _stylesSubHeader2['default']
+};
+
+},{"./board/AdminDashboard":24,"./board/SimpleDashboard":26,"./styles/AdminStyles":28,"./styles/Header":29,"./styles/SubHeader":30,"./util/CodeMirrorField":31,"./util/DNDActionsManager":32,"./util/MenuItemListener":33,"./util/Mixins":34,"./util/NavigationHelper":35,"./util/PluginsLoader":36,"./util/QuotaField":37}],28:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var ellispsis = {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+};
+
+var cssStyle = '\n.react-mui-context .main-layout-nav-to-stack .pydio-form-panel.row-flex .pydio-form-group {\n    box-shadow: none !important;\n    border-radius: 6px !important;\n    border: 1px solid rgba(30, 58, 74, 0.14);\n}\n\n.react-mui-context .pydio-form-panel>.pydio-form-group .pydio-form-group {\n    border-width: 0 !important;\n}\n\n.react-mui-context .pydio-form-panel.row-flex>.pydio-form-group>h3 {\n    background-color:#fbfbfc;\n    color:#607D8B;\n    border-bottom: 1px solid #eceff1;\n}\n';
+
+function cssFormStyle() {
+    return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle } });
+}
+
+exports['default'] = function () {
+    var palette = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    return {
+        props: {
+            leftNav: {
+                zDepth: 0,
+                rounded: false
+            },
+            header: {
+                flatButton: {
+                    backgroundColor: palette.primary1Color,
+                    hoverColor: palette.accent2Color,
+                    labelStyle: {
+                        color: 'white'
+                    },
+                    style: {
+                        height: 34,
+                        lineHeight: '34px'
+                    }
+                },
+                flatButtonDisabled: {
+                    backgroundColor: '#e0e0e0',
+                    labelStyle: {
+                        color: 'white'
+                    },
+                    style: {
+                        height: 34,
+                        lineHeight: '34px'
+                    }
+                },
+                iconButton: {
+                    iconStyle: {
+                        color: palette.primary1Color
+                    }
+                }
+            }
+        },
+        menu: {
+            header: {
+                container: {
+                    backgroundColor: 'rgb(50, 74, 87)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: 64,
+                    width: 256,
+                    boxShadow: 'rgba(0, 0, 0, 0.2) 0px 1px 2px',
+                    position: 'fixed',
+                    zIndex: 100
+                },
+                title: {
+                    fontSize: 18,
+                    fontWeight: 500,
+                    color: 'white',
+                    flex: 1,
+                    paddingLeft: 24
+                },
+                userWidget: {
+                    height: 56,
+                    lineHeight: '16px',
+                    backgroundColor: 'transparent',
+                    boxShadow: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: 'auto',
+                    marginRight: 10,
+                    zoom: 0.8
+                }
+            },
+            leftNav: {
+                backgroundColor: '#1F3B4A',
+                position: 'fixed',
+                width: 256,
+                top: 0,
+                bottom: 0,
+                zIndex: 9,
+                overflow: 'hidden'
+            },
+            listStyle: {
+                backgroundColor: 'transparent',
+                display: 'block',
+                maxWidth: 256,
+                overflowY: 'auto',
+                position: 'absolute',
+                top: 64,
+                bottom: 0
+            },
+            menuItem: {
+                fontSize: 13,
+                padding: '3px 0px',
+                color: 'rgba(255,255,255,0.73)'
+            },
+            menuLabel: _extends({
+                opacity: 0.9
+            }, ellispsis),
+            flag: {
+                display: 'inline',
+                backgroundColor: palette.accent1Color,
+                color: 'white',
+                height: 22,
+                borderRadius: 10,
+                padding: '0 5px',
+                marginLeft: 5
+            },
+            subHeader: {
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.25)'
+            },
+            /*textTransform: 'uppercase'*/
+            iconStyle: {
+                height: 20,
+                width: 20,
+                top: 0,
+                fontSize: 20,
+                transition: 'none',
+                color: 'inherit' /*'rgba(255,255,255,0.73)'*/
+            }
+        },
+        body: {
+            mainPanel: {
+                position: 'absolute',
+                top: 0,
+                left: 256, // can be changed by leftDocked state
+                right: 0,
+                bottom: 0,
+                backgroundColor: '#eceff1'
+            },
+            block: {
+                container: {
+                    border: '1px solid rgba(30, 58, 74, 0.14)',
+                    borderRadius: 6,
+                    margin: 16,
+                    overflow: 'hidden'
+                },
+                header: {
+                    backgroundColor: '#fbfbfc',
+                    color: '#607D8B'
+                },
+                headerFull: {
+                    backgroundColor: '#fbfbfc',
+                    color: '#607D8B',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    borderBottom: '1px solid #eceff1',
+                    height: 48,
+                    lineHeight: '48px',
+                    padding: '0 16px'
+                },
+                props: {
+                    zDepth: 0,
+                    style: {
+                        border: '1px solid rgba(30, 58, 74, 0.14)',
+                        borderRadius: 6,
+                        margin: 16,
+                        overflow: 'hidden'
+                    }
+                }
+            },
+            legend: {
+                color: 'rgba(31, 58, 74, 0.74)',
+                fontStyle: 'italic'
+            },
+            lineColor: '#eceff1',
+            tableMaster: {
+                row: {
+                    borderBottomColor: '#eceff1'
+                },
+                head: {
+                    backgroundColor: '#fbfbfc',
+                    color: '#607D8B'
+                },
+                expanderRow: {
+                    backgroundColor: '#e0e0e0',
+                    fontWeight: 500,
+                    borderLeft: '2px solid #1e96f3'
+                },
+                expandedRow: {
+                    borderLeft: '2px solid #1e96f3'
+                }
+            }
+        },
+        formCss: cssFormStyle
+    };
+};
+
+module.exports = exports['default'];
+
+},{"react":"react"}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17920,6 +18158,10 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
+var _AdminStyles = require("./AdminStyles");
+
+var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
+
 var Header = (function (_Component) {
     _inherits(Header, _Component);
 
@@ -17946,20 +18188,24 @@ var Header = (function (_Component) {
             var muiTheme = _props.muiTheme;
             var editorMode = _props.editorMode;
 
+            var adminStyles = (0, _AdminStyles2['default'])(muiTheme.palette);
+
             var styles = {
                 base: {
                     padding: '0 16px',
-                    borderBottom: '1px solid #e0e0e0',
-                    backgroundColor: 'transparent'
+                    backgroundColor: '#ffffff',
+                    boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 2px',
+                    zIndex: 10
                 },
                 container: {
                     display: 'flex',
                     width: '100%',
-                    height: 63,
+                    paddingLeft: 12,
+                    height: 64,
                     alignItems: 'center'
                 },
                 title: {
-                    fontSize: 20,
+                    fontSize: 18,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
@@ -17995,8 +18241,8 @@ var Header = (function (_Component) {
                         marginRight: 5
                     },
                     tabActive: {
-                        borderBottom: '2px solid ' + muiTheme.palette.primary1Color,
-                        color: muiTheme.palette.primary1Color
+                        borderBottom: '2px solid ' + muiTheme.palette.primary2Color,
+                        color: muiTheme.palette.primary2Color
                     }
                 }
             };
@@ -18035,7 +18281,7 @@ var Header = (function (_Component) {
             }
             var reloadButton = undefined;
             if (reloadAction) {
-                reloadButton = React.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-reload", onTouchTap: reloadAction });
+                reloadButton = React.createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-reload", onTouchTap: reloadAction }, adminStyles.props.header.iconButton));
             }
 
             var headTitle = React.createElement(
@@ -18064,6 +18310,13 @@ var Header = (function (_Component) {
                     })
                 );
             }
+            var actionButtons = actions;
+            if (!actionButtons) {
+                actionButtons = [];
+            } else if (!actionButtons.map) {
+                actionButtons = [actionButtons];
+            }
+
             return React.createElement(
                 _materialUi.Paper,
                 { style: scrolling ? styles.scrolling : styles.base, zDepth: scrolling ? 1 : 0 },
@@ -18074,13 +18327,19 @@ var Header = (function (_Component) {
                     headTitle,
                     React.createElement(
                         'div',
-                        { style: { flex: 1 } },
+                        { style: { flex: 1, marginRight: centerContent ? 8 : 0 } },
                         centerContent
                     ),
                     React.createElement(
                         'div',
-                        { style: { display: 'flex', alignItems: 'center' } },
-                        actions,
+                        { style: { display: 'flex', alignItems: 'center', marginTop: -2 } },
+                        actionButtons.map(function (a) {
+                            return React.createElement(
+                                'div',
+                                { style: { margin: '0 8px' } },
+                                a
+                            );
+                        }),
                         !loading && reloadButton,
                         loading && React.createElement(_materialUi.RefreshIndicator, {
                             size: 30,
@@ -18102,259 +18361,7 @@ exports['default'] = Header = (0, _materialUiStyles.muiThemeable)()(Header);
 exports['default'] = Header;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/dom":"pydio/util/dom","react":"react"}],29:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _materialUi = require('material-ui');
-
-var _utilMixins = require('../util/Mixins');
-
-var _lodashShuffle = require('lodash.shuffle');
-
-var _lodashShuffle2 = _interopRequireDefault(_lodashShuffle);
-
-var Dashboard = _react2['default'].createClass({
-    displayName: 'Dashboard',
-
-    mixins: [_utilMixins.MessagesConsumerMixin],
-
-    getInitialState: function getInitialState() {
-        return { kb: [] };
-    },
-
-    componentDidMount: function componentDidMount() {
-        var _this = this;
-
-        PydioApi.getClient().loadFile('plug/access.settings/res/i18n/kb.json', function (transport) {
-            var data = transport.responseJSON;
-            _this.setState({ kb: data });
-        });
-    },
-
-    getOpenIcon: function getOpenIcon(link) {
-        return _react2['default'].createElement(_materialUi.IconButton, {
-            iconClassName: 'mdi mdi-arrow-right',
-            iconStyle: { color: 'rgba(0,0,0,.33)' },
-            tooltip: 'Open in new window',
-            tooltipPosition: 'bottom-left',
-            onTouchTap: function () {
-                window.open(link);
-            }
-        });
-    },
-
-    getDocButton: function getDocButton(icon, message, link) {
-        return _react2['default'].createElement(_materialUi.FlatButton, {
-            key: message,
-            label: message,
-            primary: true,
-            icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + icon }),
-            onTouchTap: function () {
-                window.open(link);
-            } });
-    },
-
-    welcomeClick: function welcomeClick(e) {
-        if (e.target.getAttribute('data-path')) {
-            var p = e.target.getAttribute('data-path');
-            if (p === '/plugins/manager') {
-                p = '/parameters/manager';
-            }
-            this.props.pydio.goTo(p);
-        }
-    },
-
-    render: function render() {
-        var _this2 = this;
-
-        var verticalFlex = { display: 'flex', flexDirection: 'column', height: '100%' };
-        var flexFill = { flex: 1 };
-        var paperStyle = { flex: 1, minWidth: 450, margin: 5 };
-        var flexContainerStyle = _extends({}, verticalFlex);
-        var accent2Color = this.props.muiTheme.palette.accent2Color;
-        var pydio = this.props.pydio;
-
-        var message = function message(id) {
-            return pydio.MessageHash['admin_dashboard.' + id];
-        };
-
-        // ADMIN GUIDE BUTTONS
-        var guidesButtons = [{ icon: 'clock-start', id: 'start', link: 'https://pydio.com/en/docs/cells/v2/quick-admin-tour' }, { icon: 'network', id: 'ws', link: 'https://pydio.com/en/docs/cells/v2/workspaces-cells' }, { icon: 'account-multiple', id: 'users', link: 'https://pydio.com/en/docs/cells/v2/users-roles-and-groups' }, { icon: 'professional-hexagon', id: 'advanced', link: 'https://pydio.com/en/docs/cells/v2/advanced' }];
-
-        // DOCS LIST
-        var kbItems = [];
-        (0, _lodashShuffle2['default'])(this.state.kb).forEach(function (object) {
-            kbItems.push(_react2['default'].createElement(_materialUi.ListItem, { key: object.title, primaryText: object.title, secondaryText: object.desc, rightIconButton: _this2.getOpenIcon(object.link), secondaryTextLines: 2, disabled: true }));
-            kbItems.push(_react2['default'].createElement(_materialUi.Divider, { key: object.title + '-divider' }));
-        });
-        // Remove last divider
-        if (kbItems.length) {
-            kbItems.pop();
-        }
-
-        var WELCOME_COMMUNITY_CARD = _react2['default'].createElement(
-            _materialUi.Card,
-            { style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
-            _react2['default'].createElement(_materialUi.CardTitle, {
-                title: message('welc.title'),
-                subtitle: message('welc.subtitle')
-            }),
-            _react2['default'].createElement(
-                _materialUi.CardText,
-                { style: flexFill },
-                _react2['default'].createElement('style', { dangerouslySetInnerHTML: { __html: '.doc-link{color: ' + accent2Color + ';cursor: pointer;text-decoration:underline;}' } }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { lineHeight: '1.6em' } },
-                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.intro') }, onClick: this.welcomeClick }),
-                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.import') }, onClick: this.welcomeClick })
-                ),
-                _react2['default'].createElement(
-                    'p',
-                    { style: { fontSize: 14 } },
-                    message('welc.guide')
-                )
-            ),
-            _react2['default'].createElement(_materialUi.Divider, null),
-            _react2['default'].createElement(
-                _materialUi.CardActions,
-                { style: { textAlign: 'right' } },
-                guidesButtons.map(function (object) {
-                    return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
-                })
-            )
-        );
-
-        var PAY_IT_FORWARD_CARD = _react2['default'].createElement(
-            _materialUi.Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
-            _react2['default'].createElement(_materialUi.CardTitle, { title: message('cont.title'), subtitle: message('cont.subtitle') }),
-            _react2['default'].createElement(
-                _materialUi.CardText,
-                { style: flexFill },
-                _react2['default'].createElement('div', { className: 'mdi mdi-github-circle', style: { fontSize: 60, display: 'inline-block', float: 'left', marginRight: 10, marginBottom: 10 } }),
-                message('cont.intro'),
-                _react2['default'].createElement(
-                    _materialUi.List,
-                    null,
-                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report'), rightIconButton: this.getOpenIcon('https://forum.pydio.com/') }),
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report.2'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.pr'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.translate'), rightIconButton: this.getOpenIcon('https://pydio.com/en/community/contribute/adding-translation-pydio') })
-                )
-            ),
-            _react2['default'].createElement(_materialUi.Divider, null),
-            _react2['default'].createElement(
-                _materialUi.CardActions,
-                { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-github-box' }), onTouchTap: function () {
-                        window.open('https://github.com/pydio/cells');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-twitter-box' }), onTouchTap: function () {
-                        window.open('https://twitter.com/Pydio');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-facebook-box' }), onTouchTap: function () {
-                        window.open('https://facebook.com/Pydio/');
-                    } })
-            )
-        );
-
-        var DISCOVER_ENTERPRISE_CARD = _react2['default'].createElement(
-            _materialUi.Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
-            _react2['default'].createElement(
-                _materialUi.CardMedia,
-                {
-                    overlay: _react2['default'].createElement(_materialUi.CardTitle, { title: message('ent.title'), subtitle: message('ent.subtitle') })
-                },
-                _react2['default'].createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
-            ),
-            _react2['default'].createElement(
-                _materialUi.List,
-                { style: flexFill },
-                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-certificate' }), primaryText: message('ent.features'), secondaryText: message('ent.features.legend'), disabled: true }),
-                _react2['default'].createElement(_materialUi.Divider, null),
-                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-chart-areaspline' }), primaryText: message('ent.advanced'), secondaryText: message('ent.advanced.legend'), disabled: true }),
-                _react2['default'].createElement(_materialUi.Divider, null),
-                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: message('ent.support'), secondaryText: message('ent.support.legend'), disabled: true }),
-                _react2['default'].createElement(_materialUi.Divider, null),
-                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-download' }), onTouchTap: function () {
-                        pydio.goTo('/admin/update');
-                    }, primaryText: _react2['default'].createElement(
-                        'span',
-                        { style: { color: 'rgb(1, 141, 204)' } },
-                        message('ent.upgrade')
-                    ), secondaryText: message('ent.upgrade.legend') })
-            ),
-            _react2['default'].createElement(_materialUi.Divider, null),
-            _react2['default'].createElement(
-                _materialUi.CardActions,
-                { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }), primary: true, onTouchTap: function () {
-                        window.open('https://pydio.com/en/features/pydio-cells-overview');
-                    } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-domain" }), primary: true, onTouchTap: function () {
-                        window.open('https://pydio.com/en/pricing/contact');
-                    } })
-            )
-        );
-
-        return _react2['default'].createElement(
-            'div',
-            { className: "main-layout-nav-to-stack vertical-layout" },
-            _react2['default'].createElement(
-                'div',
-                { className: "layout-fill", style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap', padding: 5 } },
-                WELCOME_COMMUNITY_CARD,
-                DISCOVER_ENTERPRISE_CARD,
-                PAY_IT_FORWARD_CARD
-            )
-        );
-    }
-
-});
-
-exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);
-exports['default'] = Dashboard;
-module.exports = exports['default'];
-
-},{"../util/Mixins":46,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],30:[function(require,module,exports){
+},{"./AdminStyles":28,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/dom":"pydio/util/dom","react":"react"}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18415,12 +18422,12 @@ var SubHeader = (function (_Component) {
             var muiTheme = _props.muiTheme;
             var titleStyle = _props.titleStyle;
             var legendStyle = _props.legendStyle;
-            var primary1Color = muiTheme.palette.primary1Color;
+            var accent2Color = muiTheme.palette.accent2Color;
 
             var subheaderStyle = _extends({
                 textTransform: 'uppercase',
                 fontSize: 12,
-                color: primary1Color,
+                color: accent2Color,
                 paddingLeft: 20,
                 paddingRight: 20
             }, titleStyle);
@@ -18459,2010 +18466,6 @@ exports['default'] = SubHeader;
 module.exports = exports['default'];
 
 },{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],31:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _SimpleDashboard = require('./SimpleDashboard');
-
-var _SimpleDashboard2 = _interopRequireDefault(_SimpleDashboard);
-
-var _AdvancedDashboard = require('./AdvancedDashboard');
-
-var _AdvancedDashboard2 = _interopRequireDefault(_AdvancedDashboard);
-
-var _Header = require('./Header');
-
-var _Header2 = _interopRequireDefault(_Header);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var TabBoard = (function (_React$Component) {
-    _inherits(TabBoard, _React$Component);
-
-    function TabBoard(props) {
-        _classCallCheck(this, TabBoard);
-
-        _get(Object.getPrototypeOf(TabBoard.prototype), 'constructor', this).call(this, props);
-        this.state = { tab: 'dashboard' };
-    }
-
-    _createClass(TabBoard, [{
-        key: 'onTabChange',
-        value: function onTabChange(value) {
-            var _this = this;
-
-            if (value === 'dashboard') {
-                this.setState({ tab: value });
-            } else if (value === 'audit') {
-                // Load
-                _pydioHttpResourcesManager2['default'].loadClassesAndApply(['AdminLogs'], function () {
-                    _this.setState({ tab: 'audit' });
-                });
-            }
-        }
-    }, {
-        key: 'handleLogToolsChange',
-        value: function handleLogToolsChange(state) {
-            this.setState({ logToolsState: state });
-        }
-    }, {
-        key: 'handleLoadingStatusChange',
-        value: function handleLoadingStatusChange(status) {
-            this.setState({ logsLoading: status });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var tab = _state.tab;
-            var logToolsState = _state.logToolsState;
-            var pydio = this.props.pydio;
-
-            var tabs = [{ Value: 'dashboard', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.dashboard'], Icon: 'mdi mdi-view-dashboard' }, { Value: 'audit', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.activity'], Icon: 'mdi mdi-pulse' }];
-            var buttons = [];
-            if (tab === 'audit') {
-                buttons.push(_react2['default'].createElement(AdminLogs.LogTools, { pydio: pydio, service: 'audit', onStateChange: this.handleLogToolsChange.bind(this) }));
-            }
-
-            var mainContent = undefined;
-            if (tab === 'dashboard') {
-                //mainContent = <SimpleDashboard {...this.props}/>
-                mainContent = _react2['default'].createElement(_AdvancedDashboard2['default'], this.props);
-            } else if (tab === 'audit') {
-                mainContent = _react2['default'].createElement(AdminLogs.Dashboard, _extends({ ref: 'logBoard' }, this.props, logToolsState, { noHeader: true, service: 'audit', onLoadingStatusChange: this.handleLoadingStatusChange.bind(this) }));
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { className: 'main-layout-nav-to-stack vertical-layout workspaces-board' },
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'vertical-layout layout-fill', style: { width: '100%' } },
-                    _react2['default'].createElement(_Header2['default'], {
-                        tabs: tabs,
-                        onTabChange: this.onTabChange.bind(this),
-                        tabValue: tab,
-                        actions: buttons,
-                        reloadAction: tab === 'audit' ? function () {
-                            _this2.refs.logBoard.handleReload();
-                        } : undefined,
-                        loading: this.state.logsLoading
-                    }),
-                    _react2['default'].createElement(
-                        'div',
-                        { className: 'layout-fill' },
-                        mainContent
-                    )
-                )
-            );
-        }
-    }]);
-
-    return TabBoard;
-})(_react2['default'].Component);
-
-exports['default'] = TabBoard;
-module.exports = exports['default'];
-
-},{"./AdvancedDashboard":26,"./Header":28,"./SimpleDashboard":29,"pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],32:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _utilReloadWrapper = require('../util/ReloadWrapper');
-
-var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
-
-var _graphRemoteGraphLine = require('../graph/RemoteGraphLine');
-
-var _graphRemoteGraphLine2 = _interopRequireDefault(_graphRemoteGraphLine);
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-var _require2 = require('material-ui');
-
-var Paper = _require2.Paper;
-
-var _require$requireLib = require('pydio').requireLib('components');
-
-var asGridItem = _require$requireLib.asGridItem;
-
-var GraphBadge = (function (_Component) {
-    _inherits(GraphBadge, _Component);
-
-    function GraphBadge(props, context) {
-        _classCallCheck(this, GraphBadge);
-
-        _get(Object.getPrototypeOf(GraphBadge.prototype), 'constructor', this).call(this, props, context);
-        this.state = { figure: this.props.figure || '-' };
-    }
-
-    _createClass(GraphBadge, [{
-        key: 'triggerReload',
-        value: function triggerReload() {
-            this.refs['chart'].triggerReload();
-        }
-    }, {
-        key: 'onLoadedData',
-        value: function onLoadedData(receivedData, preparedDataSet) {
-            // Count total of all values
-            var figure = 0;
-            try {
-                var data = preparedDataSet[0].data;
-                if (data.length) {
-                    data.map(function (value) {
-                        figure += value;
-                    });
-                }
-            } catch (e) {}
-            if (!figure) figure = '-';
-            this.setState({ figure: figure });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _props = this.props;
-            var style = _props.style;
-            var className = _props.className;
-            var frequency = _props.frequency;
-            var workspaceFilter = _props.workspaceFilter;
-            var filenameFilter = _props.filenameFilter;
-            var closeButton = _props.closeButton;
-            var queryName = _props.queryName;
-            var muiTheme = _props.muiTheme;
-            var legend = _props.legend;
-
-            var containerW = parseInt(style.width);
-            var containerH = parseInt(style.height);
-
-            var chartOptions = {
-                showScale: false,
-                showTooltip: false,
-                showGridLines: false,
-                pointDot: false,
-                bezierCurveTension: 0.3,
-                datasetStrokeWidth: 0,
-                showTooltips: false,
-                responsive: true,
-                maintainAspectRatio: false
-            };
-            var filters = {};
-            if (workspaceFilter && workspaceFilter != -1) {
-                filters["ws_id"] = workspaceFilter;
-            }
-            if (filenameFilter) {
-                filters["filename_filter"] = filenameFilter;
-            }
-
-            return React.createElement(
-                Paper,
-                _extends({
-                    transitionEnabled: false
-                }, this.props, {
-                    className: (className ? className + ' ' : '') + 'graphs-badge',
-                    zDepth: 1,
-                    style: style }),
-                closeButton,
-                React.createElement(
-                    'div',
-                    { className: 'badge-canvas-container' },
-                    React.createElement(_graphRemoteGraphLine2['default'], {
-                        ref: 'chart',
-                        queryName: queryName,
-                        start: 0,
-                        colorIndex: 0,
-                        frequency: frequency,
-                        width: containerW + 10,
-                        height: containerH + 5,
-                        chartOptions: chartOptions,
-                        onDataLoaded: this.onLoadedData.bind(this),
-                        filters: filters
-                    })
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'badge-content', style: { borderLeft: '3px solid ' + muiTheme.palette.primary1Color } },
-                    React.createElement(
-                        'h4',
-                        { className: 'figure' },
-                        this.state.figure
-                    ),
-                    React.createElement(
-                        'div',
-                        { className: 'legend' },
-                        legend
-                    )
-                )
-            );
-        }
-    }]);
-
-    return GraphBadge;
-})(Component);
-
-GraphBadge.propTypes = {
-    queryName: PropTypes.string,
-    defaultInterval: PropTypes.number,
-    figure: PropTypes.number,
-    frequency: PropTypes.string,
-    legend: PropTypes.string,
-    style: PropTypes.object,
-    className: PropTypes.string
-};
-
-var globalMessages = global.pydio.MessageHash;
-var gridData = {
-    gridDimension: {
-        gridWidth: 2,
-        gridHeight: 6
-    },
-    builderDisplayName: globalMessages['ajxp_admin.home.19'],
-    builderFields: [{ name: 'legend', label: globalMessages['ajxp_admin.home.12'], type: 'string', mandatory: true }, { name: 'queryName',
-        label: globalMessages['ajxp_admin.home.21'],
-        type: 'select',
-        choices: '' + 'uploads_per_day|' + globalMessages['ajxp_admin.home.22'] + ',' + 'downloads_per_day|' + globalMessages['ajxp_admin.home.23'] + ',' + 'sharedfiles_per_day|' + globalMessages['ajxp_admin.home.24'] + ',' + 'connections_per_day|' + globalMessages['ajxp_admin.home.25']
-    }, {
-        name: 'frequency',
-        label: globalMessages['ajxp_admin.home.29'],
-        type: 'select',
-        choices: "" + "day|" + globalMessages['ajxp_admin.home.26'] + "," + "week|" + globalMessages['ajxp_admin.home.27'] + "," + "month|" + globalMessages['ajxp_admin.home.28'],
-        'default': 'day',
-        mandatory: true
-    }, { name: 'workspaceFilter', label: globalMessages['ajxp_admin.home.69'], type: 'select', choices: 'AJXP_AVAILABLE_REPOSITORIES', description: globalMessages['ajxp_admin.home.70'] }, { name: 'filenameFilter', label: globalMessages['ajxp_admin.home.71'], description: globalMessages['ajxp_admin.home.72'], type: 'string' }, { name: 'interval', label: globalMessages['ajxp_admin.home.18'], type: 'integer', 'default': 300 }]
-};
-
-exports['default'] = GraphBadge = (0, _utilReloadWrapper2['default'])(GraphBadge);
-exports['default'] = GraphBadge = asGridItem(GraphBadge, gridData.builderDisplayName, gridData.gridDimension, gridData.builderFields);
-exports['default'] = GraphBadge;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/RemoteGraphLine":41,"../util/ReloadWrapper":50,"material-ui":"material-ui","pydio":"pydio","react":"react"}],33:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _utilReloadWrapper = require('../util/ReloadWrapper');
-
-var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
-
-var _graphRemoteGraphLine = require('../graph/RemoteGraphLine');
-
-var _graphRemoteGraphLine2 = _interopRequireDefault(_graphRemoteGraphLine);
-
-var _graphGraphPaginator = require('../graph/GraphPaginator');
-
-var _graphGraphPaginator2 = _interopRequireDefault(_graphGraphPaginator);
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-var _require2 = require('material-ui');
-
-var Paper = _require2.Paper;
-
-var _require$requireLib = require('pydio').requireLib('components');
-
-var asGridItem = _require$requireLib.asGridItem;
-
-var GraphCard = (function (_Component) {
-    _inherits(GraphCard, _Component);
-
-    function GraphCard(props, context) {
-        _classCallCheck(this, GraphCard);
-
-        _get(Object.getPrototypeOf(GraphCard.prototype), 'constructor', this).call(this, props, context);
-        this.state = {
-            start: 0,
-            frequency: this.props.frequency || 'H'
-        };
-    }
-
-    _createClass(GraphCard, [{
-        key: 'triggerReload',
-        value: function triggerReload() {
-            if (this.state.start === 0) {
-                this.refs['chart'].triggerReload();
-            }
-        }
-    }, {
-        key: 'onPaginatorChange',
-        value: function onPaginatorChange(start) {
-            this.setState({ start: start });
-        }
-    }, {
-        key: 'onGraphDataLoaded',
-        value: function onGraphDataLoaded(data) {
-            this.setState({ links: data.links });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var containerW = parseInt(this.props.style.width);
-            var containerH = parseInt(this.props.style.height);
-            var className = (this.props.className ? this.props.className + ' ' : '') + 'graphs-card';
-
-            var filters = this.props.filters || {};
-            if (this.props.workspaceFilter && this.props.workspaceFilter != -1) {
-                filters["ws_id"] = this.props.workspaceFilter;
-            }
-            if (this.props.filenameFilter) {
-                filters["filename_filter"] = this.props.filenameFilter;
-            }
-
-            return React.createElement(
-                Paper,
-                _extends({}, this.props, {
-                    className: className,
-                    zDepth: this.props.zDepth,
-                    transitionEnabled: false }),
-                this.props.closeButton,
-                React.createElement(_graphGraphPaginator2['default'], {
-                    ref: 'paginator',
-                    start: this.state.start,
-                    links: this.state.links,
-                    frequency: this.state.frequency,
-                    onRangeChange: this.onPaginatorChange.bind(this),
-                    onFrequencyChange: function (value) {
-                        return _this.setState({ frequency: value, start: 0 });
-                    },
-                    pickerOnShow: this.props.onFocusItem,
-                    pickerOnDismiss: this.props.onBlurItem
-                }),
-                React.createElement(
-                    'h4',
-                    null,
-                    this.props.title
-                ),
-                React.createElement(
-                    'div',
-                    { style: { margin: 16, maxHeight: 210 } },
-                    React.createElement(_graphRemoteGraphLine2['default'], {
-                        ref: 'chart',
-                        queryName: this.props.queryName,
-                        frequency: this.state.frequency,
-                        filters: filters,
-                        colorIndex: 2,
-                        start: this.state.start,
-                        onDataLoaded: this.onGraphDataLoaded.bind(this),
-                        width: containerW - 40,
-                        height: containerH - 90
-                    })
-                )
-            );
-        }
-    }]);
-
-    return GraphCard;
-})(Component);
-
-GraphCard.displayName = 'GraphCard';
-
-GraphCard.propTypes = {
-    queryName: PropTypes.string,
-    title: PropTypes.string,
-    defaultInterval: PropTypes.number,
-    style: PropTypes.object,
-    className: PropTypes.string,
-    zDepth: PropTypes.number
-};
-
-GraphCard.defaultProps = {
-    style: {
-        width: 540, height: 350, zDepth: 1
-    }
-};
-
-var globalMessages = global.pydio.MessageHash;
-
-var gridData = {
-    gridDimension: {
-        gridWidth: 4,
-        gridHeight: 20
-    },
-    builderDisplayName: globalMessages['ajxp_admin.home.20'],
-    builderFields: [{ name: 'title', label: globalMessages['ajxp_admin.home.30'], type: 'string', mandatory: true }, { name: 'queryName',
-        label: globalMessages['ajxp_admin.home.21'],
-        type: 'select',
-        choices: '' + 'uploads_per_day|' + globalMessages['ajxp_admin.home.22'] + ',' + 'downloads_per_day|' + globalMessages['ajxp_admin.home.23'] + ',' + 'sharedfiles_per_day|' + globalMessages['ajxp_admin.home.24'] + ',' + 'connections_per_day|' + globalMessages['ajxp_admin.home.25']
-    }, { name: 'workspaceFilter', label: globalMessages['ajxp_admin.home.69'], type: 'select', choices: 'AJXP_AVAILABLE_REPOSITORIES', description: globalMessages['ajxp_admin.home.70'] }, { name: 'filenameFilter', label: globalMessages['ajxp_admin.home.71'], description: globalMessages['ajxp_admin.home.72'], type: 'string' }, { name: 'interval', label: globalMessages['ajxp_admin.home.18'], type: 'integer', 'default': 300 }]
-};
-
-exports['default'] = GraphCard = (0, _utilReloadWrapper2['default'])(GraphCard);
-exports['default'] = GraphCard = asGridItem(GraphCard, gridData.builderDisplayName, gridData.gridDimension, gridData.builderFields);
-exports['default'] = GraphCard;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/GraphPaginator":40,"../graph/RemoteGraphLine":41,"../util/ReloadWrapper":50,"material-ui":"material-ui","pydio":"pydio","react":"react"}],34:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _utilNavigationHelper = require('../util/NavigationHelper');
-
-var _utilNavigationHelper2 = _interopRequireDefault(_utilNavigationHelper);
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-var _require2 = require('material-ui');
-
-var DropDownMenu = _require2.DropDownMenu;
-var MenuItem = _require2.MenuItem;
-var FlatButton = _require2.FlatButton;
-var Paper = _require2.Paper;
-var IconButton = _require2.IconButton;
-
-var _require$requireLib = require('pydio').requireLib('components');
-
-var asGridItem = _require$requireLib.asGridItem;
-
-var _require$requireLib2 = require('pydio').requireLib('boot');
-
-var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
-
-var QuickLinks = (function (_Component) {
-    _inherits(QuickLinks, _Component);
-
-    function QuickLinks(props, context) {
-        _classCallCheck(this, QuickLinks);
-
-        _get(Object.getPrototypeOf(QuickLinks.prototype), 'constructor', this).call(this, props, context);
-
-        var preferencesProvider = props.preferencesProvider;
-        var getMessage = props.getMessage;
-
-        if (preferencesProvider) {
-            var links = preferencesProvider.getUserPreference('QuickLinks');
-            if (links && typeof links === "object") {
-                this.state = { links: links, edit: false };
-                return;
-            }
-        }
-
-        this.state = {
-            edit: false,
-            links: [{
-                path: '/idm/users',
-                iconClass: 'mdi mdi-account',
-                label: getMessage('2', 'settings'),
-                description: getMessage('139', 'settings')
-            }, {
-                path: '/data/workspaces',
-                iconClass: 'mdi mdi-network',
-                label: getMessage('3', 'settings'),
-                description: getMessage('138', 'settings')
-            }]
-        };
-    }
-
-    _createClass(QuickLinks, [{
-        key: 'menuClicked',
-        value: function menuClicked(event, index, node) {
-
-            if (node !== -1) {
-                var newLinks = [].concat(_toConsumableArray(this.state.links));
-                var already = false;
-                newLinks.forEach(function (l) {
-                    if (l.path == node.getPath()) already = true;
-                });
-                if (already) return;
-                newLinks.push({
-                    path: node.getPath(),
-                    label: node.getLabel().replace('---', ''),
-                    description: node.getMetadata().get('description'),
-                    iconClass: node.getMetadata().get('icon_class')
-                });
-                if (this.props.preferencesProvider) {
-                    this.props.preferencesProvider.saveUserPreference('QuickLinks', newLinks);
-                }
-                this.setState({ links: newLinks });
-            }
-        }
-    }, {
-        key: 'removeLink',
-        value: function removeLink(payload, event) {
-
-            var links = this.state.links;
-            var newLinks = [];
-            links.map(function (l) {
-                if (l.path != payload) newLinks.push(l);
-            });
-            if (this.props.preferencesProvider) {
-                this.props.preferencesProvider.saveUserPreference('QuickLinks', newLinks);
-            }
-            this.setState({ links: newLinks });
-        }
-    }, {
-        key: 'toggleEdit',
-        value: function toggleEdit() {
-            if (!this.state.edit) {
-                this.props.onFocusItem();
-            } else {
-                this.props.onBlurItem();
-            }
-            this.setState({ edit: !this.state.edit });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _props = this.props;
-            var muiTheme = _props.muiTheme;
-            var pydio = _props.pydio;
-
-            var links = this.state.links.map((function (l) {
-                var label = undefined;
-                if (this.state.edit) {
-                    label = React.createElement(
-                        'span',
-                        { style: { color: '#9e9e9e' } },
-                        React.createElement('span', { className: 'mdi mdi-delete' }),
-                        ' ',
-                        l.label
-                    );
-                    return React.createElement(FlatButton, {
-                        key: l.path,
-                        secondary: false,
-                        onTouchTap: this.removeLink.bind(this, l.path),
-                        label: label
-                    });
-                } else {
-                    label = React.createElement(
-                        'span',
-                        null,
-                        React.createElement('span', { className: l.iconClass + ' button-icon' }),
-                        ' ',
-                        l.label
-                    );
-                    return React.createElement(FlatButton, {
-                        key: l.path,
-                        primary: true,
-                        onTouchTap: function () {
-                            pydio.goTo(l.path);
-                        },
-                        label: label
-                    });
-                }
-            }).bind(this));
-            var dropDown = undefined;
-            if (this.state.edit) {
-                var menuItems = [React.createElement(MenuItem, { primaryText: this.props.getMessage('home.43'), value: '-1' })];
-                var rootNode = pydio.getContextHolder().getRootNode();
-                menuItems = menuItems.concat(_utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, true, true));
-                dropDown = React.createElement(
-                    'div',
-                    null,
-                    React.createElement(
-                        DropDownMenu,
-                        {
-                            style: { marginTop: 6 },
-                            underlineStyle: { display: 'none' },
-                            onChange: this.menuClicked.bind(this),
-                            value: '-1' },
-                        menuItems
-                    )
-                );
-            } else {
-                dropDown = React.createElement(
-                    'h4',
-                    { style: { padding: '15px 6px 0', fontWeight: 500, color: '#9e9e9e', fontSize: 15, textTransform: 'uppercase' } },
-                    this.props.getMessage('home.1')
-                );
-            }
-            return React.createElement(
-                Paper,
-                _extends({}, this.props, {
-                    zDepth: 1,
-                    transitionEnabled: false,
-                    style: _extends({}, this.props.style, { display: 'flex', alignItems: 'center' })
-                }),
-                this.props.closeButton,
-                dropDown,
-                links,
-                React.createElement('span', { style: { flex: 1 } }),
-                React.createElement(IconButton, {
-                    onTouchTap: this.toggleEdit.bind(this),
-                    iconClassName: this.state.edit ? 'icon-ok' : 'mdi mdi-pencil',
-                    secondary: this.state.edit,
-                    iconStyle: { color: "#9e9e9e" }
-                })
-            );
-        }
-    }]);
-
-    return QuickLinks;
-})(Component);
-
-var globalMessages = global.pydio.MessageHash;
-exports['default'] = QuickLinks = PydioContextConsumer(QuickLinks);
-exports['default'] = QuickLinks = asGridItem(QuickLinks, globalMessages["ajxp_admin.home.1"], { gridWidth: 8, gridHeight: 4 }, []);
-exports['default'] = QuickLinks;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/NavigationHelper":47,"material-ui":"material-ui","pydio":"pydio","react":"react"}],35:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _materialUi = require('material-ui');
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _utilReloadWrapper = require('../util/ReloadWrapper');
-
-var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var asGridItem = _Pydio$requireLib.asGridItem;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
-
-var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
-
-var RecentLogs = (function (_Component) {
-    _inherits(RecentLogs, _Component);
-
-    function RecentLogs(props, context) {
-        _classCallCheck(this, RecentLogs);
-
-        _get(Object.getPrototypeOf(RecentLogs.prototype), 'constructor', this).call(this, props, context);
-        this.state = { filter: '', logs: [] };
-    }
-
-    _createClass(RecentLogs, [{
-        key: 'loadLogs',
-        value: function loadLogs() {
-            var _this = this;
-
-            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var request = new _pydioHttpRestApi.LogListLogRequest();
-                request.Query = '';
-                request.Page = 0;
-                request.Size = 20;
-                request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
-                api.audit(request).then(function (result) {
-                    if (result.Logs) {
-                        _this.setState({ logs: result.Logs });
-                    }
-                });
-            });
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.loadLogs();
-        }
-    }, {
-        key: 'changeFilter',
-        value: function changeFilter(value) {
-            this.setState({ filter: value });
-        }
-    }, {
-        key: 'triggerReload',
-        value: function triggerReload() {
-            this.loadLogs();
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var logs = _state.logs;
-            var filter = _state.filter;
-
-            var iconMenuItems = [{ payload: '', text: this.props.getMessage('home.33') }, { payload: 'error', text: this.props.getMessage('home.34') }];
-
-            var dropDown = React.createElement(
-                'div',
-                { style: { position: 'absolute', right: 0, top: 8 } },
-                React.createElement(
-                    _materialUi.IconMenu,
-                    {
-                        value: filter,
-                        onChange: this.changeFilter.bind(this),
-                        anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                        targetOrigin: { horizontal: 'right', vertical: 'top' },
-                        iconButtonElement: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-filter', iconStyle: { color: '#9e9e9e' } })
-                    },
-                    iconMenuItems.map(function (item) {
-                        return React.createElement(_materialUi.MenuItem, { primaryText: item.text, onTouchTap: function () {
-                                _this2.changeFilter(item.payload);
-                            } });
-                    })
-                )
-            );
-
-            var style = _extends({}, this.props.style, {
-                display: 'flex',
-                flexDirection: 'column'
-            });
-
-            return React.createElement(
-                _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false, style: style }),
-                this.props.closeButton,
-                dropDown,
-                React.createElement(
-                    'h4',
-                    null,
-                    this.props.getMessage('home.32')
-                ),
-                React.createElement(
-                    _materialUi.List,
-                    { style: { flex: 1, overflowY: 'auto' } },
-                    logs.map(function (line) {
-                        if (filter && line.Level !== filter) {
-                            return null;
-                        }
-
-                        var sec = (line.UserName ? "By " + line.UserName : "From " + line.RemoteAddress) + " at " + new Date(line.Ts * 1000).toLocaleTimeString();
-                        return React.createElement(_materialUi.ListItem, { primaryText: line.Msg, secondaryText: sec });
-                    })
-                )
-            );
-        }
-    }]);
-
-    return RecentLogs;
-})(_react.Component);
-
-var globalMessages = global.pydio.MessageHash;
-
-exports['default'] = RecentLogs = PydioContextConsumer((0, _utilReloadWrapper2['default'])(RecentLogs));
-exports['default'] = RecentLogs = asGridItem(RecentLogs, globalMessages['ajxp_admin.home.32'], { gridWidth: 3, gridHeight: 26 }, [{ name: 'interval', label: globalMessages['ajxp_admin.home.18'], type: 'integer', 'default': 120 }]);
-
-RecentLogs.displayName = 'RecentLogs';
-exports['default'] = RecentLogs;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":50,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],36:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _utilReloadWrapper = require('../util/ReloadWrapper');
-
-var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _require = require('react');
-
-var Component = _require.Component;
-
-var _require2 = require('material-ui');
-
-var Paper = _require2.Paper;
-var List = _require2.List;
-var ListItem = _require2.ListItem;
-
-var _require$requireLib = require('pydio').requireLib('components');
-
-var asGridItem = _require$requireLib.asGridItem;
-
-var _require$requireLib2 = require('pydio').requireLib('boot');
-
-var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
-
-var ServicesStatus = (function (_Component) {
-    _inherits(ServicesStatus, _Component);
-
-    function ServicesStatus(props, context) {
-        _classCallCheck(this, ServicesStatus);
-
-        _get(Object.getPrototypeOf(ServicesStatus.prototype), 'constructor', this).call(this, props, context);
-        this.state = { services: [] };
-    }
-
-    _createClass(ServicesStatus, [{
-        key: 'loadStatus',
-        value: function loadStatus() {
-            var _this = this;
-
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.listServices().then(function (servicesCollection) {
-                _this.setState({ services: servicesCollection.Services });
-            });
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.loadStatus();
-        }
-    }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            if (this.firstLoad) {
-                clearTimeout(this.firstLoad);
-            }
-        }
-    }, {
-        key: 'triggerReload',
-        value: function triggerReload() {
-            this.loadStatus();
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var services = this.state.services;
-
-            var tags = new Map(),
-                items = [];
-            services.forEach(function (service) {
-                var tag = service.Tag || 'General';
-                if (!tags.has(tag)) {
-                    tags.set(tag, { running: [], stopped: [] });
-                }
-                if (service.Status === 'STARTED') {
-                    tags.get(tag).running.push(service);
-                } else {
-                    tags.get(tag).stopped.push(service);
-                }
-            });
-            tags.forEach(function (v, k) {
-                var tagTitle = k.charAt(0).toUpperCase() + k.substr(1);
-                items.push(React.createElement(ListItem, { primaryText: tagTitle, secondaryText: v.running.length + ' services running, ' + v.stopped.length + ' stopped' }));
-            });
-
-            var style = _extends({}, this.props.style, {
-                display: 'flex',
-                flexDirection: 'column'
-            });
-
-            return React.createElement(
-                Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false, style: style }),
-                this.props.closeButton,
-                React.createElement(
-                    'h4',
-                    null,
-                    this.props.getMessage('home.35')
-                ),
-                React.createElement(
-                    List,
-                    { style: { flex: 1, overflowY: 'auto' } },
-                    items
-                )
-            );
-        }
-    }]);
-
-    return ServicesStatus;
-})(Component);
-
-var globalMessages = global.pydio.MessageHash;
-
-ServicesStatus.displayName = 'ServerStatus';
-exports['default'] = ServicesStatus = PydioContextConsumer((0, _utilReloadWrapper2['default'])(ServicesStatus));
-exports['default'] = ServicesStatus = asGridItem(ServicesStatus, globalMessages['ajxp_admin.home.35'], { gridWidth: 3, gridHeight: 26 }, [{ name: 'interval', label: globalMessages['ajxp_admin.home.18'], type: 'integer', 'default': 20 }]);
-
-exports['default'] = ServicesStatus;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":50,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],37:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _materialUi = require('material-ui');
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var asGridItem = _Pydio$requireLib.asGridItem;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
-
-var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
-
-var globalMessages = global.pydio.MessageHash;
-
-var ToDoList = (function (_Component) {
-    _inherits(ToDoList, _Component);
-
-    function ToDoList(props, context) {
-        _classCallCheck(this, ToDoList);
-
-        _get(Object.getPrototypeOf(ToDoList.prototype), 'constructor', this).call(this, props, context);
-        var _props = this.props;
-        var preferencesProvider = _props.preferencesProvider;
-        var widgetId = _props.widgetId;
-
-        if (preferencesProvider) {
-            var tasks = preferencesProvider.getUserPreference('ToDoList-' + widgetId);
-            if (tasks && typeof tasks === "object") {
-                this.state = { tasks: tasks, edit: false };
-                return;
-            }
-        }
-        this.state = {
-            edit: false,
-            input: '',
-            tasks: [{
-                label: this.props.getMessage("home.77", "ajxp_admin"),
-                isDone: false
-            }, {
-                label: this.props.getMessage("home.77", "ajxp_admin") + " (" + this.props.getMessage("home.78", "ajxp_admin") + ")",
-                isDone: true
-            }]
-        };
-    }
-
-    _createClass(ToDoList, [{
-        key: 'addTask',
-        value: function addTask() {
-            var input = this.state.input;
-
-            if (!input) {
-                return;
-            }
-            var tasks = this.state.tasks;
-
-            tasks.push({
-                label: input,
-                isDone: false
-            });
-            if (this.props.preferencesProvider) {
-                this.props.preferencesProvider.saveUserPreference('ToDoList-' + this.props['widgetId'], tasks);
-            }
-            this.setState({ tasks: tasks, input: '' });
-        }
-    }, {
-        key: 'handleNewTaskKeyDown',
-        value: function handleNewTaskKeyDown(event) {
-            if (event.keyCode === 13) {
-                this.addTask();
-            }
-        }
-    }, {
-        key: 'removeTask',
-        value: function removeTask(index) {
-            var tasks = this.state.tasks;
-
-            var newTasks = [];
-            for (var i = 0; i < tasks.length; i++) {
-                if (i !== index) newTasks.push(tasks[i]);
-            }
-            if (this.props.preferencesProvider) {
-                this.props.preferencesProvider.saveUserPreference('ToDoList-' + this.props['widgetId'], newTasks);
-            }
-            this.setState({ tasks: newTasks });
-        }
-    }, {
-        key: 'changeTaskState',
-        value: function changeTaskState(index) {
-            var tasks = this.state.tasks;
-
-            var newTasks = [];
-            for (var i = 0; i < tasks.length; i++) {
-                if (i === index) {
-                    newTasks.push({ label: tasks[i].label, isDone: !tasks[i].isDone });
-                } else {
-                    newTasks.push(tasks[i]);
-                }
-            }
-            if (this.props.preferencesProvider) {
-                this.props.preferencesProvider.saveUserPreference('ToDoList-' + this.props['widgetId'], newTasks);
-            }
-            this.setState({ tasks: newTasks });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var index = -1;
-            var tasks = this.state.tasks.map((function (item) {
-                index++;
-                var taskLabel = undefined;
-                if (item.isDone) {
-                    taskLabel = React.createElement(
-                        'p',
-                        { className: 'task-done', title: item.label },
-                        item.label
-                    );
-                } else {
-                    taskLabel = React.createElement(
-                        'p',
-                        { title: item.label },
-                        item.label
-                    );
-                }
-                return React.createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'baseline', paddingBottom: 5, width: '100%' }, key: "task" + index },
-                    React.createElement(
-                        'div',
-                        { style: { flex: 1 } },
-                        React.createElement(_materialUi.Checkbox, {
-                            onCheck: this.changeTaskState.bind(this, index),
-                            checked: item.isDone,
-                            label: taskLabel,
-                            labelPosition: "right"
-                        })
-                    ),
-                    React.createElement('span', { onClick: this.removeTask.bind(this, index), className: 'mdi mdi-delete', style: { cursor: 'pointer', color: '#9e9e9e', fontSize: 24 } })
-                );
-            }).bind(this));
-            return React.createElement(
-                _materialUi.Paper,
-                _extends({}, this.props, { zDepth: 1, transitionEnabled: false }),
-                this.props.closeButton,
-                React.createElement(
-                    'div',
-                    { style: { display: 'flex', width: '100%', height: '100%', flexDirection: 'column' } },
-                    React.createElement(
-                        'h4',
-                        null,
-                        "Todo List"
-                    ),
-                    React.createElement(
-                        'div',
-                        { style: { padding: '0 20px' } },
-                        React.createElement(_materialUi.TextField, {
-                            value: this.state.input,
-                            fullWidth: true,
-                            onKeyDown: this.handleNewTaskKeyDown.bind(this),
-                            hintText: globalMessages['ajxp_admin.home.76'],
-                            onChange: function (e, val) {
-                                _this.setState({ input: val });
-                            }
-                        })
-                    ),
-                    React.createElement(
-                        'div',
-                        { style: { padding: '0 20px', flex: 1, overflowY: 'auto' } },
-                        tasks
-                    )
-                )
-            );
-        }
-    }]);
-
-    return ToDoList;
-})(_react.Component);
-
-ToDoList.propTypes = {
-    title: _react.PropTypes.string
-};
-
-exports['default'] = ToDoList = PydioContextConsumer(ToDoList);
-exports['default'] = ToDoList = asGridItem(ToDoList, globalMessages['ajxp_admin.home.75'], { gridWidth: 2, gridHeight: 26 }, [{ name: 'title', label: globalMessages['ajxp_admin.home.30'], type: 'string', mandatory: true, 'default': globalMessages['ajxp_admin.home.75'] }]);
-
-exports['default'] = ToDoList;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],38:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-var _require2 = require('material-ui');
-
-var Paper = _require2.Paper;
-var FlatButton = _require2.FlatButton;
-
-var _require3 = require('react-chartjs');
-
-var Doughnut = _require3.Doughnut;
-
-var _require$requireLib = require('pydio').requireLib('components');
-
-var asGridItem = _require$requireLib.asGridItem;
-
-var _require$requireLib2 = require('pydio').requireLib('boot');
-
-var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
-
-var globalMessages = pydio.MessageHash;
-
-var WelcomePanel = (function (_Component) {
-    _inherits(WelcomePanel, _Component);
-
-    function WelcomePanel() {
-        _classCallCheck(this, WelcomePanel);
-
-        _get(Object.getPrototypeOf(WelcomePanel.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(WelcomePanel, [{
-        key: 'render',
-        value: function render() {
-            return React.createElement(
-                Paper,
-                _extends({}, this.props, {
-                    className: 'welcome-panel',
-                    zDepth: 1,
-                    transitionEnabled: false
-                }),
-                this.props.closeButton,
-                React.createElement(
-                    'div',
-                    { className: 'screencast' },
-                    React.createElement('img', { src: 'plug/access.ajxp_admin/images/screencast.gif' })
-                ),
-                React.createElement(
-                    'h4',
-                    null,
-                    this.props.getMessage("home.44")
-                ),
-                React.createElement('div', { className: 'getting-started-content', dangerouslySetInnerHTML: { __html: this.props.getMessage('home.getting_started') } }),
-                React.createElement(FlatButton, {
-                    style: { position: 'absolute', right: 10, bottom: 10 },
-                    primary: true,
-                    label: this.props.getMessage('home.45'),
-                    onTouchTap: this.props.onCloseAction
-                })
-            );
-        }
-    }]);
-
-    return WelcomePanel;
-})(Component);
-
-exports['default'] = WelcomePanel = PydioContextConsumer(WelcomePanel);
-exports['default'] = WelcomePanel = asGridItem(WelcomePanel, globalMessages['ajxp_admin.home.44'], { gridWidth: 8, gridHeight: 15 }, []);
-
-exports['default'] = WelcomePanel;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],39:[function(require,module,exports){
-/**
- * PROTO FOR one point for a graph
- message TimeRangeResult{
-    // a label for this time range
-    string Name = 1;
-    // begin timestamp
-    int64 Start = 2;
-    // end timestamp
-    int64 End = 3;
-    // nb of occurences found within this range
-    int Count = 4;
-    // a score between 1 and 100 that gives the relevance of this result:
-    // if End > now, we ponderate the returned count with the duration of the last time range
-    // for instance for a hour range if now is 6PM, last count will be
-    // multiplied by 4/3 and have a relevance of 75.
-    // Relevance will be almost always equals to 100
-    int Relevance = 5;
-}
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var GraphModel = (function () {
-    _createClass(GraphModel, null, [{
-        key: 'makeStubResult',
-        value: function makeStubResult(name, hoursFrom, refTime, frequency, count) {
-            var relevance = arguments.length <= 5 || arguments[5] === undefined ? 100 : arguments[5];
-
-            var refUnix = undefined;
-            if (refTime === undefined) {
-                refUnix = Math.floor(Date.now() / 1000);
-            } else {
-                refUnix = Math.floor(refTime / 1000);
-            }
-            var start = refUnix - hoursFrom * 60 * 60 * (frequency === 'D' ? 24 : 1);
-            var end = refUnix - (hoursFrom + 1) * 60 * 60 * (frequency === 'D' ? 24 : 1);
-            return { Name: name, Start: start, End: end, Count: count, Relevance: relevance };
-        }
-    }, {
-        key: 'stubData',
-        value: function stubData(frequency, refTime) {
-            return [GraphModel.makeStubResult("Upload", 1, refTime, frequency, 10), GraphModel.makeStubResult("Upload", 2, refTime, frequency, 5), GraphModel.makeStubResult("Upload", 3, refTime, frequency, 2), GraphModel.makeStubResult("Upload", 4, refTime, frequency, 40), GraphModel.makeStubResult("Upload", 5, refTime, frequency, 30), GraphModel.makeStubResult("Upload", 6, refTime, frequency, 0), GraphModel.makeStubResult("Upload", 7, refTime, frequency, 10), GraphModel.makeStubResult("Upload", 8, refTime, frequency, 12), GraphModel.makeStubResult("Upload", 9, refTime, frequency, 12), GraphModel.makeStubResult("Upload", 10, refTime, frequency, 12)];
-        }
-    }, {
-        key: 'stubLinks',
-        value: function stubLinks(frequency, refTime) {
-            var refUnix = undefined;
-            if (refTime === undefined) {
-                refUnix = Math.floor(Date.now() / 1000);
-            } else {
-                refUnix = Math.floor(refTime / 1000);
-            }
-            var links = [];
-            if (refTime !== undefined) {
-                links.push({ count: '10', cursor: '10', rel: 'previous' });
-            }
-            links.push({ count: '10', cursor: '10', rel: 'next' });
-            return links;
-        }
-    }, {
-        key: 'queryNameToMsgId',
-        value: function queryNameToMsgId(queryName) {
-            return ({
-                LoginSuccess: "1",
-                LoginFailed: "2",
-                NodeCreate: "11",
-                NodeRead: "12",
-                NodeList: "13",
-                NodeUpdate: "14",
-                NodeDelete: "15",
-                ObjectGet: "21",
-                ObjectPut: "22",
-                LinkCreated: "75"
-            })[queryName];
-        }
-    }]);
-
-    function GraphModel() {
-        var stub = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-
-        _classCallCheck(this, GraphModel);
-
-        this.stub = stub;
-    }
-
-    /**
-     *
-     * @return {Promise<{labels: Array, points: Array}>}
-     */
-
-    _createClass(GraphModel, [{
-        key: 'loadData',
-        value: function loadData(queryName, frequency, refTime) {
-            if (this.stub) {
-                var data = GraphModel.stubData(frequency, refTime);
-                var stubLinks = GraphModel.stubLinks(frequency, refTime);
-                return Promise.resolve(this.parseData(data, stubLinks));
-            } else {
-                return _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                    var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    var request = new sdk.LogTimeRangeRequest();
-                    request.MsgId = GraphModel.queryNameToMsgId(queryName);
-                    var refUnix = undefined;
-                    if (refTime) {
-                        refUnix = refTime;
-                    } else {
-                        refUnix = Math.floor(Date.now() / 1000);
-                    }
-                    request.RefTime = refUnix;
-                    request.TimeRangeType = frequency;
-                    return api.auditChartData(request).then(function (result) {
-                        var labels = [],
-                            points = [],
-                            links = [];
-                        if (result.Results) {
-                            result.Results.map(function (res) {
-                                labels.push(res.Name);
-                                points.push(res.Count || 0);
-                            });
-                        }
-                        if (result.Links) {
-                            result.Links.map(function (link) {
-                                links.push(link);
-                            });
-                        }
-                        return { labels: labels, points: points, links: links };
-                    });
-                });
-            }
-        }
-
-        /**
-         *
-         * @param data
-         * @return {{labels: Array, points: Array}}
-         */
-    }, {
-        key: 'parseData',
-        value: function parseData(data, links) {
-            var labels = [];
-            var points = [];
-            data.map(function (entry) {
-                var start = entry.Start;
-                var date = new Date(start * 1000).toDateString();
-                labels.push(date);
-                points.push(entry.Count);
-            });
-            return { labels: labels, points: points, links: links };
-        }
-    }]);
-
-    return GraphModel;
-})();
-
-exports['default'] = GraphModel;
-module.exports = exports['default'];
-
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],40:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _utilMixins = require('../util/Mixins');
-
-var GraphPaginator = _react2['default'].createClass({
-    displayName: 'GraphPaginator',
-
-    mixins: [_utilMixins.MessagesConsumerMixin],
-
-    propTypes: {
-        start: _react2['default'].PropTypes.number.isRequired,
-        onRangeChange: _react2['default'].PropTypes.func.isRequired,
-        links: _react2['default'].PropTypes.array,
-        pickerOnShow: _react2['default'].PropTypes.func,
-        pickerOnDismiss: _react2['default'].PropTypes.func
-    },
-
-    getInitialState: function getInitialState() {
-        return { paginatorType: 'pages' };
-    },
-
-    makeLink: function makeLink(type, links) {
-        var found,
-            clickFunc = function clickFunc() {};
-        links.map((function (l) {
-            if (l.Rel !== type) return;
-            found = true;
-            clickFunc = (function () {
-                this.props.onRangeChange(l.RefTime, l.Count);
-            }).bind(this);
-        }).bind(this));
-        var icon;
-        if (type === "LAST") icon = "chevron-double-left";
-        if (type === "NEXT") icon = "chevron-left";
-        if (type === "PREV") icon = "chevron-right";
-        if (type === "FIRST") icon = "chevron-double-right";
-        return _react2['default'].createElement(_materialUi.IconButton, {
-            key: type,
-            iconClassName: 'mdi mdi-' + icon,
-            onTouchTap: clickFunc,
-            disabled: !found
-        });
-    },
-
-    render: function render() {
-        var _this = this;
-
-        var frequency = this.props.frequency;
-
-        var links = [];
-        links.push(_react2['default'].createElement(
-            _materialUi.IconMenu,
-            {
-                key: 'paginatorMenu',
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-calendar-clock", iconStyle: { color: '#9e9e9e' }, tooltip: 'Time Range' }),
-                desktop: true,
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                targetOrigin: { horizontal: 'right', vertical: 'top' }
-            },
-            [{ f: 'H', l: 'Last Hour' }, { f: 'D', l: 'Last Day' }, { f: 'W', l: 'Last Week' }, { f: 'M', l: 'Last Month' }, { f: 'Y', l: 'Last Year' }].map(function (entry) {
-                return _react2['default'].createElement(_materialUi.MenuItem, {
-                    insetChildren: frequency !== entry.f,
-                    primaryText: entry.l,
-                    onTouchTap: function () {
-                        return _this.props.onFrequencyChange(entry.f);
-                    },
-                    leftIcon: frequency === entry.f ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null
-                });
-            })
-        ));
-        if (this.props.links) {
-            links.push(this.makeLink('NEXT', this.props.links));
-            links.push(this.makeLink('PREV', this.props.links));
-            links.push(this.makeLink('FIRST', this.props.links));
-        }
-
-        return _react2['default'].createElement(
-            'div',
-            { className: 'graphs-paginator' },
-            links
-        );
-    }
-});
-
-exports['default'] = GraphPaginator;
-module.exports = exports['default'];
-
-},{"../util/Mixins":46,"material-ui":"material-ui","react":"react"}],41:[function(require,module,exports){
-(function (global){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _utilMixins = require("../util/Mixins");
-
-var _reactChartjs = require('react-chartjs');
-
-var _GraphModel = require('./GraphModel');
-
-var _GraphModel2 = _interopRequireDefault(_GraphModel);
-
-var RemoteGraphLine = _react2['default'].createClass({
-    displayName: 'RemoteGraphLine',
-
-    mixins: [_utilMixins.MessagesConsumerMixin],
-
-    propTypes: {
-        queryName: _react2['default'].PropTypes.string,
-        start: _react2['default'].PropTypes.number,
-        frequency: _react2['default'].PropTypes.string,
-        onDataLoaded: _react2['default'].PropTypes.func,
-        width: _react2['default'].PropTypes.number,
-        height: _react2['default'].PropTypes.number,
-        chartOptions: _react2['default'].PropTypes.object,
-        filters: _react2['default'].PropTypes.object
-    },
-
-    triggerReload: function triggerReload() {
-        this.loadData();
-    },
-
-    getDefaultProps: function getDefaultProps() {
-        return {
-            start: 0,
-            width: 300,
-            height: 200,
-            frequency: 'H',
-            onDataLoaded: function onDataLoaded() {},
-            chartOptions: {
-                responsive: true,
-                useCSSTransforms: false,
-                maintainAspectRatio: false,
-                tooltipTemplate: "<%= value %> <%= datasetLabel %>",
-                multiTooltipTemplate: "<%= value %> <%= datasetLabel %>"
-            }
-        };
-    },
-
-    getInitialState: function getInitialState() {
-        return {
-            loaded: false,
-            colorIndex: Math.floor(Math.random() * 100) % 3,
-            chartData: { labels: [], datasets: [] }
-        };
-    },
-
-    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        if (nextProps.start !== this.props.start || nextProps.frequency !== this.props.frequency) {
-            this.setState({ newLoad: true });
-        }
-    },
-
-    componentDidMount: function componentDidMount() {
-        this.firstLoad = setTimeout(this.loadData, 500);
-        //this.loadData();
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        if (this.firstLoad) {
-            global.clearTimeout(this.firstLoad);
-        }
-    },
-
-    componentDidUpdate: function componentDidUpdate() {
-        if (this.state.newLoad) {
-            this.setState({ newLoad: false }, this.loadData);
-        }
-    },
-
-    loadData: function loadData() {
-        var _this = this;
-
-        this.firstLoad = null;
-        var model = new _GraphModel2['default']();
-        var _props = this.props;
-        var queryName = _props.queryName;
-        var frequency = _props.frequency;
-        var start = _props.start;
-
-        var queries = queryName.split(",");
-        Promise.all(queries.map(function (q) {
-            return model.loadData(q, frequency, start);
-        })).then(function (results) {
-            var dataSets = [];
-            var theLabels = undefined,
-                theLinks = undefined;
-            queries.forEach(function (qName, index) {
-                var _results$index = results[index];
-                var labels = _results$index.labels;
-                var points = _results$index.points;
-                var links = _results$index.links;
-
-                var dataSet = _this.makeDataSet(qName, points, index);
-                dataSets.push(dataSet);
-                theLabels = labels;
-                theLinks = links;
-            });
-            _this.setState({
-                chartData: {
-                    labels: theLabels,
-                    datasets: dataSets
-                },
-                links: theLinks,
-                loaded: true
-            });
-            _this.props.onDataLoaded({ links: theLinks }, dataSets);
-        })['catch'](function (reason) {
-            // Todo
-        });
-    },
-
-    parseData: function parseData(queryName, jsonData) {
-        if (jsonData.data instanceof Array) {
-            jsonData.data = { unique: jsonData.data };
-        }
-        if (jsonData.meta instanceof Array) {
-            jsonData.meta = { unique: jsonData.meta };
-        }
-        var received = jsonData.data;
-        // TO BE TAKEN FROM CONFIG
-        var sortKey = 'Date_sortable';
-        var labelKey = 'Date';
-        var labels = [];
-        var datasets = {};
-        var datasetsLabels = {};
-
-        // First compute all keys
-        var presort = [];
-        var presortLabels = {};
-        var foundLabels = [];
-        for (var k in received) {
-            if (!received.hasOwnProperty(k)) continue;
-            datasets[k] = [];
-            received[k].map(function (entry) {
-                if (foundLabels.indexOf(entry[labelKey]) === -1) {
-                    presort.push(entry[sortKey]);
-                    presortLabels[entry[sortKey]] = entry[labelKey]; //.replace(' 2015', '');
-                    foundLabels.push(entry[labelKey]);
-                }
-            });
-        }
-        presort.sort();
-        presort.map(function (sortedKey) {
-            for (var k in received) {
-                if (!received.hasOwnProperty(k)) continue;
-                var foundEntry = null;
-                received[k].map(function (entry) {
-                    if (entry[labelKey] == presortLabels[sortedKey]) {
-                        foundEntry = entry;
-                    }
-                });
-                var value = 0;
-                if (foundEntry) {
-                    // find a value key here
-                    for (var prop in foundEntry) {
-                        if (!foundEntry.hasOwnProperty(prop) || prop == sortKey || prop == labelKey) continue;
-                        value = foundEntry[prop];
-                        datasetsLabels[k] = prop;
-                        break;
-                    }
-                }
-                datasets[k].push(value);
-                if (!datasetsLabels[k] && jsonData.meta && jsonData.meta[k]) {
-                    var meta = jsonData.meta[k];
-                    if (meta['AXIS'] && meta['AXIS']['y']) datasetsLabels[k] = meta['AXIS']['y'];else datasetsLabels[k] = meta['LABEL'];
-                }
-            }
-            labels.push(presortLabels[sortedKey].replace(' 2015', ''));
-        });
-        var preparedDataSets = [];
-        var index = 0;
-        for (var qK in datasets) {
-            if (datasets.hasOwnProperty(qK)) {
-                var dLabel = datasetsLabels[qK] || '';
-                preparedDataSets.push(this.makeDataSet(dLabel, datasets[qK]));
-                index++;
-            }
-        }
-        this.setState({
-            chartData: {
-                labels: labels,
-                datasets: preparedDataSets
-            },
-            links: jsonData.links,
-            loaded: true
-        });
-        this.props.onDataLoaded(jsonData, preparedDataSets);
-    },
-
-    makeDataSet: function makeDataSet(label, data, index) {
-        //const colors = ['70, 191, 189','151,187,205','220,220,220'];
-        var colors = ['0, 150, 136', '33,150,243', '255,87,34'];
-        var color = colors[index];
-        return {
-            label: label,
-            fillColor: "rgba(" + color + ",0.2)",
-            strokeColor: "rgba(" + color + ",1)",
-            pointColor: "rgba(" + color + ",1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(" + color + ",1)",
-            data: data
-        };
-    },
-
-    resizeChart: function resizeChart() {
-        if (this.refs['chart']) {
-            this.refs['chart'].getChart().resize();
-        }
-    },
-
-    render: function render() {
-        var chart;
-        if (this.state.loaded) {
-            chart = _react2['default'].createElement(_reactChartjs.Line, {
-                ref: 'chart',
-                key: 'chart',
-                data: this.state.chartData,
-                options: this.props.chartOptions,
-                width: this.props.width,
-                height: this.props.height
-            });
-        } else {
-            chart = _react2['default'].createElement(
-                'div',
-                { className: 'graph-loading' },
-                this.context.getMessage('home.6', 'ajxp_admin')
-            );
-        }
-        return chart;
-    }
-});
-
-exports['default'] = RemoteGraphLine;
-module.exports = exports['default'];
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/Mixins":46,"./GraphModel":39,"react":"react","react-chartjs":"react-chartjs"}],42:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _boardAdminDashboard = require('./board/AdminDashboard');
-
-var _boardAdminDashboard2 = _interopRequireDefault(_boardAdminDashboard);
-
-var _boardSimpleDashboard = require('./board/SimpleDashboard');
-
-var _boardSimpleDashboard2 = _interopRequireDefault(_boardSimpleDashboard);
-
-var _boardGroupAdminDashboard = require('./board/GroupAdminDashboard');
-
-var _boardGroupAdminDashboard2 = _interopRequireDefault(_boardGroupAdminDashboard);
-
-var _boardTabBoard = require('./board/TabBoard');
-
-var _boardTabBoard2 = _interopRequireDefault(_boardTabBoard);
-
-var _boardHeader = require('./board/Header');
-
-var _boardHeader2 = _interopRequireDefault(_boardHeader);
-
-var _boardSubHeader = require('./board/SubHeader');
-
-var _boardSubHeader2 = _interopRequireDefault(_boardSubHeader);
-
-var _utilMixins = require('./util/Mixins');
-
-var _utilNavigationHelper = require('./util/NavigationHelper');
-
-var _utilNavigationHelper2 = _interopRequireDefault(_utilNavigationHelper);
-
-var _utilMenuItemListener = require('./util/MenuItemListener');
-
-var _utilMenuItemListener2 = _interopRequireDefault(_utilMenuItemListener);
-
-var _utilDNDActionsManager = require('./util/DNDActionsManager');
-
-var _utilDNDActionsManager2 = _interopRequireDefault(_utilDNDActionsManager);
-
-var _utilCodeMirrorField = require('./util/CodeMirrorField');
-
-var _utilCodeMirrorField2 = _interopRequireDefault(_utilCodeMirrorField);
-
-var _utilPluginsLoader = require('./util/PluginsLoader');
-
-var _utilPluginsLoader2 = _interopRequireDefault(_utilPluginsLoader);
-
-var _utilQuotaField = require('./util/QuotaField');
-
-var _utilQuotaField2 = _interopRequireDefault(_utilQuotaField);
-
-var _cardsGraphBadge = require('./cards/GraphBadge');
-
-var _cardsGraphBadge2 = _interopRequireDefault(_cardsGraphBadge);
-
-var _cardsGraphCard = require('./cards/GraphCard');
-
-var _cardsGraphCard2 = _interopRequireDefault(_cardsGraphCard);
-
-var _cardsQuickLinks = require('./cards/QuickLinks');
-
-var _cardsQuickLinks2 = _interopRequireDefault(_cardsQuickLinks);
-
-var _cardsRecentLogs = require('./cards/RecentLogs');
-
-var _cardsRecentLogs2 = _interopRequireDefault(_cardsRecentLogs);
-
-var _cardsServicesStatus = require('./cards/ServicesStatus');
-
-var _cardsServicesStatus2 = _interopRequireDefault(_cardsServicesStatus);
-
-var _cardsToDoList = require('./cards/ToDoList');
-
-var _cardsToDoList2 = _interopRequireDefault(_cardsToDoList);
-
-var _cardsWelcomePanel = require('./cards/WelcomePanel');
-
-var _cardsWelcomePanel2 = _interopRequireDefault(_cardsWelcomePanel);
-
-window.AdminComponents = {
-    MessagesConsumerMixin: _utilMixins.MessagesConsumerMixin,
-    PydioConsumerMixin: _utilMixins.PydioConsumerMixin,
-    NavigationHelper: _utilNavigationHelper2['default'],
-    MenuItemListener: _utilMenuItemListener2['default'],
-    DNDActionsManager: _utilDNDActionsManager2['default'],
-    PluginsLoader: _utilPluginsLoader2['default'],
-
-    AdminDashboard: _boardAdminDashboard2['default'],
-    SimpleDashboard: _boardSimpleDashboard2['default'],
-    GroupAdminDashboard: _boardGroupAdminDashboard2['default'],
-    Header: _boardHeader2['default'],
-    SubHeader: _boardSubHeader2['default'],
-    CodeMirrorField: _utilCodeMirrorField2['default'],
-    TabBoard: _boardTabBoard2['default'],
-    QuotaField: _utilQuotaField2['default'],
-
-    GraphCard: _cardsGraphCard2['default'],
-    GraphBadge: _cardsGraphBadge2['default'],
-    QuickLinks: _cardsQuickLinks2['default'],
-    RecentLogs: _cardsRecentLogs2['default'],
-    ServicesStatus: _cardsServicesStatus2['default'],
-    ToDoList: _cardsToDoList2['default'],
-    WelcomePanel: _cardsWelcomePanel2['default']
-};
-
-},{"./board/AdminDashboard":24,"./board/GroupAdminDashboard":27,"./board/Header":28,"./board/SimpleDashboard":29,"./board/SubHeader":30,"./board/TabBoard":31,"./cards/GraphBadge":32,"./cards/GraphCard":33,"./cards/QuickLinks":34,"./cards/RecentLogs":35,"./cards/ServicesStatus":36,"./cards/ToDoList":37,"./cards/WelcomePanel":38,"./util/CodeMirrorField":43,"./util/DNDActionsManager":44,"./util/MenuItemListener":45,"./util/Mixins":46,"./util/NavigationHelper":47,"./util/PluginsLoader":48,"./util/QuotaField":49}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20533,6 +18536,25 @@ var CodeEditorField = (function (_React$Component) {
             this.props.onChange(null, value);
         }
     }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+            }, 0);
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps) {
+            var prevValue = prevProps.value ? prevProps.value.length : 0;
+            var newValue = this.props.value ? this.props.value.length : 0;
+            if (Math.abs(newValue - prevValue) > 50) {
+                // We can consider it's a copy, trigger a resize if necessary
+                setTimeout(function () {
+                    window.dispatchEvent(new Event('resize'));
+                }, 0);
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
             var value = this.props.value;
@@ -20571,7 +18593,7 @@ var CodeEditorField = (function (_React$Component) {
 exports['default'] = CodeEditorField;
 module.exports = exports['default'];
 
-},{"codemirror/addon/hint/javascript-hint":1,"codemirror/addon/hint/show-hint":2,"codemirror/mode/javascript/javascript":4,"react":"react","react-codemirror":20}],44:[function(require,module,exports){
+},{"codemirror/addon/hint/javascript-hint":1,"codemirror/addon/hint/show-hint":2,"codemirror/mode/javascript/javascript":4,"react":"react","react-codemirror":20}],32:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20689,7 +18711,7 @@ var DNDActionsManager = (function () {
 exports['default'] = DNDActionsManager;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path"}],45:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path"}],33:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20748,7 +18770,7 @@ var MenuItemListener = (function (_Observable) {
 exports["default"] = MenuItemListener;
 module.exports = exports["default"];
 
-},{}],46:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20828,7 +18850,7 @@ exports.MessagesProviderMixin = MessagesProviderMixin;
 exports.PydioConsumerMixin = PydioConsumerMixin;
 exports.PydioProviderMixin = PydioProviderMixin;
 
-},{}],47:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20857,7 +18879,13 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _stylesAdminStyles = require("../styles/AdminStyles");
+
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
 var _require = require('material-ui');
 
@@ -20871,40 +18899,20 @@ function renderItem(palette, node) {
     var noIcon = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
     var advanced = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
-    var iconStyle = {
-        fontSize: 22,
-        lineHeight: '20px',
-        marginLeft: 20
-    };
-    var flagStyle = {
-        display: 'inline',
-        backgroundColor: palette.accent1Color,
-        color: 'white',
-        height: 22,
-        borderRadius: 10,
-        padding: '0 5px',
-        marginLeft: 5
-    };
-    var ellispsis = {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    };
-    var mainStyle = {};
-    if (advanced) {
-        mainStyle = { opacity: .7 };
-    }
+    var _AdminStyles = (0, _stylesAdminStyles2['default'])(palette);
+
+    var menu = _AdminStyles.menu;
 
     var label = text || node.getLabel();
     if (node.getMetadata().get('flag')) {
         label = React.createElement(
             'div',
-            { style: ellispsis },
+            { style: menu.menuLabel },
             node.getLabel(),
             ' ',
             React.createElement(
                 'span',
-                { style: flagStyle },
+                { style: menu.flag },
                 node.getMetadata().get('flag')
             ),
             ' '
@@ -20912,16 +18920,17 @@ function renderItem(palette, node) {
     } else {
         label = React.createElement(
             'div',
-            { style: ellispsis },
+            { style: menu.menuLabel },
             label
         );
     }
 
     return React.createElement(MenuItem, {
-        style: mainStyle,
+        style: menu.menuItem,
+        innerDivStyle: menu.menuItemInner,
         value: node,
         primaryText: label,
-        leftIcon: !noIcon && React.createElement(FontIcon, { className: node.getMetadata().get('icon_class'), style: iconStyle })
+        leftIcon: !noIcon && React.createElement(FontIcon, { className: node.getMetadata().get('icon_class'), style: menu.iconStyle })
     });
 }
 
@@ -20944,6 +18953,10 @@ var NavigationHelper = (function () {
                 textTransform: 'uppercase'
             };
 
+            var _AdminStyles2 = (0, _stylesAdminStyles2['default'])(palette);
+
+            var menu = _AdminStyles2.menu;
+
             if (rootNode.getMetadata().get('component')) {
                 items.push(renderItem(palette, rootNode, pydio.MessageHash['ajxp_admin.menu.0'], noIcon));
             }
@@ -20965,14 +18978,12 @@ var NavigationHelper = (function () {
                             };
                         }
                         if (header.getLabel()) {
-                            items.push(React.createElement(Divider, null));
-                            //if(showAdvanced){
+                            //items.push(<Divider/>);
                             items.push(React.createElement(
                                 Subheader,
-                                { style: headerStyle },
+                                { style: menu.subHeader },
                                 header.getLabel()
                             ));
-                            //}
                         }
                         items.push.apply(items, children);
                     })();
@@ -20991,7 +19002,7 @@ var NavigationHelper = (function () {
 exports['default'] = NavigationHelper;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui"}],48:[function(require,module,exports){
+},{"../styles/AdminStyles":28,"material-ui":"material-ui"}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21223,7 +19234,7 @@ var PluginsLoader = (function () {
 exports['default'] = PluginsLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],49:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],37:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21396,77 +19407,4 @@ var QuotaField = (function (_React$Component) {
 exports['default'] = QuotaField;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],50:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-exports['default'] = function (PydioComponent) {
-    var ReloadWrapper = (function (_Component) {
-        _inherits(ReloadWrapper, _Component);
-
-        function ReloadWrapper() {
-            _classCallCheck(this, ReloadWrapper);
-
-            _get(Object.getPrototypeOf(ReloadWrapper.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        _createClass(ReloadWrapper, [{
-            key: 'componentDidMount',
-            value: function componentDidMount() {
-                var _this = this;
-
-                if (this.props.interval) {
-                    this.interval = setInterval(function () {
-                        _this.refs['component'].triggerReload();
-                    }, this.props.interval * 1000);
-                }
-            }
-        }, {
-            key: 'componentWillUnmount',
-            value: function componentWillUnmount() {
-                if (this.interval) {
-                    clearInterval(this.interval);
-                }
-            }
-        }, {
-            key: 'render',
-            value: function render() {
-
-                return React.createElement(PydioComponent, _extends({}, this.props, { ref: 'component' }));
-            }
-        }]);
-
-        return ReloadWrapper;
-    })(Component);
-
-    ReloadWrapper.propTypes = {
-        interval: PropTypes.number
-    };
-
-    ReloadWrapper.displayName = PydioComponent.displayName || PydioComponent.name;
-
-    return ReloadWrapper;
-};
-
-;
-module.exports = exports['default'];
-
-},{"react":"react"}]},{},[42]);
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}]},{},[27]);

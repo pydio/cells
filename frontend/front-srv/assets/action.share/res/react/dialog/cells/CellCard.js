@@ -18,11 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
+import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper, MenuItem} from 'material-ui'
-import {GenericCard, GenericLine} from '../main/GenericCard'
 import ShareHelper from "../main/ShareHelper";
+const {GenericCard, GenericLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
 
@@ -30,6 +32,30 @@ class CellCard extends React.Component{
         super(props);
         this.state = {edit: false, model: new CellModel()};
         this._observer = () => {this.forceUpdate()};
+        ResourcesManager.loadClassesAndApply(["PydioActivityStreams", "PydioCoreActions"], () => {
+            this.setState({extLibs: true})
+        });
+        const {rootNode} = this.props;
+        if(rootNode){
+            if(rootNode.getMetadata().has('virtual_root')){
+                // Use node children instead
+                if(rootNode.isLoaded()){
+                    this.state.rootNodes = [];
+                    rootNode.getChildren().forEach(n => this.state.rootNodes.push(n));
+                } else {
+                    // Trigger children load
+                    rootNode.observe('loaded', () => {
+                        const rootNodes = [];
+                        rootNode.getChildren().forEach(n => rootNodes.push(n));
+                        this.setState({rootNodes});
+                    });
+                    rootNode.load();
+                }
+            } else {
+                this.state.rootNodes = [rootNode];
+            }
+        }
+
     }
 
     componentDidMount(){
@@ -55,7 +81,7 @@ class CellCard extends React.Component{
 
     render(){
         const {mode, pydio, editorOneColumn} = this.props;
-        const {edit, model} = this.state;
+        const {edit, model, extLibs, rootNodes} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
         let rootStyle = {width: 350, minHeight: 270};
@@ -68,7 +94,7 @@ class CellCard extends React.Component{
                 rootStyle = {width: 700, height: 500};
             }
             content = <EditCellDialog {...this.props} model={model} sendInvitations={this.usersInvitations.bind(this)} editorOneColumn={editorOneColumn}/>;
-        } else {
+        } else if (model) {
             let nodes = model.getRootNodes().map(node => {
                 return model.getNodeLabelInContext(node);
             }).join(', ');
@@ -96,11 +122,20 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onTouchTap={deleteAction}/>);
                 }
             }
+            let watchLine, bmButton;
+            if(extLibs && rootNodes) {
+
+                const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
+                watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={"Get notifications..."} data={selector} iconStyle={{marginTop: 32}} />;
+                bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+
+            }
             content = (
                 <GenericCard
                     pydio={pydio}
                     title={model.getLabel()}
                     onDismissAction={this.props.onDismiss}
+                    otherActions={bmButton}
                     onDeleteAction={deleteAction}
                     onEditAction={editAction}
                     headerSmall={mode === 'infoPanel'}
@@ -111,6 +146,7 @@ class CellCard extends React.Component{
                     }
                     <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()}/>
                     <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes}/>
+                    {watchLine}
                 </GenericCard>
             );
             if(mode === 'infoPanel'){

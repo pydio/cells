@@ -162,6 +162,7 @@ func (s *Sync) Shutdown() {
 	}
 	if s.watchConn != nil {
 		close(s.watchConn)
+		s.watchConn = nil
 	}
 	s.processor.Stop()
 	if s.echoFilter != nil {

@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
@@ -194,9 +194,8 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		// Now update policies for input Meta
 		if meta.Namespace == namespace.ReservedNamespaceBookmark {
 			userName, c := permissions.FindUserNameInContext(ctx)
-			userUuid, _ := c.DecodeUserUuid()
 			meta.Policies = []*serviceproto.ResourcePolicy{
-				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: userUuid, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: c.Subject, Effect: serviceproto.ResourcePolicy_allow},
 				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
 				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
 				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},

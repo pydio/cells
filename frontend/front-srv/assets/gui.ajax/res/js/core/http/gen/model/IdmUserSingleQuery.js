@@ -90,6 +90,9 @@ export default class IdmUserSingleQuery {
             if (data.hasOwnProperty('NodeType')) {
                 obj['NodeType'] = IdmNodeType.constructFromObject(data['NodeType']);
             }
+            if (data.hasOwnProperty('HasProfile')) {
+                obj['HasProfile'] = ApiClient.convertToType(data['HasProfile'], 'String');
+            }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = ApiClient.convertToType(data['not'], 'Boolean');
             }
@@ -141,6 +144,10 @@ export default class IdmUserSingleQuery {
     * @member {module:model/IdmNodeType} NodeType
     */
     NodeType = undefined;
+    /**
+    * @member {String} HasProfile
+    */
+    HasProfile = undefined;
     /**
     * @member {Boolean} not
     */

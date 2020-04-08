@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -206,11 +208,17 @@ var EncryptionKeys = (function (_React$Component) {
             var exportedKey = _state.exportedKey;
             var showCreateKey = _state.showCreateKey;
             var m = _state.m;
-            var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
+            var adminStyles = _props.adminStyles;
 
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 170, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: 170 }, renderCell: function renderCell(row) {
+                    if (!accessByName('CreateEncryption')) {
+                        return null;
+                    }
                     return _react2['default'].createElement(
                         'div',
                         null,
@@ -296,9 +304,17 @@ var EncryptionKeys = (function (_React$Component) {
                     } })];
             }
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             return _react2['default'].createElement(
                 'div',
-                { zDepth: 0, style: { margin: 16 } },
+                null,
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -313,25 +329,30 @@ var EncryptionKeys = (function (_React$Component) {
                     },
                     dialogContent
                 ),
-                _react2['default'].createElement(
+                accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
-                    { style: { textAlign: 'right', paddingBottom: 16 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
+                    { style: { textAlign: 'right', paddingRight: 24 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
-                        }, style: { marginLeft: 16 } }),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.create'), onTouchTap: function () {
-                            _this6.setState({ showCreateKey: true, showDialog: true });
-                        }, style: { marginLeft: 16 } })
+                        } }, adminStyles.props.header.flatButton)),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { marginLeft: 8 } },
+                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onTouchTap: function () {
+                                _this6.setState({ showCreateKey: true, showDialog: true });
+                            } }, adminStyles.props.header.flatButton))
+                    )
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1 },
+                    _extends({}, blockProps, { style: blockStyle }),
                     _react2['default'].createElement(MaterialTable, {
                         data: keys,
                         columns: columns,
                         onSelectRows: function () {},
                         showCheckboxes: false,
-                        emptyStateString: m('key.emptyState')
+                        emptyStateString: m('key.emptyState'),
+                        masterStyles: tableMaster
                     })
                 )
             );

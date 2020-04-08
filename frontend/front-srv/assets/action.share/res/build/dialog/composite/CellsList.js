@@ -18,6 +18,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _CompositeModel = require('./CompositeModel');
 
 var _CompositeModel2 = _interopRequireDefault(_CompositeModel);
@@ -68,7 +72,7 @@ var CellsList = (function (_React$Component) {
                         _this.setState({ addMenuOpen: false });
                         compositeModel.addToExistingCell(repository.getId());
                     };
-                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: repository.getLabel(), onTouchTap: touchTap }));
+                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: repository.getLabel(), onTouchTap: touchTap, leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }) }));
                 }
             });
             return items;
@@ -188,11 +192,12 @@ var CellsList = (function (_React$Component) {
                     'span',
                     null,
                     _react2['default'].createElement(_materialUi.RaisedButton, {
+                        ref: "addCellButton",
                         style: { marginLeft: 10 },
                         primary: true,
                         label: m(263),
                         onTouchTap: function (event) {
-                            _this2.setState({ addMenuOpen: true, addMenuAnchor: event.target });
+                            _this2.setState({ addMenuOpen: true, addMenuAnchor: _reactDom2['default'].findDOMNode(_this2.refs['addCellButton']) });
                         }
                     }),
                     _react2['default'].createElement(

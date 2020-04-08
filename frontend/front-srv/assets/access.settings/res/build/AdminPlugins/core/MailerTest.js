@@ -65,6 +65,7 @@ var MailerTest = (function (_React$Component) {
         value: function render() {
             var loaded = this.state.loaded;
             var MessageHash = this.props.pydio.MessageHash;
+            var adminStyles = this.props.adminStyles;
 
             if (!loaded) {
                 return _react2['default'].createElement(
@@ -84,7 +85,7 @@ var MailerTest = (function (_React$Component) {
                     overlay: false,
                     panelTitle: MessageHash["ajxp_admin.mailer.test.title"],
                     style: { margin: 0 },
-                    titleStyle: { backgroundColor: '#f5f5f5', color: '#9e9e9e', fontSize: 12, fontWeight: 500, borderBottom: '1px solid #e0e0e0', height: 48, lineHeight: '48px', padding: '0 16px' },
+                    titleStyle: adminStyles.body.block.headerFull,
                     usersBlockStyle: {},
                     messageBlockStyle: {},
                     zDepth: 0

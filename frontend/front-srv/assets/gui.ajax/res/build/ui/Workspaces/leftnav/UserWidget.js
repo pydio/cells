@@ -172,7 +172,7 @@ var UserWidget = (function (_React$Component) {
                     namespace: 'PydioActivityStreams',
                     componentName: 'UserPanel',
                     noLoader: true,
-                    iconClassName: 'userActionIcon mdi mdi-bell-outline',
+                    iconClassName: 'userActionIcon mdi mdi-bell',
                     iconStyle: { color: color }
                 }, this.props));
             }

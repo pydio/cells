@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydio = require('pydio');
@@ -48,6 +50,10 @@ var _ServicesList2 = _interopRequireDefault(_ServicesList);
 
 var _materialUi = require('material-ui');
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 exports['default'] = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -101,24 +107,37 @@ exports['default'] = _react2['default'].createClass({
 
         var buttonContainer = _react2['default'].createElement(
             'div',
-            { style: { display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%' } },
-            _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
+            { style: { display: 'flex', alignItems: 'center', width: '100%' } },
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 150, marginRight: 8 } },
+                _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: _extends({ width: 150 }, ModernStyles.toggleField.style) })
+            ),
             peers.length && _react2['default'].createElement(
-                _materialUi.DropDownMenu,
-                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
-                peers.map(function (peer) {
-                    return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
-                })
+                'div',
+                { style: { width: 150, height: 14, marginRight: 8 } },
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    { fullWidth: true, className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
+                    peers.map(function (peer) {
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
+                    })
+                )
             ),
             _react2['default'].createElement(
-                _materialUi.DropDownMenu,
-                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
+                'div',
+                { style: { width: 150, height: 14 } },
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    { fullWidth: true, className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
+                )
             )
         );
+
         return _react2['default'].createElement(
             'div',
             { className: 'main-layout-nav-to-stack workspaces-board' },
@@ -129,7 +148,7 @@ exports['default'] = _react2['default'].createClass({
                     title: this.context.getMessage('172', 'settings'),
                     icon: 'mdi mdi-access-point-network',
                     legend: this.context.getMessage('173', 'settings'),
-                    actions: buttonContainer,
+                    actions: [buttonContainer],
                     reloadAction: this.reloadList.bind(this)
                 }),
                 _react2['default'].createElement(_ServicesList2['default'], {
@@ -564,10 +583,14 @@ exports['default'] = _react2['default'].createClass({
                 var tableData = [];
                 var tableColumns = [{ name: 'Status', label: '', style: { width: 56, paddingLeft: 12, paddingRight: 12, textOverflow: 'inherit' }, headerStyle: { width: 56 }, renderCell: function renderCell(service) {
                         var iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+                        var text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
                         if (service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats")) {
                             iconColor = '#9E9E9E';
                         }
-                        return _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor });
+                        return {
+                            element: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor }),
+                            text: text
+                        };
                     } }, { name: 'Name', label: m2('name'), style: { paddingLeft: 0 }, headerStyle: { paddingLeft: 0 } }, { name: 'Description', label: m2('description'), style: { width: '40%' }, headerStyle: { width: '40%' }, hideSmall: true }, { name: 'Version', label: m2('version'), style: { width: 80 }, headerStyle: { width: 80 }, hideSmall: true }, { name: 'Type', label: m2('tag'), style: { width: 140 }, headerStyle: { width: 140 }, hideSmall: true, renderCell: function renderCell(service) {
                         var isGrpc = service.Name.startsWith('pydio.grpc.');
                         var legend = isGrpc ? "Grpc" : "Rest";
@@ -626,19 +649,28 @@ exports['default'] = _react2['default'].createClass({
                     }
                 });
 
+                var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+                var body = _AdminComponents$AdminStyles.body;
+                var tableMaster = body.tableMaster;
+
+                var blockProps = body.block.props;
+                var blockStyle = body.block.container;
+
                 return {
                     v: _react2['default'].createElement(
                         'div',
                         { className: _this3.props.className, style: _this3.props.style },
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: blockStyle }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: tableData,
                                 columns: tableColumns,
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "Loading Services..."
+                                emptyStateString: "Loading Services...",
+                                masterStyles: tableMaster
                             })
                         )
                     )

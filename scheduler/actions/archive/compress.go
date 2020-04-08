@@ -23,13 +23,16 @@ package archive
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -41,11 +44,78 @@ var (
 	compressActionName = "actions.archive.compress"
 )
 
+const (
+	zipFormat   = "zip"
+	tarFormat   = "tar"
+	tarGzFormat = "tar.gz"
+)
+
 // CompressAction implements compression. Currently, it supports zip, tar and tar.gz formats.
 type CompressAction struct {
 	Router     *views.Router
 	Format     string
 	TargetName string
+	Date       string
+
+	filter *jobs.NodesSelector
+}
+
+// SetNodeFilterAsWalkFilter declares this action as RecursiveNodeWalkerAction
+func (c *CompressAction) SetNodeFilterAsWalkFilter(f *jobs.NodesSelector) {
+	c.filter = f
+}
+
+func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                compressActionName,
+		Category:          actions.ActionCategoryArchives,
+		Label:             "Create Archive",
+		Icon:              "package-down",
+		Description:       "Create a Zip, Tar or Tar.gz archive from the input",
+		InputDescription:  "Selection of node(s). Folders will be recursively walked through.",
+		OutputDescription: "One single node pointing to the created archive file.",
+		SummaryTemplate:   "",
+		HasForm:           true,
+	}
+}
+
+func (c *CompressAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "format",
+					Type:        forms.ParamSelect,
+					Label:       "Archive format",
+					Description: "The format of the archive",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{zipFormat: "Zip"},
+						{tarFormat: "Tar"},
+						{tarGzFormat: "TarGz"},
+					},
+				},
+				&forms.FormField{
+					Name:        "target",
+					Type:        forms.ParamString,
+					Label:       "Archive path",
+					Description: "FullPath to the new archive",
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "date",
+					Type:        forms.ParamBool,
+					Label:       "Date",
+					Description: "Append date to Archive name",
+					Default:     nil,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier
@@ -64,6 +134,10 @@ func (c *CompressAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	if target, ok := action.Parameters["target"]; ok {
 		c.TargetName = target
 	}
+	if action.Parameters["date"] == "true" {
+		//Format is YYYY-MM-DD
+		c.Date = time.Now().Format("2006-01-02")
+	}
 	return nil
 }
 
@@ -78,10 +152,8 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
-		Router: c.Router,
-	}
-	if c.TargetName == "" {
-
+		Router:      c.Router,
+		NodesFilter: c.filter, // may be nil
 	}
 
 	dir := path.Dir(nodes[0].Path)
@@ -90,9 +162,13 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		base = path.Base(nodes[0].Path)
 	}
 	if c.TargetName != "" {
-		dir, base = path.Split(c.TargetName)
+		dir, base = path.Split(jobs.EvaluateFieldStr(ctx, input, c.TargetName))
+		if c.Date != "" {
+			base = strings.Join([]string{base, c.Date}, "-")
+		}
 		base = strings.TrimRight(base, path.Ext(base))
 	}
+
 	targetFile := computeTargetName(ctx, c.Router, dir, base, c.Format)
 
 	reader, writer := io.Pipe()
@@ -122,17 +198,19 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		"Written": written,
 	})
 
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Archive %s was created in %s", path.Base(targetFile), path.Dir(targetFile)))
+
 	// Reload node
+	output := input
 	resp, err := c.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetFile}})
 	if err == nil {
-		input = input.WithNode(resp.Node)
-		input.AppendOutput(&jobs.ActionOutput{
+		output = input.WithNode(resp.Node)
+		output.AppendOutput(&jobs.ActionOutput{
 			Success:  true,
 			JsonBody: logBody,
 		})
 	} else {
-		input = input.WithError(err)
+		output = input.WithError(err)
 	}
-	return input, nil
-
+	return output, nil
 }

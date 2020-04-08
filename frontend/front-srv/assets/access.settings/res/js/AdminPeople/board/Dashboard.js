@@ -40,6 +40,7 @@ let Dashboard = React.createClass({
         dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
         rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
         currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
+        accessByName:React.PropTypes.func.isRequired,
         openEditor:React.PropTypes.func.isRequired
     },
 
@@ -205,7 +206,7 @@ let Dashboard = React.createClass({
     },
 
     openRoleEditor(node, initialSection = 'activity'){
-        const {pydio, rolesEditorClass} = this.props;
+        const {pydio, rolesEditorClass, rolesEditorProps} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
@@ -217,7 +218,8 @@ let Dashboard = React.createClass({
             pydio: pydio,
             initialEditSection:initialSection,
             onRequestTabClose:this.closeRoleEditor,
-            afterSave:()=>{this.reloadList()}
+            afterSave:()=>{this.reloadList()},
+            ...rolesEditorProps
         };
 
         loadEditorClass(rolesEditorClass, Editor).then(component => {
@@ -246,8 +248,11 @@ let Dashboard = React.createClass({
 
     renderNodeActions(node){
         const mime = node.getAjxpMime();
+        if(node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
+            return <div></div>;
+        }
         const iconStyle = {
-            color: 'rgba(0,0,0,0.43)',
+            color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         const disabledStyle = {
@@ -298,9 +303,16 @@ let Dashboard = React.createClass({
 
     render(){
 
+        const {accessByName, muiTheme, rootNode, pydio} = this.props;
+        const styles = AdminComponents.AdminStyles(muiTheme.palette);
+
+
+        const {searchResultData, currentNode, dataModel, showAnon} = this.state;
+
+        /*
         const fontIconStyle = {
             style : {
-                backgroundColor: this.props.muiTheme.palette.accent2Color,
+                backgroundColor: muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 width: 36,
                 height: 36,
@@ -312,58 +324,45 @@ let Dashboard = React.createClass({
                 fontSize: 20
             }
         };
-
-        const {searchResultData, currentNode, dataModel, showAnon} = this.state;
-
         let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
             let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
             importButton = <IconButton {...disabled} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} disabled={true}/>;
         }
+        */
 
         const searchBox = (
             <UsersSearchBox
                 displayResults={this.displaySearchResults}
                 displayResultsState={searchResultData}
                 hideResults={this.hideSearchResults}
-                style={{margin: '-18px 20px 0'}}
                 limit={50}
                 textLabel={this.context.getMessage('user.7')}
                 className={"media-small-hide"}
             />
         );
 
-        const headerButtons = [
-            <FlatButton primary={true} label={this.context.getMessage("user.1")} onTouchTap={this.createUserAction}/>,
-            <FlatButton primary={true} label={this.context.getMessage("user.2")} onTouchTap={this.createGroupAction}/>,
-        ];
-
-        const groupHeaderStyle = {
-            height: 48,
-            lineHeight:'48px',
-            backgroundColor:'#f5f5f5',
-            color:'#9e9e9e',
-            borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '0 20px',
-            fontSize: 12,
-            fontWeight: 500
-        };
-        let groupPanelStyle = {
-            flex:'none'
-        };
-        if (searchResultData !== false){
-            groupPanelStyle = {
-                flex:'none',
-                opacity: 0.6
-            };
+        let headerButtons = [];
+        let renderActionsFunc = () => {return []};
+        let openEditor = null;
+        let multipleActions = [];
+        if(accessByName('Create')){
+            renderActionsFunc = this.renderNodeActions.bind(this);
+            multipleActions = [pydio.Controller.getActionByName('delete')];
+            openEditor = this.openRoleEditor.bind(this);
+            headerButtons = [
+                <FlatButton primary={true} label={this.context.getMessage("user.1")} onTouchTap={this.createUserAction} {...styles.props.header.flatButton} />,
+                <FlatButton primary={true} label={this.context.getMessage("user.2")} onTouchTap={this.createGroupAction}{...styles.props.header.flatButton} />,
+            ];
         }
+
         let profileFilter = '';
         if(currentNode.getMetadata().has('userProfileFilter')){
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
+        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color);
         const filterIcon = (
             <IconMenu
                 iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')} tooltipPosition={"bottom-left"}/>}
@@ -381,6 +380,27 @@ let Dashboard = React.createClass({
                 <MenuItem value={"toggle-anon"} primaryText={this.context.getMessage('user.filter.anon')} secondaryText={showAnon?<FontIcon className={"mdi mdi-check"}/>:null} />
             </IconMenu>
         );
+        const {body} = AdminComponents.AdminStyles();
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
+        const groupHeaderStyle = {
+            height: 48,
+            lineHeight:'48px',
+            fontSize: 12,
+            fontWeight: 500,
+            ...body.block.header,
+            borderBottom: '1px solid ' + body.tableMaster.row.borderBottomColor,
+            padding: '0 20px'
+        };
+        let groupPanelStyle = {
+            width: 226,
+            borderRight: '1px solid' + body.tableMaster.row.borderBottomColor,
+            overflowY: 'auto',
+            flex:'none'
+        };
+        if (searchResultData !== false){
+            groupPanelStyle = {...groupPanelStyle, opacity: 0.6};
+        }
 
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
@@ -392,14 +412,14 @@ let Dashboard = React.createClass({
                     centerContent={searchBox}
                 />
 
-                <Paper zDepth={1} style={{margin: 16}} className={"horizontal-layout layout-fill"}>
-                    <div className="hide-on-vertical-layout vertical-layout tab-vertical-layout people-tree" style={groupPanelStyle}>
+                <Paper {...blockProps} style={blockStyle} className={"horizontal-layout layout-fill"}>
+                    <div className="hide-on-vertical-layout vertical-layout tab-vertical-layout" style={groupPanelStyle}>
                         <div style={{flex: 1}}>
                             <div style={groupHeaderStyle}>{this.context.getMessage("user.3")}</div>
                             <PydioComponents.DNDTreeView
                                 showRoot={true}
                                 rootLabel={this.context.getMessage("user.5")}
-                                node={this.props.rootNode}
+                                node={rootNode}
                                 dataModel={this.props.dataModel}
                                 className="users-groups-tree"
                                 paddingOffset={10}
@@ -409,21 +429,25 @@ let Dashboard = React.createClass({
                     <div zDepth={0} className="layout-fill vertical-layout people-list">
                         <PydioComponents.SimpleList
                             ref="mainlist"
-                            pydio={this.props.pydio}
+                            pydio={pydio}
                             node={currentNode}
                             dataModel={dataModel}
-                            openEditor={this.openRoleEditor}
                             clearSelectionOnReload={false}
-                            entryRenderIcon={this.renderListUserAvatar}
-                            entryRenderFirstLine={this.renderListEntryFirstLine}
-                            entryRenderSecondLine={this.renderListEntrySecondLine}
-                            entryEnableSelector={this.renderListEntrySelector}
-                            entryRenderActions={this.renderNodeActions}
+                            openEditor={openEditor}
+                            entryRenderIcon={this.renderListUserAvatar.bind(this)}
+                            entryRenderFirstLine={this.renderListEntryFirstLine.bind(this)}
+                            entryRenderSecondLine={this.renderListEntrySecondLine.bind(this)}
+                            entryEnableSelector={this.renderListEntrySelector.bind(this)}
+                            entryRenderActions={renderActionsFunc}
                             searchResultData={searchResultData}
                             elementHeight={PydioComponents.SimpleList.HEIGHT_TWO_LINES}
                             hideToolbar={false}
-                            toolbarStyle={{backgroundColor: '#f5f5f5', height:48, borderBottom: '1px solid #e4e4e4'}}
-                            multipleActions={[this.props.pydio.Controller.getActionByName('delete')]}
+                            toolbarStyle={{
+                                backgroundColor: body.block.header.backgroundColor,
+                                height:48,
+                                borderBottom: groupHeaderStyle.borderBottom
+                            }}
+                            multipleActions={multipleActions}
                             additionalActions={filterIcon}
                             filterNodes={this.filterNodes.bind(this)}
                         />

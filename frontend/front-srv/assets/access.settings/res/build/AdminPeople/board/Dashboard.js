@@ -83,6 +83,7 @@ var Dashboard = _react2['default'].createClass({
         dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
         rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired
     },
 
@@ -263,13 +264,14 @@ var Dashboard = _react2['default'].createClass({
         var _props2 = this.props;
         var pydio = _props2.pydio;
         var rolesEditorClass = _props2.rolesEditorClass;
+        var rolesEditorProps = _props2.rolesEditorProps;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        var editorProps = {
+        var editorProps = _extends({
             ref: "editor",
             node: node,
             pydio: pydio,
@@ -278,7 +280,7 @@ var Dashboard = _react2['default'].createClass({
             afterSave: function afterSave() {
                 _this2.reloadList();
             }
-        };
+        }, rolesEditorProps);
 
         (0, _editorUtilClassLoader.loadEditorClass)(rolesEditorClass, _editorEditor2['default']).then(function (component) {
             _this2.props.openRightPane({
@@ -307,8 +309,11 @@ var Dashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var mime = node.getAjxpMime();
+        if (node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
+            return _react2['default'].createElement('div', null);
+        }
         var iconStyle = {
-            color: 'rgba(0,0,0,0.43)',
+            color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         var disabledStyle = {
@@ -383,20 +388,13 @@ var Dashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
-        var fontIconStyle = {
-            style: {
-                backgroundColor: this.props.muiTheme.palette.accent2Color,
-                borderRadius: '50%',
-                width: 36,
-                height: 36,
-                padding: 8,
-                marginRight: 10
-            },
-            iconStyle: {
-                color: 'white',
-                fontSize: 20
-            }
-        };
+        var _props3 = this.props;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var rootNode = _props3.rootNode;
+        var pydio = _props3.pydio;
+
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var _state2 = this.state;
         var searchResultData = _state2.searchResultData;
@@ -404,50 +402,57 @@ var Dashboard = _react2['default'].createClass({
         var dataModel = _state2.dataModel;
         var showAnon = _state2.showAnon;
 
-        var importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, fontIconStyle, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), onTouchTap: this.openUsersImporter }));
-        if (!_pydioHttpResourcesManager2['default'].moduleIsAvailable('EnterprisePeople')) {
-            var disabled = { style: _extends({}, fontIconStyle.style), iconStyle: _extends({}, fontIconStyle.iconStyle) };
+        /*
+        const fontIconStyle = {
+            style : {
+                backgroundColor: muiTheme.palette.accent2Color,
+                borderRadius: '50%',
+                width: 36,
+                height: 36,
+                padding: 8,
+                marginRight: 10
+            },
+            iconStyle : {
+                color: 'white',
+                fontSize: 20
+            }
+        };
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
+            let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
-            importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, disabled, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), disabled: true }));
+            importButton = <IconButton {...disabled} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} disabled={true}/>;
         }
+        */
 
         var searchBox = _react2['default'].createElement(_UsersSearchBox2['default'], {
             displayResults: this.displaySearchResults,
             displayResultsState: searchResultData,
             hideResults: this.hideSearchResults,
-            style: { margin: '-18px 20px 0' },
             limit: 50,
             textLabel: this.context.getMessage('user.7'),
             className: "media-small-hide"
         });
 
-        var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
-
-        var groupHeaderStyle = {
-            height: 48,
-            lineHeight: '48px',
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '0 20px',
-            fontSize: 12,
-            fontWeight: 500
+        var headerButtons = [];
+        var renderActionsFunc = function renderActionsFunc() {
+            return [];
         };
-        var groupPanelStyle = {
-            flex: 'none'
-        };
-        if (searchResultData !== false) {
-            groupPanelStyle = {
-                flex: 'none',
-                opacity: 0.6
-            };
+        var openEditor = null;
+        var multipleActions = [];
+        if (accessByName('Create')) {
+            renderActionsFunc = this.renderNodeActions.bind(this);
+            multipleActions = [pydio.Controller.getActionByName('delete')];
+            openEditor = this.openRoleEditor.bind(this);
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
         }
+
         var profileFilter = '';
         if (currentNode.getMetadata().has('userProfileFilter')) {
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
+        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
@@ -468,6 +473,31 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.MenuItem, { value: "toggle-anon", primaryText: this.context.getMessage('user.filter.anon'), secondaryText: showAnon ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         );
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+        var groupHeaderStyle = _extends({
+            height: 48,
+            lineHeight: '48px',
+            fontSize: 12,
+            fontWeight: 500
+        }, body.block.header, {
+            borderBottom: '1px solid ' + body.tableMaster.row.borderBottomColor,
+            padding: '0 20px'
+        });
+        var groupPanelStyle = {
+            width: 226,
+            borderRight: '1px solid' + body.tableMaster.row.borderBottomColor,
+            overflowY: 'auto',
+            flex: 'none'
+        };
+        if (searchResultData !== false) {
+            groupPanelStyle = _extends({}, groupPanelStyle, { opacity: 0.6 });
+        }
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
@@ -479,10 +509,10 @@ var Dashboard = _react2['default'].createClass({
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
+                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
                 _react2['default'].createElement(
                     'div',
-                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout people-tree', style: groupPanelStyle },
+                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout', style: groupPanelStyle },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -494,7 +524,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
                             rootLabel: this.context.getMessage("user.5"),
-                            node: this.props.rootNode,
+                            node: rootNode,
                             dataModel: this.props.dataModel,
                             className: 'users-groups-tree',
                             paddingOffset: 10
@@ -506,21 +536,25 @@ var Dashboard = _react2['default'].createClass({
                     { zDepth: 0, className: 'layout-fill vertical-layout people-list' },
                     _react2['default'].createElement(PydioComponents.SimpleList, {
                         ref: 'mainlist',
-                        pydio: this.props.pydio,
+                        pydio: pydio,
                         node: currentNode,
                         dataModel: dataModel,
-                        openEditor: this.openRoleEditor,
                         clearSelectionOnReload: false,
-                        entryRenderIcon: this.renderListUserAvatar,
-                        entryRenderFirstLine: this.renderListEntryFirstLine,
-                        entryRenderSecondLine: this.renderListEntrySecondLine,
-                        entryEnableSelector: this.renderListEntrySelector,
-                        entryRenderActions: this.renderNodeActions,
+                        openEditor: openEditor,
+                        entryRenderIcon: this.renderListUserAvatar.bind(this),
+                        entryRenderFirstLine: this.renderListEntryFirstLine.bind(this),
+                        entryRenderSecondLine: this.renderListEntrySecondLine.bind(this),
+                        entryEnableSelector: this.renderListEntrySelector.bind(this),
+                        entryRenderActions: renderActionsFunc,
                         searchResultData: searchResultData,
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
-                        toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
-                        multipleActions: [this.props.pydio.Controller.getActionByName('delete')],
+                        toolbarStyle: {
+                            backgroundColor: body.block.header.backgroundColor,
+                            height: 48,
+                            borderBottom: groupHeaderStyle.borderBottom
+                        },
+                        multipleActions: multipleActions,
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
                     })

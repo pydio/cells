@@ -45,6 +45,10 @@ const (
 	operationLabelKey
 	daoKey
 	configKey
+
+	ContextMetaJobUuid        = "X-Pydio-Job-Uuid"
+	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
+	ContextMetaTaskActionPath = "X-Pydio-Task-ActionPath"
 )
 
 var serviceColorCount uint64 = 30

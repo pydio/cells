@@ -39,10 +39,11 @@ type (
 const (
 	SERVICE_NATS = "nats"
 
-	SERVICE_LOG     = "log"
-	SERVICE_CONFIG  = "config"
-	SERVICE_INSTALL = "install"
-	SERVICE_UPDATE  = "update"
+	SERVICE_LOG         = "log"
+	SERVICE_CONFIG      = "config"
+	SERVICE_INSTALL     = "install"
+	SERVICE_UPDATE      = "update"
+	SERVICE_HEALTHCHECK = "healthcheck"
 
 	SERVICE_TAG_IDM        = "idm"
 	SERVICE_TAG_SCHEDULER  = "scheduler"
@@ -113,6 +114,8 @@ const (
 	TOPIC_PROXY_RESTART    = "topic.pydio.proxy.restart"
 	TOPIC_SERVICE_START    = "topic.pydio.service.start"
 	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
+	TOPIC_SERVICE_STARTED  = "topic.pydio.service.started"
+	TOPIC_SERVICE_STOPPED  = "topic.pydio.service.stopped"
 	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
 	TOPIC_META_CHANGES     = "topic.pydio.meta.nodes.changes"

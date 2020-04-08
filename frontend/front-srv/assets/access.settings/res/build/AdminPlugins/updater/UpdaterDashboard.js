@@ -24,6 +24,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -166,6 +168,9 @@ var UpdaterDashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var list = null;
+        var _props = this.props;
+        var accessByName = _props.accessByName;
+        var muiTheme = _props.muiTheme;
         var _state2 = this.state;
         var packages = _state2.packages;
         var check = _state2.check;
@@ -175,22 +180,24 @@ var UpdaterDashboard = _react2['default'].createClass({
         var selectedPackage = _state2.selectedPackage;
         var watchJob = _state2.watchJob;
         var backend = _state2.backend;
+        var primary1Color = muiTheme.palette.primary1Color;
 
-        var subHeaderStyle = {
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            fontSize: 12,
-            fontWeight: 500,
-            borderBottom: '1px solid #e0e0e0',
-            height: 48,
-            lineHeight: '48px',
-            padding: '0 16px'
-        };
-        var accent2Color = this.props.muiTheme.palette.accent2Color;
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        var subHeaderStyle = adminStyles.body.block.headerFull;
 
         var buttons = [];
         if (packages) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('start.update', 'updater'), onTouchTap: this.performUpgrade }));
+            var bProps = _extends({}, adminStyles.props.header.flatButton);
+            var disabled = check < 0 || updateApplied || !accessByName('Create');
+            if (disabled) {
+                bProps.backgroundColor = '#e0e0e0';
+            }
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                disabled: disabled,
+                secondary: true,
+                label: this.context.getMessage('start.update', 'updater'),
+                onTouchTap: this.performUpgrade
+            }, bProps)));
             var items = [];
 
             var _loop = function (index) {
@@ -198,7 +205,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 items.push(_react2['default'].createElement(_materialUi.ListItem, {
                     leftCheckbox: _react2['default'].createElement(_materialUi.Checkbox, { key: p, onCheck: function (e, v) {
                             return _this3.onCheckStateChange(index, v, p);
-                        }, checked: check >= index, disabled: updateApplied || check > index }),
+                        }, checked: check >= index, disabled: updateApplied || check > index || !accessByName('Create') }),
                     primaryText: p.PackageName + ' ' + p.Version,
                     secondaryText: p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()
                 }));
@@ -281,7 +288,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ' ',
                 _react2['default'].createElement(
                     'a',
-                    { style: { color: accent2Color, cursor: 'pointer' }, onClick: function () {
+                    { style: { color: primary1Color, cursor: 'pointer' }, onClick: function () {
                             return _this3.setState({ upgradeDialog: true });
                         } },
                     '> ',
@@ -308,7 +315,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 { style: { flex: 1, overflow: 'auto' } },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: 20 }, zDepth: 1 },
+                    adminStyles.body.block.props,
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
@@ -328,7 +335,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 watchJob && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { position: 'relative' }) }),
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
@@ -349,17 +356,20 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 !watchJob && list && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { position: 'relative' }) }),
                     list
                 ),
                 !watchJob && _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
                     className: "row-flex",
                     serviceName: "pydio.grpc.update",
                     ref: "serviceConfigs",
+                    accessByName: accessByName,
+                    disabled: !accessByName('Create'),
                     onDirtyChange: function (d) {
                         return _this3.setState({ dirty: d });
                     }
-                })
+                }),
+                adminStyles.formCss()
             )
         );
     }

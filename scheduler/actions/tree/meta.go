@@ -22,24 +22,69 @@ package tree
 
 import (
 	"context"
+	"fmt"
+	"path"
 
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type MetaAction struct {
-	Client        tree.NodeReceiverClient
-	MetaNamespace string
-	MetaValue     interface{}
-}
-
 var (
 	metaActionName = "actions.tree.meta"
 )
+
+type MetaAction struct {
+	Client        tree.NodeReceiverClient
+	MetaNamespace string
+	MetaValue     string
+}
+
+func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                metaActionName,
+		Label:             "Update Meta",
+		Icon:              "tag-multiple",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Update metadata on files or folders passed in input",
+		InputDescription:  "Multiple selection of files or folders",
+		OutputDescription: "Updated selection of files or folders",
+		SummaryTemplate:   "",
+		HasForm:           true,
+	}
+}
+
+func (c *MetaAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "metaName",
+					Type:        "string",
+					Label:       "Meta Name",
+					Description: "Metadata namespace to update",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "metaValue",
+					Type:        "string",
+					Label:       "Meta Value",
+					Description: "Value to apply",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // GetName returns this action unique identifier
 func (c *MetaAction) GetName() string {
@@ -64,11 +109,15 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	}
 
 	// Update Metadata
-	input.Nodes[0].SetMeta(c.MetaNamespace, c.MetaValue)
-
-	_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: input.Nodes[0], To: input.Nodes[0]})
-	if err != nil {
-		return input.WithError(err), err
+	for _, n := range input.Nodes {
+		ns := jobs.EvaluateFieldStr(ctx, input, c.MetaNamespace)
+		val := jobs.EvaluateFieldStr(ctx, input, c.MetaValue)
+		n.SetMeta(ns, val)
+		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
+		if err != nil {
+			return input.WithError(err), err
+		}
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Updated metadata %s (value %s) on %s", ns, val, path.Base(n.GetPath())))
 	}
 
 	input.AppendOutput(&jobs.ActionOutput{Success: true})

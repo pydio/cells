@@ -29,6 +29,7 @@ import (
 
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/pkg/disk"
 	// Import minio gateways
 	_ "github.com/pydio/minio-srv/cmd/gateway"
 
@@ -48,6 +49,10 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	accessKey := o.Config.ApiKey
 	secretKey := o.Config.ApiSecret
+	// Replace secretKey on the fly
+	if sec := config.GetSecret(secretKey).String(""); sec != "" {
+		secretKey = sec
+	}
 	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
 	if e != nil {
 		return e
@@ -113,6 +118,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	} else if customEndpoint != "" {
 		params = append(params, customEndpoint)
 		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to " + customEndpoint)
+	} else if gateway == "s3" && customEndpoint == "" {
+		params = append(params, "https://s3.amazonaws.com", "pydio-ds")
+		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to Amazon S3")
 	}
 
 	os.Setenv("MINIO_ACCESS_KEY", accessKey)
@@ -124,10 +132,30 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 }
 
-// GetHttpURL of handler
-func (o *ObjectHandler) GetMinioConfig(ctx context.Context, req *object.GetMinioConfigRequest, resp *object.GetMinioConfigResponse) error {
+// GetMinioConfig returns current configuration
+func (o *ObjectHandler) GetMinioConfig(_ context.Context, _ *object.GetMinioConfigRequest, resp *object.GetMinioConfigResponse) error {
 
 	resp.MinioConfig = o.Config
+
+	return nil
+}
+
+// StorageStats returns statistics about storage
+func (o *ObjectHandler) StorageStats(_ context.Context, _ *object.StorageStatsRequest, resp *object.StorageStatsResponse) error {
+
+	resp.Stats = make(map[string]string)
+	resp.Stats["StorageType"] = o.Config.StorageType.String()
+	switch o.Config.StorageType {
+	case object.StorageType_LOCAL:
+		folder := o.Config.LocalFolder
+		if stats, e := disk.GetInfo(folder); e != nil {
+			return e
+		} else {
+			resp.Stats["Total"] = fmt.Sprintf("%d", stats.Total)
+			resp.Stats["Free"] = fmt.Sprintf("%d", stats.Free)
+			resp.Stats["FSType"] = stats.FSType
+		}
+	}
 
 	return nil
 }

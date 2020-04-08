@@ -74,6 +74,11 @@ class CellModel extends Observable{
     getNodeLabelInContext(node){
         const path = node.Path;
         let label = PathUtils.getBasename(path);
+        if(!label && node.MetaStore && node.MetaStore.name){
+            try{
+                label = JSON.parse(node.MetaStore.name)
+            } catch(e){}
+        }
         if(node.MetaStore && node.MetaStore.selection){
             return label;
         }
@@ -326,6 +331,9 @@ class CellModel extends Observable{
                     Pydio.getInstance().triggerRepositoryChange(response.Uuid);
                 });
             }
+        }).catch((err) => {
+            const msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
 
     }
@@ -372,11 +380,17 @@ class CellModel extends Observable{
                 });
                 if(switchToOther){
                     pydio.triggerRepositoryChange(switchToOther, () => {
-                        api.deleteCell(this.cell.Uuid).then(res => {});
+                        api.deleteCell(this.cell.Uuid).then(res => {}).catch((err) => {
+                            const msg = err.Detail || err.message || err;
+                            pydio.UI.displayMessage('ERROR', msg);
+                        });
                     });
                 }
             } else {
-                return api.deleteCell(this.cell.Uuid).then(res => {});
+                return api.deleteCell(this.cell.Uuid).then(res => {}).catch((err) => {
+                    const msg = err.Detail || err.message || err;
+                    pydio.UI.displayMessage('ERROR', msg);
+                });
             }
         }
         return Promise.resolve({});

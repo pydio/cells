@@ -19,36 +19,39 @@
  */
 
 import React from 'react'
-import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
 import PydioApi from 'pydio/http/api'
 import {JobsJob} from 'pydio/http/rest-api'
-const {moment} = Pydio.requireLib('boot');
-import {Dialog, FlatButton, SelectField, MenuItem, TimePicker, TextField, FontIcon} from 'material-ui'
+import {Dialog, FlatButton, FontIcon} from 'material-ui'
+import ScheduleForm from './ScheduleForm'
 
 class JobSchedule extends React.Component {
 
     constructor(props) {
         super(props);
-        const {job} = props;
-        if(job.Schedule && job.Schedule.Iso8601Schedule){
-            this.state = JobSchedule.parseIso8601(job.Schedule.Iso8601Schedule);
-        } else {
-            this.state = {frequency: 'manual'};
-        }
-        this.state['open'] = false;
+        const {job} = this.props;
+        this.state = {
+            open: false,
+            job,
+            rand: Math.random()
+        };
     }
 
     updateJob(){
-        const {job, onUpdate} = this.props;
-        const {frequency} = this.state;
+        const {onUpdate} = this.props;
+        const {job, formState} = this.state;
+        if(!formState) {
+            this.setState({open: false});
+            return
+        }
+        const {frequency} = formState;
         if(frequency === 'manual'){
             if(job.Schedule !== undefined){
                 delete job.Schedule;
             }
             job.AutoStart = true;
         } else {
-            job.Schedule = {Iso8601Schedule: JobSchedule.makeIso8601FromState(this.state)};
+            job.Schedule = {Iso8601Schedule: ScheduleForm.makeIso8601FromState(formState)};
             if(job.AutoStart !== undefined){
                 delete job.AutoStart;
             }
@@ -64,147 +67,17 @@ class JobSchedule extends React.Component {
             }
             api.putJob(req).then(()=>{
                 onUpdate();
-                this.setState({open: false});
-            })
+                this.setState({open: false, job: req.Job, rand:Math.random()});
+            }).catch(e => {})
         })
     }
 
-    static parseIso8601(value){
-        if (value === '' || value.indexOf('/') === -1){
-            return {frequency: 'manual'};
-        }
-        const [R, d, i] = value.split('/');
-        const startDate = new Date(d);
-        if(i === 'P1M'){
-            return {frequency:'monthly', monthday: startDate.getDate(), daytime: startDate};
-        } else if(i === 'P7D') {
-            const m = moment(startDate);
-            return {frequency: 'weekly', weekday: m.day(), daytime: startDate};
-        } else if(i === 'PT24H' || i === 'P1D') {
-            return {frequency: 'daily', daytime: startDate}
-        } else {
-            const d = moment.duration(i);
-            if(d.isValid()){
-                const minutes = d.minutes() + d.hours() * 60;
-                return {frequency: 'timely', everyminutes: minutes};
-            } else {
-                return {error: 'Cannot parse value ' + value};
-            }
-        }
-    }
-
-    static makeIso8601FromState(state){
-        const {frequency, monthday, weekday, daytime, everyminutes} = state;
-        let startDate = new Date('2012-01-01T00:00:00.828696-07:00');
-        let duration = moment.duration(0);
-        switch (frequency) {
-            case "manual":
-                return "";
-            case "monthly":
-                if(daytime){
-                    startDate.setTime(daytime.getTime());
-                }
-                startDate.setDate(monthday || 1);
-                duration = moment.duration(1, 'months');
-                break;
-            case "weekly":
-                if(daytime){
-                    startDate.setTime(daytime.getTime());
-                }
-                const m = moment(startDate);
-                m.day(weekday === undefined ? 1 : weekday);
-                startDate = m.toDate();
-                duration = moment.duration(7, 'days');
-                break;
-            case "daily":
-                if(daytime){
-                    startDate.setTime(daytime.getTime());
-                }
-                duration = moment.duration(24, 'hours');
-                break;
-            case "timely":
-                duration = moment.duration(everyminutes, 'minutes');
-                break;
-            default:
-                break
-        }
-        return 'R/' + moment(startDate).toISOString() + '/' + duration.toISOString();
-    }
-
-    T(id){
-        return Pydio.getMessages()['ajxp_admin.scheduler.' + id] || id;
-    }
-
-    changeFrequency(f){
-        let {monthday, weekday, daytime, everyminutes} = this.state;
-        if(monthday === undefined){
-            monthday = 1;
-        }
-        if(weekday === undefined){
-            weekday = 1;
-        }
-        if(daytime === undefined){
-            daytime = moment();
-            daytime.year(2012);
-            daytime.hours(9);
-            daytime.minutes(0);
-            daytime = daytime.toDate();
-        }
-        if(everyminutes === undefined){
-            everyminutes = 15
-        }
-        this.setState({frequency: f, monthday, weekday, daytime, everyminutes});
-    }
-
-    readableString(short = false){
-        const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
-        let dTRead = '0:00';
-        if(daytime){
-            dTRead = moment(daytime).format('h:mm');
-        }
-        switch (frequency) {
-            case "manual":
-                return this.T("trigger.manual");
-            case "monthly":
-                if(short){
-                    return this.T("schedule.monthly.short").replace('%1', monthday);
-                } else {
-                    return this.T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
-                }
-            case "weekly":
-                if(short){
-                    return this.T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
-                } else {
-                    return this.T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
-                }
-            case "daily":
-                if(short){
-                    return this.T("schedule.daily.short").replace('%1', dTRead);
-                } else {
-                    return this.T("schedule.daily").replace('%1', dTRead);
-                }
-            case "timely":
-                const duration = moment.duration(everyminutes, 'minutes');
-                return this.T("schedule.timely").replace('%1', (duration.hours()?duration.hours()+'h':'') + (duration.minutes()?duration.minutes()+'mn':''));
-            default:
-                return "Error"
-        }
-    }
 
     render() {
-        const {edit} = this.props;
-        if(!edit){
-            return <div>{this.readableString(true)}</div>
-        }
-        const {frequency, monthday, weekday, daytime, everyminutes} = this.state;
-        let monthdays = [];
-        let weekdays = moment.weekdays();
-        for (let i = 1;i<30; i++){
-            monthdays.push(i);
-        }
+        const {job, rand} = this.state;
         return (
             <div>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} label={this.readableString(true)} onTouchTap={()=>{this.setState({open:true})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} key={rand} label={<ScheduleForm schedule={job.Schedule} rand={rand}/>} onTouchTap={()=>{this.setState({open:true})}}/>
                 <Dialog
                     title="Job Schedule"
                     actions={[
@@ -215,71 +88,12 @@ class JobSchedule extends React.Component {
                     open={this.state.open}
                     contentStyle={{width: 320}}
                 >
-                    <div>
-                        <div>
-                            <div style={{color: '#212121'}}>{this.readableString()}</div>
-                            {frequency !== 'manual' && <div style={{fontSize:11, paddingTop: 5}}>ISO8601: {JobSchedule.makeIso8601FromState(this.state)}</div>}
-                        </div>
-                        <SelectField
-                            floatingLabelText={this.T('schedule.type')}
-                            value={frequency}
-                            onChange={(e,i,val) => {this.changeFrequency(val)}}
-                            fullWidth={true}
-                        >
-                            <MenuItem value={'manual'} primaryText={this.T('schedule.type.manual')} />
-                            <MenuItem value={'monthly'} primaryText={this.T('schedule.type.monthly')} />
-                            <MenuItem value={'weekly'} primaryText={this.T('schedule.type.weekly')} />
-                            <MenuItem value={'daily'} primaryText={this.T('schedule.type.daily')} />
-                            <MenuItem value={'timely'} primaryText={this.T('schedule.type.timely')} />
-                        </SelectField>
-                        {frequency === 'monthly' &&
-                        <div>
-                            <SelectField
-                                floatingLabelText={this.T('schedule.detail.monthday')}
-                                value={monthday}
-                                onChange={(e,i,val)=>{this.setState({monthday:val})}}
-                                fullWidth={true}
-                            >
-                                {monthdays.map(d => <MenuItem value={d} primaryText={d}/>)}
-                            </SelectField>
-                        </div>
-                        }
-                        {frequency === 'weekly' &&
-                        <div>
-                            <SelectField
-                                floatingLabelText={this.T('schedule.detail.weekday')}
-                                value={weekday}
-                                onChange={(e,i,val)=>{this.setState({weekday:val})}}
-                                fullWidth={true}
-                            >
-                                {weekdays.map((d,i) => <MenuItem value={i} primaryText={d}/>)}
-                            </SelectField>
-                        </div>
-                        }
-                        {(frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') &&
-                            <div>
-                                <TimePicker
-                                    format="ampm"
-                                    minutesStep={5}
-                                    floatingLabelText={this.T('schedule.detail.daytime')}
-                                    value={daytime}
-                                    onChange={(e,v) => {this.setState({daytime: v})}}
-                                    fullWidth={true}
-                                />
-                            </div>
-                        }
-                        {frequency === 'timely' &&
-                        <div>
-                            <TextField
-                                floatingLabelText={this.T('schedule.detail.minutes')}
-                                value={everyminutes}
-                                type={"number"}
-                                onChange={(e,val)=>{this.setState({everyminutes:parseInt(val)})}}
-                                fullWidth={true}
-                            />
-                        </div>
-                        }
-                    </div>
+                    <ScheduleForm
+                        schedule={job.Schedule}
+                        onChangeState={(s) => {this.setState({formState: s})}}
+                        edit={true}
+                        includeManual={true}
+                    />
                 </Dialog>
             </div>
         );

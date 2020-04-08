@@ -17,8 +17,6 @@ message NodesSelector {
     bool All = 1;
     // Preset list of node pathes
     repeated string Pathes = 2;
-    // Preset set of nodes
-    repeated tree.Node Nodes = 3;
     // Query to apply to select users (or filter a given node passed by event)
     service.Query Query = 4;
     // Wether to trigger one action per node or one action
@@ -26,6 +24,27 @@ message NodesSelector {
     bool Collect = 5;
 }
 
+// Possible values for IdmSelector.Type
+enum IdmSelectorType {
+    User = 0;
+    Role = 1;
+    Workspace = 2;
+    Acl = 3;
+}
+
+// Generic container for select/filter idm objects
+message IdmSelector {
+    // Type of objects to look for
+    IdmSelectorType Type = 1;
+    // Load all objects
+    bool All = 2;
+    // Serialized search query
+    service.Query Query = 3;
+    // Pass a slice of objects to one action, or trigger all actions in parallel
+    bool Collect = 4;
+}
+
+// Select or filter users - should be replaced by more generic IdmSelector
 message UsersSelector {
     // Select all users
     bool All = 1;
@@ -38,9 +57,30 @@ message UsersSelector {
     bool Collect = 5;
 }
 
-message SourceFilter {
-    // Can be built with SourceSingleQuery or ActionOutputQuery
+// ActionOutputFilter can be used to filter last message output
+message ActionOutputFilter {
+    // Query built from ActionOutputSingleQuery
     service.Query Query = 1;
+}
+
+enum ContextMetaFilterType {
+    RequestMeta = 0;
+    ContextUser = 1;
+}
+// PolicyContextFilter can be used to filter request metadata
+message ContextMetaFilter {
+    // Type of context filter
+    ContextMetaFilterType Type = 1;
+    // Can be built with ContextMetaSingleQuery
+    service.Query Query = 2;
+}
+
+// ContextMetaSingleQuery uses idm.PolicyCondition
+message ContextMetaSingleQuery {
+    // Condition applies to FieldName
+    string FieldName = 1;
+    // PolicyCondition
+    idm.PolicyCondition Condition = 2;
 }
 
 message Schedule {
@@ -56,17 +96,29 @@ message Action {
     // String Identifier for specific action
     string ID = 1;
 
+    // User-defined label for this action
+    string Label = 13;
+    // User-defined comment for this action
+    string Description = 14;
+
     // Nodes Selector
     NodesSelector NodesSelector = 2;
-    // Users Selector
+    // Users Selector (deprecated in favor of IdmSelector)
     UsersSelector UsersSelector = 3;
     // Node Filter
     NodesSelector NodesFilter = 4;
-    // User Filter
+    // User Filter (deprecated in favor of IdmSelector)
     UsersSelector UsersFilter = 5;
 
-    // Source filter
-    SourceFilter SourceFilter = 6;
+    // Idm objects collector
+    IdmSelector IdmSelector = 9;
+    // Idm objects filter
+    IdmSelector IdmFilter = 10;
+
+    // Previous action output filter
+    ActionOutputFilter ActionOutputFilter = 6;
+    // Metadata policy-based filter
+    ContextMetaFilter ContextMetaFilter = 11;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -75,6 +127,10 @@ message Action {
     // If there are many, it is considered they can be triggered
     // in parallel
     repeated Action ChainedActions = 8;
+
+    // If any Filter is used, next actions can be triggered on Failure
+    // This adds ability to create conditional Yes/No branches
+    repeated Action FailedFilterActions = 12;
 }
 
 message Job {
@@ -112,8 +168,32 @@ message Job {
     // Filled with currently running tasks
     repeated Task Tasks = 14;
 
+    // Filter out specific events
     NodesSelector NodeEventFilter = 15;
+    // Deprecated in favor of more generic IdmSelector
     UsersSelector UserEventFilter = 16;
+    // Idm objects filter
+    IdmSelector IdmFilter = 17;
+    // Event Context Filter
+    ContextMetaFilter ContextMetaFilter = 18;
+
+    // Job-level parameters that can be passed to underlying actions
+    repeated JobParameter Parameters = 19;
+}
+
+message JobParameter {
+    // Parameter name
+    string Name = 1;
+    // Additional description
+    string Description = 2;
+    // Value saved for this parameter
+    string Value = 4;
+    // If mandatory, job cannot start without a value
+    bool Mandatory = 3;
+    // Parameter type used in GUI forms
+    string Type = 5;
+    // Additional data used by GUI elements
+    string JsonChoices = 6;
 }
 
 // Events sent by the JobService when CRUD'ing a Job configuration
@@ -317,23 +397,75 @@ message JobTriggerEvent {
 // Standard output of an action. Success value is required
 // other are optional
 message ActionOutput {
+    // True if action succeeded
     bool Success = 1;
+    // Arbitrary bytes sequence
     bytes RawBody = 2;
+    // Arbitrary string
     string StringBody = 3;
+    // Arbitrary JSON-encoded bytes
     bytes JsonBody = 4;
+    // Error
     string ErrorString = 5;
+    // If action was returned WithIgnore()
     bool Ignored = 6;
+    // Time taken to run the action
     int32 Time = 7;
 }
+
+// ActionOutputSingleQuery provides a unitary query to filter ActionOutput messages
+message ActionOutputSingleQuery {
+    // Check if ActionOutput has success
+    bool IsSuccess = 1;
+
+    // Occurrence of string in StringBody or JsonBody (as string)
+    string StringBodyRegexp = 2;
+    // StringBody or JsonBody size bigger than
+    int32 StringBodySizeGreaterThan = 3;
+    // StringBody or JsonBody size smaller than
+    int32 StringBodySizeSmallerThan = 4;
+
+    // Exact match of StringBody or JsonBody (as string)
+    string JsonBodyRegexp = 5;
+    // Check existence of key in json body
+    string JsonBodyHasKey = 6;
+    // StringBody or JsonBody size bigger than
+    int32 JsonBodySizeGreaterThan = 7;
+    // StringBody or JsonBody size smaller than
+    int32 JsonBodySizeSmallerThan = 8;
+
+    // Time taken greater than
+    int32 TaskTimeGt = 9;
+    // Time taken shorter than
+    int32 TaskTimeLt = 10;
+
+    // Check occurrence on error string
+    string ErrorStringRegexp = 11;
+
+    // Invert condition
+    bool Not = 12;
+}
+
 
 // Message passed along from one action to another, main properties
 // are modified by the various actions.
 // OutputChain is being stacked up when passing through actions
 message ActionMessage {
+    // Initial event that triggered the Job
     google.protobuf.Any Event = 1;
+    // One or more Node
     repeated tree.Node Nodes = 2;
+    // One or more User
     repeated idm.User Users = 3;
+    // One or more Role
+    repeated idm.Role Roles = 6;
+    // One or more Workspace
+    repeated idm.Workspace Workspaces = 7;
+    // One or more ACL
+    repeated idm.ACL Acls = 8;
+    // One or more Activity
     repeated activity.Object Activities = 4;
+    // Stack of ActionOutput messages appended by all previous actions
     repeated ActionOutput OutputChain = 5;
 }
 

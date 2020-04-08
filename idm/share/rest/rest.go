@@ -29,11 +29,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/registry"
-
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
@@ -41,9 +40,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
@@ -77,7 +77,7 @@ func (h *SharesHandler) Filter() func(string) string {
 
 func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) *idm.User {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
+	userId := claims.Subject
 	userName := claims.Name
 	return &idm.User{
 		Uuid:      userId,
@@ -99,6 +99,11 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
 	ownerUser := h.IdmUserFromClaims(ctx)
+
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
 
 	// Init Root Nodes and check permissions
 	err, createdCellNode, readonly := share.ParseRootNodes(ctx, &shareRequest)
@@ -290,6 +295,11 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, err)
 		return
 	}
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
+
 	link := putRequest.ShareLink
 	if e := share.CheckLinkRootNodes(ctx, link); e != nil {
 		service.RestErrorDetect(req, rsp, e)
@@ -437,7 +447,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 		if errors.Parse(err.Error()).Code == 404 {
 			service.RestError404(req, rsp, err)
 		} else {
-			service.RestError500(req, rsp, err)
+			service.RestErrorDetect(req, rsp, err)
 		}
 		return
 	}
@@ -445,7 +455,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 	if output, err := share.WorkspaceToShareLinkObject(ctx, workspace, h); err == nil {
 		rsp.WriteEntity(output)
 	} else {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 	}
 
 }
@@ -457,6 +467,11 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 	id := req.PathParameter("Uuid")
 	ownerUser := h.IdmUserFromClaims(ctx)
 
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
+
 	if ws, _, e := share.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", false); e != nil || ws == nil {
 		service.RestError404(req, rsp, e)
 		return
@@ -467,24 +482,24 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 
 	// Will try to load the workspace first, and throw an error if something goes wrong
 	if err := share.DeleteWorkspace(ctx, ownerUser, idm.WorkspaceScope_LINK, id, h); err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	storedLink := &rest.ShareLink{Uuid: id}
 	if err := share.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	// Delete associated Document from Docstore
 	if err := share.DeleteHashDocument(ctx, id); err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
 	// Delete associated Hidden user
 	if err := share.DeleteHiddenUser(ctx, storedLink); err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -508,6 +523,10 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		service.RestError500(req, rsp, e)
 		return
 	}
+	if err := h.docStoreStatus(); err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
 	ctx := req.Request.Context()
 	cli := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
@@ -528,7 +547,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 			break
 		}
 	} else {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	if ws == nil {
@@ -559,4 +578,10 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		PoliciesContextEditable: resp.Workspace.PoliciesContextEditable,
 	}
 	rsp.WriteEntity(response)
+}
+
+func (h *SharesHandler) docStoreStatus() error {
+	s := service2.NewService(registry.GetClient(common.SERVICE_DOCSTORE))
+	_, err := s.Status(context.Background(), &empty.Empty{})
+	return err
 }

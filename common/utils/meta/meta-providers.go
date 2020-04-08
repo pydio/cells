@@ -75,7 +75,7 @@ func EnrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 			//log.Logger(ctx).Info("Sending to metaStreamer", zap.String("n", name))
 			sendError := metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
 			if sendError != nil {
-				log.Logger(ctx).Error("Error while sending to metaStreamer", zap.Error(sendError))
+				log.Logger(ctx).Error("Error while sending to metaStreamer", zap.String("n", name), node.ZapPath(), node.ZapUuid(), zap.Error(sendError))
 				continue
 			}
 			metaResponse, err := metaStreamer.Recv()

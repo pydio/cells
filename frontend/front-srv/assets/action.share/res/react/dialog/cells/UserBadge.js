@@ -43,7 +43,7 @@ class UserBadge extends Component{
         const iconStyle = {fontSize: 18};
         return(
             <IconMenu
-                iconButtonElement={<IconButton style={{padding: 16}} iconStyle={iconStyle} iconClassName="icon-ellipsis-vertical"/>}
+                iconButtonElement={<IconButton style={{padding: 16}} iconStyle={iconStyle} iconClassName="mdi mdi-dots-vertical"/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
             >
@@ -55,16 +55,16 @@ class UserBadge extends Component{
     render() {
         let avatar;
         let avatarColor = this.props.muiTheme.palette.avatarsColor;
-        if(this.props.type == 'group') {
+        if(this.props.type === 'group') {
             avatarColor = Color(avatarColor).darken(.2).toString();
             avatar = <span className="avatar mdi mdi-account-multiple" style={{backgroundColor: avatarColor}}/>;
-        }else if(this.props.type == 'team') {
+        }else if(this.props.type === 'team') {
             avatarColor = Color(avatarColor).darken(.2).toString();
             avatar = <span className="avatar mdi mdi-account-multiple-outline" style={{backgroundColor:avatarColor}}/>;
-        }else if(this.props.type == 'temporary') {
+        }else if(this.props.type === 'temporary') {
             avatarColor = Color(avatarColor).lighten(.2).toString();
             avatar = <span className="avatar mdi mdi-account-plus" style={{backgroundColor:avatarColor}}/>;
-        }else if(this.props.type == 'remote_user'){
+        }else if(this.props.type === 'remote_user'){
             avatar = <span className="avatar mdi mdi-account-network" style={{backgroundColor:avatarColor}}/>;
         }else{
             avatar = <span className="avatar mdi mdi-account" style={{backgroundColor:avatarColor}}/>;

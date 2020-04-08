@@ -77,7 +77,7 @@ var UserBadge = (function (_Component) {
             return React.createElement(
                 IconMenu,
                 {
-                    iconButtonElement: React.createElement(IconButton, { style: { padding: 16 }, iconStyle: iconStyle, iconClassName: 'icon-ellipsis-vertical' }),
+                    iconButtonElement: React.createElement(IconButton, { style: { padding: 16 }, iconStyle: iconStyle, iconClassName: 'mdi mdi-dots-vertical' }),
                     anchorOrigin: { horizontal: 'right', vertical: 'top' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' }
                 },
@@ -89,16 +89,16 @@ var UserBadge = (function (_Component) {
         value: function render() {
             var avatar = undefined;
             var avatarColor = this.props.muiTheme.palette.avatarsColor;
-            if (this.props.type == 'group') {
+            if (this.props.type === 'group') {
                 avatarColor = Color(avatarColor).darken(.2).toString();
                 avatar = React.createElement('span', { className: 'avatar mdi mdi-account-multiple', style: { backgroundColor: avatarColor } });
-            } else if (this.props.type == 'team') {
+            } else if (this.props.type === 'team') {
                 avatarColor = Color(avatarColor).darken(.2).toString();
                 avatar = React.createElement('span', { className: 'avatar mdi mdi-account-multiple-outline', style: { backgroundColor: avatarColor } });
-            } else if (this.props.type == 'temporary') {
+            } else if (this.props.type === 'temporary') {
                 avatarColor = Color(avatarColor).lighten(.2).toString();
                 avatar = React.createElement('span', { className: 'avatar mdi mdi-account-plus', style: { backgroundColor: avatarColor } });
-            } else if (this.props.type == 'remote_user') {
+            } else if (this.props.type === 'remote_user') {
                 avatar = React.createElement('span', { className: 'avatar mdi mdi-account-network', style: { backgroundColor: avatarColor } });
             } else {
                 avatar = React.createElement('span', { className: 'avatar mdi mdi-account', style: { backgroundColor: avatarColor } });

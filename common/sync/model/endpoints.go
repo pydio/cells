@@ -26,6 +26,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/gobwas/glob"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -89,6 +91,7 @@ type EndpointInfo struct {
 //EndpointOptions is used to configure an Endpoint at creation time
 type EndpointOptions struct {
 	BrowseOnly bool
+	Properties map[string]string
 }
 
 // EndpointRootStat gives information about the size/files/folders of an endpoint
@@ -191,6 +194,22 @@ type UuidFoldersRefresher interface {
 	ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error)
 	// UpdateFolderUuid refreshes a given folder UUID and return it.
 	UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
+}
+
+// MetadataProvider declares metadata namespaces that may be mapped to target metadata
+type MetadataProvider interface {
+	// ProvidesMetadataNamespaces returns a list of patterns to check on provider nodes MetaStore.
+	ProvidesMetadataNamespaces() ([]glob.Glob, bool)
+}
+
+// MetadataReceiver implements methods for updating nodes metadata
+type MetadataReceiver interface {
+	// CreateMetadata add a metadata to the node
+	CreateMetadata(ctx context.Context, node *tree.Node, namespace string, jsonValue string) error
+	// UpdateMetadata updates an existing metadata value
+	UpdateMetadata(ctx context.Context, node *tree.Node, namespace string, jsonValue string) error
+	// DeleteMetadata deletes a metadata by namespace
+	DeleteMetadata(ctx context.Context, node *tree.Node, namespace string) error
 }
 
 type Versioner interface {

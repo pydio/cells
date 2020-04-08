@@ -22,8 +22,7 @@ import browserHistory from 'react-router/lib/browserHistory'
 
 const LogoutRouterWrapper = (pydio) => {
     const LogoutRouter = (props) => {
-
-        browserHistory.push("/login")
+        browserHistory.replace("/login")
 
         return <div></div>
     }

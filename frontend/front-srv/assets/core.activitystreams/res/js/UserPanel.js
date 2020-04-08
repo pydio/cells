@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import {Badge, IconButton, Popover, Divider, List} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import Client from './Client'
 import ActivityList from './ActivityList'
 import debounce from 'lodash.debounce'
@@ -38,15 +39,17 @@ class UserPanel extends React.Component {
     }
 
     reloadData() {
-        Client.loadActivityStreams((json) => {
+        Client.loadActivityStreams('USER_ID', this.props.pydio.user.id, 'inbox').then((json) => {
             this.setState({data: json});
-        }, 'USER_ID', this.props.pydio.user.id, 'inbox');
+        }).catch(msg => {
+            this.setState({error: msg});
+        });
     }
 
     reloadUnread() {
-        Client.UnreadInbox(this.props.pydio.user.id, (count) => {
+        Client.UnreadInbox(this.props.pydio.user.id).then((count) => {
             this.setState({unreadStatus: count});
-        });
+        }).catch(msg => {});
     }
 
     onStatusChange(){
@@ -87,41 +90,49 @@ class UserPanel extends React.Component {
     }
 
     render() {
-        const {pydio, iconStyle} = this.props;
-        const {open, anchorEl} = this.state;
+        const {pydio, iconStyle, muiTheme} = this.props;
+        const {open, anchorEl, unreadStatus} = this.state;
         let buttonStyle = {borderRadius: '50%'};
         if(open && iconStyle && iconStyle.color){
             buttonStyle = {...buttonStyle, backgroundColor: Color(iconStyle.color).fade(0.9).toString()}
         }
         return (
             <span>
-                <Badge
+                <div
+                    style={{position:'relative', display:'inline-block'}}
+
                     badgeContent={this.state.unreadStatus}
                     secondary={true}
-                    style={this.state.unreadStatus  ? {padding: '0 24px 0 0'} : {padding: 0}}
                     badgeStyle={this.state.unreadStatus ? null : {display: 'none'}}
                 >
                     <IconButton
                         onTouchTap={this.handleTouchTap.bind(this)}
-                        iconClassName={this.props.iconClassName || "icon-bell"}
-                        tooltip={this.props.pydio.MessageHash['notification_center.4']}
+                        iconClassName={this.props.iconClassName || "mdi mdi-bell"}
+                        tooltip={(unreadStatus ? unreadStatus + ' ' : '') + this.props.pydio.MessageHash['notification_center.4']}
                         className="userActionButton alertsButton"
                         iconStyle={iconStyle}
                         style={buttonStyle}
                     />
-                </Badge>
+                    {unreadStatus > 0 &&
+                    <div style={{width: 6, height:6, borderRadius:'50%', top: 9, right: 6, position:'absolute', backgroundColor:muiTheme.palette.accent1Color}}></div>
+                    }
+                </div>
                 <Popover
                     open={open}
                     anchorEl={anchorEl}
-                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                    anchorOrigin={{horizontal: 'left', vertical: 'top'}}
                     targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={this.handleRequestClose.bind(this)}
                     style={{width:320}}
-                    zDepth={2}
+                    zDepth={3}
 
                 >
-                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', padding: '12px 16px', width: '100%',
-                        backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)'}}>{pydio.MessageHash['notification_center.1']}</div>
+                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
+                        backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
+                        <span className={"mdi mdi-bell"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
+                        <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash['notification_center.1']}</span>
+                    </div>
+
                     {this.state.data &&
                         <ActivityList
                             items={this.state.data.items}
@@ -135,5 +146,7 @@ class UserPanel extends React.Component {
     }
 
 }
+
+UserPanel = muiThemeable()(UserPanel);
 
 export {UserPanel as default};

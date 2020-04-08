@@ -1,63 +1,676 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function() {
-  function getBytes() {
-    try {
-      // Modern Browser
-      return Array.from(
-        (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(16))
-      );
-    } catch (error) {
-      // Legacy Browser, fallback to Math.random
-      var ret = [];
-      while (ret.length < 16) ret.push((Math.random() * 256) & 0xff);
-      return ret;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+  return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
+}
+
+var _default = bytesToUuid;
+exports.default = _default;
+module.exports = exports.default;
+},{}],2:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "v1", {
+  enumerable: true,
+  get: function () {
+    return _v.default;
+  }
+});
+Object.defineProperty(exports, "v3", {
+  enumerable: true,
+  get: function () {
+    return _v2.default;
+  }
+});
+Object.defineProperty(exports, "v4", {
+  enumerable: true,
+  get: function () {
+    return _v3.default;
+  }
+});
+Object.defineProperty(exports, "v5", {
+  enumerable: true,
+  get: function () {
+    return _v4.default;
+  }
+});
+
+var _v = _interopRequireDefault(require("./v1.js"));
+
+var _v2 = _interopRequireDefault(require("./v3.js"));
+
+var _v3 = _interopRequireDefault(require("./v4.js"));
+
+var _v4 = _interopRequireDefault(require("./v5.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./v1.js":6,"./v3.js":7,"./v4.js":9,"./v5.js":10}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/*
+ * Browser-compatible JavaScript MD5
+ *
+ * Modification of JavaScript MD5
+ * https://github.com/blueimp/JavaScript-MD5
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+ * Digest Algorithm, as defined in RFC 1321.
+ * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for more info.
+ */
+function md5(bytes) {
+  if (typeof bytes == 'string') {
+    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+
+    bytes = new Array(msg.length);
+
+    for (var i = 0; i < msg.length; i++) bytes[i] = msg.charCodeAt(i);
+  }
+
+  return md5ToHexEncodedArray(wordsToMd5(bytesToWords(bytes), bytes.length * 8));
+}
+/*
+ * Convert an array of little-endian words to an array of bytes
+ */
+
+
+function md5ToHexEncodedArray(input) {
+  var i;
+  var x;
+  var output = [];
+  var length32 = input.length * 32;
+  var hexTab = '0123456789abcdef';
+  var hex;
+
+  for (i = 0; i < length32; i += 8) {
+    x = input[i >> 5] >>> i % 32 & 0xff;
+    hex = parseInt(hexTab.charAt(x >>> 4 & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+    output.push(hex);
+  }
+
+  return output;
+}
+/*
+ * Calculate the MD5 of an array of little-endian words, and a bit length.
+ */
+
+
+function wordsToMd5(x, len) {
+  /* append padding */
+  x[len >> 5] |= 0x80 << len % 32;
+  x[(len + 64 >>> 9 << 4) + 14] = len;
+  var i;
+  var olda;
+  var oldb;
+  var oldc;
+  var oldd;
+  var a = 1732584193;
+  var b = -271733879;
+  var c = -1732584194;
+  var d = 271733878;
+
+  for (i = 0; i < x.length; i += 16) {
+    olda = a;
+    oldb = b;
+    oldc = c;
+    oldd = d;
+    a = md5ff(a, b, c, d, x[i], 7, -680876936);
+    d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
+    c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
+    b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330);
+    a = md5ff(a, b, c, d, x[i + 4], 7, -176418897);
+    d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426);
+    c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341);
+    b = md5ff(b, c, d, a, x[i + 7], 22, -45705983);
+    a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416);
+    d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417);
+    c = md5ff(c, d, a, b, x[i + 10], 17, -42063);
+    b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162);
+    a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682);
+    d = md5ff(d, a, b, c, x[i + 13], 12, -40341101);
+    c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290);
+    b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329);
+    a = md5gg(a, b, c, d, x[i + 1], 5, -165796510);
+    d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632);
+    c = md5gg(c, d, a, b, x[i + 11], 14, 643717713);
+    b = md5gg(b, c, d, a, x[i], 20, -373897302);
+    a = md5gg(a, b, c, d, x[i + 5], 5, -701558691);
+    d = md5gg(d, a, b, c, x[i + 10], 9, 38016083);
+    c = md5gg(c, d, a, b, x[i + 15], 14, -660478335);
+    b = md5gg(b, c, d, a, x[i + 4], 20, -405537848);
+    a = md5gg(a, b, c, d, x[i + 9], 5, 568446438);
+    d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690);
+    c = md5gg(c, d, a, b, x[i + 3], 14, -187363961);
+    b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501);
+    a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467);
+    d = md5gg(d, a, b, c, x[i + 2], 9, -51403784);
+    c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473);
+    b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734);
+    a = md5hh(a, b, c, d, x[i + 5], 4, -378558);
+    d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463);
+    c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562);
+    b = md5hh(b, c, d, a, x[i + 14], 23, -35309556);
+    a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060);
+    d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353);
+    c = md5hh(c, d, a, b, x[i + 7], 16, -155497632);
+    b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640);
+    a = md5hh(a, b, c, d, x[i + 13], 4, 681279174);
+    d = md5hh(d, a, b, c, x[i], 11, -358537222);
+    c = md5hh(c, d, a, b, x[i + 3], 16, -722521979);
+    b = md5hh(b, c, d, a, x[i + 6], 23, 76029189);
+    a = md5hh(a, b, c, d, x[i + 9], 4, -640364487);
+    d = md5hh(d, a, b, c, x[i + 12], 11, -421815835);
+    c = md5hh(c, d, a, b, x[i + 15], 16, 530742520);
+    b = md5hh(b, c, d, a, x[i + 2], 23, -995338651);
+    a = md5ii(a, b, c, d, x[i], 6, -198630844);
+    d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415);
+    c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905);
+    b = md5ii(b, c, d, a, x[i + 5], 21, -57434055);
+    a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571);
+    d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606);
+    c = md5ii(c, d, a, b, x[i + 10], 15, -1051523);
+    b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799);
+    a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359);
+    d = md5ii(d, a, b, c, x[i + 15], 10, -30611744);
+    c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380);
+    b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649);
+    a = md5ii(a, b, c, d, x[i + 4], 6, -145523070);
+    d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379);
+    c = md5ii(c, d, a, b, x[i + 2], 15, 718787259);
+    b = md5ii(b, c, d, a, x[i + 9], 21, -343485551);
+    a = safeAdd(a, olda);
+    b = safeAdd(b, oldb);
+    c = safeAdd(c, oldc);
+    d = safeAdd(d, oldd);
+  }
+
+  return [a, b, c, d];
+}
+/*
+ * Convert an array bytes to an array of little-endian words
+ * Characters >255 have their high-byte silently ignored.
+ */
+
+
+function bytesToWords(input) {
+  var i;
+  var output = [];
+  output[(input.length >> 2) - 1] = undefined;
+
+  for (i = 0; i < output.length; i += 1) {
+    output[i] = 0;
+  }
+
+  var length8 = input.length * 8;
+
+  for (i = 0; i < length8; i += 8) {
+    output[i >> 5] |= (input[i / 8] & 0xff) << i % 32;
+  }
+
+  return output;
+}
+/*
+ * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+ * to work around bugs in some JS interpreters.
+ */
+
+
+function safeAdd(x, y) {
+  var lsw = (x & 0xffff) + (y & 0xffff);
+  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+  return msw << 16 | lsw & 0xffff;
+}
+/*
+ * Bitwise rotate a 32-bit number to the left.
+ */
+
+
+function bitRotateLeft(num, cnt) {
+  return num << cnt | num >>> 32 - cnt;
+}
+/*
+ * These functions implement the four basic operations the algorithm uses.
+ */
+
+
+function md5cmn(q, a, b, x, s, t) {
+  return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
+}
+
+function md5ff(a, b, c, d, x, s, t) {
+  return md5cmn(b & c | ~b & d, a, b, x, s, t);
+}
+
+function md5gg(a, b, c, d, x, s, t) {
+  return md5cmn(b & d | c & ~d, a, b, x, s, t);
+}
+
+function md5hh(a, b, c, d, x, s, t) {
+  return md5cmn(b ^ c ^ d, a, b, x, s, t);
+}
+
+function md5ii(a, b, c, d, x, s, t) {
+  return md5cmn(c ^ (b | ~d), a, b, x, s, t);
+}
+
+var _default = md5;
+exports.default = _default;
+module.exports = exports.default;
+},{}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = rng;
+// Unique ID creation requires a high quality random # generator. In the browser we therefore
+// require the crypto API and do not support built-in fallback to lower quality random number
+// generators (like Math.random()).
+// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+// find the complete implementation of crypto (msCrypto) on IE11.
+var getRandomValues = typeof crypto != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto != 'undefined' && typeof msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto);
+var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+function rng() {
+  if (!getRandomValues) {
+    throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+  }
+
+  return getRandomValues(rnds8);
+}
+
+module.exports = exports.default;
+},{}],5:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+// Adapted from Chris Veness' SHA1 code at
+// http://www.movable-type.co.uk/scripts/sha1.html
+function f(s, x, y, z) {
+  switch (s) {
+    case 0:
+      return x & y ^ ~x & z;
+
+    case 1:
+      return x ^ y ^ z;
+
+    case 2:
+      return x & y ^ x & z ^ y & z;
+
+    case 3:
+      return x ^ y ^ z;
+  }
+}
+
+function ROTL(x, n) {
+  return x << n | x >>> 32 - n;
+}
+
+function sha1(bytes) {
+  var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
+  var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+
+  if (typeof bytes == 'string') {
+    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+
+    bytes = new Array(msg.length);
+
+    for (var i = 0; i < msg.length; i++) bytes[i] = msg.charCodeAt(i);
+  }
+
+  bytes.push(0x80);
+  var l = bytes.length / 4 + 2;
+  var N = Math.ceil(l / 16);
+  var M = new Array(N);
+
+  for (var i = 0; i < N; i++) {
+    M[i] = new Array(16);
+
+    for (var j = 0; j < 16; j++) {
+      M[i][j] = bytes[i * 64 + j * 4] << 24 | bytes[i * 64 + j * 4 + 1] << 16 | bytes[i * 64 + j * 4 + 2] << 8 | bytes[i * 64 + j * 4 + 3];
     }
   }
 
-  function m(v) {
-    v = v.toString(16);
-    if (v.length < 2) v = "0" + v;
-    return v;
+  M[N - 1][14] = (bytes.length - 1) * 8 / Math.pow(2, 32);
+  M[N - 1][14] = Math.floor(M[N - 1][14]);
+  M[N - 1][15] = (bytes.length - 1) * 8 & 0xffffffff;
+
+  for (var i = 0; i < N; i++) {
+    var W = new Array(80);
+
+    for (var t = 0; t < 16; t++) W[t] = M[i][t];
+
+    for (var t = 16; t < 80; t++) {
+      W[t] = ROTL(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
+    }
+
+    var a = H[0];
+    var b = H[1];
+    var c = H[2];
+    var d = H[3];
+    var e = H[4];
+
+    for (var t = 0; t < 80; t++) {
+      var s = Math.floor(t / 20);
+      var T = ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[t] >>> 0;
+      e = d;
+      d = c;
+      c = ROTL(b, 30) >>> 0;
+      b = a;
+      a = T;
+    }
+
+    H[0] = H[0] + a >>> 0;
+    H[1] = H[1] + b >>> 0;
+    H[2] = H[2] + c >>> 0;
+    H[3] = H[3] + d >>> 0;
+    H[4] = H[4] + e >>> 0;
   }
 
-  function genUUID() {
-    var rnd = getBytes();
-    rnd[6] = (rnd[6] & 0x0f) | 0x40;
-    rnd[8] = (rnd[8] & 0x3f) | 0x80;
-    rnd = rnd
-      .map(m)
-      .join("")
-      .match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
-    rnd.shift();
-    return rnd.join("-");
+  return [H[0] >> 24 & 0xff, H[0] >> 16 & 0xff, H[0] >> 8 & 0xff, H[0] & 0xff, H[1] >> 24 & 0xff, H[1] >> 16 & 0xff, H[1] >> 8 & 0xff, H[1] & 0xff, H[2] >> 24 & 0xff, H[2] >> 16 & 0xff, H[2] >> 8 & 0xff, H[2] & 0xff, H[3] >> 24 & 0xff, H[3] >> 16 & 0xff, H[3] >> 8 & 0xff, H[3] & 0xff, H[4] >> 24 & 0xff, H[4] >> 16 & 0xff, H[4] >> 8 & 0xff, H[4] & 0xff];
+}
+
+var _default = sha1;
+exports.default = _default;
+module.exports = exports.default;
+},{}],6:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rng = _interopRequireDefault(require("./rng.js"));
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+var _nodeId;
+
+var _clockseq; // Previous uuid creation time
+
+
+var _lastMSecs = 0;
+var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+
+  if (node == null || clockseq == null) {
+    var seedBytes = options.random || (options.rng || _rng.default)();
+
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
+    }
+
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  } // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+
+
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime(); // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
+
+  var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
+
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+
+
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  } // Per 4.2.1.2 Throw error if too many uuids are requested
+
+
+  if (nsecs >= 10000) {
+    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
   }
 
-  var uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-  function isUUID(uuid) {
-    return uuidPattern.test(uuid);
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq; // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+
+  msecs += 12219292800000; // `time_low`
+
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff; // `time_mid`
+
+  var tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff; // `time_high_and_version`
+
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+
+  b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+
+  b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
+
+  b[i++] = clockseq & 0xff; // `node`
+
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
   }
 
-  genUUID.valid = isUUID;
+  return buf ? buf : (0, _bytesToUuid.default)(b);
+}
 
-  // global
-  if (window) {
-    window.uuid4 = genUUID;
+var _default = v1;
+exports.default = _default;
+module.exports = exports.default;
+},{"./bytesToUuid.js":1,"./rng.js":4}],7:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _v = _interopRequireDefault(require("./v35.js"));
+
+var _md = _interopRequireDefault(require("./md5.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v3 = (0, _v.default)('v3', 0x30, _md.default);
+var _default = v3;
+exports.default = _default;
+module.exports = exports.default;
+},{"./md5.js":3,"./v35.js":8}],8:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+exports.URL = exports.DNS = void 0;
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function uuidToBytes(uuid) {
+  // Note: We assume we're being passed a valid uuid string
+  var bytes = [];
+  uuid.replace(/[a-fA-F0-9]{2}/g, function (hex) {
+    bytes.push(parseInt(hex, 16));
+  });
+  return bytes;
+}
+
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str)); // UTF8 escape
+
+  var bytes = new Array(str.length);
+
+  for (var i = 0; i < str.length; i++) {
+    bytes[i] = str.charCodeAt(i);
   }
 
-  // Node-style CJS
-  if (typeof module !== "undefined" && module.exports) {
-    module.exports = genUUID;
+  return bytes;
+}
+
+const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+exports.DNS = DNS;
+const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+exports.URL = URL;
+
+function _default(name, version, hashfunc) {
+  var generateUUID = function (value, namespace, buf, offset) {
+    var off = buf && offset || 0;
+    if (typeof value == 'string') value = stringToBytes(value);
+    if (typeof namespace == 'string') namespace = uuidToBytes(namespace);
+    if (!Array.isArray(value)) throw TypeError('value must be an array of bytes');
+    if (!Array.isArray(namespace) || namespace.length !== 16) throw TypeError('namespace must be uuid string or an Array of 16 byte values'); // Per 4.3
+
+    var bytes = hashfunc(namespace.concat(value));
+    bytes[6] = bytes[6] & 0x0f | version;
+    bytes[8] = bytes[8] & 0x3f | 0x80;
+
+    if (buf) {
+      for (var idx = 0; idx < 16; ++idx) {
+        buf[off + idx] = bytes[idx];
+      }
+    }
+
+    return buf || (0, _bytesToUuid.default)(bytes);
+  }; // Function#name is not settable on some platforms (#270)
+
+
+  try {
+    generateUUID.name = name;
+  } catch (err) {} // For CommonJS default export support
+
+
+  generateUUID.DNS = DNS;
+  generateUUID.URL = URL;
+  return generateUUID;
+}
+},{"./bytesToUuid.js":1}],9:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rng = _interopRequireDefault(require("./rng.js"));
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof options == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
   }
 
-  // AMD - legacy
-  if (typeof define === "function" && define.amd) {
-    define([], function() {
-      return genUUID;
-    });
-  }
-})();
+  options = options || {};
 
-},{}],2:[function(require,module,exports){
+  var rnds = options.random || (options.rng || _rng.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+
+
+  rnds[6] = rnds[6] & 0x0f | 0x40;
+  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
+
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || (0, _bytesToUuid.default)(rnds);
+}
+
+var _default = v4;
+exports.default = _default;
+module.exports = exports.default;
+},{"./bytesToUuid.js":1,"./rng.js":4}],10:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _v = _interopRequireDefault(require("./v35.js"));
+
+var _sha = _interopRequireDefault(require("./sha1.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v5 = (0, _v.default)('v5', 0x50, _sha.default);
+var _default = v5;
+exports.default = _default;
+module.exports = exports.default;
+},{"./sha1.js":5,"./v35.js":8}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -157,7 +770,7 @@ var Callbacks = (function () {
 exports['default'] = Callbacks;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],3:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -243,6 +856,7 @@ var Dashboard = _react2['default'].createClass({
         dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
         rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired
     },
 
@@ -423,13 +1037,14 @@ var Dashboard = _react2['default'].createClass({
         var _props2 = this.props;
         var pydio = _props2.pydio;
         var rolesEditorClass = _props2.rolesEditorClass;
+        var rolesEditorProps = _props2.rolesEditorProps;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
             }
         }
-        var editorProps = {
+        var editorProps = _extends({
             ref: "editor",
             node: node,
             pydio: pydio,
@@ -438,7 +1053,7 @@ var Dashboard = _react2['default'].createClass({
             afterSave: function afterSave() {
                 _this2.reloadList();
             }
-        };
+        }, rolesEditorProps);
 
         (0, _editorUtilClassLoader.loadEditorClass)(rolesEditorClass, _editorEditor2['default']).then(function (component) {
             _this2.props.openRightPane({
@@ -467,8 +1082,11 @@ var Dashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var mime = node.getAjxpMime();
+        if (node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
+            return _react2['default'].createElement('div', null);
+        }
         var iconStyle = {
-            color: 'rgba(0,0,0,0.43)',
+            color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         var disabledStyle = {
@@ -543,20 +1161,13 @@ var Dashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
-        var fontIconStyle = {
-            style: {
-                backgroundColor: this.props.muiTheme.palette.accent2Color,
-                borderRadius: '50%',
-                width: 36,
-                height: 36,
-                padding: 8,
-                marginRight: 10
-            },
-            iconStyle: {
-                color: 'white',
-                fontSize: 20
-            }
-        };
+        var _props3 = this.props;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var rootNode = _props3.rootNode;
+        var pydio = _props3.pydio;
+
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var _state2 = this.state;
         var searchResultData = _state2.searchResultData;
@@ -564,50 +1175,57 @@ var Dashboard = _react2['default'].createClass({
         var dataModel = _state2.dataModel;
         var showAnon = _state2.showAnon;
 
-        var importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, fontIconStyle, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), onTouchTap: this.openUsersImporter }));
-        if (!_pydioHttpResourcesManager2['default'].moduleIsAvailable('EnterprisePeople')) {
-            var disabled = { style: _extends({}, fontIconStyle.style), iconStyle: _extends({}, fontIconStyle.iconStyle) };
+        /*
+        const fontIconStyle = {
+            style : {
+                backgroundColor: muiTheme.palette.accent2Color,
+                borderRadius: '50%',
+                width: 36,
+                height: 36,
+                padding: 8,
+                marginRight: 10
+            },
+            iconStyle : {
+                color: 'white',
+                fontSize: 20
+            }
+        };
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
+            let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
-            importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, disabled, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), disabled: true }));
+            importButton = <IconButton {...disabled} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} disabled={true}/>;
         }
+        */
 
         var searchBox = _react2['default'].createElement(_UsersSearchBox2['default'], {
             displayResults: this.displaySearchResults,
             displayResultsState: searchResultData,
             hideResults: this.hideSearchResults,
-            style: { margin: '-18px 20px 0' },
             limit: 50,
             textLabel: this.context.getMessage('user.7'),
             className: "media-small-hide"
         });
 
-        var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
-
-        var groupHeaderStyle = {
-            height: 48,
-            lineHeight: '48px',
-            backgroundColor: '#f5f5f5',
-            color: '#9e9e9e',
-            borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '0 20px',
-            fontSize: 12,
-            fontWeight: 500
+        var headerButtons = [];
+        var renderActionsFunc = function renderActionsFunc() {
+            return [];
         };
-        var groupPanelStyle = {
-            flex: 'none'
-        };
-        if (searchResultData !== false) {
-            groupPanelStyle = {
-                flex: 'none',
-                opacity: 0.6
-            };
+        var openEditor = null;
+        var multipleActions = [];
+        if (accessByName('Create')) {
+            renderActionsFunc = this.renderNodeActions.bind(this);
+            multipleActions = [pydio.Controller.getActionByName('delete')];
+            openEditor = this.openRoleEditor.bind(this);
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
         }
+
         var profileFilter = '';
         if (currentNode.getMetadata().has('userProfileFilter')) {
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
+        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
@@ -628,6 +1246,31 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.MenuItem, { value: "toggle-anon", primaryText: this.context.getMessage('user.filter.anon'), secondaryText: showAnon ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         );
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+        var groupHeaderStyle = _extends({
+            height: 48,
+            lineHeight: '48px',
+            fontSize: 12,
+            fontWeight: 500
+        }, body.block.header, {
+            borderBottom: '1px solid ' + body.tableMaster.row.borderBottomColor,
+            padding: '0 20px'
+        });
+        var groupPanelStyle = {
+            width: 226,
+            borderRight: '1px solid' + body.tableMaster.row.borderBottomColor,
+            overflowY: 'auto',
+            flex: 'none'
+        };
+        if (searchResultData !== false) {
+            groupPanelStyle = _extends({}, groupPanelStyle, { opacity: 0.6 });
+        }
+
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
@@ -639,10 +1282,10 @@ var Dashboard = _react2['default'].createClass({
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
+                _extends({}, blockProps, { style: blockStyle, className: "horizontal-layout layout-fill" }),
                 _react2['default'].createElement(
                     'div',
-                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout people-tree', style: groupPanelStyle },
+                    { className: 'hide-on-vertical-layout vertical-layout tab-vertical-layout', style: groupPanelStyle },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -654,7 +1297,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
                             rootLabel: this.context.getMessage("user.5"),
-                            node: this.props.rootNode,
+                            node: rootNode,
                             dataModel: this.props.dataModel,
                             className: 'users-groups-tree',
                             paddingOffset: 10
@@ -666,21 +1309,25 @@ var Dashboard = _react2['default'].createClass({
                     { zDepth: 0, className: 'layout-fill vertical-layout people-list' },
                     _react2['default'].createElement(PydioComponents.SimpleList, {
                         ref: 'mainlist',
-                        pydio: this.props.pydio,
+                        pydio: pydio,
                         node: currentNode,
                         dataModel: dataModel,
-                        openEditor: this.openRoleEditor,
                         clearSelectionOnReload: false,
-                        entryRenderIcon: this.renderListUserAvatar,
-                        entryRenderFirstLine: this.renderListEntryFirstLine,
-                        entryRenderSecondLine: this.renderListEntrySecondLine,
-                        entryEnableSelector: this.renderListEntrySelector,
-                        entryRenderActions: this.renderNodeActions,
+                        openEditor: openEditor,
+                        entryRenderIcon: this.renderListUserAvatar.bind(this),
+                        entryRenderFirstLine: this.renderListEntryFirstLine.bind(this),
+                        entryRenderSecondLine: this.renderListEntrySecondLine.bind(this),
+                        entryEnableSelector: this.renderListEntrySelector.bind(this),
+                        entryRenderActions: renderActionsFunc,
                         searchResultData: searchResultData,
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
-                        toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
-                        multipleActions: [this.props.pydio.Controller.getActionByName('delete')],
+                        toolbarStyle: {
+                            backgroundColor: body.block.header.backgroundColor,
+                            height: 48,
+                            borderBottom: groupHeaderStyle.borderBottom
+                        },
+                        multipleActions: multipleActions,
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
                     })
@@ -695,7 +1342,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":13,"../editor/util/ClassLoader":45,"./Callbacks":2,"./UsersSearchBox":6,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/func":"pydio/util/func","react":"react"}],4:[function(require,module,exports){
+},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"./Callbacks":11,"./UsersSearchBox":15,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/func":"pydio/util/func","react":"react"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -755,9 +1402,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var _policiesPolicy = require('../policies/Policy');
 
@@ -868,7 +1513,7 @@ var PoliciesBoard = _react2['default'].createClass({
         var newPolicyDescription = _refs.newPolicyDescription;
         var newPolicyType = this.state.newPolicyType;
 
-        var newId = (0, _uuid42['default'])();
+        var newId = (0, _uuid.v4)();
 
         var policy = {
             Uuid: newId,
@@ -921,25 +1566,18 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var _props = this.props;
         var muiTheme = _props.muiTheme;
-        var readonly = _props.readonly;
         var currentNode = _props.currentNode;
         var pydio = _props.pydio;
+        var accessByName = _props.accessByName;
+        var readonly = this.props.readonly;
+
+        readonly = readonly || !accessByName('Create');
         var policies = this.state.policies;
-        var primary1Color = muiTheme.palette.primary1Color;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
-
-        //let items = [];
-
-        var subheaderStyle = {
-            textTransform: 'uppercase',
-            fontSize: 12,
-            color: primary1Color,
-            paddingLeft: 20,
-            paddingRight: 20
-        };
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var lists = Object.keys(policies).map(function (k) {
             if (readonly && k === 'acl') {
@@ -951,36 +1589,37 @@ var PoliciesBoard = _react2['default'].createClass({
             var items = [];
             data.map(function (policy) {
                 items.push(_react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
+                    readonly: readonly,
                     key: policy.Name,
                     policy: policy,
                     savePolicy: _this5.savePolicy.bind(_this5),
                     deletePolicy: _this5.deletePolicy.bind(_this5),
                     newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
                 })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
+                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
             });
             items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Subheader,
-                    { style: subheaderStyle },
-                    title
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '0 20px' } },
-                    legend
-                ),
-                _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: { margin: 16 } },
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: adminStyles.body.block.headerFull },
+                        title
+                    ),
                     _react2['default'].createElement(
                         _materialUi.List,
                         null,
                         items
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
+                    legend
                 )
             );
         });
@@ -988,11 +1627,11 @@ var PoliciesBoard = _react2['default'].createClass({
         var action = _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.FlatButton, {
+            _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
                 onTouchTap: this.openPopover.bind(this),
                 label: m('policy.new')
-            }),
+            })),
             _react2['default'].createElement(
                 _materialUi.Popover,
                 {
@@ -1060,7 +1699,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":50,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":1}],5:[function(require,module,exports){
+},{"../policies/Policy":60,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid":2}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1086,6 +1725,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
@@ -1108,8 +1749,16 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _editorUtilClassLoader = require("../editor/util/ClassLoader");
 
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
+
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var RolesDashboard = _react2['default'].createClass({
     displayName: 'RolesDashboard',
@@ -1145,7 +1794,7 @@ var RolesDashboard = _react2['default'].createClass({
     },
 
     openTableRows: function openTableRows(rows) {
-        if (rows.length) {
+        if (rows.length && rows[0].role.PoliciesContextEditable) {
             this.openRoleEditor(rows[0].role);
         }
     },
@@ -1157,6 +1806,7 @@ var RolesDashboard = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var rolesEditorClass = _props.rolesEditorClass;
+        var rolesEditorProps = _props.rolesEditorProps;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
@@ -1166,13 +1816,13 @@ var RolesDashboard = _react2['default'].createClass({
         (0, _editorUtilClassLoader.loadEditorClass)(rolesEditorClass, _editorEditor2['default']).then(function (component) {
             _this2.props.openRightPane({
                 COMPONENT: component,
-                PROPS: {
+                PROPS: _extends({
                     ref: "editor",
                     idmRole: idmRole,
                     pydio: pydio,
                     initialEditSection: initialSection,
                     onRequestTabClose: _this2.closeRoleEditor
-                }
+                }, rolesEditorProps)
             });
         });
         return true;
@@ -1239,81 +1889,118 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
+        var _props2 = this.props;
+        var muiTheme = _props2.muiTheme;
+        var accessByName = _props2.accessByName;
+
+        var styles = AdminComponents.AdminStyles(muiTheme.palette);
         var _state = this.state;
         var searchRoleString = _state.searchRoleString;
         var showTechnical = _state.showTechnical;
 
-        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) }), _react2['default'].createElement(
+        var hasEditRight = accessByName('Create');
+
+        // Header Buttons & edit functions
+        var selectRows = null;
+        var buttons = [];
+        if (hasEditRight) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({}, styles.props.header.flatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })));
+            selectRows = this.openTableRows.bind(this);
+        }
+        buttons.push(_react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-filter-variant" }, styles.props.header.iconButton)),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
-                desktop: true,
                 onChange: function () {
                     _this5.setState({ showTechnical: !showTechnical }, function () {
                         _this5.load();
                     });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null }),
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
-        )];
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null }),
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: !showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
+        ));
 
-        var centerContent = _react2['default'].createElement(
+        var searchBox = _react2['default'].createElement(
             'div',
-            { style: { height: 40, padding: '0px 20px', width: 240, display: 'inline-block' } },
-            _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
-                    return _this5.setState({ searchRoleString: v });
-                } })
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
+                        return _this5.setState({ searchRoleString: v });
+                    } })
+            )
         );
         var iconStyle = {
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                        _this5.deleteAction(row.roleId);
-                    }, onClick: function (e) {
-                        e.stopPropagation();
-                    }, iconStyle: iconStyle });
+                if (hasEditRight && row.role.PoliciesContextEditable) {
+                    return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
+                            _this5.deleteAction(row.roleId);
+                        }, onClick: function (e) {
+                            e.stopPropagation();
+                        }, iconStyle: iconStyle });
+                } else {
+                    return null;
+                }
             } }];
         var data = this.computeTableData(searchRoleString);
 
+        var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+        var body = _AdminComponents$AdminStyles.body;
+        var tableMaster = body.tableMaster;
+
+        var blockProps = body.block.props;
+        var blockStyle = body.block.container;
+
         return _react2['default'].createElement(
             'div',
-            { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
+            { className: "main-layout-nav-to-stack vertical-layout" },
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.context.getMessage('69', 'settings'),
                 icon: 'mdi mdi-account-multiple',
                 actions: buttons,
-                centerContent: centerContent,
+                centerContent: searchBox,
                 reloadAction: function () {
                     _this5.load();
                 },
                 loading: this.state.loading
             }),
-            _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
-                _react2['default'].createElement(MaterialTable, {
-                    data: data,
-                    columns: columns,
-                    onSelectRows: this.openTableRows.bind(this),
-                    deselectOnClickAway: true,
-                    showCheckboxes: false
-                })
+                'div',
+                { className: "layout-fill" },
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, blockProps, { style: blockStyle }),
+                    _react2['default'].createElement(MaterialTable, {
+                        data: data,
+                        columns: columns,
+                        onSelectRows: selectRows,
+                        deselectOnClickAway: true,
+                        showCheckboxes: false,
+                        masterStyles: tableMaster,
+                        paginate: [10, 25, 50, 100]
+                    })
+                )
             )
         );
     }
 
 });
 
+exports['default'] = RolesDashboard = muiThemeable()(RolesDashboard);
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":13,"../editor/util/ClassLoader":45,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],6:[function(require,module,exports){
+},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1351,6 +2038,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -1377,6 +2068,10 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
 /**
  * Search input building a set of query parameters and calling
  * the callbacks to display / hide results
@@ -1393,7 +2088,8 @@ var UsersSearchBox = (function (_React$Component) {
         dm.setRootNode(new _pydioModelNode2['default']());
         this.state = {
             dataModel: dm,
-            displayResult: props.displayResultsState
+            displayResult: props.displayResultsState,
+            crtValue: ''
         };
         this.searchDebounced = (0, _lodashDebounce2['default'])(this.triggerSearch, 350);
     }
@@ -1418,10 +2114,12 @@ var UsersSearchBox = (function (_React$Component) {
         value: function triggerSearch() {
             var _this = this;
 
-            var value = this.refs.query.getValue();
+            var value = this.state.crtValue;
             if (!value) {
                 this.hideResultsState();
-                this.refs.query.blur();
+                try {
+                    this.refs.query.refs.input.blur();
+                } catch (e) {}
                 return;
             }
             var dm = this.state.dataModel;
@@ -1464,32 +2162,31 @@ var UsersSearchBox = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var crtValue = this.state.crtValue;
+
             return _react2['default'].createElement(
                 'div',
-                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center', maxWidth: 220 }, this.props.style) },
+                { className: this.props.className ? this.props.className : '', style: _extends({ display: 'flex', alignItems: 'center' }, this.props.style) },
+                _react2['default'].createElement('div', { style: { flex: 1 } }),
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1 } },
+                    { style: { maxWidth: 190 } },
                     _react2['default'].createElement(
                         'form',
                         { autoComplete: "off" },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                        _react2['default'].createElement(ModernTextField, {
+                            ref: "query",
                             onKeyDown: this.keyDown.bind(this),
-                            floatingLabelText: this.props.textLabel,
+                            hintText: this.props.textLabel,
                             fullWidth: true,
-                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                            value: crtValue,
+                            onChange: function (e, v) {
+                                _this2.setState({ crtValue: v });
+                            }
                         })
                     )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { paddingTop: 22, opacity: 0.3 } },
-                    _react2['default'].createElement(_materialUi.IconButton, {
-                        ref: 'button',
-                        onTouchTap: this.triggerSearch.bind(this),
-                        iconClassName: 'mdi mdi-account-search',
-                        tooltip: this.props.textLabel
-                    })
                 )
             );
         }
@@ -1510,7 +2207,7 @@ UsersSearchBox.PropTypes = {
 exports['default'] = UsersSearchBox;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],7:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1598,7 +2295,7 @@ var PagesAcls = (function (_React$Component) {
 exports['default'] = PagesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":10,"pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],8:[function(require,module,exports){
+},{"./WorkspaceAcl":19,"pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1771,7 +2468,7 @@ var RightsSelector = (function (_React$Component) {
 exports['default'] = (0, _utilMessagesMixin.withRoleMessages)(RightsSelector);
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":46,"material-ui":"material-ui","react":"react"}],9:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"material-ui":"material-ui","react":"react"}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1858,7 +2555,7 @@ var RightsSummary = (function (_React$Component) {
 exports['default'] = (0, _utilMessagesMixin.withRoleMessages)(RightsSummary);
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":46,"react":"react"}],10:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"react":"react"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1973,7 +2670,7 @@ var WorkspaceAcl = (function (_React$Component) {
 exports['default'] = (0, _utilMessagesMixin.withRoleMessages)(WorkspaceAcl);
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":46,"./RightsSelector":8,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],11:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"./RightsSelector":17,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2027,6 +2724,13 @@ var _WorkspaceAcl = require('./WorkspaceAcl');
 
 var _WorkspaceAcl2 = _interopRequireDefault(_WorkspaceAcl);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var PydioComponents = _pydio2['default'].requireLib('components');
+var MaterialTable = PydioComponents.MaterialTable;
+
 var WorkspacesAcls = (function (_React$Component) {
     _inherits(WorkspacesAcls, _React$Component);
 
@@ -2036,7 +2740,7 @@ var WorkspacesAcls = (function (_React$Component) {
         _classCallCheck(this, WorkspacesAcls);
 
         _get(Object.getPrototypeOf(WorkspacesAcls.prototype), 'constructor', this).call(this, props);
-        this.state = { workspaces: [] };
+        this.state = { loading: true, workspaces: [] };
         var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
         var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
         request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
@@ -2045,7 +2749,9 @@ var WorkspacesAcls = (function (_React$Component) {
         api.searchWorkspaces(request).then(function (collection) {
             var workspaces = collection.Workspaces || [];
             workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
-            _this.setState({ workspaces: workspaces });
+            _this.setState({ workspaces: workspaces, loading: false });
+        })['catch'](function (e) {
+            _this.setState({ loading: false });
         });
     }
 
@@ -2055,20 +2761,37 @@ var WorkspacesAcls = (function (_React$Component) {
             var _props = this.props;
             var role = _props.role;
             var advancedAcl = _props.advancedAcl;
-            var workspaces = this.state.workspaces;
+            var _state = this.state;
+            var workspaces = _state.workspaces;
+            var loading = _state.loading;
 
             if (!role) {
                 return _react2['default'].createElement('div', null);
             }
-            return _react2['default'].createElement(
-                'div',
-                { className: "material-list" },
-                workspaces.map(function (ws) {
+            var columns = [{
+                name: 'acl',
+                label: '',
+                style: { paddingLeft: 0, paddingRight: 0 },
+                renderCell: function renderCell(ws) {
                     return _react2['default'].createElement(_WorkspaceAcl2['default'], {
                         workspace: ws,
                         role: role,
                         advancedAcl: advancedAcl
                     });
+                }
+            }];
+
+            return _react2['default'].createElement(
+                'div',
+                { className: "material-list" },
+                _react2['default'].createElement(MaterialTable, {
+                    data: workspaces,
+                    columns: columns,
+                    hideHeaders: true,
+                    paginate: [10, 25, 50, 100],
+                    defaultPageSize: 25,
+                    showCheckboxes: false,
+                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.6'] : ''
                 })
             );
         }
@@ -2080,7 +2803,7 @@ var WorkspacesAcls = (function (_React$Component) {
 exports['default'] = WorkspacesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":10,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
+},{"./WorkspaceAcl":19,"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2114,7 +2837,7 @@ var ACL = { PagesAcls: _PagesAcls2['default'], RightsSelector: _RightsSelector2[
 exports['default'] = ACL;
 module.exports = exports['default'];
 
-},{"./PagesAcls":7,"./RightsSelector":8,"./RightsSummary":9,"./WorkspaceAcl":10,"./WorkspacesAcls":11}],13:[function(require,module,exports){
+},{"./PagesAcls":16,"./RightsSelector":17,"./RightsSummary":18,"./WorkspaceAcl":19,"./WorkspacesAcls":20}],22:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -2620,7 +3343,7 @@ exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./acl/PagesAcls":33,"./acl/WorkspacesAcls":36,"./info/GroupInfo":37,"./info/RoleInfo":38,"./info/UserInfo":39,"./model/Role":40,"./model/User":41,"./params/ParametersPanel":43,"material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],14:[function(require,module,exports){
+},{"./acl/PagesAcls":42,"./acl/WorkspacesAcls":45,"./info/GroupInfo":46,"./info/RoleInfo":47,"./info/UserInfo":48,"./model/Role":49,"./model/User":50,"./params/ParametersPanel":52,"material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2762,7 +3485,7 @@ GroupInfo.PropTypes = {
 exports['default'] = GroupInfo;
 module.exports = exports['default'];
 
-},{"../model/User":41,"pydio":"pydio","react":"react"}],15:[function(require,module,exports){
+},{"../model/User":50,"pydio":"pydio","react":"react"}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2907,7 +3630,7 @@ RoleInfo.PropTypes = {
 exports['default'] = RoleInfo;
 module.exports = exports['default'];
 
-},{"../model/Role":40,"pydio":"pydio","react":"react"}],16:[function(require,module,exports){
+},{"../model/Role":49,"pydio":"pydio","react":"react"}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3165,7 +3888,7 @@ UserInfo.PropTypes = {
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":41,"../user/UserRolesPicker":44,"material-ui":"material-ui","pydio":"pydio","react":"react"}],17:[function(require,module,exports){
+},{"../model/User":50,"../user/UserRolesPicker":53,"material-ui":"material-ui","pydio":"pydio","react":"react"}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3191,7 +3914,7 @@ var Info = { GroupInfo: _GroupInfo2['default'], RoleInfo: _RoleInfo2['default'],
 exports['default'] = Info;
 module.exports = exports['default'];
 
-},{"./GroupInfo":14,"./RoleInfo":15,"./UserInfo":16}],18:[function(require,module,exports){
+},{"./GroupInfo":23,"./RoleInfo":24,"./UserInfo":25}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3220,9 +3943,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var Role = (function (_Observable) {
     _inherits(Role, _Observable);
@@ -3248,7 +3969,7 @@ var Role = (function (_Observable) {
             this.idmRole = idmRole;
         } else {
             this.idmRole = new _pydioHttpRestApi.IdmRole();
-            this.idmRole.Uuid = (0, _uuid42['default'])();
+            this.idmRole.Uuid = (0, _uuid.v4)();
         }
         this.makeSnapshot();
     }
@@ -3723,7 +4444,7 @@ var Role = (function (_Observable) {
 exports['default'] = Role;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":1}],19:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid":2}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3748,7 +4469,7 @@ var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
+var _uuid = require('uuid');
 
 var _Role = require('./Role');
 
@@ -3787,7 +4508,7 @@ var User = (function (_Observable) {
             }
         } else {
             this.idmUser = new _pydioHttpRestApi.IdmUser();
-            this.idmUser.Uuid = (0, _uuid4.sync)();
+            this.idmUser.Uuid = (0, _uuid.v4)();
             this.idmRole = _pydioHttpRestApi.IdmRole.constructFromObject({ Uuid: this.idmUser.Uuid });
             this.idmUser.Roles = [this.idmRole];
             this.idmUser.Attributes = {};
@@ -3957,7 +4678,7 @@ var User = (function (_Observable) {
 exports['default'] = User;
 module.exports = exports['default'];
 
-},{"./Role":18,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":1}],20:[function(require,module,exports){
+},{"./Role":27,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid":2}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3979,7 +4700,7 @@ var Model = { Role: _Role2['default'], User: _User2['default'] };
 exports['default'] = Model;
 module.exports = exports['default'];
 
-},{"./Role":18,"./User":19}],21:[function(require,module,exports){
+},{"./Role":27,"./User":28}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -4146,7 +4867,7 @@ var ParameterCreate = _react2["default"].createClass({
 exports["default"] = ParameterCreate;
 module.exports = exports["default"];
 
-},{"./ParametersPicker":24,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],22:[function(require,module,exports){
+},{"./ParametersPicker":33,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -4432,7 +5153,7 @@ var ParameterEntry = (function (_React$Component) {
 exports['default'] = (0, _utilMessagesMixin.withRoleMessages)(ParameterEntry);
 module.exports = exports['default'];
 
-},{"../model/Role":40,"../util/MessagesMixin":46,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],23:[function(require,module,exports){
+},{"../model/Role":49,"../util/MessagesMixin":55,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4685,7 +5406,7 @@ var ParametersPanel = (function (_React$Component) {
 exports['default'] = ParametersPanel;
 module.exports = exports['default'];
 
-},{"./ParameterEntry":22,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],24:[function(require,module,exports){
+},{"./ParameterEntry":31,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],33:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -4947,7 +5668,7 @@ var ParametersPicker = (function (_React$Component) {
 exports["default"] = ParametersPicker;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],25:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4977,7 +5698,7 @@ var Params = { ParametersPicker: _ParametersPicker2['default'], ParameterCreate:
 exports['default'] = Params;
 module.exports = exports['default'];
 
-},{"./ParameterCreate":21,"./ParameterEntry":22,"./ParametersPanel":23,"./ParametersPicker":24}],26:[function(require,module,exports){
+},{"./ParameterCreate":30,"./ParameterEntry":31,"./ParametersPanel":32,"./ParametersPicker":33}],35:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -5115,7 +5836,7 @@ exports["default"] = _react2["default"].createClass({
 module.exports = exports["default"];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":41,"pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],27:[function(require,module,exports){
+},{"../model/User":50,"pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],36:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5303,7 +6024,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":46,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],28:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5325,7 +6046,7 @@ var User = { UserPasswordDialog: _UserPasswordDialog2['default'], UserRolesPicke
 exports['default'] = User;
 module.exports = exports['default'];
 
-},{"./UserPasswordDialog":26,"./UserRolesPicker":27}],29:[function(require,module,exports){
+},{"./UserPasswordDialog":35,"./UserRolesPicker":36}],38:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5385,7 +6106,7 @@ function loadEditorClass(className, defaultComponent) {
 
 exports.loadEditorClass = loadEditorClass;
 
-},{"pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func"}],30:[function(require,module,exports){
+},{"pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func"}],39:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5416,7 +6137,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}],31:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5552,7 +6273,7 @@ exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 exports.withRoleMessages = withRoleMessages;
 
-},{"pydio":"pydio","react":"react"}],32:[function(require,module,exports){
+},{"pydio":"pydio","react":"react"}],41:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5593,35 +6314,35 @@ var Util = { EditorCache: _EditorCache2['default'], RoleMessagesConsumerMixin: _
 exports['default'] = Util;
 module.exports = exports['default'];
 
-},{"./ClassLoader":29,"./EditorCache":30,"./MessagesMixin":31}],33:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"./WorkspaceAcl":35,"dup":7,"pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],34:[function(require,module,exports){
-arguments[4][8][0].apply(exports,arguments)
-},{"../util/MessagesMixin":46,"dup":8,"material-ui":"material-ui","react":"react"}],35:[function(require,module,exports){
-arguments[4][10][0].apply(exports,arguments)
-},{"../util/MessagesMixin":46,"./RightsSelector":34,"dup":10,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],36:[function(require,module,exports){
-arguments[4][11][0].apply(exports,arguments)
-},{"./WorkspaceAcl":35,"dup":11,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],37:[function(require,module,exports){
-arguments[4][14][0].apply(exports,arguments)
-},{"../model/User":41,"dup":14,"pydio":"pydio","react":"react"}],38:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"../model/Role":40,"dup":15,"pydio":"pydio","react":"react"}],39:[function(require,module,exports){
+},{"./ClassLoader":38,"./EditorCache":39,"./MessagesMixin":40}],42:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"../model/User":41,"../user/UserRolesPicker":44,"dup":16,"material-ui":"material-ui","pydio":"pydio","react":"react"}],40:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"dup":18,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":1}],41:[function(require,module,exports){
+},{"./WorkspaceAcl":44,"dup":16,"pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],43:[function(require,module,exports){
+arguments[4][17][0].apply(exports,arguments)
+},{"../util/MessagesMixin":55,"dup":17,"material-ui":"material-ui","react":"react"}],44:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./Role":40,"dup":19,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":1}],42:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"../model/Role":40,"../util/MessagesMixin":46,"dup":22,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],43:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"./RightsSelector":43,"dup":19,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],45:[function(require,module,exports){
+arguments[4][20][0].apply(exports,arguments)
+},{"./WorkspaceAcl":44,"dup":20,"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],46:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./ParameterEntry":42,"dup":23,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],44:[function(require,module,exports){
+},{"../model/User":50,"dup":23,"pydio":"pydio","react":"react"}],47:[function(require,module,exports){
+arguments[4][24][0].apply(exports,arguments)
+},{"../model/Role":49,"dup":24,"pydio":"pydio","react":"react"}],48:[function(require,module,exports){
+arguments[4][25][0].apply(exports,arguments)
+},{"../model/User":50,"../user/UserRolesPicker":53,"dup":25,"material-ui":"material-ui","pydio":"pydio","react":"react"}],49:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"../util/MessagesMixin":46,"dup":27,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],45:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"dup":29,"pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func"}],46:[function(require,module,exports){
+},{"dup":27,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid":2}],50:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"./Role":49,"dup":28,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid":2}],51:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31,"pydio":"pydio","react":"react"}],47:[function(require,module,exports){
+},{"../model/Role":49,"../util/MessagesMixin":55,"dup":31,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],52:[function(require,module,exports){
+arguments[4][32][0].apply(exports,arguments)
+},{"./ParameterEntry":51,"dup":32,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],53:[function(require,module,exports){
+arguments[4][36][0].apply(exports,arguments)
+},{"../util/MessagesMixin":55,"dup":36,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],54:[function(require,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"dup":38,"pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func"}],55:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"dup":40,"pydio":"pydio","react":"react"}],56:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5837,7 +6558,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],48:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],57:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6021,7 +6742,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],49:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],58:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6110,7 +6831,161 @@ window.AdminPeople = {
 
 };
 
-},{"./board/Callbacks":2,"./board/Dashboard":3,"./board/PoliciesBoard":4,"./board/RolesDashboard":5,"./editor/ACL":12,"./editor/Info":17,"./editor/Model":20,"./editor/Params":25,"./editor/User":28,"./editor/Util":32,"./forms/CreateRoleOrGroupForm":47,"./forms/CreateUserForm":48}],50:[function(require,module,exports){
+},{"./board/Callbacks":11,"./board/Dashboard":12,"./board/PoliciesBoard":13,"./board/RolesDashboard":14,"./editor/ACL":21,"./editor/Info":26,"./editor/Model":29,"./editor/Params":34,"./editor/User":37,"./editor/Util":41,"./forms/CreateRoleOrGroupForm":56,"./forms/CreateUserForm":57}],59:[function(require,module,exports){
+/*
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var InlineLabel = (function (_React$Component) {
+    _inherits(InlineLabel, _React$Component);
+
+    function InlineLabel(props) {
+        _classCallCheck(this, InlineLabel);
+
+        _get(Object.getPrototypeOf(InlineLabel.prototype), 'constructor', this).call(this, props);
+        this.state = { edit: false, hover: false, label: props.label };
+    }
+
+    _createClass(InlineLabel, [{
+        key: 'onChange',
+        value: function onChange(event, value) {
+            this.setState({ label: value });
+        }
+    }, {
+        key: 'onEnter',
+        value: function onEnter(event) {
+            if (event.key === "Enter") {
+                this.setState({ edit: false });
+                this.props.onChange(this.state.label);
+            }
+        }
+    }, {
+        key: 'cancel',
+        value: function cancel() {
+            this.setState({ edit: false, hover: false, label: this.props.label });
+        }
+    }, {
+        key: 'open',
+        value: function open(event) {
+            var _this = this;
+
+            this.setState({
+                edit: true,
+                elementWidth: Math.max(event.target.offsetWidth, 256)
+            }, function () {
+                _this.refs.text.select();
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            var _state = this.state;
+            var edit = _state.edit;
+            var hover = _state.hover;
+            var label = _state.label;
+
+            if (edit) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { backgroundColor: '#f4f4f4' } },
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        fullWidth: this.state.elementWidth,
+                        style: { marginTop: -20, width: this.state.elementWidth },
+                        value: label,
+                        onChange: this.onChange.bind(this),
+                        onKeyDown: this.onEnter.bind(this),
+                        underlineShow: false,
+                        ref: 'text',
+                        inputStyle: this.props.inputStyle,
+                        onBlur: this.cancel.bind(this)
+                    }),
+                    ' ',
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { fontStyle: 'italic', opacity: 0.8 } },
+                        '(Hit enter to save)'
+                    )
+                );
+            } else {
+                var editIcon = undefined;
+                if (hover) {
+                    editIcon = _react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { color: '#e0e0e0' }, onMouseOver: function () {
+                            _this2.setState({ hover: true });
+                        } });
+                }
+                return _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(
+                        'span',
+                        {
+                            style: { pointer: 'cursor' },
+                            title: 'Click to edit',
+                            onClick: this.open.bind(this),
+                            onMouseOver: function () {
+                                _this2.setState({ hover: true });
+                            },
+                            onMouseOut: function () {
+                                _this2.setState({ hover: false });
+                            }
+                        },
+                        label,
+                        ' ',
+                        editIcon,
+                        ' '
+                    ),
+                    this.props.legend
+                );
+            }
+        }
+    }]);
+
+    return InlineLabel;
+})(_react2['default'].Component);
+
+exports['default'] = InlineLabel;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","react":"react"}],60:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6159,13 +7034,11 @@ var _Rule2 = _interopRequireDefault(_Rule);
 
 var _materialUi = require('material-ui');
 
-var _editorInlineLabel = require('./editor/InlineLabel');
+var _InlineLabel = require('./InlineLabel');
 
-var _editorInlineLabel2 = _interopRequireDefault(_editorInlineLabel);
+var _InlineLabel2 = _interopRequireDefault(_InlineLabel);
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var Policy = (function (_React$Component) {
     _inherits(Policy, _React$Component);
@@ -6249,7 +7122,7 @@ var Policy = (function (_React$Component) {
             if (!policy.Policies) {
                 policy.Policies = [];
             }
-            var newId = (0, _uuid42['default'])();
+            var newId = (0, _uuid.v4)();
             var subjects = [],
                 resources = [],
                 actions = [];
@@ -6330,11 +7203,11 @@ var Policy = (function (_React$Component) {
                     policy.Description
                 );
             } else {
-                primaryText = _react2['default'].createElement(_editorInlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
+                primaryText = _react2['default'].createElement(_InlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
                 secondaryText = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_editorInlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
+                    _react2['default'].createElement(_InlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
                 );
             }
 
@@ -6355,7 +7228,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":51,"./editor/InlineLabel":52,"material-ui":"material-ui","react":"react","uuid4":1}],51:[function(require,module,exports){
+},{"./InlineLabel":59,"./Rule":61,"material-ui":"material-ui","react":"react","uuid":2}],61:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6523,158 +7396,4 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"../editor/util/ClassLoader":45,"material-ui":"material-ui","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func","react":"react"}],52:[function(require,module,exports){
-/*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var InlineLabel = (function (_React$Component) {
-    _inherits(InlineLabel, _React$Component);
-
-    function InlineLabel(props) {
-        _classCallCheck(this, InlineLabel);
-
-        _get(Object.getPrototypeOf(InlineLabel.prototype), 'constructor', this).call(this, props);
-        this.state = { edit: false, hover: false, label: props.label };
-    }
-
-    _createClass(InlineLabel, [{
-        key: 'onChange',
-        value: function onChange(event, value) {
-            this.setState({ label: value });
-        }
-    }, {
-        key: 'onEnter',
-        value: function onEnter(event) {
-            if (event.key == "Enter") {
-                this.setState({ edit: false });
-                this.props.onChange(this.state.label);
-            }
-        }
-    }, {
-        key: 'cancel',
-        value: function cancel() {
-            this.setState({ edit: false, hover: false, label: this.props.label });
-        }
-    }, {
-        key: 'open',
-        value: function open(event) {
-            var _this = this;
-
-            this.setState({
-                edit: true,
-                elementWidth: Math.max(event.target.offsetWidth, 256)
-            }, function () {
-                _this.refs.text.select();
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var edit = _state.edit;
-            var hover = _state.hover;
-            var label = _state.label;
-
-            if (edit) {
-                return _react2['default'].createElement(
-                    'div',
-                    { style: { backgroundColor: '#f4f4f4' } },
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: this.state.elementWidth,
-                        style: { marginTop: -20, width: this.state.elementWidth },
-                        value: label,
-                        onChange: this.onChange.bind(this),
-                        onKeyDown: this.onEnter.bind(this),
-                        underlineShow: false,
-                        ref: 'text',
-                        inputStyle: this.props.inputStyle,
-                        onBlur: this.cancel.bind(this)
-                    }),
-                    ' ',
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { fontStyle: 'italic', opacity: 0.8 } },
-                        '(Hit enter to save)'
-                    )
-                );
-            } else {
-                var editIcon = undefined;
-                if (hover) {
-                    editIcon = _react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { color: '#e0e0e0' }, onMouseOver: function () {
-                            _this2.setState({ hover: true });
-                        } });
-                }
-                return _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement(
-                        'span',
-                        {
-                            style: { pointer: 'cursor' },
-                            title: 'Click to edit',
-                            onClick: this.open.bind(this),
-                            onMouseOver: function () {
-                                _this2.setState({ hover: true });
-                            },
-                            onMouseOut: function () {
-                                _this2.setState({ hover: false });
-                            }
-                        },
-                        label,
-                        ' ',
-                        editIcon,
-                        ' '
-                    ),
-                    this.props.legend
-                );
-            }
-        }
-    }]);
-
-    return InlineLabel;
-})(_react2['default'].Component);
-
-exports['default'] = InlineLabel;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}]},{},[49]);
+},{"../editor/util/ClassLoader":54,"material-ui":"material-ui","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func","react":"react"}]},{},[58]);

@@ -19,6 +19,7 @@ package s3
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
@@ -129,13 +130,19 @@ func s3GatewayMain(ctx *cli.Context) {
 	// Validate gateway arguments.
 	logger.FatalIf(minio.ValidateGatewayArguments(ctx.GlobalString("address"), args.First()), "Invalid argument")
 
+	pydioDs := ctx.Args().Get(1) == "pydio-ds"
+
 	// Start the gateway..
-	minio.StartGateway(ctx, &S3{args.First()})
+	minio.StartGateway(ctx, &S3{
+		host: args.First(),
+		pydioDs:pydioDs,
+	})
 }
 
 // S3 implements Gateway.
 type S3 struct {
 	host string
+	pydioDs bool
 }
 
 // Name implements Gateway interface.
@@ -225,9 +232,16 @@ func (g *S3) NewGatewayLayer(creds auth.Credentials) (minio.ObjectLayer, error) 
 	if err != nil {
 		return nil, err
 	}
+	// For proper
+	translate := ""
+	if g.pydioDs {
+		translate = ".pydio"
+		fmt.Println("[INFO] Starting gateway in Pydio DataSource mode")
+	}
 
 	return &s3Objects{
 		Client: clnt,
+		translateHidden: translate,
 	}, nil
 }
 
@@ -240,6 +254,7 @@ func (g *S3) Production() bool {
 type s3Objects struct {
 	minio.GatewayUnsupported
 	Client *miniogo.Core
+	translateHidden string
 }
 
 // Shutdown saves any gateway metadata to disk
@@ -327,7 +342,7 @@ func (l *s3Objects) ListObjects(ctx context.Context, bucket string, prefix strin
 	if err != nil {
 		return loi, minio.ErrorRespToObjectError(err, bucket)
 	}
-
+	result.Contents = l.updateListingResults(bucket, result.Contents)
 	return minio.FromMinioClientListBucketResult(bucket, result), nil
 }
 
@@ -337,7 +352,7 @@ func (l *s3Objects) ListObjectsV2(ctx context.Context, bucket, prefix, continuat
 	if err != nil {
 		return loi, minio.ErrorRespToObjectError(err, bucket)
 	}
-
+	result.Contents = l.updateListingResults(bucket, result.Contents)
 	return minio.FromMinioClientListBucketV2Result(bucket, result), nil
 }
 
@@ -377,6 +392,10 @@ func (l *s3Objects) GetObject(ctx context.Context, bucket string, key string, st
 		return minio.ErrorRespToObjectError(minio.InvalidRange{}, bucket, key)
 	}
 
+	if emptyKey, ok := l.hiddenToEmpty(key); ok {
+		return l.readEmptyMetaAsContent(bucket, key, emptyKey, writer, o.ServerSideEncryption)
+	}
+
 	opts := miniogo.GetObjectOptions{}
 	opts.ServerSideEncryption = o.ServerSideEncryption
 
@@ -399,7 +418,12 @@ func (l *s3Objects) GetObject(ctx context.Context, bucket string, key string, st
 
 // GetObjectInfo reads object info and replies back ObjectInfo
 func (l *s3Objects) GetObjectInfo(ctx context.Context, bucket string, object string, opts minio.ObjectOptions) (objInfo minio.ObjectInfo, err error) {
-	oi, err := l.Client.StatObject(bucket, object, miniogo.StatObjectOptions{miniogo.GetObjectOptions{ServerSideEncryption: opts.ServerSideEncryption}})
+
+	if emptyKey, o := l.hiddenToEmpty(object); o {
+		return l.getHiddenObjectInfo(bucket, object, emptyKey, opts.ServerSideEncryption)
+	}
+
+	oi, err := l.Client.StatObject(bucket, object, miniogo.StatObjectOptions{GetObjectOptions:miniogo.GetObjectOptions{ServerSideEncryption: opts.ServerSideEncryption}})
 	if err != nil {
 		return minio.ObjectInfo{}, minio.ErrorRespToObjectError(err, bucket, object)
 	}
@@ -409,7 +433,16 @@ func (l *s3Objects) GetObjectInfo(ctx context.Context, bucket string, object str
 
 // PutObject creates a new object with the incoming data,
 func (l *s3Objects) PutObject(ctx context.Context, bucket string, object string, data *hash.Reader, metadata map[string]string, opts minio.ObjectOptions) (objInfo minio.ObjectInfo, err error) {
-	oi, err := l.Client.PutObject(bucket, object, data, data.Size(), data.MD5Base64String(), data.SHA256HexString(), minio.ToMinioClientMetadata(metadata), opts.ServerSideEncryption)
+
+	var oi miniogo.ObjectInfo
+
+	// If this is a .pydio file => switch to empty folder and attach data content as metadata instead
+	if emptyKey, o := l.hiddenToEmpty(object); o {
+		oi, err = l.putContentAsEmptyMeta(bucket, object, emptyKey, data, metadata, opts.ServerSideEncryption)
+	} else {
+		oi, err = l.Client.PutObject(bucket, object, data, data.Size(), data.MD5Base64String(), data.SHA256HexString(), minio.ToMinioClientMetadata(metadata), opts.ServerSideEncryption)
+	}
+
 	if err != nil {
 		return objInfo, minio.ErrorRespToObjectError(err, bucket, object)
 	}
@@ -422,13 +455,25 @@ func (l *s3Objects) PutObject(ctx context.Context, bucket string, object string,
 
 // CopyObject copies an object from source bucket to a destination bucket.
 func (l *s3Objects) CopyObject(ctx context.Context, srcBucket string, srcObject string, dstBucket string, dstObject string, srcInfo minio.ObjectInfo, srcOpts, dstOpts minio.ObjectOptions) (objInfo minio.ObjectInfo, err error) {
+	srcObject2, transformed := l.hiddenToEmpty(srcObject)
+	dstObject2, _ := l.hiddenToEmpty(dstObject)
+	matchEtag := srcInfo.ETag
+	if transformed {
+		// Make sure to use proper ETag as match condition
+		if o, er := l.Client.StatObject(srcBucket, srcObject2, miniogo.StatObjectOptions{GetObjectOptions:miniogo.GetObjectOptions{ServerSideEncryption:srcOpts.ServerSideEncryption}}); er == nil {
+			matchEtag = o.ETag
+			srcInfo.UserDefined[metaFolderUUID] = strings.Join(o.Metadata[metaFolderUUID], "")
+		} else {
+			return objInfo, minio.ErrorRespToObjectError(er, srcBucket, srcObject)
+		}
+	}
 	// Set this header such that following CopyObject() always sets the right metadata on the destination.
 	// metadata input is already a trickled down value from interpreting x-amz-metadata-directive at
 	// handler layer. So what we have right now is supposed to be applied on the destination object anyways.
 	// So preserve it by adding "REPLACE" directive to save all the metadata set by CopyObject API.
 	srcInfo.UserDefined["x-amz-metadata-directive"] = "REPLACE"
-	srcInfo.UserDefined["x-amz-copy-source-if-match"] = srcInfo.ETag
-	if _, err = l.Client.CopyObject(srcBucket, srcObject, dstBucket, dstObject, srcInfo.UserDefined); err != nil {
+	srcInfo.UserDefined["x-amz-copy-source-if-match"] = matchEtag
+	if _, err = l.Client.CopyObject(srcBucket, srcObject2, dstBucket, dstObject2, srcInfo.UserDefined); err != nil {
 		return objInfo, minio.ErrorRespToObjectError(err, srcBucket, srcObject)
 	}
 	return l.GetObjectInfo(ctx, dstBucket, dstObject, dstOpts)
@@ -436,6 +481,9 @@ func (l *s3Objects) CopyObject(ctx context.Context, srcBucket string, srcObject 
 
 // DeleteObject deletes a blob in bucket
 func (l *s3Objects) DeleteObject(ctx context.Context, bucket string, object string) error {
+
+	object, _ = l.hiddenToEmpty(object)
+
 	err := l.Client.RemoveObject(bucket, object)
 	if err != nil {
 		return minio.ErrorRespToObjectError(err, bucket, object)

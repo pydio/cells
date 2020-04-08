@@ -81,7 +81,8 @@ var PluginsList = React.createClass({
                     pluginId: rows[0].id,
                     docAsAdditionalPane: true,
                     className: "vertical edit-plugin-inpane",
-                    closeEditor: this.props.closeRightPane
+                    closeEditor: this.props.closeRightPane,
+                    accessByName: this.props.accessByName
                 },
                 CHILDREN: null
             });
@@ -128,10 +129,13 @@ var PluginsList = React.createClass({
         var _props2 = this.props;
         var displaySmall = _props2.displaySmall;
         var pydio = _props2.pydio;
+        var accessByName = _props2.accessByName;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         };
+        var adminStyles = AdminComponents.AdminStyles();
+
         var columns = undefined;
         var renderEnabled = function renderEnabled(row) {
             var enableValue = row.xmlNode.getAttribute("enabled");
@@ -143,10 +147,13 @@ var PluginsList = React.createClass({
                 onClick: function (e) {
                     return e.stopPropagation();
                 },
-                disabled: enableValue === 'always' || enableValue === 'auto' || row.id === 'meta.layout_sendfile'
+                disabled: enableValue === 'always' || enableValue === 'auto' || !accessByName('Create') || row.id === 'meta.layout_sendfile'
             });
         };
         var renderEditButton = function renderEditButton(row) {
+            if (!accessByName('Create')) {
+                return null;
+            }
             if (_pydioUtilXml2['default'].XPathSelectNodes(row.xmlNode, "server_settings/global_param").length) {
                 return React.createElement(_materialUi.IconButton, {
                     iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 },
@@ -173,7 +180,8 @@ var PluginsList = React.createClass({
             data: data,
             columns: columns,
             deselectOnClickAway: true,
-            showCheckboxes: false
+            showCheckboxes: false,
+            masterStyles: adminStyles.body.tableMaster
         });
     }
 

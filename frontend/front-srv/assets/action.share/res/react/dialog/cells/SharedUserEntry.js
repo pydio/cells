@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 const React = require('react');
+import {Checkbox} from 'material-ui'
 import UserBadge from './UserBadge'
 import ShareContextConsumer from '../ShareContextConsumer'
 
@@ -38,9 +39,8 @@ let SharedUserEntry = React.createClass({
         targets[userObject.getId()] = userObject;
         this.props.sendInvitations(targets);
     },
-    onUpdateRight:function(event){
-        const target = event.target;
-        this.props.onUserObjectUpdateRight(this.props.cellAcl.RoleId, target.name, target.checked);
+    onUpdateRight:function(name, checked){
+        this.props.onUserObjectUpdateRight(this.props.cellAcl.RoleId, name, checked);
     },
     render: function(){
         const {cellAcl, pydio} = this.props;
@@ -52,7 +52,7 @@ let SharedUserEntry = React.createClass({
             return null;
         }
 
-        if(type != 'group'){
+        if(type !== 'group'){
             if(this.props.sendInvitations){
                 // Send invitation
                 menuItems.push({
@@ -76,17 +76,17 @@ let SharedUserEntry = React.createClass({
                 avatar = cellAcl.User.Attributes["avatar"];
                 break;
             case "group":
-                if(!cellAcl.Group.Attributes){
-                    label = cellAcl.Group.Uuid;
-                } else {
+                if (cellAcl.Group.Attributes) {
                     label = cellAcl.Group.Attributes["displayName"] || cellAcl.Group.GroupLabel;
+                } else {
+                    label = cellAcl.Group.Uuid;
                 }
                 break;
             case "team":
-                if(!cellAcl.Role){
-                    label = "No role found";
-                } else {
+                if (cellAcl.Role) {
                     label = cellAcl.Role.Label;
+                } else {
+                    label = "No role found";
                 }
                 break;
             default:
@@ -95,9 +95,21 @@ let SharedUserEntry = React.createClass({
         }
         let read = false, write = false;
         cellAcl.Actions.map((action) =>{
-            if(action.Name === 'read') read = true;
-            if(action.Name === 'write') write = true;
+            if(action.Name === 'read') {
+                read = true;
+            }
+            if(action.Name === 'write') {
+                write = true;
+            }
         });
+        const disabled = this.props.isReadonly() || this.props.readonly;
+        let style = {
+            display: 'flex',
+            width: 70,
+        };
+        if(!menuItems.length){
+            style = {...style, marginRight: 48}
+        }
 
         return (
             <UserBadge
@@ -106,9 +118,9 @@ let SharedUserEntry = React.createClass({
                 type={type}
                 menus={menuItems}
             >
-                <span className="user-badge-rights-container" style={!menuItems.length ? {marginRight: 48} : {}}>
-                    <input type="checkbox" name="read" disabled={this.props.isReadonly() || this.props.readonly} checked={read} onChange={this.onUpdateRight}/>
-                    <input type="checkbox" name="write" disabled={this.props.isReadonly() || this.props.readonly} checked={write} onChange={this.onUpdateRight}/>
+                <span style={style}>
+                    <Checkbox disabled={disabled} checked={read} onCheck={(e, v) => {this.onUpdateRight('read', v)}}/>
+                    <Checkbox disabled={disabled} checked={write} onCheck={(e, v) => {this.onUpdateRight('write', v)}}/>
                 </span>
             </UserBadge>
         );

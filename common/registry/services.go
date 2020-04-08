@@ -56,7 +56,7 @@ type Service interface {
 	IsREST() bool
 
 	RequiresFork() bool
-	ForkStart()
+	ForkStart(retries ...int)
 	MustBeUnique() bool
 	AutoStart() bool
 

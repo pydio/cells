@@ -66,7 +66,7 @@ class NodeCard extends React.Component{
 
     render(){
 
-        const {dataSources, node, readonly, oneLiner, onClose = () => {}} = this.props;
+        const {dataSources, node, readonly, oneLiner, adminStyles, onClose = () => {}} = this.props;
 
         let ds = {};
         if(dataSources){
@@ -102,21 +102,21 @@ class NodeCard extends React.Component{
             );
         } else {
             const titleComponent = (
-                <div style={{display:'flex', alignItems:'baseline'}}>
+                <div style={{display:'flex', alignItems:'center', height:48}}>
                     <div style={{flex: 1}}>{node.getName()}</div>
                     {!readonly &&
                         <div>
-                            <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/>
-                            <IconButton iconClassName={"mdi mdi-delete"}  onClick={this.remove.bind(this)} tooltip={"Delete"} disabled={node.getName() === 'cells' || node.getName() === 'my-files'}/>
+                            <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"} {...adminStyles.props.header.iconButton}/>
+                            <IconButton iconClassName={"mdi mdi-delete"}  onClick={this.remove.bind(this)} tooltip={"Delete"} disabled={node.getName() === 'cells' || node.getName() === 'my-files'} {...adminStyles.props.header.iconButton}/>
                         </div>
                     }
                 </div>
             );
             return (
-                <div style={{marginBottom: 10}}>
-                    <AdminComponents.SubHeader title={titleComponent}/>
-                    <Paper zDepth={1} style={{margin:'0 20px'}}>{codeMirrorField}</Paper>
-                </div>
+                <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, marginBottom: 10}}>
+                    <div style={adminStyles.body.block.headerFull}>{titleComponent}</div>
+                    <div>{codeMirrorField}</div>
+                </Paper>
             );
         }
 

@@ -59,8 +59,15 @@ class ActivityList extends React.Component {
         if(offset > 0){
             limit = 100;
         }
-        this.setState({loading: true});
-        AS2Client.loadActivityStreams((json) => {
+        this.setState({loading: true, error: null});
+        AS2Client.loadActivityStreams(
+            context,
+            contextData,
+            'outbox',
+            pointOfView,
+            offset,
+            limit
+        ).then((json) => {
             if(offset > 0 && data && data.items){
                 if(json && json.items) this.setState({data: this.mergeMoreFeed(data, json)});
             }else {
@@ -70,14 +77,9 @@ class ActivityList extends React.Component {
                 this.setState({loadMore: false});
             }
             this.setState({loading: false});
-        },
-            context,
-            contextData,
-            'outbox',
-            pointOfView,
-            offset,
-            limit
-        );
+        }).catch(msg => {
+            this.setState({loading: false, error: msg});
+        });
     }
 
     componentWillMount(){
@@ -105,9 +107,15 @@ class ActivityList extends React.Component {
     render(){
 
         let content = [];
-        let {data, loadMore, loading} = this.state;
+        let {data, loadMore, loading, error} = this.state;
         const {listContext, groupByDate, displayContext, pydio} = this.props;
         let previousFrom;
+        let emptyStateIcon = "mdi mdi-pulse";
+        let emptyStateString = loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18'];
+        if(error){
+            emptyStateString = error.Detail || error.msg || error;
+            emptyStateIcon = "mdi mdi-alert-circle-outline";
+         }
         if (data !== null && data.items) {
             data.items.forEach(function(ac){
 
@@ -145,8 +153,8 @@ class ActivityList extends React.Component {
             return (
                 <EmptyStateView
                     pydio={this.props.pydio}
-                    iconClassName="mdi mdi-pulse"
-                    primaryTextId={loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18']}
+                    iconClassName={emptyStateIcon}
+                    primaryTextId={emptyStateString}
                     style={style}
                     iconStyle={iconStyle}
                     legendStyle={legendStyle}

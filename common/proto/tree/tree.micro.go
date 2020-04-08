@@ -12,6 +12,7 @@ It has these top-level messages:
 	ReadNodeResponse
 	ListNodesRequest
 	ListNodesResponse
+	WrappingStreamerResponse
 	CreateNodeRequest
 	CreateNodeResponse
 	UpdateNodeRequest

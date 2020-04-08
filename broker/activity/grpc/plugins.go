@@ -34,14 +34,14 @@ import (
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/meta"
 )
@@ -67,9 +67,9 @@ func init() {
 			service.WithStorage(activity.NewDAO, "broker_activity"),
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
-				m.Init(
-					micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}),
-				)
+				metadata := m.Server().Options().Metadata
+				metadata[meta.ServiceMetaProvider] = "stream"
+
 				dao := servicecontext.GetDAO(m.Options().Context).(activity.DAO)
 				// Register Subscribers
 				subscriber := NewEventsSubscriber(dao)

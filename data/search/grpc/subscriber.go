@@ -24,7 +24,6 @@ import (
 	"context"
 
 	"github.com/pydio/cells/common"
-
 	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/proto/tree"
 )

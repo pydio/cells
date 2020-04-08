@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/utils/mtree"
@@ -186,6 +186,11 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {
 		expressions = append(expressions, goqu.I("t.leaf").Eq(0))
+	}
+
+	if q.HasProfile != "" {
+		q.AttributeName = idm.UserAttrProfile
+		q.AttributeValue = q.HasProfile
 	}
 
 	if len(q.AttributeName) > 0 {

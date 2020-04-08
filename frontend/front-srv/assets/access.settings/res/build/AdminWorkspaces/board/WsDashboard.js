@@ -24,11 +24,17 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
@@ -44,44 +50,38 @@ var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
 
-var PydioDataModel = require('pydio/model/data-model');
-var AjxpNode = require('pydio/model/node');
+var _pydioModelDataModel = require('pydio/model/data-model');
 
-exports['default'] = _react2['default'].createClass({
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var WsDashboard = _react2['default'].createClass({
     displayName: 'WsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired,
         openRightPane: _react2['default'].PropTypes.func.isRequired,
         closeRightPane: _react2['default'].PropTypes.func.isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         advanced: _react2['default'].PropTypes.boolean
     },
 
     getInitialState: function getInitialState() {
-        return { selectedNode: null };
-    },
-
-    componentDidMount: function componentDidMount() {
-        var _this = this;
-
-        this._setLoading = function () {
-            _this.setState({ loading: true });
-        };
-        this._stopLoading = function () {
-            _this.setState({ loading: false });
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+        return { selectedNode: null, searchString: '' };
     },
 
     dirtyEditor: function dirtyEditor() {
@@ -96,7 +96,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     openWorkspace: function openWorkspace(workspace) {
-        var _this2 = this;
+        var _this = this;
 
         if (this.dirtyEditor()) {
             return;
@@ -109,6 +109,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var accessByName = _props.accessByName;
 
         var editorData = {
             COMPONENT: editor,
@@ -119,7 +120,7 @@ exports['default'] = _react2['default'].createClass({
                 closeEditor: this.closeWorkspace,
                 advanced: advanced,
                 reloadList: function reloadList() {
-                    _this2.refs['workspacesList'].reload();
+                    _this.refs['workspacesList'].reload();
                 }
             }
         };
@@ -134,7 +135,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     showWorkspaceCreator: function showWorkspaceCreator(type) {
-        var _this3 = this;
+        var _this2 = this;
 
         var _props2 = this.props;
         var pydio = _props2.pydio;
@@ -149,7 +150,7 @@ exports['default'] = _react2['default'].createClass({
                 advanced: advanced,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
-                    _this3.refs['workspacesList'].reload();
+                    _this2.refs['workspacesList'].reload();
                 }
             }
         };
@@ -161,46 +162,78 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _this3 = this;
+
+        var _props3 = this.props;
+        var pydio = _props3.pydio;
+        var advanced = _props3.advanced;
+        var currentNode = _props3.currentNode;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var _state = this.state;
+        var searchString = _state.searchString;
+        var loading = _state.loading;
+
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         var buttons = [];
-        var icon = undefined;
-        var title = this.props.currentNode.getLabel();
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
-        icon = 'mdi mdi-folder-open';
+        if (accessByName('Create')) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                primary: true,
+                label: this.context.getMessage('ws.3'),
+                onTouchTap: this.showWorkspaceCreator
+            }, adminStyles.props.header.flatButton)));
+        }
+
+        var searchBox = _react2['default'].createElement(
+            'div',
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: 'Search workspaces', value: searchString, onChange: function (e, v) {
+                        return _this3.setState({ searchString: v });
+                    } })
+            )
+        );
 
         return _react2['default'].createElement(
             'div',
-            { className: 'main-layout-nav-to-stack workspaces-board' },
+            { className: 'main-layout-nav-to-stack vertical-layout workspaces-board' },
+            _react2['default'].createElement(AdminComponents.Header, {
+                title: currentNode.getLabel(),
+                icon: 'mdi mdi-folder-open',
+                actions: buttons,
+                centerContent: searchBox,
+                reloadAction: this.reloadWorkspaceList,
+                loading: loading
+            }),
             _react2['default'].createElement(
                 'div',
-                { className: 'vertical-layout', style: { width: '100%' } },
-                _react2['default'].createElement(AdminComponents.Header, {
-                    title: title,
-                    icon: icon,
-                    actions: buttons,
-                    reloadAction: this.reloadWorkspaceList,
-                    loading: this.state.loading
-                }),
+                { className: 'layout-fill' },
                 _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
                 _react2['default'].createElement(
-                    'div',
-                    { className: 'layout-fill' },
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16 } },
-                        _react2['default'].createElement(_WorkspaceList2['default'], {
-                            ref: 'workspacesList',
-                            pydio: this.props.pydio,
-                            dataModel: this.props.dataModel,
-                            rootNode: this.props.rootNode,
-                            currentNode: this.props.currentNode,
-                            openSelection: this.openWorkspace,
-                            advanced: this.props.advanced
-                        })
-                    )
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(_WorkspaceList2['default'], {
+                        ref: 'workspacesList',
+                        pydio: pydio,
+                        openSelection: this.openWorkspace,
+                        advanced: advanced,
+                        editable: accessByName('Create'),
+                        onLoadState: function (state) {
+                            _this3.setState({ loading: state });
+                        },
+                        tableStyles: adminStyles.body.tableMaster,
+                        filterString: searchString
+                    })
                 )
             )
         );
     }
 
 });
+
+exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
 module.exports = exports['default'];

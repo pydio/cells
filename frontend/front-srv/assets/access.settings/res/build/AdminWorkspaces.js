@@ -17115,65 +17115,678 @@
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],2:[function(require,module,exports){
-(function() {
-  function getBytes() {
-    try {
-      // Modern Browser
-      return Array.from(
-        (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(16))
-      );
-    } catch (error) {
-      // Legacy Browser, fallback to Math.random
-      var ret = [];
-      while (ret.length < 16) ret.push((Math.random() * 256) & 0xff);
-      return ret;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+  return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
+}
+
+var _default = bytesToUuid;
+exports.default = _default;
+module.exports = exports.default;
+},{}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "v1", {
+  enumerable: true,
+  get: function () {
+    return _v.default;
+  }
+});
+Object.defineProperty(exports, "v3", {
+  enumerable: true,
+  get: function () {
+    return _v2.default;
+  }
+});
+Object.defineProperty(exports, "v4", {
+  enumerable: true,
+  get: function () {
+    return _v3.default;
+  }
+});
+Object.defineProperty(exports, "v5", {
+  enumerable: true,
+  get: function () {
+    return _v4.default;
+  }
+});
+
+var _v = _interopRequireDefault(require("./v1.js"));
+
+var _v2 = _interopRequireDefault(require("./v3.js"));
+
+var _v3 = _interopRequireDefault(require("./v4.js"));
+
+var _v4 = _interopRequireDefault(require("./v5.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./v1.js":7,"./v3.js":8,"./v4.js":10,"./v5.js":11}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/*
+ * Browser-compatible JavaScript MD5
+ *
+ * Modification of JavaScript MD5
+ * https://github.com/blueimp/JavaScript-MD5
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+ * Digest Algorithm, as defined in RFC 1321.
+ * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for more info.
+ */
+function md5(bytes) {
+  if (typeof bytes == 'string') {
+    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+
+    bytes = new Array(msg.length);
+
+    for (var i = 0; i < msg.length; i++) bytes[i] = msg.charCodeAt(i);
+  }
+
+  return md5ToHexEncodedArray(wordsToMd5(bytesToWords(bytes), bytes.length * 8));
+}
+/*
+ * Convert an array of little-endian words to an array of bytes
+ */
+
+
+function md5ToHexEncodedArray(input) {
+  var i;
+  var x;
+  var output = [];
+  var length32 = input.length * 32;
+  var hexTab = '0123456789abcdef';
+  var hex;
+
+  for (i = 0; i < length32; i += 8) {
+    x = input[i >> 5] >>> i % 32 & 0xff;
+    hex = parseInt(hexTab.charAt(x >>> 4 & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+    output.push(hex);
+  }
+
+  return output;
+}
+/*
+ * Calculate the MD5 of an array of little-endian words, and a bit length.
+ */
+
+
+function wordsToMd5(x, len) {
+  /* append padding */
+  x[len >> 5] |= 0x80 << len % 32;
+  x[(len + 64 >>> 9 << 4) + 14] = len;
+  var i;
+  var olda;
+  var oldb;
+  var oldc;
+  var oldd;
+  var a = 1732584193;
+  var b = -271733879;
+  var c = -1732584194;
+  var d = 271733878;
+
+  for (i = 0; i < x.length; i += 16) {
+    olda = a;
+    oldb = b;
+    oldc = c;
+    oldd = d;
+    a = md5ff(a, b, c, d, x[i], 7, -680876936);
+    d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
+    c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
+    b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330);
+    a = md5ff(a, b, c, d, x[i + 4], 7, -176418897);
+    d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426);
+    c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341);
+    b = md5ff(b, c, d, a, x[i + 7], 22, -45705983);
+    a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416);
+    d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417);
+    c = md5ff(c, d, a, b, x[i + 10], 17, -42063);
+    b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162);
+    a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682);
+    d = md5ff(d, a, b, c, x[i + 13], 12, -40341101);
+    c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290);
+    b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329);
+    a = md5gg(a, b, c, d, x[i + 1], 5, -165796510);
+    d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632);
+    c = md5gg(c, d, a, b, x[i + 11], 14, 643717713);
+    b = md5gg(b, c, d, a, x[i], 20, -373897302);
+    a = md5gg(a, b, c, d, x[i + 5], 5, -701558691);
+    d = md5gg(d, a, b, c, x[i + 10], 9, 38016083);
+    c = md5gg(c, d, a, b, x[i + 15], 14, -660478335);
+    b = md5gg(b, c, d, a, x[i + 4], 20, -405537848);
+    a = md5gg(a, b, c, d, x[i + 9], 5, 568446438);
+    d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690);
+    c = md5gg(c, d, a, b, x[i + 3], 14, -187363961);
+    b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501);
+    a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467);
+    d = md5gg(d, a, b, c, x[i + 2], 9, -51403784);
+    c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473);
+    b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734);
+    a = md5hh(a, b, c, d, x[i + 5], 4, -378558);
+    d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463);
+    c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562);
+    b = md5hh(b, c, d, a, x[i + 14], 23, -35309556);
+    a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060);
+    d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353);
+    c = md5hh(c, d, a, b, x[i + 7], 16, -155497632);
+    b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640);
+    a = md5hh(a, b, c, d, x[i + 13], 4, 681279174);
+    d = md5hh(d, a, b, c, x[i], 11, -358537222);
+    c = md5hh(c, d, a, b, x[i + 3], 16, -722521979);
+    b = md5hh(b, c, d, a, x[i + 6], 23, 76029189);
+    a = md5hh(a, b, c, d, x[i + 9], 4, -640364487);
+    d = md5hh(d, a, b, c, x[i + 12], 11, -421815835);
+    c = md5hh(c, d, a, b, x[i + 15], 16, 530742520);
+    b = md5hh(b, c, d, a, x[i + 2], 23, -995338651);
+    a = md5ii(a, b, c, d, x[i], 6, -198630844);
+    d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415);
+    c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905);
+    b = md5ii(b, c, d, a, x[i + 5], 21, -57434055);
+    a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571);
+    d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606);
+    c = md5ii(c, d, a, b, x[i + 10], 15, -1051523);
+    b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799);
+    a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359);
+    d = md5ii(d, a, b, c, x[i + 15], 10, -30611744);
+    c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380);
+    b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649);
+    a = md5ii(a, b, c, d, x[i + 4], 6, -145523070);
+    d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379);
+    c = md5ii(c, d, a, b, x[i + 2], 15, 718787259);
+    b = md5ii(b, c, d, a, x[i + 9], 21, -343485551);
+    a = safeAdd(a, olda);
+    b = safeAdd(b, oldb);
+    c = safeAdd(c, oldc);
+    d = safeAdd(d, oldd);
+  }
+
+  return [a, b, c, d];
+}
+/*
+ * Convert an array bytes to an array of little-endian words
+ * Characters >255 have their high-byte silently ignored.
+ */
+
+
+function bytesToWords(input) {
+  var i;
+  var output = [];
+  output[(input.length >> 2) - 1] = undefined;
+
+  for (i = 0; i < output.length; i += 1) {
+    output[i] = 0;
+  }
+
+  var length8 = input.length * 8;
+
+  for (i = 0; i < length8; i += 8) {
+    output[i >> 5] |= (input[i / 8] & 0xff) << i % 32;
+  }
+
+  return output;
+}
+/*
+ * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+ * to work around bugs in some JS interpreters.
+ */
+
+
+function safeAdd(x, y) {
+  var lsw = (x & 0xffff) + (y & 0xffff);
+  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+  return msw << 16 | lsw & 0xffff;
+}
+/*
+ * Bitwise rotate a 32-bit number to the left.
+ */
+
+
+function bitRotateLeft(num, cnt) {
+  return num << cnt | num >>> 32 - cnt;
+}
+/*
+ * These functions implement the four basic operations the algorithm uses.
+ */
+
+
+function md5cmn(q, a, b, x, s, t) {
+  return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
+}
+
+function md5ff(a, b, c, d, x, s, t) {
+  return md5cmn(b & c | ~b & d, a, b, x, s, t);
+}
+
+function md5gg(a, b, c, d, x, s, t) {
+  return md5cmn(b & d | c & ~d, a, b, x, s, t);
+}
+
+function md5hh(a, b, c, d, x, s, t) {
+  return md5cmn(b ^ c ^ d, a, b, x, s, t);
+}
+
+function md5ii(a, b, c, d, x, s, t) {
+  return md5cmn(c ^ (b | ~d), a, b, x, s, t);
+}
+
+var _default = md5;
+exports.default = _default;
+module.exports = exports.default;
+},{}],5:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = rng;
+// Unique ID creation requires a high quality random # generator. In the browser we therefore
+// require the crypto API and do not support built-in fallback to lower quality random number
+// generators (like Math.random()).
+// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+// find the complete implementation of crypto (msCrypto) on IE11.
+var getRandomValues = typeof crypto != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto != 'undefined' && typeof msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto);
+var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+function rng() {
+  if (!getRandomValues) {
+    throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+  }
+
+  return getRandomValues(rnds8);
+}
+
+module.exports = exports.default;
+},{}],6:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+// Adapted from Chris Veness' SHA1 code at
+// http://www.movable-type.co.uk/scripts/sha1.html
+function f(s, x, y, z) {
+  switch (s) {
+    case 0:
+      return x & y ^ ~x & z;
+
+    case 1:
+      return x ^ y ^ z;
+
+    case 2:
+      return x & y ^ x & z ^ y & z;
+
+    case 3:
+      return x ^ y ^ z;
+  }
+}
+
+function ROTL(x, n) {
+  return x << n | x >>> 32 - n;
+}
+
+function sha1(bytes) {
+  var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
+  var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+
+  if (typeof bytes == 'string') {
+    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+
+    bytes = new Array(msg.length);
+
+    for (var i = 0; i < msg.length; i++) bytes[i] = msg.charCodeAt(i);
+  }
+
+  bytes.push(0x80);
+  var l = bytes.length / 4 + 2;
+  var N = Math.ceil(l / 16);
+  var M = new Array(N);
+
+  for (var i = 0; i < N; i++) {
+    M[i] = new Array(16);
+
+    for (var j = 0; j < 16; j++) {
+      M[i][j] = bytes[i * 64 + j * 4] << 24 | bytes[i * 64 + j * 4 + 1] << 16 | bytes[i * 64 + j * 4 + 2] << 8 | bytes[i * 64 + j * 4 + 3];
     }
   }
 
-  function m(v) {
-    v = v.toString(16);
-    if (v.length < 2) v = "0" + v;
-    return v;
+  M[N - 1][14] = (bytes.length - 1) * 8 / Math.pow(2, 32);
+  M[N - 1][14] = Math.floor(M[N - 1][14]);
+  M[N - 1][15] = (bytes.length - 1) * 8 & 0xffffffff;
+
+  for (var i = 0; i < N; i++) {
+    var W = new Array(80);
+
+    for (var t = 0; t < 16; t++) W[t] = M[i][t];
+
+    for (var t = 16; t < 80; t++) {
+      W[t] = ROTL(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
+    }
+
+    var a = H[0];
+    var b = H[1];
+    var c = H[2];
+    var d = H[3];
+    var e = H[4];
+
+    for (var t = 0; t < 80; t++) {
+      var s = Math.floor(t / 20);
+      var T = ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[t] >>> 0;
+      e = d;
+      d = c;
+      c = ROTL(b, 30) >>> 0;
+      b = a;
+      a = T;
+    }
+
+    H[0] = H[0] + a >>> 0;
+    H[1] = H[1] + b >>> 0;
+    H[2] = H[2] + c >>> 0;
+    H[3] = H[3] + d >>> 0;
+    H[4] = H[4] + e >>> 0;
   }
 
-  function genUUID() {
-    var rnd = getBytes();
-    rnd[6] = (rnd[6] & 0x0f) | 0x40;
-    rnd[8] = (rnd[8] & 0x3f) | 0x80;
-    rnd = rnd
-      .map(m)
-      .join("")
-      .match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
-    rnd.shift();
-    return rnd.join("-");
+  return [H[0] >> 24 & 0xff, H[0] >> 16 & 0xff, H[0] >> 8 & 0xff, H[0] & 0xff, H[1] >> 24 & 0xff, H[1] >> 16 & 0xff, H[1] >> 8 & 0xff, H[1] & 0xff, H[2] >> 24 & 0xff, H[2] >> 16 & 0xff, H[2] >> 8 & 0xff, H[2] & 0xff, H[3] >> 24 & 0xff, H[3] >> 16 & 0xff, H[3] >> 8 & 0xff, H[3] & 0xff, H[4] >> 24 & 0xff, H[4] >> 16 & 0xff, H[4] >> 8 & 0xff, H[4] & 0xff];
+}
+
+var _default = sha1;
+exports.default = _default;
+module.exports = exports.default;
+},{}],7:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rng = _interopRequireDefault(require("./rng.js"));
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+var _nodeId;
+
+var _clockseq; // Previous uuid creation time
+
+
+var _lastMSecs = 0;
+var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+
+  if (node == null || clockseq == null) {
+    var seedBytes = options.random || (options.rng || _rng.default)();
+
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
+    }
+
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  } // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+
+
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime(); // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
+
+  var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
+
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+
+
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  } // Per 4.2.1.2 Throw error if too many uuids are requested
+
+
+  if (nsecs >= 10000) {
+    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
   }
 
-  var uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-  function isUUID(uuid) {
-    return uuidPattern.test(uuid);
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq; // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+
+  msecs += 12219292800000; // `time_low`
+
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff; // `time_mid`
+
+  var tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff; // `time_high_and_version`
+
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+
+  b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+
+  b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
+
+  b[i++] = clockseq & 0xff; // `node`
+
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
   }
 
-  genUUID.valid = isUUID;
+  return buf ? buf : (0, _bytesToUuid.default)(b);
+}
 
-  // global
-  if (window) {
-    window.uuid4 = genUUID;
+var _default = v1;
+exports.default = _default;
+module.exports = exports.default;
+},{"./bytesToUuid.js":2,"./rng.js":5}],8:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _v = _interopRequireDefault(require("./v35.js"));
+
+var _md = _interopRequireDefault(require("./md5.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v3 = (0, _v.default)('v3', 0x30, _md.default);
+var _default = v3;
+exports.default = _default;
+module.exports = exports.default;
+},{"./md5.js":4,"./v35.js":9}],9:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+exports.URL = exports.DNS = void 0;
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function uuidToBytes(uuid) {
+  // Note: We assume we're being passed a valid uuid string
+  var bytes = [];
+  uuid.replace(/[a-fA-F0-9]{2}/g, function (hex) {
+    bytes.push(parseInt(hex, 16));
+  });
+  return bytes;
+}
+
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str)); // UTF8 escape
+
+  var bytes = new Array(str.length);
+
+  for (var i = 0; i < str.length; i++) {
+    bytes[i] = str.charCodeAt(i);
   }
 
-  // Node-style CJS
-  if (typeof module !== "undefined" && module.exports) {
-    module.exports = genUUID;
+  return bytes;
+}
+
+const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+exports.DNS = DNS;
+const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+exports.URL = URL;
+
+function _default(name, version, hashfunc) {
+  var generateUUID = function (value, namespace, buf, offset) {
+    var off = buf && offset || 0;
+    if (typeof value == 'string') value = stringToBytes(value);
+    if (typeof namespace == 'string') namespace = uuidToBytes(namespace);
+    if (!Array.isArray(value)) throw TypeError('value must be an array of bytes');
+    if (!Array.isArray(namespace) || namespace.length !== 16) throw TypeError('namespace must be uuid string or an Array of 16 byte values'); // Per 4.3
+
+    var bytes = hashfunc(namespace.concat(value));
+    bytes[6] = bytes[6] & 0x0f | version;
+    bytes[8] = bytes[8] & 0x3f | 0x80;
+
+    if (buf) {
+      for (var idx = 0; idx < 16; ++idx) {
+        buf[off + idx] = bytes[idx];
+      }
+    }
+
+    return buf || (0, _bytesToUuid.default)(bytes);
+  }; // Function#name is not settable on some platforms (#270)
+
+
+  try {
+    generateUUID.name = name;
+  } catch (err) {} // For CommonJS default export support
+
+
+  generateUUID.DNS = DNS;
+  generateUUID.URL = URL;
+  return generateUUID;
+}
+},{"./bytesToUuid.js":2}],10:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rng = _interopRequireDefault(require("./rng.js"));
+
+var _bytesToUuid = _interopRequireDefault(require("./bytesToUuid.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof options == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
   }
 
-  // AMD - legacy
-  if (typeof define === "function" && define.amd) {
-    define([], function() {
-      return genUUID;
-    });
-  }
-})();
+  options = options || {};
 
-},{}],3:[function(require,module,exports){
+  var rnds = options.random || (options.rng || _rng.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+
+
+  rnds[6] = rnds[6] & 0x0f | 0x40;
+  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
+
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || (0, _bytesToUuid.default)(rnds);
+}
+
+var _default = v4;
+exports.default = _default;
+module.exports = exports.default;
+},{"./bytesToUuid.js":2,"./rng.js":5}],11:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _v = _interopRequireDefault(require("./v35.js"));
+
+var _sha = _interopRequireDefault(require("./sha1.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v5 = (0, _v.default)('v5', 0x50, _sha.default);
+var _default = v5;
+exports.default = _default;
+module.exports = exports.default;
+},{"./sha1.js":6,"./v35.js":9}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17199,6 +17812,8 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -17246,9 +17861,7 @@ var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var _editorVersionPolicyPeriods = require('../editor/VersionPolicyPeriods');
 
@@ -17257,6 +17870,8 @@ var _editorVersionPolicyPeriods2 = _interopRequireDefault(_editorVersionPolicyPe
 var _EncryptionKeys = require('./EncryptionKeys');
 
 var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -17345,13 +17960,20 @@ var DataSourcesBoard = (function (_React$Component) {
                 return;
             }
             var dataSource = dataSources[0];
-            this.props.openRightPane({
+            var _props = this.props;
+            var openRightPane = _props.openRightPane;
+            var accessByName = _props.accessByName;
+            var pydio = _props.pydio;
+            var storageTypes = _props.storageTypes;
+
+            openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
-                    pydio: this.props.pydio,
+                    pydio: pydio,
                     dataSource: dataSource,
-                    storageTypes: this.props.storageTypes,
+                    storageTypes: storageTypes,
+                    readonly: !accessByName('CreateDatasource'),
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -17449,7 +18071,7 @@ var DataSourcesBoard = (function (_React$Component) {
             if (versionPolicies === undefined) {
                 create = true;
                 versionPolicy = new _pydioHttpRestApi.TreeVersioningPolicy();
-                versionPolicy.Uuid = (0, _uuid42['default'])();
+                versionPolicy.Uuid = (0, _uuid.v4)();
                 versionPolicy.VersionsDataSourceName = "default";
                 versionPolicy.VersionsDataSourceBucket = "versions";
                 var period = new _pydioHttpRestApi.TreeVersioningKeepPeriod();
@@ -17459,14 +18081,20 @@ var DataSourcesBoard = (function (_React$Component) {
             } else {
                 versionPolicy = versionPolicies[0];
             }
-            this.props.openRightPane({
+            var _props2 = this.props;
+            var openRightPane = _props2.openRightPane;
+            var pydio = _props2.pydio;
+            var versioningReadonly = _props2.versioningReadonly;
+            var accessByName = _props2.accessByName;
+
+            openRightPane({
                 COMPONENT: _editorVersionPolicyEditor2['default'],
                 PROPS: {
                     ref: "editor",
                     versionPolicy: versionPolicy,
                     create: create,
-                    pydio: this.props.pydio,
-                    readonly: this.props.versioningReadonly,
+                    pydio: pydio,
+                    readonly: versioningReadonly || !accessByName('CreateVersioning'),
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -17475,9 +18103,9 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'createDataSource',
         value: function createDataSource() {
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var storageTypes = _props.storageTypes;
+            var _props3 = this.props;
+            var pydio = _props3.pydio;
+            var storageTypes = _props3.storageTypes;
 
             this.props.openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
@@ -17504,10 +18132,18 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
-            var _props2 = this.props;
-            var currentNode = _props2.currentNode;
-            var pydio = _props2.pydio;
-            var versioningReadonly = _props2.versioningReadonly;
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var body = adminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
+            var _props4 = this.props;
+            var currentNode = _props4.currentNode;
+            var pydio = _props4.pydio;
+            var versioningReadonly = _props4.versioningReadonly;
+            var accessByName = _props4.accessByName;
 
             var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
                     return row.Disabled ? _react2['default'].createElement(
@@ -17547,11 +18183,14 @@ var DataSourcesBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) })];
-            if (!versioningReadonly) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
+            var buttons = [];
+            if (accessByName('CreateDatasource')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
+            }
+            if (!versioningReadonly && accessByName('CreateVersioning')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
                         _this4.openVersionPolicy();
-                    } }));
+                    } }, adminStyles.props.header.flatButton)));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
@@ -17576,30 +18215,32 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: dataSources,
                                 columns: dsColumns,
                                 onSelectRows: this.openDataSource.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No datasources created yet"
+                                emptyStateString: "No datasources created yet",
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
                             _react2['default'].createElement(MaterialTable, {
                                 data: versioningPolicies,
                                 columns: policiesColumns,
                                 onSelectRows: this.openVersionPolicy.bind(this),
                                 deselectOnClickAway: true,
-                                showCheckboxes: false
+                                showCheckboxes: false,
+                                masterStyles: tableMaster
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
-                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys" })
+                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName, adminStyles: adminStyles })
                     )
                 )
             );
@@ -17620,10 +18261,12 @@ DataSourcesBoard.propTypes = {
     versioningReadonly: _react2['default'].PropTypes.bool
 };
 
+exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
+
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":10,"../editor/VersionPolicyEditor":14,"../editor/VersionPolicyPeriods":15,"../model/DataSource":21,"./EncryptionKeys":4,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":2}],4:[function(require,module,exports){
+},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"./EncryptionKeys":13,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17649,6 +18292,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -17832,11 +18477,17 @@ var EncryptionKeys = (function (_React$Component) {
             var exportedKey = _state.exportedKey;
             var showCreateKey = _state.showCreateKey;
             var m = _state.m;
-            var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
+            var adminStyles = _props.adminStyles;
 
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 170, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: 170 }, renderCell: function renderCell(row) {
+                    if (!accessByName('CreateEncryption')) {
+                        return null;
+                    }
                     return _react2['default'].createElement(
                         'div',
                         null,
@@ -17922,9 +18573,17 @@ var EncryptionKeys = (function (_React$Component) {
                     } })];
             }
 
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
             return _react2['default'].createElement(
                 'div',
-                { zDepth: 0, style: { margin: 16 } },
+                null,
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -17939,25 +18598,30 @@ var EncryptionKeys = (function (_React$Component) {
                     },
                     dialogContent
                 ),
-                _react2['default'].createElement(
+                accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
-                    { style: { textAlign: 'right', paddingBottom: 16 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
+                    { style: { textAlign: 'right', paddingRight: 24 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
-                        }, style: { marginLeft: 16 } }),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.create'), onTouchTap: function () {
-                            _this6.setState({ showCreateKey: true, showDialog: true });
-                        }, style: { marginLeft: 16 } })
+                        } }, adminStyles.props.header.flatButton)),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { marginLeft: 8 } },
+                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onTouchTap: function () {
+                                _this6.setState({ showCreateKey: true, showDialog: true });
+                            } }, adminStyles.props.header.flatButton))
+                    )
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1 },
+                    _extends({}, blockProps, { style: blockStyle }),
                     _react2['default'].createElement(MaterialTable, {
                         data: keys,
                         columns: columns,
                         onSelectRows: function () {},
                         showCheckboxes: false,
-                        emptyStateString: m('key.emptyState')
+                        emptyStateString: m('key.emptyState'),
+                        masterStyles: tableMaster
                     })
                 )
             );
@@ -17970,12 +18634,14 @@ var EncryptionKeys = (function (_React$Component) {
 exports['default'] = EncryptionKeys;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -18006,6 +18672,10 @@ var _editorMetaNamespace = require('../editor/MetaNamespace');
 var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -18091,6 +18761,10 @@ var MetadataBoard = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
+            var muiTheme = this.props.muiTheme;
+
+            var adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
+
             var _state = this.state;
             var namespaces = _state.namespaces;
             var loading = _state.loading;
@@ -18103,12 +18777,15 @@ var MetadataBoard = (function (_React$Component) {
                 selectedNamespace = this.emptyNs();
             }
             namespaces.sort(function (a, b) {
-                if (a.Order === b.Order) return 0;
-                return a.Order > b.Order ? 1 : -1;
+                var a0 = a.Order || 0;
+                var b0 = b.Order || 0;
+                if (a0 === b0) return 0;
+                return a0 > b0 ? 1 : -1;
             });
             var _props = this.props;
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
 
             var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Order || '0';
@@ -18122,6 +18799,9 @@ var MetadataBoard = (function (_React$Component) {
                     var data = JSON.parse(def);
                     return _modelMetadata2['default'].MetaTypes[data.type] || data.type;
                 } }, { name: 'actions', label: '', style: { width: 100 }, headerStyle: { width: 100 }, renderCell: function renderCell(row) {
+                    if (!accessByName('Create')) {
+                        return null;
+                    }
                     return _react2['default'].createElement(_materialUi.IconButton, {
                         iconClassName: 'mdi mdi-delete',
                         onTouchTap: function () {
@@ -18135,9 +18815,12 @@ var MetadataBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('namespace.add'), onTouchTap: function () {
-                    _this3.create();
-                } })];
+            var buttons = [];
+            if (accessByName('Create')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onTouchTap: function () {
+                        _this3.create();
+                    } }, adminStyle.props.header.flatButton)));
+            }
 
             return _react2['default'].createElement(
                 'div',
@@ -18153,7 +18836,8 @@ var MetadataBoard = (function (_React$Component) {
                     reloadList: function () {
                         return _this3.load();
                     },
-                    namespaces: namespaces
+                    namespaces: namespaces,
+                    readonly: !accessByName('Create')
                 }),
                 _react2['default'].createElement(
                     'div',
@@ -18171,14 +18855,15 @@ var MetadataBoard = (function (_React$Component) {
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('namespaces'), legend: m('namespaces.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
-                            { zDepth: 1, style: { margin: 16 } },
+                            adminStyle.body.block.props,
                             _react2['default'].createElement(MaterialTable, {
                                 data: namespaces,
                                 columns: columns,
                                 onSelectRows: this.open.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: m('empty')
+                                emptyStateString: m('empty'),
+                                masterStyles: adminStyle.body.tableMaster
                             })
                         )
                     )
@@ -18190,10 +18875,12 @@ var MetadataBoard = (function (_React$Component) {
     return MetadataBoard;
 })(_react2['default'].Component);
 
+exports['default'] = MetadataBoard = muiThemeable()(MetadataBoard);
+
 exports['default'] = MetadataBoard;
 module.exports = exports['default'];
 
-},{"../editor/MetaNamespace":13,"../model/Metadata":22,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],6:[function(require,module,exports){
+},{"../editor/MetaNamespace":22,"../model/Metadata":31,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18219,6 +18906,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -18253,6 +18942,8 @@ var _virtualNodeCard = require('../virtual/NodeCard');
 var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
 
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -18328,6 +19019,8 @@ var VirtualNodes = (function (_React$Component) {
             var _props = this.props;
             var readonly = _props.readonly;
             var pydio = _props.pydio;
+            var muiTheme = _props.muiTheme;
+            var accessByName = _props.accessByName;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
@@ -18337,14 +19030,16 @@ var VirtualNodes = (function (_React$Component) {
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
             };
+            var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
             var vNodes = [];
             nodes.map(function (node) {
-                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly }));
+                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly || !accessByName('Create'), adminStyles: adminStyles }));
             });
 
             var headerActions = [];
-            if (!readonly) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }));
+            if (!readonly && accessByName('Create')) {
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
             }
 
             return _react2['default'].createElement(
@@ -18389,7 +19084,7 @@ var VirtualNodes = (function (_React$Component) {
                         { style: { padding: 20, paddingBottom: 0 } },
                         m('legend.1'),
                         _react2['default'].createElement('br', null),
-                        !readonly && _react2['default'].createElement(
+                        !readonly && accessByName('Create') && _react2['default'].createElement(
                             'span',
                             null,
                             m('legend.2')
@@ -18409,10 +19104,12 @@ var VirtualNodes = (function (_React$Component) {
     return VirtualNodes;
 })(_react2['default'].Component);
 
+exports['default'] = VirtualNodes = (0, _materialUiStyles.muiThemeable)()(VirtualNodes);
+
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":21,"../model/VirtualNode":23,"../virtual/NodeCard":25,"material-ui":"material-ui","pydio":"pydio","react":"react"}],7:[function(require,module,exports){
+},{"../model/DataSource":30,"../model/VirtualNode":32,"../virtual/NodeCard":34,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],16:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18456,13 +19153,13 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
 var _modelWs = require('../model/Ws');
 
 var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
@@ -18483,17 +19180,29 @@ exports['default'] = _react2['default'].createClass({
         return { workspaces: [], loading: false };
     },
 
+    startLoad: function startLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(true);
+        }
+        this.setState({ loading: true });
+    },
+
+    endLoad: function endLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(false);
+        }
+        this.setState({ loading: false });
+    },
+
     reload: function reload() {
         var _this = this;
 
-        this.setState({ loading: true });
-        _pydio2['default'].startLoading();
+        this.startLoad();
         _modelWs2['default'].listWorkspaces().then(function (response) {
-            _pydio2['default'].endLoading();
-            _this.setState({ loading: false, workspaces: response.Workspaces || [] });
+            _this.endLoad();
+            _this.setState({ workspaces: response.Workspaces || [] });
         })['catch'](function (e) {
-            _pydio2['default'].endLoading();
-            _this.setState({ loading: false });
+            _this.endLoad();
         });
     },
 
@@ -18509,7 +19218,7 @@ exports['default'] = _react2['default'].createClass({
 
     computeTableData: function computeTableData() {
         var data = [];
-        var pydio = this.props.pydio;
+        var filterString = this.props.filterString;
         var workspaces = this.state.workspaces;
 
         workspaces.map(function (workspace) {
@@ -18528,6 +19237,15 @@ exports['default'] = _react2['default'].createClass({
                     }
                 } catch (e) {}
             }
+            if (filterString) {
+                var search = filterString.toLowerCase();
+                var l = workspace.Label && workspace.Label.toLowerCase().indexOf(search) >= 0;
+                var d = workspace.Description && workspace.Description.toLowerCase().indexOf(search) >= 0;
+                var ss = summary && summary.toLowerCase().indexOf(search) >= 0;
+                if (!(l || d || ss)) {
+                    return;
+                }
+            }
             data.push({
                 payload: workspace,
                 label: workspace.Label,
@@ -18545,6 +19263,8 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var editable = _props.editable;
+        var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -18570,17 +19290,20 @@ exports['default'] = _react2['default'].createClass({
         return _react2['default'].createElement(MaterialTable, {
             data: data,
             columns: columns,
-            onSelectRows: this.openTableRows.bind(this),
+            onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            masterStyles: tableStyles,
+            paginate: [10, 25, 50, 100],
+            defaultPageSize: 25
         });
     }
 
 });
 module.exports = exports['default'];
 
-},{"../model/Ws":24,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],8:[function(require,module,exports){
+},{"../model/Ws":33,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18607,11 +19330,17 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
@@ -18627,44 +19356,38 @@ var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
 
-var PydioDataModel = require('pydio/model/data-model');
-var AjxpNode = require('pydio/model/node');
+var _pydioModelDataModel = require('pydio/model/data-model');
 
-exports['default'] = _react2['default'].createClass({
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var WsDashboard = _react2['default'].createClass({
     displayName: 'WsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired,
         openRightPane: _react2['default'].PropTypes.func.isRequired,
         closeRightPane: _react2['default'].PropTypes.func.isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         advanced: _react2['default'].PropTypes.boolean
     },
 
     getInitialState: function getInitialState() {
-        return { selectedNode: null };
-    },
-
-    componentDidMount: function componentDidMount() {
-        var _this = this;
-
-        this._setLoading = function () {
-            _this.setState({ loading: true });
-        };
-        this._stopLoading = function () {
-            _this.setState({ loading: false });
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+        return { selectedNode: null, searchString: '' };
     },
 
     dirtyEditor: function dirtyEditor() {
@@ -18679,7 +19402,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     openWorkspace: function openWorkspace(workspace) {
-        var _this2 = this;
+        var _this = this;
 
         if (this.dirtyEditor()) {
             return;
@@ -18692,6 +19415,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var accessByName = _props.accessByName;
 
         var editorData = {
             COMPONENT: editor,
@@ -18702,7 +19426,7 @@ exports['default'] = _react2['default'].createClass({
                 closeEditor: this.closeWorkspace,
                 advanced: advanced,
                 reloadList: function reloadList() {
-                    _this2.refs['workspacesList'].reload();
+                    _this.refs['workspacesList'].reload();
                 }
             }
         };
@@ -18717,7 +19441,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     showWorkspaceCreator: function showWorkspaceCreator(type) {
-        var _this3 = this;
+        var _this2 = this;
 
         var _props2 = this.props;
         var pydio = _props2.pydio;
@@ -18732,7 +19456,7 @@ exports['default'] = _react2['default'].createClass({
                 advanced: advanced,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
-                    _this3.refs['workspacesList'].reload();
+                    _this2.refs['workspacesList'].reload();
                 }
             }
         };
@@ -18744,51 +19468,83 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _this3 = this;
+
+        var _props3 = this.props;
+        var pydio = _props3.pydio;
+        var advanced = _props3.advanced;
+        var currentNode = _props3.currentNode;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var _state = this.state;
+        var searchString = _state.searchString;
+        var loading = _state.loading;
+
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         var buttons = [];
-        var icon = undefined;
-        var title = this.props.currentNode.getLabel();
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
-        icon = 'mdi mdi-folder-open';
+        if (accessByName('Create')) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                primary: true,
+                label: this.context.getMessage('ws.3'),
+                onTouchTap: this.showWorkspaceCreator
+            }, adminStyles.props.header.flatButton)));
+        }
+
+        var searchBox = _react2['default'].createElement(
+            'div',
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: 'Search workspaces', value: searchString, onChange: function (e, v) {
+                        return _this3.setState({ searchString: v });
+                    } })
+            )
+        );
 
         return _react2['default'].createElement(
             'div',
-            { className: 'main-layout-nav-to-stack workspaces-board' },
+            { className: 'main-layout-nav-to-stack vertical-layout workspaces-board' },
+            _react2['default'].createElement(AdminComponents.Header, {
+                title: currentNode.getLabel(),
+                icon: 'mdi mdi-folder-open',
+                actions: buttons,
+                centerContent: searchBox,
+                reloadAction: this.reloadWorkspaceList,
+                loading: loading
+            }),
             _react2['default'].createElement(
                 'div',
-                { className: 'vertical-layout', style: { width: '100%' } },
-                _react2['default'].createElement(AdminComponents.Header, {
-                    title: title,
-                    icon: icon,
-                    actions: buttons,
-                    reloadAction: this.reloadWorkspaceList,
-                    loading: this.state.loading
-                }),
+                { className: 'layout-fill' },
                 _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
                 _react2['default'].createElement(
-                    'div',
-                    { className: 'layout-fill' },
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16 } },
-                        _react2['default'].createElement(_WorkspaceList2['default'], {
-                            ref: 'workspacesList',
-                            pydio: this.props.pydio,
-                            dataModel: this.props.dataModel,
-                            rootNode: this.props.rootNode,
-                            currentNode: this.props.currentNode,
-                            openSelection: this.openWorkspace,
-                            advanced: this.props.advanced
-                        })
-                    )
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(_WorkspaceList2['default'], {
+                        ref: 'workspacesList',
+                        pydio: pydio,
+                        openSelection: this.openWorkspace,
+                        advanced: advanced,
+                        editable: accessByName('Create'),
+                        onLoadState: function (state) {
+                            _this3.setState({ loading: state });
+                        },
+                        tableStyles: adminStyles.body.tableMaster,
+                        filterString: searchString
+                    })
                 )
             )
         );
     }
 
 });
+
+exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
 module.exports = exports['default'];
 
-},{"../editor/WsEditor":17,"./WorkspaceList":7,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],9:[function(require,module,exports){
+},{"../editor/WsEditor":26,"./WorkspaceList":16,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19106,7 +19862,7 @@ var DataSourceBucketSelector = (function (_React$Component) {
 exports['default'] = DataSourceBucketSelector;
 module.exports = exports['default'];
 
-},{"../model/DataSource":21,"lodash":1,"material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],10:[function(require,module,exports){
+},{"../model/DataSource":30,"lodash":1,"material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19347,6 +20103,7 @@ var DataSourceEditor = (function (_React$Component) {
             var _props = this.props;
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var model = _state3.model;
             var create = _state3.create;
@@ -19359,14 +20116,16 @@ var DataSourceEditor = (function (_React$Component) {
             var m = _state3.m;
 
             var titleActionBarButtons = [];
-            if (!create) {
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                    _this6.resetForm();
-                }, !this.state.dirty));
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this6.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this6.saveSource();
+                }, !observable.isValid() || !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                _this6.saveSource();
-            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -19439,7 +20198,7 @@ var DataSourceEditor = (function (_React$Component) {
                         )
                     )
                 ),
-                !create && _react2['default'].createElement(
+                !create && !readonly && _react2['default'].createElement(
                     'div',
                     null,
                     _react2['default'].createElement(_materialUi.Divider, null),
@@ -19601,6 +20360,16 @@ var DataSourceEditor = (function (_React$Component) {
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
                         ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
@@ -19612,17 +20381,40 @@ var DataSourceEditor = (function (_React$Component) {
                                     model.ApiSecret = v;
                                 } })
                         ),
-                        s3Custom === 'custom' && _react2['default'].createElement(
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
+                        _react2['default'].createElement(
                             'div',
-                            null,
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                    model.StorageConfiguration.customEndpoint = v;
-                                } }),
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
-                                    model.StorageConfiguration.customRegion = v;
-                                } })
+                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            m('storage.s3.legend.tags')
                         ),
-                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginRight: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    fullWidth: true,
+                                    disabled: !!model.StorageConfiguration.ObjectsBucket,
+                                    hintText: m('storage.s3.bucketsTags'),
+                                    value: model.StorageConfiguration.bucketsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.bucketsTags = v;
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginLeft: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    disabled: true,
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
+                                    value: model.StorageConfiguration.objectsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.objectsTags = v;
+                                    } })
+                            )
+                        )
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',
@@ -19672,6 +20464,57 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('datamanagement')
                     ),
+                    model.StorageType !== 'LOCAL' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.readOnly')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.readOnly'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.readOnly === 'true',
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.readOnly = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
+                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.checksumMapper')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.nativeEtags'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.nativeEtags,
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.nativeEtags = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField)),
+                        !model.StorageConfiguration.nativeEtags && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({
+                                label: m('storage.checksumMapper'),
+                                labelPosition: "right",
+                                toggled: model.StorageConfiguration.checksumMapper === 'dao',
+                                onToggle: function (e, v) {
+                                    model.StorageConfiguration.checksumMapper = v ? 'dao' : '';
+                                }
+                            }, ModernStyles.toggleField))
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.versioning')
+                    ),
                     _react2['default'].createElement(
                         ModernSelectField,
                         { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
@@ -19681,6 +20524,11 @@ var DataSourceEditor = (function (_React$Component) {
                         versioningPolicies.map(function (key) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.encryption')
                     ),
                     _react2['default'].createElement(
                         'div',
@@ -19715,7 +20563,7 @@ DataSourceEditor.contextTypes = {
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":21,"./DataSourceBucketSelector":9,"./DataSourceLocalSelector":11,"./DsStorageSelector":12,"material-ui":"material-ui","pydio":"pydio","react":"react"}],11:[function(require,module,exports){
+},{"../model/DataSource":30,"./DataSourceBucketSelector":18,"./DataSourceLocalSelector":20,"./DsStorageSelector":21,"material-ui":"material-ui","pydio":"pydio","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20171,7 +21019,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
 exports['default'] = DataSourceLocalSelector;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],12:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20330,7 +21178,7 @@ var DsStorageSelector = (function (_React$Component2) {
 exports['default'] = DsStorageSelector;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],13:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20616,6 +21464,7 @@ var MetaNamespace = (function (_React$Component) {
             var create = _props.create;
             var namespaces = _props.namespaces;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var namespace = _state3.namespace;
             var m = _state3.m;
@@ -20667,10 +21516,10 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onTouchTap: function () {
                     _this4.save();
                 } })];
-            if (type === 'tags') {
+            if (type === 'tags' && !readonly) {
                 actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
                         var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
@@ -20713,7 +21562,8 @@ var MetaNamespace = (function (_React$Component) {
                         namespace.Label = v;_this4.setState({ namespace: namespace });
                     },
                     fullWidth: true,
-                    errorText: labelError
+                    errorText: labelError,
+                    disabled: readonly
                 }),
                 _react2['default'].createElement(
                     'div',
@@ -20728,6 +21578,7 @@ var MetaNamespace = (function (_React$Component) {
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
                         },
+                        disabled: readonly,
                         fullWidth: true },
                     Object.keys(_modelMetadata2['default'].MetaTypes).map(function (k) {
                         return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: _modelMetadata2['default'].MetaTypes[k] });
@@ -20741,22 +21592,22 @@ var MetaNamespace = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), disabled: readonly, labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), disabled: readonly, labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
                         } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '6px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead || readonly, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
                         } }, ModernStyles.toggleField))
                 ),
@@ -20772,7 +21623,8 @@ var MetaNamespace = (function (_React$Component) {
                         namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
                     },
                     fullWidth: true,
-                    type: "number"
+                    type: "number",
+                    readOnly: readonly
                 })
             );
         }
@@ -20791,7 +21643,7 @@ MetaNamespace.PropTypes = {
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":22,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],14:[function(require,module,exports){
+},{"../model/Metadata":31,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21088,7 +21940,7 @@ VersionPolicyEditor.contextTypes = {
 exports['default'] = VersionPolicyEditor;
 module.exports = exports['default'];
 
-},{"./VersionPolicyPeriods":15,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],15:[function(require,module,exports){
+},{"./VersionPolicyPeriods":24,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21210,7 +22062,7 @@ var VersionPolicyPeriods = (function (_React$Component) {
 exports['default'] = VersionPolicyPeriods;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],16:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21564,7 +22416,7 @@ var WsAutoComplete = (function (_React$Component) {
 exports['default'] = WsAutoComplete;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],17:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21748,19 +22600,22 @@ var WsEditor = (function (_React$Component) {
             var mS = function mS(id) {
                 return pydio.MessageHash['settings.' + id] || id;
             };
+            var readonly = !workspace.PoliciesContextEditable;
 
             var buttons = [];
-            if (!container.create) {
+            if (!container.create && !readonly) {
                 buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", function () {
                     _this4.revert();
                 }, !container.isDirty()));
             }
-            buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
-                _this4.save();
-            }, saving || !(container.isDirty() && container.isValid())));
+            if (!readonly) {
+                buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
+                    _this4.save();
+                }, saving || !(container.isDirty() && container.isValid())));
+            }
 
             var delButton = undefined;
-            if (!container.create) {
+            if (!container.create && !readonly) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },
@@ -22022,7 +22877,7 @@ var WsEditor = (function (_React$Component) {
 exports['default'] = WsEditor;
 module.exports = exports['default'];
 
-},{"../model/Ws":24,"./WsAutoComplete":16,"material-ui":"material-ui","pydio":"pydio","react":"react"}],18:[function(require,module,exports){
+},{"../model/Ws":33,"./WsAutoComplete":25,"material-ui":"material-ui","pydio":"pydio","react":"react"}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22110,7 +22965,7 @@ window.AdminWorkspaces = {
   DataSource: _modelDataSource2['default']
 };
 
-},{"./board/DataSourcesBoard":3,"./board/MetadataBoard":5,"./board/VirtualNodes":6,"./board/WsDashboard":8,"./editor/DataSourceEditor":10,"./editor/WsAutoComplete":16,"./meta/MetaList":19,"./meta/MetaSourceForm":20,"./model/DataSource":21,"./model/VirtualNode":23,"./model/Ws":24,"./virtual/NodeCard":25}],19:[function(require,module,exports){
+},{"./board/DataSourcesBoard":12,"./board/MetadataBoard":14,"./board/VirtualNodes":15,"./board/WsDashboard":17,"./editor/DataSourceEditor":19,"./editor/WsAutoComplete":25,"./meta/MetaList":28,"./meta/MetaSourceForm":29,"./model/DataSource":30,"./model/VirtualNode":32,"./model/Ws":33,"./virtual/NodeCard":34}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22216,7 +23071,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],20:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22331,7 +23186,7 @@ var MetaSourceForm = React.createClass({
 exports['default'] = MetaSourceForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],21:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22586,7 +23441,7 @@ var DataSource = (function (_Observable) {
 exports['default'] = DataSource;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],22:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22683,7 +23538,7 @@ Metadata.MetaTypes = {
 exports['default'] = Metadata;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],23:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],32:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22839,7 +23694,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],24:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22930,6 +23785,7 @@ var Workspace = (function (_Observable) {
             this.model.Scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
             this.internalAttributes = { "DEFAULT_RIGHTS": "r" };
+            this.model.PoliciesContextEditable = true;
             this.model.Attributes = JSON.stringify(this.internalAttributes);
         }
         this.observableModel = this.buildProxy(this.model);
@@ -23072,7 +23928,7 @@ var Workspace = (function (_Observable) {
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],25:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],34:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23098,6 +23954,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -23179,6 +24037,7 @@ var NodeCard = (function (_React$Component) {
             var node = _props2.node;
             var readonly = _props2.readonly;
             var oneLiner = _props2.oneLiner;
+            var adminStyles = _props2.adminStyles;
             var _props2$onClose = _props2.onClose;
             var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
 
@@ -23223,7 +24082,7 @@ var NodeCard = (function (_React$Component) {
             } else {
                 var titleComponent = _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'baseline' } },
+                    { style: { display: 'flex', alignItems: 'center', height: 48 } },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1 } },
@@ -23232,17 +24091,21 @@ var NodeCard = (function (_React$Component) {
                     !readonly && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }, adminStyles.props.header.iconButton)),
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' }, adminStyles.props.header.iconButton))
                     )
                 );
                 return _react2['default'].createElement(
-                    'div',
-                    { style: { marginBottom: 10 } },
-                    _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { marginBottom: 10 }) }),
                     _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { zDepth: 1, style: { margin: '0 20px' } },
+                        'div',
+                        { style: adminStyles.body.block.headerFull },
+                        titleComponent
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
                         codeMirrorField
                     )
                 );
@@ -23256,4 +24119,4 @@ var NodeCard = (function (_React$Component) {
 exports['default'] = NodeCard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[18]);
+},{"material-ui":"material-ui","react":"react"}]},{},[27]);

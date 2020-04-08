@@ -21,15 +21,17 @@
 package tree
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"context"
-
 	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -37,14 +39,55 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type SnapshotAction struct {
-	Client views.Handler
-	Target string
-}
-
 var (
 	snapshotActionName = "actions.tree.snapshot"
 )
+
+type SnapshotAction struct {
+	Client  views.Handler
+	Target  string
+	IsLocal bool
+}
+
+func (c *SnapshotAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                snapshotActionName,
+		Label:             "Snapshot",
+		Icon:              "file-tree",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Generate a JSON snapshot of the index, starting at a given path",
+		InputDescription:  "Single-selection of root to browse for building the snapshot",
+		OutputDescription: "Empty output",
+		SummaryTemplate:   "",
+		HasForm:           true,
+	}
+}
+
+func (c *SnapshotAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "target_file",
+					Type:        "string",
+					Label:       "Target File",
+					Description: "Full name of the file to write, either on FS or inside a datasource. If not specified, will be written in application temporary directory",
+					Default:     "",
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "is_fs",
+					Type:        "boolean",
+					Label:       "Local FS",
+					Description: "If set, target file is expected to be an absolute path on the server",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+
+}
 
 // GetName returns this action unique identifier
 func (c *SnapshotAction) GetName() string {
@@ -57,6 +100,9 @@ func (c *SnapshotAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	if target, ok := action.Parameters["target_file"]; ok {
 		c.Target = target
+		if loc, o := action.Parameters["is_local"]; o && loc == "true" {
+			c.IsLocal = true
+		}
 	} else {
 		tmpDir := config.ApplicationWorkingDir()
 		c.Target = filepath.Join(tmpDir, "snapshot.json")
@@ -68,8 +114,13 @@ func (c *SnapshotAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 // Run the actual action code
 func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
+	if len(input.Nodes) == 0 {
+		err := fmt.Errorf("you must provide at least one node as input")
+		return input.WithError(err), err
+	}
+
 	streamer, err := c.Client.ListNodes(ctx, &tree.ListNodesRequest{
-		Node:      &tree.Node{Path: "miniods1"},
+		Node:      input.Nodes[0],
 		Recursive: true,
 	})
 	if err != nil {
@@ -90,13 +141,21 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 
 	content, _ := json.Marshal(nodesList)
-	os.Remove(c.Target)
-	writeErr := ioutil.WriteFile(c.Target, []byte(content), 0755)
+	var writeErr error
+	if c.IsLocal {
+		os.Remove(c.Target)
+		writeErr = ioutil.WriteFile(c.Target, content, 0755)
+	} else {
+		router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
+		_, writeErr = router.PutObject(ctx, &tree.Node{Path: c.Target}, bytes.NewBuffer(content), &views.PutRequestData{
+			Size: int64(len(content)),
+		})
+	}
 	if writeErr != nil {
 		return input.WithError(writeErr), writeErr
 	}
 
-	log.Logger(ctx).Info("Tree snapshot written to " + c.Target)
+	log.TasksLogger(ctx).Info("Tree snapshot written to " + c.Target)
 	output := input.WithNode(nil)
 	output.AppendOutput(&jobs.ActionOutput{
 		Success:    true,

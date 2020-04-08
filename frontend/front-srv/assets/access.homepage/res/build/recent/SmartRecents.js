@@ -167,7 +167,7 @@ var Loader = (function () {
             var _this4 = this;
 
             return new Promise(function (resolve) {
-                ASClient.loadActivityStreams(function (json) {
+                ASClient.loadActivityStreams('USER_ID', _this4.pydio.user.id, 'outbox', 'ACTOR', 0, 20).then(function (json) {
                     if (!json.items) {
                         resolve([]);
                         return;
@@ -196,7 +196,9 @@ var Loader = (function () {
                         }
                     });
                     resolve(nodes);
-                }, 'USER_ID', _this4.pydio.user.id, 'outbox', 'ACTOR', 0, 20);
+                })['catch'](function (msg) {
+                    resolve([]);
+                });
             });
         }
     }, {

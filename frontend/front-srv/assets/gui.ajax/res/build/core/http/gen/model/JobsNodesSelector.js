@@ -27,10 +27,6 @@ var _ServiceQuery = require('./ServiceQuery');
 
 var _ServiceQuery2 = _interopRequireDefault(_ServiceQuery);
 
-var _TreeNode = require('./TreeNode');
-
-var _TreeNode2 = _interopRequireDefault(_TreeNode);
-
 /**
 * The JobsNodesSelector model module.
 * @module model/JobsNodesSelector
@@ -49,7 +45,6 @@ var JobsNodesSelector = (function () {
 
         this.All = undefined;
         this.Pathes = undefined;
-        this.Nodes = undefined;
         this.Query = undefined;
         this.Collect = undefined;
     }
@@ -72,9 +67,6 @@ var JobsNodesSelector = (function () {
             if (data.hasOwnProperty('Pathes')) {
                 obj['Pathes'] = _ApiClient2['default'].convertToType(data['Pathes'], ['String']);
             }
-            if (data.hasOwnProperty('Nodes')) {
-                obj['Nodes'] = _ApiClient2['default'].convertToType(data['Nodes'], [_TreeNode2['default']]);
-            }
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = _ServiceQuery2['default'].constructFromObject(data['Query']);
             }
@@ -96,10 +88,6 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<String>} Pathes
-*/
-
-/**
-* @member {Array.<module:model/TreeNode>} Nodes
 */
 
 /**

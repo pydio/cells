@@ -19,14 +19,17 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import {FlatButton, IconButton, Paper} from 'material-ui'
 import XMLUtils from 'pydio/util/xml'
 import WsEditor from '../editor/WsEditor'
 import WorkspaceList from './WorkspaceList'
-const PydioDataModel = require('pydio/model/data-model');
-const AjxpNode = require('pydio/model/node');
+import PydioDataModel from 'pydio/model/data-model'
+import AjxpNode from 'pydio/model/node'
+import {muiThemeable} from 'material-ui/styles'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
-export default React.createClass({
+let WsDashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -37,27 +40,12 @@ export default React.createClass({
         openEditor:React.PropTypes.func.isRequired,
         openRightPane:React.PropTypes.func.isRequired,
         closeRightPane:React.PropTypes.func.isRequired,
+        accessByName:React.PropTypes.func.isRequired,
         advanced:React.PropTypes.boolean,
     },
 
     getInitialState(){
-        return {selectedNode:null}
-    },
-
-    componentDidMount(){
-        this._setLoading = () => {
-            this.setState({loading: true});
-        };
-        this._stopLoading = () => {
-            this.setState({loading: false});
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-    },
-
-    componentWillUnmount(){
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+        return {selectedNode:null, searchString:''}
     },
 
     dirtyEditor(){
@@ -79,7 +67,7 @@ export default React.createClass({
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
-        const {pydio, advanced} = this.props;
+        const {pydio, advanced, accessByName} = this.props;
         const editorData = {
             COMPONENT:editor,
             PROPS:{
@@ -123,41 +111,62 @@ export default React.createClass({
     },
 
     render(){
+        const {pydio, advanced, currentNode, accessByName, muiTheme} = this.props;
+        const {searchString, loading} = this.state;
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
         let buttons = [];
-        let icon;
-        const title = this.props.currentNode.getLabel();
-        buttons.push(<FlatButton primary={true} label={this.context.getMessage('ws.3')} onTouchTap={this.showWorkspaceCreator}/>);
-        icon = 'mdi mdi-folder-open';
+        if(accessByName('Create')){
+            buttons.push(
+                <FlatButton
+                    primary={true}
+                    label={this.context.getMessage('ws.3')}
+                    onTouchTap={this.showWorkspaceCreator}
+                    {...adminStyles.props.header.flatButton}
+                />
+            );
+        }
+
+        const searchBox = (
+            <div style={{display:'flex'}}>
+                <div style={{flex: 1}}/>
+                <div style={{width:190}}>
+                    <ModernTextField fullWidth={true} hintText={'Search workspaces'} value={searchString} onChange={(e,v) => this.setState({searchString:v}) } />
+                </div>
+            </div>
+        );
+
 
         return (
 
-            <div className="main-layout-nav-to-stack workspaces-board">
-                <div className="vertical-layout" style={{width:'100%'}}>
-                    <AdminComponents.Header
-                        title={title}
-                        icon={icon}
-                        actions={buttons}
-                        reloadAction={this.reloadWorkspaceList}
-                        loading={this.state.loading}
-                    />
+            <div className="main-layout-nav-to-stack vertical-layout workspaces-board">
+                <AdminComponents.Header
+                    title={currentNode.getLabel()}
+                    icon={'mdi mdi-folder-open'}
+                    actions={buttons}
+                    centerContent={searchBox}
+                    reloadAction={this.reloadWorkspaceList}
+                    loading={loading}
+                />
+                <div className="layout-fill">
                     <AdminComponents.SubHeader legend={this.context.getMessage('ws.dashboard', 'ajxp_admin')}/>
-                    <div className="layout-fill">
-                        <Paper zDepth={1} style={{margin: 16}}>
-                            <WorkspaceList
-                                ref="workspacesList"
-                                pydio={this.props.pydio}
-                                dataModel={this.props.dataModel}
-                                rootNode={this.props.rootNode}
-                                currentNode={this.props.currentNode}
-                                openSelection={this.openWorkspace}
-                                advanced={this.props.advanced}
-                            />
-                        </Paper>
-                    </div>
-
+                    <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
+                        <WorkspaceList
+                            ref="workspacesList"
+                            pydio={pydio}
+                            openSelection={this.openWorkspace}
+                            advanced={advanced}
+                            editable={accessByName('Create')}
+                            onLoadState={(state) => {this.setState({loading: state})}}
+                            tableStyles={adminStyles.body.tableMaster}
+                            filterString={searchString}
+                        />
+                    </Paper>
                 </div>
             </div>
         );
     }
 
 });
+
+export default muiThemeable()(WsDashboard);

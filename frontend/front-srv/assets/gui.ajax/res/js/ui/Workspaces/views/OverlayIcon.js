@@ -40,7 +40,7 @@ class OverlayIcon extends React.Component{
             case "mdi mdi-lock-outline":
                 tooltip = isLeaf ? m('overlay.lock.file'):m('overlay.lock.folder');
                 break;
-            case "mdi mdi-rss":
+            case "mdi mdi-bell":
                 tooltip = isLeaf ? m('overlay.watch.file'):m('overlay.watch.folder');
                 break;
             default:

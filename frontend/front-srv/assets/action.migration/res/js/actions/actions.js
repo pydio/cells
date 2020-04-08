@@ -24,6 +24,9 @@ export function startJob(state, onLocalUpdate) {
     if(allActions.length){
         PydioApi.getRestClient().userJob("import-p8", allActions).then((res) => {
             console.log(res);
+        }).catch((err) => {
+            const msg = err.Detail || err.message || err;
+            Pydio.getInstance().UI.displayMessage('ERROR', msg);
         });
     }
 }

@@ -50,6 +50,13 @@ func (this *GetMinioConfigResponse) Validate() error {
 	}
 	return nil
 }
+func (this *StorageStatsRequest) Validate() error {
+	return nil
+}
+func (this *StorageStatsResponse) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *GetDataSourceConfigRequest) Validate() error {
 	return nil
 }

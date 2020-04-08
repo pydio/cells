@@ -238,6 +238,7 @@ var DataSourceEditor = (function (_React$Component) {
             var _props = this.props;
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var model = _state3.model;
             var create = _state3.create;
@@ -250,14 +251,16 @@ var DataSourceEditor = (function (_React$Component) {
             var m = _state3.m;
 
             var titleActionBarButtons = [];
-            if (!create) {
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                    _this6.resetForm();
-                }, !this.state.dirty));
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this6.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this6.saveSource();
+                }, !observable.isValid() || !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                _this6.saveSource();
-            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -330,7 +333,7 @@ var DataSourceEditor = (function (_React$Component) {
                         )
                     )
                 ),
-                !create && _react2['default'].createElement(
+                !create && !readonly && _react2['default'].createElement(
                     'div',
                     null,
                     _react2['default'].createElement(_materialUi.Divider, null),
@@ -492,6 +495,16 @@ var DataSourceEditor = (function (_React$Component) {
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
                         ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
@@ -503,17 +516,40 @@ var DataSourceEditor = (function (_React$Component) {
                                     model.ApiSecret = v;
                                 } })
                         ),
-                        s3Custom === 'custom' && _react2['default'].createElement(
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
+                        _react2['default'].createElement(
                             'div',
-                            null,
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                    model.StorageConfiguration.customEndpoint = v;
-                                } }),
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
-                                    model.StorageConfiguration.customRegion = v;
-                                } })
+                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            m('storage.s3.legend.tags')
                         ),
-                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginRight: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    fullWidth: true,
+                                    disabled: !!model.StorageConfiguration.ObjectsBucket,
+                                    hintText: m('storage.s3.bucketsTags'),
+                                    value: model.StorageConfiguration.bucketsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.bucketsTags = v;
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginLeft: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    disabled: true,
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
+                                    value: model.StorageConfiguration.objectsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.objectsTags = v;
+                                    } })
+                            )
+                        )
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',
@@ -563,6 +599,57 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('datamanagement')
                     ),
+                    model.StorageType !== 'LOCAL' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.readOnly')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.readOnly'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.readOnly === 'true',
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.readOnly = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
+                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.checksumMapper')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.nativeEtags'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.nativeEtags,
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.nativeEtags = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField)),
+                        !model.StorageConfiguration.nativeEtags && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({
+                                label: m('storage.checksumMapper'),
+                                labelPosition: "right",
+                                toggled: model.StorageConfiguration.checksumMapper === 'dao',
+                                onToggle: function (e, v) {
+                                    model.StorageConfiguration.checksumMapper = v ? 'dao' : '';
+                                }
+                            }, ModernStyles.toggleField))
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.versioning')
+                    ),
                     _react2['default'].createElement(
                         ModernSelectField,
                         { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
@@ -572,6 +659,11 @@ var DataSourceEditor = (function (_React$Component) {
                         versioningPolicies.map(function (key) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.encryption')
                     ),
                     _react2['default'].createElement(
                         'div',
