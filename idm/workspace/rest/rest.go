@@ -247,8 +247,10 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
 		collection.Total++
 	}
-	h.loadRootNodesForWorkspaces(ctx, uuids, wss)
-	h.bulkReadDefaultRights(ctx, uuids, wss)
+	if len(collection.Workspaces) > 0 {
+		h.loadRootNodesForWorkspaces(ctx, uuids, wss)
+		h.bulkReadDefaultRights(ctx, uuids, wss)
+	}
 	rsp.WriteEntity(collection)
 
 }
