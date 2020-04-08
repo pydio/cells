@@ -33,6 +33,7 @@ var (
 type PluginBox struct {
 	Box     packr.Box
 	Exposes []string
+	ExposeFunc func()[]string
 }
 
 func RegisterPluginBoxes(boxes ...PluginBox) {

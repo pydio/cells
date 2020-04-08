@@ -24,6 +24,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"strings"
 
 	"github.com/pydio/cells/common"
@@ -91,6 +93,9 @@ func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.
 		return ctx, node, err
 	} else if ok {
 		branchInfo.Workspace = *ws
+		ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+			servicecontext.CtxWorkspaceUuid:ws.UUID,
+		})
 		return WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
 	return ctx, node, errors.NotFound(VIEWS_LIBRARY_NAME, "Workspace not found in Path")

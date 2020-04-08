@@ -60,6 +60,8 @@ var _elementsClipboardTextField = require('./elements/ClipboardTextField');
 
 var _elementsClipboardTextField2 = _interopRequireDefault(_elementsClipboardTextField);
 
+var _elementsGenericCard = require('./elements/GenericCard');
+
 var _viewsEmptyStateView = require('./views/EmptyStateView');
 
 var _viewsEmptyStateView2 = _interopRequireDefault(_viewsEmptyStateView);
@@ -152,6 +154,14 @@ var _usersAvatarCellActionsRenderer = require('./users/avatar/CellActionsRendere
 
 var _usersAvatarCellActionsRenderer2 = _interopRequireDefault(_usersAvatarCellActionsRenderer);
 
+var _stepperPanelBigButtons = require('./stepper/PanelBigButtons');
+
+var _stepperPanelBigButtons2 = _interopRequireDefault(_stepperPanelBigButtons);
+
+var _stepperDialog = require('./stepper/Dialog');
+
+var _stepperDialog2 = _interopRequireDefault(_stepperDialog);
+
 var PydioComponents = {
 
     SortableList: _listSortableList2['default'],
@@ -169,6 +179,8 @@ var PydioComponents = {
     EmptyStateView: _viewsEmptyStateView2['default'],
     SimpleFigureBadge: _elementsSimpleFigureBadge2['default'],
     ModalAppBar: _viewsModalAppBar2['default'],
+    GenericCard: _elementsGenericCard.GenericCard,
+    GenericLine: _elementsGenericCard.GenericLine,
 
     ReactEditorOpener: _editorReactEditorOpener2['default'],
     PaperEditorLayout: _editorPaperEditor.PaperEditorLayout,
@@ -200,7 +212,9 @@ var PydioComponents = {
     ChatIcon: _chatChatIcon2['default'],
     ChatClient: _chatChatClient2['default'],
     ResourcePoliciesPanel: _policiesResourcePoliciesPanel2['default'],
-    CellActionsRenderer: _usersAvatarCellActionsRenderer2['default']
+    CellActionsRenderer: _usersAvatarCellActionsRenderer2['default'],
+
+    Stepper: { PanelBigButtons: _stepperPanelBigButtons2['default'], Dialog: _stepperDialog2['default'] }
 };
 
 exports['default'] = PydioComponents;

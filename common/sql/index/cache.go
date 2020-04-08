@@ -28,6 +28,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -116,6 +117,10 @@ func GetDAOCache(session string) DAO {
 func (d *daocache) resync() {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
+	t1 := time.Now()
+	defer func() {
+		fmt.Println("Finished resync", time.Now().Sub(t1))
+	}()
 	for k, _ := range d.cache {
 		delete(d.cache, k)
 	}

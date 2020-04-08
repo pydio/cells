@@ -60,7 +60,9 @@ var SettingsNodeProvider = (function () {
         _classCallCheck(this, SettingsNodeProvider);
 
         this.discrete = false;
-        if (properties) this.initProvider(properties);
+        if (properties) {
+            this.initProvider(properties);
+        }
     }
 
     /**
@@ -69,10 +71,12 @@ var SettingsNodeProvider = (function () {
      */
 
     SettingsNodeProvider.prototype.initProvider = function initProvider(properties) {
+        var _this = this;
+
         this.properties = new Map();
-        for (var p in properties) {
-            if (properties.hasOwnProperty(p)) this.properties.set(p, properties[p]);
-        }
+        Object.keys(properties).forEach(function (p) {
+            _this.properties.set(p, properties[p]);
+        });
         if (this.properties && this.properties.has('connexion_discrete')) {
             this.discrete = true;
             this.properties['delete']('connexion_discrete');
@@ -248,6 +252,7 @@ var SettingsNodeProvider = (function () {
         var childCallback = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
         var label = section.LABEL;
+        var pydio = _Pydio2['default'].getInstance();
         if (pydio && pydio.MessageHash && pydio.MessageHash[label]) {
             label = pydio.MessageHash[label];
         }
@@ -281,13 +286,9 @@ var SettingsNodeProvider = (function () {
      */
 
     SettingsNodeProvider.loadMenu = function loadMenu() {
-        if (_httpPydioApi2['default'].LOADED_SETTINGS_MENU) {
-            return Promise.resolve(_httpPydioApi2['default'].LOADED_SETTINGS_MENU);
-        }
         return new Promise(function (resolve, reject) {
             var client = _httpPydioApi2['default'].getRestClient();
             client.callApi('/frontend/settings-menu', 'GET', '', [], [], [], null, null, ['application/json'], ['application/json'], null).then(function (r) {
-                _httpPydioApi2['default'].LOADED_SETTINGS_MENU = r.response.body;
                 resolve(r.response.body);
             })['catch'](function (e) {
                 reject(e);

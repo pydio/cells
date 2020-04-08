@@ -143,7 +143,7 @@ class EncryptionKeys extends React.Component{
     render(){
 
         const {keys, showDialog, showImportKey, showExportKey, exportedKey, showCreateKey, m} = this.state;
-        const {pydio} = this.props;
+        const {pydio, accessByName, adminStyles} = this.props;
 
         const columns = [
             {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
@@ -151,6 +151,9 @@ class EncryptionKeys extends React.Component{
             {name:'Owner', label: m('key.owner'), hideSmall:true},
             {name:'CreationDate', label: m('key.created'), hideSmall:true, renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
             {name:'Actions', label:'', style:{width:170, textAlign:'right', overflow:'visible'}, headerStyle:{width:170}, renderCell:(row => {
+                if(!accessByName('CreateEncryption')){
+                    return null;
+                }
                 return (
                     <div>
                         <IconButton tooltip={m('key.import')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
@@ -223,9 +226,13 @@ class EncryptionKeys extends React.Component{
                 <FlatButton label={m('key.create')} primary={true} onTouchTap={()=>{this.createKey()}}/>
             ];
         }
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
         return (
-            <div zDepth={0} style={{margin: 16}}>
+            <div>
                 <Dialog
                     title={dialogTitle}
                     open={showDialog}
@@ -236,17 +243,20 @@ class EncryptionKeys extends React.Component{
                 >
                     {dialogContent}
                 </Dialog>
-                <div style={{textAlign:'right', paddingBottom: 16}}>
-                    <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
-                    <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
-                </div>
-                <Paper zDepth={1}>
+                {accessByName('CreateEncryption') &&
+                    <div style={{textAlign:'right', paddingRight: 24}}>
+                        <FlatButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
+                        <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
+                    </div>
+                }
+                <Paper {...blockProps} style={blockStyle}>
                     <MaterialTable
                         data={keys}
                         columns={columns}
                         onSelectRows={()=>{}}
                         showCheckboxes={false}
                         emptyStateString={m('key.emptyState')}
+                        masterStyles={tableMaster}
                     />
                 </Paper>
             </div>

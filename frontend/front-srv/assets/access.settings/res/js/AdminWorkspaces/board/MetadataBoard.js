@@ -1,6 +1,7 @@
 import React from 'react'
 import Metadata from '../model/Metadata'
 import {FlatButton, Paper, IconButton} from 'material-ui'
+const {muiThemeable} = require('material-ui/styles');
 import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import MetaNamespace from '../editor/MetaNamespace'
@@ -70,15 +71,20 @@ class MetadataBoard extends React.Component{
     }
 
     render(){
+        const {muiTheme} = this.props;
+        const adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
+
         let {namespaces, loading, dialogOpen, selectedNamespace, create, m} = this.state;
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
         }
         namespaces.sort((a,b) => {
-            if (a.Order === b.Order) return 0;
-            return a.Order > b.Order ? 1 : -1;
+            const a0 = a.Order || 0;
+            const b0 = b.Order || 0;
+            if (a0 === b0) return 0;
+            return a0 > b0 ? 1 : -1;
         });
-        const {currentNode, pydio} = this.props;
+        const {currentNode, pydio, accessByName} = this.props;
         const columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
@@ -97,6 +103,9 @@ class MetadataBoard extends React.Component{
                 return Metadata.MetaTypes[data.type] || data.type;
             })},
             {name:'actions', label: '', style:{width:100}, headerStyle:{width:100}, renderCell:(row =>{
+                if(!accessByName('Create')){
+                    return null;
+                }
                 return <IconButton
                     iconClassName="mdi mdi-delete"
                     onTouchTap={() => {this.deleteNs(row)}}
@@ -108,9 +117,10 @@ class MetadataBoard extends React.Component{
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
-        const buttons = [
-            <FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}}/>,
-        ];
+        let buttons = [];
+        if(accessByName('Create')){
+            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
+        }
 
         return (
 
@@ -123,6 +133,7 @@ class MetadataBoard extends React.Component{
                     onRequestClose={() => this.close()}
                     reloadList={() => this.load()}
                     namespaces={namespaces}
+                    readonly={!accessByName('Create')}
                 />
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
@@ -134,7 +145,7 @@ class MetadataBoard extends React.Component{
                     />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('namespaces')} legend={m('namespaces.legend')}/>
-                        <Paper zDepth={1} style={{margin: 16}}>
+                        <Paper {...adminStyle.body.block.props}>
                             <MaterialTable
                                 data={namespaces}
                                 columns={columns}
@@ -142,6 +153,7 @@ class MetadataBoard extends React.Component{
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 emptyStateString={m('empty')}
+                                masterStyles={adminStyle.body.tableMaster}
                             />
                         </Paper>
                     </div>
@@ -154,5 +166,6 @@ class MetadataBoard extends React.Component{
 
 }
 
+MetadataBoard = muiThemeable()(MetadataBoard);
 
 export {MetadataBoard as default}

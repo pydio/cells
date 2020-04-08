@@ -132,7 +132,11 @@ func (l logger) Debugf(str string, args ...interface{}) {
 }
 
 func (l logger) Errorf(str string, args ...interface{}) {
-	l.Error(fmt.Sprintf(str, args...))
+	if strings.HasPrefix(str, "Error trying to connect to route: ") {
+		l.Debug(fmt.Sprintf(str, args...))
+	} else {
+		l.Error(fmt.Sprintf(str, args...))
+	}
 }
 
 func (l logger) Fatalf(str string, args ...interface{}) {

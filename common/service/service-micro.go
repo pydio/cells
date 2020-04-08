@@ -25,16 +25,15 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -94,9 +93,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					log.Logger(ctx).Info("stopping")
 
 					return nil
-				}),
-				micro.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)

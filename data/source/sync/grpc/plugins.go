@@ -26,6 +26,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/data/source/sync"
+
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -56,7 +58,8 @@ func init() {
 
 		for _, datasource := range sources {
 
-			service.NewService(
+			var sOptions []service.ServiceOption
+			sOptions = append(sOptions,
 				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+datasource),
 				service.Tag(common.SERVICE_TAG_DATASOURCE),
 				service.Description("Synchronization service between objects and index for a given datasource"),
@@ -160,6 +163,21 @@ func init() {
 					return nil
 				}),
 			)
+			if storage := WithStorage(datasource); storage != nil {
+				sOptions = append(sOptions, storage)
+			}
+			service.NewService(sOptions...)
+
 		}
 	})
+}
+
+func WithStorage(source string) service.ServiceOption {
+	mapperType := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+source, "StorageConfiguration", "checksumMapper").String("")
+	switch mapperType {
+	case "dao":
+		prefix := "data_sync_" + source
+		return service.WithStorage(sync.NewDAO, prefix)
+	}
+	return nil
 }

@@ -16,12 +16,6 @@ var _ = math.Inf
 func (this *Token) Validate() error {
 	return nil
 }
-func (this *MatchInvalidTokenRequest) Validate() error {
-	return nil
-}
-func (this *MatchInvalidTokenResponse) Validate() error {
-	return nil
-}
 func (this *RevokeTokenRequest) Validate() error {
 	if this.Token != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
@@ -39,9 +33,100 @@ func (this *PruneTokensRequest) Validate() error {
 func (this *PruneTokensResponse) Validate() error {
 	return nil
 }
+func (this *ID) Validate() error {
+	return nil
+}
+func (this *GetLoginRequest) Validate() error {
+	return nil
+}
+func (this *GetLoginResponse) Validate() error {
+	return nil
+}
+func (this *CreateLoginRequest) Validate() error {
+	return nil
+}
+func (this *CreateLoginResponse) Validate() error {
+	if this.Login != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Login); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Login", err)
+		}
+	}
+	return nil
+}
+func (this *AcceptLoginRequest) Validate() error {
+	return nil
+}
+func (this *AcceptLoginResponse) Validate() error {
+	return nil
+}
+func (this *GetConsentRequest) Validate() error {
+	return nil
+}
+func (this *GetConsentResponse) Validate() error {
+	return nil
+}
+func (this *CreateConsentRequest) Validate() error {
+	return nil
+}
+func (this *CreateConsentResponse) Validate() error {
+	if this.Consent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Consent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Consent", err)
+		}
+	}
+	return nil
+}
+func (this *AcceptConsentRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AcceptConsentResponse) Validate() error {
+	return nil
+}
+func (this *CreateLogoutRequest) Validate() error {
+	return nil
+}
+func (this *CreateLogoutResponse) Validate() error {
+	if this.Logout != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Logout); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Logout", err)
+		}
+	}
+	return nil
+}
+func (this *AcceptLogoutRequest) Validate() error {
+	return nil
+}
+func (this *AcceptLogoutResponse) Validate() error {
+	return nil
+}
+func (this *CreateAuthCodeRequest) Validate() error {
+	if this.Consent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Consent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Consent", err)
+		}
+	}
+	return nil
+}
+func (this *CreateAuthCodeResponse) Validate() error {
+	return nil
+}
 func (this *VerifyTokenRequest) Validate() error {
 	return nil
 }
 func (this *VerifyTokenResponse) Validate() error {
+	return nil
+}
+func (this *ExchangeRequest) Validate() error {
+	return nil
+}
+func (this *ExchangeResponse) Validate() error {
+	return nil
+}
+func (this *RefreshTokenRequest) Validate() error {
+	return nil
+}
+func (this *RefreshTokenResponse) Validate() error {
 	return nil
 }

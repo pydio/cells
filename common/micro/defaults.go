@@ -41,6 +41,8 @@ var (
 	clientOpts     []func() client.Option
 	serverOpts     []func() server.Option
 	serverHTTPOpts []func() server.Option
+
+	DefaultStartupRegistry registry.Registry
 )
 
 func InitServer(opt ...func() server.Option) {
@@ -56,22 +58,34 @@ func InitHTTPServer(opt ...func() server.Option) {
 func InitClient(opt ...func() client.Option) {
 	clientOpts = append(clientOpts, opt...)
 
-	client.DefaultClient = NewClient()
+	client.DefaultClient = newClient()
 }
 
-// NewClient returns a client attached to the defaults
-func NewClient(new ...client.Option) client.Client {
-	opts := new
+func newClient(new ...client.Option) client.Client {
+	var opts []client.Option
+
+	opts = append(opts, client.PoolSize(1))
+	opts = append(opts, client.RequestTimeout(10*time.Minute))
+	opts = append(opts, client.Wrap(servicecontext.SpanClientWrapper))
+
 	for _, o := range clientOpts {
 		opts = append(opts, o())
 	}
 
-	opts = append(opts, client.RequestTimeout(10*time.Minute))
-	opts = append(opts, client.Wrap(servicecontext.SpanClientWrapper))
+	opts = append(opts, new...)
 
 	return grpcclient.NewClient(
 		opts...,
 	)
+}
+
+// NewClient returns a client attached to the defaults
+func NewClient(new ...client.Option) client.Client {
+	if len(new) == 0 {
+		return client.DefaultClient
+	}
+
+	return newClient(new...)
 }
 
 // NewServer returns a server attached to the defaults
@@ -100,16 +114,21 @@ func NewHTTPServer(new ...server.Option) server.Server {
 }
 
 func Registry() registry.Registry {
-	c := NewClient()
-	return c.Options().Registry
+	return registry.DefaultRegistry
+}
+
+func StartupRegistry() registry.Registry {
+	if DefaultStartupRegistry == nil {
+		return Registry()
+	}
+
+	return DefaultStartupRegistry
 }
 
 func Transport() transport.Transport {
-	c := NewClient()
-	return c.Options().Transport
+	return transport.DefaultTransport
 }
 
 func Broker() broker.Broker {
-	c := NewClient()
-	return c.Options().Broker
+	return broker.DefaultBroker
 }

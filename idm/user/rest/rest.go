@@ -210,6 +210,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			if resp.User.IsGroup {
 				u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
 				u.Roles = permissions.GetRolesForUser(ctx, u, true)
+				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
 				response.Groups = append(response.Groups, u)
 			} else {
 				u.Roles = permissions.GetRolesForUser(ctx, u, false)

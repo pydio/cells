@@ -104,11 +104,14 @@ export default React.createClass({
 
         e.preventDefault();
         e.stopPropagation();
-
+        const {pydio} = this.props;
         const {dir, urls} = this.state;
 
         PydioApi.getRestClient().userJob("remote-download", {target: dir, urls: urls}).then(()=>{
             this.setState({urls:[]});
+        }).catch((err) => {
+            const msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
     },
 

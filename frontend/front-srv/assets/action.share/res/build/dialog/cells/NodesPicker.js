@@ -163,7 +163,7 @@ var NodesPicker = (function (_React$Component) {
 
             return _react2['default'].createElement(_materialUi.ListItem, {
                 disabled: true,
-                leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-folder' }),
+                leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + (node.Type === 'LEAF' ? 'file' : 'folder') }),
                 primaryText: model.getNodeLabelInContext(node),
                 rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                         model.removeRootNode(node.Uuid);

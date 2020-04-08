@@ -37,5 +37,6 @@ const Navigation = {
 
 import SplashDialog from './dialog/SplashDialog'
 import PasswordDialog from './dialog/PasswordDialog'
+import BookmarkButton from './callbacks/BookmarkButton'
 
-export {Callbacks, Navigation, SplashDialog, PasswordDialog}
+export {Callbacks, Navigation, SplashDialog, PasswordDialog, BookmarkButton}

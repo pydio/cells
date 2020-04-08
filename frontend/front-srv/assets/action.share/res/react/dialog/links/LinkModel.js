@@ -39,6 +39,11 @@ class LinkModel extends Observable {
         this.link.PoliciesContextEditable = true;
         this.link.RootNodes = [];
         this.ValidPassword = true;
+        this.loadError = null;
+    }
+
+    hasError() {
+        return this.loadError;
     }
 
     isEditable(){
@@ -126,6 +131,9 @@ class LinkModel extends Observable {
             }
             this.originalLink = this.clone(this.link);
             this.notify("update");
+        }).catch(err => {
+            this.loadError = err;
+            this.notify("update");
         })
     }
 
@@ -198,6 +206,9 @@ class LinkModel extends Observable {
             this.ValidPassword = true;
             this.notify('update');
             this.notify('save');
+        }).catch((err) => {
+            const msg = err.Detail || err.message || err;
+            Pydio.getInstance().UI.displayMessage('ERROR', msg);
         });
     }
 
@@ -213,6 +224,9 @@ class LinkModel extends Observable {
             this.updatePassword = this.createPassword = this.customLink = null;
             this.notify('update');
             this.notify('delete');
+        }).catch((err) => {
+            const msg = err.Detail || err.message || err;
+            pydio.UI.displayMessage('ERROR', msg);
         });
     }
 

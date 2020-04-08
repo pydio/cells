@@ -75,10 +75,7 @@ func (a *ActionMessage) WithNode(n *tree.Node) ActionMessage {
 func (a *ActionMessage) WithNodes(nodes ...*tree.Node) ActionMessage {
 
 	b := *a
-	b.Nodes = []*tree.Node{}
-	for _, n := range nodes {
-		b.Nodes = append(b.Nodes, n)
-	}
+	b.Nodes = append(b.Nodes, nodes...)
 	return b
 
 }
@@ -98,10 +95,69 @@ func (a *ActionMessage) WithUser(u *idm.User) ActionMessage {
 func (a *ActionMessage) WithUsers(users ...*idm.User) ActionMessage {
 
 	b := *a
-	b.Users = []*idm.User{}
 	for _, u := range users {
 		b.Users = append(b.Users, u)
 	}
+	return b
+
+}
+
+func (a *ActionMessage) WithWorkspace(ws *idm.Workspace) ActionMessage {
+
+	b := *a
+	if ws == nil {
+		b.Workspaces = []*idm.Workspace{}
+	} else {
+		b.Workspaces = []*idm.Workspace{ws}
+	}
+	return b
+
+}
+
+func (a *ActionMessage) WithWorkspaces(ws ...*idm.Workspace) ActionMessage {
+
+	b := *a
+	b.Workspaces = append(b.Workspaces, ws...)
+	return b
+
+}
+
+func (a *ActionMessage) WithRole(r *idm.Role) ActionMessage {
+
+	b := *a
+	if r == nil {
+		b.Roles = []*idm.Role{}
+	} else {
+		b.Roles = []*idm.Role{r}
+	}
+	return b
+
+}
+
+func (a *ActionMessage) WithRoles(r ...*idm.Role) ActionMessage {
+
+	b := *a
+	b.Roles = append(b.Roles, r...)
+	return b
+
+}
+
+func (a *ActionMessage) WithAcl(acl *idm.ACL) ActionMessage {
+
+	b := *a
+	if acl == nil {
+		b.Acls = []*idm.ACL{}
+	} else {
+		b.Acls = []*idm.ACL{acl}
+	}
+	return b
+
+}
+
+func (a *ActionMessage) WithAcls(aa ...*idm.ACL) ActionMessage {
+
+	b := *a
+	b.Acls = append(b.Acls, aa...)
 	return b
 
 }

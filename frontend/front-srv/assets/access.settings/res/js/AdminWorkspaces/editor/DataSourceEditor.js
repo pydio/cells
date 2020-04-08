@@ -149,14 +149,16 @@ class DataSourceEditor extends React.Component{
     }
 
     render(){
-        const {storageTypes, pydio} = this.props;
+        const {storageTypes, pydio, readonly} = this.props;
         const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, s3Custom, m} = this.state;
 
         let titleActionBarButtons = [];
-        if(!create){
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
+        if(!readonly){
+            if(!create){
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
+            }
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !observable.isValid() || !this.state.dirty));
         }
-        titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !observable.isValid() || !this.state.dirty));
 
         const leftNav = (
             <div style={{padding: '6px 0', color: '#9E9E9E', fontSize: 13}}>
@@ -201,7 +203,7 @@ class DataSourceEditor extends React.Component{
                         </div>
                     </div>
                 }
-                {!create &&
+                {!create && !readonly &&
                     <div>
                         <Divider/>
                         <div style={{padding: 16}}>
@@ -300,18 +302,37 @@ class DataSourceEditor extends React.Component{
                                 <MenuItem value={"aws"} primaryText={m('storage.s3.endpoint.amazon')}/>
                                 <MenuItem value={"custom"} primaryText={m('storage.s3.endpoint.custom')}/>
                             </ModernSelectField>
+                            {s3Custom === 'custom' &&
+                            <div>
+                                <ModernTextField fullWidth={true} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
+                                <ModernTextField fullWidth={true} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
+                            </div>
+                            }
                             <ModernTextField fullWidth={true} hintText={m('storage.s3.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
                             <form autoComplete={"off"}>
                                 <input type="hidden" value="something"/>
                                 <ModernTextField autoComplete={"off"} fullWidth={true} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                             </form>
-                            {s3Custom === 'custom' &&
-                                <div>
-                                    <ModernTextField fullWidth={true} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
-                                    <ModernTextField fullWidth={true} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
-                                </div>
-                            }
                             <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
+                            <div style={{...styles.legend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
+                            <div style={{display:'flex'}}>
+                                <div style={{flex:1, marginRight: 5}}>
+                                    <ModernTextField
+                                        fullWidth={true}
+                                        disabled={!!model.StorageConfiguration.ObjectsBucket}
+                                        hintText={m('storage.s3.bucketsTags')}
+                                        value={model.StorageConfiguration.bucketsTags || ''}
+                                        onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>
+                                </div>
+                                <div style={{flex:1, marginLeft: 5}}>
+                                    <ModernTextField
+                                        disabled={true}
+                                        fullWidth={true}
+                                        hintText={m('storage.s3.objectsTags') + ' (not implemented yet)'}
+                                        value={model.StorageConfiguration.objectsTags || ''}
+                                        onChange={(e,v)=>{model.StorageConfiguration.objectsTags = v;}}/>
+                                </div>
+                            </div>
                         </div>
                     }
                     {model.StorageType === 'AZURE' &&
@@ -334,12 +355,53 @@ class DataSourceEditor extends React.Component{
                 </Paper>
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
+
+                    {model.StorageType !== 'LOCAL' &&
+                    <div>
+                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
+                        <Toggle
+                            label={m('storage.readOnly')}
+                            labelPosition={"right"}
+                            toggled={model.StorageConfiguration.readOnly === 'true'}
+                            onToggle={(e,v)=>{model.StorageConfiguration.readOnly = (v ? 'true' : '');}}
+                            {...ModernStyles.toggleField}
+                        />
+                    </div>
+                    }
+
+                    {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
+                    <div>
+                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
+                        <Toggle
+                            label={m('storage.nativeEtags')}
+                            labelPosition={"right"}
+                            toggled={model.StorageConfiguration.nativeEtags}
+                            onToggle={(e,v)=>{model.StorageConfiguration.nativeEtags = (v ? 'true' : '');}}
+                            {...ModernStyles.toggleField}
+                        />
+                        {!model.StorageConfiguration.nativeEtags &&
+                            <div>
+                                <Toggle
+                                    label={m('storage.checksumMapper')}
+                                    labelPosition={"right"}
+                                    toggled={model.StorageConfiguration.checksumMapper === 'dao'}
+                                    onToggle={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? 'dao' : '');}}
+                                {...ModernStyles.toggleField}
+                                />
+                            </div>
+                        }
+                    </div>
+                    }
+
+                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
                     <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {
                             return <MenuItem value={key.Uuid} primaryText={key.Name}/>
                         })}
                     </ModernSelectField>
+
+                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                     <div style={styles.toggleDiv}>
                         <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}
                                 disabled={cannotEnableEnc} {...ModernStyles.toggleField}/>

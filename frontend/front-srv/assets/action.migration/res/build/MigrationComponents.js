@@ -29541,6 +29541,10 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 var JobsStore = _Pydio$requireLib.JobsStore;
 var moment = _Pydio$requireLib.moment;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+
 var styles = {
     stepLegend: { color: '#757575', padding: '6px 0' }
 };
@@ -29640,6 +29644,7 @@ var Dashboard = (function (_React$Component) {
             var openRightPane = _props.openRightPane;
             var closeRightPane = _props.closeRightPane;
             var advanced = _props.advanced;
+            var currentNode = _props.currentNode;
             var _state = this.state;
             var activeStep = _state.activeStep;
             var url = _state.url;
@@ -29654,8 +29659,10 @@ var Dashboard = (function (_React$Component) {
 
             var remainingState = _objectWithoutProperties(_state, ['activeStep', 'url', 'skipVerify', 'user', 'pwd', 'features', 'task', 'showLogs', 'localStatus', 'previousTasks']);
 
+            var adminStyles = AdminComponents.AdminStyles();
+
             var previousJobsSelector = _react2['default'].createElement(
-                _materialUi.SelectField,
+                ModernSelectField,
                 { fullWidth: true, value: showLogs, onChange: function (e, i, v) {
                         _this3.setState({ showLogs: v });
                     } },
@@ -29676,7 +29683,7 @@ var Dashboard = (function (_React$Component) {
             if (showLogs) {
                 content = _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: 16 } },
+                    adminStyles.body.block.props,
                     _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: showLogs, styles: styles })
                 );
             } else {
@@ -29703,7 +29710,7 @@ var Dashboard = (function (_React$Component) {
 
                     content = _react2['default'].createElement(
                         _materialUi.Paper,
-                        { style: { margin: 16, paddingBottom: 16 } },
+                        _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { paddingBottom: 16 }) }),
                         _react2['default'].createElement(
                             _materialUi.Stepper,
                             { style: { display: 'flex' }, orientation: 'vertical', activeStep: activeStep },
@@ -29787,6 +29794,7 @@ var Dashboard = (function (_React$Component) {
                     { className: 'vertical-layout', style: { width: '100%' } },
                     _react2['default'].createElement(AdminComponents.Header, {
                         title: this.T('title'),
+                        icon: currentNode.getMetadata().get('icon_class'),
                         actions: [previousJobsSelector]
                     }),
                     _react2['default'].createElement(
@@ -29794,7 +29802,7 @@ var Dashboard = (function (_React$Component) {
                         { className: 'layout-fill' },
                         (task || localStatus.length > 0) && _react2['default'].createElement(
                             _materialUi.Paper,
-                            { style: { margin: 16, padding: 16 } },
+                            null,
                             _react2['default'].createElement(
                                 'h5',
                                 null,
@@ -30038,6 +30046,9 @@ function startJob(state, onLocalUpdate) {
     if (allActions.length) {
         _pydioHttpApi2["default"].getRestClient().userJob("import-p8", allActions).then(function (res) {
             console.log(res);
+        })["catch"](function (err) {
+            var msg = err.Detail || err.message || err;
+            _pydio2["default"].getInstance().UI.displayMessage('ERROR', msg);
         });
     }
 }

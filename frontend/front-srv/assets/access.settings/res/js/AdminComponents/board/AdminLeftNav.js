@@ -19,41 +19,30 @@
  */
 import Pydio from 'pydio'
 const React = require('react');
-const {Paper, Menu} = require('material-ui');
+const {Paper, Menu, IconButton} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
 
 import NavigationHelper from '../util/NavigationHelper'
 import MenuItemListener from '../util/MenuItemListener'
-const AjxpNode = require('pydio/model/node');
-const PydioDataModel = require('pydio/model/data-model');
-//const {withVerticalScroll} = Pydio.requireLib('hoc');
+import AdminStyles from "../styles/AdminStyles";
+const {UserWidget} = Pydio.requireLib('workspaces');
 
-let AdminMenu = React.createClass({
-
-    propTypes:{
-        rootNode        : React.PropTypes.instanceOf(AjxpNode),
-        contextNode     : React.PropTypes.instanceOf(AjxpNode),
-        dataModel       : React.PropTypes.instanceOf(PydioDataModel)
-    },
+class AdminMenu extends React.Component{
 
     componentDidMount(){
         MenuItemListener.getInstance().observe("item_changed", function(){
             this.forceUpdate();
         }.bind(this));
-    },
+    }
 
     componentWillUnmount(){
         MenuItemListener.getInstance().stopObserving("item_changed");
-    },
-
-    checkForUpdates(){
-        const {pydio, rootNode} = this.props;
-    },
+    }
 
     onMenuChange(event, node){
         this.props.dataModel.setSelectedNodes([]);
         this.props.dataModel.setContextNode(node);
-    },
+    }
 
     render(){
 
@@ -77,38 +66,51 @@ let AdminMenu = React.createClass({
 
         return(
             <Menu
-                onChange={this.onMenuChange}
+                onChange={this.onMenuChange.bind(this)}
                 autoWidth={false}
                 width={256}
-                listStyle={{display:'block', maxWidth:256}}
+                desktop={true}
+                listStyle={AdminStyles(muiTheme.palette).menu.listStyle}
                 value={contextNode}
             >{menuItems}</Menu>
         );
     }
 
-});
+}
 
-//AdminMenu = withVerticalScroll(AdminMenu, {id:'settings-menu'});
 AdminMenu = muiThemeable()(AdminMenu);
 
 class AdminLeftNav extends React.Component {
+
     render(){
-        const {open} = this.props;
-        let pStyle = {
-            position: 'fixed',
-            width:256,
-            top: 56,
-            bottom: 0,
-            zIndex: 9,
-            overflowX: 'hidden',
-            overflowY: 'auto'
-        };
+        const {open, pydio, showAdvanced} = this.props;
+
+        const {menu, props} = AdminStyles();
+        let pStyle = menu.leftNav;
         if(!open){
             pStyle.transform = 'translateX(-256px)';
         }
 
         return (
-            <Paper zDepth={2} className={"admin-main-nav"} style={pStyle}>
+            <Paper {...props.leftNav} className={"admin-main-nav"} style={pStyle}>
+                <div style={menu.header.container}>
+                    <span style={menu.header.title}>{pydio.MessageHash['settings.topbar.title']}</span>
+                    <IconButton
+                        iconClassName={"mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off")}
+                        style={{padding: 14}}
+                        iconStyle={{color: 'white',fontSize: 20}}
+                        tooltip={pydio.MessageHash['settings.topbar.button.advanced']}
+                        onTouchTap={() => this.props.toggleAdvanced()}
+                    />
+                    <UserWidget
+                        pydio={pydio}
+                        style={menu.header.userWidget}
+                        hideActionBar={true}
+                        displayLabel={false}
+                        toolbars={["aUser", "user", "zlogin"]}
+                        controller={pydio.getController()}
+                    />
+                </div>
                 <AdminMenu {...this.props}/>
             </Paper>
         );

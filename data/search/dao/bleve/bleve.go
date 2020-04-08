@@ -51,7 +51,7 @@ type BleveServer struct {
 	IndexContent bool
 
 	batch   *bleve.Batch
-	inserts chan *IndexableNode
+	inserts chan *tree.IndexableNode
 	deletes chan string
 	done    chan bool
 	closed  chan bool
@@ -77,30 +77,12 @@ func NewBleveEngine(indexContent bool) (*BleveServer, error) {
 	server := &BleveServer{
 		Engine:       index,
 		IndexContent: indexContent,
-		inserts:      make(chan *IndexableNode),
+		inserts:      make(chan *tree.IndexableNode),
 		deletes:      make(chan string),
 		done:         make(chan bool, 1),
 	}
 	go server.watchOperations()
 	return server, nil
-}
-
-type IndexableNode struct {
-	tree.Node
-	reloadCore bool
-	reloadNs   bool
-
-	ModifTime   time.Time
-	Basename    string
-	NodeType    string
-	Extension   string
-	TextContent string
-	GeoPoint    map[string]interface{}
-	Meta        map[string]interface{}
-}
-
-func (i *IndexableNode) BleveType() string {
-	return "node"
 }
 
 func (s *BleveServer) watchOperations() {
@@ -177,10 +159,10 @@ func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
-	iNode := &IndexableNode{
+	iNode := &tree.IndexableNode{
 		Node:       *n,
-		reloadCore: reloadCore,
-		reloadNs:   !reloadCore,
+		ReloadCore: reloadCore,
+		ReloadNs:   !reloadCore,
 	}
 	s.inserts <- iNode
 

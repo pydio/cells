@@ -23,17 +23,20 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"path"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/scheduler/actions"
-	"go.uber.org/zap"
 )
 
 // Runnable represents the runnable instance of a given task
@@ -44,25 +47,34 @@ type Runnable struct {
 	Client         client.Client
 	Context        context.Context
 	Implementation actions.ConcreteAction
+	ActionPath     string
 }
 
 func RootRunnable(ctx context.Context, cl client.Client, task *Task) Runnable {
 	return Runnable{
-		Context: ctx,
-		Client:  cl,
-		Task:    task,
+		Context:    ctx,
+		Client:     cl,
+		Task:       task,
+		ActionPath: "ROOT",
 	}
 }
 
 // NewRunnable creates a new runnable and populates it with the concrete task implementation found with action.ID,
 // if such an implementation is found.
-func NewRunnable(ctx context.Context, cl client.Client, task *Task, action *jobs.Action, message jobs.ActionMessage) Runnable {
+func NewRunnable(ctx context.Context, parentPath string, chainIndex int, cl client.Client, task *Task, action *jobs.Action, message jobs.ActionMessage) Runnable {
+	aPath := path.Join(parentPath, fmt.Sprintf(action.ID+"$%d", chainIndex))
+	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+		servicecontext.ContextMetaJobUuid:        task.Job.ID,
+		servicecontext.ContextMetaTaskUuid:       task.RunUUID,
+		servicecontext.ContextMetaTaskActionPath: aPath,
+	})
 	r := Runnable{
-		Action:  *action,
-		Task:    task,
-		Client:  cl,
-		Context: ctx,
-		Message: message,
+		Action:     *action,
+		Task:       task,
+		Client:     cl,
+		Context:    ctx,
+		Message:    message,
+		ActionPath: aPath,
 	}
 	// Find Concrete Implementation from ActionID
 	impl, ok := actions.GetActionsManager().ActionById(action.ID)
@@ -70,41 +82,52 @@ func NewRunnable(ctx context.Context, cl client.Client, task *Task, action *jobs
 		r.Implementation = impl
 		r.Implementation.Init(task.Job, cl, action)
 	}
+	if walker, ok := impl.(actions.RecursiveNodeWalkerAction); ok && action.NodesFilter != nil {
+		walker.SetNodeFilterAsWalkFilter(action.NodesFilter)
+	}
 	return r
 }
 
 // CreateChild replicates a runnable for child action
-func (r *Runnable) CreateChild(action *jobs.Action, message jobs.ActionMessage) Runnable {
+func (r *Runnable) CreateChild(parentPath string, chainIndex int, action *jobs.Action, message jobs.ActionMessage) Runnable {
 
 	r.Task.Add(1)
-	return NewRunnable(r.Context, r.Client, r.Task, action, message)
+	return NewRunnable(r.Context, parentPath, chainIndex, r.Client, r.Task, action, message)
 }
 
 // Dispatch gets next runnable from Action and enqueues it to the Queue
 // Todo - Check that done channel is working correctly with chained actions
-func (r *Runnable) Dispatch(input jobs.ActionMessage, actions []*jobs.Action, Queue chan Runnable) {
+func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, actions []*jobs.Action, Queue chan Runnable) {
 
-	for _, action := range actions {
+	for i, action := range actions {
 		act := action
+		chainIndex := i
 		messagesOutput := make(chan jobs.ActionMessage)
+		failedFilter := make(chan jobs.ActionMessage)
 		done := make(chan bool, 1)
 		go func() {
 			defer func() {
 				close(messagesOutput)
 				close(done)
+				close(failedFilter)
 			}()
 			for {
 				select {
 				case message := <-messagesOutput:
 					// Build runnable and enqueue
 					m := proto.Clone(&message).(*jobs.ActionMessage)
-					Queue <- r.CreateChild(act, *m)
+					Queue <- r.CreateChild(parentPath, chainIndex, act, *m)
+				case failed := <-failedFilter:
+					// Filter failed
+					if len(act.FailedFilterActions) > 0 {
+						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), failed, act.FailedFilterActions, Queue)
+					}
 				case <-done:
 					return
 				}
 			}
 		}()
-		action.ToMessages(input, r.Client, r.Context, messagesOutput, done)
+		action.ToMessages(input, r.Client, r.Context, messagesOutput, failedFilter, done)
 	}
 }
 
@@ -157,7 +180,7 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	}
 	r.Task.AppendLog(r.Action, r.Message, outputMessage)
 
-	r.Dispatch(outputMessage, r.ChainedActions, Queue)
+	r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, Queue)
 
 	if !taskUpdateDelegated {
 		r.Task.SetStatus(jobs.TaskStatus_Finished, "Complete")

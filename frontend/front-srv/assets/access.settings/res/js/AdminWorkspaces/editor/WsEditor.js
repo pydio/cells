@@ -98,15 +98,18 @@ class WsEditor extends React.Component {
         const {workspace, container, newFolderKey, saving, showDialog, dialogTargetValue} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
+        const readonly = !workspace.PoliciesContextEditable;
 
         let buttons = [];
-        if(!container.create){
+        if(!container.create && !readonly){
             buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", () => {this.revert()}, !container.isDirty()));
         }
-        buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", ()=>{this.save()} ,saving || (!(container.isDirty() && container.isValid()))));
+        if(!readonly){
+            buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", ()=>{this.save()} ,saving || (!(container.isDirty() && container.isValid()))));
+        }
 
         let delButton;
-        if(!container.create){
+        if(!container.create && !readonly){
             delButton = (
                 <div style={{padding: 16, textAlign:'center'}}>
                     {m('ws.editor.help.delete')}<br/><br/>

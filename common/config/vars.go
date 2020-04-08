@@ -35,13 +35,14 @@ import (
 	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
-	"github.com/spf13/viper"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
 	"github.com/pydio/cells/common/config/memory"
 	"github.com/pydio/cells/common/config/remote"
+	defaults "github.com/pydio/cells/common/micro"
 )
 
 var (
@@ -51,9 +52,24 @@ var (
 	VersionsStore    file2.VersionsStore
 	defaultConfig    *Config
 	once             sync.Once
+	configLoaded     = make(chan struct{}, 1)
 	remoteSourceOnce sync.Once
 	remoteSource     bool
+
+	postInitializers []func()
 )
+
+func init() {
+	cobra.OnInitialize(initConfig)
+}
+
+func initConfig() {
+	close(configLoaded)
+}
+
+func AsTestEnv() {
+	close(configLoaded)
+}
 
 // Config wrapper around micro Config
 type Config struct {
@@ -82,6 +98,10 @@ func initVersionStore() {
 			})
 		}
 	}
+}
+
+func OnInitialized(f func()) {
+	postInitializers = append(postInitializers, f)
 }
 
 // Default Config with initialisation
@@ -116,6 +136,11 @@ func Default() config.Config {
 				fmt.Printf("[Configs] something went wrong while upgrading configs: %s\n", e.Error())
 			}
 		}
+		go func() {
+			for _, x := range postInitializers {
+				x()
+			}
+		}()
 	})
 	return defaultConfig
 }
@@ -242,11 +267,6 @@ func GetJsonPath() string {
 }
 
 func GetRemoteSource() bool {
-	remoteSourceOnce.Do(func() {
-		if viper.GetString("registry_cluster_routes") != "" {
-			remoteSource = true
-		}
-	})
-
-	return remoteSource
+	<-configLoaded
+	return defaults.RuntimeIsCluster()
 }

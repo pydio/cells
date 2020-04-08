@@ -31,7 +31,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/log"
@@ -98,11 +97,6 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp
 
 func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest, rsp *enc.AdminListKeysResponse) error {
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || claims.Profile != common.PYDIO_PROFILE_ADMIN {
-		return errors.Forbidden(common.SERVICE_ENC_KEY, "only admins are allowed")
-	}
-
 	keyDao, err := ukm.getDAO(ctx)
 	if err != nil {
 		return err
@@ -113,11 +107,6 @@ func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKe
 }
 
 func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreateKeyRequest, rsp *enc.AdminCreateKeyResponse) error {
-
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || claims.Profile != common.PYDIO_PROFILE_ADMIN {
-		return errors.Forbidden(common.SERVICE_ENC_KEY, "only admins are allowed")
-	}
 
 	keyDao, err := ukm.getDAO(ctx)
 	if err != nil {
@@ -137,11 +126,6 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 
 func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDeleteKeyRequest, rsp *enc.AdminDeleteKeyResponse) error {
 
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || claims.Profile != common.PYDIO_PROFILE_ADMIN {
-		return errors.Forbidden(common.SERVICE_ENC_KEY, "only admins are allowed")
-	}
-
 	dao, err := ukm.getDAO(ctx)
 	if err != nil {
 		return err
@@ -150,10 +134,6 @@ func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDelet
 }
 
 func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest, rsp *enc.AdminImportKeyResponse) error {
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || claims.Profile != common.PYDIO_PROFILE_ADMIN {
-		return errors.Forbidden(common.SERVICE_ENC_KEY, "only admins are allowed")
-	}
 
 	dao, err := ukm.getDAO(ctx)
 	if err != nil {
@@ -229,10 +209,6 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 }
 
 func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExportKeyRequest, rsp *enc.AdminExportKeyResponse) error {
-	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
-	if !ok || claims.Profile != common.PYDIO_PROFILE_ADMIN {
-		return errors.Forbidden(common.SERVICE_ENC_KEY, "only admins are allowed")
-	}
 
 	//Get key from dao
 	dao, err := ukm.getDAO(ctx)

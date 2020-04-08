@@ -20,7 +20,20 @@
             <action name="toggle_watch">
                 <gui text="meta.watch.1" title="meta.watch.2" iconClass="mdi mdi-rss" weight="10">
                     <context dir="true" recycle="hidden" selection="true" actionBar="true" actionBarGroup="0_get" contextMenu="true"/>
-                    <selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true"  evalMetadata="!metadata.get('meta_watched')"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <subMenu>
+                    <dynamicBuilder module="PydioActivityStreams.Listener.dynamicBuilder"/>
+                </subMenu>
+                <processing>
+                    <clientCallback module="PydioActivityStreams.Callbacks.toggleWatch"/>
+                </processing>
+            </action>
+            <action name="toggle_watch_off">
+                <gui text="meta.watch.1-off" title="meta.watch.2" iconClass="mdi mdi-rss" weight="10">
+                    <context dir="true" recycle="hidden" selection="true" actionBar="true" actionBarGroup="0_get" contextMenu="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true"  evalMetadata="metadata.get('meta_watched')"/>
                 </gui>
                 <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
                 <subMenu>

@@ -507,6 +507,7 @@ var PydioApi = (function () {
         }
 
         var resolver = function resolver(jwt, cb) {
+
             var cacheKey = node.getMetadata().get('uuid') + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if (cType) {
                 cacheKey += "#" + cType;
@@ -526,6 +527,7 @@ var PydioApi = (function () {
             var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
             var signed = s3.getSignedUrl('getObject', params);
             var output = signed + '&pydio_jwt=' + jwt;
+
             cb(output);
 
             _lscache2['default'].set(cacheKey, output, 120);

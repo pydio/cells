@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 )
 
 var (
@@ -76,6 +76,8 @@ type pydioregistry struct {
 	peers     map[string]*Peer
 	processes map[string]*Process
 
+	runninglock *sync.RWMutex
+
 	opts  Options
 	flags pflag.FlagSet
 }
@@ -115,6 +117,7 @@ func NewRegistry(opts ...Option) Registry {
 		peerlock:     new(sync.RWMutex),
 		peers:        make(map[string]*Peer),
 		processes:    make(map[string]*Process),
+		runninglock:  new(sync.RWMutex),
 	}
 
 	return r

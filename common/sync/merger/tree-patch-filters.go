@@ -98,7 +98,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 
-	checksumProvider := t.Source().(model.ChecksumProvider)
+	checksumProvider, isCsProvider := t.Source().(model.ChecksumProvider)
 
 	for _, createEvent := range t.createFiles {
 		node, err := createEvent.NodeFromSource(ctx)
@@ -112,7 +112,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 		if node.Uuid == "" && !model.IsFolderHiddenFile(node.Path) {
 			t.refreshUUIDs[createEvent.GetRefPath()] = createEvent
 		}
-		if model.NodeRequiresChecksum(node) && checksumProvider != nil {
+		if model.NodeRequiresChecksum(node) && isCsProvider {
 			checksumProvider.ComputeChecksum(node)
 		}
 	}

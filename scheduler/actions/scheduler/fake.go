@@ -28,6 +28,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
@@ -38,8 +39,48 @@ var (
 )
 
 type FakeAction struct {
-	timer  int64
-	ticker int64
+	timer  string
+	ticker string
+}
+
+func (f *FakeAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              fakeActionName,
+		Label:           "Sleep",
+		Icon:            "clock-end",
+		Category:        actions.ActionCategoryScheduler,
+		Description:     "Use as a waiter, or simulate a long-running process with progress",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (f *FakeAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "timer",
+					Type:        forms.ParamString,
+					Label:       "Total time",
+					Description: "Total task time in seconds",
+					Default:     "10",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "ticker",
+					Type:        forms.ParamString,
+					Label:       "Ticks",
+					Description: "Time between each ticks for incrementing progress, in seconds",
+					Default:     "3",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+
 }
 
 // GetName returns this action unique identifier
@@ -64,17 +105,13 @@ func (f *FakeAction) ProvidesProgress() bool {
 
 // Init passes parameters to the action
 func (f *FakeAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	f.timer = 10
-	f.ticker = 3
+	f.timer = "10"
+	f.ticker = ""
 	if strTime, ok := action.Parameters["timer"]; ok {
-		if timer, err := strconv.ParseInt(strTime, 10, 64); err == nil {
-			f.timer = timer
-		}
+		f.timer = strTime
 	}
 	if strTime, ok := action.Parameters["ticker"]; ok {
-		if ticker, err := strconv.ParseInt(strTime, 10, 64); err == nil {
-			f.ticker = ticker
-		}
+		f.ticker = strTime
 	}
 	return nil
 }
@@ -83,18 +120,31 @@ func (f *FakeAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	outputMessage := input
-	if len(input.Nodes) > 0 {
-		log.TasksLogger(ctx).Info("Fake task received node "+input.Nodes[0].Path, input.Nodes[0].Zap())
-		return outputMessage, nil
+
+	var timer, tick int64
+	if t, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.timer), 10, 64); err == nil {
+		timer = t
+	} else {
+		return input.WithError(err), err
 	}
+
+	if f.ticker != "" {
+		if t, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.ticker), 10, 64); err == nil {
+			tick = t
+		}
+	} else {
+		tick = timer
+	}
+
 	log.TasksLogger(ctx).Info("Starting fake long task")
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
-	ticker := time.NewTicker(time.Second * time.Duration(f.ticker))
+	ticker := time.NewTicker(time.Second * time.Duration(tick))
+	finished := make(chan struct{}, 1)
 	go func() {
-		time.Sleep(time.Second * time.Duration(f.timer))
-		ticker.Stop()
+		<-time.After(time.Second * time.Duration(timer))
+		close(finished)
 	}()
-	steps := float32(f.timer) / float32(f.ticker)
+	steps := float32(timer) / float32(tick)
 	step := float32(0)
 
 loop:
@@ -112,6 +162,10 @@ loop:
 			log.TasksLogger(ctx).Info("blockuntilresume passed, received resume, continue")
 		case <-channels.Stop:
 			log.TasksLogger(ctx).Info("received stop from channels: interrupting")
+			ticker.Stop()
+			break loop
+		case <-finished:
+			log.TasksLogger(ctx).Info("ticking is now finished")
 			ticker.Stop()
 			break loop
 		}

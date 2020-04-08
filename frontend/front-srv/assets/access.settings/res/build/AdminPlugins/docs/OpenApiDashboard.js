@@ -23,6 +23,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -54,14 +56,40 @@ var OpenApiDashboard = (function (_React$Component) {
         _classCallCheck(this, OpenApiDashboard);
 
         _get(Object.getPrototypeOf(OpenApiDashboard.prototype), 'constructor', this).call(this, props);
-        var restEndpoint = props.pydio.Parameters.get("ENDPOINT_REST_API");
-        this.state = { specUrl: restEndpoint + '/config/discovery/openapi' };
+        this.state = {};
     }
 
     _createClass(OpenApiDashboard, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            var pydio = this.props.pydio;
+
+            var restEndpoint = pydio.Parameters.get("ENDPOINT_REST_API");
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (token) {
+                _this.setState({
+                    bearerToken: token,
+                    specUrl: restEndpoint + '/config/discovery/openapi'
+                });
+            });
+        }
+    }, {
+        key: 'requestInterceptor',
+        value: function requestInterceptor(request) {
+            // Allow developers to set a bearertoken since
+            var bearerToken = this.state.bearerToken;
+
+            request.headers.Authorization = 'Bearer ' + bearerToken;
+            return request;
+        }
+    }, {
         key: 'render',
         value: function render() {
             var pydio = this.props.pydio;
+            var specUrl = this.state.specUrl;
+
+            var adminStyles = AdminComponents.AdminStyles();
 
             return _react2['default'].createElement(
                 'div',
@@ -83,22 +111,14 @@ var OpenApiDashboard = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16, paddingBottom: 1 } },
-                        _react2['default'].createElement(_swaggerUiReact2['default'], {
-                            url: this.state.specUrl,
-                            requestInterceptor: OpenApiDashboard.requestInterceptor
+                        _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { paddingBottom: 1 }) }),
+                        specUrl && _react2['default'].createElement(_swaggerUiReact2['default'], {
+                            url: specUrl,
+                            requestInterceptor: this.requestInterceptor.bind(this)
                         })
                     )
                 )
             );
-        }
-    }], [{
-        key: 'requestInterceptor',
-        value: function requestInterceptor(request) {
-            // Allow developers to set a bearertoken since
-            var bearerToken = _pydioHttpApi2['default'].JWT_DATA.jwt;
-            request.headers.Authorization = 'Bearer ' + bearerToken;
-            return request;
         }
     }]);
 

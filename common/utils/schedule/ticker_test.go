@@ -36,9 +36,38 @@ func TestComputeNextWait(t *testing.T) {
 		waiter := NewTicker(ticker, func() error {
 			return nil
 		})
-		wait := waiter.computeNextWait()
+		wait, stop := waiter.computeNextWait()
+		So(stop, ShouldBeFalse)
 		So(wait, ShouldBeGreaterThanOrEqualTo, 0)
 		So(wait, ShouldBeLessThanOrEqualTo, 5*time.Minute)
 
 	})
+
+	Convey("Compute Next Wait With Repeat expired", t, func() {
+
+		ticker, err := NewTickerScheduleFromISO("R1/2012-06-04T19:25:16.828696-07:00/PT5M")
+		So(err, ShouldBeNil)
+		waiter := NewTicker(ticker, func() error {
+			return nil
+		})
+		_, stop := waiter.computeNextWait()
+		So(stop, ShouldBeTrue)
+
+	})
+
+	Convey("Compute Next Wait Without interval", t, func() {
+
+		now := time.Now().Add(2 * time.Second)
+		ticker, err := NewTickerScheduleFromISO("R1/" + now.Format(time.RFC3339Nano) + "/")
+		So(err, ShouldBeNil)
+		waiter := NewTicker(ticker, func() error {
+			return nil
+		})
+		checkNow := time.Now().Add(10 * time.Millisecond)
+		wait, stop := waiter.computeNextWait()
+		So(stop, ShouldBeFalse)
+		So(wait, ShouldBeBetweenOrEqual, now.Sub(checkNow), 2000*time.Millisecond)
+
+	})
+
 }

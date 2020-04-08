@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,11 +24,15 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -119,36 +123,139 @@ var TaskActivity = (function (_React$Component) {
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
             request.Page = 0;
-            request.Size = 100;
+            request.Size = 200;
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
-                _this2.setState({ activity: response.Logs || [], loading: false });
+                var ll = response.Logs || [];
+                // Logs are reverse sorted on time
+                ll.reverse();
+                _this2.setState({ activity: ll, loading: false });
             })["catch"](function () {
                 _this2.setState({ activity: [], loading: false });
             });
         }
     }, {
-        key: "render",
-        value: function render() {
+        key: "computeTag",
+        value: function computeTag(row) {
             var _props = this.props;
-            var pydio = _props.pydio;
-            var task = _props.task;
-            var _state = this.state;
-            var activity = _state.activity;
-            var loading = _state.loading;
+            var job = _props.job;
+            var descriptions = _props.descriptions;
 
-            var columns = [{ name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    return moment(row.Ts * 1000).fromNow();
-                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'] }];
+            var pathTag = {
+                backgroundColor: '#1e96f3',
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'white',
+                padding: '0 8px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                borderRadius: 4,
+                textAlign: 'center'
+            };
+            var path = row.SchedulerTaskActionPath;
+            if (!path) {
+                return null;
+            }
+            if (path === 'ROOT') {
+                // Special case for trigger
+                return _react2["default"].createElement(
+                    "div",
+                    { style: _extends({}, pathTag, { backgroundColor: 'white', color: 'rgba(0,0,0,.87)', border: '1px solid #e0e0e0' }) },
+                    "Trigger"
+                );
+            }
+            var action = undefined;
+            try {
+                action = this.findAction(path, job.Actions);
+            } catch (e) {
+                //console.error(e);
+            }
+            if (action) {
+                if (action.Label) {
+                    path = action.Label;
+                } else if (descriptions && descriptions[action.ID]) {
+                    path = descriptions[action.ID].Label;
+                }
+            } else {
+                var last = path.split('/').pop();
+                var actionId = last.split('$').shift();
+                if (descriptions && descriptions[actionId]) {
+                    path = descriptions[actionId].Label;
+                }
+            }
             return _react2["default"].createElement(
                 "div",
-                { style: { height: 400 } },
+                { style: pathTag },
+                path
+            );
+        }
+    }, {
+        key: "findAction",
+        value: function findAction(path, actions) {
+            var parts = path.split('/');
+            var first = parts.shift();
+            var actionId = [].concat(_toConsumableArray(parts)).shift();
+            var chainIndex = parseInt(actionId.split('$')[1]);
+            var action = actions[chainIndex];
+            var nextActions = undefined;
+            if (actionId.indexOf('$FAIL') === -1) {
+                nextActions = action.ChainedActions;
+            } else {
+                nextActions = action.FailedFilterActions;
+            }
+            if (parts.length > 1) {
+                // Move on step forward
+                return this.findAction(parts.join('/'), nextActions);
+            } else {
+                return action;
+            }
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this3 = this;
+
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var onRequestClose = _props2.onRequestClose;
+            var activity = this.state.activity;
+
+            var cellBg = "#f5f5f5";
+            var lineHeight = 32;
+            var columns = [{ name: 'SchedulerTaskActionPath', label: '', hideSmall: true, style: { width: 110, height: lineHeight, backgroundColor: cellBg, paddingLeft: 12, paddingRight: 0, userSelect: 'text' }, headerStyle: { width: 110, paddingLeft: 12, paddingRight: 0 }, renderCell: function renderCell(row) {
+                    return _this3.computeTag(row);
+                } }, { name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: 100, height: lineHeight, backgroundColor: cellBg, paddingRight: 10, userSelect: 'text' }, headerStyle: { width: 100, paddingRight: 10 }, renderCell: function renderCell(row) {
+                    var m = moment(row.Ts * 1000);
+                    return m.format('HH:mm:ss');
+                } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'], style: { height: lineHeight, backgroundColor: cellBg, userSelect: 'text' } }];
+            return _react2["default"].createElement(
+                "div",
+                { style: { paddingTop: 12, paddingBottom: 10, backgroundColor: cellBg } },
+                _react2["default"].createElement(
+                    "div",
+                    { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg, display: 'flex', alignItems: 'center' } },
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { flex: 1 } },
+                        "Tasks Logs"
+                    ),
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { paddingRight: 15, cursor: "pointer" }, onClick: onRequestClose },
+                        _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-close", color: "rgba(0,0,0,.3)", style: { fontSize: 16 } })
+                    )
+                ),
                 _react2["default"].createElement(MaterialTable, {
+                    hideHeaders: true,
                     columns: columns,
                     data: activity,
                     showCheckboxes: false,
-                    emptyStateString: 'No activity found'
+                    emptyStateString: 'No activity found',
+                    emptyStateStyle: { backgroundColor: cellBg },
+                    computeRowStyle: function (row) {
+                        return { borderBottomColor: '#fff', height: lineHeight };
+                    }
                 })
             );
         }

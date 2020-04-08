@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
@@ -52,6 +53,24 @@ type MailDigestAction struct {
 	userClient     idm.UserServiceClient
 	dryRun         bool
 	dryMail        string
+}
+
+func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                digestActionName,
+		Label:             "Email Digest",
+		Icon:              "email",
+		Category:          actions.ActionCategoryNotify,
+		InputDescription:  "Single-selection of one user",
+		OutputDescription: "Returns unchanged input",
+		Description:       "Compute a summary of last notifications and send to user",
+		SummaryTemplate:   "",
+		HasForm:           false,
+	}
+}
+
+func (m *MailDigestAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns the Unique Identifier of the MailDigestAction.
@@ -120,7 +139,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		collection = append(collection, resp.Activity)
 	}
 	if len(collection) == 0 {
-		log.TasksLogger(ctx).Info("Nothing to do")
+		log.TasksLogger(ctx).Info("No new activities detected for user " + userObject.Login)
 		return input, nil
 	}
 
@@ -153,7 +172,6 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		},
 	})
 	if err != nil {
-		log.TasksLogger(ctx).Error("could not send digest email", zap.Error(err))
 		return input.WithError(err), err
 	}
 

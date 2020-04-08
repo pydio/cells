@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/common/config"
+
 	"github.com/go-openapi/errors"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -30,6 +32,7 @@ var (
 )
 
 func init() {
+	config.AsTestEnv()
 	registry.DefaultRegistry = r
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)

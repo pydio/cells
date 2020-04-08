@@ -63,7 +63,7 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "memdb://" + c.testPathURI,
+		URI: "memdb://" + c.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 		Ignores:               c.ignores,
@@ -225,10 +225,6 @@ func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 	}()
 
 	return wo, nil
-}
-
-func (db *MemDB) ComputeChecksum(node *tree.Node) error {
-	return fmt.Errorf("not.implemented")
 }
 
 /*************************/

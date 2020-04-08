@@ -22,7 +22,7 @@ var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _uuid4 = require('uuid4');
+var _uuid = require('uuid');
 
 var _Role = require('./Role');
 
@@ -61,7 +61,7 @@ var User = (function (_Observable) {
             }
         } else {
             this.idmUser = new _pydioHttpRestApi.IdmUser();
-            this.idmUser.Uuid = (0, _uuid4.sync)();
+            this.idmUser.Uuid = (0, _uuid.v4)();
             this.idmRole = _pydioHttpRestApi.IdmRole.constructFromObject({ Uuid: this.idmUser.Uuid });
             this.idmUser.Roles = [this.idmRole];
             this.idmUser.Attributes = {};

@@ -35,6 +35,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -55,6 +56,24 @@ var (
 type ExifProcessor struct {
 	//Router     views.Handler
 	metaClient tree.NodeReceiverClient
+}
+
+func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                exifTaskName,
+		Label:             "Extract EXIF",
+		Icon:              "image",
+		Description:       "Extract EXIF data from jpeg images and store them as indexed metadata",
+		SummaryTemplate:   "",
+		HasForm:           false,
+		Category:          actions.ActionCategoryMedia,
+		InputDescription:  "Single-selection of file. Temporary and zero-bytes will be ignored",
+		OutputDescription: "Input file with updated metadata",
+	}
+}
+
+func (e *ExifProcessor) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier
@@ -137,7 +156,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	e.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 
 	output.Nodes[0] = node
-	log.TasksLogger(ctx).Info("Extracted EXIF data from image", node.Zap())
+	log.TasksLogger(ctx).Info("Extracted EXIF data from "+node.GetPath(), node.ZapPath())
 	output.AppendOutput(&jobs.ActionOutput{
 		Success: true,
 	})

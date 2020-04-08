@@ -147,12 +147,19 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	if len(folderNodes) == 0 {
-		if len(output.Nodes) > 0 {
-			streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
-			defer closer()
-			meta.EnrichNodesMetaFromProviders(ctx, streamers, names, output.Nodes...)
+	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
+	defer closer()
+
+	if len(output.Nodes) > 0 {
+		for i, n := range output.Nodes {
+			if n.Uuid != "" {
+				meta.EnrichNodesMetaFromProviders(ctx, streamers, names, n)
+				output.Nodes[i] = n
+			}
 		}
+	}
+
+	if len(folderNodes) == 0 {
 		reservedOutput := &rest.BulkMetaResponse{}
 		for _, n := range output.Nodes {
 			reservedOutput.Nodes = append(reservedOutput.Nodes, n.WithoutReservedMetas())
@@ -160,9 +167,6 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		resp.WriteEntity(reservedOutput)
 		return
 	}
-
-	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
-	defer closer()
 
 	for _, folderNode := range folderNodes {
 		var childrenCount, total int32

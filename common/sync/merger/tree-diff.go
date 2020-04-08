@@ -58,24 +58,31 @@ type TreeDiff struct {
 	cmd        *model.Command
 	statusChan chan model.Status
 	doneChan   chan interface{}
+
+	includeMetas []glob.Glob
 }
 
-// newTreeDiff instanciate a new TreeDiff
+// NewTreeDiff is a public access for instantiating a new TreeDiff
 func NewTreeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
-	return &TreeDiff{
-		ctx:   ctx,
-		left:  left,
-		right: right,
-	}
+	return newTreeDiff(ctx, left, right)
 }
 
-// newTreeDiff instanciate a new TreeDiff
+// newTreeDiff instantiates a new TreeDiff - If left is a MetadataProvider and right a MetadataReceiver,
+// it will setup metadata diff management
 func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
-	return &TreeDiff{
+	t := &TreeDiff{
 		ctx:   ctx,
 		left:  left,
 		right: right,
 	}
+	mp, leftOk := left.(model.MetadataProvider)
+	_, rightOk := right.(model.MetadataReceiver)
+	if leftOk && rightOk {
+		if globs, o := mp.ProvidesMetadataNamespaces(); o {
+			t.includeMetas = globs
+		}
+	}
+	return t
 }
 
 // Compute performs the actual diff between left and right
@@ -111,11 +118,11 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 			diff.Status(st)
 			var err error
 			if logId == "left" {
-				if lTree, err = TreeNodeFromSource(diff.left, root, ignores, diff.statusChan); err == nil {
+				if lTree, err = TreeNodeFromSource(diff.left, root, ignores, diff.includeMetas, diff.statusChan); err == nil {
 					h = lTree.GetHash()
 				}
 			} else if logId == "right" {
-				if rTree, err = TreeNodeFromSource(diff.right, root, ignores, diff.statusChan); err == nil {
+				if rTree, err = TreeNodeFromSource(diff.right, root, ignores, diff.includeMetas, diff.statusChan); err == nil {
 					h = rTree.GetHash()
 				}
 			}
@@ -152,13 +159,18 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType, patch
 		diff.toMissing(patch, diff.missingRight, true, false)
 		diff.toMissing(patch, diff.missingRight, false, false)
 		diff.toMissing(patch, diff.missingLeft, false, true)
+		diff.toMissingMeta(patch, diff.missingRight, false)
+		diff.toMissingMeta(patch, diff.missingLeft, true)
 	} else if direction == model.DirectionLeft && leftOk {
 		diff.toMissing(patch, diff.missingLeft, true, false)
 		diff.toMissing(patch, diff.missingLeft, false, false)
 		diff.toMissing(patch, diff.missingRight, false, true)
+		diff.toMissingMeta(patch, diff.missingLeft, false)
+		diff.toMissingMeta(patch, diff.missingRight, true)
 	} else {
 		return errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
 	}
+	// Enqueue ConflictFileContent as DataOperation of type OpUpdateFile
 	for _, c := range diff.conflictsByType(ConflictFileContent) {
 		var n *tree.Node
 		if direction == model.DirectionRight {
@@ -169,6 +181,16 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType, patch
 			n = MostRecentNode(c.NodeLeft, c.NodeRight)
 		}
 		patch.Enqueue(NewOperation(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
+	}
+	// Enqueue ConflictMetaChanged as DataOperation of type OpUpdateMeta
+	for _, c := range diff.conflictsByType(ConflictMetaChanged) {
+		var n *tree.Node
+		if direction == model.DirectionRight {
+			n = c.NodeLeft
+		} else {
+			n = c.NodeRight
+		}
+		patch.Enqueue(NewOperation(OpUpdateMeta, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
 	}
 	log.Logger(diff.ctx).Info("Sending unidirectional patch", zap.Any("patch", patch.Stats()))
 	return
@@ -305,10 +327,19 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
 		})
-	} else if left.IsLeaf() {
-		// Files differ - Register conflict and return (no children)
+	} else if left.IsLeaf() && left.Etag != right.Etag {
+		// Re-check that Etag differ - maybe the hash is composed of both eTag and metadata, and differ but NOT the Etag
+		// Files content differ - Register conflict
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFileContent,
+			NodeLeft:  &left.Node,
+			NodeRight: &right.Node,
+		})
+		// return // do not return here, there might be children (metadata pieces)
+	} else if left.Type == NodeType_METADATA {
+		// Meta differ - Register conflict and return (no children after that)
+		diff.conflicts = append(diff.conflicts, &DiffConflict{
+			Type:      ConflictMetaChanged,
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
 		})
@@ -365,12 +396,34 @@ func (diff *TreeDiff) toMissing(patch Patch, in []*tree.Node, folders bool, remo
 	}
 
 	for _, n := range in {
+		if n.Type == NodeType_METADATA {
+			continue
+		}
 		if removes || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
 			eventInfo := model.NodeToEventInfo(diff.ctx, n.Path, n, eventType)
 			patch.Enqueue(NewOperation(batchEventType, eventInfo, n))
 		}
 	}
 
+}
+
+// toMissingMeta is similar to toMissing but only handle Metadata nodes
+func (diff *TreeDiff) toMissingMeta(patch Patch, in []*tree.Node, removes bool) {
+	var eventType model.EventType
+	var batchEventType OperationType
+	if removes {
+		eventType = model.EventRemove
+		batchEventType = OpDeleteMeta
+	} else {
+		eventType = model.EventCreate
+		batchEventType = OpCreateMeta
+	}
+	for _, n := range in {
+		if n.Type != NodeType_METADATA {
+			continue
+		}
+		patch.Enqueue(NewOperation(batchEventType, model.NodeToEventInfo(diff.ctx, n.Path, n, eventType), n))
+	}
 }
 
 // solveConflicts tries to fix existing conflicts and return remaining ones

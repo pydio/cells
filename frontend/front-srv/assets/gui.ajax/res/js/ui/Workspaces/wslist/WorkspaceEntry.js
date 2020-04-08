@@ -18,18 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+
+import WorkspaceCard from "./WorkspaceCard";
+
 const React = require('react')
 const {muiThemeable} = require('material-ui/styles')
 import Color from 'color'
 import {CircularProgress, Popover, Dialog} from 'material-ui'
 import { DragSource, DropTarget, flow } from 'react-dnd';
 import DOMUtils from 'pydio/util/dom'
-
+import ContextMenuModel from 'pydio/model/context-menu'
 const Pydio = require('pydio');
 const PydioApi = require('pydio/http/api');
 const Node = require('pydio/model/node');
 import ResourcesManager from 'pydio/http/resources-manager'
-const {FoldersTree, DND, ChatIcon} = Pydio.requireLib('components');
+const {FoldersTree, DND, ChatIcon, MenuUtils} = Pydio.requireLib('components');
 const {withContextMenu} = Pydio.requireLib('hoc');
 
 const { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } = DND;
@@ -228,28 +231,42 @@ let WorkspaceEntry =React.createClass({
         return {};
     },
 
-    roomPopover(event){
+    workspacePopover(event, menuNode){
+        const {pydio, workspace} = this.props;
         event.stopPropagation();
         const {target} = event;
         const offsetTop  = target.getBoundingClientRect().top;
         const viewportH = DOMUtils.getViewportHeight();
         const viewportW = DOMUtils.getViewportWidth();
         const popoverTop = (viewportH - offsetTop < 250);
-        ResourcesManager.loadClassesAndApply(["ShareDialog"], () => {
-            const popoverContent = (<ShareDialog.CellCard
-                pydio={this.props.pydio}
-                cellId={this.props.workspace.getId()}
-                onDismiss={()=>{this.setState({popoverOpen: false})}}
-                onHeightChange={()=>{this.setState({popoverHeight: 500})}}
-                editorOneColumn={viewportW < 700}
-            />);
+        if(workspace.getOwner()){
+            ResourcesManager.loadClassesAndApply(["ShareDialog"], () => {
+                const popoverContent = (<ShareDialog.CellCard
+                    pydio={pydio}
+                    cellId={workspace.getId()}
+                    onDismiss={()=>{this.setState({popoverOpen: false})}}
+                    onHeightChange={()=>{this.setState({popoverHeight: 500})}}
+                    editorOneColumn={viewportW < 700}
+                    rootNode={menuNode}
+                />);
+                this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
+            });
+        } else{
+            const popoverContent = (
+                <WorkspaceCard
+                    pydio={pydio}
+                    workspace={workspace}
+                    rootNode={menuNode}
+                    onDismiss={()=>{this.setState({popoverOpen: false})}}
+                />
+            );
             this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
-        });
+        }
     },
 
     render(){
 
-        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree} = this.props;
+        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, nonActiveRoot} = this.props;
 
         let current = (pydio.user.getActiveRepository() === workspace.getId()),
             currentClass="workspace-entry",
@@ -283,30 +300,6 @@ let WorkspaceEntry =React.createClass({
         onClick = this.onClick;
         let chatIcon;
 
-        if(workspace.getOwner()){
-            additionalAction = (
-                <span className="workspace-additional-action with-hover mdi mdi-dots-vertical" onClick={this.roomPopover.bind(this)}/>
-            );
-            if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")){
-                chatIcon = <ChatIcon pydio={pydio} roomType={'WORKSPACE'} objectId={workspace.getId()}/>
-            }
-        }
-
-        if (workspace.getOwner() && !workspace.getAccessStatus() && !workspace.getLastConnection()) {
-            //newWorkspace = <Badge>NEW</Badge>;
-            // Dialog for remote shares
-            if (workspace.getRepositoryType() === "remote") {
-                onClick = this.handleOpenAlert.bind(this, 'new_share');
-            }
-        }else if(workspace.getRepositoryType() === "remote" && !current){
-            // Remote share but already accepted, add delete
-            additionalAction = <span className="workspace-additional-action with-hover mdi mdi-close" onClick={this.handleOpenAlert.bind(this, 'reject_accepted')} title={messages['550']}/>;
-        }
-
-        if(this.state && this.state.loading){
-            additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
-        }
-
         const accent2 = this.props.muiTheme.palette.accent2Color;
         let icon = "mdi mdi-folder";
         let iconStyle = {
@@ -322,33 +315,58 @@ let WorkspaceEntry =React.createClass({
         }
 
         let menuNode;
-        if(workspace.getId() === pydio.user.activeRepository ){
+        if(workspace.getId() === pydio.user.activeRepository ) {
             menuNode = pydio.getContextHolder().getRootNode();
-            if(showFoldersTree){
+            if (showFoldersTree) {
                 const children = menuNode.getChildren();
                 let hasFolders = false;
                 children.forEach(c => {
-                    if(!c.isLeaf()) {
+                    if (!c.isLeaf()) {
                         hasFolders = true;
                     }
                 });
-                if(hasFolders){
+                if (hasFolders) {
                     let toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-                    treeToggle = <span style={{opacity: .3}} className={'workspace-additional-action ' + toggleIcon} onClick={this.toggleFoldersPanelOpen}></span>;
+                    treeToggle = <span style={{opacity: .3}} className={'workspace-additional-action ' + toggleIcon}
+                                       onClick={this.toggleFoldersPanelOpen}></span>;
                 }
             }
             iconStyle.opacity = 1;
             iconStyle.color = accent2;
         }else{
             menuNode = new Node('/', false, workspace.getLabel());
+            if(nonActiveRoot){
+                menuNode = nonActiveRoot;
+            }
             menuNode.setRoot(true);
-            const metaMap = new Map();
-            metaMap.set('repository_id', workspace.getId());
-            metaMap.set('workspaceEntry', workspace);
-            menuNode.setMetadata(metaMap);
+            menuNode.getMetadata().set('repository_id', workspace.getId());
+            menuNode.getMetadata().set('workspaceEntry', workspace);
         }
 
-        const {popoverOpen, popoverAnchor, popoverTop, popoverHeight} = this.state;
+        const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
+
+        if(loading){
+            additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
+        } else {
+            const addStyle = popoverOpen ? {opacity:1} : {};
+            if(popoverOpen){
+                style = {...style, backgroundColor:'rgba(133, 133, 133, 0.1)'}
+            }
+            additionalAction = (
+                <span
+                    className="workspace-additional-action with-hover mdi mdi-dots-vertical"
+                    onClick={(e) => this.workspacePopover(e, menuNode)}
+                    style={addStyle}
+                />
+            );
+        }
+
+        if(workspace.getOwner()){
+            if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")){
+                chatIcon = <ChatIcon pydio={pydio} roomType={'WORKSPACE'} objectId={workspace.getId()}/>
+            }
+        }
+
         let title = workspace.getLabel();
         if(workspace.getDescription()){
             title += ' - ' + workspace.getDescription();
@@ -423,7 +441,7 @@ let ContextMenuWrapper = (props) => {
         />
     )
 }
-ContextMenuWrapper = withContextMenu(ContextMenuWrapper)
+//ContextMenuWrapper = withContextMenu(ContextMenuWrapper)
 ContextMenuWrapper = DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)(ContextMenuWrapper);
 WorkspaceEntry = muiThemeable()(WorkspaceEntry);
 

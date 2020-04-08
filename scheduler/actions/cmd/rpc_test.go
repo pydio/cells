@@ -60,7 +60,7 @@ func TestRpcAction_Init(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(action.ServiceName, ShouldEqual, "pydio.service.test")
 		So(action.MethodName, ShouldEqual, "MethodName")
-		So(action.JsonRequest, ShouldResemble, map[string]interface{}{"parameter1": "value1"})
+		So(action.JsonRequest, ShouldEqual, `{"parameter1":"value1"}`)
 
 	})
 }

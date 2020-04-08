@@ -39,6 +39,11 @@ func handleSignals() {
 				log.Info("Stopping all services")
 				// Stop all services
 				for _, service := range allServices {
+					if service.RequiresFork() && !IsFork {
+						// Stopping here would kill the command and prevent proper de-registering of service
+						// Signal will be passed along and the fork will stop by itself.
+						continue
+					}
 					service.Stop()
 				}
 

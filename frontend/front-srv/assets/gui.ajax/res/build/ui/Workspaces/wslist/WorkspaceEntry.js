@@ -26,6 +26,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _WorkspaceCard = require("./WorkspaceCard");
+
+var _WorkspaceCard2 = _interopRequireDefault(_WorkspaceCard);
+
 var _color = require('color');
 
 var _color2 = _interopRequireDefault(_color);
@@ -37,6 +41,10 @@ var _reactDnd = require('react-dnd');
 var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _pydioModelContextMenu = require('pydio/model/context-menu');
+
+var _pydioModelContextMenu2 = _interopRequireDefault(_pydioModelContextMenu);
 
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
@@ -57,6 +65,7 @@ var _Pydio$requireLib = Pydio.requireLib('components');
 var FoldersTree = _Pydio$requireLib.FoldersTree;
 var DND = _Pydio$requireLib.DND;
 var ChatIcon = _Pydio$requireLib.ChatIcon;
+var MenuUtils = _Pydio$requireLib.MenuUtils;
 
 var _Pydio$requireLib2 = Pydio.requireLib('hoc');
 
@@ -269,8 +278,12 @@ var WorkspaceEntry = React.createClass({
         return {};
     },
 
-    roomPopover: function roomPopover(event) {
+    workspacePopover: function workspacePopover(event, menuNode) {
         var _this2 = this;
+
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var workspace = _props.workspace;
 
         event.stopPropagation();
         var target = event.target;
@@ -279,31 +292,45 @@ var WorkspaceEntry = React.createClass({
         var viewportH = _pydioUtilDom2['default'].getViewportHeight();
         var viewportW = _pydioUtilDom2['default'].getViewportWidth();
         var popoverTop = viewportH - offsetTop < 250;
-        _pydioHttpResourcesManager2['default'].loadClassesAndApply(["ShareDialog"], function () {
-            var popoverContent = React.createElement(ShareDialog.CellCard, {
-                pydio: _this2.props.pydio,
-                cellId: _this2.props.workspace.getId(),
+        if (workspace.getOwner()) {
+            _pydioHttpResourcesManager2['default'].loadClassesAndApply(["ShareDialog"], function () {
+                var popoverContent = React.createElement(ShareDialog.CellCard, {
+                    pydio: pydio,
+                    cellId: workspace.getId(),
+                    onDismiss: function () {
+                        _this2.setState({ popoverOpen: false });
+                    },
+                    onHeightChange: function () {
+                        _this2.setState({ popoverHeight: 500 });
+                    },
+                    editorOneColumn: viewportW < 700,
+                    rootNode: menuNode
+                });
+                _this2.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
+            });
+        } else {
+            var popoverContent = React.createElement(_WorkspaceCard2['default'], {
+                pydio: pydio,
+                workspace: workspace,
+                rootNode: menuNode,
                 onDismiss: function () {
                     _this2.setState({ popoverOpen: false });
-                },
-                onHeightChange: function () {
-                    _this2.setState({ popoverHeight: 500 });
-                },
-                editorOneColumn: viewportW < 700
+                }
             });
-            _this2.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
-        });
+            this.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
+        }
     },
 
     render: function render() {
         var _this3 = this;
 
-        var _props = this.props;
-        var workspace = _props.workspace;
-        var pydio = _props.pydio;
-        var onHoverLink = _props.onHoverLink;
-        var onOutLink = _props.onOutLink;
-        var showFoldersTree = _props.showFoldersTree;
+        var _props2 = this.props;
+        var workspace = _props2.workspace;
+        var pydio = _props2.pydio;
+        var onHoverLink = _props2.onHoverLink;
+        var onOutLink = _props2.onOutLink;
+        var showFoldersTree = _props2.showFoldersTree;
+        var nonActiveRoot = _props2.nonActiveRoot;
 
         var current = pydio.user.getActiveRepository() === workspace.getId(),
             currentClass = "workspace-entry",
@@ -339,28 +366,6 @@ var WorkspaceEntry = React.createClass({
         onClick = this.onClick;
         var chatIcon = undefined;
 
-        if (workspace.getOwner()) {
-            additionalAction = React.createElement('span', { className: 'workspace-additional-action with-hover mdi mdi-dots-vertical', onClick: this.roomPopover.bind(this) });
-            if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) {
-                chatIcon = React.createElement(ChatIcon, { pydio: pydio, roomType: 'WORKSPACE', objectId: workspace.getId() });
-            }
-        }
-
-        if (workspace.getOwner() && !workspace.getAccessStatus() && !workspace.getLastConnection()) {
-            //newWorkspace = <Badge>NEW</Badge>;
-            // Dialog for remote shares
-            if (workspace.getRepositoryType() === "remote") {
-                onClick = this.handleOpenAlert.bind(this, 'new_share');
-            }
-        } else if (workspace.getRepositoryType() === "remote" && !current) {
-            // Remote share but already accepted, add delete
-            additionalAction = React.createElement('span', { className: 'workspace-additional-action with-hover mdi mdi-close', onClick: this.handleOpenAlert.bind(this, 'reject_accepted'), title: messages['550'] });
-        }
-
-        if (this.state && this.state.loading) {
-            additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
-        }
-
         var accent2 = this.props.muiTheme.palette.accent2Color;
         var icon = "mdi mdi-folder";
         var iconStyle = {
@@ -388,18 +393,20 @@ var WorkspaceEntry = React.createClass({
                 });
                 if (hasFolders) {
                     var toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-                    treeToggle = React.createElement('span', { style: { opacity: .3 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
+                    treeToggle = React.createElement('span', { style: { opacity: .3 }, className: 'workspace-additional-action ' + toggleIcon,
+                        onClick: this.toggleFoldersPanelOpen });
                 }
             }
             iconStyle.opacity = 1;
             iconStyle.color = accent2;
         } else {
             menuNode = new Node('/', false, workspace.getLabel());
+            if (nonActiveRoot) {
+                menuNode = nonActiveRoot;
+            }
             menuNode.setRoot(true);
-            var metaMap = new Map();
-            metaMap.set('repository_id', workspace.getId());
-            metaMap.set('workspaceEntry', workspace);
-            menuNode.setMetadata(metaMap);
+            menuNode.getMetadata().set('repository_id', workspace.getId());
+            menuNode.getMetadata().set('workspaceEntry', workspace);
         }
 
         var _state = this.state;
@@ -407,6 +414,29 @@ var WorkspaceEntry = React.createClass({
         var popoverAnchor = _state.popoverAnchor;
         var popoverTop = _state.popoverTop;
         var popoverHeight = _state.popoverHeight;
+        var loading = _state.loading;
+
+        if (loading) {
+            additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
+        } else {
+            var addStyle = popoverOpen ? { opacity: 1 } : {};
+            if (popoverOpen) {
+                style = _extends({}, style, { backgroundColor: 'rgba(133, 133, 133, 0.1)' });
+            }
+            additionalAction = React.createElement('span', {
+                className: 'workspace-additional-action with-hover mdi mdi-dots-vertical',
+                onClick: function (e) {
+                    return _this3.workspacePopover(e, menuNode);
+                },
+                style: addStyle
+            });
+        }
+
+        if (workspace.getOwner()) {
+            if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) {
+                chatIcon = React.createElement(ChatIcon, { pydio: pydio, roomType: 'WORKSPACE', objectId: workspace.getId() });
+            }
+        }
 
         var title = workspace.getLabel();
         if (workspace.getDescription()) {
@@ -490,7 +520,7 @@ var ContextMenuWrapper = function ContextMenuWrapper(props) {
         }
     }));
 };
-ContextMenuWrapper = withContextMenu(ContextMenuWrapper);
+//ContextMenuWrapper = withContextMenu(ContextMenuWrapper)
 ContextMenuWrapper = _reactDnd.DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)(ContextMenuWrapper);
 exports['default'] = WorkspaceEntry = muiThemeable()(WorkspaceEntry);
 

@@ -57,9 +57,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
+var _uuid = require('uuid');
 
 var _policiesPolicy = require('../policies/Policy');
 
@@ -170,7 +168,7 @@ var PoliciesBoard = _react2['default'].createClass({
         var newPolicyDescription = _refs.newPolicyDescription;
         var newPolicyType = this.state.newPolicyType;
 
-        var newId = (0, _uuid42['default'])();
+        var newId = (0, _uuid.v4)();
 
         var policy = {
             Uuid: newId,
@@ -223,25 +221,18 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var _props = this.props;
         var muiTheme = _props.muiTheme;
-        var readonly = _props.readonly;
         var currentNode = _props.currentNode;
         var pydio = _props.pydio;
+        var accessByName = _props.accessByName;
+        var readonly = this.props.readonly;
+
+        readonly = readonly || !accessByName('Create');
         var policies = this.state.policies;
-        var primary1Color = muiTheme.palette.primary1Color;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
-
-        //let items = [];
-
-        var subheaderStyle = {
-            textTransform: 'uppercase',
-            fontSize: 12,
-            color: primary1Color,
-            paddingLeft: 20,
-            paddingRight: 20
-        };
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         var lists = Object.keys(policies).map(function (k) {
             if (readonly && k === 'acl') {
@@ -253,36 +244,37 @@ var PoliciesBoard = _react2['default'].createClass({
             var items = [];
             data.map(function (policy) {
                 items.push(_react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
+                    readonly: readonly,
                     key: policy.Name,
                     policy: policy,
                     savePolicy: _this5.savePolicy.bind(_this5),
                     deletePolicy: _this5.deletePolicy.bind(_this5),
                     newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
                 })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
+                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
             });
             items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Subheader,
-                    { style: subheaderStyle },
-                    title
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '0 20px' } },
-                    legend
-                ),
-                _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: { margin: 16 } },
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: adminStyles.body.block.headerFull },
+                        title
+                    ),
                     _react2['default'].createElement(
                         _materialUi.List,
                         null,
                         items
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
+                    legend
                 )
             );
         });
@@ -290,11 +282,11 @@ var PoliciesBoard = _react2['default'].createClass({
         var action = _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.FlatButton, {
+            _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
                 onTouchTap: this.openPopover.bind(this),
                 label: m('policy.new')
-            }),
+            })),
             _react2['default'].createElement(
                 _materialUi.Popover,
                 {

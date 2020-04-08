@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"log"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -38,26 +40,30 @@ import (
 func init() {
 
 	plugins.Register(func() {
+		// Configuration
+		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
+
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO),
 			service.WithMicro(func(m micro.Service) error {
-				h, err := NewAuthTokenVerifierHandler()
-				if err != nil {
-					return err
-				}
-
-				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, h)
+				proto.RegisterLoginProviderHandler(m.Options().Server, &Handler{})
+				proto.RegisterConsentProviderHandler(m.Options().Server, &Handler{})
+				proto.RegisterLogoutProviderHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthCodeProviderHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, &Handler{})
+				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, &Handler{})
 
 				return nil
 			}),
 			service.BeforeStart(initialize),
 		)
 	})
-
-	auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
 }
 
 func initialize(s service.Service) error {
@@ -66,7 +72,44 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	oauth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
+	auth.OnConfigurationInit(func() {
+		var m []struct {
+			ID   string `"json:id"`
+			Name string `"json:id"`
+			Type string `"json:type"`
+		}
+
+		if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
+			log.Fatal("Wrong configuration ", err)
+		}
+
+		for _, mm := range m {
+			if mm.Type == "pydio" {
+				// Registering the first connector
+				auth.RegisterConnector(m[0].ID, m[0].Name, m[0].Type, nil)
+			}
+		}
+	})
+
+	// Registry
+	auth.InitRegistry(dao)
+
+	watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		defer watcher.Stop()
+		for {
+			_, err := watcher.Next()
+			if err != nil {
+				break
+			}
+
+			auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		}
+	}()
 
 	return nil
 }

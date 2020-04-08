@@ -76,6 +76,21 @@ func RestError403(req *restful.Request, resp *restful.Response, err error) {
 	resp.WriteHeaderAndEntity(403, e)
 }
 
+// RestError403 logs the error with context and write an Error 403 on the response.
+func RestError503(req *restful.Request, resp *restful.Response, err error) {
+	log.Logger(req.Request.Context()).Error("Rest Error 503", zap.Error(err))
+	resp.AddHeader("Content-Type", "application/json")
+	e := &rest.Error{
+		Title:  err.Error(),
+		Detail: err.Error(),
+	}
+	if parsed := errors.Parse(err.Error()); parsed.Code == 503 {
+		e.Title = "Service temporarily unavailable"
+		e.Detail = "Service temporarily unavailable"
+	}
+	resp.WriteHeaderAndEntity(503, e)
+}
+
 // RestError401 logs the error with context and write an Error 401 on the response.
 func RestError401(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 401", zap.Error(err))
@@ -98,8 +113,16 @@ func RestErrorDetect(req *restful.Request, resp *restful.Response, err error, de
 		404: RestError404,
 		403: RestError403,
 		401: RestError401,
+		503: RestError503,
 	}
-	erCode := errors.Parse(err.Error()).Code
+	parsed := errors.Parse(err.Error())
+	// Special case for underlying service not available
+	if parsed.Id == "go.micro.client" && parsed.Detail == "none available" {
+		parsed.Code = 503
+		RestError503(req, resp, parsed)
+		return
+	}
+	erCode := parsed.Code
 	if f, ok := emitters[erCode]; ok {
 		f(req, resp, err)
 		return

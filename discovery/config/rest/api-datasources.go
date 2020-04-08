@@ -32,6 +32,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
@@ -82,6 +83,12 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+	// Replace uuid secret if it exists
+	var secretUuid string
+	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+		secretUuid = ds.ApiSecret
+		ds.ApiSecret = sec
+	}
 
 	if reg, _ := regexp.MatchString("^[0-9a-z]*$", ds.Name); !reg {
 		service.RestError500(req, resp, fmt.Errorf("datasource name contains an invalid character, please use alphanumeric characters"))
@@ -115,6 +122,14 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
+	if ds.ApiSecret != "" {
+		if secretUuid == "" {
+			secretUuid = uuid.New()
+			config.SetSecret(secretUuid, ds.ApiSecret)
+		}
+		ds.ApiSecret = secretUuid
+		minioConfig.ApiSecret = secretUuid
+	}
 
 	dsName := ds.Name
 	// UPDATE INDEX
@@ -259,6 +274,9 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	u, _ := url.Parse(endpoint)
 	host := u.Host
 	secure := u.Scheme == "https"
+	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+		ds.ApiSecret = sec
+	}
 	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
 	if r, o := ds.StorageConfiguration["customRegion"]; o && r != "" {
 		creds := credentials.NewStaticV4(ds.ApiKey, ds.ApiSecret, "")

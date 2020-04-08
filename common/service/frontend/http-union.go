@@ -45,6 +45,9 @@ func NewUnionHttpFs(boxes ...PluginBox) *UnionHttpFs {
 	for _, b := range boxes {
 		packrs = append(packrs, b.Box)
 		allRoots = append(allRoots, b.Exposes...)
+		if b.ExposeFunc != nil {
+			allRoots = append(allRoots, b.ExposeFunc()...)
+		}
 	}
 	return &UnionHttpFs{
 		boxes:     packrs,

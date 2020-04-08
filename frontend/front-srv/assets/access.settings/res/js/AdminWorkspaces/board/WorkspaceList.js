@@ -21,8 +21,8 @@ import React from 'react'
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import LangUtils from 'pydio/util/lang'
-import Pydio from 'pydio'
 import Workspace from '../model/Ws'
+import Pydio from 'pydio'
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 
@@ -42,15 +42,27 @@ export default React.createClass({
         return {workspaces: [], loading: false};
     },
 
-    reload(){
+    startLoad(){
+        if(this.props.onLoadState){
+            this.props.onLoadState(true)
+        }
         this.setState({loading: true});
-        Pydio.startLoading();
+    },
+
+    endLoad(){
+        if(this.props.onLoadState){
+            this.props.onLoadState(false)
+        }
+        this.setState({loading: false});
+    },
+
+    reload(){
+        this.startLoad();
         Workspace.listWorkspaces().then(response => {
-            Pydio.endLoading();
-            this.setState({loading: false, workspaces: response.Workspaces || []});
+            this.endLoad();
+            this.setState({workspaces: response.Workspaces || []});
         }).catch(e => {
-            Pydio.endLoading();
-            this.setState({loading: false});
+            this.endLoad();
         });
     },
 
@@ -66,7 +78,7 @@ export default React.createClass({
 
     computeTableData(){
         let data = [];
-        const {pydio} = this.props;
+        const {filterString} = this.props;
         const {workspaces} = this.state;
         workspaces.map((workspace) => {
             let summary = ""; // compute root nodes list
@@ -84,6 +96,15 @@ export default React.createClass({
                     }
                 }catch(e){}
             }
+            if(filterString){
+                const search = filterString.toLowerCase();
+                const l = workspace.Label && workspace.Label.toLowerCase().indexOf(search) >= 0;
+                const d = workspace.Description && workspace.Description.toLowerCase().indexOf(search) >= 0;
+                const ss = summary && summary.toLowerCase().indexOf(search) >= 0;
+                if(!(l || d || ss)){
+                    return;
+                }
+            }
             data.push({
                 payload: workspace,
                 label: workspace.Label,
@@ -99,7 +120,7 @@ export default React.createClass({
 
     render(){
 
-        const {pydio, advanced} = this.props;
+        const {pydio, advanced, editable, tableStyles} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
         const s = (id) => pydio.MessageHash['settings.' + id];
 
@@ -124,10 +145,13 @@ export default React.createClass({
             <MaterialTable
                 data={data}
                 columns={columns}
-                onSelectRows={this.openTableRows.bind(this)}
+                onSelectRows={editable?this.openTableRows.bind(this):null}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
                 emptyStateString={loading ? m('home.6') : m('ws.board.empty')}
+                masterStyles={tableStyles}
+                paginate={[10, 25, 50, 100]}
+                defaultPageSize={25}
             />
         );
 

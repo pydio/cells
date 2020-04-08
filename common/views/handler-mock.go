@@ -229,6 +229,10 @@ func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 	return nil, fmt.Errorf("not.implemented")
 }
 
+func (h *HandlerMock) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error {
+	return handlerListNodesWithCallback(h, ctx, request, callback, ignoreCbError, filters...)
+}
+
 func (h *HandlerMock) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 	return nil
 }

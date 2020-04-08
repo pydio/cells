@@ -21,12 +21,9 @@
 package conditions
 
 import (
-	"context"
 	"regexp"
 
 	"github.com/ory/ladon"
-
-	"github.com/pydio/cells/common/log"
 )
 
 // StringNotMatchCondition is a condition which is fulfilled if the given
@@ -38,13 +35,14 @@ type StringNotMatchCondition struct {
 // Fulfills returns true if the given value is a string and does *NOT* matches the regex
 // pattern in StringNotMatchCondition
 func (c *StringNotMatchCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
-	s, ok := value.(string)
 
-	log.Logger(context.Background()).Error("in string not match condition for string " + s)
+	if s, ok := value.(string); ok {
+		matches, _ := regexp.MatchString(c.Matches, s)
+		return !matches
+	} else {
+		return false
+	}
 
-	matches, _ := regexp.MatchString(c.Matches, s)
-
-	return !(ok && matches)
 }
 
 // GetName returns the condition's name.

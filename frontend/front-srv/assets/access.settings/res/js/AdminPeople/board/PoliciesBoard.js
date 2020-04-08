@@ -26,7 +26,7 @@ import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconM
 import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
-import uuid from 'uuid4'
+import {v4 as uuid} from 'uuid'
 
 import Policy from '../policies/Policy'
 
@@ -172,20 +172,12 @@ let PoliciesBoard = React.createClass({
 
     render(){
 
-        const {muiTheme, readonly, currentNode, pydio} = this.props;
+        const {muiTheme, currentNode, pydio, accessByName} = this.props;
+        let {readonly} = this.props;
+        readonly = readonly || !accessByName('Create');
         const {policies} = this.state;
-        const {primary1Color} = muiTheme.palette;
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
-
-        //let items = [];
-
-        const subheaderStyle = {
-            textTransform: 'uppercase',
-            fontSize: 12,
-            color: primary1Color,
-            paddingLeft: 20,
-            paddingRight: 20,
-        };
+        const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         const lists = Object.keys(policies).map((k) => {
             if (readonly && k === 'acl') {
@@ -199,22 +191,23 @@ let PoliciesBoard = React.createClass({
                 items.push(
                     <Policy
                         {...this.props}
+                        readonly={readonly}
                         key={policy.Name}
                         policy={policy}
                         savePolicy={this.savePolicy.bind(this)}
                         deletePolicy={this.deletePolicy.bind(this)}
                         newPolicyWithRule={this.state.newPolicyId === policy.Uuid ? policy.Name : null}
                     />);
-                items.push(<Divider/>);
+                items.push(<Divider style={{backgroundColor:adminStyles.body.lineColor}}/>);
             });
             items.pop();
             return (
                 <div>
-                    <Subheader style={subheaderStyle}>{title}</Subheader>
-                    <div style={{padding: '0 20px'}}>{legend}</div>
-                    <Paper zDepth={1} style={{margin: 16}}>
+                    <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
+                        <div style={adminStyles.body.block.headerFull}>{title}</div>
                         <List>{items}</List>
                     </Paper>
+                    <div style={{padding: '0 24px', marginTop: -6, marginBottom: 24, ...adminStyles.body.legend}}>{legend}</div>
                 </div>
             );
         });
@@ -222,6 +215,7 @@ let PoliciesBoard = React.createClass({
         const action = (
             <div>
                 <FlatButton
+                    {...adminStyles.props.header.flatButton}
                     primary={true}
                     onTouchTap={this.openPopover.bind(this)}
                     label={m('policy.new')}

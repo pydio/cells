@@ -9,20 +9,32 @@ class Log extends Observable{
     /**
      * Build Bleve Query based on filter and date
      * @param filter {string}
+     * @param serviceFilter {string}
+     * @param level {string}
+     * @param remoteAddress {string}
+     * @param userName {string}
      * @param date {Date}
      * @param endDate {Date}
      * @return {string}
      */
-    static buildQuery(filter, date, endDate = undefined){
+    static buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate = undefined){
 
         let arr = [];
 
         if (filter) {
-            arr.push('Msg:*' + filter + '*');
-            arr.push('RemoteAddress:*' + filter + '*');
-            arr.push('Level:*' + filter + '*');
-            arr.push('UserName:*' + filter + '*');
-            arr.push('Logger:*' + filter + '*');
+            arr.push('+Msg:"*' + filter + '*"');
+        }
+        if(serviceFilter) {
+            arr.push('+Logger:*' + serviceFilter + '*');
+        }
+        if(level) {
+            arr.push('+Level:' + level);
+        }
+        if(remoteAddress){
+            arr.push('+RemoteAddress:*' + remoteAddress + '*');
+        }
+        if(userName){
+            arr.push('+UserName:*' + userName + '*');
         }
 
         if (date) {
@@ -39,6 +51,13 @@ class Log extends Observable{
 
         return arr.join(' ');
 
+    }
+
+    static buildTsQuery(timestamp, minutesWindow){
+        let arr = [];
+        arr.push('+Ts:>' + (timestamp - (minutesWindow*60)));
+        arr.push('+Ts:<' + (timestamp + (minutesWindow*60)));
+        return arr.join(' ');
     }
 
     /**

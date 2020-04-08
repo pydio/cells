@@ -5,6 +5,7 @@ package object;
 
 service ObjectsEndpoint {
     rpc GetMinioConfig(GetMinioConfigRequest) returns (GetMinioConfigResponse){};
+    rpc StorageStats(StorageStatsRequest) returns (StorageStatsResponse){};
 }
 
 service DataSourceEndpoint {
@@ -134,6 +135,12 @@ message GetMinioConfigRequest {}
 
 message GetMinioConfigResponse {
     MinioConfig MinioConfig = 1;
+}
+
+message StorageStatsRequest {}
+
+message StorageStatsResponse {
+    map<string,string> Stats = 1;
 }
 
 message GetDataSourceConfigRequest {}

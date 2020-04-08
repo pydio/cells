@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -20,11 +20,14 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} from 'material-ui'
-const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
-const {MaterialTable} = Pydio.requireLib('components');
-import TaskActivity from './TaskActivity'
+import PydioApi from 'pydio/http/api'
+import {ConfigServiceApi} from 'pydio/http/rest-api'
+import ResourcesManager from 'pydio/http/resources-manager'
+import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
+import TasksList from './TasksList'
 import JobSchedule from './JobSchedule'
+
+const {JobsStore} = Pydio.requireLib("boot");
 
 class JobBoard extends React.Component {
 
@@ -33,179 +36,87 @@ class JobBoard extends React.Component {
         this.state = {
             mode:'log', // 'log' or 'selection'
             selectedRows: [],
-            working: false,
+            loading: false,
             taskLogs: null,
+            job: props.job,
+            create: props.create,
+            descriptions: {},
         }
     }
 
-    runOnce(){
+    componentDidMount(){
+        // Load descriptions
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        api.schedulerActionsDiscovery().then(data => {
+            this.setState({descriptions: data.Actions});
+        });
 
     }
 
-    renderActions(row){
-
-        const {pydio} = this.props;
-        const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.task.action.' + id] || id;
-
-        const store = JobsStore.getInstance();
-        let actions = [];
-        const icProps = {
-            iconStyle:{color:'rgba(0,0,0,.3)'},
-            onClick:e => e.stopPropagation()
-        };
-        if (row.Status === 'Running' && row.CanPause){
-            actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onTouchTap={()=>{store.controlTask(row, 'Pause')}} {...icProps}/>)
-        }
-        if(row.Status === 'Paused') {
-            actions.push(<IconButton iconClassName={"mdi mdi-play"} tooltip={m('resume')} onTouchTap={()=>{store.controlTask(row, 'Resume')}} {...icProps}/>)
-        }
-        if(row.Status === 'Running' || row.Status === 'Paused'){
-            if(row.CanStop){
-                actions.push(<IconButton iconClassName={"mdi mdi-stop"} tooltip={m('stop')} onTouchTap={()=>{store.controlTask(row, 'Stop')}} {...icProps}/>)
-            } else if(row.StatusMessage === 'Pending'){
-                actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
-            }
-        } else {
-            actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
-        }
-        return actions
-    }
-
-    onSelectTaskRows(rows) {
-        const {mode} = this.state;
-        if(mode === 'selection'){
-            this.setState({selectedRows: rows});
-        } else if(rows.length === 1){
-            this.setState({taskLogs: rows[0]});
+    componentWillReceiveProps(nextProps){
+        if(nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
+            this.setState({job: nextProps.job});
         }
     }
 
-    deleteSelection(){
-        const {selectedRows} = this.state;
-        const {job} = this.props;
-        const store = JobsStore.getInstance();
-        this.setState({working: true});
-        store.deleteTasks(job.ID, selectedRows).then(()=>{
-            this.setState({working: false, selectedRows:[], mode:'log'})
-        })
+    onJobSave(job){
+        this.setState({job: job, create: false});
     }
 
-    deleteAll(){
-        this.setState({working: true});
-        const {job} = this.props;
-        const store = JobsStore.getInstance();
-        store.deleteAllTasksForJob(job.ID).then(() => {
-            this.setState({working: false});
-        })
+    onJsonSave(job){
+        // Artificial redraw : go null and back to job
+        this.setState({job: null, create:false}, ()=>{
+            this.setState({job: job});
+        });
     }
 
     render(){
 
-        const {pydio, jobsEditable} = this.props;
+        const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
+        const {loading, create, job, descriptions} = this.state;
+
+        if(!job){
+            return null;
+        }
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
-        const keys = [
-            {name:'ID', label:m('task.id'), hideSmall: true},
-            {name:'StartTime', label:m('task.start'), useMoment:true},
-            {name:'EndTime', label:m('task.end'), useMoment:true, hideSmall: true},
-            {name:'Status', label:m('task.status')},
-            {name:'StatusMessage', label:m('task.message'), hideSmall: true, style:{width: '25%'}, headerStyle:{width:'25%'}, renderCell:(row)=>{
-                if(row.Status === 'Error') {
-                    return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
-                } else if (row.Status === 'Running') {
-                    return <SingleJobProgress pydio={pydio} jobID={row.JobID} taskID={row.ID}/>
-                } else {
-                    return row.StatusMessage;
-                }
-            }},
-            {name:'Actions', label:'', style:{textAlign:'right'}, renderCell:this.renderActions.bind(this)}
-        ];
-
-        const {job, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs} = this.state;
-        const tasks = job.Tasks || [];
-        const runningStatus = ['Running', 'Paused'];
-
-        tasks.sort((a,b)=>{
-            if(!a.StartTime || !b.StartTime || a.StartTime === b.StartTime) {
-                return a.ID > b.ID ? 1 : -1;
-            }
-            return a.StartTime > b.StartTime ? -1 : 1;
-        });
-
         let actions = [];
-        if(!job.EventNames){
-            if(jobsEditable){
-                actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
+        const flatProps = {...adminStyles.props.header.flatButton};
+        const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
+        if(!create){
+            if(!job.EventNames){
+                if(jobsEditable){
+                    actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
+                }
+                const bProps = {...flatProps};
+                if(job.Inactive){
+                    bProps.backgroundColor = '#e0e0e0';
+                }
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} {...bProps}/>);
             }
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
-        }
-        if(job.Inactive) {
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} />);
-        } else {
-            actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} />);
-        }
-        const running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
-        let other = tasks.filter((t) => {return runningStatus.indexOf(t.Status) === -1});
-        let more;
-        if(other.length > 20) {
-            more = other.length - 20;
-            other = other.slice(0, 20);
+            if(job.Inactive) {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"} color={iconColor}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} {...flatProps}/>);
+            } else {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"} color={iconColor}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} {...flatProps}/>);
+            }
         }
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
-                <Dialog
-                    title={job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8)  : '')}
-                    onRequestClose={()=>{this.setState({taskLogs: null})}}
-                    open={taskLogs !== null}
-                    autoScrollBodyContent={true}
-                    autoDetectWindowHeight={true}
-                    bodyStyle={{padding:0}}
-                >
-                    {taskLogs && <TaskActivity pydio={this.props.pydio} task={taskLogs}/>}
-                </Dialog>
                 <AdminComponents.Header
                     title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
                     backButtonAction={onRequestClose}
                     actions={actions}
-                    loading={working}
+                    loading={loading}
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
-                    <AdminComponents.SubHeader
-                        title={m('tasks.running')}
+                    <TasksList
+                        pydio={pydio}
+                        job={job}
+                        onLoading={(l)=>{this.setState({loading:l})}}
+                        descriptions={descriptions}
+                        adminStyles={adminStyles}
                     />
-                    <Paper style={{margin: 20}}>
-                        <MaterialTable
-                            data={running}
-                            columns={keys}
-                            showCheckboxes={false}
-                            emptyStateString={m('tasks.running.empty')}
-                            onSelectRows={(rows) => { if(rows.length === 1 && running.length){ this.setState({taskLogs: rows[0]}); }}}
-                        />
-                    </Paper>
-                    <AdminComponents.SubHeader
-                        title={
-                            <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>
-                                <div style={{flex: 1}}>{m('tasks.history')}</div>
-                                {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onTouchTap={this.deleteSelection.bind(this)} disabled={working}/></div>}
-                                {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection'})}} disabled={working}/></div>}
-                                {<div style={{lineHeight:'initial', marginLeft: 5}}><FlatButton label={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>}
-                            </div>
-                        }
-                    />
-                    <Paper style={{margin: 20}}>
-                        <MaterialTable
-                            data={other}
-                            columns={keys}
-                            showCheckboxes={mode === 'selection'}
-                            onSelectRows={this.onSelectTaskRows.bind(this)}
-                            emptyStateString={m('tasks.history.empty')}
-                            selectedRows={selectedRows}
-                            deselectOnClickAway={true}
-                        />
-                        {more  && <div style={{padding: 20, borderTop:'1px solid #eee'}}>{m('tasks.history.more').replace('%s', more)}</div>}
-                    </Paper>
                 </div>
             </div>
         );

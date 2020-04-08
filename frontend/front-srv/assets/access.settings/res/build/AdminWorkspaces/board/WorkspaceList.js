@@ -41,13 +41,13 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
 var _modelWs = require('../model/Ws');
 
 var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
@@ -68,17 +68,29 @@ exports['default'] = _react2['default'].createClass({
         return { workspaces: [], loading: false };
     },
 
+    startLoad: function startLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(true);
+        }
+        this.setState({ loading: true });
+    },
+
+    endLoad: function endLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(false);
+        }
+        this.setState({ loading: false });
+    },
+
     reload: function reload() {
         var _this = this;
 
-        this.setState({ loading: true });
-        _pydio2['default'].startLoading();
+        this.startLoad();
         _modelWs2['default'].listWorkspaces().then(function (response) {
-            _pydio2['default'].endLoading();
-            _this.setState({ loading: false, workspaces: response.Workspaces || [] });
+            _this.endLoad();
+            _this.setState({ workspaces: response.Workspaces || [] });
         })['catch'](function (e) {
-            _pydio2['default'].endLoading();
-            _this.setState({ loading: false });
+            _this.endLoad();
         });
     },
 
@@ -94,7 +106,7 @@ exports['default'] = _react2['default'].createClass({
 
     computeTableData: function computeTableData() {
         var data = [];
-        var pydio = this.props.pydio;
+        var filterString = this.props.filterString;
         var workspaces = this.state.workspaces;
 
         workspaces.map(function (workspace) {
@@ -113,6 +125,15 @@ exports['default'] = _react2['default'].createClass({
                     }
                 } catch (e) {}
             }
+            if (filterString) {
+                var search = filterString.toLowerCase();
+                var l = workspace.Label && workspace.Label.toLowerCase().indexOf(search) >= 0;
+                var d = workspace.Description && workspace.Description.toLowerCase().indexOf(search) >= 0;
+                var ss = summary && summary.toLowerCase().indexOf(search) >= 0;
+                if (!(l || d || ss)) {
+                    return;
+                }
+            }
             data.push({
                 payload: workspace,
                 label: workspace.Label,
@@ -130,6 +151,8 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var editable = _props.editable;
+        var tableStyles = _props.tableStyles;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -155,10 +178,13 @@ exports['default'] = _react2['default'].createClass({
         return _react2['default'].createElement(MaterialTable, {
             data: data,
             columns: columns,
-            onSelectRows: this.openTableRows.bind(this),
+            onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            masterStyles: tableStyles,
+            paginate: [10, 25, 50, 100],
+            defaultPageSize: 25
         });
     }
 

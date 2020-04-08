@@ -27,6 +27,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -35,14 +36,30 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
+var (
+	pruneVersionsActionName = "actions.versioning.prune"
+)
+
 type PruneVersionsAction struct {
 	Handler views.Handler
 	Pool    *views.ClientsPool
 }
 
-var (
-	pruneVersionsActionName = "actions.versioning.prune"
-)
+func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              pruneVersionsActionName,
+		Label:           "Prune Versions",
+		Icon:            "delete-sweep",
+		Category:        actions.ActionCategoryTree,
+		Description:     "Apply versioning policies to keep only a limited number of versions.",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *PruneVersionsAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // GetName returns the Unique identifier.
 func (c *PruneVersionsAction) GetName() string {

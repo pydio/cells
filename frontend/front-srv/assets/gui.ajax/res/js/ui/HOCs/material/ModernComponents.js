@@ -56,7 +56,8 @@ const styles = {
             backgroundColor: 'rgba(224, 224, 224, 0.33)',
             padding: '7px 5px 4px',
             borderRadius: 3,
-            fontSize: 15
+            fontSize: 15,
+            margin:'6px 0 7px'
         }
     }
 };

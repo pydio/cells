@@ -22,13 +22,17 @@ package tasks
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/cskr/pubsub"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
+	context2 "github.com/pydio/cells/common/utils/context"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -36,7 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -48,6 +52,7 @@ const (
 
 var (
 	PubSub *pubsub.PubSub
+	ContextJobParametersKey = struct{}{}
 )
 
 // Subscriber handles incoming events, applies selectors if any
@@ -67,7 +72,7 @@ type Subscriber struct {
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
 // by maintaining a map of dispacher, one for each job definition.
-func NewSubscriber(parentContext context.Context, client client.Client, server server.Server) *Subscriber {
+func NewSubscriber(parentContext context.Context, client client.Client, srv server.Server) *Subscriber {
 
 	s := &Subscriber{
 		Client:          client,
@@ -84,17 +89,21 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 
 	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
-	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
+	// Use a "Queue" mechanism to make sure events are distributed accross tasks instances
+	opts := func(o *server.SubscriberOptions) {
+		o.Queue = "tasks"
+	}
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
 		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
 			return s.nodeEvent(ctx, e)
 		} else {
 			return nil
 		}
-	}))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent))
+	}, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent, opts))
 
 	s.ListenToMainQueue()
 	s.TaskChannelSubscription()
@@ -192,7 +201,6 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 		if _, ok := s.JobsDefinitions[msg.JobRemoved]; ok {
 			delete(s.JobsDefinitions, msg.JobRemoved)
 		}
-		// TODO: Shall we stop everything when changing config?
 		if dispatcher, ok := s.Dispatchers[msg.JobRemoved]; ok {
 			dispatcher.Stop()
 			delete(s.Dispatchers, msg.JobRemoved)
@@ -200,7 +208,6 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	}
 	if msg.JobUpdated != nil {
 		s.JobsDefinitions[msg.JobUpdated.ID] = msg.JobUpdated
-		// TODO: Shall we stop everything when changing config? Or wait that it's idle for next time?
 		if dispatcher, ok := s.Dispatchers[msg.JobUpdated.ID]; ok {
 			dispatcher.Stop()
 			delete(s.Dispatchers, msg.JobUpdated.ID)
@@ -211,6 +218,32 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	}
 
 	return nil
+}
+
+func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool) context.Context {
+
+	// Add System User if necessary
+	if addSystemUser {
+		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+			ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+		}
+	}
+
+	// Add service info
+	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
+	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+
+	// Inject evaluated job parameters
+	if len(job.Parameters) > 0{
+		params := make(map[string]string, len(job.Parameters))
+		for _, p := range job.Parameters {
+			params[p.Name] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, p.Value)
+		}
+		ctx = context.WithValue(ctx, ContextJobParametersKey, params)
+	}
+
+	return ctx
 }
 
 // Reacts to a trigger sent by the timer service
@@ -232,17 +265,10 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	if j.Inactive {
 		return nil
 	}
-	// This timer event probably comes without user in context at that point
-	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-		ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-		ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-	}
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+	ctx = s.prepareTaskContext(ctx, j, true)
+
 	log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
-
 	task := NewTaskFromEvent(ctx, j, event)
-
 	go task.EnqueueRunnables(s.Client, s.MainQueue)
 
 	return nil
@@ -260,36 +286,11 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-//	s.jobsLock.Lock()
-//	defer s.jobsLock.Unlock()
-
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
-
 	s.batcher.Events <- &cache.EventWithContext{
 		NodeChangeEvent: *event,
 		Ctx:             ctx,
 	}
 
-	/*
-		for jobId, jobData := range s.JobsDefinitions {
-			if jobData.Inactive {
-				continue
-			}
-			if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
-				continue
-			}
-			for _, eName := range jobData.EventNames {
-				if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
-					if event.Type == eType {
-						log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
-						task := NewTaskFromEvent(ctx, jobData, event)
-						go task.EnqueueRunnables(s.Client, s.MainQueue)
-					}
-				}
-			}
-		}
-	*/
 	return nil
 }
 
@@ -302,7 +303,15 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
-		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
+		ctx = s.prepareTaskContext(ctx, jobData, false)
+
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
+			continue
+		}
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -323,12 +332,16 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 
 	s.jobsLock.Lock()
 	defer s.jobsLock.Unlock()
-
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
-
+	
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
+			continue
+		}
+		ctx = s.prepareTaskContext(ctx, jobData, true)
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -343,7 +356,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 }
 
 // Check if a node must go through jobs at all (if there is a NodesSelector at the job level)
-func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
+func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
 	var refNode *tree.Node
 	if event.Target != nil {
 		refNode = event.Target
@@ -354,9 +367,99 @@ func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *job
 		return true // Ignore
 	}
 	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
-	output := filter.Filter(input)
-	if output.Nodes == nil || len(output.Nodes) == 0 {
-		return false
+	_, _, pass := filter.Filter(ctx, input)
+	return pass
+}
+
+// Test filter and return false if all input IDM slots are empty
+func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
+	_, _, pass := filter.Filter(ctx, input)
+	return pass
+}
+
+// Test filter and return false if context is filtered out
+func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
+	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
+	return pass
+}
+
+func createMessageFromEvent(event interface{}) jobs.ActionMessage {
+	initialInput := jobs.ActionMessage{}
+
+	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
+		any, _ := ptypes.MarshalAny(nodeChange)
+		initialInput.Event = any
+		if nodeChange.Target != nil {
+
+			initialInput = initialInput.WithNode(nodeChange.Target)
+
+		} else if nodeChange.Source != nil {
+
+			initialInput = initialInput.WithNode(nodeChange.Source)
+
+		}
+
+	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
+
+		any, _ := ptypes.MarshalAny(triggerEvent)
+		initialInput.Event = any
+
+	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
+
+		any, _ := ptypes.MarshalAny(idmEvent)
+		initialInput.Event = any
+		if idmEvent.User != nil {
+			initialInput = initialInput.WithUser(idmEvent.User)
+		}
+		if idmEvent.Role != nil {
+			initialInput = initialInput.WithRole(idmEvent.Role)
+		}
+		if idmEvent.Workspace != nil {
+			initialInput = initialInput.WithWorkspace(idmEvent.Workspace)
+		}
+		if idmEvent.Acl != nil {
+			initialInput = initialInput.WithAcl(idmEvent.Acl)
+		}
+
 	}
-	return true
+
+	return initialInput
+}
+
+func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}) {
+	var msg string
+	if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
+		if triggerEvent.Schedule == nil {
+			msg = "Starting job manually"
+		} else {
+			msg = "Starting job on schedule " + strings.ReplaceAll(triggerEvent.Schedule.String(), "Iso8601Schedule:", "")
+		}
+	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
+		eT := strings.ToLower(idmEvent.GetType().String())
+		var oT string
+		if idmEvent.User != nil {
+			oT = "user"
+		} else if idmEvent.Role != nil {
+			oT = "role"
+		} else if idmEvent.Workspace != nil {
+			oT = "workspace"
+		} else if idmEvent.Acl != nil {
+			oT = "acl"
+		}
+		msg = fmt.Sprintf("Starting job on %s %s event", oT, eT)
+	} else if nodeEvent, ok := event.(*tree.NodeChangeEvent); ok {
+		eT := strings.ToLower(nodeEvent.GetType().String())
+		msg = fmt.Sprintf("Starting job on %s node event", eT)
+	}
+	// Append user login
+	user, _ := permissions.FindUserNameInContext(ctx)
+	if user != "" && user != common.PYDIO_SYSTEM_USERNAME {
+		msg += " (triggered by user " + user + ")"
+	}
+	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+		servicecontext.ContextMetaJobUuid:        task.Job.ID,
+		servicecontext.ContextMetaTaskUuid:       task.RunUUID,
+		servicecontext.ContextMetaTaskActionPath: "ROOT",
+	})
+	log.TasksLogger(ctx).Info(msg)
 }

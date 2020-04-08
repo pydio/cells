@@ -105,7 +105,7 @@ class Loader {
 
     loadActivities(){
         return new Promise(resolve => {
-            ASClient.loadActivityStreams((json) => {
+            ASClient.loadActivityStreams('USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 20).then((json) => {
                 if(!json.items){
                     resolve([]);
                     return
@@ -132,7 +132,9 @@ class Loader {
                     }
                 });
                 resolve(nodes);
-            }, 'USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 20)
+            }).catch(msg => {
+                resolve([]);
+            })
         })
     }
 

@@ -30,22 +30,6 @@ var _boardSimpleDashboard = require('./board/SimpleDashboard');
 
 var _boardSimpleDashboard2 = _interopRequireDefault(_boardSimpleDashboard);
 
-var _boardGroupAdminDashboard = require('./board/GroupAdminDashboard');
-
-var _boardGroupAdminDashboard2 = _interopRequireDefault(_boardGroupAdminDashboard);
-
-var _boardTabBoard = require('./board/TabBoard');
-
-var _boardTabBoard2 = _interopRequireDefault(_boardTabBoard);
-
-var _boardHeader = require('./board/Header');
-
-var _boardHeader2 = _interopRequireDefault(_boardHeader);
-
-var _boardSubHeader = require('./board/SubHeader');
-
-var _boardSubHeader2 = _interopRequireDefault(_boardSubHeader);
-
 var _utilMixins = require('./util/Mixins');
 
 var _utilNavigationHelper = require('./util/NavigationHelper');
@@ -72,56 +56,32 @@ var _utilQuotaField = require('./util/QuotaField');
 
 var _utilQuotaField2 = _interopRequireDefault(_utilQuotaField);
 
-var _cardsGraphBadge = require('./cards/GraphBadge');
+var _stylesAdminStyles = require('./styles/AdminStyles');
 
-var _cardsGraphBadge2 = _interopRequireDefault(_cardsGraphBadge);
+var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
-var _cardsGraphCard = require('./cards/GraphCard');
+var _stylesHeader = require('./styles/Header');
 
-var _cardsGraphCard2 = _interopRequireDefault(_cardsGraphCard);
+var _stylesHeader2 = _interopRequireDefault(_stylesHeader);
 
-var _cardsQuickLinks = require('./cards/QuickLinks');
+var _stylesSubHeader = require('./styles/SubHeader');
 
-var _cardsQuickLinks2 = _interopRequireDefault(_cardsQuickLinks);
-
-var _cardsRecentLogs = require('./cards/RecentLogs');
-
-var _cardsRecentLogs2 = _interopRequireDefault(_cardsRecentLogs);
-
-var _cardsServicesStatus = require('./cards/ServicesStatus');
-
-var _cardsServicesStatus2 = _interopRequireDefault(_cardsServicesStatus);
-
-var _cardsToDoList = require('./cards/ToDoList');
-
-var _cardsToDoList2 = _interopRequireDefault(_cardsToDoList);
-
-var _cardsWelcomePanel = require('./cards/WelcomePanel');
-
-var _cardsWelcomePanel2 = _interopRequireDefault(_cardsWelcomePanel);
+var _stylesSubHeader2 = _interopRequireDefault(_stylesSubHeader);
 
 window.AdminComponents = {
-    MessagesConsumerMixin: _utilMixins.MessagesConsumerMixin,
-    PydioConsumerMixin: _utilMixins.PydioConsumerMixin,
-    NavigationHelper: _utilNavigationHelper2['default'],
-    MenuItemListener: _utilMenuItemListener2['default'],
-    DNDActionsManager: _utilDNDActionsManager2['default'],
-    PluginsLoader: _utilPluginsLoader2['default'],
+  AdminDashboard: _boardAdminDashboard2['default'],
+  SimpleDashboard: _boardSimpleDashboard2['default'],
 
-    AdminDashboard: _boardAdminDashboard2['default'],
-    SimpleDashboard: _boardSimpleDashboard2['default'],
-    GroupAdminDashboard: _boardGroupAdminDashboard2['default'],
-    Header: _boardHeader2['default'],
-    SubHeader: _boardSubHeader2['default'],
-    CodeMirrorField: _utilCodeMirrorField2['default'],
-    TabBoard: _boardTabBoard2['default'],
-    QuotaField: _utilQuotaField2['default'],
+  MessagesConsumerMixin: _utilMixins.MessagesConsumerMixin,
+  PydioConsumerMixin: _utilMixins.PydioConsumerMixin,
+  NavigationHelper: _utilNavigationHelper2['default'],
+  MenuItemListener: _utilMenuItemListener2['default'],
+  DNDActionsManager: _utilDNDActionsManager2['default'],
+  PluginsLoader: _utilPluginsLoader2['default'],
+  CodeMirrorField: _utilCodeMirrorField2['default'],
+  QuotaField: _utilQuotaField2['default'],
 
-    GraphCard: _cardsGraphCard2['default'],
-    GraphBadge: _cardsGraphBadge2['default'],
-    QuickLinks: _cardsQuickLinks2['default'],
-    RecentLogs: _cardsRecentLogs2['default'],
-    ServicesStatus: _cardsServicesStatus2['default'],
-    ToDoList: _cardsToDoList2['default'],
-    WelcomePanel: _cardsWelcomePanel2['default']
+  AdminStyles: _stylesAdminStyles2['default'],
+  Header: _stylesHeader2['default'],
+  SubHeader: _stylesSubHeader2['default']
 };

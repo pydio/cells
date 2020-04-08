@@ -27,6 +27,18 @@ var _JobsAction = require('./JobsAction');
 
 var _JobsAction2 = _interopRequireDefault(_JobsAction);
 
+var _JobsContextMetaFilter = require('./JobsContextMetaFilter');
+
+var _JobsContextMetaFilter2 = _interopRequireDefault(_JobsContextMetaFilter);
+
+var _JobsIdmSelector = require('./JobsIdmSelector');
+
+var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
+
+var _JobsJobParameter = require('./JobsJobParameter');
+
+var _JobsJobParameter2 = _interopRequireDefault(_JobsJobParameter);
+
 var _JobsNodesSelector = require('./JobsNodesSelector');
 
 var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
@@ -74,6 +86,9 @@ var JobsJob = (function () {
         this.Tasks = undefined;
         this.NodeEventFilter = undefined;
         this.UserEventFilter = undefined;
+        this.IdmFilter = undefined;
+        this.ContextMetaFilter = undefined;
+        this.Parameters = undefined;
     }
 
     /**
@@ -132,6 +147,15 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('UserEventFilter')) {
                 obj['UserEventFilter'] = _JobsUsersSelector2['default'].constructFromObject(data['UserEventFilter']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = _JobsContextMetaFilter2['default'].constructFromObject(data['ContextMetaFilter']);
+            }
+            if (data.hasOwnProperty('Parameters')) {
+                obj['Parameters'] = _ApiClient2['default'].convertToType(data['Parameters'], [_JobsJobParameter2['default']]);
             }
         }
         return obj;
@@ -200,4 +224,16 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsUsersSelector} UserEventFilter
+*/
+
+/**
+* @member {module:model/JobsIdmSelector} IdmFilter
+*/
+
+/**
+* @member {module:model/JobsContextMetaFilter} ContextMetaFilter
+*/
+
+/**
+* @member {Array.<module:model/JobsJobParameter>} Parameters
 */

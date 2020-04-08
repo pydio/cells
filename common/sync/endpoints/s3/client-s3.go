@@ -25,6 +25,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"io"
@@ -64,6 +65,9 @@ type Client struct {
 	options                     model.EndpointOptions
 	globalContext               context.Context
 	plainSizeComputer           func(nodeUUID string) (int64, error)
+
+	checksumMapper       ChecksumMapper
+	purgeMapperAfterWalk bool
 }
 
 func NewClient(ctx context.Context, host string, key string, secret string, bucket string, rootPath string, secure bool, options model.EndpointOptions) (*Client, error) {
@@ -90,6 +94,30 @@ func (c *Client) GetEndpointInfo() model.EndpointInfo {
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}
 
+}
+
+// SetPlainSizeComputer passes a computer function to extract plain size
+//from an encrypted node
+func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, error)) {
+	c.plainSizeComputer = computer
+}
+
+// SetServerRequiresNormalization is used on MacOS to normalize UTF-8 chars to/from NFC/NFD
+func (c *Client) SetServerRequiresNormalization() {
+	c.ServerRequiresNormalization = true
+}
+
+// SkipRecomputeEtagByCopy sets a special behavior to avoir recomputing etags by in-place copying
+// objects on storages that do not support this feature
+func (c *Client) SkipRecomputeEtagByCopy() {
+	c.skipRecomputeEtagByCopy = true
+}
+
+// SetChecksumMapper passes a ChecksumMapper storage that will prevent in-place copy of objects or
+// metadata modification and store md5 for a given eTag locally instead.
+func (c *Client) SetChecksumMapper(mapper ChecksumMapper, purgeAfterWalk bool) {
+	c.checksumMapper = mapper
+	c.purgeMapperAfterWalk = purgeAfterWalk
 }
 
 func (c *Client) normalize(path string) string {
@@ -233,7 +261,12 @@ func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 func (c *Client) ComputeChecksum(node *tree.Node) error {
 	if c.skipRecomputeEtagByCopy {
-		return fmt.Errorf("skipping recompute etag by copy, not supported by storage")
+		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage does not support it, keep original value", node.Zap())
+		return nil
+	}
+	if c.options.BrowseOnly {
+		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage is readonly, keep original value", node.Zap())
+		return nil
 	}
 	p := c.getFullPath(node.GetPath())
 	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p, Size: node.Size}); err == nil {
@@ -247,14 +280,14 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	ctx := context.Background()
-	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
-		path = c.getLocalPath(path)
-		node, test := c.loadNode(ctx, path, !info.IsDir())
-		if test != nil || node == nil {
-			// Ignoring node not found
-			return nil
-		}
+	t := time.Now()
+	defer func() {
+		log.Logger(ctx).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Now().Sub(t)))
+	}()
+	var eTags []string
+	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 
+	batchWrapper := func(path string, info *S3FileInfo, node *tree.Node) {
 		node.MTime = info.ModTime().Unix()
 		node.Size = info.Size()
 		node.Mode = int32(info.Mode())
@@ -263,11 +296,51 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		} else {
 			node.Uuid = strings.Trim(info.Object.ETag, "\"")
 		}
-
+		if collect && node.IsLeaf() {
+			eTags = append(eTags, node.Etag)
+		}
 		walknFc(path, node, nil)
+	}
+	batcher := &statBatcher{size: 50, walker: batchWrapper, c: c, ctx: ctx}
+
+	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
+		path = c.getLocalPath(path)
+		batcher.push(&input{path: path, info: info})
+		/*
+			node, test := c.loadNode(ctx, path, !info.IsDir())
+			if test != nil || node == nil {
+				// Ignoring node not found
+				return nil
+			}
+
+			node.MTime = info.ModTime().Unix()
+			node.Size = info.Size()
+			node.Mode = int32(info.Mode())
+			if !info.IsDir() {
+				node.Etag = strings.Trim(info.Object.ETag, "\"")
+			} else {
+				node.Uuid = strings.Trim(info.Object.ETag, "\"")
+			}
+			if collect && node.IsLeaf() {
+				eTags = append(eTags, node.Etag)
+			}
+			walknFc(path, node, nil)
+		*/
 		return nil
 	}
-	return c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc)
+	if err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc); err != nil {
+		return err
+	}
+	batcher.flush()
+	if collect {
+		go func() {
+			// We know all eTags, purge other from mapper
+			if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
+				log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
+			}
+		}()
+	}
+	return nil
 }
 
 func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
@@ -321,7 +394,7 @@ func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknF
 
 	// Do not create hidden files in BrowseOnly mode
 	if c.options.BrowseOnly {
-		return
+		//return
 	}
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
@@ -359,6 +432,30 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 	oi, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
 	if e != nil {
 		return objectInfo, e
+	}
+	if c.checksumMapper != nil {
+		// We use a checksum mapper : do not copy object in-place!
+		eTag := strings.Trim(oi.ETag, "\"")
+		if cs, ok := c.checksumMapper.Get(eTag); ok {
+			log.Logger(c.globalContext).Debug("Read eTag from ChecksumMapper " + cs)
+			objectInfo.ETag = cs
+		} else {
+			log.Logger(c.globalContext).Debug("Storing eTag inside ChecksumMapper for " + eTag)
+			reader, e := c.GetReaderOn(objectInfo.Key)
+			if e != nil {
+				return objectInfo, e
+			}
+			defer reader.Close()
+			h := md5.New()
+			if _, err := io.Copy(h, reader); err != nil {
+				return objectInfo, err
+			}
+			checksum := fmt.Sprintf("%x", h.Sum(nil))
+			log.Logger(c.globalContext).Debug("Stored inside ChecksumMapper " + checksum)
+			c.checksumMapper.Set(eTag, checksum)
+			objectInfo.ETag = checksum
+		}
+		return objectInfo, nil
 	}
 	existingMeta := make(map[string]string, len(oi.Metadata))
 	for k, v := range oi.Metadata {
@@ -490,18 +587,6 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 
 }
 
-func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, error)) {
-	c.plainSizeComputer = computer
-}
-
-func (c *Client) SetServerRequiresNormalization() {
-	c.ServerRequiresNormalization = true
-}
-
-func (c *Client) SkipRecomputeEtagByCopy() {
-	c.skipRecomputeEtagByCopy = true
-}
-
 func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
 	if leaf {
 		return c.getFileHash(c.getFullPath(path))
@@ -513,6 +598,7 @@ func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag str
 
 func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
 
+	// Find existing .pydio
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
@@ -523,24 +609,27 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 		uid = buf.String()
 		if len(strings.TrimSpace(uid)) > 0 {
 			log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
-			return uid, minio.ObjectInfo{}, nil
+			return
 		}
 	}
-	// Does not exists
-	// Create dir uuid now
+
+	// Readonly mode, return a stable UUID based on folderPath
+	if c.options.BrowseOnly {
+		stablePath := folderPath
+		if c.options.Properties != nil {
+			if p, o := c.options.Properties["stableUuidPrefix"]; o {
+				stablePath = path.Join(p, stablePath)
+			}
+		}
+		hasher := sha1.New()
+		hasher.Write([]byte(stablePath))
+		uid = fmt.Sprintf("%x", hasher.Sum(nil))
+		return
+	}
+
+	// Does not exists - create dir uuid and .pydio now
 	uid = uuid.New()
 	eTag := model.StringContentToETag(uid)
-
-	if c.options.BrowseOnly {
-		// Return fake file without actually creating it
-		return uid, minio.ObjectInfo{
-			ETag:         eTag,
-			Key:          hiddenPath,
-			LastModified: time.Now(),
-			Size:         36,
-			ContentType:  "text/plain",
-		}, nil
-	}
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	created = minio.ObjectInfo{
@@ -550,7 +639,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 		Size:         size,
 		ContentType:  "text/plain",
 	}
-	return uid, created, nil
+	return
 
 }
 
@@ -576,17 +665,6 @@ func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int
 		}
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
-	/*
-		if len(etag) == 0 || etag == common.DefaultEtag {
-			fmt.Println("getFileHash - Recompute ETAG")
-			var etagE error
-			objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
-			if etagE != nil {
-				return uid, "", metaSize, etagE
-			}
-			etag = strings.Trim(objectInfo.ETag, "\"")
-		}
-	*/
 	return uid, etag, metaSize, nil
 }
 
@@ -597,10 +675,6 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	doneChan := make(chan bool)
 
 	log.Logger(c.globalContext).Debug("Watching Bucket", zap.String("bucket", c.Bucket))
-	// Extract bucket and object.
-	//if err := isValidBucketName(bucket); err != nil {
-	//	return nil, err
-	//}
 
 	// Flag set to set the notification.
 	var events []string
@@ -608,35 +682,43 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	events = append(events, string(minio.ObjectRemovedAll))
 
 	doneCh := make(chan struct{})
+	wConn := make(chan model.WatchConnectionInfo)
 
+	closeCalled := false
 	// wait for doneChan to close the other channels
 	go func() {
 		<-doneChan
-
+		closeCalled = true
 		close(doneCh)
 		close(eventChan)
 		close(errorChan)
+		close(wConn)
 	}()
 
 	// Start listening on all bucket events.
 	eventsCh := c.Mc.ListenBucketNotification(c.Bucket, c.getFullPath(recursivePath), "", events, doneCh)
 
 	wo := &model.WatchObject{
-		EventInfoChan: eventChan,
-		ErrorChan:     errorChan,
-		DoneChan:      doneChan,
+		EventInfoChan:  eventChan,
+		ErrorChan:      errorChan,
+		DoneChan:       doneChan,
+		ConnectionInfo: wConn,
 	}
 
 	// wait for events to occur and sent them through the eventChan and errorChan
 	go func() {
-		defer wo.Close()
+		//defer wo.Close()
 		for notificationInfo := range eventsCh {
+			if closeCalled {
+				return
+			}
 			if notificationInfo.Err != nil {
 				if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
 					errorChan <- errors.New("API Not Supported")
 					return
 				}
 				errorChan <- notificationInfo.Err
+				wConn <- model.WatchDisconnected
 			}
 			for _, record := range notificationInfo.Records {
 				//bucketName := record.S3.Bucket.Name
@@ -772,10 +854,5 @@ func (c *Client) isIgnoredFile(path string, record ...minio.NotificationEvent) b
 	if len(record) > 0 && strings.Contains(record[0].Source.UserAgent, UserAgentAppName) {
 		return true
 	}
-	/*
-		if model.IsIgnoredFile(path) {
-			return true
-		}
-	*/
 	return false
 }

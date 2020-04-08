@@ -38,6 +38,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Metadata server for tree nodes"),
 			service.WithStorage(meta.NewDAO, "data_meta"),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
 				ctx := m.Options().Context

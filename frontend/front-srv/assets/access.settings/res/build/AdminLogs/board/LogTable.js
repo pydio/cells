@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -52,6 +52,10 @@ var _modelLog = require('../model/Log');
 
 var _modelLog2 = _interopRequireDefault(_modelLog);
 
+var _LogDetail = require('./LogDetail');
+
+var _LogDetail2 = _interopRequireDefault(_LogDetail);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
@@ -67,7 +71,7 @@ var LogTable = (function (_React$Component) {
         _classCallCheck(this, LogTable);
 
         _get(Object.getPrototypeOf(LogTable.prototype), 'constructor', this).call(this, props);
-        this.state = { logs: [], loading: false, rootSpans: {} };
+        this.state = { logs: [], loading: false, rootSpans: {}, selectedRows: [] };
     }
 
     _createClass(LogTable, [{
@@ -83,7 +87,7 @@ var LogTable = (function (_React$Component) {
                     l.SpanUuid = 'span-' + i;
                 }
                 if (!l.SpanRootUuid) {
-                    rootSpans[l.SpanUuid] = { open: false, children: [] };
+                    rootSpans[l.SpanUuid] = { open: true, children: [] };
                 }
                 return l;
             });
@@ -100,7 +104,7 @@ var LogTable = (function (_React$Component) {
                     var root = _extends({}, l);
                     root.SpanUuid = l.SpanRootUuid;
                     l.HasRoot = true;
-                    rootSpans[l.SpanRootUuid] = { open: false, children: [l] };
+                    rootSpans[l.SpanRootUuid] = { open: true, children: [l] };
                     result.push(root);
                     continue;
                 }
@@ -188,18 +192,15 @@ var LogTable = (function (_React$Component) {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             var service = nextProps.service;
-            var filter = nextProps.filter;
-            var date = nextProps.date;
-            var endDate = nextProps.endDate;
+            var query = nextProps.query;
             var page = nextProps.page;
             var size = nextProps.size;
             var onLoadingStatusChange = nextProps.onLoadingStatusChange;
             var z = nextProps.z;
 
-            if (filter === this.props.filter && date === this.props.date && endDate === this.props.endDate && size === this.props.size && page === this.props.page && z === this.props.z) {
+            if (query === this.props.query && size === this.props.size && page === this.props.page && z === this.props.z) {
                 return;
             }
-            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
             this.load(service, query, page, size, 'JSON', onLoadingStatusChange);
         }
     }, {
@@ -210,13 +211,47 @@ var LogTable = (function (_React$Component) {
             var _state2 = this.state;
             var loading = _state2.loading;
             var rootSpans = _state2.rootSpans;
+            var selectedRows = _state2.selectedRows;
             var _props2 = this.props;
             var pydio = _props2.pydio;
-            var onSelectLog = _props2.onSelectLog;
-            var filter = _props2.filter;
-            var date = _props2.date;
+            var onTimestampContext = _props2.onTimestampContext;
+            var query = _props2.query;
+            var focus = _props2.focus;
+            var _props3 = this.props;
+            var _onPageNext = _props3.onPageNext;
+            var _onPagePrev = _props3.onPagePrev;
+            var nextDisabled = _props3.nextDisabled;
+            var prevDisabled = _props3.prevDisabled;
+            var onPageSizeChange = _props3.onPageSizeChange;
+            var page = _props3.page;
+            var size = _props3.size;
+            var pageSizes = _props3.pageSizes;
 
             var logs = this.openSpans();
+            if (selectedRows.length) {
+                (function () {
+                    var expStyle = { paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10 };
+                    var first = JSON.stringify(selectedRows[0]);
+                    logs = logs.map(function (log) {
+                        if (JSON.stringify(log) === first) {
+                            return _extends({}, log, {
+                                expandedRow: _react2['default'].createElement(_LogDetail2['default'], {
+                                    style: expStyle,
+                                    userDisplay: "inline",
+                                    pydio: pydio,
+                                    log: log,
+                                    focus: focus,
+                                    onSelectPeriod: onTimestampContext,
+                                    onRequestClose: function () {
+                                        return _this2.setState({ selectedRows: [] });
+                                    }
+                                }) });
+                        } else {
+                            return log;
+                        }
+                    });
+                })();
+            }
             var MessageHash = pydio.MessageHash;
 
             var columns = [{
@@ -260,19 +295,51 @@ var LogTable = (function (_React$Component) {
                     return dateString;
                 }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], hideSmall: true, renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
-                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], hideSmall: true, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
+                }, style: { width: 130, padding: '12px 0' }, headerStyle: { width: 130, padding: '12px 0' } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'], renderCell: function renderCell(row) {
+                    var msg = row.Msg;
+                    if (row.NodePath) {
+                        msg += ' [' + row.NodePath + ']';
+                    } else if (row.NodeUuid) {
+                        msg += ' [' + row.NodeUuid + ']';
+                    }
+                    return msg;
+                } }];
+
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var pagination = undefined;
+            if (_onPageNext) {
+                pagination = {
+                    page: page + 1,
+                    pageSize: size,
+                    pageSizes: pageSizes,
+                    onPageNext: function onPageNext(v) {
+                        return _onPageNext(v - 1);
+                    },
+                    onPagePrev: function onPagePrev(v) {
+                        return _onPagePrev(v - 1);
+                    },
+                    onPageSizeChange: onPageSizeChange,
+                    nextDisabled: nextDisabled,
+                    prevDisabled: prevDisabled
+                };
+            }
 
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
                 columns: columns,
                 onSelectRows: function (rows) {
-                    if (rows.length && onSelectLog) {
-                        onSelectLog(rows[0]);
+                    _this2.setState({ selectedRows: rows });
+                    if (_this2.props.onTimestampContext) {
+                        _this2.props.onTimestampContext(null);
                     }
                 },
                 deselectOnClickAway: true,
                 showCheckboxes: false,
-                emptyStateString: loading ? MessageHash['settings.33'] : filter || date ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
+                emptyStateString: loading ? MessageHash['settings.33'] : query ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
                 computeRowStyle: function (row) {
                     var style = {};
                     if (row.HasRoot) {
@@ -282,19 +349,15 @@ var LogTable = (function (_React$Component) {
                         style.color = '#E53935';
                     }
                     return style;
-                }
+                },
+                masterStyles: tableMaster,
+                pagination: pagination
             });
         }
     }]);
 
     return LogTable;
 })(_react2['default'].Component);
-
-LogTable.propTypes = {
-    date: _react2['default'].PropTypes.instanceOf(Date).isRequired,
-    endDate: _react2['default'].PropTypes.instanceOf(Date),
-    filter: _react2['default'].PropTypes.string.isRequired
-};
 
 exports['default'] = LogTable;
 module.exports = exports['default'];

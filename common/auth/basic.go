@@ -75,9 +75,15 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 				return
 			}
 
-			jwtHelper := DefaultJWTVerifier()
-			newCtx, claims, err := jwtHelper.PasswordCredentialsToken(ctx, user, pass)
+			token, err := DefaultJWTVerifier().PasswordCredentialsToken(ctx, user, pass)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return
+			}
+
+			newCtx, claims, err := DefaultJWTVerifier().Verify(ctx, token.AccessToken)
 			if err == nil {
+
 				r = r.WithContext(newCtx)
 				b.cache[user] = &validBasicUser{
 					Hash:      pass,

@@ -53,3 +53,7 @@ exports.Listener = _interopRequire(_Listener);
 var _Callbacks = require('./Callbacks');
 
 exports.Callbacks = _interopRequire(_Callbacks);
+
+var _WatchSelector = require('./WatchSelector');
+
+exports.WatchSelector = _interopRequire(_WatchSelector);

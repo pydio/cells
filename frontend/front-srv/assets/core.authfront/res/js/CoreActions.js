@@ -24,6 +24,9 @@ import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon,
 import PydioApi from "pydio/http/api";
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
+
+import qs from 'query-string'
+
 let pydio = window.pydio;
 
 const LanguagePicker = () => {
@@ -68,23 +71,21 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
-        restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(r => {
-            if (r.data && r.data.Trigger){
-                return;
-            }
 
-            this.dismiss();
-        }).catch(e => {
-            if (e.response && e.response.body) {
-                this.setState({errorId: e.response.body.Title});
-            } else if (e.response && e.response.text) {
-                this.setState({errorId: e.response.text});
-            } else if(e.message){
-                this.setState({errorId: e.message});
-            } else {
-                this.setState({errorId: 'Login failed!'})
-            }
-        });
+        restClient.sessionLoginWithCredentials(login, this.refs.password.getValue())
+            .then(() => this.dismiss())
+            .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
+            .catch(e => {
+                if (e && e.response && e.response.body) {
+                    this.setState({errorId: e.response.body.Title});
+                } else if (e && e.response && e.response.text) {
+                    this.setState({errorId: e.response.text});
+                } else if(e && e.message){
+                    this.setState({errorId: e.message});
+                } else {
+                    this.setState({errorId: 'Login failed!'})
+                }
+            })
     }
 };
 
@@ -316,6 +317,7 @@ class Callbacks{
         }
 
         PydioApi.getRestClient().sessionLogout()
+            .then(() => pydio.loadXmlRegistry(null, null, null))
             .catch((e) => window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout');
 
     }

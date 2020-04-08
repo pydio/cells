@@ -41,6 +41,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _Client = require('./Client');
 
 var _Client2 = _interopRequireDefault(_Client);
@@ -78,18 +80,20 @@ var UserPanel = (function (_React$Component) {
         value: function reloadData() {
             var _this = this;
 
-            _Client2['default'].loadActivityStreams(function (json) {
+            _Client2['default'].loadActivityStreams('USER_ID', this.props.pydio.user.id, 'inbox').then(function (json) {
                 _this.setState({ data: json });
-            }, 'USER_ID', this.props.pydio.user.id, 'inbox');
+            })['catch'](function (msg) {
+                _this.setState({ error: msg });
+            });
         }
     }, {
         key: 'reloadUnread',
         value: function reloadUnread() {
             var _this2 = this;
 
-            _Client2['default'].UnreadInbox(this.props.pydio.user.id, function (count) {
+            _Client2['default'].UnreadInbox(this.props.pydio.user.id).then(function (count) {
                 _this2.setState({ unreadStatus: count });
-            });
+            })['catch'](function (msg) {});
         }
     }, {
         key: 'onStatusChange',
@@ -140,9 +144,11 @@ var UserPanel = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var iconStyle = _props.iconStyle;
+            var muiTheme = _props.muiTheme;
             var _state = this.state;
             var open = _state.open;
             var anchorEl = _state.anchorEl;
+            var unreadStatus = _state.unreadStatus;
 
             var buttonStyle = { borderRadius: '50%' };
             if (open && iconStyle && iconStyle.color) {
@@ -152,39 +158,46 @@ var UserPanel = (function (_React$Component) {
                 'span',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Badge,
+                    'div',
                     {
+                        style: { position: 'relative', display: 'inline-block' },
+
                         badgeContent: this.state.unreadStatus,
                         secondary: true,
-                        style: this.state.unreadStatus ? { padding: '0 24px 0 0' } : { padding: 0 },
                         badgeStyle: this.state.unreadStatus ? null : { display: 'none' }
                     },
                     _react2['default'].createElement(_materialUi.IconButton, {
                         onTouchTap: this.handleTouchTap.bind(this),
-                        iconClassName: this.props.iconClassName || "icon-bell",
-                        tooltip: this.props.pydio.MessageHash['notification_center.4'],
+                        iconClassName: this.props.iconClassName || "mdi mdi-bell",
+                        tooltip: (unreadStatus ? unreadStatus + ' ' : '') + this.props.pydio.MessageHash['notification_center.4'],
                         className: 'userActionButton alertsButton',
                         iconStyle: iconStyle,
                         style: buttonStyle
-                    })
+                    }),
+                    unreadStatus > 0 && _react2['default'].createElement('div', { style: { width: 6, height: 6, borderRadius: '50%', top: 9, right: 6, position: 'absolute', backgroundColor: muiTheme.palette.accent1Color } })
                 ),
                 _react2['default'].createElement(
                     _materialUi.Popover,
                     {
                         open: open,
                         anchorEl: anchorEl,
-                        anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
+                        anchorOrigin: { horizontal: 'left', vertical: 'top' },
                         targetOrigin: { horizontal: 'left', vertical: 'top' },
                         onRequestClose: this.handleRequestClose.bind(this),
                         style: { width: 320 },
-                        zDepth: 2
+                        zDepth: 3
 
                     },
                     _react2['default'].createElement(
                         'div',
-                        { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', padding: '12px 16px', width: '100%',
-                                backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)' } },
-                        pydio.MessageHash['notification_center.1']
+                        { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', width: '100%',
+                                backgroundColor: '#f8fafc', borderBottom: '1px solid #ECEFF1', color: muiTheme.palette.primary1Color } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-bell", style: { fontSize: 18, margin: '12px 8px 14px 16px' } }),
+                        _react2['default'].createElement(
+                            'span',
+                            { style: { fontSize: 15, fontWeight: 500 } },
+                            pydio.MessageHash['notification_center.1']
+                        )
                     ),
                     this.state.data && _react2['default'].createElement(_ActivityList2['default'], {
                         items: this.state.data.items,
@@ -199,6 +212,8 @@ var UserPanel = (function (_React$Component) {
 
     return UserPanel;
 })(_react2['default'].Component);
+
+exports['default'] = UserPanel = (0, _materialUiStyles.muiThemeable)()(UserPanel);
 
 exports['default'] = UserPanel;
 module.exports = exports['default'];

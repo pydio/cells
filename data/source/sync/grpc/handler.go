@@ -30,6 +30,8 @@ import (
 	sync2 "sync"
 	"time"
 
+	"github.com/pydio/cells/data/source/sync"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
@@ -86,6 +88,9 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 	if err := servicecontext.ScanConfig(ctx, &syncConfig); err != nil {
 		return nil, err
 	}
+	if sec := config.GetSecret(syncConfig.ApiSecret).String(""); sec != "" {
+		syncConfig.ApiSecret = sec
+	}
 	e := h.initSync(syncConfig)
 	return h, e
 }
@@ -94,6 +99,7 @@ func (s *Handler) Start() {
 	s.syncTask.Start(s.globalCtx, true)
 	go s.watchConfigs()
 	go s.watchErrors()
+	go s.watchDisconnection()
 }
 
 func (s *Handler) Stop() {
@@ -158,6 +164,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				return err
 			}
 			minioConfig = resp.MinioConfig
+			if sec := config.GetSecret(minioConfig.ApiSecret).String(""); sec != "" {
+				minioConfig.ApiSecret = sec
+			}
 			mc, e := minio.NewCore(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
 			if e != nil {
 				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
@@ -214,6 +223,29 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			}
 		}
 	}
+	options := model.EndpointOptions{}
+	bucketTags, o1 := syncConfig.StorageConfiguration["bucketsTags"]
+	o1 = o1 && bucketTags != ""
+	objectsTags, o2 := syncConfig.StorageConfiguration["objectsTags"]
+	o2 = o2 && objectsTags != ""
+	var syncMetas bool
+	if o1 || o2 {
+		syncMetas = true
+		options.Properties = make(map[string]string)
+		if o1 {
+			options.Properties["bucketsTags"] = bucketTags
+		}
+		if o2 {
+			options.Properties["objectsTags"] = objectsTags
+		}
+	}
+	if readOnly, o := syncConfig.StorageConfiguration["readOnly"]; o && readOnly == "true" {
+		options.BrowseOnly = true
+	}
+	var keepNativeEtags bool
+	if k, o := syncConfig.StorageConfiguration["nativeEtags"]; o && k == "true" {
+		keepNativeEtags = true
+	}
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {
@@ -224,7 +256,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			minioConfig.ApiKey,
 			minioConfig.ApiSecret,
 			false,
-			model.EndpointOptions{},
+			options,
 			bucketsFilter,
 		)
 		if errs3 != nil {
@@ -236,6 +268,15 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if computer != nil {
 			multiClient.SetPlainSizeComputer(computer)
 		}
+		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {
+			if csm, ok := dao.(s3.ChecksumMapper); ok {
+				multiClient.SetChecksumMapper(csm)
+			}
+		}
+		if keepNativeEtags {
+			multiClient.SkipRecomputeEtagByCopy()
+		}
+
 		source = multiClient
 
 	} else {
@@ -246,7 +287,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			syncConfig.ObjectsBucket,
 			syncConfig.ObjectsBaseFolder,
 			false,
-			model.EndpointOptions{})
+			options)
 		if errs3 != nil {
 			return errs3
 		}
@@ -256,9 +297,15 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if computer != nil {
 			s3client.SetPlainSizeComputer(computer)
 		}
-		if syncConfig.StorageType == object.StorageType_GCS {
+		if syncConfig.StorageType == object.StorageType_GCS || keepNativeEtags {
 			s3client.SkipRecomputeEtagByCopy()
 		}
+		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {
+			if csm, ok := dao.(s3.ChecksumMapper); ok {
+				s3client.SetChecksumMapper(csm, true)
+			}
+		}
+
 		source = s3client
 	}
 
@@ -266,7 +313,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	indexClientWrite := tree.NewNodeReceiverClient(indexName, indexClient)
 	indexClientRead := tree.NewNodeProviderClient(indexName, indexClient)
 	sessionClient := tree.NewSessionIndexerClient(indexName, indexClient)
-	target := index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	var target model.Endpoint
+	if syncMetas {
+		target = index.NewClientWithMeta(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	} else {
+		target = index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
+	}
 
 	s.S3client = source
 	s.IndexClient = indexClientRead
@@ -277,6 +329,32 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	return nil
 
+}
+
+func (s *Handler) watchDisconnection() {
+	//defer close(watchOnce)
+	watchOnce := make(chan interface{})
+	s.syncTask.SetupEventsChan(nil, nil, watchOnce)
+
+	for w := range watchOnce {
+		if m, ok := w.(*model.EndpointStatus); ok && m.WatchConnection == model.WatchDisconnected {
+			log.Logger(s.globalCtx).Error("Watcher disconnected! Will try to restart sync now.")
+			s.syncTask.Shutdown()
+			<-time.After(3 * time.Second)
+			var syncConfig *object.DataSource
+			if err := servicecontext.ScanConfig(s.globalCtx, &syncConfig); err != nil {
+				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
+			}
+			if sec := config.GetSecret(syncConfig.ApiSecret).String(""); sec != "" {
+				syncConfig.ApiSecret = sec
+			}
+			if e := s.initSync(syncConfig); e != nil {
+				log.Logger(s.globalCtx).Error("Error while restarting sync")
+			}
+			s.syncTask.Start(s.globalCtx, true)
+			return
+		}
+	}
 }
 
 func (s *Handler) watchErrors() {
@@ -358,7 +436,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)
-		taskChan := make(chan interface{})
+		taskChan := make(chan interface{}, 1000)
 		autoClient.StartListening(taskChan)
 
 		theTask.StatusMessage = "Starting"
@@ -383,9 +461,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					theTask.HasProgress = true
 					theTask.Progress = status.Progress()
 					theTask.Status = jobs.TaskStatus_Running
-					if status.IsError() {
+					if status.IsError() && status.Error() != nil {
 						log.TasksLogger(c).Error(status.String(), zap.Error(status.Error()))
-					} else {
+					} else if status.String() != "" {
 						log.TasksLogger(c).Info(status.String())
 					}
 					taskChan <- theTask
@@ -405,7 +483,15 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}()
 	}
 	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
-	result, e := s.syncTask.Run(context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME), req.DryRun, false)
+	// Copy context
+	bg := context.Background()
+	bg = context2.WithUserNameMetadata(bg, common.PYDIO_SYSTEM_USERNAME)
+	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
+	bg = servicecontext.WithServiceColor(bg, servicecontext.GetServiceColor(c))
+	if s, o := servicecontext.SpanFromContext(c); o {
+		bg = servicecontext.WithSpan(bg, s)
+	}
+	result, e := s.syncTask.Run(bg, req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
@@ -447,13 +533,39 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 
 	s.syncTask.Shutdown()
 
+	var mm []string
+	var ee []string
+
+	if dao := servicecontext.GetDAO(ctx); dao != nil {
+		if d, o := dao.(sync.DAO); o {
+			if e, m := d.CleanResourcesOnDeletion(); e != nil {
+				ee = append(ee, e.Error())
+			} else {
+				mm = append(mm, m)
+			}
+
+		}
+	}
+
 	serviceName := servicecontext.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
 	taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)
-	_, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
+	if _, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,
-	})
-	return e
+	}); e != nil {
+		ee = append(ee, e.Error())
+	} else {
+		mm = append(mm, "Removed associated job for datasource")
+	}
+	if len(ee) > 0 {
+		response.Success = false
+		return fmt.Errorf(strings.Join(ee, ", "))
+	} else if len(mm) > 0 {
+		response.Success = true
+		response.Message = strings.Join(mm, ", ")
+		return nil
+	}
 
+	return nil
 }

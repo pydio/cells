@@ -72,53 +72,6 @@ var SampleConfig = `{
         "pydio.grpc.acl":{
             "dsn": "default"
         },
-        "pydio.grpc.auth":{
-            "dsn": "default",
-            "dex" : {
-                "issuer": "http://127.0.0.1:5556/dex",
-                "web"   : {
-                    "http": "0.0.0.0:5556"
-                },
-                "frontend" : {
-                    "Dir" : "idm/auth/web"
-                },
-                "logger" : {
-                    "level" : "debug",
-                    "format": "text"
-                },
-				"expiry": {
-					"idTokens": "10m"
-				},
-                "oauth2" : {
-                    "responseTypes": ["code", "token", "id_token"],
-					"skipApprovalScreen": true
-                },
-                "staticClients" : [
-                    {
-                        "id": "example-app",
-                        "redirectURIs" : ["http://127.0.0.1:5555/callback"],
-                        "name" : "Example App",
-                        "secret" : "ZXhhbXBsZS1hcHAtc2VjcmV0"
-                    }
-                ],
-                "connectors": [
-                    {
-                        "type": "pydio",
-                        "id"  : "pydio",
-                        "name": "Pydio Aggregation Connector",
-                        "config": {
-                            "pydioconnectors": [
-                                {
-                                    "type": "pydio-api",
-                                    "name": "pydioapi",
-                                    "id"  : 1
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
         "pydio.grpc.tree":{
             "dsn":"default"
         },
@@ -164,12 +117,35 @@ var SampleConfig = `{
             "fork": true
         },
 		"pydio.web.oauth":{
+			"connectors": [
+				{
+					"type": "pydio",
+					"id"  : "pydio",
+					"name": "Pydio Cells"
+				}
+			],
 			"cors": {
 				"public": {
 					"allowedOrigins": "*"
 				}
 			},
 			"staticClients": [
+                {
+					"client_id": "cells-frontend",
+					"client_name": "CellsFrontend Application",
+					"grant_types": [
+						"authorization_code", 
+						"refresh_token"
+					],
+					"redirect_uris": [
+						"http://EXTERNAL_HOST/auth/callback"
+                    ],
+                    "post_logout_redirect_uris": [
+                        "http://EXTERNAL_HOST/auth/logout"
+                    ],
+					"response_types": ["code", "token", "id_token"],
+					"scope": "openid email profile pydio offline"
+				},
 				{
 					"client_id": "cells-sync",
 					"client_name": "CellsSync Application",

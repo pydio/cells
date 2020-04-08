@@ -19,12 +19,14 @@
  */
 import React from 'react'
 import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
+const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 import {loadEditorClass} from "../editor/util/ClassLoader";
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 let RolesDashboard = React.createClass({
 
@@ -56,13 +58,13 @@ let RolesDashboard = React.createClass({
     },
 
     openTableRows(rows) {
-        if (rows.length) {
+        if (rows.length && rows[0].role.PoliciesContextEditable) {
             this.openRoleEditor(rows[0].role);
         }
     },
 
     openRoleEditor(idmRole, initialSection = 'activity'){
-        const {pydio, rolesEditorClass} = this.props;
+        const {pydio, rolesEditorClass, rolesEditorProps} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
                 return false;
@@ -76,7 +78,8 @@ let RolesDashboard = React.createClass({
                     idmRole:idmRole,
                     pydio: pydio,
                     initialEditSection:initialSection,
-                    onRequestTabClose:this.closeRoleEditor
+                    onRequestTabClose:this.closeRoleEditor,
+                    ...rolesEditorProps
                 }
             });
         });
@@ -137,25 +140,36 @@ let RolesDashboard = React.createClass({
 
     render(){
 
+        const {muiTheme, accessByName} = this.props;
+        const styles = AdminComponents.AdminStyles(muiTheme.palette);
         const {searchRoleString, showTechnical} = this.state;
+        const hasEditRight = accessByName('Create');
 
-        const buttons = [
-            <FlatButton primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
+        // Header Buttons & edit functions
+        let selectRows = null;
+        const buttons = [];
+        if(hasEditRight){
+            buttons.push(<FlatButton {...styles.props.header.flatButton} primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>);
+            selectRows = this.openTableRows.bind(this);
+        }
+        buttons.push(
             <IconMenu
-                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"}/>}
+                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                desktop={true}
                 onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
             >
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
             </IconMenu>
-        ];
+        );
 
-        const centerContent = (
-            <div style={{height:40, padding: '0px 20px', width: 240, display: 'inline-block'}}>
-                <TextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+        const searchBox = (
+            <div style={{display:'flex'}}>
+                <div style={{flex: 1}}/>
+                <div style={{width:190}}>
+                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+                </div>
             </div>
         );
         const iconStyle = {
@@ -167,32 +181,44 @@ let RolesDashboard = React.createClass({
             {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true},
             {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true},
             {name:'actions', label:'', style:{width:80, textOverflow:'none'}, headerStyle:{width:80}, renderCell:(row) => {
-                return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
+                if(hasEditRight && row.role.PoliciesContextEditable){
+                    return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
+                } else {
+                    return null;
+                }
             }}
         ];
         const data = this.computeTableData(searchRoleString);
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
         return(
 
-            <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
+            <div className={"main-layout-nav-to-stack vertical-layout"}>
                 <AdminComponents.Header
                     title={this.context.getMessage('69', 'settings')}
                     icon="mdi mdi-account-multiple"
                     actions={buttons}
-                    centerContent={centerContent}
+                    centerContent={searchBox}
                     reloadAction={()=>{this.load()}}
                     loading={this.state.loading}
                 />
-                <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
-                <Paper zDepth={1} style={{margin: 16}} className={"horizontal-layout layout-fill"}>
-                    <MaterialTable
-                        data={data}
-                        columns={columns}
-                        onSelectRows={this.openTableRows.bind(this)}
-                        deselectOnClickAway={true}
-                        showCheckboxes={false}
-                    />
-                </Paper>
+                <div className={"layout-fill"}>
+                    <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
+                    <Paper {...blockProps} style={blockStyle}>
+                        <MaterialTable
+                            data={data}
+                            columns={columns}
+                            onSelectRows={selectRows}
+                            deselectOnClickAway={true}
+                            showCheckboxes={false}
+                            masterStyles={tableMaster}
+                            paginate={[10,25, 50, 100]}
+                        />
+                    </Paper>
+                </div>
             </div>
 
 
@@ -203,4 +229,5 @@ let RolesDashboard = React.createClass({
 
 });
 
+RolesDashboard = muiThemeable()(RolesDashboard)
 export {RolesDashboard as default}

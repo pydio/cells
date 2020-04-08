@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package rest;
 
+import "github.com/pydio/cells/common/proto/auth/auth.proto";
+
 message SettingsMenuRequest{}
 
 message SettingsEntryMeta{
@@ -19,6 +21,17 @@ message SettingsEntry {
     string Manager = 4 [json_name="MANAGER"];
     string Alias = 5 [json_name="ALIAS"];
     SettingsEntryMeta Metadata = 6 [json_name="METADATA"];
+    map<string,SettingsAccess> Accesses = 7;
+    string Feature = 8;
+}
+
+message SettingsAccess {
+    repeated SettingsAccessRestPolicy Policies = 2;
+}
+
+message SettingsAccessRestPolicy {
+    string Action = 2;
+    string Resource = 3;
 }
 
 message SettingsSection {
@@ -48,6 +61,13 @@ message FrontMessagesResponse{
     map<string,string> Messages = 1;
 }
 
+
+message FrontSessionGetRequest {}
+
+message FrontSessionGetResponse {
+    auth.Token Token = 1;
+}
+
 message FrontSessionRequest{
     // Time reference for computing jwt expiry
     int32 ClientTime = 1;
@@ -56,15 +76,22 @@ message FrontSessionRequest{
     // Kill session now
     bool Logout = 3;
 }
-message FrontSessionResponse{
+message FrontSessionResponse {
+    // Legacy information (now in token)
     string JWT = 1;
     int32 ExpireTime = 2;
-
     // Trigger a specific Auth step
     string Trigger = 3;
     // Additional data for the trigger
     map<string,string> TriggerInfo = 4;
+    auth.Token Token = 5;
+    string RedirectTo = 6;
+    string Error = 7;
 }
+
+message FrontSessionDelRequest {}
+
+message FrontSessionDelResponse {}
 
 message FrontAuthRequest {
     string RequestID = 1;

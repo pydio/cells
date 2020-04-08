@@ -20,25 +20,19 @@
 
 import React from 'react'
 
-export default React.createClass({
+export default class LabelWithTip extends React.Component {
 
-    propTypes: {
-        label:React.PropTypes.string,
-        labelElement:React.PropTypes.object,
-        tooltip:React.PropTypes.string,
-        tooltipClassName:React.PropTypes.string,
-        className:React.PropTypes.string,
-        style:React.PropTypes.object
-    },
+    state : {show:false};
 
-    getInitialState:function(){
-        return {show:false};
-    },
+    show(){
+        this.setState({show:true});
+    }
+    hide(){
+        this.setState({show:false});
+    }
 
-    show:function(){this.setState({show:true});},
-    hide:function(){this.setState({show:false});},
+    render(){
 
-    render:function(){
         if(this.props.tooltip){
             let tooltipStyle={};
             if(this.props.label || this.props.labelElement){
@@ -57,7 +51,7 @@ export default React.createClass({
             let style = this.props.style || {position:'relative'};
 
             return (
-                <span onMouseEnter={this.show} onMouseLeave={this.hide} style={style} className={this.props.className}>
+                <span onMouseEnter={this.show.bind(this)} onMouseLeave={this.hide.bind(this)} style={style} className={this.props.className}>
                         {label}
                     {this.props.children}
                     <div label={this.props.tooltip} style={{...tooltipStyle,display:this.state.show?'block':'none'}} className={this.props.tooltipClassName}/>
@@ -74,4 +68,4 @@ export default React.createClass({
         }
     }
 
-});
+}

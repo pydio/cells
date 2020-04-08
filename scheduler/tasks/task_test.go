@@ -61,6 +61,7 @@ func TestNewTaskFromEvent(t *testing.T) {
 			Job:            &jobs.Job{ID: "ajob"},
 			lock:           &sync.RWMutex{},
 			initialMessage: msg,
+			RunUUID:        task.RunUUID,
 			lockedTask: &jobs.Task{
 				ID:            task.lockedTask.ID,
 				JobID:         "ajob",

@@ -58,6 +58,9 @@ export default class TreeQuery {
             
             
 
+            if (data.hasOwnProperty('Paths')) {
+                obj['Paths'] = ApiClient.convertToType(data['Paths'], ['String']);
+            }
             if (data.hasOwnProperty('PathPrefix')) {
                 obj['PathPrefix'] = ApiClient.convertToType(data['PathPrefix'], ['String']);
             }
@@ -91,10 +94,23 @@ export default class TreeQuery {
             if (data.hasOwnProperty('GeoQuery')) {
                 obj['GeoQuery'] = TreeGeoQuery.constructFromObject(data['GeoQuery']);
             }
+            if (data.hasOwnProperty('PathDepth')) {
+                obj['PathDepth'] = ApiClient.convertToType(data['PathDepth'], 'Number');
+            }
+            if (data.hasOwnProperty('UUIDs')) {
+                obj['UUIDs'] = ApiClient.convertToType(data['UUIDs'], ['String']);
+            }
+            if (data.hasOwnProperty('Not')) {
+                obj['Not'] = ApiClient.convertToType(data['Not'], 'Boolean');
+            }
         }
         return obj;
     }
 
+    /**
+    * @member {Array.<String>} Paths
+    */
+    Paths = undefined;
     /**
     * @member {Array.<String>} PathPrefix
     */
@@ -139,6 +155,18 @@ export default class TreeQuery {
     * @member {module:model/TreeGeoQuery} GeoQuery
     */
     GeoQuery = undefined;
+    /**
+    * @member {Number} PathDepth
+    */
+    PathDepth = undefined;
+    /**
+    * @member {Array.<String>} UUIDs
+    */
+    UUIDs = undefined;
+    /**
+    * @member {Boolean} Not
+    */
+    Not = undefined;
 
 
 

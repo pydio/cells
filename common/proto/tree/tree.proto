@@ -364,6 +364,8 @@ message ChangeLog{
 
 // Search Queries
 message Query {
+    // Preset list of nodes by Path
+    repeated string Paths = 13;
     // Limit to a given subtree
     repeated string PathPrefix = 1;
     // Range for size
@@ -384,6 +386,12 @@ message Query {
     string Extension = 10;
     // Search geographically
     GeoQuery GeoQuery = 11;
+    // Limit to a given level of the tree - can be used in filters
+    int32 PathDepth = 12;
+    // Preset list of Node by UUIDs
+    repeated string UUIDs = 15;
+    // Negate this query
+    bool Not = 14;
 }
 
 message GeoQuery {

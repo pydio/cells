@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,13 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 import React from 'react'
-import {Dialog, TextField, RaisedButton, FlatButton, Paper, DatePicker, FontIcon, BottomNavigation, BottomNavigationItem} from 'material-ui'
+import {Paper, FontIcon} from 'material-ui'
 import PydioDataModel from 'pydio/model/data-model'
 import LogTable from './LogTable';
 import LogTools from './LogTools'
-import LogDetail from './LogDetail'
+import Log from '../model/Log'
 
 class LogBoard extends React.Component {
 
@@ -32,7 +31,7 @@ class LogBoard extends React.Component {
         this.state = {
             page: 0,
             size: 100,
-            filter: "",
+            query: "",
             contentType: 'JSON',
             loading: false,
             results: 0,
@@ -41,6 +40,12 @@ class LogBoard extends React.Component {
 
     handleLogToolsChange(newState){
         this.setState({...newState});
+    }
+
+    componentWillReceiveProps(newProps){
+        if(newProps.query !== undefined && newProps.query !== this.state.query){
+            this.setState({query: newProps.query, page: 0});
+        }
     }
 
     handleReload() {
@@ -55,6 +60,15 @@ class LogBoard extends React.Component {
         this.setState({page: this.state.page + 1})
     }
 
+    handleTimestampContext(ts) {
+        if(ts){
+            const q = Log.buildTsQuery(ts, 5);
+            this.setState({tmpQuery: q, focus: ts});
+        } else {
+            this.setState({tmpQuery: null, focus: null});
+        }
+    }
+
     handleLoadingStatusChange(status, resultsCount){
         if(this.props.onLoadingStatusChange){
             this.props.onLoadingStatusChange(status);
@@ -64,73 +78,52 @@ class LogBoard extends React.Component {
         this.setState({results: resultsCount});
     }
 
-    componentWillReceiveProps(newProps){
-        if(typeof newProps.filter !== "undefined" && newProps.filter !== this.state.filter){
-            this.setState({filter: newProps.filter, page: 0});
-        }
-        if(typeof newProps.filter !== "undefined" && newProps.date && newProps.date !== this.state.date){
-            this.setState({date: newProps.date, page: 0});
-        }
-        if(typeof newProps.filter !== "undefined" && newProps.endDate && newProps.endDate !== this.state.endDate){
-            this.setState({endDate: newProps.endDate, page: 0});
-        }
-    }
-
     render(){
-        const {pydio, noHeader, service, disableExport} = this.props;
-        const {selectedLog, page, size, date, endDate, filter, contentType, z, results} = this.state;
-
+        const {pydio, noHeader, service, disableExport, currentNode} = this.props;
+        const {page, size, query, tmpQuery, focus, contentType, z, results} = this.state;
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
+        const buttons = (
+            <LogTools
+                pydio={pydio}
+                service={service}
+                focus={focus}
+                onStateChange={this.handleLogToolsChange.bind(this)}
+                disableExport={disableExport}
+            />
+        );
 
-        const buttons = <LogTools pydio={pydio} service={service} onStateChange={this.handleLogToolsChange.bind(this)} disableExport={disableExport}/>;
+        const {body} = AdminComponents.AdminStyles();
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
-        let navItems = [];
-        if(page > 0) {
-            navItems.push(
-                <BottomNavigationItem
-                    key={"prev"}
-                    label="Previous"
-                    icon={<FontIcon className="mdi mdi-chevron-left" />}
-                    onTouchTap={() => this.handleDecrPage()}
-                />
-            );
-        }
-        if(results === size){
-            navItems.push(
-                <BottomNavigationItem
-                    key={"next"}
-                    label="Next"
-                    icon={<FontIcon className="mdi mdi-chevron-right" />}
-                    onTouchTap={() => this.handleIncrPage()}
-                />
-            )
+        const prevDisabled = page === 0;
+        const nextDisabled = results < size;
+        const pageSizes = [50, 100, 500, 1000];
+        let paginationProps;
+        if(!(prevDisabled && results < pageSizes[0]) && !focus){
+            paginationProps = {
+                pageSizes, prevDisabled, nextDisabled,
+                onPageNext: this.handleIncrPage.bind(this),
+                onPagePrev: this.handleDecrPage.bind(this),
+                onPageSizeChange: (v) => {this.setState({size:v, page:0})}
+            }
         }
 
         const mainContent = (
-            <Paper zDepth={1} style={{margin: 16}}>
-                <Dialog
-                    modal={false}
-                    open={!!selectedLog}
-                    onRequestClose={() => {this.setState({selectedLog: null})}}
-                    style={{padding: 0}}
-                    contentStyle={{maxWidth: 420}}
-                    bodyStyle={{padding: 0}}
-                    autoScrollBodyContent={true}
-                >{selectedLog && <LogDetail log={selectedLog} pydio={pydio} onRequestClose={() => {this.setState({selectedLog: null})}}/>}</Dialog>
+            <Paper {...blockProps} style={blockStyle}>
                 <LogTable
                     pydio={pydio}
                     service={service || 'syslog'}
                     page={page}
                     size={size}
-                    date={date}
-                    endDate={endDate}
-                    filter={filter}
+                    query={tmpQuery ? tmpQuery:query}
+                    focus={focus}
                     contentType={contentType}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
-                    onSelectLog={(log) => {this.setState({selectedLog: log})}}
+                    onTimestampContext={this.handleTimestampContext.bind(this)}
+                    {...paginationProps}
                 />
-                {navItems.length ? <BottomNavigation selectedIndex={this.state.selectedIndex}>{navItems}</BottomNavigation> : null}
             </Paper>
         );
 
@@ -142,6 +135,7 @@ class LogBoard extends React.Component {
                     <div className="vertical-layout" style={{width:'100%'}}>
                         <AdminComponents.Header
                             title={title}
+                            icon={currentNode.getMetadata().get('icon_class')}
                             actions={buttons}
                             reloadAction={this.handleReload.bind(this)}
                             loading={this.state.loading}

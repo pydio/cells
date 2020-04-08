@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
  */
 
 import React from 'react'
-import {GenericCard, GenericLine} from '../main/GenericCard'
 import CompositeModel from '../composite/CompositeModel'
 import GenericEditor from '../main/GenericEditor'
 import Pydio from 'pydio'
@@ -36,6 +35,8 @@ import {Divider} from 'material-ui'
 
 const {PaletteModifier} = Pydio.requireLib('hoc');
 const {Tooltip} = Pydio.requireLib("boot");
+const {GenericCard, GenericLine} = Pydio.requireLib('components');
+
 
 class CompositeCard extends React.Component {
 
@@ -248,26 +249,34 @@ class CompositeCard extends React.Component {
                 );
             }
             const links = model.getLinks();
-            if (links.length && links[0].getLink()){
-                const publicLink = ShareHelper.buildPublicUrl(pydio, links[0].getLink().LinkHash, mode === 'infoPanel');
-                lines.push(
-                    <GenericLine iconClassName="mdi mdi-link" legend={m(121)} style={{overflow:'visible'}} dataStyle={{overflow:'visible'}} data={
-                        <div
-                            ref="copy-button"
-                            style={{cursor:'pointer', position:'relative'}}
-                            onMouseOver={()=>{this.setState({linkTooltip:true})}}
-                            onMouseOut={()=>{this.setState({linkTooltip:false})}}
-                        >
-                            <Tooltip
-                                label={copyMessage ? copyMessage : m(191)}
-                                horizontalPosition={"left"}
-                                verticalPosition={"top"}
-                                show={linkTooltip}
-                            />
-                            {publicLink}
-                        </div>
-                    }/>
-                )
+            if (links.length){
+                const ln = links[0];
+                if (ln.hasError()) {
+                    const err = ln.hasError();
+                    lines.push(
+                        <GenericLine iconClassName={"mdi mdi-alert-outline"} legend={"Error"} data={err.Detail || err.Msg || err}/>
+                    );
+                } else if(ln.getLink()){
+                    const publicLink = ShareHelper.buildPublicUrl(pydio, ln.getLink().LinkHash, mode === 'infoPanel');
+                    lines.push(
+                        <GenericLine iconClassName="mdi mdi-link" legend={m(121)} style={{overflow:'visible'}} dataStyle={{overflow:'visible'}} data={
+                            <div
+                                ref="copy-button"
+                                style={{cursor:'pointer', position:'relative'}}
+                                onMouseOver={()=>{this.setState({linkTooltip:true})}}
+                                onMouseOut={()=>{this.setState({linkTooltip:false})}}
+                            >
+                                <Tooltip
+                                    label={copyMessage ? copyMessage : m(191)}
+                                    horizontalPosition={"left"}
+                                    verticalPosition={"top"}
+                                    show={linkTooltip}
+                                />
+                                {publicLink}
+                            </div>
+                        }/>
+                    )
+                }
             }
             const deleteAction = () => {
                 if(confirm(m(255))){

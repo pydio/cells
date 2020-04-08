@@ -87,6 +87,8 @@ export default class MetaNodeProvider{
             if(this.properties.has('tmp_repository_id')) {
                 const repos = pydio.user.getRepositoriesList();
                 slug = repos.get(this.properties.get('tmp_repository_id')).getSlug();
+            } else if(node.getMetadata().has('repository_slug')){
+                slug = node.getMetadata().get('repository_slug')
             } else {
                 slug = pydio.user.getActiveRepositoryObject().getSlug();
             }
@@ -169,12 +171,14 @@ export default class MetaNodeProvider{
         let path = node.getPath();
         const pydio = Pydio.getInstance();
         if(pydio.user){
-            if(node.getMetadata().has('repository_id')){
+            if(node.getMetadata().has('repository_id')) {
                 const repoId = node.getMetadata().get('repository_id');
                 const repo = pydio.user.getRepositoriesList().get(repoId);
-                if(repo){
+                if (repo) {
                     slug = repo.getSlug();
                 }
+            } else if(node.getMetadata().has('repository_slug')) {
+                slug = node.getMetadata().get('repository_slug');
             } else {
                 slug = pydio.user.getActiveRepositoryObject().getSlug();
             }
@@ -194,6 +198,28 @@ export default class MetaNodeProvider{
                 errorCallback(e);
             }else{
                 throw e;
+            }
+        });
+
+    }
+
+    static loadRoots(slugs) {
+        const api = new MetaServiceApi(PydioApi.getRestClient());
+        let request = new RestGetBulkMetaRequest();
+        request.NodePaths = slugs;
+        return api.getBulkMeta(request).then(res => {
+            if(res.Nodes && res.Nodes.length){
+                const output = {};
+                res.Nodes.forEach(n => {
+                    const slug = PathUtils.getDirname(n.Path);
+                    const node = MetaNodeProvider.parseTreeNode(n, slug);
+                    node.getMetadata().set('repository_slug', slug);
+                    node.updateProvider(new MetaNodeProvider());
+                    output[slug] = node;
+                });
+                return output;
+            } else {
+                return {};
             }
         });
 
@@ -334,19 +360,19 @@ export default class MetaNodeProvider{
         // WATCHES
         if(meta.has('user_subscriptions')){
             const subs = meta.get('user_subscriptions');
-            const read = subs.indexOf('read');
-            const changes = subs.indexOf('change');
+            const read = subs.indexOf('read') > -1;
+            const changes = subs.indexOf('change') > -1;
             let value = '';
             if(read && changes){
                 value = 'META_WATCH_BOTH';
             } else if(read){
                 value = 'META_WATCH_READ';
             } else if(changes){
-                value = 'META_WATCH_CHANGES';
+                value = 'META_WATCH_CHANGE';
             }
             if(value){
                 meta.set('meta_watched', value);
-                overlays.push('mdi mdi-rss');
+                overlays.push('mdi mdi-bell');
             }
         }
 

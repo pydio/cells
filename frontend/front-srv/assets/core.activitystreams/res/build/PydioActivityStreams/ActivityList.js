@@ -115,8 +115,8 @@ var ActivityList = (function (_React$Component) {
             if (offset > 0) {
                 limit = 100;
             }
-            this.setState({ loading: true });
-            _Client2['default'].loadActivityStreams(function (json) {
+            this.setState({ loading: true, error: null });
+            _Client2['default'].loadActivityStreams(context, contextData, 'outbox', pointOfView, offset, limit).then(function (json) {
                 if (offset > 0 && data && data.items) {
                     if (json && json.items) _this.setState({ data: _this.mergeMoreFeed(data, json) });
                 } else {
@@ -126,7 +126,9 @@ var ActivityList = (function (_React$Component) {
                     _this.setState({ loadMore: false });
                 }
                 _this.setState({ loading: false });
-            }, context, contextData, 'outbox', pointOfView, offset, limit);
+            })['catch'](function (msg) {
+                _this.setState({ loading: false, error: msg });
+            });
         }
     }, {
         key: 'componentWillMount',
@@ -167,6 +169,7 @@ var ActivityList = (function (_React$Component) {
             var data = _state2.data;
             var loadMore = _state2.loadMore;
             var loading = _state2.loading;
+            var error = _state2.error;
             var _props2 = this.props;
             var listContext = _props2.listContext;
             var groupByDate = _props2.groupByDate;
@@ -174,6 +177,12 @@ var ActivityList = (function (_React$Component) {
             var pydio = _props2.pydio;
 
             var previousFrom = undefined;
+            var emptyStateIcon = "mdi mdi-pulse";
+            var emptyStateString = loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18'];
+            if (error) {
+                emptyStateString = error.Detail || error.msg || error;
+                emptyStateIcon = "mdi mdi-alert-circle-outline";
+            }
             if (data !== null && data.items) {
                 data.items.forEach(function (ac) {
 
@@ -222,8 +231,8 @@ var ActivityList = (function (_React$Component) {
                 }
                 return _react2['default'].createElement(EmptyStateView, {
                     pydio: this.props.pydio,
-                    iconClassName: 'mdi mdi-pulse',
-                    primaryTextId: loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18'],
+                    iconClassName: emptyStateIcon,
+                    primaryTextId: emptyStateString,
                     style: style,
                     iconStyle: iconStyle,
                     legendStyle: legendStyle

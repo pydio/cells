@@ -233,7 +233,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -443,10 +443,6 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 	}
 	return err
 
-}
-
-func (c *FSClient) ComputeChecksum(node *tree.Node) error {
-	return fmt.Errorf("not.implemented")
 }
 
 func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {

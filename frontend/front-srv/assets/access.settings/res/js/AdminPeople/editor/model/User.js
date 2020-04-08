@@ -1,6 +1,6 @@
 import Observable from 'pydio/lang/observable'
 import {IdmUser, IdmRole} from 'pydio/http/rest-api';
-import {sync as uuid} from 'uuid4'
+import {v4 as uuidv4} from 'uuid'
 import Role from './Role'
 
 class User extends Observable{
@@ -26,7 +26,7 @@ class User extends Observable{
             }
         } else{
             this.idmUser = new IdmUser();
-            this.idmUser.Uuid = uuid();
+            this.idmUser.Uuid = uuidv4();
             this.idmRole = IdmRole.constructFromObject({Uuid: this.idmUser.Uuid});
             this.idmUser.Roles = [this.idmRole];
             this.idmUser.Attributes = {};

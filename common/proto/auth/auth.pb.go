@@ -6,22 +6,38 @@ Package auth is a generated protocol buffer package.
 
 It is generated from these files:
 	auth.proto
-	ldap.proto
 
 It has these top-level messages:
 	Token
-	MatchInvalidTokenRequest
-	MatchInvalidTokenResponse
 	RevokeTokenRequest
 	RevokeTokenResponse
 	PruneTokensRequest
 	PruneTokensResponse
+	ID
+	GetLoginRequest
+	GetLoginResponse
+	CreateLoginRequest
+	CreateLoginResponse
+	AcceptLoginRequest
+	AcceptLoginResponse
+	GetConsentRequest
+	GetConsentResponse
+	CreateConsentRequest
+	CreateConsentResponse
+	AcceptConsentRequest
+	AcceptConsentResponse
+	CreateLogoutRequest
+	CreateLogoutResponse
+	AcceptLogoutRequest
+	AcceptLogoutResponse
+	CreateAuthCodeRequest
+	CreateAuthCodeResponse
 	VerifyTokenRequest
 	VerifyTokenResponse
-	LdapSearchFilter
-	LdapMapping
-	LdapMemberOfMapping
-	LdapServerConfig
+	ExchangeRequest
+	ExchangeResponse
+	RefreshTokenRequest
+	RefreshTokenResponse
 */
 package auth
 
@@ -40,30 +56,11 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type State int32
-
-const (
-	State_NO_MATCH State = 0
-	State_REVOKED  State = 1
-)
-
-var State_name = map[int32]string{
-	0: "NO_MATCH",
-	1: "REVOKED",
-}
-var State_value = map[string]int32{
-	"NO_MATCH": 0,
-	"REVOKED":  1,
-}
-
-func (x State) String() string {
-	return proto.EnumName(State_name, int32(x))
-}
-func (State) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
 type Token struct {
-	Value          string `protobuf:"bytes,1,opt,name=Value" json:"Value,omitempty"`
-	AdditionalInfo string `protobuf:"bytes,2,opt,name=AdditionalInfo" json:"AdditionalInfo,omitempty"`
+	AccessToken  string `protobuf:"bytes,1,opt,name=AccessToken" json:"AccessToken,omitempty"`
+	IDToken      string `protobuf:"bytes,2,opt,name=IDToken" json:"IDToken,omitempty"`
+	RefreshToken string `protobuf:"bytes,3,opt,name=RefreshToken" json:"RefreshToken,omitempty"`
+	ExpiresAt    string `protobuf:"bytes,4,opt,name=ExpiresAt" json:"ExpiresAt,omitempty"`
 }
 
 func (m *Token) Reset()                    { *m = Token{} }
@@ -71,56 +68,30 @@ func (m *Token) String() string            { return proto.CompactTextString(m) }
 func (*Token) ProtoMessage()               {}
 func (*Token) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
-func (m *Token) GetValue() string {
+func (m *Token) GetAccessToken() string {
 	if m != nil {
-		return m.Value
+		return m.AccessToken
 	}
 	return ""
 }
 
-func (m *Token) GetAdditionalInfo() string {
+func (m *Token) GetIDToken() string {
 	if m != nil {
-		return m.AdditionalInfo
+		return m.IDToken
 	}
 	return ""
 }
 
-type MatchInvalidTokenRequest struct {
-	Token string `protobuf:"bytes,1,opt,name=Token" json:"Token,omitempty"`
-}
-
-func (m *MatchInvalidTokenRequest) Reset()                    { *m = MatchInvalidTokenRequest{} }
-func (m *MatchInvalidTokenRequest) String() string            { return proto.CompactTextString(m) }
-func (*MatchInvalidTokenRequest) ProtoMessage()               {}
-func (*MatchInvalidTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *MatchInvalidTokenRequest) GetToken() string {
+func (m *Token) GetRefreshToken() string {
 	if m != nil {
-		return m.Token
+		return m.RefreshToken
 	}
 	return ""
 }
 
-type MatchInvalidTokenResponse struct {
-	State          State  `protobuf:"varint,1,opt,name=State,enum=auth.State" json:"State,omitempty"`
-	RevocationInfo string `protobuf:"bytes,2,opt,name=RevocationInfo" json:"RevocationInfo,omitempty"`
-}
-
-func (m *MatchInvalidTokenResponse) Reset()                    { *m = MatchInvalidTokenResponse{} }
-func (m *MatchInvalidTokenResponse) String() string            { return proto.CompactTextString(m) }
-func (*MatchInvalidTokenResponse) ProtoMessage()               {}
-func (*MatchInvalidTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
-
-func (m *MatchInvalidTokenResponse) GetState() State {
+func (m *Token) GetExpiresAt() string {
 	if m != nil {
-		return m.State
-	}
-	return State_NO_MATCH
-}
-
-func (m *MatchInvalidTokenResponse) GetRevocationInfo() string {
-	if m != nil {
-		return m.RevocationInfo
+		return m.ExpiresAt
 	}
 	return ""
 }
@@ -132,7 +103,7 @@ type RevokeTokenRequest struct {
 func (m *RevokeTokenRequest) Reset()                    { *m = RevokeTokenRequest{} }
 func (m *RevokeTokenRequest) String() string            { return proto.CompactTextString(m) }
 func (*RevokeTokenRequest) ProtoMessage()               {}
-func (*RevokeTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*RevokeTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 func (m *RevokeTokenRequest) GetToken() *Token {
 	if m != nil {
@@ -148,7 +119,7 @@ type RevokeTokenResponse struct {
 func (m *RevokeTokenResponse) Reset()                    { *m = RevokeTokenResponse{} }
 func (m *RevokeTokenResponse) String() string            { return proto.CompactTextString(m) }
 func (*RevokeTokenResponse) ProtoMessage()               {}
-func (*RevokeTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*RevokeTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 func (m *RevokeTokenResponse) GetSuccess() bool {
 	if m != nil {
@@ -163,7 +134,7 @@ type PruneTokensRequest struct {
 func (m *PruneTokensRequest) Reset()                    { *m = PruneTokensRequest{} }
 func (m *PruneTokensRequest) String() string            { return proto.CompactTextString(m) }
 func (*PruneTokensRequest) ProtoMessage()               {}
-func (*PruneTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (*PruneTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 type PruneTokensResponse struct {
 	Tokens []string `protobuf:"bytes,1,rep,name=tokens" json:"tokens,omitempty"`
@@ -172,13 +143,501 @@ type PruneTokensResponse struct {
 func (m *PruneTokensResponse) Reset()                    { *m = PruneTokensResponse{} }
 func (m *PruneTokensResponse) String() string            { return proto.CompactTextString(m) }
 func (*PruneTokensResponse) ProtoMessage()               {}
-func (*PruneTokensResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+func (*PruneTokensResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *PruneTokensResponse) GetTokens() []string {
 	if m != nil {
 		return m.Tokens
 	}
 	return nil
+}
+
+type ID struct {
+	Challenge string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	Verifier  string `protobuf:"bytes,2,opt,name=Verifier" json:"Verifier,omitempty"`
+	CSRF      string `protobuf:"bytes,3,opt,name=CSRF" json:"CSRF,omitempty"`
+}
+
+func (m *ID) Reset()                    { *m = ID{} }
+func (m *ID) String() string            { return proto.CompactTextString(m) }
+func (*ID) ProtoMessage()               {}
+func (*ID) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *ID) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *ID) GetVerifier() string {
+	if m != nil {
+		return m.Verifier
+	}
+	return ""
+}
+
+func (m *ID) GetCSRF() string {
+	if m != nil {
+		return m.CSRF
+	}
+	return ""
+}
+
+type GetLoginRequest struct {
+	Challenge string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+}
+
+func (m *GetLoginRequest) Reset()                    { *m = GetLoginRequest{} }
+func (m *GetLoginRequest) String() string            { return proto.CompactTextString(m) }
+func (*GetLoginRequest) ProtoMessage()               {}
+func (*GetLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *GetLoginRequest) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+type GetLoginResponse struct {
+	Challenge         string   `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	Subject           string   `protobuf:"bytes,2,opt,name=Subject" json:"Subject,omitempty"`
+	SessionID         string   `protobuf:"bytes,3,opt,name=SessionID" json:"SessionID,omitempty"`
+	RequestURL        string   `protobuf:"bytes,4,opt,name=RequestURL" json:"RequestURL,omitempty"`
+	RequestedScope    []string `protobuf:"bytes,5,rep,name=RequestedScope" json:"RequestedScope,omitempty"`
+	RequestedAudience []string `protobuf:"bytes,6,rep,name=RequestedAudience" json:"RequestedAudience,omitempty"`
+	ClientID          string   `protobuf:"bytes,7,opt,name=ClientID" json:"ClientID,omitempty"`
+}
+
+func (m *GetLoginResponse) Reset()                    { *m = GetLoginResponse{} }
+func (m *GetLoginResponse) String() string            { return proto.CompactTextString(m) }
+func (*GetLoginResponse) ProtoMessage()               {}
+func (*GetLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+
+func (m *GetLoginResponse) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *GetLoginResponse) GetSubject() string {
+	if m != nil {
+		return m.Subject
+	}
+	return ""
+}
+
+func (m *GetLoginResponse) GetSessionID() string {
+	if m != nil {
+		return m.SessionID
+	}
+	return ""
+}
+
+func (m *GetLoginResponse) GetRequestURL() string {
+	if m != nil {
+		return m.RequestURL
+	}
+	return ""
+}
+
+func (m *GetLoginResponse) GetRequestedScope() []string {
+	if m != nil {
+		return m.RequestedScope
+	}
+	return nil
+}
+
+func (m *GetLoginResponse) GetRequestedAudience() []string {
+	if m != nil {
+		return m.RequestedAudience
+	}
+	return nil
+}
+
+func (m *GetLoginResponse) GetClientID() string {
+	if m != nil {
+		return m.ClientID
+	}
+	return ""
+}
+
+type CreateLoginRequest struct {
+	ClientID  string   `protobuf:"bytes,1,opt,name=ClientID" json:"ClientID,omitempty"`
+	Scopes    []string `protobuf:"bytes,2,rep,name=Scopes" json:"Scopes,omitempty"`
+	Audiences []string `protobuf:"bytes,3,rep,name=Audiences" json:"Audiences,omitempty"`
+}
+
+func (m *CreateLoginRequest) Reset()                    { *m = CreateLoginRequest{} }
+func (m *CreateLoginRequest) String() string            { return proto.CompactTextString(m) }
+func (*CreateLoginRequest) ProtoMessage()               {}
+func (*CreateLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
+func (m *CreateLoginRequest) GetClientID() string {
+	if m != nil {
+		return m.ClientID
+	}
+	return ""
+}
+
+func (m *CreateLoginRequest) GetScopes() []string {
+	if m != nil {
+		return m.Scopes
+	}
+	return nil
+}
+
+func (m *CreateLoginRequest) GetAudiences() []string {
+	if m != nil {
+		return m.Audiences
+	}
+	return nil
+}
+
+type CreateLoginResponse struct {
+	Login *ID `protobuf:"bytes,1,opt,name=Login" json:"Login,omitempty"`
+}
+
+func (m *CreateLoginResponse) Reset()                    { *m = CreateLoginResponse{} }
+func (m *CreateLoginResponse) String() string            { return proto.CompactTextString(m) }
+func (*CreateLoginResponse) ProtoMessage()               {}
+func (*CreateLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *CreateLoginResponse) GetLogin() *ID {
+	if m != nil {
+		return m.Login
+	}
+	return nil
+}
+
+type AcceptLoginRequest struct {
+	Challenge string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	Verifier  string `protobuf:"bytes,2,opt,name=Verifier" json:"Verifier,omitempty"`
+	Subject   string `protobuf:"bytes,3,opt,name=Subject" json:"Subject,omitempty"`
+}
+
+func (m *AcceptLoginRequest) Reset()                    { *m = AcceptLoginRequest{} }
+func (m *AcceptLoginRequest) String() string            { return proto.CompactTextString(m) }
+func (*AcceptLoginRequest) ProtoMessage()               {}
+func (*AcceptLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+func (m *AcceptLoginRequest) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *AcceptLoginRequest) GetVerifier() string {
+	if m != nil {
+		return m.Verifier
+	}
+	return ""
+}
+
+func (m *AcceptLoginRequest) GetSubject() string {
+	if m != nil {
+		return m.Subject
+	}
+	return ""
+}
+
+type AcceptLoginResponse struct {
+}
+
+func (m *AcceptLoginResponse) Reset()                    { *m = AcceptLoginResponse{} }
+func (m *AcceptLoginResponse) String() string            { return proto.CompactTextString(m) }
+func (*AcceptLoginResponse) ProtoMessage()               {}
+func (*AcceptLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+
+type GetConsentRequest struct {
+	Challenge string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+}
+
+func (m *GetConsentRequest) Reset()                    { *m = GetConsentRequest{} }
+func (m *GetConsentRequest) String() string            { return proto.CompactTextString(m) }
+func (*GetConsentRequest) ProtoMessage()               {}
+func (*GetConsentRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+
+func (m *GetConsentRequest) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+type GetConsentResponse struct {
+	Challenge         string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	LoginSessionID    string `protobuf:"bytes,2,opt,name=LoginSessionID" json:"LoginSessionID,omitempty"`
+	SubjectIdentifier string `protobuf:"bytes,3,opt,name=SubjectIdentifier" json:"SubjectIdentifier,omitempty"`
+	Subject           string `protobuf:"bytes,4,opt,name=Subject" json:"Subject,omitempty"`
+	ClientID          string `protobuf:"bytes,5,opt,name=ClientID" json:"ClientID,omitempty"`
+}
+
+func (m *GetConsentResponse) Reset()                    { *m = GetConsentResponse{} }
+func (m *GetConsentResponse) String() string            { return proto.CompactTextString(m) }
+func (*GetConsentResponse) ProtoMessage()               {}
+func (*GetConsentResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+
+func (m *GetConsentResponse) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *GetConsentResponse) GetLoginSessionID() string {
+	if m != nil {
+		return m.LoginSessionID
+	}
+	return ""
+}
+
+func (m *GetConsentResponse) GetSubjectIdentifier() string {
+	if m != nil {
+		return m.SubjectIdentifier
+	}
+	return ""
+}
+
+func (m *GetConsentResponse) GetSubject() string {
+	if m != nil {
+		return m.Subject
+	}
+	return ""
+}
+
+func (m *GetConsentResponse) GetClientID() string {
+	if m != nil {
+		return m.ClientID
+	}
+	return ""
+}
+
+type CreateConsentRequest struct {
+	LoginChallenge string `protobuf:"bytes,1,opt,name=LoginChallenge" json:"LoginChallenge,omitempty"`
+}
+
+func (m *CreateConsentRequest) Reset()                    { *m = CreateConsentRequest{} }
+func (m *CreateConsentRequest) String() string            { return proto.CompactTextString(m) }
+func (*CreateConsentRequest) ProtoMessage()               {}
+func (*CreateConsentRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+
+func (m *CreateConsentRequest) GetLoginChallenge() string {
+	if m != nil {
+		return m.LoginChallenge
+	}
+	return ""
+}
+
+type CreateConsentResponse struct {
+	Consent *ID `protobuf:"bytes,1,opt,name=Consent" json:"Consent,omitempty"`
+}
+
+func (m *CreateConsentResponse) Reset()                    { *m = CreateConsentResponse{} }
+func (m *CreateConsentResponse) String() string            { return proto.CompactTextString(m) }
+func (*CreateConsentResponse) ProtoMessage()               {}
+func (*CreateConsentResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+
+func (m *CreateConsentResponse) GetConsent() *ID {
+	if m != nil {
+		return m.Consent
+	}
+	return nil
+}
+
+type AcceptConsentRequest struct {
+	Challenge   string            `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	Scopes      []string          `protobuf:"bytes,2,rep,name=Scopes" json:"Scopes,omitempty"`
+	Audiences   []string          `protobuf:"bytes,3,rep,name=Audiences" json:"Audiences,omitempty"`
+	AccessToken map[string]string `protobuf:"bytes,4,rep,name=AccessToken" json:"AccessToken,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	IDToken     map[string]string `protobuf:"bytes,5,rep,name=IDToken" json:"IDToken,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+}
+
+func (m *AcceptConsentRequest) Reset()                    { *m = AcceptConsentRequest{} }
+func (m *AcceptConsentRequest) String() string            { return proto.CompactTextString(m) }
+func (*AcceptConsentRequest) ProtoMessage()               {}
+func (*AcceptConsentRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
+
+func (m *AcceptConsentRequest) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *AcceptConsentRequest) GetScopes() []string {
+	if m != nil {
+		return m.Scopes
+	}
+	return nil
+}
+
+func (m *AcceptConsentRequest) GetAudiences() []string {
+	if m != nil {
+		return m.Audiences
+	}
+	return nil
+}
+
+func (m *AcceptConsentRequest) GetAccessToken() map[string]string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return nil
+}
+
+func (m *AcceptConsentRequest) GetIDToken() map[string]string {
+	if m != nil {
+		return m.IDToken
+	}
+	return nil
+}
+
+type AcceptConsentResponse struct {
+}
+
+func (m *AcceptConsentResponse) Reset()                    { *m = AcceptConsentResponse{} }
+func (m *AcceptConsentResponse) String() string            { return proto.CompactTextString(m) }
+func (*AcceptConsentResponse) ProtoMessage()               {}
+func (*AcceptConsentResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
+
+type CreateLogoutRequest struct {
+	RequestURL string `protobuf:"bytes,1,opt,name=RequestURL" json:"RequestURL,omitempty"`
+	Subject    string `protobuf:"bytes,2,opt,name=Subject" json:"Subject,omitempty"`
+	SessionID  string `protobuf:"bytes,3,opt,name=SessionID" json:"SessionID,omitempty"`
+}
+
+func (m *CreateLogoutRequest) Reset()                    { *m = CreateLogoutRequest{} }
+func (m *CreateLogoutRequest) String() string            { return proto.CompactTextString(m) }
+func (*CreateLogoutRequest) ProtoMessage()               {}
+func (*CreateLogoutRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+
+func (m *CreateLogoutRequest) GetRequestURL() string {
+	if m != nil {
+		return m.RequestURL
+	}
+	return ""
+}
+
+func (m *CreateLogoutRequest) GetSubject() string {
+	if m != nil {
+		return m.Subject
+	}
+	return ""
+}
+
+func (m *CreateLogoutRequest) GetSessionID() string {
+	if m != nil {
+		return m.SessionID
+	}
+	return ""
+}
+
+type CreateLogoutResponse struct {
+	Logout *ID `protobuf:"bytes,1,opt,name=Logout" json:"Logout,omitempty"`
+}
+
+func (m *CreateLogoutResponse) Reset()                    { *m = CreateLogoutResponse{} }
+func (m *CreateLogoutResponse) String() string            { return proto.CompactTextString(m) }
+func (*CreateLogoutResponse) ProtoMessage()               {}
+func (*CreateLogoutResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
+
+func (m *CreateLogoutResponse) GetLogout() *ID {
+	if m != nil {
+		return m.Logout
+	}
+	return nil
+}
+
+type AcceptLogoutRequest struct {
+	Challenge    string `protobuf:"bytes,1,opt,name=Challenge" json:"Challenge,omitempty"`
+	AccessToken  string `protobuf:"bytes,2,opt,name=AccessToken" json:"AccessToken,omitempty"`
+	RefreshToken string `protobuf:"bytes,3,opt,name=RefreshToken" json:"RefreshToken,omitempty"`
+}
+
+func (m *AcceptLogoutRequest) Reset()                    { *m = AcceptLogoutRequest{} }
+func (m *AcceptLogoutRequest) String() string            { return proto.CompactTextString(m) }
+func (*AcceptLogoutRequest) ProtoMessage()               {}
+func (*AcceptLogoutRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
+
+func (m *AcceptLogoutRequest) GetChallenge() string {
+	if m != nil {
+		return m.Challenge
+	}
+	return ""
+}
+
+func (m *AcceptLogoutRequest) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
+
+func (m *AcceptLogoutRequest) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
+	}
+	return ""
+}
+
+type AcceptLogoutResponse struct {
+}
+
+func (m *AcceptLogoutResponse) Reset()                    { *m = AcceptLogoutResponse{} }
+func (m *AcceptLogoutResponse) String() string            { return proto.CompactTextString(m) }
+func (*AcceptLogoutResponse) ProtoMessage()               {}
+func (*AcceptLogoutResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
+
+type CreateAuthCodeRequest struct {
+	Consent     *ID    `protobuf:"bytes,1,opt,name=Consent" json:"Consent,omitempty"`
+	ClientID    string `protobuf:"bytes,2,opt,name=ClientID" json:"ClientID,omitempty"`
+	RedirectURI string `protobuf:"bytes,3,opt,name=RedirectURI" json:"RedirectURI,omitempty"`
+}
+
+func (m *CreateAuthCodeRequest) Reset()                    { *m = CreateAuthCodeRequest{} }
+func (m *CreateAuthCodeRequest) String() string            { return proto.CompactTextString(m) }
+func (*CreateAuthCodeRequest) ProtoMessage()               {}
+func (*CreateAuthCodeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
+
+func (m *CreateAuthCodeRequest) GetConsent() *ID {
+	if m != nil {
+		return m.Consent
+	}
+	return nil
+}
+
+func (m *CreateAuthCodeRequest) GetClientID() string {
+	if m != nil {
+		return m.ClientID
+	}
+	return ""
+}
+
+func (m *CreateAuthCodeRequest) GetRedirectURI() string {
+	if m != nil {
+		return m.RedirectURI
+	}
+	return ""
+}
+
+type CreateAuthCodeResponse struct {
+	Code string `protobuf:"bytes,1,opt,name=Code" json:"Code,omitempty"`
+}
+
+func (m *CreateAuthCodeResponse) Reset()                    { *m = CreateAuthCodeResponse{} }
+func (m *CreateAuthCodeResponse) String() string            { return proto.CompactTextString(m) }
+func (*CreateAuthCodeResponse) ProtoMessage()               {}
+func (*CreateAuthCodeResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
+
+func (m *CreateAuthCodeResponse) GetCode() string {
+	if m != nil {
+		return m.Code
+	}
+	return ""
 }
 
 type VerifyTokenRequest struct {
@@ -188,7 +647,7 @@ type VerifyTokenRequest struct {
 func (m *VerifyTokenRequest) Reset()                    { *m = VerifyTokenRequest{} }
 func (m *VerifyTokenRequest) String() string            { return proto.CompactTextString(m) }
 func (*VerifyTokenRequest) ProtoMessage()               {}
-func (*VerifyTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (*VerifyTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
 
 func (m *VerifyTokenRequest) GetToken() string {
 	if m != nil {
@@ -205,7 +664,7 @@ type VerifyTokenResponse struct {
 func (m *VerifyTokenResponse) Reset()                    { *m = VerifyTokenResponse{} }
 func (m *VerifyTokenResponse) String() string            { return proto.CompactTextString(m) }
 func (*VerifyTokenResponse) ProtoMessage()               {}
-func (*VerifyTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*VerifyTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
 
 func (m *VerifyTokenResponse) GetSuccess() bool {
 	if m != nil {
@@ -221,47 +680,235 @@ func (m *VerifyTokenResponse) GetData() []byte {
 	return nil
 }
 
+type ExchangeRequest struct {
+	Code         string `protobuf:"bytes,1,opt,name=Code,json=code" json:"Code,omitempty"`
+	CodeVerifier string `protobuf:"bytes,2,opt,name=CodeVerifier,json=code_verifier" json:"CodeVerifier,omitempty"`
+}
+
+func (m *ExchangeRequest) Reset()                    { *m = ExchangeRequest{} }
+func (m *ExchangeRequest) String() string            { return proto.CompactTextString(m) }
+func (*ExchangeRequest) ProtoMessage()               {}
+func (*ExchangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
+
+func (m *ExchangeRequest) GetCode() string {
+	if m != nil {
+		return m.Code
+	}
+	return ""
+}
+
+func (m *ExchangeRequest) GetCodeVerifier() string {
+	if m != nil {
+		return m.CodeVerifier
+	}
+	return ""
+}
+
+type ExchangeResponse struct {
+	AccessToken  string `protobuf:"bytes,1,opt,name=AccessToken,json=access_token" json:"AccessToken,omitempty"`
+	IDToken      string `protobuf:"bytes,2,opt,name=IDToken,json=id_token" json:"IDToken,omitempty"`
+	RefreshToken string `protobuf:"bytes,3,opt,name=RefreshToken,json=refresh_token" json:"RefreshToken,omitempty"`
+	Expiry       int64  `protobuf:"varint,4,opt,name=Expiry,json=expiry" json:"Expiry,omitempty"`
+}
+
+func (m *ExchangeResponse) Reset()                    { *m = ExchangeResponse{} }
+func (m *ExchangeResponse) String() string            { return proto.CompactTextString(m) }
+func (*ExchangeResponse) ProtoMessage()               {}
+func (*ExchangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
+
+func (m *ExchangeResponse) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
+
+func (m *ExchangeResponse) GetIDToken() string {
+	if m != nil {
+		return m.IDToken
+	}
+	return ""
+}
+
+func (m *ExchangeResponse) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
+	}
+	return ""
+}
+
+func (m *ExchangeResponse) GetExpiry() int64 {
+	if m != nil {
+		return m.Expiry
+	}
+	return 0
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string `protobuf:"bytes,1,opt,name=RefreshToken" json:"RefreshToken,omitempty"`
+}
+
+func (m *RefreshTokenRequest) Reset()                    { *m = RefreshTokenRequest{} }
+func (m *RefreshTokenRequest) String() string            { return proto.CompactTextString(m) }
+func (*RefreshTokenRequest) ProtoMessage()               {}
+func (*RefreshTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
+
+func (m *RefreshTokenRequest) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
+	}
+	return ""
+}
+
+type RefreshTokenResponse struct {
+	AccessToken  string `protobuf:"bytes,1,opt,name=AccessToken,json=access_token" json:"AccessToken,omitempty"`
+	IDToken      string `protobuf:"bytes,2,opt,name=IDToken,json=id_token" json:"IDToken,omitempty"`
+	RefreshToken string `protobuf:"bytes,3,opt,name=RefreshToken,json=refresh_token" json:"RefreshToken,omitempty"`
+	Expiry       int64  `protobuf:"varint,4,opt,name=Expiry,json=expiry" json:"Expiry,omitempty"`
+}
+
+func (m *RefreshTokenResponse) Reset()                    { *m = RefreshTokenResponse{} }
+func (m *RefreshTokenResponse) String() string            { return proto.CompactTextString(m) }
+func (*RefreshTokenResponse) ProtoMessage()               {}
+func (*RefreshTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
+
+func (m *RefreshTokenResponse) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
+
+func (m *RefreshTokenResponse) GetIDToken() string {
+	if m != nil {
+		return m.IDToken
+	}
+	return ""
+}
+
+func (m *RefreshTokenResponse) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
+	}
+	return ""
+}
+
+func (m *RefreshTokenResponse) GetExpiry() int64 {
+	if m != nil {
+		return m.Expiry
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Token)(nil), "auth.Token")
-	proto.RegisterType((*MatchInvalidTokenRequest)(nil), "auth.MatchInvalidTokenRequest")
-	proto.RegisterType((*MatchInvalidTokenResponse)(nil), "auth.MatchInvalidTokenResponse")
 	proto.RegisterType((*RevokeTokenRequest)(nil), "auth.RevokeTokenRequest")
 	proto.RegisterType((*RevokeTokenResponse)(nil), "auth.RevokeTokenResponse")
 	proto.RegisterType((*PruneTokensRequest)(nil), "auth.PruneTokensRequest")
 	proto.RegisterType((*PruneTokensResponse)(nil), "auth.PruneTokensResponse")
+	proto.RegisterType((*ID)(nil), "auth.ID")
+	proto.RegisterType((*GetLoginRequest)(nil), "auth.GetLoginRequest")
+	proto.RegisterType((*GetLoginResponse)(nil), "auth.GetLoginResponse")
+	proto.RegisterType((*CreateLoginRequest)(nil), "auth.CreateLoginRequest")
+	proto.RegisterType((*CreateLoginResponse)(nil), "auth.CreateLoginResponse")
+	proto.RegisterType((*AcceptLoginRequest)(nil), "auth.AcceptLoginRequest")
+	proto.RegisterType((*AcceptLoginResponse)(nil), "auth.AcceptLoginResponse")
+	proto.RegisterType((*GetConsentRequest)(nil), "auth.GetConsentRequest")
+	proto.RegisterType((*GetConsentResponse)(nil), "auth.GetConsentResponse")
+	proto.RegisterType((*CreateConsentRequest)(nil), "auth.CreateConsentRequest")
+	proto.RegisterType((*CreateConsentResponse)(nil), "auth.CreateConsentResponse")
+	proto.RegisterType((*AcceptConsentRequest)(nil), "auth.AcceptConsentRequest")
+	proto.RegisterType((*AcceptConsentResponse)(nil), "auth.AcceptConsentResponse")
+	proto.RegisterType((*CreateLogoutRequest)(nil), "auth.CreateLogoutRequest")
+	proto.RegisterType((*CreateLogoutResponse)(nil), "auth.CreateLogoutResponse")
+	proto.RegisterType((*AcceptLogoutRequest)(nil), "auth.AcceptLogoutRequest")
+	proto.RegisterType((*AcceptLogoutResponse)(nil), "auth.AcceptLogoutResponse")
+	proto.RegisterType((*CreateAuthCodeRequest)(nil), "auth.CreateAuthCodeRequest")
+	proto.RegisterType((*CreateAuthCodeResponse)(nil), "auth.CreateAuthCodeResponse")
 	proto.RegisterType((*VerifyTokenRequest)(nil), "auth.VerifyTokenRequest")
 	proto.RegisterType((*VerifyTokenResponse)(nil), "auth.VerifyTokenResponse")
-	proto.RegisterEnum("auth.State", State_name, State_value)
+	proto.RegisterType((*ExchangeRequest)(nil), "auth.ExchangeRequest")
+	proto.RegisterType((*ExchangeResponse)(nil), "auth.ExchangeResponse")
+	proto.RegisterType((*RefreshTokenRequest)(nil), "auth.RefreshTokenRequest")
+	proto.RegisterType((*RefreshTokenResponse)(nil), "auth.RefreshTokenResponse")
 }
 
 func init() { proto.RegisterFile("auth.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 402 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x4f, 0x6b, 0xe2, 0x40,
-	0x18, 0xc6, 0x93, 0x5d, 0xff, 0xbe, 0x11, 0x71, 0x5f, 0x65, 0x89, 0x1e, 0x76, 0x75, 0x0e, 0x8b,
-	0x08, 0xeb, 0x2e, 0xf6, 0xd0, 0x63, 0x11, 0x15, 0x2a, 0xc5, 0xda, 0x8e, 0xe2, 0xb5, 0x4c, 0xe3,
-	0x88, 0x41, 0x49, 0x6c, 0x32, 0x11, 0xfa, 0x9d, 0xfb, 0x21, 0x4a, 0x66, 0x12, 0x49, 0x6a, 0xa4,
-	0xbd, 0xcd, 0xfb, 0x67, 0x9e, 0xf9, 0xf9, 0x3c, 0x06, 0x80, 0x05, 0x62, 0xdb, 0x3f, 0x78, 0xae,
-	0x70, 0x31, 0x17, 0x9e, 0xc9, 0x04, 0xf2, 0x4b, 0x77, 0xc7, 0x1d, 0x6c, 0x40, 0x7e, 0xc5, 0xf6,
-	0x01, 0x37, 0xf5, 0xb6, 0xde, 0x2d, 0x53, 0x55, 0xe0, 0x1f, 0xa8, 0x0e, 0xd7, 0x6b, 0x5b, 0xd8,
-	0xae, 0xc3, 0xf6, 0x53, 0x67, 0xe3, 0x9a, 0xdf, 0xe4, 0xf8, 0x43, 0x97, 0xfc, 0x07, 0x73, 0xc6,
-	0x84, 0xb5, 0x9d, 0x3a, 0x47, 0xb6, 0xb7, 0xd7, 0x52, 0x92, 0xf2, 0x97, 0x80, 0xfb, 0x22, 0x54,
-	0x96, 0x75, 0xac, 0x2c, 0x0b, 0xb2, 0x81, 0x66, 0xc6, 0x0d, 0xff, 0xe0, 0x3a, 0x3e, 0xc7, 0x0e,
-	0xe4, 0x17, 0x82, 0x09, 0x05, 0x53, 0x1d, 0x18, 0x7d, 0xc9, 0x2d, 0x5b, 0x54, 0x4d, 0x42, 0x32,
-	0xca, 0x8f, 0xae, 0xc5, 0x42, 0x8a, 0x24, 0x59, 0xba, 0x4b, 0xae, 0x01, 0xc3, 0xce, 0x8e, 0xa7,
-	0x98, 0x3a, 0x49, 0x26, 0x23, 0x7e, 0x40, 0xad, 0x44, 0x80, 0xff, 0xa0, 0x9e, 0xba, 0x18, 0xa1,
-	0x99, 0x50, 0x5c, 0x04, 0x96, 0xc5, 0x7d, 0x5f, 0xde, 0x2d, 0xd1, 0xb8, 0x24, 0x0d, 0xc0, 0x07,
-	0x2f, 0x70, 0xd4, 0xbe, 0x1f, 0xbd, 0x44, 0xfe, 0x42, 0x3d, 0xd5, 0x8d, 0x64, 0x7e, 0x42, 0x41,
-	0xc8, 0x8e, 0xa9, 0xb7, 0xbf, 0x77, 0xcb, 0x34, 0xaa, 0x48, 0x0f, 0x70, 0xc5, 0x3d, 0x7b, 0xf3,
-	0xfa, 0x05, 0x0b, 0x47, 0x50, 0x4f, 0xed, 0x7e, 0x46, 0x88, 0x08, 0xb9, 0x31, 0x13, 0x4c, 0x3a,
-	0x55, 0xa1, 0xf2, 0xdc, 0x23, 0x91, 0xd5, 0x58, 0x81, 0xd2, 0xfd, 0xfc, 0x69, 0x36, 0x5c, 0x8e,
-	0x6e, 0x6b, 0x1a, 0x1a, 0x50, 0xa4, 0x93, 0xd5, 0xfc, 0x6e, 0x32, 0xae, 0xe9, 0x83, 0x37, 0x1d,
-	0x6a, 0xc3, 0x40, 0x6c, 0xa3, 0x77, 0x42, 0x53, 0x3c, 0x7c, 0x84, 0x4a, 0x32, 0x40, 0xfc, 0xa5,
-	0x3c, 0xbc, 0xf4, 0x37, 0x68, 0xfd, 0xbe, 0x38, 0x57, 0xdc, 0x44, 0xc3, 0x1b, 0x28, 0x28, 0x75,
-	0x34, 0xd5, 0xf2, 0x79, 0x72, 0xad, 0x66, 0xc6, 0xe4, 0x24, 0x30, 0x06, 0x23, 0x61, 0x76, 0xac,
-	0x72, 0x9e, 0x4a, 0xac, 0x92, 0x91, 0x0c, 0xd1, 0x06, 0x4b, 0xf8, 0x71, 0xfa, 0xb5, 0xd2, 0x60,
-	0x9b, 0x7b, 0x21, 0x9b, 0x32, 0x3b, 0x56, 0x3d, 0x8f, 0x29, 0x56, 0xcd, 0x08, 0x85, 0x68, 0xcf,
-	0x05, 0xf9, 0xd9, 0x5d, 0xbd, 0x07, 0x00, 0x00, 0xff, 0xff, 0x9b, 0xcc, 0xb1, 0xd5, 0x84, 0x03,
-	0x00, 0x00,
+	// 1178 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x57, 0xdd, 0x6e, 0x1b, 0x45,
+	0x14, 0xf6, 0xda, 0xb1, 0xe3, 0x1c, 0x3b, 0x89, 0x33, 0x76, 0xdc, 0xed, 0x52, 0x55, 0xee, 0x54,
+	0x2a, 0x11, 0x94, 0x54, 0x18, 0x21, 0x4a, 0x2b, 0xb5, 0x32, 0x76, 0x88, 0x5c, 0xb5, 0x52, 0xb4,
+	0x69, 0x11, 0x77, 0x95, 0xeb, 0x9d, 0xc4, 0x4b, 0xc2, 0xae, 0xd9, 0x9f, 0xa8, 0x7e, 0x00, 0x2e,
+	0xb9, 0xe0, 0x92, 0x5b, 0x1e, 0x84, 0xe7, 0xe0, 0x21, 0x78, 0x00, 0xc4, 0x15, 0x9a, 0xbf, 0xdd,
+	0x99, 0xd9, 0x95, 0x49, 0x7a, 0xc3, 0xdd, 0xce, 0x39, 0x33, 0x67, 0xbe, 0xf3, 0xf7, 0xcd, 0x59,
+	0x80, 0x59, 0x9a, 0x2c, 0x0e, 0x97, 0x51, 0x98, 0x84, 0x68, 0x83, 0x7e, 0xe3, 0x9f, 0x2d, 0xa8,
+	0xbf, 0x0e, 0x2f, 0x48, 0x80, 0x06, 0xd0, 0x1a, 0xcd, 0xe7, 0x24, 0x8e, 0xd9, 0xd2, 0xb6, 0x06,
+	0xd6, 0xc1, 0x96, 0xab, 0x8a, 0x90, 0x0d, 0x9b, 0xd3, 0x09, 0xd7, 0x56, 0x99, 0x56, 0x2e, 0x11,
+	0x86, 0xb6, 0x4b, 0xce, 0x22, 0x12, 0x2f, 0xb8, 0xba, 0xc6, 0xd4, 0x9a, 0x0c, 0xdd, 0x81, 0xad,
+	0xa3, 0xf7, 0x4b, 0x3f, 0x22, 0xf1, 0x28, 0xb1, 0x37, 0xd8, 0x86, 0x5c, 0x80, 0xbf, 0x02, 0xe4,
+	0x92, 0xab, 0xf0, 0x82, 0xb0, 0xcd, 0x2e, 0xf9, 0x29, 0x25, 0x71, 0x82, 0xee, 0x09, 0x70, 0x0c,
+	0x4d, 0x6b, 0xd8, 0x3a, 0x64, 0xf8, 0xf9, 0x16, 0xae, 0xc1, 0x8f, 0xa0, 0xab, 0x1d, 0x8c, 0x97,
+	0x61, 0x10, 0x13, 0x8a, 0xf5, 0x34, 0x65, 0xd8, 0xd9, 0xd9, 0xa6, 0x2b, 0x97, 0xb8, 0x07, 0xe8,
+	0x24, 0x4a, 0x03, 0xbe, 0x3f, 0x16, 0x37, 0xe1, 0xcf, 0xa0, 0xab, 0x49, 0x85, 0x99, 0x3e, 0x34,
+	0x12, 0x26, 0xb1, 0xad, 0x41, 0xed, 0x60, 0xcb, 0x15, 0x2b, 0xec, 0x42, 0x75, 0x3a, 0xa1, 0x2e,
+	0x8d, 0x17, 0xb3, 0xcb, 0x4b, 0x12, 0x9c, 0x13, 0x11, 0xb0, 0x5c, 0x80, 0x1c, 0x68, 0x7e, 0x47,
+	0x22, 0xff, 0xcc, 0x27, 0x91, 0x88, 0x57, 0xb6, 0x46, 0x08, 0x36, 0xc6, 0xa7, 0xee, 0xb7, 0x22,
+	0x50, 0xec, 0x1b, 0x3f, 0x82, 0xdd, 0x63, 0x92, 0xbc, 0x0c, 0xcf, 0xfd, 0xcc, 0xff, 0xb5, 0x17,
+	0xe0, 0x7f, 0x2c, 0xe8, 0xe4, 0x27, 0x04, 0xe2, 0xf5, 0x98, 0x58, 0x58, 0xde, 0xfd, 0x40, 0xe6,
+	0x89, 0x4c, 0xa1, 0x58, 0xd2, 0x73, 0xa7, 0x24, 0x8e, 0xfd, 0x30, 0x98, 0x4e, 0x04, 0xac, 0x5c,
+	0x80, 0xee, 0x02, 0x08, 0x4c, 0x6f, 0xdc, 0x97, 0x22, 0x7b, 0x8a, 0x04, 0x3d, 0x80, 0x1d, 0xb1,
+	0x22, 0xde, 0xe9, 0x3c, 0x5c, 0x12, 0xbb, 0xce, 0xe2, 0x65, 0x48, 0xd1, 0x43, 0xd8, 0xcb, 0x24,
+	0xa3, 0xd4, 0xf3, 0x49, 0x30, 0x27, 0x76, 0x83, 0x6d, 0x2d, 0x2a, 0x68, 0x04, 0xc7, 0x97, 0x3e,
+	0x09, 0x92, 0xe9, 0xc4, 0xde, 0xe4, 0x11, 0x94, 0x6b, 0x7c, 0x06, 0x68, 0x1c, 0x91, 0x59, 0x42,
+	0xb4, 0x80, 0xa9, 0x27, 0x2c, 0xfd, 0x04, 0xcd, 0x25, 0x03, 0x11, 0xdb, 0x55, 0x9e, 0x4b, 0xbe,
+	0xa2, 0x9e, 0xcb, 0x1b, 0x63, 0xbb, 0xc6, 0x54, 0xb9, 0x00, 0x7f, 0x09, 0x5d, 0xed, 0x1e, 0x11,
+	0xe6, 0xbb, 0x50, 0x67, 0x02, 0x51, 0x99, 0x4d, 0x5e, 0x99, 0xd3, 0x89, 0xcb, 0xc5, 0x78, 0x01,
+	0x88, 0xb6, 0xce, 0xf2, 0x06, 0xf9, 0x5c, 0x5b, 0x30, 0x4a, 0xe2, 0x6a, 0x5a, 0xe2, 0xf0, 0x3e,
+	0x74, 0xb5, 0x9b, 0x38, 0x40, 0xfc, 0x39, 0xec, 0x1d, 0x93, 0x64, 0x4c, 0xbf, 0x83, 0xe4, 0x7a,
+	0xf5, 0xf4, 0x87, 0x05, 0x48, 0x3d, 0x73, 0xad, 0x8a, 0x7a, 0x00, 0x3b, 0xec, 0xe2, 0xbc, 0x78,
+	0x38, 0x74, 0x43, 0x4a, 0x33, 0x2f, 0x10, 0x4f, 0x3d, 0x12, 0x24, 0xdc, 0x4b, 0xee, 0x4a, 0x51,
+	0xa1, 0xba, 0xbb, 0xa1, 0xd7, 0xa9, 0x9a, 0xe1, 0xba, 0x51, 0x13, 0xcf, 0xa0, 0xc7, 0x73, 0x65,
+	0xb8, 0x2d, 0x31, 0x9a, 0x6e, 0x18, 0x52, 0xfc, 0x14, 0xf6, 0x8d, 0xf3, 0x22, 0x04, 0x18, 0x36,
+	0x85, 0xa8, 0x90, 0x6f, 0xa9, 0xc0, 0x7f, 0x57, 0xa1, 0xc7, 0x13, 0x71, 0x93, 0xa0, 0x7f, 0x58,
+	0x55, 0xa2, 0x57, 0x3a, 0x59, 0x6f, 0x0c, 0x6a, 0x07, 0xad, 0xe1, 0xa7, 0x1c, 0x54, 0x19, 0x88,
+	0x43, 0x65, 0xf7, 0x51, 0x90, 0x44, 0x2b, 0x9d, 0xd9, 0x47, 0x39, 0xb3, 0xd7, 0x99, 0xa9, 0x8f,
+	0xd7, 0x98, 0x12, 0x3b, 0xb9, 0x19, 0x79, 0xce, 0x79, 0x06, 0x1d, 0xf3, 0x0e, 0xd4, 0x81, 0xda,
+	0x05, 0x59, 0x09, 0x9f, 0xe9, 0x27, 0xea, 0x41, 0xfd, 0x6a, 0x76, 0x99, 0x12, 0x51, 0x24, 0x7c,
+	0xf1, 0xa4, 0xfa, 0xd8, 0x72, 0x9e, 0x40, 0x5b, 0x35, 0x7c, 0x93, 0xb3, 0xf8, 0x16, 0xec, 0x1b,
+	0x48, 0x45, 0x13, 0xfc, 0xa8, 0x34, 0x6f, 0x98, 0x66, 0x19, 0xd1, 0xd9, 0xcc, 0x2a, 0xb0, 0xd9,
+	0x07, 0xb2, 0x24, 0x7e, 0x2c, 0xeb, 0x4f, 0x5e, 0x27, 0xca, 0x67, 0x00, 0x0d, 0x2e, 0x29, 0x54,
+	0x8f, 0x90, 0xe3, 0x95, 0xd2, 0xc4, 0x0a, 0xd0, 0xf5, 0xa5, 0x63, 0xbc, 0xd8, 0xd5, 0xe2, 0x8b,
+	0x7d, 0x8d, 0x77, 0x19, 0xf7, 0x65, 0xd9, 0xea, 0xa0, 0xf1, 0x4a, 0x36, 0xc3, 0x28, 0x4d, 0x16,
+	0xe3, 0xd0, 0x23, 0x12, 0xd4, 0x35, 0x9a, 0x41, 0xeb, 0xd2, 0xaa, 0xc1, 0xc3, 0x03, 0x68, 0xb9,
+	0xc4, 0xf3, 0x23, 0x32, 0x4f, 0xde, 0xb8, 0x53, 0x81, 0x49, 0x15, 0xe1, 0x87, 0xd0, 0x37, 0xaf,
+	0x16, 0x91, 0xa4, 0xef, 0x66, 0xe8, 0xc9, 0x58, 0xb0, 0x6f, 0xfc, 0x09, 0x20, 0x46, 0x93, 0x2b,
+	0x6d, 0x74, 0xe8, 0xa9, 0xa3, 0xc3, 0x96, 0x9c, 0x16, 0xc6, 0xd0, 0xd5, 0xf6, 0xfe, 0xd7, 0xb4,
+	0x40, 0x2f, 0x9c, 0xcc, 0x92, 0x19, 0x73, 0xa2, 0xed, 0xb2, 0x6f, 0xfc, 0x02, 0x76, 0x8f, 0xde,
+	0xcf, 0x17, 0xb3, 0xe0, 0x3c, 0x8b, 0x89, 0x81, 0x6b, 0x1e, 0x7a, 0x04, 0xdd, 0x87, 0x36, 0x95,
+	0x19, 0x94, 0xbe, 0x4d, 0x75, 0x6f, 0xaf, 0x84, 0x10, 0xff, 0x62, 0x41, 0x27, 0x37, 0x26, 0xe0,
+	0xdc, 0x2b, 0x1b, 0xc5, 0xda, 0x33, 0x26, 0x7a, 0xcb, 0x26, 0x10, 0x74, 0xdb, 0x9c, 0xc5, 0x9a,
+	0xbe, 0x27, 0x54, 0xf7, 0x4b, 0x93, 0xbe, 0x1d, 0x71, 0x99, 0xd8, 0xd4, 0x87, 0x06, 0x1b, 0xbe,
+	0x56, 0x8c, 0x5f, 0x6b, 0x6e, 0x83, 0xb0, 0x15, 0xfe, 0x9a, 0x8e, 0x53, 0xf9, 0xe1, 0x3c, 0xe7,
+	0xba, 0x4d, 0xab, 0xa4, 0x90, 0x7e, 0xb5, 0xa0, 0xa7, 0x9f, 0xfd, 0xdf, 0xdd, 0x19, 0xfe, 0x66,
+	0x41, 0x87, 0x16, 0x91, 0x00, 0x44, 0xe7, 0xc4, 0x08, 0x3d, 0x87, 0x06, 0xff, 0x44, 0x36, 0xaf,
+	0xdc, 0xe2, 0xe4, 0xe9, 0xdc, 0x2e, 0xd1, 0x88, 0xc6, 0xa8, 0xa0, 0x09, 0xb4, 0x94, 0x61, 0x51,
+	0x5a, 0x29, 0x4e, 0x95, 0xd2, 0x4a, 0xc9, 0x64, 0x89, 0x2b, 0xc3, 0x3f, 0x2d, 0xd8, 0x66, 0x0f,
+	0xd0, 0x49, 0x14, 0x5e, 0xf9, 0x1e, 0x89, 0xd0, 0x53, 0x68, 0xca, 0x79, 0x0e, 0xed, 0xf3, 0xa3,
+	0xc6, 0x44, 0xe8, 0xf4, 0x4d, 0xb1, 0x0a, 0x4a, 0x19, 0x54, 0x24, 0xa8, 0xe2, 0x8c, 0x24, 0x41,
+	0x95, 0x4c, 0x35, 0xdc, 0x8a, 0x32, 0x4d, 0x48, 0x2b, 0xc5, 0x51, 0x46, 0x5a, 0x29, 0x1b, 0x3d,
+	0x2a, 0xc3, 0xbf, 0x2c, 0xd8, 0x15, 0x54, 0x90, 0x39, 0x37, 0x02, 0xc8, 0x87, 0x0b, 0x74, 0x2b,
+	0xf3, 0x43, 0x7f, 0x5d, 0x1c, 0xbb, 0xa8, 0xc8, 0xc0, 0xbd, 0x80, 0x6d, 0xed, 0x7d, 0x46, 0x8e,
+	0xea, 0x8a, 0x61, 0xe8, 0xa3, 0x52, 0x9d, 0x6a, 0x4b, 0x7b, 0x33, 0xa4, 0xad, 0xb2, 0x27, 0x4f,
+	0xda, 0x2a, 0x7f, 0x64, 0x2a, 0xc3, 0xdf, 0x2d, 0x36, 0x60, 0x84, 0x69, 0xee, 0xed, 0x31, 0xb4,
+	0xd5, 0xa7, 0x00, 0x99, 0x41, 0xcf, 0x49, 0xde, 0x71, 0xca, 0x54, 0x19, 0xce, 0x63, 0x68, 0xab,
+	0xf4, 0x8c, 0xcc, 0xb8, 0x17, 0x0d, 0x95, 0xb2, 0x79, 0x65, 0x38, 0xe3, 0x9d, 0x40, 0x29, 0x29,
+	0x43, 0xf9, 0x0a, 0x76, 0x74, 0xa2, 0x45, 0x5a, 0xd4, 0x0c, 0xe6, 0x77, 0xee, 0x94, 0x2b, 0xb3,
+	0x2b, 0x5e, 0xc3, 0x5e, 0xd6, 0x6c, 0xd9, 0xe4, 0xfa, 0x1c, 0x1a, 0x9c, 0x72, 0x65, 0x31, 0x15,
+	0xc9, 0x5a, 0x16, 0x53, 0x09, 0x35, 0xe3, 0xca, 0xf0, 0x84, 0x5b, 0xa5, 0x77, 0x49, 0xa6, 0x64,
+	0xad, 0x22, 0x17, 0xb2, 0x55, 0x0c, 0x4e, 0x96, 0xad, 0x62, 0xb2, 0x2b, 0xae, 0x0c, 0xbf, 0x07,
+	0xa4, 0x90, 0x02, 0xe3, 0x11, 0x12, 0xa1, 0x6f, 0x60, 0x53, 0x2c, 0x50, 0xd6, 0xfd, 0x05, 0x26,
+	0x94, 0x41, 0x2e, 0x23, 0x3a, 0x5c, 0x79, 0xd7, 0x60, 0xff, 0xd6, 0x5f, 0xfc, 0x1b, 0x00, 0x00,
+	0xff, 0xff, 0x13, 0x1f, 0xd0, 0x7b, 0x69, 0x0f, 0x00, 0x00,
 }

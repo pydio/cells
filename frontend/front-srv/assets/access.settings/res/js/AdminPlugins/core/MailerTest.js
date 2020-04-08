@@ -37,6 +37,7 @@ class MailerTest extends React.Component {
 
         const {loaded} = this.state;
         const {MessageHash} = this.props.pydio;
+        const {adminStyles} = this.props;
 
         if(!loaded){
             return (
@@ -55,7 +56,7 @@ class MailerTest extends React.Component {
                     overlay={false}
                     panelTitle={MessageHash["ajxp_admin.mailer.test.title"]}
                     style={{margin:0}}
-                    titleStyle={{backgroundColor: '#f5f5f5', color: '#9e9e9e', fontSize: 12, fontWeight: 500, borderBottom: '1px solid #e0e0e0', height: 48, lineHeight: '48px', padding: '0 16px'}}
+                    titleStyle={adminStyles.body.block.headerFull}
                     usersBlockStyle={{}}
                     messageBlockStyle={{}}
                     zDepth={0}

@@ -135,6 +135,7 @@ var JSDocsPanel = (function (_Component) {
                     }
                 }));
             });
+            var adminStyles = AdminComponents.AdminStyles();
             return React.createElement(
                 'div',
                 { className: "main-layout-nav-to-stack vertical-layout" },
@@ -147,11 +148,11 @@ var JSDocsPanel = (function (_Component) {
                     { className: "layout-fill", style: { display: 'flex', backgroundColor: 'white' } },
                     React.createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
+                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column', zIndex: 1 } },
                         React.createElement(
                             'div',
                             { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
-                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
+                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search classes...', underlineShow: false })
                         ),
                         error && React.createElement(
                             'div',
@@ -166,7 +167,7 @@ var JSDocsPanel = (function (_Component) {
                     ),
                     React.createElement(
                         'div',
-                        { style: { flex: 1, overflowY: 'scroll' } },
+                        { style: { flex: 1, overflowY: 'scroll', backgroundColor: adminStyles.body.mainPanel.backgroundColor } },
                         selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
                     )
                 )
@@ -265,7 +266,7 @@ var ClassPanel = (function (_Component2) {
                 });
             }
             var dStyle = { padding: '0 16px 16px' };
-            var pStyle = { margin: '0 16px' };
+            var adminStyles = AdminComponents.AdminStyles();
 
             return React.createElement(
                 'div',
@@ -294,7 +295,7 @@ var ClassPanel = (function (_Component2) {
                 React.createElement(_materialUi.CardTitle, { title: 'Props' }),
                 props.length > 0 && React.createElement(
                     _materialUi.Paper,
-                    { style: pStyle, zDepth: 1 },
+                    adminStyles.body.block.props,
                     React.createElement(
                         _materialUi.Table,
                         null,
@@ -341,7 +342,7 @@ var ClassPanel = (function (_Component2) {
                 React.createElement(_materialUi.CardTitle, { title: 'Methods' }),
                 methods.length > 0 && React.createElement(
                     _materialUi.Paper,
-                    { style: pStyle, zDepth: 1 },
+                    adminStyles.body.block.props,
                     React.createElement(
                         _materialUi.Table,
                         null,

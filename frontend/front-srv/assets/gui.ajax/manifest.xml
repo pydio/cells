@@ -211,14 +211,28 @@
                     <clientCallback module="PydioCoreActions.Navigation.refresh"/>
                 </processing>
             </action>
-            <action name="bookmark">
-                <gui text="152" title="153" iconClass="mdi mdi-star-outline" hasAccessKey="true"
+            <action name="bookmark_on">
+                <gui text="152-on" title="153-on" iconClass="mdi mdi-star-outline" hasAccessKey="true"
                      accessKey="bookmarks_access_key">
                     <context selection="true" dir="false" recycle="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="other">
                     </context>
-                    <selectionContext dir="true" file="true" recycle="false" unique="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true" evalMetadata="!metadata.get('bookmark')"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.toggleBookmark"/>
+                </processing>
+            </action>
+            <action name="bookmark_off">
+                <gui text="152-off" title="153-off" iconClass="mdi mdi-star" hasAccessKey="true"
+                     accessKey="bookmarks_access_key">
+                    <context selection="true" dir="false" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="other">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" enableRoot="true" evalMetadata="metadata.get('bookmark')"/>
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
                 <processing>

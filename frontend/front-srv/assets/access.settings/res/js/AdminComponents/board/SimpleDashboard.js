@@ -22,6 +22,8 @@ import {muiThemeable} from 'material-ui/styles'
 import {Card, CardTitle, CardMedia, CardActions, CardText, FlatButton, List, ListItem, Divider, IconButton, FontIcon} from 'material-ui'
 import {MessagesConsumerMixin} from '../util/Mixins'
 import shuffle from 'lodash.shuffle'
+import Header from '../styles/Header'
+import AdminStyles from "../styles/AdminStyles";
 
 let Dashboard = React.createClass({
 
@@ -50,13 +52,15 @@ let Dashboard = React.createClass({
         );
     },
 
-    getDocButton: function(icon, message, link){
+    getDocButton: function(icon, message, link, props = {}, icProps = {}){
         return <FlatButton
             key={message}
             label={message}
             primary={true}
-            icon={<FontIcon className={"mdi mdi-" + icon}/>}
-            onTouchTap={()=>{window.open(link)}}/>
+            icon={<FontIcon className={"mdi mdi-" + icon} {...icProps}/>}
+            onTouchTap={()=>{window.open(link)}}
+            {...props}
+        />
     },
 
     welcomeClick: function(e){
@@ -73,9 +77,15 @@ let Dashboard = React.createClass({
 
         const verticalFlex = {display:'flex', flexDirection:'column', height: '100%'};
         const flexFill = {flex:1};
-        const paperStyle = {flex: 1, minWidth: 450, margin: 5};
         const flexContainerStyle = {...verticalFlex};
         const {accent2Color} = this.props.muiTheme.palette;
+        const adminStyles= AdminStyles(this.props.muiTheme.palette);
+        const paperStyle = {...adminStyles.body.block.container, flex: 1, minWidth: 450, margin: 8};
+        const flatProps = {...adminStyles.props.header.flatButton};
+        const icProps = {
+            color: adminStyles.props.header.flatButton.labelStyle.color,
+            style: {fontSize:20}
+        };
 
 
         const {pydio} = this.props;
@@ -101,11 +111,8 @@ let Dashboard = React.createClass({
         }
 
         const WELCOME_COMMUNITY_CARD = (
-            <Card style={{...paperStyle, minWidth:'95%'}}  containerStyle={flexContainerStyle}>
-                <CardTitle
-                    title={message('welc.title')}
-                    subtitle={message('welc.subtitle')}
-                />
+            <Card zDepth={0} style={{...paperStyle, minWidth:'95%'}}  containerStyle={flexContainerStyle}>
+                <div style={adminStyles.body.block.headerFull}>{message('welc.subtitle')}</div>
                 <CardText style={flexFill}>
                     <style dangerouslySetInnerHTML={{__html:'.doc-link{color: '+accent2Color+';cursor: pointer;text-decoration:underline;}'}}/>
                     <div style={{lineHeight:'1.6em'}}>
@@ -117,14 +124,14 @@ let Dashboard = React.createClass({
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
                     {guidesButtons.map((object) => {
-                        return this.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
+                        return this.getDocButton(object.icon, message('welc.btn.' + object.id), object.link, flatProps,icProps);
                     })}
                 </CardActions>
             </Card>
         );
 
         const PAY_IT_FORWARD_CARD = (
-            <Card style={paperStyle} containerStyle={flexContainerStyle}>
+            <Card zDepth={0} style={paperStyle} containerStyle={flexContainerStyle}>
                 <CardTitle title={message('cont.title')} subtitle={message('cont.subtitle')} />
                 <CardText style={flexFill}>
                     <div className="mdi mdi-github-circle" style={{fontSize: 60, display:'inline-block', float:'left', marginRight:10, marginBottom:10}}/>
@@ -141,16 +148,16 @@ let Dashboard = React.createClass({
                 </CardText>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" />} onTouchTap={()=>{window.open('https://github.com/pydio/cells')}} />
-                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" />} onTouchTap={()=>{window.open('https://twitter.com/Pydio')}} />
-                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" />} onTouchTap={()=>{window.open('https://facebook.com/Pydio/')}} />
+                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" {...icProps} />} onTouchTap={()=>{window.open('https://github.com/pydio/cells')}} {...flatProps}/>
+                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" {...icProps}/>} onTouchTap={()=>{window.open('https://twitter.com/Pydio')}} {...flatProps} />
+                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" {...icProps}/>} onTouchTap={()=>{window.open('https://facebook.com/Pydio/')}} {...flatProps} />
                 </CardActions>
             </Card>
         );
 
 
         const DISCOVER_ENTERPRISE_CARD = (
-            <Card style={paperStyle} containerStyle={flexContainerStyle}>
+            <Card zDepth={0} style={paperStyle} containerStyle={flexContainerStyle}>
                 <CardMedia
                     overlay={<CardTitle title={message('ent.title')} subtitle={message('ent.subtitle')}/>}
                 >
@@ -167,14 +174,29 @@ let Dashboard = React.createClass({
                 </List>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} />
-                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} />
+                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} {...flatProps}/>
+                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} {...flatProps}/>
                 </CardActions>
             </Card>
         );
 
+        const websiteButton = (
+            <IconButton
+                iconClassName={"icomoon-cells"}
+                onTouchTap={()=>{window.open('https://pydio.com')}}
+                tooltip={pydio.MessageHash['settings.topbar.button.about']}
+                tooltipPosition={"bottom-left"}
+                {...adminStyles.props.header.iconButton}
+            />
+        );
+
         return (
             <div className={"main-layout-nav-to-stack vertical-layout"}>
+                <Header
+                    title={message('welc.title')}
+                    icon="mdi mdi-view-dashboard"
+                    actions={[websiteButton]}
+                />
                 <div className={"layout-fill"} style={{display:'flex', alignItems:'top', flexWrap:'wrap', padding: 5}}>
                     {WELCOME_COMMUNITY_CARD}
                     {DISCOVER_ENTERPRISE_CARD}

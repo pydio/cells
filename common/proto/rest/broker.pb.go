@@ -46,6 +46,11 @@ It has these top-level messages:
 	DiscoveryResponse
 	ConfigFormRequest
 	OpenApiResponse
+	ActionDescription
+	SchedulerActionsRequest
+	SchedulerActionsResponse
+	SchedulerActionFormRequest
+	SchedulerActionFormResponse
 	SearchResults
 	Pagination
 	Metadata
@@ -69,6 +74,8 @@ It has these top-level messages:
 	SettingsMenuRequest
 	SettingsEntryMeta
 	SettingsEntry
+	SettingsAccess
+	SettingsAccessRestPolicy
 	SettingsSection
 	SettingsMenuResponse
 	FrontStateRequest
@@ -77,8 +84,12 @@ It has these top-level messages:
 	FrontPluginsResponse
 	FrontMessagesRequest
 	FrontMessagesResponse
+	FrontSessionGetRequest
+	FrontSessionGetResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontSessionDelRequest
+	FrontSessionDelResponse
 	FrontAuthRequest
 	FrontAuthResponse
 	FrontEnrollAuthRequest

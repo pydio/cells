@@ -53,21 +53,11 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	net2 "github.com/pydio/cells/common/utils/net"
-)
-
-const (
-	TYPE_GENERIC = iota
-	TYPE_GRPC
-	TYPE_REST
-	TYPE_API
-)
-
-var (
-	types = []string{"generic", "grpc", "rest", "api"}
 )
 
 type Service interface {
@@ -240,6 +230,66 @@ var mandatoryOptions = []ServiceOption{
 		return nil
 	}),
 
+	// Adding a check before starting the service to ensure only one is started if unique
+	BeforeStart(func(s Service) error {
+
+		if s.MustBeUnique() && defaults.RuntimeIsCluster() {
+			ctx := s.Options().Context
+			serviceName := s.Name()
+			cluster := registry.GetCluster(ctx, serviceName, &registry.NullFSM{})
+			nodeId := s.Options().Micro.Server().Options().Id
+			if err := cluster.Join(nodeId); err != nil {
+				return err
+			}
+			s.Init(Cluster(cluster))
+			<-cluster.LeadershipAcquired()
+		}
+
+		return nil
+	}),
+
+	BeforeStop(func(s Service) error {
+		if s.MustBeUnique() && defaults.RuntimeIsCluster() && s.Options().Cluster != nil {
+			return s.Options().Cluster.Leave()
+		}
+		return nil
+	}),
+
+	// Adding a check before starting the service to ensure all dependencies are running
+	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
+
+		for _, d := range s.Options().Dependencies {
+
+			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
+
+			err := Retry(func() error {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					if d.Name == r.Name() {
+						return nil
+					}
+				}
+
+				return fmt.Errorf("dependency %s not found", d.Name)
+			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+
+			if err != nil {
+				return err
+			}
+		}
+
+		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
+
+		return nil
+	}),
+
 	// Adding the dao to the context
 	BeforeStart(func(s Service) error {
 
@@ -290,60 +340,6 @@ var mandatoryOptions = []ServiceOption{
 
 		return nil
 
-	}),
-
-	// Adding a check before starting the service to ensure only one is started if unique
-	BeforeStart(func(s Service) error {
-
-		ctx := s.Options().Context
-
-		if s.MustBeUnique() {
-			runningServices, err := registry.ListRunningServices()
-			if err != nil {
-				return err
-			}
-
-			for _, r := range runningServices {
-				log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
-				if s.Name() == r.Name() {
-					return fmt.Errorf("already started")
-				}
-			}
-		}
-
-		return nil
-	}),
-
-	// Adding a check before starting the service to ensure all dependencies are running
-	BeforeStart(func(s Service) error {
-		ctx := s.Options().Context
-
-		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
-
-		for _, d := range s.Options().Dependencies {
-			err := Retry(func() error {
-				runningServices, err := registry.ListRunningServices()
-				if err != nil {
-					return err
-				}
-
-				for _, r := range runningServices {
-					if d.Name == r.Name() {
-						return nil
-					}
-				}
-
-				return fmt.Errorf("dependency %s not found", d.Name)
-			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
-
-			if err != nil {
-				return err
-			}
-		}
-
-		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
-
-		return nil
 	}),
 }
 
@@ -437,7 +433,7 @@ func (s *service) Start() {
 }
 
 // ForkStart uses a fork process to start the service
-func (s *service) ForkStart() {
+func (s *service) ForkStart(retries ...int) {
 
 	name := s.Options().Name
 	ctx := s.Options().Context
@@ -476,8 +472,22 @@ func (s *service) ForkStart() {
 	}
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
-	if err := cmd.Wait(); err != nil {
-		cancel()
+	if err := cmd.Wait(); err != nil && err.Error() != "signal: interrupt" {
+		r := 0
+		if len(retries) > 0 {
+			r = retries[0]
+		}
+		if r >= 4 {
+			log.Logger(ctx).Error("SubProcess finished with error: " + err.Error() + " but reached max retries")
+			cancel()
+			return
+		} else {
+			<-time.After(2 * time.Second)
+			log.Logger(ctx).Error("SubProcess finished with error: " + err.Error() + ", trying to restart now")
+			s.ForkStart(r + 1)
+		}
+	} else {
+		log.Logger(ctx).Debug("SubProcess finished without error")
 	}
 
 }
@@ -608,12 +618,20 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-	var nodes []*microregistry.Node
 
+	nMap := make(map[string]*microregistry.Node)
 	for _, p := range registry.GetPeers() {
 		for _, ms := range p.GetServices(s.Name()) {
-			nodes = append(nodes, ms.Nodes...)
+			for _, n := range ms.Nodes {
+				if _, ok := nMap[n.Id]; !ok {
+					nMap[n.Id] = n
+				}
+			}
 		}
+	}
+	var nodes []*microregistry.Node
+	for _, n := range nMap {
+		nodes = append(nodes, n)
 	}
 	return nodes
 }

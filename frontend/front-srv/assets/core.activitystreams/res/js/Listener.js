@@ -37,7 +37,7 @@ class Listeners {
         builderMenuItems.push({
             name:MessageHash["meta.watch.11"],
             alt:MessageHash["meta.watch." + (n.isLeaf()?"12":"12b")],
-            isDefault : (metaValue && metaValue == "META_WATCH_CHANGE"),
+            icon_class : (metaValue && metaValue === "META_WATCH_CHANGE" ? 'mdi mdi-checkbox-marked-circle-outline' : 'mdi mdi-checkbox-blank-circle-outline'),
             callback:function(e){
                 this.apply('watch_change');
             }.bind(this)
@@ -45,7 +45,7 @@ class Listeners {
         builderMenuItems.push({
             name:MessageHash["meta.watch.9"],
             alt:MessageHash["meta.watch." + (n.isLeaf()?"10":"10b")],
-            isDefault : (metaValue && metaValue == "META_WATCH_READ"),
+            icon_class : (metaValue && metaValue === "META_WATCH_READ" ? 'mdi mdi-checkbox-marked-circle-outline' : 'mdi mdi-checkbox-blank-circle-outline'),
             callback:function(e){
                 this.apply('watch_read');
             }.bind(this)
@@ -53,7 +53,7 @@ class Listeners {
         builderMenuItems.push({
             name:MessageHash["meta.watch.13"],
             alt:MessageHash["meta.watch." + (n.isLeaf()?"14":"14b")],
-            isDefault : (metaValue && metaValue == "META_WATCH_BOTH"),
+            icon_class : (metaValue && metaValue === "META_WATCH_BOTH" ? 'mdi mdi-checkbox-marked-circle-outline' : 'mdi mdi-checkbox-blank-circle-outline'),
             callback:function(e){
                 this.apply('watch_both');
             }.bind(this)
@@ -65,7 +65,7 @@ class Listeners {
             builderMenuItems.push({
                 name:MessageHash['meta.watch.3'],
                 alt:MessageHash["meta.watch." + (n.isLeaf()?"8":"4")],
-                isDefault : false,
+                icon_class: 'mdi mdi-close-circle-outline',
                 callback:function(e){
                     this.apply('watch_stop');
                 }.bind(this)

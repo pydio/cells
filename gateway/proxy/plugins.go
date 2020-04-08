@@ -24,7 +24,6 @@ package proxy
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -48,7 +47,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 )
 
@@ -61,19 +59,7 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /auth/dex {{.Dex | urls}} {
-		insecure_skip_verify
-		header_upstream Host {host}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-	}
 	proxy /oidc {{.OAuth | urls}} {
-		insecure_skip_verify
-		header_upstream Host {host}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-	}
-	proxy /oidc-admin/oauth2/auth/requests {{.OAuth | urls}} {
 		insecure_skip_verify
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
@@ -153,9 +139,7 @@ var (
 	
 	rewrite {
 		if {path} not_starts_with "/a/"
-		if {path} not_starts_with "/auth/"
 		if {path} not_starts_with "/oidc/"
-		if {path} not_starts_with "/oidc-admin/oauth2/auth/requests/"
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/data"
 		if {path} not_starts_with "/ws/"
@@ -169,7 +153,9 @@ var (
 		if {path} not_starts_with "/robots.txt"
 		to {path} {path}/ /login
 	}
+
 	root {{.WebRoot}}
+
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 	errors "{{.Logs}}/caddy_errors.log"
@@ -187,7 +173,6 @@ http://{{.HTTPRedirectSource.Host}} {
 		Bind         string
 		ExternalHost string
 		Micro        string
-		Dex          string
 		OAuth        string
 		Gateway      string
 		WebSocket    string
@@ -209,7 +194,6 @@ http://{{.HTTPRedirectSource.Host}} {
 		PluginPathes    []string
 	}{
 		Micro:        common.SERVICE_MICRO_API,
-		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		OAuth:        common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
@@ -273,6 +257,14 @@ func init() {
 						log.Logger(ctx).Error("*******************************************************************")
 					}
 
+					for {
+						if err == nil || !errorUtils.IsErrorPortBusy(err) {
+							break
+						}
+						//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
+						return nil, nil, nil, fmt.Errorf(errorUtils.ErrServiceStartNeedsRetry)
+					}
+
 					return nil, nil, nil, err
 				}
 
@@ -282,6 +274,7 @@ func init() {
 						instance.Wait()
 						return nil
 					}), service.CheckerFunc(func() error {
+
 						if len(instance.Servers()) == 0 {
 							return fmt.Errorf("No servers have been started")
 						}
@@ -298,7 +291,7 @@ func init() {
 				}
 
 				// Adding subscriber
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STARTED, func(p broker.Publication) error {
 					sName := string(p.Message().Body)
 					if needsRestart(sName) {
 						log.Logger(s.Options().Context).Debug("Received Start Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
@@ -309,13 +302,11 @@ func init() {
 				}); err != nil {
 					return err
 				}
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
-					var se service2.StopEvent
-					if e := json.Unmarshal(p.Message().Body, &se); e == nil {
-						if needsRestart(se.ServiceName) {
-							log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", &se))
-							return caddy.Restart()
-						}
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOPPED, func(p broker.Publication) error {
+					sName := string(p.Message().Body)
+					if needsRestart(sName) {
+						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", sName))
+						return caddy.Restart()
 					}
 					return nil
 				}); err != nil {

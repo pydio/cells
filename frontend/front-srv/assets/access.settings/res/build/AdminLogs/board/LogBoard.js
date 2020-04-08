@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -54,9 +53,9 @@ var _LogTools = require('./LogTools');
 
 var _LogTools2 = _interopRequireDefault(_LogTools);
 
-var _LogDetail = require('./LogDetail');
+var _modelLog = require('../model/Log');
 
-var _LogDetail2 = _interopRequireDefault(_LogDetail);
+var _modelLog2 = _interopRequireDefault(_modelLog);
 
 var LogBoard = (function (_React$Component) {
     _inherits(LogBoard, _React$Component);
@@ -68,7 +67,7 @@ var LogBoard = (function (_React$Component) {
         this.state = {
             page: 0,
             size: 100,
-            filter: "",
+            query: "",
             contentType: 'JSON',
             loading: false,
             results: 0
@@ -79,6 +78,13 @@ var LogBoard = (function (_React$Component) {
         key: 'handleLogToolsChange',
         value: function handleLogToolsChange(newState) {
             this.setState(_extends({}, newState));
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.query !== undefined && newProps.query !== this.state.query) {
+                this.setState({ query: newProps.query, page: 0 });
+            }
         }
     }, {
         key: 'handleReload',
@@ -96,6 +102,16 @@ var LogBoard = (function (_React$Component) {
             this.setState({ page: this.state.page + 1 });
         }
     }, {
+        key: 'handleTimestampContext',
+        value: function handleTimestampContext(ts) {
+            if (ts) {
+                var q = _modelLog2['default'].buildTsQuery(ts, 5);
+                this.setState({ tmpQuery: q, focus: ts });
+            } else {
+                this.setState({ tmpQuery: null, focus: null });
+            }
+        }
+    }, {
         key: 'handleLoadingStatusChange',
         value: function handleLoadingStatusChange(status, resultsCount) {
             if (this.props.onLoadingStatusChange) {
@@ -104,19 +120,6 @@ var LogBoard = (function (_React$Component) {
                 this.setState({ loading: status });
             }
             this.setState({ results: resultsCount });
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (typeof newProps.filter !== "undefined" && newProps.filter !== this.state.filter) {
-                this.setState({ filter: newProps.filter, page: 0 });
-            }
-            if (typeof newProps.filter !== "undefined" && newProps.date && newProps.date !== this.state.date) {
-                this.setState({ date: newProps.date, page: 0 });
-            }
-            if (typeof newProps.filter !== "undefined" && newProps.endDate && newProps.endDate !== this.state.endDate) {
-                this.setState({ endDate: newProps.endDate, page: 0 });
-            }
         }
     }, {
         key: 'render',
@@ -128,83 +131,63 @@ var LogBoard = (function (_React$Component) {
             var noHeader = _props.noHeader;
             var service = _props.service;
             var disableExport = _props.disableExport;
+            var currentNode = _props.currentNode;
             var _state = this.state;
-            var selectedLog = _state.selectedLog;
             var page = _state.page;
             var size = _state.size;
-            var date = _state.date;
-            var endDate = _state.endDate;
-            var filter = _state.filter;
+            var query = _state.query;
+            var tmpQuery = _state.tmpQuery;
+            var focus = _state.focus;
             var contentType = _state.contentType;
             var z = _state.z;
             var results = _state.results;
 
             var title = pydio.MessageHash["ajxp_admin.logs.1"];
+            var buttons = _react2['default'].createElement(_LogTools2['default'], {
+                pydio: pydio,
+                service: service,
+                focus: focus,
+                onStateChange: this.handleLogToolsChange.bind(this),
+                disableExport: disableExport
+            });
 
-            var buttons = _react2['default'].createElement(_LogTools2['default'], { pydio: pydio, service: service, onStateChange: this.handleLogToolsChange.bind(this), disableExport: disableExport });
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
 
-            var navItems = [];
-            if (page > 0) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "prev",
-                    label: 'Previous',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-left' }),
-                    onTouchTap: function () {
-                        return _this.handleDecrPage();
+            var body = _AdminComponents$AdminStyles.body;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
+            var prevDisabled = page === 0;
+            var nextDisabled = results < size;
+            var pageSizes = [50, 100, 500, 1000];
+            var paginationProps = undefined;
+            if (!(prevDisabled && results < pageSizes[0]) && !focus) {
+                paginationProps = {
+                    pageSizes: pageSizes, prevDisabled: prevDisabled, nextDisabled: nextDisabled,
+                    onPageNext: this.handleIncrPage.bind(this),
+                    onPagePrev: this.handleDecrPage.bind(this),
+                    onPageSizeChange: function onPageSizeChange(v) {
+                        _this.setState({ size: v, page: 0 });
                     }
-                }));
-            }
-            if (results === size) {
-                navItems.push(_react2['default'].createElement(_materialUi.BottomNavigationItem, {
-                    key: "next",
-                    label: 'Next',
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-chevron-right' }),
-                    onTouchTap: function () {
-                        return _this.handleIncrPage();
-                    }
-                }));
+                };
             }
 
             var mainContent = _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 } },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        modal: false,
-                        open: !!selectedLog,
-                        onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        },
-                        style: { padding: 0 },
-                        contentStyle: { maxWidth: 420 },
-                        bodyStyle: { padding: 0 },
-                        autoScrollBodyContent: true
-                    },
-                    selectedLog && _react2['default'].createElement(_LogDetail2['default'], { log: selectedLog, pydio: pydio, onRequestClose: function () {
-                            _this.setState({ selectedLog: null });
-                        } })
-                ),
-                _react2['default'].createElement(_LogTable2['default'], {
+                _extends({}, blockProps, { style: blockStyle }),
+                _react2['default'].createElement(_LogTable2['default'], _extends({
                     pydio: pydio,
                     service: service || 'syslog',
                     page: page,
                     size: size,
-                    date: date,
-                    endDate: endDate,
-                    filter: filter,
+                    query: tmpQuery ? tmpQuery : query,
+                    focus: focus,
                     contentType: contentType,
                     z: z,
                     onLoadingStatusChange: this.handleLoadingStatusChange.bind(this),
-                    onSelectLog: function (log) {
-                        _this.setState({ selectedLog: log });
-                    }
-                }),
-                navItems.length ? _react2['default'].createElement(
-                    _materialUi.BottomNavigation,
-                    { selectedIndex: this.state.selectedIndex },
-                    navItems
-                ) : null
+                    onTimestampContext: this.handleTimestampContext.bind(this)
+                }, paginationProps))
             );
 
             if (noHeader) {
@@ -218,6 +201,7 @@ var LogBoard = (function (_React$Component) {
                         { className: 'vertical-layout', style: { width: '100%' } },
                         _react2['default'].createElement(AdminComponents.Header, {
                             title: title,
+                            icon: currentNode.getMetadata().get('icon_class'),
                             actions: buttons,
                             reloadAction: this.handleReload.bind(this),
                             loading: this.state.loading

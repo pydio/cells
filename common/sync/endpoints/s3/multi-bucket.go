@@ -2,10 +2,13 @@ package s3
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"path"
 	"regexp"
 	"strings"
+
+	"github.com/gobwas/glob"
 
 	"github.com/pydio/cells/common"
 
@@ -18,10 +21,13 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+const s3BucketTagPrefix = "pydio:s3-bucket-tag-"
+
 type MultiBucketClient struct {
 	// Global context
 	globalContext context.Context
 	bucketRegexp  *regexp.Regexp
+	bucketMetas   []glob.Glob
 
 	// Connection options
 	host    string
@@ -35,10 +41,13 @@ type MultiBucketClient struct {
 	bucketClients map[string]*Client
 
 	// To be passed to clients
-	plainSizeComputer     func(nodeUUID string) (int64, error)
-	requiresNormalization bool
+	plainSizeComputer       func(nodeUUID string) (int64, error)
+	requiresNormalization   bool
+	skipRecomputeEtagByCopy bool
+	checksumMapper          ChecksumMapper
 }
 
+// NewMultiBucketClient creates an s3 wrapped client that lists buckets as top level folders
 func NewMultiBucketClient(ctx context.Context, host string, key string, secret string, secure bool, options model.EndpointOptions, bucketsFilter string) (*MultiBucketClient, error) {
 	c, e := NewClient(ctx, host, key, secret, "", "", secure, options)
 	if e != nil {
@@ -60,7 +69,21 @@ func NewMultiBucketClient(ctx context.Context, host string, key string, secret s
 			return nil, e
 		}
 	}
+	if options.Properties != nil {
+		if bucketsTags, o := options.Properties["bucketsTags"]; o {
+			for _, pattern := range strings.Split(bucketsTags, ",") {
+				if gl, e := glob.Compile(s3BucketTagPrefix + pattern); e == nil {
+					m.bucketMetas = append(m.bucketMetas, gl)
+				}
+			}
+		}
+	}
 	return m, nil
+}
+
+// ProvidesMetadataNamespaces implements MetadataProvider interface
+func (m *MultiBucketClient) ProvidesMetadataNamespaces() (out []glob.Glob, o bool) {
+	return m.bucketMetas, len(m.bucketMetas) > 0
 }
 
 func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node *tree.Node, err error) {
@@ -92,11 +115,14 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		return e
 	}
 	if b == "" {
+		collect := recursive && c.checksumMapper != nil
+		var eTags []string
 		// List buckets first
 		bb, er := c.Mc.ListBucketsWithContext(context.Background())
 		if er != nil {
 			return er
 		}
+		var taggingError error
 		for _, bucket := range bb {
 			if m.bucketRegexp != nil && !m.bucketRegexp.MatchString(bucket.Name) {
 				continue
@@ -104,24 +130,62 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			bC, _, _, _ := m.getClient(bucket.Name)
 			uid, _, _ := bC.readOrCreateFolderId("")
 			// Walk bucket as a folder
-			walknFc(bucket.Name, &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}, nil)
-			// Walk associated .pydio file
-			metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
-			if er != nil {
-				log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
+			// Additional read of bucket tagging if configured
+			if len(m.bucketMetas) > 0 && taggingError == nil {
+				if tags, err := c.Mc.GetBucketTagging(bucket.Name); err == nil {
+					if tags == nil || len(tags) == 0 {
+						log.Logger(context.Background()).Debug("No tags found on bucket " + bucket.Name)
+					} else {
+						for _, t := range tags {
+							tKey := s3BucketTagPrefix + t.Key
+							for _, g := range m.bucketMetas {
+								if g.Match(tKey) {
+									log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.Any(tKey, t.Value))
+									fNode.SetMeta(tKey, t.Value)
+									break
+								}
+							}
+						}
+					}
+				} else {
+					log.Logger(context.Background()).Warn("Cannot read bucket tagging for "+bucket.Name+", will not retry for other buckets", zap.Error(err))
+					taggingError = err
+				}
 			}
-			metaFilePath := path.Join(bucket.Name, common.PYDIO_SYNC_HIDDEN_FILE_META)
-			walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
+			walknFc(bucket.Name, fNode, nil)
+			if !m.options.BrowseOnly {
+				// Walk associated .pydio file
+				metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
+				if er != nil {
+					log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+				}
+				metaFilePath := path.Join(bucket.Name, common.PYDIO_SYNC_HIDDEN_FILE_META)
+				walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
+			}
 			// Walk children
 			if recursive {
 				e := bC.Walk(func(iPath string, node *tree.Node, err error) {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
+					if collect && node.IsLeaf() {
+						eTags = append(eTags, node.Etag)
+					}
 					walknFc(wrapped, node, err)
 				}, "", recursive)
 				if e != nil {
 					return e
 				}
 			}
+		}
+		if collect {
+			go func() {
+				// We know all eTags from this datasource, now purge unused from mapper
+				if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
+					log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
+				} else {
+					log.Logger(c.globalContext).Info(fmt.Sprintf("ChecksumMapper nothing to purge"))
+				}
+			}()
 		}
 		return nil
 	} else {
@@ -140,13 +204,18 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
 	doneChan := make(chan bool)
+	wConn := make(chan model.WatchConnectionInfo)
 	watchObject := &model.WatchObject{
-		EventInfoChan: eventChan,
-		ErrorChan:     errorChan,
-		DoneChan:      doneChan,
+		EventInfoChan:  eventChan,
+		ErrorChan:      errorChan,
+		DoneChan:       doneChan,
+		ConnectionInfo: wConn,
 	}
+	var subCloses []chan bool
 	// Setup a watcher on each bucket : init clients
 	for _, b := range bb {
+		subClose := make(chan bool)
+		subCloses = append(subCloses, subClose)
 		if m.bucketRegexp != nil && !m.bucketRegexp.MatchString(b.Name) {
 			continue
 		}
@@ -160,25 +229,41 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 		}
 		log.Logger(context.Background()).Info("Started watcher for bucket", zap.String("bucket", b.Name))
 		go func(bName string) {
+			internalClose := false
 			defer func() {
-				log.Logger(context.Background()).Info("Closing watcher for bucket", zap.String("bucket", bName))
-				bWatcher.DoneChan <- true
+				if !internalClose {
+					log.Logger(context.Background()).Info("Closing watcher for bucket", zap.String("bucket", bName))
+					bWatcher.DoneChan <- true
+				}
 			}()
 			for {
 				select {
-				case event := <-bWatcher.Events():
+				case event, open := <-bWatcher.Events():
+					if !open {
+						internalClose = true
+						return
+					}
 					// Patch Event data for output
 					event.Path = m.patchPath(bName, nil, event.Path)
 					event.Source = m
 					eventChan <- event
 				case evErr := <-bWatcher.Errors():
 					errorChan <- evErr
-				case <-doneChan:
+				case conn := <-bWatcher.ConnectionInfos():
+					wConn <- conn
+				case <-subClose:
 					return
 				}
 			}
 		}(b.Name)
 	}
+	// close all sub watchers when global done is called
+	go func() {
+		<-doneChan
+		for _, s := range subCloses {
+			close(s)
+		}
+	}()
 	return watchObject, nil
 }
 
@@ -300,6 +385,18 @@ func (m *MultiBucketClient) SetServerRequiresNormalization() {
 	m.mainClient.SetServerRequiresNormalization()
 }
 
+func (m *MultiBucketClient) SetChecksumMapper(cs ChecksumMapper) {
+	m.checksumMapper = cs
+	m.mainClient.SetChecksumMapper(cs, false)
+}
+
+// SkipRecomputeEtagByCopy sets a special behavior to avoir recomputing etags by in-place copying
+// objects on storages that do not support this feature
+func (m *MultiBucketClient) SkipRecomputeEtagByCopy() {
+	m.skipRecomputeEtagByCopy = true
+	m.mainClient.skipRecomputeEtagByCopy = true
+}
+
 func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, internal string, e error) {
 	p = strings.Trim(p, "/")
 	parts := strings.Split(p, "/")
@@ -309,7 +406,14 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 		if cl, ok := m.bucketClients[bucket]; ok {
 			c = cl
 		} else {
-			c, e = NewClient(m.globalContext, m.host, m.key, m.secret, bucket, "", m.secure, m.options)
+			o := m.options
+			if o.BrowseOnly {
+				if o.Properties == nil {
+					o.Properties = make(map[string]string)
+				}
+				o.Properties["stableUuidPrefix"] = bucket
+			}
+			c, e = NewClient(m.globalContext, m.host, m.key, m.secret, bucket, "", m.secure, o)
 			if e != nil {
 				return
 			}
@@ -318,6 +422,12 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 			}
 			if m.requiresNormalization {
 				c.SetServerRequiresNormalization()
+			}
+			if m.checksumMapper != nil {
+				c.SetChecksumMapper(m.checksumMapper, false)
+			}
+			if m.skipRecomputeEtagByCopy {
+				c.SkipRecomputeEtagByCopy()
 			}
 			m.bucketClients[bucket] = c
 		}

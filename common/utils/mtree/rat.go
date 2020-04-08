@@ -20,7 +20,9 @@
 
 package mtree
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // Float type
 type Rat struct {
@@ -47,10 +49,11 @@ func (f *Rat) SetMPath(path ...uint64) *Rat {
 		return f
 	}
 
-	f.Rat = big.NewRat(int64(path[len(path)-1]), 1)
+	f.Rat.SetFrac64(int64(path[len(path)-1]), 1)
 
+	current := new(big.Rat)
 	for i := len(path) - 2; i >= 0; i-- {
-		current := big.NewRat(int64(path[i]), 1)
+		current.SetFrac64(int64(path[i]), 1)
 		f.Inv(f.Rat)
 		f.Add(rat1.Rat, f.Rat)
 		f.Inv(f.Rat)

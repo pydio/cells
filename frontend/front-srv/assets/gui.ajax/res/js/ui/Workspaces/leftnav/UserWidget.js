@@ -120,7 +120,7 @@ class UserWidget extends React.Component {
                         namespace="PydioActivityStreams"
                         componentName="UserPanel"
                         noLoader={true}
-                        iconClassName="userActionIcon mdi mdi-bell-outline"
+                        iconClassName="userActionIcon mdi mdi-bell"
                         iconStyle={{color}}
                         {...this.props}
                     />

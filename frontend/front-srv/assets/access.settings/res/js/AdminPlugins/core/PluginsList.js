@@ -53,7 +53,8 @@ const PluginsList = React.createClass({
                     pluginId:rows[0].id,
                     docAsAdditionalPane:true,
                     className:"vertical edit-plugin-inpane",
-                    closeEditor:this.props.closeRightPane
+                    closeEditor:this.props.closeRightPane,
+                    accessByName:this.props.accessByName
                 },
                 CHILDREN:null
             });
@@ -97,8 +98,10 @@ const PluginsList = React.createClass({
 
     render(){
 
-        const {displaySmall, pydio} = this.props;
+        const {displaySmall, pydio, accessByName} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
+        const adminStyles=AdminComponents.AdminStyles();
+
         let columns;
         const renderEnabled = (row) => {
             const enableValue = row.xmlNode.getAttribute("enabled");
@@ -107,11 +110,14 @@ const PluginsList = React.createClass({
                     toggled={row.xmlNode.getAttribute('enabled') !== 'false'}
                     onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
                     onClick={(e)=> e.stopPropagation()}
-                    disabled={enableValue === 'always' || enableValue === 'auto' || row.id === 'meta.layout_sendfile'}
+                    disabled={enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile'}
                 />
             );
         };
         const renderEditButton = (row) => {
+            if(!accessByName('Create')){
+                return null;
+            }
             if(XMLUtils.XPathSelectNodes(row.xmlNode, "server_settings/global_param").length){
                 return (
                     <IconButton
@@ -151,6 +157,7 @@ const PluginsList = React.createClass({
                 columns={columns}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
+                masterStyles={adminStyles.body.tableMaster}
             />
         );
 

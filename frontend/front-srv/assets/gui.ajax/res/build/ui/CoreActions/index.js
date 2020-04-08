@@ -32,6 +32,10 @@ var _dialogPasswordDialog = require('./dialog/PasswordDialog');
 
 var _dialogPasswordDialog2 = _interopRequireDefault(_dialogPasswordDialog);
 
+var _callbacksBookmarkButton = require('./callbacks/BookmarkButton');
+
+var _callbacksBookmarkButton2 = _interopRequireDefault(_callbacksBookmarkButton);
+
 var Callbacks = {
     switchLanguage: require('./callbacks/switchLanguage'),
     changePass: require('./callbacks/changePass'),
@@ -53,3 +57,4 @@ exports.Callbacks = Callbacks;
 exports.Navigation = Navigation;
 exports.SplashDialog = _dialogSplashDialog2['default'];
 exports.PasswordDialog = _dialogPasswordDialog2['default'];
+exports.BookmarkButton = _callbacksBookmarkButton2['default'];

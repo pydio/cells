@@ -18,51 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import {pydio} from '../globals'
-import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'pydio/http/rest-api'
+import toggleBookmarkNode from './toggleBmNode'
 
 export default function(){
     const selection = pydio.getContextHolder();
     if(selection.isEmpty() || !selection.isUnique()){
         return;
     }
-    const node = selection.getUniqueNode();
-    const isBookmarked = node.getMetadata().get('bookmark') === 'true';
-    const nodeUuid = node.getMetadata().get('uuid');
-    const userId = pydio.user.id;
-
-    const api = new UserMetaServiceApi(PydioApi.getRestClient());
-    let request = new IdmUpdateUserMetaRequest();
-    if(isBookmarked) {
-        const searchRequest = new IdmSearchUserMetaRequest();
-        searchRequest.NodeUuids = [nodeUuid];
-        searchRequest.Namespace = "bookmark";
-        api.searchUserMeta(searchRequest).then(res => {
-            if (res.Metadatas && res.Metadatas.length) {
-                request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
-                request.MetaDatas = res.Metadatas;
-                api.updateUserMeta(request).then(() => {
-                    selection.requireNodeReload(node);
-                    pydio.notify("reload-bookmarks");
-                });
-            }
-        });
-    } else {
-        request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('PUT');
-        let userMeta = new IdmUserMeta();
-        userMeta.NodeUuid = nodeUuid;
-        userMeta.Namespace = "bookmark";
-        userMeta.JsonValue = "\"true\"";
-        userMeta.Policies = [
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'OWNER', Subject:'user:' + userId, Effect:'allow'}),
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'READ', Subject:'user:' + userId, Effect:'allow'}),
-            ServiceResourcePolicy.constructFromObject({Resource:nodeUuid, Action:'WRITE', Subject:'user:' + userId, Effect:'allow'}),
-        ];
-        request.MetaDatas = [userMeta];
-        api.updateUserMeta(request).then(() => {
-            selection.requireNodeReload(node);
-            pydio.notify("reload-bookmarks");
-        });
-    }
-
+    toggleBookmarkNode(selection.getUniqueNode(), selection);
 }
+

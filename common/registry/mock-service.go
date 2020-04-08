@@ -126,7 +126,7 @@ func (m *mockService) RequiresFork() bool {
 func (m *mockService) AutoStart() bool {
 	return false
 }
-func (m *mockService) ForkStart() {
+func (m *mockService) ForkStart(...int) {
 }
 func (m *mockService) MustBeUnique() bool {
 	return false

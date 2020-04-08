@@ -41,6 +41,7 @@ type EventProducer struct {
 	Waiters   map[string]*schedule.Ticker
 	EventChan chan *jobs.JobTriggerEvent
 	StopChan  chan bool
+	TestChan  chan *jobs.JobTriggerEvent
 }
 
 // NewEventProducer creates a pool of ScheduleWaiters that will send events based on pre-defined scheduling.
@@ -61,7 +62,11 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 			select {
 			case event := <-e.EventChan:
 				log.Logger(e.Context).Debug("Sending Timer Event", zap.Any("event", event))
-				client.Publish(e.Context, client.NewPublication(common.TOPIC_TIMER_EVENT, event))
+				if e.TestChan != nil {
+					e.TestChan <- event
+				} else {
+					client.Publish(e.Context, client.NewPublication(common.TOPIC_TIMER_EVENT, event))
+				}
 			case <-e.StopChan:
 				return
 			}

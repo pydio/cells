@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _AuthToken = require('./AuthToken');
+
+var _AuthToken2 = _interopRequireDefault(_AuthToken);
+
 /**
 * The RestFrontSessionResponse model module.
 * @module model/RestFrontSessionResponse
@@ -43,6 +47,9 @@ var RestFrontSessionResponse = (function () {
         this.ExpireTime = undefined;
         this.Trigger = undefined;
         this.TriggerInfo = undefined;
+        this.Token = undefined;
+        this.RedirectTo = undefined;
+        this.Error = undefined;
     }
 
     /**
@@ -69,6 +76,15 @@ var RestFrontSessionResponse = (function () {
             if (data.hasOwnProperty('TriggerInfo')) {
                 obj['TriggerInfo'] = _ApiClient2['default'].convertToType(data['TriggerInfo'], { 'String': 'String' });
             }
+            if (data.hasOwnProperty('Token')) {
+                obj['Token'] = _AuthToken2['default'].constructFromObject(data['Token']);
+            }
+            if (data.hasOwnProperty('RedirectTo')) {
+                obj['RedirectTo'] = _ApiClient2['default'].convertToType(data['RedirectTo'], 'String');
+            }
+            if (data.hasOwnProperty('Error')) {
+                obj['Error'] = _ApiClient2['default'].convertToType(data['Error'], 'String');
+            }
         }
         return obj;
     };
@@ -92,4 +108,16 @@ module.exports = exports['default'];
 
 /**
 * @member {Object.<String, String>} TriggerInfo
+*/
+
+/**
+* @member {module:model/AuthToken} Token
+*/
+
+/**
+* @member {String} RedirectTo
+*/
+
+/**
+* @member {String} Error
 */

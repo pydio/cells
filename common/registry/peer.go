@@ -53,18 +53,30 @@ func NewPeer(address string, nodeMeta ...map[string]string) *Peer {
 	return p
 }
 
-func (p *Peer) Add(c *registry.Service, id string) {
+// Add returns if the service was already registered
+func (p *Peer) Add(c *registry.Service, id string) bool {
 	p.lock.Lock()
 	defer p.lock.Unlock()
+
+	if _, ok := p.register[id]; ok {
+		return false
+	}
 
 	p.register[id] = c
+	return true
 }
 
-func (p *Peer) Delete(c *registry.Service, id string) {
+// Delete returns if the services existed before or not
+func (p *Peer) Delete(c *registry.Service, id string) bool {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
+	if _, ok := p.register[id]; !ok {
+		return false
+	}
+
 	delete(p.register, id)
+	return true
 }
 
 func (p *Peer) GetServices(name ...string) []*registry.Service {

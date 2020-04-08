@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -20,8 +20,9 @@
 
 const React = require('react')
 const Pydio = require('pydio')
+import ResourcesManager from 'pydio/http/resources-manager'
 const {Responsive, WidthProvider} = require('react-grid-layout');
-const {PydioContextConsumer} = Pydio.requireLib('boot')
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 import Store from './Store'
 import GridBuilder from './GridBuilder'
@@ -29,14 +30,26 @@ import GridBuilder from './GridBuilder'
 /**
  * Automatic layout for presenting draggable cards to users. Used for user and admin dashboard.
  */
-const CardsGrid = React.createClass({
+class CardsGrid extends React.Component {
+
+    constructor(props, context) {
+        super(props, context);
+        this._storeObserver = function(e){
+            this._forceUpdate = true;
+            this.setState({
+                cards: props.store.getCards()
+            }, ()=>{this._forceUpdate = false});
+        }.bind(this);
+        props.store.observe("cards", this._storeObserver);
+        this.state = {cards: props.store.getCards()};
+    }
 
     /**
      * Save layouts in the users preference.
      *
      * @param {object} allLayouts Responsive layouts passed for saving
      */
-    saveFullLayouts:function(allLayouts){
+    saveFullLayouts(allLayouts) {
         const savedPref = this.props.store.getUserPreference('Layout');
         // Compare JSON versions to avoid saving unnecessary changes
         if(savedPref && this.previousLayout  && this.previousLayout == JSON.stringify(allLayouts)){
@@ -44,45 +57,36 @@ const CardsGrid = React.createClass({
         }
         this.previousLayout = JSON.stringify(allLayouts);
         this.props.store.saveUserPreference('Layout', allLayouts);
-    },
+    }
 
-    onLayoutChange: function(currentLayout, allLayouts){
-        if(this._blockLayoutSave) return;
+    onLayoutChange(currentLayout, allLayouts){
+        if(this._blockLayoutSave) {
+            return;
+        }
         this.saveFullLayouts(allLayouts);
-    },
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount() {
         this.props.store.stopObserving("cards", this._storeObserver);
-    },
+    }
 
-    componentWillReceiveProps: function(nextProps){
+    componentWillReceiveProps(nextProps) {
         if(this.props && nextProps.editMode !== this.props.editMode){
             Object.keys(this.refs).forEach(function(k){
                 this.refs[k].toggleEditMode(nextProps.editMode);
             }.bind(this));
         }
-    },
+    }
 
-    shouldComponentUpdate: function(nextProps, nextState){
+    shouldComponentUpdate(nextProps, nextState) {
         return this._forceUpdate || false;
-    },
+    }
 
-    getInitialState:function(){
-        this._storeObserver = function(e){
-            this._forceUpdate = true;
-            this.setState({
-                cards: this.props.store.getCards()
-            }, ()=>{this._forceUpdate = false});
-        }.bind(this);
-        this.props.store.observe("cards", this._storeObserver);
-        return {cards: this.props.store.getCards()}
-    },
-
-    removeCard: function(itemKey){
+    removeCard(itemKey){
         this.props.removeCard(itemKey);
-    },
+    }
 
-    buildCards: function(cards){
+    buildCards(cards){
 
         let index = 0;
         let layouts = {lg:[], md:[], sm:[], xs:[], xxs:[]};
@@ -98,8 +102,8 @@ const CardsGrid = React.createClass({
             }
             layout['i'] = itemKey;
             return layout;
-        }
-        cards.map(function(item){
+        };
+        cards.map((item) => {
 
             var parts = item.componentClass.split(".");
             var classNS = parts[0];
@@ -117,9 +121,9 @@ const CardsGrid = React.createClass({
             var itemKey = props['key'] = item['id'] || 'item_' + index;
             props.ref=itemKey;
             props.pydio=this.props.pydio;
-            props.onCloseAction = function(){
+            props.onCloseAction = ()=> {
                 this.removeCard(itemKey);
-            }.bind(this);
+            };
             props.preferencesProvider = this.props.store;
             var defaultX = 0, defaultY = 0;
             if(item.defaultPosition){
@@ -152,7 +156,7 @@ const CardsGrid = React.createClass({
             index++;
             items.push(React.createElement(classObject, props));
 
-        }.bind(this));
+        });
 
         if(additionalNamespaces.length){
             this._blockLayoutSave = true;
@@ -163,9 +167,9 @@ const CardsGrid = React.createClass({
             }.bind(this));
         }
         return {cards: items, layouts: layouts};
-    },
+    };
 
-    render: function(){
+    render() {
         const {cards, layouts} = this.buildCards(this.state.cards);
         const ResponsiveGridLayout = WidthProvider(Responsive);
         return (
@@ -174,7 +178,7 @@ const CardsGrid = React.createClass({
                 cols={this.props.cols || {lg: 10, md: 8, sm: 8, xs: 4, xxs: 2}}
                 layouts={layouts}
                 rowHeight={5}
-                onLayoutChange={this.onLayoutChange}
+                onLayoutChange={this.onLayoutChange.bind(this)}
                 isDraggable={!this.props.disableDrag}
                 style={this.props.style}
                 autoSize={false}
@@ -183,48 +187,40 @@ const CardsGrid = React.createClass({
             </ResponsiveGridLayout>
         );
     }
+}
 
-});
+class DynamicGrid extends React.Component {
 
-let DynamicGrid = React.createClass({
+    constructor(props) {
+        super(props);
+        const store = new Store(props.storeNamespace, props.defaultCards, props.pydio);
 
-    propTypes: {
-        storeNamespace   : React.PropTypes.string.isRequired,
-        builderNamespaces: React.PropTypes.array,
-        defaultCards     : React.PropTypes.array,
-        pydio            : React.PropTypes.instanceOf(Pydio),
-        disableDrag      : React.PropTypes.bool,
-        disableEdit      : React.PropTypes.bool,
-    },
-
-    removeCard:function(cardId){
-
-        this.state.store.removeCard(cardId);
-    },
-
-    addCard:function(cardDefinition){
-
-        this.state.store.addCard(cardDefinition);
-    },
-
-    resetCardsAndLayout:function(){
-        this.state.store.saveUserPreference('Layout', null);
-        this.state.store.setCards(this.props.defaultCards);
-    },
-
-    getInitialState: function(){
-        const store = new Store(this.props.storeNamespace, this.props.defaultCards, this.props.pydio);
-        return{
+        this.state = {
             editMode: false,
             store   : store
         };
-    },
+    }
 
-    toggleEditMode:function(){
+    removeCard(cardId){
+
+        this.state.store.removeCard(cardId);
+    }
+
+    addCard(cardDefinition){
+
+        this.state.store.addCard(cardDefinition);
+    }
+
+    resetCardsAndLayout(){
+        this.state.store.saveUserPreference('Layout', null);
+        this.state.store.setCards(this.props.defaultCards);
+    }
+
+    toggleEditMode(){
         this.setState({editMode:!this.state.editMode});
-    },
+    }
 
-    render: function(){
+    render() {
 
         const monitorWidgetEditing = function(status){
             this.setState({widgetEditing:status});
@@ -236,13 +232,13 @@ let DynamicGrid = React.createClass({
                 <GridBuilder
                     className="admin-helper-panel"
                     namespaces={this.props.builderNamespaces}
-                    onCreateCard={this.addCard}
-                    onResetLayout={this.resetCardsAndLayout}
+                    onCreateCard={this.addCard.bind(this)}
+                    onResetLayout={this.resetCardsAndLayout.bind(this)}
                     onEditStatusChange={monitorWidgetEditing}
                     getMessage={(id,ns='ajxp_admin') => {return this.props.getMessage(id, ns)}}
                 />);
         }
-        const propStyle = this.props.style || {};
+
         const rglStyle  = this.props.rglStyle || {};
         return (
             <div style={{...this.props.style, width:'100%', flex:'1'}} className={this.state.editMode?"builder-open":""}>
@@ -250,7 +246,7 @@ let DynamicGrid = React.createClass({
                     <div style={{position:'absolute',bottom:30,right:18, zIndex:11}}>
                         <MaterialUI.FloatingActionButton
                             tooltip={this.props.getMessage('home.49')}
-                            onClick={this.toggleEditMode}
+                            onClick={this.toggleEditMode.bind(this)}
                             iconClassName={this.state.editMode?"icon-ok":"mdi mdi-pencil"}
                             mini={this.state.editMode}
                             disabled={this.state.editMode && this.state.widgetEditing}
@@ -266,14 +262,13 @@ let DynamicGrid = React.createClass({
                         style={rglStyle}
                         pydio={this.props.pydio}
                         editMode={this.state.editMode}
-                        removeCard={this.removeCard}
+                        removeCard={this.removeCard.bind(this)}
                     />
                 </div>
             </div>
         );
     }
+}
 
-});
-
-DynamicGrid = PydioContextConsumer(DynamicGrid)
+DynamicGrid = PydioContextConsumer(DynamicGrid);
 export {DynamicGrid as default}

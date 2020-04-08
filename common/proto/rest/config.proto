@@ -132,3 +132,39 @@ message ConfigFormRequest{
 message OpenApiResponse{
 
 }
+
+message ActionDescription{
+    // Unique name of the action
+    string Name = 1;
+    // Mdi reference name for displaying icon
+    string Icon = 2;
+    // Human-readable label
+    string Label = 3;
+    // Long description and help text
+    string Description = 4;
+    // Template for building a short summary of the action configuration
+    string SummaryTemplate = 5;
+    // Whether this action has a form or not
+    bool HasForm = 6;
+    // User-defined category to organize actions list
+    string Category = 7;
+    // User-defined hexa or rgb color
+    string Tint = 8;
+    // Additional description for expected inputs
+    string InputDescription = 9;
+    // Additional description describing the action output
+    string OutputDescription = 10;
+}
+
+message SchedulerActionsRequest{}
+message SchedulerActionsResponse{
+    // List of all registered actions
+    map<string, ActionDescription> Actions = 1;
+}
+
+message SchedulerActionFormRequest{
+    // Name of the action to load
+    string ActionName = 1;
+}
+
+message SchedulerActionFormResponse{}

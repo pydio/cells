@@ -51,6 +51,10 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 		var conf *object.MinioConfig
 		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
 			res[name] = conf
+			// Replace ApiSecret with value from vault
+			if sec := GetSecret(conf.ApiSecret).String(""); sec != "" {
+				conf.ApiSecret = sec
+			}
 		}
 	}
 	return res

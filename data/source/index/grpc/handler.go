@@ -117,7 +117,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	reqUUID := req.GetNode().GetUuid()
 	updateIfExists := req.GetUpdateIfExists() || !req.GetNode().IsLeaf()
 
-	log.Logger(ctx).Info("CreateNode", zap.Any("request", req))
+	log.Logger(ctx).Debug("CreateNode", req.GetNode().Zap())
 
 	// Updating node based on UUID
 	if reqUUID != "" {
@@ -394,10 +394,11 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 		// Additional filters
-		metaFilter := &MetaFilter{
-			reqNode: reqNode,
-		}
-		hasFilter := metaFilter.parse()
+		metaFilter := tree.NewMetaFilter(reqNode)
+		hasFilter := metaFilter.Parse()
+		limitDepth := metaFilter.LimitDepth()
+
+		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
 
 		names := strings.Split(reqPath, "/")
 		for node := range c {
@@ -406,9 +407,6 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				continue
 			}
 			if req.Recursive && node.Path == reqPath {
-				continue
-			}
-			if hasFilter && !metaFilter.Match(node.Name(), node.Node) {
 				continue
 			}
 
@@ -425,7 +423,13 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 			node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
+			if hasFilter && !metaFilter.Match(node.Name(), node.Node) {
+				continue
+			}
 			if req.FilterType == tree.NodeType_LEAF && node.Type == tree.NodeType_COLLECTION {
+				continue
+			}
+			if limitDepth > 0 && node.Level != limitDepth {
 				continue
 			}
 

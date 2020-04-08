@@ -32,6 +32,19 @@ class CodeEditorField extends React.Component {
         this.props.onChange(null, value);
     }
 
+    componentDidMount(){
+        setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 0);
+    }
+
+    componentDidUpdate(prevProps){
+        const prevValue = prevProps.value ? prevProps.value.length : 0;
+        const newValue = this.props.value ? this.props.value.length : 0;
+        if( Math.abs(newValue-prevValue) > 50 ){
+            // We can consider it's a copy, trigger a resize if necessary
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 0);
+        }
+    }
+
     render() {
         const {value} = this.props;
 

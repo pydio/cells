@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/merger"
@@ -248,8 +249,11 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}
 
 	close(opsFinished)
-	// Wait that all is done
+	// Wait that all parallel operations are done
 	<-done
+
+	// Now that all files are created, we can process metadata operations
+	patch.WalkOperations([]merger.OperationType{merger.OpCreateMeta, merger.OpUpdateMeta, merger.OpDeleteMeta}, serialWalker)
 
 	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
 		if err := patch.Validate(ctx); err != nil {
@@ -337,7 +341,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Creating folder"
 		complete = "Created folder"
 		error = "Error while creating folder"
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
 	case merger.OpCreateFile, merger.OpUpdateFile:
 		cb = pr.processCreateFile
 		if p.HasTransfers() {
@@ -349,21 +353,21 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 			complete = "Indexed file"
 			error = "Error while indexing file"
 		}
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
 	case merger.OpMoveFolder:
 		cb = pr.processMove
 		progress = "Moving folder"
 		complete = "Moved folder"
 		error = "Error while moving folder"
-		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
-		fields = append(fields, zap.String("to", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpMoveFile:
 		cb = pr.processMove
 		progress = "Moving file"
 		complete = "Moved file"
 		error = "Error while moving file"
-		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
-		fields = append(fields, zap.String("to", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpDelete:
 		cb = pr.processDelete
 		nS := "folder"
@@ -373,7 +377,25 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Deleting " + nS
 		complete = "Deleted " + nS
 		error = "Error while deleting " + nS
-		fields = append(fields, zap.String("path", op.GetRefPath()))
+		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
+	case merger.OpCreateMeta:
+		cb = pr.processMetadata
+		progress = "Creating metadata"
+		complete = "Created metadata"
+		error = "Error while creating metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
+	case merger.OpDeleteMeta:
+		cb = pr.processMetadata
+		progress = "Removing metadata"
+		complete = "Removed metadata"
+		error = "Error while removing metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
+	case merger.OpUpdateMeta:
+		cb = pr.processMetadata
+		progress = "Updating metadata"
+		complete = "Updated metadata"
+		error = "Error while updating metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
 	}
 	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
 	return

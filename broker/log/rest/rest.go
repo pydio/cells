@@ -56,7 +56,7 @@ func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) {
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	defer res.Close()

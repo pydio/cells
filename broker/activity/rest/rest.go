@@ -99,8 +99,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 			UserId: inputReq.ContextData,
 		})
 		if err != nil {
-			log.Logger(ctx).Error("cannot get unread activity number from client", zap.Error(err))
-			service.RestError500(req, rsp, err)
+			service.RestErrorDetect(req, rsp, err)
 			return
 		}
 		rsp.WriteEntity(activity2.CountCollection(resp.Number))
@@ -118,7 +117,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	streamer, err := client.StreamActivities(ctx, &inputReq)
 	if err != nil {
 		log.Logger(ctx).Error("cannot get activity stream", zap.Error(err))
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	serverLinks := render.NewServerLinks()
@@ -190,7 +189,7 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 	})
 	if e != nil {
 		log.Logger(ctx).Error("cannot subscribe to activity stream", subscription.Zap(), zap.Error(e))
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -212,7 +211,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	streamer, e := a.getClient().SearchSubscriptions(ctx, &inputSearch)
 	if e != nil {
 		log.Logger(ctx).Error("cannot get subscription stream", zap.Error(e))
-		service.RestError500(req, rsp, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	collection := &rest.SubscriptionsCollection{

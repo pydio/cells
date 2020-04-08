@@ -26,6 +26,19 @@ import (
 	"strings"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
+	"github.com/ory/ladon"
+
+	"github.com/pydio/cells/common/proto/jobs"
+
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/forms/protos"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
+
+	"github.com/pydio/cells/scheduler/actions"
+
 	"github.com/go-openapi/spec"
 
 	"github.com/emicklei/go-restful"
@@ -178,4 +191,135 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 	return
 
+}
+
+// SchedulerActionsDiscovery lists all registered actions
+func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
+	actionManager := actions.GetActionsManager()
+	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	response := &rest.SchedulerActionsResponse{
+		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
+	}
+	for name, a := range allActions {
+		t := a.Tint
+		if ct, o := actions.CategoryTints[a.Category]; o && t == "" {
+			t = ct
+		}
+		response.Actions[name] = &rest.ActionDescription{
+			Name:              a.ID,
+			Icon:              a.Icon,
+			Label:             a.Label,
+			Tint:              t,
+			Description:       a.Description,
+			SummaryTemplate:   a.SummaryTemplate,
+			Category:          a.Category,
+			InputDescription:  a.InputDescription,
+			OutputDescription: a.OutputDescription,
+			HasForm:           a.HasForm,
+		}
+	}
+	rsp.WriteEntity(response)
+}
+
+// SchedulerActionFormDiscovery sends an XML-serialized form for building parameters for a given action
+func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restful.Response) {
+	actionName := req.PathParameter("ActionName")
+	var form *forms.Form
+	if strings.HasPrefix(actionName, "proto:") {
+		protoName := strings.TrimPrefix(actionName, "proto:")
+		var asSwitch bool
+		if strings.HasPrefix(protoName, "switch:") {
+			asSwitch = true
+			protoName = strings.TrimPrefix(protoName, "switch:")
+		}
+		switch protoName {
+		case "idm.UserSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.UserSingleQuery{}, asSwitch)
+		case "idm.RoleSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.RoleSingleQuery{}, asSwitch)
+		case "idm.WorkspaceSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.WorkspaceSingleQuery{}, asSwitch)
+		case "idm.ACLSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
+			a := protos.GenerateProtoToForm(&idm.ACLAction{})
+			if asSwitch {
+				// Patch Actions field manually
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				sw.Values = append(sw.Values, &forms.SwitchValue{
+					Name:  "Actions",
+					Value: "Actions",
+					Label: "Actions",
+					Fields: []forms.Field{&forms.ReplicableFields{
+						Id:          "Actions",
+						Title:       "Actions",
+						Description: "Acl Actions",
+						Fields:      a.Groups[0].Fields,
+					}},
+				})
+			} else {
+				form.Groups[0].Fields = append(form.Groups[0].Fields, &forms.ReplicableFields{
+					Id:          "Actions",
+					Title:       "Actions",
+					Description: "Acl Actions",
+					Fields:      a.Groups[0].Fields,
+				})
+			}
+		case "tree.Query":
+			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
+		case "jobs.ActionOutputSingleQuery":
+			form = protos.GenerateProtoToForm(&jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.ContextMetaSingleQuery":
+			form = protos.GenerateProtoToForm(&jobs.ContextMetaSingleQuery{}, asSwitch)
+			// Select Choices
+			selectChoices := []map[string]string{
+				{servicecontext.HttpMetaRemoteAddress: servicecontext.HttpMetaRemoteAddress},
+				{servicecontext.HttpMetaUserAgent: servicecontext.HttpMetaUserAgent},
+				{servicecontext.HttpMetaContentType: servicecontext.HttpMetaContentType},
+				{servicecontext.HttpMetaProtocol: servicecontext.HttpMetaProtocol},
+				{servicecontext.HttpMetaRequestMethod: servicecontext.HttpMetaRequestMethod},
+				{servicecontext.HttpMetaRequestURI: servicecontext.HttpMetaRequestURI},
+				{servicecontext.HttpMetaCookiesString: servicecontext.HttpMetaCookiesString},
+				//{servicecontext.ClientTime: servicecontext.ClientTime},
+				{servicecontext.ServerTime: servicecontext.ServerTime},
+			}
+			// Add SwitchField for PolicyCondition
+			condField := &forms.SwitchField{
+				Name:        "Condition",
+				Label:       "Condition",
+				Description: "Condition",
+			}
+			for name, f := range ladon.ConditionFactories {
+				condition := f()
+				condForm := protos.GenerateProtoToForm(condition, false)
+				condField.Values = append(condField.Values, &forms.SwitchValue{
+					Name:   name,
+					Value:  name,
+					Label:  name,
+					Fields: condForm.Groups[0].Fields,
+				})
+			}
+			if asSwitch {
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+				sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+				sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+			} else {
+				form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+				form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+				form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+			}
+		}
+	} else {
+		actionManager := actions.GetActionsManager()
+		var err error
+		form, err = actionManager.LoadActionForm(actionName)
+		if err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+	}
+	if form == nil {
+		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
+	}
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 }

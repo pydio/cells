@@ -31,6 +31,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
@@ -45,6 +46,22 @@ var (
 // ArchiveAction implements archiving.
 type ArchiveAction struct {
 	RemainingRows uint64
+}
+
+func (a *ArchiveAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              archiveActionName,
+		Label:           "Archive Changes",
+		Icon:            "zip-box",
+		Description:     "Archive all changes into an alternative table (legacy action)",
+		Category:        actions.ActionCategoryScheduler,
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (a *ArchiveAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier

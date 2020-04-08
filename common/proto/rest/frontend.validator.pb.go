@@ -7,6 +7,7 @@ import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-valid
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/pydio/cells/common/proto/auth"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -25,6 +26,20 @@ func (this *SettingsEntry) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Metadata", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *SettingsAccess) Validate() error {
+	for _, item := range this.Policies {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Policies", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *SettingsAccessRestPolicy) Validate() error {
 	return nil
 }
 func (this *SettingsSection) Validate() error {
@@ -71,12 +86,34 @@ func (this *FrontMessagesResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *FrontSessionGetRequest) Validate() error {
+	return nil
+}
+func (this *FrontSessionGetResponse) Validate() error {
+	if this.Token != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Token", err)
+		}
+	}
+	return nil
+}
 func (this *FrontSessionRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *FrontSessionResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Token != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Token", err)
+		}
+	}
+	return nil
+}
+func (this *FrontSessionDelRequest) Validate() error {
+	return nil
+}
+func (this *FrontSessionDelResponse) Validate() error {
 	return nil
 }
 func (this *FrontAuthRequest) Validate() error {

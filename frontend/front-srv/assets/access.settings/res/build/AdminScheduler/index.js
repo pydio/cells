@@ -26,6 +26,26 @@ var _boardDashboard = require('./board/Dashboard');
 
 var _boardDashboard2 = _interopRequireDefault(_boardDashboard);
 
+var _boardJobsList = require('./board/JobsList');
+
+var _boardJobsList2 = _interopRequireDefault(_boardJobsList);
+
+var _boardTasksList = require('./board/TasksList');
+
+var _boardTasksList2 = _interopRequireDefault(_boardTasksList);
+
+var _boardScheduleForm = require('./board/ScheduleForm');
+
+var _boardScheduleForm2 = _interopRequireDefault(_boardScheduleForm);
+
+var _boardEvents = require('./board/Events');
+
+var _boardEvents2 = _interopRequireDefault(_boardEvents);
+
 window.AdminScheduler = {
-  Dashboard: _boardDashboard2['default']
+  Dashboard: _boardDashboard2['default'],
+  JobsList: _boardJobsList2['default'],
+  TasksList: _boardTasksList2['default'],
+  ScheduleForm: _boardScheduleForm2['default'],
+  Events: _boardEvents2['default']
 };

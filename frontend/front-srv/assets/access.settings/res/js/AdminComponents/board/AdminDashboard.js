@@ -24,60 +24,13 @@ import AdminLeftNav from './AdminLeftNav'
 import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
-const {UserWidget} = Pydio.requireLib('workspaces');
+
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
-
-const styles = {
-    appBar: {
-        zIndex: 10,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        //backgroundColor:muiTheme.palette.primary1Color,
-        color: 'white',
-        display:'flex',
-        alignItems:'center'
-    },
-    appBarTitle: {
-        flex: 1,
-        fontSize: 18,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    },
-    appBarButton: {
-        padding: 14
-    },
-    appBarButtonIcon: {
-        color: 'white',
-        fontSize: 20
-    },
-    appBarLeftIcon: {
-        color: 'white',
-    },
-    mainPanel : {
-        position: 'absolute',
-        top: 56,
-        left: 256, // can be changed by leftDocked state
-        right: 0,
-        bottom: 0,
-        backgroundColor:'#eceff1'
-    },
-    userWidget: {
-        height: 56,
-        lineHeight: '16px',
-        backgroundColor: 'transparent',
-        boxShadow: 'none',
-        display:'flex',
-        alignItems:'center',
-        width: 'auto',
-        marginRight: 16
-    }
-};
-
+import AdminStyles from "../styles/AdminStyles";
+import { colors, getMuiTheme } from 'material-ui/styles';
+import { MuiThemeProvider } from 'material-ui';
 
 let AdminDashboard = React.createClass({
 
@@ -104,6 +57,12 @@ let AdminDashboard = React.createClass({
             leftDocked: true,
             showAdvanced: showAdvanced,
         };
+    },
+
+    toggleAdvanced(){
+        const {showAdvanced} = this.state;
+        this.setState({showAdvanced: !showAdvanced});
+        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
     },
 
     dmChangesToState(){
@@ -197,9 +156,6 @@ let AdminDashboard = React.createClass({
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         DOMUtils.observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
-        ResourcesManager.loadClass("SettingsBoards").then(c => {
-            this.setState({searchComponent:{namespace:'SettingsBoards', componentName:'GlobalSearch'}});
-        }).catch(e => {});
     },
 
     componentWillUnmount(){
@@ -224,49 +180,52 @@ let AdminDashboard = React.createClass({
     },
 
     routeMasterPanel(node, selectedNode){
-        const path = node.getPath();
-        if(!selectedNode) selectedNode = node;
-
+        const {pydio} = this.props;
+        if(!selectedNode) {
+            selectedNode = node;
+        }
         let dynamicComponent;
         if(node.getMetadata().get('component')){
             dynamicComponent = node.getMetadata().get('component');
         }else{
-            return <div>No Component Found</div>;
+            return (
+                <div style={{width: '100%',height: '100%', minHeight:500,display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
+                    <div style={{fontSize: 18, color: 'rgba(0,0,0,0.33)'}}>{pydio.MessageHash["466"]}</div>
+                </div>
+            );
         }
         const parts = dynamicComponent.split('.');
         const additionalProps = node.getMetadata().has('props') ? JSON.parse(node.getMetadata().get('props')) : {};
         return (
             <AsyncComponent
-                pydio={this.props.pydio}
+                pydio={pydio}
                 namespace={parts[0]}
                 componentName={parts[1]}
-                dataModel={this.props.pydio.getContextHolder()}
+                dataModel={pydio.getContextHolder()}
                 rootNode={node}
                 currentNode={selectedNode}
                 openEditor={this.openEditor}
                 openRightPane={this.openRightPane}
                 closeRightPane={this.closeRightPane}
                 {...additionalProps}
+                accessByName={(permissionName) => {
+                    return (!additionalProps.accesses || additionalProps.accesses[permissionName] === true);
+                }}
             />);
     },
 
-    backToHome(){
-        //this.props.pydio.triggerRepositoryChange("homepage");
-        window.open('https://pydio.com');
-    },
-
     render(){
-        const {showAdvanced, rightPanel, leftDocked, openLeftNav, searchComponent} = this.state;
-        const {pydio, muiTheme} = this.props;
+        const {showAdvanced, rightPanel, leftDocked, openLeftNav} = this.state;
+        const {pydio} = this.props;
         const dm = pydio.getContextHolder();
 
         let rPanelContent;
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        let searchIconButton, leftIconButton, toggleAdvancedButton, aboutButton;
 
-        // LEFT BUTTON
+        /*
+        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
         let leftIcon, leftIconClick;
         if (leftDocked) {
             leftIcon = "mdi mdi-tune-vertical";
@@ -279,75 +238,46 @@ let AdminDashboard = React.createClass({
                 this.setState({openLeftNav: !openLeftNav})
             };
         }
-        leftIconButton = (
+        const leftIconButton = (
             <div style={{margin: '0 12px'}}>
                 <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
             </div>
         );
+        */
 
-        // SEARCH BUTTON
-        if(searchComponent){
-            searchIconButton = <AsyncComponent {...searchComponent} appBarStyles={styles} pydio={pydio}/>
-        }
-
-        toggleAdvancedButton = (
-            <IconButton
-                iconClassName={"mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off")}
-                style={styles.appBarButton}
-                iconStyle={styles.appBarButtonIcon}
-                tooltip={pydio.MessageHash['settings.topbar.button.advanced']}
-                onTouchTap={() => {
-                    this.setState({showAdvanced: !showAdvanced});
-                    localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
-                }}
-            />
-        );
-
-        aboutButton = (
-            <IconButton
-                iconClassName={"icomoon-cells"}
-                onTouchTap={()=>{window.open('https://pydio.com')}}
-                tooltip={pydio.MessageHash['settings.topbar.button.about']}
-                style={styles.appBarButton}
-                iconStyle={styles.appBarButtonIcon}
-            />
-        );
-
-        const appBarStyle = {...styles.appBar, backgroundColor:muiTheme.palette.primary1Color};
+        const theme = getMuiTheme({
+            palette:{
+                primary1Color:'#03a9f4',
+                primary2Color:'#f57c00',
+                accent1Color: '#f57c00',
+                accent2Color: '#324a57',
+                avatarsColor        : '#438db3',
+                sharingColor        : '#4aceb0',
+            }
+        });
+        const adminStyles = AdminStyles(theme.palette);
 
         return (
-            <div className="app-canvas">
-                <AdminLeftNav
-                    pydio={this.props.pydio}
-                    dataModel={dm}
-                    rootNode={dm.getRootNode()}
-                    contextNode={dm.getContextNode()}
-                    open={leftDocked || openLeftNav}
-                    showAdvanced={showAdvanced}
-                />
-                <TasksPanel pydio={pydio} mode={"absolute"}/>
-                <Paper zDepth={1} rounded={false} style={appBarStyle}>
-                    {leftIconButton}
-                    <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
-                    {searchIconButton}
-                    {toggleAdvancedButton}
-                    {aboutButton}
-                    <UserWidget
-                        pydio={pydio}
-                        style={styles.userWidget}
-                        hideActionBar={true}
-                        displayLabel={false}
-                        toolbars={["aUser", "user", "zlogin"]}
-                        controller={pydio.getController()}
+            <MuiThemeProvider muiTheme={theme}>
+                <div className="app-canvas">
+                    <AdminLeftNav
+                        pydio={this.props.pydio}
+                        dataModel={dm}
+                        rootNode={dm.getRootNode()}
+                        contextNode={dm.getContextNode()}
+                        open={leftDocked || openLeftNav}
+                        showAdvanced={showAdvanced}
+                        toggleAdvanced={this.toggleAdvanced.bind(this)}
                     />
-                </Paper>
-                <Paper zDepth={0} className="main-panel" style={{...styles.mainPanel, left: leftDocked ? 256 : 0}}>
-                    {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
-                </Paper>
-                <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
-                    {rPanelContent}
-                </Paper>
-            </div>
+                    <TasksPanel pydio={pydio} mode={"absolute"}/>
+                    <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: leftDocked ? 256 : 0}}>
+                        {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
+                    </Paper>
+                    <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
+                        {rPanelContent}
+                    </Paper>
+                </div>
+            </MuiThemeProvider>
         )
     }
 });

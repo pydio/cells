@@ -163,6 +163,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
             var _state = this.state;
             var parameters = _state.parameters;
             var values = _state.values;
+            var accessByName = this.props.accessByName;
 
             if (!parameters) {
                 return null;
@@ -172,6 +173,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
                 ref: 'formPanel',
                 parameters: parameters,
                 values: values,
+                disabled: !accessByName('Create'),
                 onChange: this.onChange.bind(this)
             }));
         }

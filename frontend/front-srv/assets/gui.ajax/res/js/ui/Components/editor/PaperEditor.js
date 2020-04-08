@@ -43,7 +43,7 @@ class PaperEditorLayout extends React.Component{
 
         const styles={
             title: {
-                backgroundColor: muiTheme.palette.primary1Color,
+                backgroundColor: muiTheme.palette.accent2Color,
                 borderRadius: '2px 2px 0 0',
                 display:'flex',
                 alignItems: 'center',
@@ -120,11 +120,11 @@ PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
 /**
  * Navigation subheader used by PaperEditorLayout
  */
-const PaperEditorNavHeader = React.createClass({
+class PaperEditorNavHeader extends React.Component{
 
-    propTypes:{
+    static propTypes:{
         label:React.PropTypes.string
-    },
+    }
 
     render(){
 
@@ -137,13 +137,13 @@ const PaperEditorNavHeader = React.createClass({
 
     }
 
-});
+}
 /**
  * Navigation entry used by PaperEditorLayout.
  */
-const PaperEditorNavEntry = React.createClass({
+class PaperEditorNavEntry extends React.Component{
 
-    propTypes:{
+    static propTypes:{
         keyName:React.PropTypes.string.isRequired,
         onClick:React.PropTypes.func.isRequired,
         label:React.PropTypes.string,
@@ -154,11 +154,11 @@ const PaperEditorNavEntry = React.createClass({
         dropDownData:React.PropTypes.object,
         dropDownChange:React.PropTypes.func,
         dropDownDefaultItems:React.PropTypes.array
-    },
+    }
 
     onClick(){
         this.props.onClick(this.props.keyName);
-    },
+    }
 
     captureDropDownClick(){
         if(this.preventClick){
@@ -166,12 +166,12 @@ const PaperEditorNavEntry = React.createClass({
             return;
         }
         this.props.onClick(this.props.keyName);
-    },
+    }
 
     dropDownChange(event, index, item){
         this.preventClick = true;
         this.props.dropDownChange(item);
-    },
+    }
 
     render(){
 
@@ -179,7 +179,7 @@ const PaperEditorNavEntry = React.createClass({
             return (
                 <div
                     className={'menu-entry' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}
-                    onClick={this.onClick}>
+                    onClick={this.onClick.bind(this)}>
                     {this.props.children}
                     {this.props.label}
                 </div>
@@ -195,18 +195,18 @@ const PaperEditorNavEntry = React.createClass({
             menuItemsTpl.push({text:v.label, payload:v});
         });
         return (
-            <div onClick={this.captureDropDownClick} className={'menu-entry-dropdown' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
+            <div onClick={this.captureDropDownClick.bind(this)} className={'menu-entry-dropdown' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
                 <DropDownMenu
                     menuItems={menuItemsTpl}
                     className="dropdown-full-width"
                     style={{width:256}}
                     autoWidth={false}
-                    onChange={this.dropDownChange}
+                    onChange={this.dropDownChange.bind(this)}
                 />
             </div>
         );
 
     }
-});
+}
 
 export {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader}

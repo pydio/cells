@@ -26,7 +26,9 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
+	"golang.org/x/oauth2"
 
+	"github.com/pydio/cells/common/auth/hydra"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 )
@@ -53,6 +55,10 @@ func RegisterGRPCProvider(service string) {
 
 func (p *grpcprovider) GetType() ProviderType {
 	return ProviderTypeGrpc
+}
+
+func (c *grpcprovider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+	return hydra.Exchange(code)
 }
 
 func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {

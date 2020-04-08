@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -39,7 +40,7 @@ import (
 
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -69,6 +70,25 @@ func newSession() {
 	ctxWithCache = servicecontext.WithDAO(context.Background(), NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), baseCacheDAO.(DAO)).(dao.DAO))
 }
 
+// PrintMemUsage outputs the current, total and OS memory being used. As well as the number
+// of garage collection cycles completed.
+func PrintMemUsage(title string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("\n---------------------------------\n")
+	fmt.Println(title)
+	fmt.Printf("Alloc = %v KiB", bToMb(m.Alloc))
+	fmt.Printf("\tTotalAlloc = %v KiB", bToMb(m.TotalAlloc))
+	fmt.Printf("\tSys = %v KiB", bToMb(m.Sys))
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
+	fmt.Println("---------------------------------")
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
+}
+
 func TestMysqlWithCache(t *testing.T) {
 
 	// Adding a file
@@ -83,6 +103,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		// printTree()
 		// printNodes()
+		PrintMemUsage("Test adding a file")
 	})
 
 	// Setting a file
@@ -299,9 +320,12 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		var i int
+		PrintMemUsage("Test Getting the Children of a node")
 		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}, false) {
 			i++
 		}
+
+		PrintMemUsage("Test Getting the Children of a node END")
 
 		So(i, ShouldEqual, 3)
 

@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"path/filepath"
+	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -11,6 +12,11 @@ import (
 	"github.com/pydio/cells/common"
 	config2 "github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+)
+
+var (
+	once   = &sync.Once{}
+	logger *zap.Logger
 )
 
 func init() {
@@ -48,5 +54,7 @@ func initTasksLogger() *zap.Logger {
 		zap.InfoLevel,
 	)
 
-	return zap.New(core)
+	logger = zap.New(core)
+
+	return logger
 }

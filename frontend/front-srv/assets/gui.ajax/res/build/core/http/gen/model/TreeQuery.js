@@ -47,6 +47,7 @@ var TreeQuery = (function () {
     function TreeQuery() {
         _classCallCheck(this, TreeQuery);
 
+        this.Paths = undefined;
         this.PathPrefix = undefined;
         this.MinSize = undefined;
         this.MaxSize = undefined;
@@ -58,6 +59,9 @@ var TreeQuery = (function () {
         this.FreeString = undefined;
         this.Extension = undefined;
         this.GeoQuery = undefined;
+        this.PathDepth = undefined;
+        this.UUIDs = undefined;
+        this.Not = undefined;
     }
 
     /**
@@ -72,6 +76,9 @@ var TreeQuery = (function () {
         if (data) {
             obj = obj || new TreeQuery();
 
+            if (data.hasOwnProperty('Paths')) {
+                obj['Paths'] = _ApiClient2['default'].convertToType(data['Paths'], ['String']);
+            }
             if (data.hasOwnProperty('PathPrefix')) {
                 obj['PathPrefix'] = _ApiClient2['default'].convertToType(data['PathPrefix'], ['String']);
             }
@@ -105,18 +112,31 @@ var TreeQuery = (function () {
             if (data.hasOwnProperty('GeoQuery')) {
                 obj['GeoQuery'] = _TreeGeoQuery2['default'].constructFromObject(data['GeoQuery']);
             }
+            if (data.hasOwnProperty('PathDepth')) {
+                obj['PathDepth'] = _ApiClient2['default'].convertToType(data['PathDepth'], 'Number');
+            }
+            if (data.hasOwnProperty('UUIDs')) {
+                obj['UUIDs'] = _ApiClient2['default'].convertToType(data['UUIDs'], ['String']);
+            }
+            if (data.hasOwnProperty('Not')) {
+                obj['Not'] = _ApiClient2['default'].convertToType(data['Not'], 'Boolean');
+            }
         }
         return obj;
     };
 
     /**
-    * @member {Array.<String>} PathPrefix
+    * @member {Array.<String>} Paths
     */
     return TreeQuery;
 })();
 
 exports['default'] = TreeQuery;
 module.exports = exports['default'];
+
+/**
+* @member {Array.<String>} PathPrefix
+*/
 
 /**
 * @member {String} MinSize
@@ -156,4 +176,16 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/TreeGeoQuery} GeoQuery
+*/
+
+/**
+* @member {Number} PathDepth
+*/
+
+/**
+* @member {Array.<String>} UUIDs
+*/
+
+/**
+* @member {Boolean} Not
 */

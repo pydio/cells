@@ -22,12 +22,15 @@ import PydioApi from 'pydio/http/api'
 import LangUtils from 'pydio/util/lang'
 import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery} from 'pydio/http/rest-api';
 import WorkspaceAcl from './WorkspaceAcl'
+import Pydio from 'pydio'
+const PydioComponents = Pydio.requireLib('components');
+const {MaterialTable} = PydioComponents;
 
 class WorkspacesAcls extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {workspaces: []};
+        this.state = {loading: true, workspaces: []};
         const api = new WorkspaceServiceApi(PydioApi.getRestClient());
         const request = new RestSearchWorkspaceRequest();
         request.Queries = [IdmWorkspaceSingleQuery.constructFromObject({
@@ -36,28 +39,46 @@ class WorkspacesAcls extends React.Component{
         api.searchWorkspaces(request).then(collection => {
             const workspaces = collection.Workspaces || [];
             workspaces.sort(LangUtils.arraySorter('Label', false, true));
-            this.setState({workspaces});
+            this.setState({workspaces, loading: false});
+        }).catch(e=>{
+            this.setState({loading: false});
         });
     }
 
     render(){
         const {role, advancedAcl} = this.props;
-        const {workspaces} = this.state;
+        const {workspaces, loading} = this.state;
         if(!role){
             return <div></div>
         }
-        return (
-            <div className={"material-list"}>{workspaces.map(
-                ws => {return (
+        const columns = [{
+            name:'acl',
+            label: '',
+            style:{paddingLeft: 0, paddingRight: 0},
+            renderCell:(ws) => {
+                return (
                     <WorkspaceAcl
                         workspace={ws}
                         role={role}
                         advancedAcl={advancedAcl}
                     />
-                )}
-            )}</div>
-        );
+                );
+            }
+        }];
 
+        return (
+            <div className={"material-list"}>
+            <MaterialTable
+                data={workspaces}
+                columns={columns}
+                hideHeaders={true}
+                paginate={[10, 25, 50, 100]}
+                defaultPageSize={25}
+                showCheckboxes={false}
+                emptyStateString={loading?Pydio.getInstance().MessageHash['ajxp_admin.home.6']:''}
+            />
+            </div>
+        );
     }
 
 }
