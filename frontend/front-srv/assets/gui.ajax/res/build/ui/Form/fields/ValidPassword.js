@@ -41,6 +41,8 @@ var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
+var _materialUi = require('material-ui');
+
 var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -87,36 +89,45 @@ exports["default"] = _react2["default"].createClass({
     },
 
     render: function render() {
+        var _props = this.props;
+        var disabled = _props.disabled;
+        var className = _props.className;
+        var attributes = _props.attributes;
+        var dialogField = _props.dialogField;
+
         if (this.isDisplayGrid() && !this.state.editMode) {
             var value = this.state.value;
             return _react2["default"].createElement(
                 "div",
-                { onClick: this.props.disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
-                !value ? 'Empty' : value
+                { onClick: disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
+                value ? value : 'Empty'
             );
         } else {
             var overflow = { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' };
-            var className = this.state.valid ? '' : 'mui-error-as-hint';
-            if (this.props.className) {
-                className = this.props.className + ' ' + className;
+            var cName = this.state.valid ? '' : 'mui-error-as-hint';
+            if (className) {
+                cName = className + ' ' + cName;
             }
             var _confirm = undefined;
-            if (this.state.value && !this.props.disabled) {
-                _confirm = [_react2["default"].createElement("div", { key: "sep", style: { width: 8 } }), _react2["default"].createElement(ModernTextField, {
+            var TextComponent = dialogField ? _materialUi.TextField : ModernTextField;
+            if (this.state.value && !disabled) {
+
+                _confirm = [_react2["default"].createElement("div", { key: "sep", style: { width: 8 } }), _react2["default"].createElement(TextComponent, {
                     key: "confirm",
                     ref: "confirm",
                     floatingLabelText: this.getMessage(199),
                     floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                     floatingLabelStyle: overflow,
-                    className: className,
+                    className: cName,
                     value: this.state.confirmValue,
                     onChange: this.onConfirmChange,
                     type: "password",
                     multiLine: false,
-                    disabled: this.props.disabled,
+                    disabled: disabled,
                     fullWidth: true,
                     style: { flex: 1 },
-                    errorText: this.state.confirmErrorText
+                    errorText: this.state.confirmErrorText,
+                    errorStyle: dialogField ? { bottom: -5 } : null
                 })];
             }
             return _react2["default"].createElement(
@@ -127,21 +138,22 @@ exports["default"] = _react2["default"].createClass({
                 _react2["default"].createElement(
                     "div",
                     { style: { display: 'flex' } },
-                    _react2["default"].createElement(ModernTextField, {
+                    _react2["default"].createElement(TextComponent, {
                         ref: "pass",
-                        floatingLabelText: this.isDisplayForm() ? this.props.attributes.label : null,
+                        floatingLabelText: this.isDisplayForm() ? attributes.label : null,
                         floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                         floatingLabelStyle: overflow,
-                        className: className,
+                        className: cName,
                         value: this.state.value,
                         onChange: this.onPasswordChange,
                         onKeyDown: this.enterToToggle,
                         type: "password",
                         multiLine: false,
-                        disabled: this.props.disabled,
+                        disabled: disabled,
                         errorText: this.state.passErrorText,
                         fullWidth: true,
-                        style: { flex: 1 }
+                        style: { flex: 1 },
+                        errorStyle: dialogField ? { bottom: -5 } : null
                     }),
                     _confirm
                 )

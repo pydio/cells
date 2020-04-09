@@ -602,7 +602,8 @@ var ResetPasswordDialog = React.createClass({
                     className: 'blurDialogTextField',
                     onChange: this.onPassChange.bind(this),
                     attributes: { name: 'password', label: mess[198] },
-                    value: passValue
+                    value: passValue,
+                    dialogField: true
                 })
             );
         } else if (valueSubmitted) {
