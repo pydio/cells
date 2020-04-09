@@ -40,9 +40,6 @@ import (
 func init() {
 
 	plugins.Register(func() {
-		// Configuration
-		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
@@ -63,6 +60,30 @@ func init() {
 			}),
 			service.BeforeStart(initialize),
 		)
+
+		// load configuration
+		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+
+		// And watch to know when we need to reload
+		watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
+		if err != nil {
+			log.Fatal("Could not initiate watcher")
+		}
+
+		go func() {
+			defer watcher.Stop()
+			for {
+				_, err := watcher.Next()
+				if err != nil {
+					break
+				}
+
+				auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+			}
+		}()
+
+		// Register the service as a GRPC Auth Provider
+		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
 	})
 }
 
@@ -93,23 +114,6 @@ func initialize(s service.Service) error {
 
 	// Registry
 	auth.InitRegistry(dao)
-
-	watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		defer watcher.Stop()
-		for {
-			_, err := watcher.Next()
-			if err != nil {
-				break
-			}
-
-			auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-		}
-	}()
 
 	return nil
 }
