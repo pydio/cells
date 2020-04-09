@@ -25,6 +25,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/idm/oauth/lang"
+
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/utils/i18n"
+
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -78,6 +86,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 
 type ResetToken struct {
 	UserLogin  string `json:"user_login"`
+	UserEmail  string `json:"user_email"`
 	Expiration int32  `json:"expiration"`
 }
 
@@ -86,6 +95,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	userLogin := req.PathParameter("UserLogin")
 	ctx := req.Request.Context()
 	response := &rest.ResetPasswordTokenResponse{}
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 
 	// Search for user by login
 	u, e := permissions.SearchUniqueUser(ctx, userLogin, "")
@@ -94,21 +104,24 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		u, e = permissions.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{AttributeName: "email", AttributeValue: userLogin})
 		if e != nil || u.Attributes["email"] == "" {
 			response.Success = false
-			response.Message = "Cannot find corresponding email address"
+			response.Message = T("ResetPassword.Err.EmailNotFound")
 			return
 		}
 	}
 	if u.Attributes["email"] == "" {
 		response.Success = false
-		response.Message = "Cannot find corresponding email address"
+		response.Message = T("ResetPassword.Err.EmailNotFound")
 		return
 	}
+	uLang := i18n.UserLanguage(ctx, u, config.Default())
+	T = lang.Bundle().GetTranslationFunc(uLang)
 
 	// Create token and store as document
 	token := uuid.NewUUID().String()
 	expiration := time.Now().Add(20 * time.Minute).Unix()
 	keyData, _ := json.Marshal(&ResetToken{
 		UserLogin:  u.Login,
+		UserEmail:  u.Attributes["email"],
 		Expiration: int32(expiration),
 	})
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
@@ -123,8 +136,9 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		},
 	})
 	if err != nil {
+		log.Logger(ctx).Error("Could not store reset password key", zap.Error(err))
 		response.Success = false
-		response.Message = err.Error()
+		response.Message = T("ResetPassword.Err.Unknown")
 		return
 	}
 
@@ -134,9 +148,10 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		InQueue: false,
 		Mail: &mailer.Mail{
 			To: []*mailer.User{{
-				Uuid:    u.Uuid,
-				Name:    u.Attributes["displayName"],
-				Address: u.Attributes["email"],
+				Uuid:     u.Uuid,
+				Name:     u.Attributes["displayName"],
+				Address:  u.Attributes["email"],
+				Language: uLang,
 			}},
 			TemplateId: "ResetPassword",
 			TemplateData: map[string]string{
@@ -145,7 +160,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		},
 	})
 	response.Success = true
-	response.Message = "An email has been sent to you with further instructions"
+	response.Message = T("ResetPassword.Success.EmailSent")
 
 	resp.WriteEntity(response)
 }
@@ -157,6 +172,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		service.RestError500(req, resp, e)
 		return
 	}
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
@@ -166,7 +182,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	})
 	if e != nil || docResp.Document == nil || docResp.Document.Data == "" {
 		if e == nil {
-			e = fmt.Errorf("Oops, something wrong happened - Please relaunch reset password process")
+			e = fmt.Errorf(T("ResetPassword.Err.Unknown"))
 		}
 		service.RestError500(req, resp, e)
 		return
@@ -183,24 +199,26 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	response := &rest.ResetPasswordResponse{}
 	if time.Unix(int64(storedToken.Expiration), 0).Before(time.Now()) {
 		response.Success = false
-		response.Message = "Token is expired, please follow again the reset password process!"
+		response.Message = T("ResetPassword.Err.TokenExpired")
 		return
 	}
-	if storedToken.UserLogin != input.UserLogin {
+	if storedToken.UserLogin != input.UserLogin && storedToken.UserEmail != input.UserLogin {
 		response.Success = false
-		response.Message = "Token is does not correspond to this user identifier!"
+		response.Message = T("ResetPassword.Err.TokenNotCorresponding")
 		return
 	}
 	u, e := permissions.SearchUniqueUser(ctx, storedToken.UserLogin, "")
 	if e != nil {
 		response.Success = false
-		response.Message = "Cannot find corresponding user"
+		response.Message = T("ResetPassword.Err.UserNotFound")
 		return
 	}
+	uLang := i18n.UserLanguage(ctx, u, config.Default())
+	T = lang.Bundle().GetTranslationFunc(uLang)
 	u.Password = input.NewPassword
 	userClient := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
-		service.RestError500(req, resp, fmt.Errorf("Error while trying to set new password!"))
+		service.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
 		return
 	}
 
@@ -211,9 +229,10 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 			InQueue: false,
 			Mail: &mailer.Mail{
 				To: []*mailer.User{{
-					Uuid:    u.Uuid,
-					Name:    u.Attributes["displayName"],
-					Address: u.Attributes["email"],
+					Uuid:     u.Uuid,
+					Name:     u.Attributes["displayName"],
+					Address:  u.Attributes["email"],
+					Language: uLang,
 				}},
 				TemplateId:   "ResetPasswordDone",
 				TemplateData: map[string]string{},
@@ -222,7 +241,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	}()
 
 	response.Success = true
-	response.Message = "Your password has successfully been reset, you can now return to the login page!"
+	response.Message = T("ResetPassword.Success.ResetFinished")
 
 	resp.WriteEntity(response)
 
