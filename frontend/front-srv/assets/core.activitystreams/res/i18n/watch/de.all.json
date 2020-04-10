@@ -2,6 +2,9 @@
   "1": {
     "other": "Beobachten auf..."
   },
+  "1-off": {
+    "other": "Watching..."
+  },
   "10": {
     "other": "Benachrichtigen, wenn die Datei geöffnet wird"
   },

@@ -182,6 +182,18 @@
   "153": {
     "other": "Ajouter/retirer la sélection à \"Mes favoris\""
   },
+  "152-on": {
+    "other": "Bookmark"
+  },
+  "153-on": {
+    "other": "Add item to MyBookmarks"
+  },
+  "152-off": {
+    "other": "Remove Bookmark"
+  },
+  "153-off": {
+    "other": "Remove item to MyBookmarks"
+  },
   "154": {
     "other": "Nouveau répertoire"
   },
@@ -2242,6 +2254,9 @@
   },
   "cells.quick-filter": {
     "other": "Filtrer les Cells"
+  },
+  "ws.quick-filter": {
+    "other": "Filter Workspaces"
   },
   "visibility.panel.title": {
     "other": "Visibilité"

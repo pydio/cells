@@ -2,6 +2,9 @@
   "1": {
     "other": "Surveiller..."
   },
+  "1-off": {
+    "other": "Watching..."
+  },
   "10": {
     "other": "Un utilisateur ouvre le fichier"
   },
