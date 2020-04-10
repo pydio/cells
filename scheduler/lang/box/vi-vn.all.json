@@ -9,7 +9,7 @@
     "other": "Đồng bộ với các Ldap Directory"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Xọn dẹp các jobs và tasks trong scheduler"
+    "other": "Dọn dẹp các jobs và tasks trong scheduler"
   },
   "Jobs.Default.FakeLongJob": {
     "other": "Giả một job lâu (dùng cho việc test)"
