@@ -6942,6 +6942,12 @@ var SwaggerJson = `{
     "restSettingsAccess": {
       "type": "object",
       "properties": {
+        "Label": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
         "Policies": {
           "type": "array",
           "items": {

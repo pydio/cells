@@ -43,6 +43,8 @@ var RestSettingsAccess = (function () {
     function RestSettingsAccess() {
         _classCallCheck(this, RestSettingsAccess);
 
+        this.Label = undefined;
+        this.Description = undefined;
         this.Policies = undefined;
     }
 
@@ -58,6 +60,12 @@ var RestSettingsAccess = (function () {
         if (data) {
             obj = obj || new RestSettingsAccess();
 
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = _ApiClient2['default'].convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = _ApiClient2['default'].convertToType(data['Description'], 'String');
+            }
             if (data.hasOwnProperty('Policies')) {
                 obj['Policies'] = _ApiClient2['default'].convertToType(data['Policies'], [_RestSettingsAccessRestPolicy2['default']]);
             }
@@ -66,10 +74,18 @@ var RestSettingsAccess = (function () {
     };
 
     /**
-    * @member {Array.<module:model/RestSettingsAccessRestPolicy>} Policies
+    * @member {String} Label
     */
     return RestSettingsAccess;
 })();
 
 exports['default'] = RestSettingsAccess;
 module.exports = exports['default'];
+
+/**
+* @member {String} Description
+*/
+
+/**
+* @member {Array.<module:model/RestSettingsAccessRestPolicy>} Policies
+*/
