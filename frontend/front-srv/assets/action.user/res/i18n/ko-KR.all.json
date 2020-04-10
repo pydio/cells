@@ -1,0 +1,233 @@
+{
+  "1": {
+    "other": "Address Book"
+  },
+  "10": {
+    "other": "Associated workspaces"
+  },
+  "11": {
+    "other": "Are you sure that you want to delete the selected element(s)?"
+  },
+  "12": {
+    "other": "You don't have the permission to delete this element."
+  },
+  "13": {
+    "other": "Successfully deleted public file."
+  },
+  "14": {
+    "other": "Integrity"
+  },
+  "15": {
+    "other": "Ok"
+  },
+  "16": {
+    "other": "Broken"
+  },
+  "17": {
+    "other": "Download URL"
+  },
+  "18": {
+    "other": "Copy URL"
+  },
+  "19": {
+    "other": "Copy url to send by email."
+  },
+  "2": {
+    "other": "Shared folders"
+  },
+  "20": {
+    "other": "Downloads"
+  },
+  "21": {
+    "other": "Yes"
+  },
+  "22": {
+    "other": "No"
+  },
+  "23": {
+    "other": "Successfully deleted %s files."
+  },
+  "24": {
+    "other": "Nothing to delete."
+  },
+  "25": {
+    "other": "Clear Expired"
+  },
+  "26": {
+    "other": "Delete expired shared files."
+  },
+  "27": {
+    "other": "Owner"
+  },
+  "28": {
+    "other": "Files shared for direct download, either protected by a password or not."
+  },
+  "29": {
+    "other": "Delegates workspaces created by users."
+  },
+  "3": {
+    "other": "Shared files"
+  },
+  "30": {
+    "other": "Users created to access the delegated workspaces."
+  },
+  "31": {
+    "other": "Description"
+  },
+  "32": {
+    "other": "Reset"
+  },
+  "33": {
+    "other": "Reset download counter"
+  },
+  "34": {
+    "other": "My Shares"
+  },
+  "35": {
+    "other": "All my shared items (files and folders)"
+  },
+  "36": {
+    "other": "Parameters"
+  },
+  "37": {
+    "other": "My profile and application settings"
+  },
+  "38": {
+    "other": "Notifications"
+  },
+  "39": {
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+  },
+  "4": {
+    "other": "File Path"
+  },
+  "40": {
+    "other": "Welcome, %s! "
+  },
+  "41": {
+    "other": "Use this workspace as default"
+  },
+  "42": {
+    "other": "Enter"
+  },
+  "43": {
+    "other": "My Profile"
+  },
+  "43t": {
+    "other": "All my personal data"
+  },
+  "44": {
+    "other": "My Account"
+  },
+  "45": {
+    "other": "Personal data"
+  },
+  "46": {
+    "other": "Address Book"
+  },
+  "47": {
+    "other": "Users and teams that you created"
+  },
+  "48": {
+    "other": "My Users"
+  },
+  "49": {
+    "other": "External users that you created"
+  },
+  "5": {
+    "other": "Repository"
+  },
+  "50": {
+    "other": "My Teams"
+  },
+  "51": {
+    "other": "Teams of users, used as shortcuts when sharing"
+  },
+  "52": {
+    "other": "Are you sure you want to delete this team? This will not remove any users."
+  },
+  "53": {
+    "other": "Back to my workspaces"
+  },
+  "54": {
+    "other": "Update Members"
+  },
+  "55": {
+    "other": "Add/Remove users from this team"
+  },
+  "56": {
+    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+  },
+  "57": {
+    "other": "Create a Team"
+  },
+  "58": {
+    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+  },
+  "59": {
+    "other": "Team Label"
+  },
+  "6": {
+    "other": "Password"
+  },
+  "60": {
+    "other": "Team Users"
+  },
+  "61": {
+    "other": "Email Preferences"
+  },
+  "62": {
+    "other": "Send emails every X minutes"
+  },
+  "63": {
+    "other": "Send emails every Y hours"
+  },
+  "64": {
+    "other": "Choose the hour of the day"
+  },
+  "65": {
+    "other": "Choose the first hour of the day"
+  },
+  "66": {
+    "other": "Choose the second hour of the day"
+  },
+  "67": {
+    "other": "Pick a day of the week"
+  },
+  "68": {
+    "other": "Monday"
+  },
+  "69": {
+    "other": "Tuesday"
+  },
+  "7": {
+    "other": "Expiration"
+  },
+  "70": {
+    "other": "Wednesday"
+  },
+  "71": {
+    "other": "Thursday"
+  },
+  "72": {
+    "other": "Friday"
+  },
+  "73": {
+    "other": "Saturday"
+  },
+  "74": {
+    "other": "Sunday"
+  },
+  "8": {
+    "other": "Elements"
+  },
+  "9": {
+    "other": "Associated users"
+  },
+  "desc": {
+    "other": "Manage my account preferences, my address book, shared elements, etc."
+  },
+  "title": {
+    "other": "My Account"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Compress"
+  },
+  "10": {
+    "other": "Extract selected archives"
+  },
+  "11": {
+    "other": "Path of the extracted files "
+  },
+  "12": {
+    "other": "Starting extraction..."
+  },
+  "13": {
+    "other": "Extracting files ... %s "
+  },
+  "14": {
+    "other": "Extraction finished successfullly in the folder '%s'."
+  },
+  "15": {
+    "other": "The selected file is neither a TAR  or a TAR.GZ or a TAR.BZ2 archive."
+  },
+  "16": {
+    "other": "You can only compress in TAR, TAR.GZ or TAR.BZ2."
+  },
+  "17": {
+    "other": "You can't compress empty folders."
+  },
+  "2": {
+    "other": "Compress Selection"
+  },
+  "3": {
+    "other": "Format"
+  },
+  "4": {
+    "other": "Archive's name"
+  },
+  "5": {
+    "other": "Starting compression..."
+  },
+  "6": {
+    "other": "Adding files in the archive... %s "
+  },
+  "7": {
+    "other": "During compression in %s ..."
+  },
+  "8": {
+    "other": "Your archive finished successfully !!"
+  },
+  "9": {
+    "other": "Extract"
+  }
+}

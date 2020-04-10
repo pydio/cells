@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Remote DL"
+  },
+  "10": {
+    "other": "Download to APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Download to %s"
+  },
+  "10b": {
+    "other": "DL to %s"
+  },
+  "10c": {
+    "other": "DL to %s"
+  },
+  "10d": {
+    "other": "AjXp Download (%s)"
+  },
+  "11": {
+    "other": "Drag one of the following link to your bookmark bar : "
+  },
+  "12": {
+    "other": "Trigger remote file download"
+  },
+  "13": {
+    "other": "From computer"
+  },
+  "14": {
+    "other": "From remote server"
+  },
+  "15": {
+    "other": "Or create a bookmark manually and use the code below as the link url : "
+  },
+  "16": {
+    "other": "Drag me to your bookmark bar!"
+  },
+  "17": {
+    "other": "Download file"
+  },
+  "18": {
+    "other": "Partial file"
+  },
+  "2": {
+    "other": "Download file(s) from remote server"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Downloading"
+  },
+  "7": {
+    "other": "to server"
+  },
+  "8": {
+    "other": "File downloaded, reloading the client!"
+  },
+  "9": {
+    "other": "Generate Bookmarklet"
+  }
+}
