@@ -39,10 +39,10 @@
     "other": "Noklusētās REST piekļuves lietotājiem kuri ir pieslēgušies"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Lietotāju meta nepieļauj dzēst tagus"
+    "other": "List and search user-defined metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Standarta lietotāji nevar izveidot/dzēst darbvirsmas"
+    "other": "Update user-defined metadata"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Darbības"

@@ -3,13 +3,13 @@
     "other": "Address used for notifications"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "Tất cả roles"
   },
   "Allow Group Listing": {
     "other": "Allow Group Listing"
   },
   "Allow Role Listing": {
-    "other": "Allow Role Listing"
+    "other": "Cho phép danh sách Role"
   },
   "Allow the users to create a new user when sharing a folder": {
     "other": "Allow the users to create a new user when sharing a folder"
@@ -24,7 +24,7 @@
     "other": "Always Override"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "Luôn ghi đè các roles khác, bao gồm các roles nhóm."
   },
   "Avatar": {
     "other": "Avatar"
@@ -54,7 +54,7 @@
     "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
   },
   "Display roles and/or groups": {
-    "other": "Display roles and/or groups"
+    "other": "Hiển thị roles và/hoặc nhóm"
   },
   "Do not display real login in parenthesis": {
     "other": "Do not display real login in parenthesis"
@@ -66,7 +66,7 @@
     "other": "Email"
   },
   "Excluded Roles": {
-    "other": "Excluded Roles"
+    "other": "Loại trừ Roles"
   },
   "External Users Creation": {
     "other": "External Users Creation"
@@ -96,7 +96,7 @@
     "other": "Image displayed next to the user name"
   },
   "Included Roles": {
-    "other": "Included Roles"
+    "other": "Bao gồm các Role"
   },
   "Instance": {
     "other": "Instance"
@@ -114,7 +114,7 @@
     "other": "Let user create repositories from templates"
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "Danh sách các Role bởi"
   },
   "List existing from all groups": {
     "other": "List existing from all groups"
@@ -147,10 +147,10 @@
     "other": "Role Label"
   },
   "Role/Group Listing": {
-    "other": "Role/Group Listing"
+    "other": "Danh sách Role/nhóm"
   },
   "Roles / Groups Directory Listing": {
-    "other": "Roles / Groups Directory Listing"
+    "other": "Danh sách thư mục Roles/Nhóm"
   },
   "SQL Connexion": {
     "other": "SQL Connection"
@@ -159,7 +159,7 @@
     "other": "See existing users"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "Đặt cách lưu trữ dữ liệu lõi ứng dụng (users,roles, v.v.)."
   },
   "Share with existing users from all groups": {
     "other": "Share with existing users from all groups"
@@ -174,10 +174,10 @@
     "other": "Skip interface preferences"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Một số roles nên bị từ chối trong danh sách. danh sách được phân tách bằng ',' hoặc bắt đầu bằng 'preg:' cho regex."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Một số roles nên bị từ chối trong danh sách. danh sách được phân tách bằng ',' hoặc bắt đầu bằng 'preg:' cho regex."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
     "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
@@ -186,7 +186,7 @@
     "other": "User Language"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "Chỉ user roles"
   },
   "Users Directory Listing": {
     "other": "Users Directory Listing"
@@ -201,7 +201,7 @@
     "other": "Users completer min chars"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "Chỉ Users (không liệt kê các nhóm cũng như roles)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "Whether users can create their own repositories, based on predefined templates."

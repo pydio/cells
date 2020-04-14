@@ -1,6 +1,6 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Theo chúng tôi"
   },
   "cont.btn.github": {
     "other": "Github Star"
@@ -9,90 +9,90 @@
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "Mã nguồn luôn có sẵn trên Github. Bạn có muốn sửa một lỗi, giúp đỡ người khác trong diễn đàn hoặc đẩy tính năng tiếp theo không? Tham gia ngay bây giờ!\n                             Hoặc thể hiện cảm tình của bạn trên mạng xã hội!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells là phần mềm mã nguồn mở miễn phí. Đóng góp trở lại!"
   },
   "cont.title": {
-    "other": "Pay it forward!"
+    "other": "Thanh toán!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Tôi đã triển khai một tính năng mới: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Tôi nghĩ rằng tôi đã tìm thấy một lỗi! Đăng trong diễn đàn."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "Lỗi của tôi là đủ điều kiện: mở một vấn đề github."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "Làm thế nào để tạo hoặc hoàn thành một bản dịch ngôn ngữ?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Administrator Dashboard nâng cao"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "Admin dashboard duy nhứt để theo dõi thời gian thực sử dụng nền tảng."
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "Liên hệ bán hàng"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Tìm Hiểu Thêm"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "Tính năng định hướng doanh nghiệp"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "Các tính năng sẵn sàng cho doanh nghiệp: Trình kết nối AD/LDAP, Nhật ký kiểm toán để tuân thủ, EasyTransfer..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "THÊM CÁC TÍNH NĂNG - GDPR HOÀN TOÀN - THƯƠNG HIỆU XUẤT HIỆN"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "Hỗ trợ và bảo trì"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "Nhận trợ giúp với cài đặt của bạn trực tiếp từ core team"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Khám phá Pydio Cells Enterprise"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "Nâng cấp ngay!"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "Nâng cấp trong ứng dụng Cells Enterprise (yêu cầu license)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Nâng cao"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "Về thông số"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "Bắt đầu làm quen"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Người dùng"
   },
   "welc.btn.ws": {
     "other": "Workspaces"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "Nếu bạn không biết bắt đầu từ đâu, Hướng dẫn quản trị viên chắc chắn là một cuốn sách đáng đọc!"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Đây là bảng điều khiển(dashboard) của bạn để quản lý Pydio. Sử dụng menu bên trái, bạn có thể tạo<a class=\"doc-link\" data-path=\"/data/workspaces\"> workspaces</a> và<a class=\"doc-link\" data-path=\"/idm/users\"> users</a>,\n                             kiểm tra tất cả <a class=\"doc-link\" data-path=\"/admin/logs\">events </a> đã xảy ra trên nền tảng và quản lý <a class=\"doc-link\" data-path=\"/parameters/core\">cấu hình </a> và <a class=\"doc-link\" data-path=\"/plugins/manager\"> plugins</a>."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "Nếu bạn hiện đang chạy Pydio 8, xin lưu ý rằng <u>Pydio 8 sẽ ngưng hỗ trợ vào cuối năm 2019</u>. Bạn có thể sử dụng<a class=\"doc-link\" data-path=\"/data/migration\"> Import Tool</a> để di chuyển tất cả dữ liệu sang Pydio Cells."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "Nơi quản trị và giám sát hoạt động của nền tảng của bạn"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Chào mừng bạn đến với Pydio Cells v2"
   }
 }

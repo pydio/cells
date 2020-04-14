@@ -198,34 +198,34 @@
     "other": "Chia sẻ"
   },
   "159": {
-    "other": "Guest"
+    "other": "Khách"
   },
   "160": {
     "other": "Nhóm đã được tạo thành công"
   },
   "161": {
-    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+    "other": "Bạn đang tài khoản của mình vào trong một nhóm và bạn sẽ mất quyền super-admininistrative. Vui lòng đăng nhập vào tài khoản khác nếu bạn thực sự muốn làm điều đó. Hủy bỏ."
   },
   "162": {
     "other": "Bạn không được phép cập nhật user %s"
   },
   "163": {
-    "other": "Roles reordered for user %s"
+    "other": "Sắp xếp lại roles cho user %s"
   },
   "164": {
     "other": "Cập nhật roles thành công"
   },
   "165": {
-    "other": "Successfully saved user preferences"
+    "other": "Lưu thành công thiết lập cá nhân"
   },
   "166": {
-    "other": "Successfully set lock (%1) on user (%2)"
+    "other": "Thiết lập thành công khóa (%1) cho user (%2)"
   },
   "167": {
     "other": "Mở khóa user (%s) thành công"
   },
   "168": {
-    "other": "%1 users were moved to group %2"
+    "other": "%1 users đã được chuyển đến group %2"
   },
   "169": {
     "other": "Không có user nào đã di chuyển, hình như có gì chưa đúng!"
@@ -237,7 +237,7 @@
     "other": "Bật %1 (%2)"
   },
   "171": {
-    "other": "Import Users (Enterprise only)"
+    "other": "Import Users (trên bản Enterprise)"
   },
   "172": {
     "other": "Danh sách services"
