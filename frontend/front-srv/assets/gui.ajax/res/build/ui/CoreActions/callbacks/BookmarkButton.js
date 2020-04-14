@@ -29,6 +29,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -111,23 +115,24 @@ var BookmarkButton = (function (_React$Component) {
             touchValue = undefined,
             tt = undefined,
             disabled = undefined;
+        var mm = _pydio2['default'].getInstance().MessageHash;
         if (mixed) {
             icon = 'star-half';
             touchValue = true;
-            tt = 'Multiple values - Click to bookmark all items';
+            tt = mm['bookmark.button.tip.mixed'];
         } else if (value) {
             icon = 'star';
             touchValue = false;
-            tt = 'Remove this bookmark';
+            tt = mm['bookmark.button.tip.remove'];
         } else {
             icon = 'star-outline';
             touchValue = true;
-            tt = 'Bookmark this item';
+            tt = mm['bookmark.button.tip.add'];
         }
 
         if (saving) {
             icon = 'star-circle';
-            tt = 'Saving...';
+            tt = mm['bookmark.button.tip.saving'];
             disabled = true;
         }
 

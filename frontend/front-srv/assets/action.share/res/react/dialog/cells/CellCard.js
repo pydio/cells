@@ -126,7 +126,7 @@ class CellCard extends React.Component{
             if(extLibs && rootNodes) {
 
                 const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
-                watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={"Get notifications..."} data={selector} iconStyle={{marginTop: 32}} />;
+                watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
                 bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
 
             }

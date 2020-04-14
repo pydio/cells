@@ -1,3 +1,22 @@
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -127,11 +146,13 @@ var WatchSelector = (function (_React$Component) {
             var mixed = _state.mixed;
             var saving = _state.saving;
 
+            var mm = _pydio2['default'].getInstance().MessageHash;
+
             if (saving) {
                 return _react2['default'].createElement(
                     ModernSelectField,
                     { value: "saving", onChange: function (e, i, v) {}, disabled: true },
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: "saving", primaryText: "Saving status..." })
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "saving", primaryText: mm['meta.watch.selector.saving'] + "..." })
                 );
             }
 
@@ -140,11 +161,11 @@ var WatchSelector = (function (_React$Component) {
                 { value: mixed ? 'mixed' : value, onChange: function (e, i, v) {
                         _this2.onSelectorChange(v);
                     } },
-                mixed && _react2['default'].createElement(_materialUi.MenuItem, { value: "mixed", primaryText: "Mixed values..." }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: "", primaryText: "Ignore" }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_READ", primaryText: "On consultation" }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_CHANGE", primaryText: "On modification" }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_BOTH", primaryText: "On consultation or modification" })
+                mixed && _react2['default'].createElement(_materialUi.MenuItem, { value: "mixed", primaryText: mm['meta.watch.selector.mixed'] + "..." }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: "", primaryText: mm['meta.watch.selector.ignore'] }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_READ", primaryText: mm['meta.watch.selector.read'] }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_CHANGE", primaryText: mm['meta.watch.selector.change'] }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: "META_WATCH_BOTH", primaryText: mm['meta.watch.selector.both'] })
             );
         }
     }]);

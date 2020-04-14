@@ -101,7 +101,7 @@ var WorkspaceCard = (function (_React$Component) {
         if (pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes) {
 
             var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
-            watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: "Get notifications...", iconStyle: { marginTop: 32 }, data: selector });
+            watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], iconStyle: { marginTop: 32 }, data: selector });
         }
         if (CALib && rootNodes) {
             bookmarkAction = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });

@@ -24,7 +24,6 @@ import QuickSendCard from './quicksend/QuickSendCard'
 import WorkspacePickerDialog from './quicksend/WorkspacePickerDialog'
 import VideoCard from './videos/VideoCard'
 import WorkspacesListCard from './workspaces/WorkspacesListCard'
-import ActivityStreamsPanel from './recent/ActivityStreams'
 
 import HomeDashboard from './board/HomeDashboard'
 
@@ -35,6 +34,5 @@ export {
     WorkspacePickerDialog,
     VideoCard,
     WorkspacesListCard,
-    HomeDashboard,
-    ActivityStreamsPanel
+    HomeDashboard
 }

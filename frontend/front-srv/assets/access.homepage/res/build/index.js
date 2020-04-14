@@ -50,10 +50,6 @@ var _workspacesWorkspacesListCard = require('./workspaces/WorkspacesListCard');
 
 var _workspacesWorkspacesListCard2 = _interopRequireDefault(_workspacesWorkspacesListCard);
 
-var _recentActivityStreams = require('./recent/ActivityStreams');
-
-var _recentActivityStreams2 = _interopRequireDefault(_recentActivityStreams);
-
 var _boardHomeDashboard = require('./board/HomeDashboard');
 
 var _boardHomeDashboard2 = _interopRequireDefault(_boardHomeDashboard);
@@ -65,4 +61,3 @@ exports.WorkspacePickerDialog = _quicksendWorkspacePickerDialog2['default'];
 exports.VideoCard = _videosVideoCard2['default'];
 exports.WorkspacesListCard = _workspacesWorkspacesListCard2['default'];
 exports.HomeDashboard = _boardHomeDashboard2['default'];
-exports.ActivityStreamsPanel = _recentActivityStreams2['default'];

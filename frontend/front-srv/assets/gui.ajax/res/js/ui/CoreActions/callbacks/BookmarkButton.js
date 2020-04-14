@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import React from 'react'
 import {IconButton} from 'material-ui'
 import toggleBookmarkNode from "./toggleBmNode";
@@ -83,23 +84,24 @@ class BookmarkButton extends React.Component{
         const {styles} = this.props;
         const {value, mixed, saving} = this.state;
         let icon, touchValue, tt, disabled;
+        const mm = Pydio.getInstance().MessageHash;
         if(mixed){
             icon = 'star-half';
             touchValue = true;
-            tt = 'Multiple values - Click to bookmark all items'
+            tt = mm['bookmark.button.tip.mixed'];
         } else if(value){
             icon = 'star';
             touchValue = false;
-            tt = 'Remove this bookmark';
+            tt = mm['bookmark.button.tip.remove'];
         } else {
             icon = 'star-outline';
             touchValue = true;
-            tt = 'Bookmark this item';
+            tt = mm['bookmark.button.tip.add'];
         }
 
         if(saving){
             icon = 'star-circle';
-            tt = 'Saving...';
+            tt = mm['bookmark.button.tip.saving'];
             disabled = true;
         }
 

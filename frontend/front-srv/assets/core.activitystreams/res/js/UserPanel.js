@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -136,7 +136,7 @@ class UserPanel extends React.Component {
                     {this.state.data &&
                         <ActivityList
                             items={this.state.data.items}
-                            style={{overflowY:'scroll', maxHeight: 330, paddingTop: 20}}
+                            style={{overflowY:'scroll', maxHeight: 420, paddingTop: 20}}
                             groupByDate={true}
                             displayContext={"popover"}
                         />}

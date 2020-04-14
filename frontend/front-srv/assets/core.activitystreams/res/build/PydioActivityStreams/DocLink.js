@@ -72,9 +72,13 @@ function nodesFromObject(object, pydio) {
         var paths = ws.rel.split('/');
         paths.shift();
         var relPath = paths.join('/');
+        if (relPath.indexOf('/') !== 0) {
+            relPath = '/' + relPath;
+        }
         var node = new AjxpNode(relPath, object.type === 'Document');
         node.getMetadata().set('repository_id', ws.id);
         node.getMetadata().set('repository_label', ws.name);
+        node.getMetadata().set('filename', relPath);
         if (ws.id === currentRepository) {
             return [node];
         }
@@ -246,6 +250,7 @@ var DocLink = (function (_React$Component2) {
             var pydio = _props.pydio;
             var activity = _props.activity;
             var children = _props.children;
+            var linkStyle = _props.linkStyle;
 
             if (!activity.object.name) {
                 activity.object.name = '';
@@ -309,7 +314,7 @@ var DocLink = (function (_React$Component2) {
                 null,
                 _react2['default'].createElement(
                     'a',
-                    { title: title, style: { cursor: 'pointer', color: 'rgb(66, 140, 179)' },
+                    { title: title, style: _extends({ cursor: 'pointer', color: 'rgb(66, 140, 179)' }, linkStyle),
                         onMouseOver: onMouseOver,
                         onMouseOut: onMouseOut,
                         onClick: onClick },
@@ -330,4 +335,4 @@ DocLink.PropTypes = {
 
 exports['default'] = DocLink = PydioContextConsumer(DocLink);
 exports['default'] = DocLink;
-module.exports = exports['default'];
+exports.nodesFromObject = nodesFromObject;

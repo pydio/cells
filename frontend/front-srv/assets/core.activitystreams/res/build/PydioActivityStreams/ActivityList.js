@@ -184,21 +184,34 @@ var ActivityList = (function (_React$Component) {
                 emptyStateIcon = "mdi mdi-alert-circle-outline";
             }
             if (data !== null && data.items) {
-                data.items.forEach(function (ac) {
+                data.items.forEach(function (ac, i) {
 
                     var fromNow = moment(ac.updated).fromNow();
                     if (groupByDate && fromNow !== previousFrom) {
-                        content.push(_react2['default'].createElement(
-                            'div',
-                            { style: { padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500 } },
-                            fromNow
-                        ));
+                        if (content.length) {
+                            content.pop(); // remove last divider
+                            content.push(_react2['default'].createElement(
+                                'div',
+                                { style: { padding: '20px 16px 0', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500 } },
+                                fromNow
+                            ));
+                        } else {
+                            content.push(_react2['default'].createElement(
+                                'div',
+                                { style: { padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500 } },
+                                fromNow
+                            ));
+                        }
                     }
                     content.push(_react2['default'].createElement(_Activity2['default'], { key: ac.id, activity: ac, listContext: listContext, oneLiner: groupByDate, displayContext: displayContext }));
                     if (groupByDate) {
                         previousFrom = fromNow;
+                        content.push(_react2['default'].createElement('div', { style: { borderTop: '1px solid rgba(0,0,0,.03)', width: '100%' } }));
                     }
                 });
+                if (groupByDate) {
+                    content.pop(); // remove last divider
+                }
             }
             if (content.length && loadMore) {
                 var loadAction = function loadAction() {
