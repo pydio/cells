@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "Cho phép users tạo liên kết công khai trên các tệp"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "Cho phép users tạo liên kết công khai trên các tệp"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "Cho phép users chọn thủ công hash cho các liên kết được tạo"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "Ủy quyền"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "Tránh trùng lặp nhãn"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Màu nền"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Tạo QRCode"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "Tạo và hiển thị QRCode cho liên kết được chia sẻ"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "Hủy chia sẻ thư mục"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "Không cho phép users tạo thư mục dùng chung nếu không gian làm việc đã tồn tại với cùng label"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "Không cho phép users tạo liên kết công khai, chỉ liên kết riêng tư (được bảo vệ bằng mật khẩu)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "Nút tải xuống"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "Tải văn bản"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "Tải xuống văn bản w / Pass"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "Hủy chia sẻ thư mục"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "Cho phép chia sẻ thư mục (workspace và minisite)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "Cho phép chia sẻ tệp nội bộ (chia sẻ với users hiện tại hoặc users tạm thời)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "Cho phép chia sẻ tệp nội bộ (chia sẻ với users hiện tại hoặc users tạm thời)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "Cho phép tạo liên kết công khai cho các tệp"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "Kích hoạt liên kết công khai cho các tập tin"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "Files: cho phép chia sẻ nội bộ"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "Files: bật liên kết công khai"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "Chia sẻ thư mục"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "Thư mục: cho phép chia sẻ nội bộ"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "Thư mục: kích hoạt liên kết công khai"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "Buộc gửi thư bên ngoài"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "Chuyển tiếp sự kiện"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "Độ dài hash tối thiểu"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "Hash user có thể chỉnh sửa"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "Nếu bạn phát hiện sự cố về hiệu suất trong khi sửa đổi tệp dưới cây sâu, hãy thử kích hoạt tệp đó. Hãy chắc chắn về những gì bạn làm, điều này có thể kích hoạt toàn bộ quá trình php trên máy chủ."
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "Hình ảnh được sử dụng làm nút để tải xuống tệp"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "Chia sẻ nội bộ"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "Tạo liên kết"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "Tiền tố bắt buộc cho users đã tạo users đăng nhập tạm thời"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "Giới hạn tải xuống tối đa cho tệp, 0 = không giới hạn"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "Giới hạn tải xuống tệp tối đa"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "Giới hạn hết hạn tối đa của tệp"
   },
   "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file, 0 = unlimited"
+    "other": "Giới hạn hết hạn chia sẻ tối đa cho tệp, 0 = không giới hạn"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "Độ dài tối thiểu của hash được tạo"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Trang nhỏ"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "Minisites và Workspaces"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "Chỉ Minisites"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "Tiêu đề Trang"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "Đặt mật khẩu bắt buộc"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "Chia sẻ hành động và móc nối"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "Chia sẻ màu nền trang."
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "Chia sẻ màu văn bản trang."
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "Chia sẻ trang màu bóng văn bản."
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "Cấu hình users chia sẻ"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "Tính năng chia sẻ"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Màu chữ"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "Bóng văn bản"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Tiền tố users Tmp"
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "Sử dụng quy tắc viết lại"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "Sử dụng mailer cho bên trong"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "Sử dụng cơ chế RewriteEngine của máy chủ web để tạo các URL đẹp hơn"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "Trang web liên kết"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "Chỉ Workspaces"
   }
 }

@@ -3,60 +3,60 @@
     "other": "Thông báo"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Lịch sử hoạt động của thư mục"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Lịch sử hoạt động trên tập tin"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "Tùy thuộc vào trình duyệt của bạn, điều này sẽ yêu cầu một sự cho phép cụ thể. Để vô hiệu hóa, hãy xem qua các tùy chọn và ngoại lệ trình duyệt của bạn. Nếu bạn đã kích hoạt tính năng này, có lẽ sẽ không có gì xảy ra."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "Trình duyệt của bạn dường như chưa hỗ trợ Thông báo trên màn hình."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Không có thông báo"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Thông báo về các tập tin mà bạn theo dõi sẽ xuất hiện ở đây"
   },
   "16": {
-    "other": "Inside"
+    "other": "Bên trong"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Đang tải hoạt động..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Không có hoạt động nào gần đây"
   },
   "19": {
-    "other": "More"
+    "other": "Thêm"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "Thông báo feed"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Đang tải feed..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "Nhắc nhở"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Thông báo"
   },
   "5": {
-    "other": "All Events"
+    "other": "Tất cả các sự kiện"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Đi tới..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Bỏ qua"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Không có thông báo"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Hoạt động Workspace"
   }
 }

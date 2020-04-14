@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "Hiển thị màn hình đăng nhập user / mật khẩu tiêu chuẩn"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "Bật / tắt tự động dựa trên giao thức được sử dụng"
   },
   "Order": {
-    "other": "Order"
+    "other": "Thứ tự"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "Thứ tự plugin này với các tiêu đề xác thực khác"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "Loại giao thức"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "Chỉ REST"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "Session-based hoặc Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "Chỉ Sessions"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "Trang đăng nhập chuẩn"
   }
 }

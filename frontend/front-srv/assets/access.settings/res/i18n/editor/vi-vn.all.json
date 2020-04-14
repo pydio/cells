@@ -1,203 +1,203 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "Không có tham số"
   },
   "10": {
-    "other": "Write Only"
+    "other": "Chi Ghi"
   },
   "11": {
-    "other": "Denied"
+    "other": "Đã từ chối"
   },
   "12": {
-    "other": "No Access"
+    "other": "Không truy cập"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "Tìm kiếm tham số (Parameters) hoặc hành động (Actions)"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "Chọn tham số hoặc hành động"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "Chọn một tham số hoặc hành động, sau đó nhấp vào Thêm. Bạn có thể nhanh chóng tìm kiếm thông qua các tham số bằng cách sử dụng trường văn bản bên dưới."
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "Hiển thị / Ẩn kế thừa"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "Thêm tham số hoặc hành động"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "Cài đặt plugin"
   },
   "19": {
-    "other": "always overrides"
+    "other": "luôn luôn ghi đè"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Bật"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ thêm role"
   },
   "21": {
-    "other": "reloading..."
+    "other": "đang tải lại..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "Đang tải actions cache, vui lòng đợi, việc này sẽ chỉ được thực hiện một lần..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "Đang tải parameters cache, vui lòng đợi, việc này sẽ chỉ được thực hiện một lần..."
   },
   "24": {
-    "other": "User Information"
+    "other": "Thông tin người dùng"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "Truy cập bị hạn chế"
   },
   "26": {
-    "other": "Group Information"
+    "other": "Thông tin nhóm"
   },
   "27": {
-    "other": "Group Info"
+    "other": "Thông tin Nhóm"
   },
   "28": {
-    "other": "Role Information"
+    "other": "Thông tin vai trò"
   },
   "29": {
-    "other": "Role Info"
+    "other": "Thông tin vai trò"
   },
   "3": {
-    "other": "Disabled"
+    "other": "Tắt"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "Hồ sơ & Vai trò"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "User name duy nhất duy nhất. Bạn không thể sửa đổi giá trị này."
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "Hồ sơ cụ thể. Có thể ngụ ý một số vai trò (roles) tự động áp dụng."
   },
   "33": {
-    "other": "Close"
+    "other": "Đóng"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "Kiểm soát truy cập"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "Truy cập Workspaces"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "Trang ứng dụng"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "Tùy chỉnh tham số"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Thông số ứng dụng"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Tất cả các tham số workspaces"
   },
   "4": {
-    "other": "Clear value"
+    "other": "Xóa giá trị"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "Thông số mỗi workspaces"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "Tham số bổ sung"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "Tinh chỉnh các giá trị tham số ứng dụng và vô hiệu hóa có chọn lọc các hành động plugin cho role hiện tại này. Các thông số ở đây là toàn cầu cho ứng dụng (xác thực, cấu hình, v. v.). Xem các tab Workspaces để biết các tham số / hành động dành riêng cho workspaces."
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "Cấp quyền truy cập vào các không gian làm việc cho role/user/group hiện tại"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Trang ứng dụng chính"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "Truy cập vào các trang ứng dụng chính (như Tài khoản, trang chào mừng, v. v.)"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "Thông số và lệnh"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "Tinh chỉnh các giá trị tham số workspaces và hành động cho các workspaces cụ thể"
   },
   "49": {
-    "other": "Shares"
+    "other": "Chia sẻ"
   },
   "5": {
-    "other": "Override value"
+    "other": "Ghi đè lên giá trị"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "Tập tin và thư mục được chia sẻ"
   },
   "51": {
-    "other": "With this user"
+    "other": "Với người dùng này"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "Cells và public links được tạo bởi người dùng này"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "Được chia sẻ bởi %1 từ trong workspace %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Thông tin user cơ bản. Sử dụng nút bên phải để xem thêm hành động."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Chuyển đổi cấu hình và roles để tự động cấp quyền cho user này."
   },
   "6": {
-    "other": "Save value"
+    "other": "Lưu giá trị"
   },
   "7": {
-    "other": "Action %s"
+    "other": "Hành động: %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "Đọc và Viết"
   },
   "9": {
-    "other": "Read Only"
+    "other": "Chỉ đọc"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Quản lý user roles"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Thêm cho ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Tất cả Workspaces"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Chỉ chia sẻ các Cells"
   },
   "parameters.scope.workspace": {
     "other": "Workspace %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Thêm tham số hoặc hành động"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Không có tham số hoặc hành động"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Trang chính"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Trang chào mừng được hiển thị sau khi đăng nhập"
   },
   "workspace.statics.settings.title": {
     "other": "Admin Console"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Bảng điều khiển quản lý Pydio Cells"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Quyền được đặt thủ công"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Toàn bộ workspace"
   }
 }

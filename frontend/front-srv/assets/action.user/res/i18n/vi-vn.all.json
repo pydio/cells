@@ -9,13 +9,13 @@
     "other": "Bạn có chắc khi muốn xóa các dữ liệu vừa chọn?"
   },
   "12": {
-    "other": "You don't have the permission to delete this element."
+    "other": "Bạn không có quyền xóa dữ liệu này."
   },
   "13": {
-    "other": "Successfully deleted public file."
+    "other": "Public file đã được xóa thành công."
   },
   "14": {
-    "other": "Integrity"
+    "other": "Tính toàn vẹn"
   },
   "15": {
     "other": "Ok"
@@ -45,55 +45,55 @@
     "other": "No"
   },
   "23": {
-    "other": "Successfully deleted %s files."
+    "other": "Đã xóa thành công %s tập tin."
   },
   "24": {
     "other": "Không có gì để xóa."
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "Xóa public link đã hết hạn"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "Xóa các tập tin chia sẻ đã hết hạn."
   },
   "27": {
-    "other": "Owner"
+    "other": "Chủ sở hữu"
   },
   "28": {
-    "other": "Files shared for direct download, either protected by a password or not."
+    "other": "Các tệp được chia sẻ để tải xuống trực tiếp, được bảo vệ bằng mật khẩu hoặc không."
   },
   "29": {
-    "other": "Delegates workspaces created by users."
+    "other": "Delegates workspaces được tạo bởi users."
   },
   "3": {
-    "other": "Shared files"
+    "other": "Tập tin được chia sẻ"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "Users được tạo để truy cập vào các workspaces được ủy quyền."
   },
   "31": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "32": {
-    "other": "Reset"
+    "other": "Thiết lập lại"
   },
   "33": {
-    "other": "Reset download counter"
+    "other": "Đặt lại bộ đếm tải xuống"
   },
   "34": {
-    "other": "My Shares"
+    "other": "Tôi chia sẻ"
   },
   "35": {
-    "other": "All my shared items (files and folders)"
+    "other": "Tất cả các mục được chia sẻ của tôi (tệp và thư mục)"
   },
   "36": {
-    "other": "Parameters"
+    "other": "Tham số"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "Hồ sơ và cài đặt ứng dụng của tôi"
   },
   "38": {
-    "other": "Notifications"
+    "other": "Thông báo"
   },
   "39": {
     "other": "Đây là danh sách các workspaces bạn có thể truy cập. Những workspace này có thể là của cá nhân hoặc các chia sẻ được tạo bởi các thành viên khác."
@@ -138,13 +138,13 @@
     "other": "Repository"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Teams của tôi"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Các user được nhóm lại theo team tạo dễ dàng cho việc chia sẻ"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Bạn có chắc chắn muốn xóa team này? Điều này sẽ không ảnh hưởng tới bất kỳ users."
   },
   "53": {
     "other": "Quay lại workspaces của tôi"
@@ -153,19 +153,19 @@
     "other": "Cập nhật thành viên"
   },
   "55": {
-    "other": "Add/Remove users from this team"
+    "other": "Thêm / Xóa users khỏi team này"
   },
   "56": {
     "other": "Thêm một user trên mỗi dòng, danh sách sẽ tự xuất hiện khi bạn gõ."
   },
   "57": {
-    "other": "Create a Team"
+    "other": "Tạo mới môt team"
   },
   "58": {
-    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+    "other": "Các user được nhóm lại thành một team để thuận lợi khi tạo chia sẻ"
   },
   "59": {
-    "other": "Team Label"
+    "other": "Tên Team"
   },
   "6": {
     "other": "Mật khẩu"
@@ -174,13 +174,13 @@
     "other": "Team Users"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "Địa chỉ Email"
   },
   "62": {
     "other": "Gửi email mỗi X phút"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "Gửi email mỗi Y giờ"
   },
   "64": {
     "other": "Chọn giờ trong ngày"
@@ -222,10 +222,10 @@
     "other": "Elements"
   },
   "9": {
-    "other": "Associated users"
+    "other": "Các users liên quan"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "Quản lý tùy chọn tài khoản, danh bạ, các chia sẻ, v. v."
   },
   "title": {
     "other": "Tài khoản của tôi"

@@ -3,52 +3,52 @@
     "other": "Core component for sending emails"
   },
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "Kích hoạt hàng đợi"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "Thông báo hoạt động qua email"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "Địa chỉ của người gửi"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "Bố cục nội dung"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "Chọn tần suất thư của bạn (như 9:00 hoặc 9:00, 14:00 hoặc thứ tư)"
   },
   "Content": {
-    "other": "Content"
+    "other": "Nội Dung"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "Cấu hình các thành phần lõi để gửi email"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "Chi tiết tần số của bạn ở đây"
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "Tần số email"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "Mỗi X giờ"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "Mỗi X phút"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "Mỗi ngày tại "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "Trích xuất bố cục chính từ tệp. Sẽ chiếm ưu thế trên các tham số trước đó, hãy chắc chắn để có một PYDIO_MAIL_BODY trong các tập tin bố trí."
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "Buộc tất cả các thư được gửi bằng email gửi này, thay vì địa chỉ người dùng"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "Nhận email bằng HTML"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "Thư mục bố trí"
   },
   "Mailer Plugin": {
     "other": "Mailer Plugin"
@@ -57,57 +57,57 @@
     "other": "Mailers"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "Bố cục chính cho nội dung email, sử dụng HTML để gửi email đẹp và sử dụng từ khóa PYDIO_MAIL_BODY cho nội dung thực."
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "Tên của người gửi"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "Mỗi tuần một lần"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "Nhận thông báo qua email"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "Chọn plugin để kích hoạt để gửi email một cách cụ thể"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "Gửi dưới dạng HTML"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "Gửi email đến..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "Người gửi"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "Email người gửi"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "Tên người gửi"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "Lưu trữ email trong hàng đợi và xử lý hàng loạt. Users có thể chọn tần suất gửi. Đảm bảo thiết lập CRON trên consume_mail_queue nếu bạn sử dụng tùy chọn này."
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "Chuỗi tự động được thêm vào đầu chủ đề thư"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "Chuỗi tự động được thêm vào cuối chủ đề thư"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "Bổ sung chủ đề"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "Thêm chủ đề"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "Hai lần một ngày (mỗi ngày tại)"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "Người gửi duy nhất"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "Bạn có thể thêm nhiều email được phân tách bằng dấu phẩy"
   }
 }

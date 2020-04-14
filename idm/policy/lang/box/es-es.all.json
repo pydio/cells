@@ -39,10 +39,10 @@
     "other": "Acceso REST predeterminado para usuarios registrados"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "Listar y buscar metadatos definidos por el usuario"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Los usuarios estándar no pueden crear/eliminar espacios de trabajo"
+    "other": "Actualizar metadatos definidos por el usuario"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Operaciones OpenIdConnect"
