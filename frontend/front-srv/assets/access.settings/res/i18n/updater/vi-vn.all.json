@@ -1,113 +1,113 @@
 {
   "title": {
-    "other": "Software Updates"
+    "other": "Cập nhật phần mềm"
   },
   "legend": {
-    "other": "In-app binary updates"
+    "other": "Cập nhật nhị phân trong ứng dụng"
   },
   "current.version": {
-    "other": "Current Version"
+    "other": "Phiên bản hiện tại"
   },
   "confirm.update": {
-    "other": "Are you sure that you want to perform the update?"
+    "other": "Bạn có chắc chắn muốn thực hiện tác vụ này không?"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "Các gói sau có sẵn để cập nhật"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "Kiểm tra cập nhật có sẵn..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "Không có cập nhật cần thiết được phát hiện: nhấp để thực hiện kiểm tra mới."
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "Xin vui lòng chọn ít nhất một sản phẩm!"
   },
   "package.released": {
-    "other": "Released"
+    "other": "Đã niêm yết"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "Phiên bản"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "Nhấn vào đây để kiểm tra cập nhật mới"
   },
   "check.button": {
-    "other": "Check now"
+    "other": "Kiểm tra ngay"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "Bắt đầu nâng cấp"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "Lưu Tuỳ Chỉnh"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Nâng cấp lêm Cells Enterprise"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Kế tiếp"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "Bắt đầu"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Huỷ"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Cài đặt ngay"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Đóng"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "Vui lòng chấp nhận thỏa thuận cấp phép End-User"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "Tôi chấp nhận EULA này bằng cách đó"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "Nhập mã cấp phép hợp lệ (được cung cấp bởi đại diện bán hàng của Pydio)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "Nếu bạn không sở hữu, bạn có thể nhận khóa dùng thử bằng cách liên hệ với bộ phận bán hàng bằng nút bên dưới hoặc trực tiếp qua "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "Dán khóa được cung cấp ở đây..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "Tìm kiếm phiên bản Cells Enterprise gần nhất"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Không thể tải các phiên bản có sẵn cho Cells Enterprise!"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "Lỗi là"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "Sẵn sàng để cài đặt"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Đã niêm yết"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "Kiến trúc"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "Giờ đây, Next Next sẽ tải xuống phiên bản mới này và thay thế tệp nhị phân Cells hiện tại của bạn. Một bản sao lưu của tệp thực thi gốc sẽ được tạo trong thư mục cấu hình ô của bạn (dưới% s), nếu bạn cần khôi phục nó."
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Không thể tìm thấy phiên bản tương tự cho Cells Enterprise"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "Để tránh trộn lẫn nâng cấp và cập nhật, chúng tôi khuyên bạn nên nâng cấp Cells Home thành Enterprise trên cùng một phiên bản."
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "Trước tiên, hãy cập nhật phiên bản hiện tại của bạn lên một trong những điều sau đây, sau đó thử nâng cấp lên Cells Enterprise."
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "Cài đặt nâng cấp, vui lòng chờ..."
   }
 }

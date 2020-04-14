@@ -39,10 +39,10 @@
     "other": "Standard-REST-Zugriffe für einen angemeldeten Benutzer"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Benutzer-Meta verhindern das Löschen von Tags"
+    "other": "Liste und Suche benutzerdefinierter Metadaten"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Standard-Benutzer können Arbeitsumgebung nicht erstellen/löschen"
+    "other": "Benutzerdefinierte Metadaten aktualisieren"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect-Vorgänge"

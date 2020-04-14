@@ -39,10 +39,10 @@
     "other": "Accesso REST predefinito per l'utente registrato"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta impedisce l'eliminazione dei tag"
+    "other": "List and search user-defined metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Gli utenti standard non possono creare/eliminare workspace"
+    "other": "Update user-defined metadata"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Operazioni OpenIdConnect"

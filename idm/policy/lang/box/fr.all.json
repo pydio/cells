@@ -39,10 +39,10 @@
     "other": "Accès par défaut pour les utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Interdiction d'éditer les namespaces de métadonnées"
+    "other": "Lister et rechercher les métadonnées définies par l'utilisateur"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Les utilisateurs standards ne peuvent pas créer/supprimer des Workspaces"
+    "other": "Mettre à jour les métadonnées définies par l'utilisateur"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"

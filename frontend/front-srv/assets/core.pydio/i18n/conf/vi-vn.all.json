@@ -66,7 +66,7 @@
     "other": "Auto Create User"
   },
   "Auto apply role": {
-    "other": "Auto apply role"
+    "other": "Tự động áp dụng role"
   },
   "Big Icon": {
     "other": "Big Icon"
@@ -234,7 +234,7 @@
     "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
-    "other": "For multiple authentication, apply this role to users authenticated via this driver"
+    "other": "Để xác thực nhiều lần, hãy áp dụng role này cho users được xác thực qua trình điều khiển này"
   },
   "Force Basic Auth": {
     "other": "Force Basic Auth"

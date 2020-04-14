@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "Đặt lại mật khẩu"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "Thiết lập mật khẩu mới"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "Xin vui lòng nhập tên đăng nhập hoặc địa chỉ email của bạn, một mật khẩu đặt lại sẽ được gửi đến cho bạn qua email."
   },
   "4": {
-    "other": "Your login or email"
+    "other": "Tài khoản hoặc email của bạn"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "Yêu cầu đặt lại mật khẩu đã được gửi đến email đã đăng ký với tài khoản của bạn. Nhấp vào liên kết trong email để tạo lại mật khẩu."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "Cảm ơn bạn, hãy tải lại ngay bây giờ để đăng nhập!"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "Đặt lại mật khẩu đã được yêu cầu trên tài khoản liên quan đến địa chỉ email này. Nếu bạn không phải là tác giả của yêu cầu này, bạn có thể bỏ qua email này. Nếu không, bấm vào liên kết sau để đặt lại mật khẩu của bạn:"
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "Sử dụng mẫu dưới đây để đặt lại mật khẩu của bạn. Vui lòng nhập tên đăng nhập và mật khẩu mới hai lần."
   }
 }
