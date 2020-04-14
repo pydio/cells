@@ -494,6 +494,7 @@ const ResetPasswordDialog = React.createClass({
                         onChange={this.onPassChange.bind(this)}
                         attributes={{name:'password',label:mess[198]}}
                         value={passValue}
+                        dialogField={true}
                     />
                 </div>
 

@@ -9,5 +9,29 @@
   "Auth.PruneJob.ResetToken": {
     "one": "Dzēst {{.DeletionCount}} beigušās paroles maiņas pieprasījuma marķieri",
     "other": "Dzēst {{.DeletionCount}} beigušos paroļu maiņas pieprasījuma marķierus"
+  },
+  "ResetPassword.Err.EmailNotFound": {
+    "other": "Cannot find corresponding email address"
+  },
+  "ResetPassword.Success.EmailSent": {
+    "other": "An email has been sent to you with further instructions"
+  },
+  "ResetPassword.Err.Unknown": {
+    "other": "Oops, something wrong happened - Please relaunch reset password process"
+  },
+  "ResetPassword.Err.TokenExpired": {
+    "other": "Token is expired, please follow again the reset password process!"
+  },
+  "ResetPassword.Err.TokenNotCorresponding": {
+    "other": "Token does not correspond to this user identifier!"
+  },
+  "ResetPassword.Err.UserNotFound": {
+    "other": "Cannot find corresponding user!"
+  },
+  "ResetPassword.Err.ResetFailed": {
+    "other": "There was an error while trying to set new password!"
+  },
+  "ResetPassword.Success.ResetFinished": {
+    "other": "Your password has successfully been reset, you can now return to the login page!"
   }
 }

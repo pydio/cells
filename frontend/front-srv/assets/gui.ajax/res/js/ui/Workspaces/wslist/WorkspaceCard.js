@@ -65,7 +65,7 @@ class WorkspaceCard extends React.Component {
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
 
             const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
-            watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={"Get notifications..."} iconStyle={{marginTop:32}} data={selector}/>
+            watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>
 
         }
         if (CALib && rootNodes){

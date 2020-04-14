@@ -7546,7 +7546,7 @@ exports['default'] = AltDashboard = (0, _materialUiStyles.muiThemeable)()(AltDas
 exports['default'] = AltDashboard;
 module.exports = exports['default'];
 
-},{"../recent/SmartRecents":15,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],8:[function(require,module,exports){
+},{"../recent/SmartRecents":14,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8241,10 +8241,6 @@ var _workspacesWorkspacesListCard = require('./workspaces/WorkspacesListCard');
 
 var _workspacesWorkspacesListCard2 = _interopRequireDefault(_workspacesWorkspacesListCard);
 
-var _recentActivityStreams = require('./recent/ActivityStreams');
-
-var _recentActivityStreams2 = _interopRequireDefault(_recentActivityStreams);
-
 var _boardHomeDashboard = require('./board/HomeDashboard');
 
 var _boardHomeDashboard2 = _interopRequireDefault(_boardHomeDashboard);
@@ -8256,9 +8252,8 @@ exports.WorkspacePickerDialog = _quicksendWorkspacePickerDialog2['default'];
 exports.VideoCard = _videosVideoCard2['default'];
 exports.WorkspacesListCard = _workspacesWorkspacesListCard2['default'];
 exports.HomeDashboard = _boardHomeDashboard2['default'];
-exports.ActivityStreamsPanel = _recentActivityStreams2['default'];
 
-},{"./apps/DlAppsCard":2,"./apps/QRCodeCard":4,"./board/HomeDashboard":7,"./quicksend/QuickSendCard":12,"./quicksend/WorkspacePickerDialog":13,"./recent/ActivityStreams":14,"./videos/VideoCard":16,"./workspaces/WorkspacesListCard":18}],12:[function(require,module,exports){
+},{"./apps/DlAppsCard":2,"./apps/QRCodeCard":4,"./board/HomeDashboard":7,"./quicksend/QuickSendCard":12,"./quicksend/WorkspacePickerDialog":13,"./videos/VideoCard":15,"./workspaces/WorkspacesListCard":17}],12:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -8509,98 +8504,6 @@ exports['default'] = WorkspacePickerDialog;
 module.exports = exports['default'];
 
 },{"pydio":"pydio","react":"react"}],14:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
-
-var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('PydioActivityStreams');
-
-var ActivityList = _Pydio$requireLib2.ActivityList;
-
-var ActivityStreamsPanel = (function (_React$Component) {
-    _inherits(ActivityStreamsPanel, _React$Component);
-
-    function ActivityStreamsPanel() {
-        _classCallCheck(this, ActivityStreamsPanel);
-
-        _get(Object.getPrototypeOf(ActivityStreamsPanel.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(ActivityStreamsPanel, [{
-        key: 'render',
-        value: function render() {
-            var pydio = this.props.pydio;
-
-            if (pydio.user && !pydio.user.lock && ActivityList) {
-                return _react2['default'].createElement(ActivityList, {
-                    context: 'USER_ID',
-                    contextData: pydio.user.id,
-                    boxName: 'outbox',
-                    style: { overflowY: 'scroll', flex: 1 },
-                    pointOfView: 'ACTOR',
-                    groupByDate: true,
-                    displayContext: "mainList",
-                    offset: 0,
-                    limit: 50
-                });
-            } else {
-                return _react2['default'].createElement('div', null);
-            }
-        }
-    }]);
-
-    return ActivityStreamsPanel;
-})(_react2['default'].Component);
-
-exports['default'] = ActivityStreamsPanel = PydioContextConsumer(ActivityStreamsPanel);
-exports['default'] = ActivityStreamsPanel;
-module.exports = exports['default'];
-
-},{"pydio":"pydio","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9023,7 +8926,7 @@ exports['default'] = SmartRecents = PydioContextConsumer(SmartRecents);
 exports['default'] = SmartRecents;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react"}],16:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react"}],15:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -9203,7 +9106,7 @@ exports['default'] = VideoCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":5,"../board/Palette":9,"./VideoPlayer":17,"material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],17:[function(require,module,exports){
+},{"../board/ColorPaper":5,"../board/Palette":9,"./VideoPlayer":16,"material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],16:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9275,7 +9178,7 @@ VideoPlayer.propTypes = {
 exports["default"] = VideoPlayer;
 module.exports = exports["default"];
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

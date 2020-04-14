@@ -39,10 +39,10 @@
     "other": "REST mặc định cho user đã chứng thực"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "List and search user-defined metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Users standard không thể tạo/xóa workspaces"
+    "other": "Update user-defined metadata"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"

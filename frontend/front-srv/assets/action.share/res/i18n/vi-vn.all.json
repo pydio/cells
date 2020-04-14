@@ -63,10 +63,10 @@
     "other": "Xuất bản nội dung thư mục dưới dạng một minisite"
   },
   "117": {
-    "other": "As private minisite"
+    "other": "Minisite riêng tư"
   },
   "118": {
-    "other": "Password-protected minisite"
+    "other": "Minisite bảo vệ bởi password"
   },
   "119": {
     "other": "Download link"
@@ -75,13 +75,13 @@
     "other": "Mật khẩu"
   },
   "120": {
-    "other": "Simple download page"
+    "other": "Trang download đơn giản"
   },
   "121": {
     "other": "Public link"
   },
   "122": {
-    "other": "Create a public URL"
+    "other": "Tạo một public URL"
   },
   "123": {
     "other": "Lựa chọn là minisite"
@@ -93,7 +93,7 @@
     "other": "Chỉnh sửa chia sẻ"
   },
   "126": {
-    "other": "Edit/stop already configured sharing"
+    "other": "Chỉnh sửa/dừng chia sẻ"
   },
   "127": {
     "other": "Cập nhật từ những phiên bản cũ"
@@ -108,7 +108,7 @@
     "other": "Đồng ý"
   },
   "130": {
-    "other": "Copy URL to your clipboard"
+    "other": "Chép URL"
   },
   "131": {
     "other": "Không có tập tin hoặc thư mục chia sẻ nào."
@@ -117,7 +117,7 @@
     "other": "Workspace"
   },
   "133": {
-    "other": "As a public link"
+    "other": "Là một public link"
   },
   "134": {
     "other": "Workspace mới"
@@ -129,28 +129,28 @@
     "other": "Nội dung thư mục sẽ xuất hiện dưới dạng workspace mới cho users ứng dụng"
   },
   "137": {
-    "other": "Share selected file via a public link"
+    "other": "Chia sẻ tệp đã chọn qua public link"
   },
   "138": {
-    "other": "You have shared this folder as a public link (minisite)"
+    "other": "Bạn đã chia sẻ thư mục này dưới dạng public link (minisite)"
   },
   "138b": {
-    "other": "You have shared this folder as a public link, but it is currently inactive (expired)."
+    "other": "Bạn đã chia sẻ thư mục này dưới dạng public link, nhưng hiện tại nó đã hết hạn."
   },
   "139": {
-    "other": "You have shared this folder as a workspace with application users"
+    "other": "Bạn đã chia sẻ thư mục này dưới dạng workspace với users"
   },
   "139b": {
-    "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
+    "other": "Bạn đã chia sẻ thư mục này dưới dạng workspace với users, nhưng hiện tại nó đã hết hạn."
   },
   "14": {
     "other": "Không"
   },
   "140": {
-    "other": "You have shared this file via a public link"
+    "other": "Bạn đã chia sẻ tệp này qua public link"
   },
   "140b": {
-    "other": "You have shared this file via a public link, but it is currently inactive (expired)."
+    "other": "Bạn đã chia sẻ tệp này qua một public link, nhưng nó hiện đã hết hạn."
   },
   "141": {
     "other": "Thay đổi tham số"
@@ -159,10 +159,10 @@
     "other": "Ẩn tham số"
   },
   "143": {
-    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
+    "other": "Sử dụng <kbd> Ctrl </ kbd> + <kbd> C </ kbd> để sao chép link"
   },
   "144": {
-    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
+    "other": "Sử dụng <kbd> </ kbd> + <kbd> C </ kbd> để sao chép link"
   },
   "145": {
     "other": "Mô tả"

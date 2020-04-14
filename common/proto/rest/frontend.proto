@@ -26,6 +26,8 @@ message SettingsEntry {
 }
 
 message SettingsAccess {
+    string Label = 1;
+    string Description = 3;
     repeated SettingsAccessRestPolicy Policies = 2;
 }
 

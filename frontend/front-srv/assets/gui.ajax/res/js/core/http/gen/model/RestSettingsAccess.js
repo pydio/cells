@@ -57,6 +57,12 @@ export default class RestSettingsAccess {
             
             
 
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
+            }
             if (data.hasOwnProperty('Policies')) {
                 obj['Policies'] = ApiClient.convertToType(data['Policies'], [RestSettingsAccessRestPolicy]);
             }
@@ -64,6 +70,14 @@ export default class RestSettingsAccess {
         return obj;
     }
 
+    /**
+    * @member {String} Label
+    */
+    Label = undefined;
+    /**
+    * @member {String} Description
+    */
+    Description = undefined;
     /**
     * @member {Array.<module:model/RestSettingsAccessRestPolicy>} Policies
     */

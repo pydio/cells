@@ -98,6 +98,27 @@
   "ds.editor.storage.legend.gcs": {
     "other": "Duyệt dữ liệu từ Google Cloud Storage bucket."
   },
+  "ds.editor.storage.legend.versioning": {
+    "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
+  },
+  "ds.editor.storage.legend.encryption": {
+    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+  },
+  "ds.editor.storage.readOnly": {
+    "other": "Read-only mode"
+  },
+  "ds.editor.storage.legend.readOnly": {
+    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+  },
+  "ds.editor.storage.checksumMapper": {
+    "other": "Store checksums locally (do not modify objects)"
+  },
+  "ds.editor.storage.nativeEtags": {
+    "other": "Use Native Etags (will disable Desktop Sync)"
+  },
+  "ds.editor.storage.legend.checksumMapper": {
+    "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
+  },
   "ds.editor.new": {
     "other": "Tạo mới DataSource"
   },
@@ -205,6 +226,15 @@
   },
   "ds.editor.storage.buckets.cont.empty": {
     "other": "No buckets found"
+  },
+  "ds.editor.storage.s3.legend.tags": {
+    "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
+  },
+  "ds.editor.storage.s3.bucketsTags": {
+    "other": "Buckets Tags (multiple buckets enabled)"
+  },
+  "ds.editor.storage.s3.objectsTags": {
+    "other": "Objects Tags"
   },
   "ds.editor.title": {
     "other": "DataSource %s"
@@ -1323,190 +1353,190 @@
     "other": "Lập chỉ mục"
   },
   "ws.51": {
-    "other": "This workspace has an indexer (%s). Normally, indexation is done \"on-the-fly\" when files are added/removed\n                    through the application interfaces. However if you are doing some modifications directly at the storage level, you may have\n                    to manually re-trigger an indexation from time to time. Use buttons below to either index now, or program a task in the scheduler\n                    to run indexation on a regular basis."
+    "other": "Workspace này có một bộ chỉ mục (%s).  Thông thường, việc lập chỉ mục được thực hiện \"nhanh chóng\" khi các tệp được thêm / xóa\n                    thông qua các giao diện ứng dụng. Tuy nhiên, nếu bạn đang thực hiện một số sửa đổi trực tiếp ở cấp độ lưu trữ, đôi khi bạn có thể\n                    phải kích hoạt lại một chỉ mục theo cách thủ công. Sử dụng các nút bên dưới để lập chỉ mục ngay bây giờ hoặc lập trình một tác vụ trong bộ lập lịch\n                    để chạy lập chỉ mục một cách thường xuyên."
   },
   "ws.52": {
-    "other": "Please note: as this worksace has user-specific contents, indexation will be launched for each user."
+    "other": "Xin lưu ý: vì worksace này có nội dung dành riêng cho người dùng, việc lập chỉ mục sẽ được khởi chạy cho mỗi người dùng."
   },
   "ws.53": {
-    "other": "Launch indexation now"
+    "other": "Khởi động lập chỉ mục ngay bây giờ"
   },
   "ws.54": {
-    "other": "Schedule every day at 3AM"
+    "other": "Lên lịch mỗi ngày vào lúc 3AM"
   },
   "ws.55": {
-    "other": "Automatic Purge"
+    "other": "Tự động thanh lọc"
   },
   "ws.56": {
-    "other": "This workspace has a \"purge\" setup, to automatically remove documents that were left untouched since %s days. Make sure to add a task in the\n                    scheduler to regularly process this workspace and look for expired document. You can use the buttons below to create this task automatically,\n                    ok run the purge directly."
+    "other": "Workspace này có thiết lập \"thanh lọc\", để tự động xóa các tài liệu còn sót lại kể từ %s ngày.  Đảm bảo thêm một tác vụ trong\n                    bộ lập lịch để thường xuyên xử lý workspace này và tìm tài liệu đã hết hạn.  Bạn có thể sử dụng các nút bên dưới để tạo tác vụ này tự động,\n                    ok chạy thanh trừng trực tiếp."
   },
   "ws.57": {
-    "other": "Please note: as this worksace has user-specific contents, purge will be running for each user."
+    "other": "Xin lưu ý: vì worksace này có nội dung dành riêng cho người dùng, thanh lọc sẽ được chạy cho mỗi người dùng."
   },
   "ws.58": {
-    "other": "Purge now"
+    "other": "Thanh lọc ngay"
   },
   "ws.59": {
-    "other": "Schedule every day at 4AM"
+    "other": "Lên lịch mỗi ngày vào lúc 4AM"
   },
   "ws.6": {
-    "other": "New Workspace"
+    "other": "Workspace mới"
   },
   "ws.60": {
-    "other": "Workspace Activity"
+    "other": "Hoạt động Workspace"
   },
   "ws.61": {
-    "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
+    "other": "Hoạt động của workspace được hiển thị cho người dùng trong bảng điều khiển bên phải.  Bạn có thể xóa tất cả hoạt động\n                            cho workspace này, có thể tiện dụng, ví dụ:  nếu bạn đang \"sống\" trong sản xuất sau một giai đoạn dàn dựng mà bạn đã thực hiện\n                            một số thử nghiệm trong workspace này."
   },
   "ws.62": {
-    "other": "Clear Activity"
+    "other": "Xóa hoạt động"
   },
   "ws.63": {
-    "other": "Warning, this will clear all activity of this workspace displayed to users. Are you sure you want to do that?"
+    "other": "Chú ý, điều này sẽ xóa tất cả hoạt động của workspace này được hiển thị cho người dùng. Bạn có chắc chắn muốn làm điều đó?"
   },
   "ws.64": {
-    "other": "Cleared %s events"
+    "other": "Đã xóa các sự kiện %s"
   },
   "ws.65": {
-    "other": "Workspace Maintenance"
+    "other": "Bảo trì Workspace"
   },
   "ws.66": {
-    "other": "Running Tasks"
+    "other": "Thực hiện tác vụ"
   },
   "ws.67": {
-    "other": "No tasks running"
+    "other": "Không có tác vụ đang chạy"
   },
   "ws.68": {
-    "other": "No Parameters"
+    "other": "Không có tham số"
   },
   "ws.69": {
     "other": "Template-based workspace"
   },
   "ws.7": {
-    "other": "New DataSource"
+    "other": "Tạo mới DataSource"
   },
   "ws.70": {
     "other": "Driver-based workspace"
   },
   "ws.71": {
-    "other": "Complete the steps below"
+    "other": "Hoàn thành các bước dưới đây"
   },
   "ws.72": {
-    "other": "Fill in the form on the right"
+    "other": "Điền vào mẫu ở bên phải"
   },
   "ws.73": {
-    "other": "Pick value before continuing"
+    "other": "Chọn giá trị trước khi tiếp tục"
   },
   "ws.74": {
-    "other": "Use the form on the right to create a new DataSource. "
+    "other": "Sử dụng biểu mẫu bên phải để tạo DataSource mới. "
   },
   "ws.75": {
-    "other": "A DataSource defines where your data is stored."
+    "other": "DataSource xác định nơi dữ liệu của bạn được lưu trữ."
   },
   "ws.76": {
-    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+    "other": "Pydio sẽ tổng hợp tất cả các datasource của bạn thành một master tree, trên đó bạn có thể gán quyền bằng cách sử dụng các workspace."
   },
   "ws.8": {
-    "other": "Existing DataSource"
+    "other": "DataSource hiện có"
   },
   "ws.9": {
     "other": "Datasource Nodes"
   },
   "ws.board.empty": {
-    "other": "No workspaces defined"
+    "other": "Không có workspaces được xác định"
   },
   "ws.board.summary": {
     "other": "Workspace Roots"
   },
   "ws.board.syncable": {
-    "other": "Sync"
+    "other": "Đồng bộ"
   },
   "ws.complete.datasources": {
     "other": "DataSources and Folders"
   },
   "ws.complete.label": {
-    "other": "Select a folder or a predefined template path"
+    "other": "Chọn một thư mục hoặc một đường dẫn Template được xác định trước"
   },
   "ws.complete.resolves": {
-    "other": "Resolves to"
+    "other": "Giải quyết"
   },
   "ws.complete.templates": {
-    "other": "Preset Template Paths"
+    "other": "Đường dẫn Template đặt sẵn"
   },
   "ws.dashboard": {
-    "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
+    "other": "Workspaces xác định điểm truy cập chính vào dữ liệu của bạn cho người dùng. Đảm bảo xác định ít nhất một nguồn dữ liệu để có thể tạo workspace sẽ trỏ đến đường dẫn của datasource này."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "Workspace hiển thị một hoặc nhiều 'roots' cho người dùng: chọn một hoặc nhiều đường dẫn từ bất kỳ DataSource hoặc Đường dẫn Template nào sẽ được giải quyết tự động khi chạy."
   },
   "ws.editor.data.title": {
-    "other": "Data Access"
+    "other": "Truy cập dữ liệu"
   },
   "ws.editor.default_rights": {
     "other": "Thiết lập quyền mặc định cho workspace này (áp dụng cho tất cả người dùng nội bộ của ứng dụng). Bạn có thể ghi đè các quyền này trên cơ sở per-user / per-role / per-group basis trong phần People."
   },
   "ws.editor.default_rights.none": {
-    "other": "None"
+    "other": "Trống"
   },
   "ws.editor.default_rights.read": {
-    "other": "Read only"
+    "other": "Chỉ đọc"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Read and Write"
+    "other": "Đọc và Viết"
   },
   "ws.editor.default_rights.write": {
-    "other": "Write only"
+    "other": "Chỉ ghi"
   },
   "ws.editor.description": {
-    "other": "Additional description (optional)"
+    "other": "Mô tả bổ sung (không bắt buộc)"
   },
   "ws.editor.help.1": {
-    "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
+    "other": "Workspaces cấp quyền truy cập vào dữ liệu của bạn cho người dùng. Chúng hiển thị một hoặc nhiều thư mục được chọn trong các datasource của bạn."
   },
   "ws.editor.help.2": {
-    "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
+    "other": "Điều quan trọng là tổ chức đúng cách dữ liệu sẽ được trình bày cho người dùng của bạn. Bạn có thể tạo các workspaces cho các bộ phận khác nhau trong tổ chức của mình (tài chính, tiếp thị, dữ liệu kỹ thuật, v. v.), trên cơ sở từng dự án, v. v. Sau đó, bạn có thể gán quyền truy cập vào các workspaces trên mỗi người dùng / mỗi vai trò / mỗi người cơ sở nhóm."
   },
   "ws.editor.help.delete": {
-    "other": "Warning, dangerous operation! This is not reversible."
+    "other": "Chú ý, hoạt động nguy hiểm! Điều này là không thể đảo ngược."
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "Nhãn Human-friendly cho workspace này"
   },
   "ws.editor.options.legend": {
-    "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
+    "other": "Nhãn và mô tả được hiển thị cho người dùng. Chọn một tên tự giải thích để giúp người dùng tổ chức dữ liệu tốt hơn."
   },
   "ws.editor.other": {
     "other": "Other Properties"
   },
   "ws.editor.other.layout": {
-    "other": "Workspace Layout"
+    "other": "Bố trí Workspace"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Mặc định"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "Giao diện chuyển dễ dàng (chỉ dành cho enterprise)"
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation"
+    "other": "Cho phép đồng bộ hóa desktop"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "Đồng bộ hóa desktop cho phép người dùng đồng bộ hóa các tệp ngoại tuyến trên máy tính của họ. Chú ý, tính năng này hiện chỉ được hỗ trợ cho các tệp cá nhân, vì các workspace được chia sẻ có thể tạo xung đột nếu nhiều người dùng đồng bộ hóa tài liệu trong cùng một thư mục. Đối với các tệp cá nhân, bạn cũng có thể bật / tắt tính năng này trên cơ sở từng vai trò bằng Chính sách bảo mật."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(chỉ workspaces cá nhân)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "Chú ý!"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "Tôi hiểu"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "Kích hoạt đồng bộ hóa trên các workspaces được chia sẻ có thể có kết quả không mong muốn nếu nhiều người dùng đang đồng bộ hóa và chỉnh sửa các tệp với nhau. Xin lưu ý rằng TÍNH NĂNG NÀY HIỆN TẠI KHÔNG ĐƯỢC HỖ TRỢ bởi các dịch vụ chuyên nghiệp của chúng tôi. Vui lòng sử dụng tính năng này có nguy cơ của riêng bạn!"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "Nếu mọi người được kết nối với workspace này, tác vụ đồng bộ hóa của họ sẽ không còn hoạt động nữa! Bạn có chắc chắn muốn thay đổi điều đó?"
   },
   "ws.editor.other.quota": {
     "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
@@ -1515,34 +1545,34 @@
     "other": "No Quota set"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "Đường dẫn Thư mục"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "Đường dẫn Template"
   },
   "ws.editor.slug.legend": {
-    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+    "other": "Tên kỹ thuật được sử dụng ví dụ trong URL, được tính toán tự động nhưng bạn có thể tùy chỉnh nó."
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "Tất cả dịch vụ"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "Chỉ ứng dụng đang chạy"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "Chỉ dừng lại"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "Chọn Node"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "Hiển thị chi tiết"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "Tên dịch vụ"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "services.column.version": {
     "other": "Phiên bản"
@@ -1551,294 +1581,306 @@
     "other": "Tag"
   },
   "services.column.peers": {
-    "other": "Peers"
+    "other": "Ngang hàng"
   },
   "services.tag.gateway.title": {
-    "other": "Gateways"
+    "other": "Cổng"
   },
   "services.tag.gateway.description": {
-    "other": "World-facing services for accessing the platform"
+    "other": "Các dịch vụ World-facing để truy cập vào nền tảng"
   },
   "services.tag.datasource.title": {
     "other": "Data Sources"
   },
   "services.tag.datasource.description": {
-    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+    "other": "Điểm cuối storage được sử dụng để truy cập kho lưu trữ tập tin cụ thể. Các dịch vụ chính phụ trách bắt đầu các dịch vụ phụ (trên mỗi datasource)."
   },
   "services.tag.data.title": {
-    "other": "Data"
+    "other": "Dữ liệu"
   },
   "services.tag.data.description": {
-    "other": "Services handling data and metadata."
+    "other": "Dịch vụ xử lý data và metadata."
   },
   "services.tag.idm.title": {
-    "other": "Identity Management"
+    "other": "Quản lý danh tính"
   },
   "services.tag.idm.description": {
-    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+    "other": "Tất cả các dịch vụ liên quan đến xác thực và ủy quyền, vai trò, chính sách bảo mật, v. v."
   },
   "services.tag.scheduler.title": {
-    "other": "Scheduler"
+    "other": "Lập kế hoạch"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "Dịch vụ quản lý công việc nền. Máy chủ tác vụ có thể được gửi qua các đồng nghiệp khác nhau."
   },
   "services.tag.broker.title": {
-    "other": "Broker"
+    "other": "Môi giới"
   },
   "services.tag.broker.description": {
-    "other": "Services dispatching and processing events (generally toward users) across the application."
+    "other": "Dịch vụ gửi và xử lý các sự kiện (nói chung đối với người dùng) trên ứng dụng."
   },
   "services.tag.frontend.title": {
     "other": "Frontend"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "Web services cho giao diện người dùng trong trình duyệt"
   },
   "services.tag.discovery.title": {
-    "other": "Discovery"
+    "other": "Khám phá"
   },
   "services.tag.discovery.description": {
-    "other": "Basic configurations and services registries called by all other services."
+    "other": "Cấu hình cơ bản và đăng ký dịch vụ được gọi bởi tất cả các dịch vụ khác."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "Đang chạy trên %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sync"
+    "other": "Đồng bộ"
   },
   "services.service.datasource.objects": {
     "other": "Objects"
   },
   "services.service.datasource.objects.legend": {
-    "other": "S3 layer to serve data as object storage"
+    "other": "Lớp S3 để phục vụ dữ liệu dưới dạng lưu trữ đối tượng"
   },
   "services.service.datasource.legend": {
-    "other": "Datasource is synchronizing data from objects layer to index DB."
+    "other": "Datasource đang đồng bộ hóa dữ liệu từ lớp đối tượng sang index DB."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "Lập chỉ mục"
   },
   "scheduler.title": {
-    "other": "Scheduler"
+    "other": "Lập kế hoạch"
   },
   "scheduler.legend": {
-    "other": "Jobs running in background on a periodical basis or triggered by events"
+    "other": "Các công việc chạy trong nền trên cơ sở định kỳ hoặc được kích hoạt bởi các sự kiện"
   },
   "scheduler.system.title": {
-    "other": "System Jobs"
+    "other": "Hệ thống việc làm"
   },
   "scheduler.system.legend": {
-    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Những công việc này được đăng ký theo mặc định bên trong ứng dụng. Họ thường chịu trách nhiệm trích xuất thông tin từ node trong nền hoặc thực hiện một số thao tác làm sạch."
   },
   "scheduler.system.empty": {
-    "other": "No jobs scheduled."
+    "other": "Không có công việc theo lịch trình."
   },
   "scheduler.users.title": {
     "other": "Users Jobs"
   },
   "scheduler.users.legend": {
-    "other": "These jobs are dynamically created and trigged by user actions."
+    "other": "Những công việc này được tạo động và được kích hoạt bởi hành động của người dùng."
   },
   "scheduler.users.empty": {
-    "other": "No jobs launched by users"
+    "other": "Không có việc làm được đưa ra bởi người dùng"
   },
   "scheduler.job.label": {
-    "other": "Label"
+    "other": "Nhãn"
   },
   "scheduler.job.endTime": {
-    "other": "Last Execution"
+    "other": "Lần thực hiện cuối"
   },
   "scheduler.job.status": {
-    "other": "Status"
+    "other": "Trạng thái"
   },
   "scheduler.job.owner": {
     "other": "Chủ sở hữu"
   },
   "scheduler.job.trigger": {
-    "other": "Trigger"
+    "other": "Kích hoạt"
+  },
+  "scheduler.job.delete": {
+    "other": "Delete"
+  },
+  "scheduler.job.delete.confirm": {
+    "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Tạo node"
   },
   "scheduler.trigger.read.node": {
-    "other": "Read Node"
+    "other": "Đọc node"
   },
   "scheduler.trigger.update.path": {
-    "other": "Update Path"
+    "other": "Cập nhật đường dẫn"
   },
   "scheduler.trigger.update.content": {
-    "other": "Update Content"
+    "other": "Cập nhật nội dung"
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Update Metadata"
+    "other": "Cập nhật Metadata"
+  },
+  "scheduler.trigger.update.user-metadata": {
+    "other": "Update User Metadata"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Xóa node"
   },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Tạo người dùng"
   },
   "scheduler.trigger.read.user": {
-    "other": "Read User"
+    "other": "Đọc User"
   },
   "scheduler.trigger.update.user": {
-    "other": "Update User"
+    "other": "Cập nhật người dùng"
   },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Xóa Người dùng"
   },
   "scheduler.trigger.bind.user": {
-    "other": "User Bind"
+    "other": "Ràng buộc người dùng"
   },
   "scheduler.trigger.logout.user": {
-    "other": "User Logout"
+    "other": "Đăng xuất người dùng"
   },
   "scheduler.trigger.events": {
     "other": "Events"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Hướng dẫn kích hoạt"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "Lịch trình định kỳ"
   },
   "scheduler.job.disabled": {
-    "other": "disabled"
+    "other": "tắt"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s tasks running"
+    "other": "%s tác vụ đang chạy"
   },
   "scheduler.task.action.pause": {
-    "other": "Pause Task"
+    "other": "Tạm dừng tác vụ"
   },
   "scheduler.task.action.resume": {
-    "other": "Resume Task"
+    "other": "Tiếp tục tác vụ"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop Now"
+    "other": "Dừng lại"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "Xóa"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Job"
+    "other": "Kích hoạt công việc"
   },
   "scheduler.task.action.run": {
-    "other": "Run Now"
+    "other": "Chạy ngay"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Job"
+    "other": "Vô hiệu hóa công việc"
   },
   "scheduler.task.id": {
     "other": "ID"
   },
   "scheduler.task.start": {
-    "other": "Start"
+    "other": "Bắt đầu"
   },
   "scheduler.task.end": {
-    "other": "End"
+    "other": "Kết thúc"
+  },
+  "scheduler.task.duration": {
+    "other": "Duration"
   },
   "scheduler.task.status": {
-    "other": "Status"
+    "other": "Trạng thái"
   },
   "scheduler.task.message": {
-    "other": "Message"
+    "other": "Tin nhắn"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "Thực hiện tác vụ"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "Lịch sử tác vụ"
   },
   "scheduler.tasks.history.empty": {
-    "other": "No tasks have run yet"
+    "other": "Chưa có tác vụ nào chạy"
   },
   "scheduler.tasks.history.more": {
-    "other": "%s other tasks not shown..."
+    "other": "%s tác vụ khác không được hiển thị..."
   },
   "scheduler.tasks.running.empty": {
-    "other": "No tasks currently running"
+    "other": "Không có nhiệm vụ hiện đang chạy"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "Xóa tác vụ"
   },
   "scheduler.tasks.bulk.enable": {
-    "other": "Enable Multiple"
+    "other": "Kích hoạt nhiều"
   },
   "scheduler.tasks.bulk.disable": {
-    "other": "Disable Multiple"
+    "other": "Vô hiệu hóa nhiều"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Xóa tất cả"
   },
   "scheduler.schedule.monthly": {
-    "other": "Every %1 of each month at %2"
+    "other": "Mỗi %1 của mỗi tháng tại %2"
   },
   "scheduler.schedule.monthly.short": {
-    "other": "Every %1 of each month"
+    "other": "Mỗi %1 của mỗi tháng"
   },
   "scheduler.schedule.weekly": {
-    "other": "Every %1 at %2"
+    "other": "Mỗi %1 của %2"
   },
   "scheduler.schedule.weekly.short": {
-    "other": "Every %1"
+    "other": "Mỗi %1"
   },
   "scheduler.schedule.daily": {
-    "other": "Every day at %1"
+    "other": "Mỗi ngày tại %1"
   },
   "scheduler.schedule.daily.short": {
-    "other": "At %1"
+    "other": "Tại %1"
   },
   "scheduler.schedule.timely": {
-    "other": "Every %1"
+    "other": "Mỗi %1"
   },
   "scheduler.schedule.title": {
-    "other": "Job Schedule"
+    "other": "Lịch trình công việc"
   },
   "scheduler.schedule.type": {
-    "other": "Scheduling Type"
+    "other": "Loại lịch trình"
   },
   "scheduler.schedule.type.manual": {
-    "other": "Manual"
+    "other": "Thủ công"
   },
   "scheduler.schedule.type.monthly": {
-    "other": "Monthly"
+    "other": "Hàng tháng"
   },
   "scheduler.schedule.type.weekly": {
-    "other": "Weekly"
+    "other": "Hàng tuần"
   },
   "scheduler.schedule.type.daily": {
-    "other": "Daily"
+    "other": "Hàng ngày"
   },
   "scheduler.schedule.type.timely": {
-    "other": "Every..."
+    "other": "Mỗi..."
   },
   "scheduler.schedule.detail.monthday": {
-    "other": "Day of the month"
+    "other": "Ngày trong tháng"
   },
   "scheduler.schedule.detail.weekday": {
-    "other": "Day of the week"
+    "other": "Ngày trong tuần"
   },
   "scheduler.schedule.detail.daytime": {
-    "other": "Time of the day"
+    "other": "Thời gian trong ngày"
   },
   "scheduler.schedule.detail.minutes": {
-    "other": "Period in minutes"
+    "other": "Thời gian tính bằng phút"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "Tài liệu API còn lại"
   },
   "developer.rest.apis.legend": {
-    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
+    "other": "Dưới đây là tất cả các API có sẵn trong các tế bào Pydio. Để sử dụng các API này, trước tiên bạn phải xác thực với dịch vụ OpenIDConnect để có được JWT hợp lệ. Xem hướng dẫn quản trị viên trực tuyến để tìm hiểu thêm."
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "Gửi email kiểm tra"
   },
   "mailer.test.legend": {
-    "other": "Make sure to save your configuration changes before sending a test email."
+    "other": "Đảm bảo lưu các thay đổi cấu hình của bạn trước khi gửi email kiểm tra."
   },
   "mailer.test.loading": {
-    "other": "Loading Mailer Library..."
+    "other": "Đang tải thư viện thư..."
   }
 }

@@ -21,6 +21,7 @@ import React from "react";
 import Pydio from 'pydio'
 import PassUtils from "pydio/util/pass";
 import FormMixin from '../mixins/FormMixin'
+import {TextField} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib("hoc");
 
 export default React.createClass({
@@ -65,55 +66,61 @@ export default React.createClass({
     },
 
     render:function(){
+        const {disabled, className, attributes, dialogField} = this.props;
+
         if(this.isDisplayGrid() && !this.state.editMode){
             const value = this.state.value;
-            return <div onClick={this.props.disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{!value?'Empty':value}</div>;
+            return <div onClick={disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
         }else{
             const overflow = {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', width:'100%'};
-            let className = this.state.valid ? '' : 'mui-error-as-hint' ;
-            if(this.props.className){
-                className = this.props.className + ' ' + className;
+            let cName = this.state.valid ? '' : 'mui-error-as-hint' ;
+            if(className){
+                cName = className + ' ' + cName;
             }
             let confirm;
-            if(this.state.value && !this.props.disabled){
+            const TextComponent = dialogField ? TextField : ModernTextField;
+            if(this.state.value && !disabled){
+
                 confirm = [
                     <div key="sep" style={{width: 8}}></div>,
-                    <ModernTextField
+                    <TextComponent
                         key="confirm"
                         ref="confirm"
                         floatingLabelText={this.getMessage(199)}
                         floatingLabelShrinkStyle={{...overflow, width:'130%'}}
                         floatingLabelStyle={overflow}
-                        className={className}
+                        className={cName}
                         value={this.state.confirmValue}
                         onChange={this.onConfirmChange}
                         type='password'
                         multiLine={false}
-                        disabled={this.props.disabled}
+                        disabled={disabled}
                         fullWidth={true}
                         style={{flex:1}}
                         errorText={this.state.confirmErrorText}
+                        errorStyle={dialogField?{bottom: -5}:null}
                     />
                 ];
             }
             return(
                 <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}}>
                     <div style={{display:'flex'}}>
-                        <ModernTextField
+                        <TextComponent
                             ref="pass"
-                            floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
+                            floatingLabelText={this.isDisplayForm()?attributes.label:null}
                             floatingLabelShrinkStyle={{...overflow, width:'130%'}}
                             floatingLabelStyle={overflow}
-                            className={className}
+                            className={cName}
                             value={this.state.value}
                             onChange={this.onPasswordChange}
                             onKeyDown={this.enterToToggle}
                             type='password'
                             multiLine={false}
-                            disabled={this.props.disabled}
+                            disabled={disabled}
                             errorText={this.state.passErrorText}
                             fullWidth={true}
                             style={{flex:1}}
+                            errorStyle={dialogField?{bottom: -5}:null}
                         />
                         {confirm}
                     </div>

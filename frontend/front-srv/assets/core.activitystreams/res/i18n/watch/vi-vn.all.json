@@ -1,53 +1,56 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "Trông nom..."
+  },
+  "1-off": {
+    "other": "Watching..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "Bất cứ ai cũng đang mở tập tin"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "Bất cứ ai đang khám phá thư mục"
   },
   "11": {
-    "other": "Modification"
+    "other": "Thông báo"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "Bất cứ ai cũng đang sửa đổi tập tin"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "Bất cứ ai cũng đang sửa đổi một tập tin trong thư mục này"
   },
   "13": {
-    "other": "Both"
+    "other": "Cả hai"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "Bất cứ ai mở hoặc viết vào tập tin"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "Bất cứ ai khám phá hoặc sửa đổi nội dung thư mục"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "Được thông báo khi thư mục này được truy cập"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "Ngừng Theo dõi"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "Dừng xem thư mục này để truy cập"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "Trông nom..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "Xem tập tin này để thay đổi"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "Ngừng Theo dõi"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "Dừng xem tập tin này để thay đổi"
   },
   "9": {
-    "other": "Consultation"
+    "other": "Tư vấn"
   }
 }

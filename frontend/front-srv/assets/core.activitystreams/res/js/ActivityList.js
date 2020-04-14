@@ -117,18 +117,27 @@ class ActivityList extends React.Component {
             emptyStateIcon = "mdi mdi-alert-circle-outline";
          }
         if (data !== null && data.items) {
-            data.items.forEach(function(ac){
+            data.items.forEach(function(ac, i){
 
                 let fromNow = moment(ac.updated).fromNow();
                 if (groupByDate && fromNow !== previousFrom) {
-                    content.push(<div style={{padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
+                    if(content.length){
+                        content.pop(); // remove last divider
+                        content.push(<div style={{padding: '20px 16px 0', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
+                    } else {
+                        content.push(<div style={{padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
+                    }
                 }
                 content.push(<Activity key={ac.id} activity={ac} listContext={listContext} oneLiner={groupByDate} displayContext={displayContext} />);
                 if (groupByDate) {
                     previousFrom = fromNow;
+                    content.push(<div style={{borderTop:'1px solid rgba(0,0,0,.03)', width:'100%'}}/>)
                 }
 
             });
+            if(groupByDate){
+                content.pop(); // remove last divider
+            }
         }
         if(content.length && loadMore){
             const loadAction = () => {

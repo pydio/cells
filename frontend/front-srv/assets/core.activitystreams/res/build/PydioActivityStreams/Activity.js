@@ -28,13 +28,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _react = require('react');
 
@@ -46,21 +50,31 @@ var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _DocLink = require('./DocLink');
 
 var _DocLink2 = _interopRequireDefault(_DocLink);
 
-var _require$requireLib = require('pydio').requireLib('components');
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
-var UserAvatar = _require$requireLib.UserAvatar;
+var UserAvatar = _Pydio$requireLib.UserAvatar;
 
-var _require$requireLib2 = require('pydio').requireLib('boot');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
 
-var PydioContextConsumer = _require$requireLib2.PydioContextConsumer;
+var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
 
-var _Pydio$requireLib = Pydio.requireLib('boot');
+var _Pydio$requireLib3 = _pydio2['default'].requireLib('workspaces');
 
-var moment = _Pydio$requireLib.moment;
+var FilePreview = _Pydio$requireLib3.FilePreview;
+
+var _Pydio$requireLib4 = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib4.moment;
 
 var Paragraph = (function (_React$Component) {
     _inherits(Paragraph, _React$Component);
@@ -129,6 +143,7 @@ function workspacesLocations(pydio, object) {
 }
 
 function LinkWrapper(pydio, activity) {
+    var style = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
 
     return _react2['default'].createClass({
 
@@ -137,6 +152,11 @@ function LinkWrapper(pydio, activity) {
             var href = _props.href;
             var children = _props.children;
 
+            var linkStyle = _extends({
+                cursor: 'pointer',
+                color: 'rgb(66, 140, 179)',
+                fontWeight: 500
+            }, style);
             var title = "";
             var onClick = null;
             if (href.startsWith('doc://')) {
@@ -149,13 +169,13 @@ function LinkWrapper(pydio, activity) {
                 } else {
                     return _react2['default'].createElement(
                         _DocLink2['default'],
-                        { pydio: pydio, activity: activity },
+                        { pydio: pydio, activity: activity, linkStyle: linkStyle },
                         children
                     );
                 }
             } else if (href.startsWith('user://')) {
                 var userId = href.replace('user://', '');
-                return _react2['default'].createElement(UserAvatar, { userId: userId, displayAvatar: false, richOnClick: true, style: { cursor: 'pointer', display: 'inline-block', color: 'rgb(66, 140, 179)' }, pydio: pydio });
+                return _react2['default'].createElement(UserAvatar, { userId: userId, displayAvatar: false, richOnClick: true, style: _extends({}, linkStyle, { display: 'inline-block' }), pydio: pydio });
             } else if (href.startsWith('workspaces://')) {
                 (function () {
                     var wsId = href.replace('workspaces://', '');
@@ -168,7 +188,7 @@ function LinkWrapper(pydio, activity) {
             }
             return _react2['default'].createElement(
                 'a',
-                { title: title, style: { cursor: 'pointer', color: 'rgb(66, 140, 179)' }, onClick: onClick },
+                { title: title, style: linkStyle, onClick: onClick },
                 children
             );
         }
@@ -185,60 +205,8 @@ var Activity = (function (_React$Component2) {
     }
 
     _createClass(Activity, [{
-        key: 'render',
-        value: function render() {
-            var _props2 = this.props;
-            var pydio = _props2.pydio;
-            var activity = _props2.activity;
-            var listContext = _props2.listContext;
-            var displayContext = _props2.displayContext;
-            var oneLiner = _props2.oneLiner;
-
-            var secondary = activity.type + " - " + activity.actor.name;
-            if (activity.summary) {
-                secondary = _react2['default'].createElement(_reactMarkdown2['default'], { source: activity.summary, renderers: { 'paragraph': Paragraph, 'link': LinkWrapper(pydio, activity) } });
-            }
-
-            var avatar = _react2['default'].createElement(UserAvatar, {
-                useDefaultAvatar: true,
-                userId: activity.actor.id,
-                userLabel: activity.actor.name,
-                displayLocalLabel: true,
-                userType: 'user',
-                pydio: pydio,
-                style: { display: 'flex', alignItems: 'center', maxWidth: '60%' },
-                labelStyle: { fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-                avatarStyle: { flexShrink: 0 },
-                avatarSize: 28,
-                richOnHover: true
-            });
-
-            var summary = undefined;
-            var actionIcon = undefined;
-            var blockStyle = {
-                margin: '0px 10px 6px'
-            };
-            var summaryStyle = {
-                padding: '6px 22px 12px',
-                marginTop: 6,
-                borderRadius: 2,
-                borderLeft: '2px solid #e0e0e0',
-                marginLeft: 13,
-                color: 'rgba(0,0,0,0.33)',
-                fontWeight: 500,
-                fontStyle: 'italic',
-                overflow: 'hidden'
-            };
-            if (displayContext === 'popover') {
-                summaryStyle = {
-                    fontSize: 13,
-                    color: 'rgba(0,0,0,0.33)',
-                    fontWeight: 500,
-                    margin: '6px 0',
-                    padding: 6
-                };
-            }
-
+        key: 'computeIcon',
+        value: function computeIcon(activity) {
             var className = '';
             var title = undefined;
             switch (activity.type) {
@@ -290,31 +258,112 @@ var Activity = (function (_React$Component2) {
             if (className.indexOf('icomoon-') === -1) {
                 className = 'mdi mdi-' + className;
             }
+            return { title: title, className: className };
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var activity = _props2.activity;
+            var listContext = _props2.listContext;
+            var displayContext = _props2.displayContext;
+            var oneLiner = _props2.oneLiner;
+            var muiTheme = _props2.muiTheme;
+
+            var secondary = activity.type + " - " + activity.actor.name;
+            if (activity.summary) {
+                secondary = _react2['default'].createElement(_reactMarkdown2['default'], { source: activity.summary, renderers: { 'paragraph': Paragraph, 'link': LinkWrapper(pydio, activity, { color: 'inherit' }) } });
+            }
+
+            var summary = undefined,
+                summaryStyle = undefined;
+            var actionIcon = undefined;
+            var blockStyle = {
+                margin: '0px 10px 6px'
+            };
+            if (displayContext === 'popover') {
+                summaryStyle = {
+                    fontSize: 13,
+                    color: 'rgba(0,0,0,0.53)',
+                    margin: '6px 0',
+                    padding: 6
+                };
+            } else {
+                summaryStyle = {
+                    padding: '6px 22px 12px',
+                    marginTop: 6,
+                    borderRadius: 2,
+                    borderLeft: '2px solid #e0e0e0',
+                    marginLeft: 13,
+                    color: 'rgba(0,0,0,0.33)',
+                    /*fontWeight: 500,
+                    fontStyle: 'italic',*/
+                    overflow: 'hidden'
+                };
+            }
+
+            var _computeIcon = this.computeIcon(activity);
+
+            var title = _computeIcon.title;
+            var className = _computeIcon.className;
+
             if (listContext === 'NODE-LEAF') {
+
                 blockStyle = { margin: '16px 10px' };
                 actionIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: className, title: title, style: { fontSize: 17, color: 'rgba(0,0,0,0.17)' } });
             } else {
-                if (displayContext === 'mainList') {
-                    return _react2['default'].createElement(_materialUi.ListItem, {
-                        leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: className, color: 'rgba(0,0,0,.33)' }),
-                        primaryText: secondary,
-                        secondaryText: _react2['default'].createElement(
+
+                if (displayContext === 'popover') {
+                    blockStyle = { margin: 0 };
+                    var nodes = (0, _DocLink.nodesFromObject)(activity.object, pydio);
+                    var icon = undefined,
+                        primaryText = undefined;
+                    if (nodes.length) {
+                        var previewStyles = {
+                            style: {
+                                height: 36,
+                                width: 36,
+                                borderRadius: '50%'
+                            },
+                            mimeFontStyle: {
+                                fontSize: 20,
+                                lineHeight: '36px',
+                                textAlign: 'center'
+                            }
+                        };
+                        icon = _react2['default'].createElement(
                             'div',
-                            { style: { color: 'rgba(0,0,0,.33)' } },
-                            workspacesLocations(pydio, activity.object)
-                        ),
-                        disabled: true
-                    });
-                } else if (displayContext === 'popover') {
-                    var leftIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: className, title: title, style: { padding: '0 8px', fontSize: 20, color: 'rgba(0,0,0,0.17)' } });
+                            { style: { padding: '12px 20px 12px 20px', position: 'relative' } },
+                            _react2['default'].createElement(FilePreview, _extends({ pydio: pydio, node: nodes[0], loadThumbnail: true }, previewStyles)),
+                            _react2['default'].createElement('span', { className: className, style: { position: 'absolute', bottom: 8, right: 12, fontSize: 18, color: muiTheme.palette.accent2Color } })
+                        );
+                        primaryText = nodes[0].getLabel() || _pydioUtilPath2['default'].getBasename(nodes[0].getPath());
+                    } else {
+                        icon = _react2['default'].createElement(
+                            'div',
+                            { style: { margin: '12px 20px 12px 20px', backgroundColor: 'rgb(237, 240, 242)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign: 'center' } },
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: className, style: { lineHeight: '36px', color: muiTheme.palette.accent2Color } })
+                        );
+                        primaryText = activity.object.name;
+                    }
                     summary = _react2['default'].createElement(
                         'div',
-                        { style: { display: 'flex', alignItems: 'center' } },
-                        leftIcon,
+                        { style: { display: 'flex', alignItems: 'flex-start', overflow: 'hidden', paddingBottom: 8 } },
+                        icon,
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, summaryStyle, { flex: 1 }) },
-                            secondary
+                            { style: { flex: 1, overflow: 'hidden', paddingRight: 16 } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { marginTop: 12, marginBottom: 2, fontSize: 15, color: 'rgba(0,0,0,.87)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' } },
+                                primaryText
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { color: 'rgba(0,0,0,.33)' } },
+                                secondary
+                            )
                         )
                     );
                 } else {
@@ -332,7 +381,19 @@ var Activity = (function (_React$Component2) {
                 !oneLiner && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
-                    avatar,
+                    _react2['default'].createElement(UserAvatar, {
+                        useDefaultAvatar: true,
+                        userId: activity.actor.id,
+                        userLabel: activity.actor.name,
+                        displayLocalLabel: true,
+                        userType: 'user',
+                        pydio: pydio,
+                        style: { display: 'flex', alignItems: 'center', maxWidth: '60%' },
+                        labelStyle: { fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+                        avatarStyle: { flexShrink: 0 },
+                        avatarSize: 28,
+                        richOnHover: true
+                    }),
                     _react2['default'].createElement(
                         'span',
                         { style: { fontSize: 13, display: 'inline-block', flex: 1, height: 18, color: 'rgba(0,0,0,0.23)', fontWeight: 500, paddingLeft: 8, whiteSpace: 'nowrap' } },
@@ -351,9 +412,10 @@ var Activity = (function (_React$Component2) {
 Activity.PropTypes = {
     activity: _react2['default'].PropTypes.object,
     listContext: _react2['default'].PropTypes.string,
-    displayContext: _react2['default'].PropTypes.oneOf(['mainList', 'infoPanel', 'popover'])
+    displayContext: _react2['default'].PropTypes.oneOf(['infoPanel', 'popover'])
 };
 
+exports['default'] = Activity = (0, _materialUiStyles.muiThemeable)()(Activity);
 exports['default'] = Activity = PydioContextConsumer(Activity);
 exports['default'] = Activity;
 module.exports = exports['default'];

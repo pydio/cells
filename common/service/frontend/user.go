@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -250,8 +249,8 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 		} else {
 			aclWs, ok := accessList.Workspaces[wsId]
 			if !ok {
-				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.Any("AccessList", accessList))
-				return fmt.Errorf("something went wrong, access list refers to unknown workspace")
+				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.String("wsId", wsId))
+				continue
 			}
 			access := workspacesAccesses[aclWs.UUID]
 			access = strings.Replace(access, "read", "r", -1)

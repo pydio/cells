@@ -2,6 +2,9 @@
   "1": {
     "other": "Monitorizar..."
   },
+  "1-off": {
+    "other": "Watching..."
+  },
   "10": {
     "other": "Alguien está abriendo el archivo"
   },
