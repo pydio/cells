@@ -35,7 +35,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -293,13 +292,16 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		return
 	}
 	ctx := req.Request.Context()
-	if value := ctx.Value(claim.ContextKey); value != nil {
-		claims := value.(claim.Claims)
-		if claims.Profile != "admin" {
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not allowed to edit namespaces"))
-			return
+	/*
+		// Not necessary : checked at Policy level
+		if value := ctx.Value(claim.ContextKey); value != nil {
+			claims := value.(claim.Claims)
+			if claims.Profile != "admin" {
+				service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not allowed to edit namespaces"))
+				return
+			}
 		}
-	}
+	*/
 	// Validate input
 	type jsonCheck struct {
 		Type string
