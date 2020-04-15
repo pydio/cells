@@ -77,11 +77,7 @@ type Config struct {
 }
 
 func initVersionStore() {
-	var e error
-	VersionsStore, e = file2.NewStore(PydioConfigDir)
-	if e != nil {
-		//log.Println("Could not open versions store", e)
-	}
+	VersionsStore = file2.NewStore(PydioConfigDir)
 	written, err := file2.WriteIfNotExists(filepath.Join(PydioConfigDir, PydioConfigFile), SampleConfig)
 	if err != nil {
 		fmt.Println("Error while trying to create default config file")
