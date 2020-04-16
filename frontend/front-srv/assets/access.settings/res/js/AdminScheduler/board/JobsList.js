@@ -48,7 +48,7 @@ class JobsList extends React.Component {
         }
         jobs.map(job => {
 
-            let data = {...job};
+            let data = {...job, SortEndTime:0, SortStatus:'UNKOWN'};
             if (job.Tasks !== undefined) {
                 // Sort task by StartTime
                 job.Tasks.sort((a,b) => {
@@ -64,6 +64,8 @@ class JobsList extends React.Component {
                 } else {
                     data.TaskEndTime = '-';
                 }
+                data.SortEndTime = t.EndTime || 0;
+                data.SortStatus = t.Status;
                 if(t.Status === 'Finished') {
                     data.TaskStatus = t.Status;
                 } else if (t.Status === 'Running') {
@@ -128,31 +130,33 @@ class JobsList extends React.Component {
                 label:m('job.trigger'),
                 style:{width:180, textAlign:'left', paddingRight: 0},
                 headerStyle:{width:180, paddingRight: 0},
-                hideSmall: true
+                hideSmall: true,
+                sorter:{
+                    type:'number',
+                    default:true,
+                    value:row=>row.SortValue
+                }
             },
             {
                 name:'Label',
                 label:m('job.label'),
                 style:{width:'40%', fontSize: 15},
                 headerStyle:{width:'40%'},
+                sorter:{type:'string'}
             },
             {
                 name:'TaskEndTime',
                 label:m('job.endTime'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                sorter:{type:'number', value:row=>row.SortEndTime},
                 hideSmall: true
             },
             {
                 name:'TaskStatus',
                 label:m('job.status'),
-            },
-            {
-                name:'More',
-                label:'',
-                style:{width: 100}, headerStyle:{width: 100},
-                renderCell:(row) => {return <IconButton iconClassName="mdi mdi-chevron-right" iconStyle={{color:'rgba(0,0,0,.3)'}} onTouchTap={()=>{this.setState({selectJob:row.ID})}}/>},
-            },
+                sorter:{type:'string', value:row=>row.SortStatus}
+            }
         ];
 
         const userKeys = [...keys];
@@ -167,9 +171,10 @@ class JobsList extends React.Component {
 
 
         let {system, other} = this.extractRowsInfo(jobs, m);
-        system.sort((a,b) => {
-            return a.SortValue === b.SortValue ? 0 : (a.SortValue > b.SortValue ? 1 : -1 );
-        });
+        const actions = [{
+            iconClassName:'mdi mdi-chevron-right',
+            onTouchTap:(row)=>selectRows([row])
+        }];
 
         return (
             <div style={{flex:1, overflowY: 'auto'}}>
@@ -181,6 +186,7 @@ class JobsList extends React.Component {
                     <MaterialTable
                         data={system}
                         columns={keys}
+                        actions={actions}
                         onSelectRows={(rows)=>{selectRows(rows)}}
                         showCheckboxes={false}
                         emptyStateString={loading ? Pydio.getInstance().MessageHash[466] : m('system.empty')}

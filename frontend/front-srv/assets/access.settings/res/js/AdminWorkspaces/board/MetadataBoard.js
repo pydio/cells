@@ -49,11 +49,16 @@ class MetadataBoard extends React.Component{
     };
 
     deleteNs(row){
-        if(confirm(this.state.m('delete.confirm'))) {
-            Metadata.deleteNS(row).then(() => {
-                this.load();
-            });
-        }
+        const {pydio} = this.props;
+        const {m} = this.state;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:m('delete.confirm'),
+            validCallback:() => {
+                Metadata.deleteNS(row).then(() => {
+                    this.load();
+                });
+            }
+        });
     }
 
     open(rows){
@@ -88,12 +93,12 @@ class MetadataBoard extends React.Component{
         const columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
-            }},
-            {name:'Namespace', label:m('namespace'), style:{fontSize: 15}},
-            {name:'Label', label:m('label'), style:{width:'25%'}, headerStyle:{width:'25%'}},
-            {name:'Indexable', label:m('indexable'), style:{width:'25%'}, headerStyle:{width:'25%'}, hideSmall:true, renderCell:(row => {
+            }, sorter:{type:'number'}},
+            {name:'Namespace', label:m('namespace'), style:{fontSize: 15}, sorter:{type:'string'}},
+            {name:'Label', label:m('label'), style:{width:'25%'}, headerStyle:{width:'25%'}, sorter:{type:'string'}},
+            {name:'Indexable', label:m('indexable'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row => {
                 return row.Indexable ? 'Yes' : 'No';
-            })},
+            }), sorter:{type:'number', value:(row)=>row.Indexable?1:0}},
             {name:'JsonDefinition', label:m('definition'), hideSmall:true, renderCell:(row => {
                 const def = row.JsonDefinition;
                 if(!def) {
@@ -101,25 +106,21 @@ class MetadataBoard extends React.Component{
                 }
                 const data = JSON.parse(def);
                 return Metadata.MetaTypes[data.type] || data.type;
-            })},
-            {name:'actions', label: '', style:{width:100}, headerStyle:{width:100}, renderCell:(row =>{
-                if(!accessByName('Create')){
-                    return null;
-                }
-                return <IconButton
-                    iconClassName="mdi mdi-delete"
-                    onTouchTap={() => {this.deleteNs(row)}}
-                    onClick={(e)=>{e.stopPropagation()}}
-                    iconStyle={{color: 'rgba(0,0,0,0.3)',fontSize: 20}}
-                />
-
-            })}
+            }), sorter:{type:'string'}}
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
+        const actions = [];
         if(accessByName('Create')){
             buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
+            actions.push({
+                iconClassName:'mdi mdi-pencil',
+                onTouchTap:(row)=>{this.open([row])},
+            },{
+                iconClassName:'mdi mdi-delete',
+                onTouchTap:(row)=>{this.deleteNs(row)}
+            })
         }
 
         return (
@@ -149,6 +150,7 @@ class MetadataBoard extends React.Component{
                             <MaterialTable
                                 data={namespaces}
                                 columns={columns}
+                                actions={actions}
                                 onSelectRows={this.open.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}

@@ -101,15 +101,19 @@ var VersionPolicyEditor = (function (_React$Component) {
             var _this2 = this;
 
             var m = this.state.m;
+            var pydio = this.props.pydio;
 
-            if (confirm(m('delete.confirm'))) {
-                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                    var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
-                        _this2.props.closeEditor();
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: m('delete.confirm'),
+                validCallback: function validCallback() {
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
+                            _this2.props.closeEditor();
+                        });
                     });
-                });
-            }
+                }
+            });
         }
     }, {
         key: 'saveSource',

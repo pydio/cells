@@ -95,12 +95,16 @@ class DataSourceEditor extends React.Component{
 
     deleteSource(){
         const {m} = this.state;
-        if(confirm(m('delete.warning'))){
-            this.state.observable.deleteSource().then(() => {
-                this.props.closeEditor();
-                this.props.reloadList();
-            });
-        }
+        const {pydio} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:m('delete.warning'),
+            validCallback:() => {
+                this.state.observable.deleteSource().then(() => {
+                    this.props.closeEditor();
+                    this.props.reloadList();
+                });
+            }
+        });
     }
 
     saveSource(){

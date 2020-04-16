@@ -100,8 +100,24 @@ exports['default'] = _react2['default'].createClass({
 
     openTableRows: function openTableRows(rows) {
         if (rows.length) {
-            this.props.openSelection(rows[0].payload);
+            this.props.openSelection(rows[0].workspace);
         }
+    },
+
+    deleteAction: function deleteAction(workspace) {
+        var _this2 = this;
+
+        var pydio = this.props.pydio;
+
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message: pydio.MessageHash['settings.35'],
+            validCallback: function validCallback() {
+                var ws = new _modelWs2['default'](workspace);
+                ws.remove().then(function () {
+                    _this2.reload();
+                });
+            }
+        });
     },
 
     computeTableData: function computeTableData() {
@@ -135,7 +151,7 @@ exports['default'] = _react2['default'].createClass({
                 }
             }
             data.push({
-                payload: workspace,
+                workspace: workspace,
                 label: workspace.Label,
                 description: workspace.Description,
                 slug: workspace.Slug,
@@ -148,11 +164,14 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _this3 = this;
+
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
         var editable = _props.editable;
         var tableStyles = _props.tableStyles;
+        var openSelection = _props.openSelection;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -161,23 +180,61 @@ exports['default'] = _react2['default'].createClass({
             return pydio.MessageHash['settings.' + id];
         };
 
-        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }];
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' }, sorter: { type: 'string', 'default': 'true' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }];
         if (advanced) {
             columns.push({
-                name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, renderCell: function renderCell(row) {
+                name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, sorter: { type: 'number', sortValue: function sortValue(row) {
+                        return row.syncable ? 1 : 0;
+                    } }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
                 } });
         }
 
-        columns.push({ name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } });
+        columns.push({ name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' }, sorter: { type: 'string' } });
 
         var loading = this.state.loading;
 
         var data = this.computeTableData();
+        var actions = [];
+        if (editable) {
+            actions.push({
+                iconClassName: "mdi mdi-pencil",
+                tooltip: 'Edit Workspace',
+                onTouchTap: function onTouchTap(row) {
+                    openSelection(row.workspace);
+                },
+                disable: function disable(row) {
+                    return !row.workspace.PoliciesContextEditable;
+                }
+            });
+        }
+        var repos = pydio.user.getRepositoriesList();
+        actions.push({
+            iconClassName: 'mdi mdi-open-in-new',
+            tooltip: 'Open this workspace...',
+            onTouchTap: function onTouchTap(row) {
+                pydio.triggerRepositoryChange(row.workspace.UUID);
+            },
+            disable: function disable(row) {
+                return !repos.has(row.workspace.UUID);
+            }
+        });
+        if (editable) {
+            actions.push({
+                iconClassName: "mdi mdi-delete",
+                onTouchTap: function onTouchTap(row) {
+                    _this3.deleteAction(row.workspace);
+                },
+                disable: function disable(row) {
+                    return !row.workspace.PoliciesContextEditable;
+                }
+            });
+        }
 
         return _react2['default'].createElement(MaterialTable, {
             data: data,
             columns: columns,
+            actions: actions,
             onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,

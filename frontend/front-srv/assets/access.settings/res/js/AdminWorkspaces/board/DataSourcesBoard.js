@@ -26,6 +26,8 @@ import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import LangUtils from 'pydio/util/lang'
 import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
+import ResourcesManager from 'pydio/http/resources-manager'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
@@ -115,7 +117,10 @@ class DataSourcesBoard extends React.Component {
         });
     }
 
-    computeStatus(dataSource) {
+    computeStatus(dataSource, asNumber = false) {
+        if(asNumber && dataSource.Disabled){
+            return -1;
+        }
         const {startedServices, peerAddresses, m, newDsName} = this.state;
         if(!startedServices.length){
             return m('status.na');
@@ -134,13 +139,22 @@ class DataSourcesBoard extends React.Component {
             if (newDsName && dataSource.Name === newDsName) {
                 setTimeout(() => {this.setState({newDsName: null})}, 100);
             }
+            if(asNumber){
+                return 0
+            }
             return <span style={{color: '#1b5e20'}}><span className={"mdi mdi-check"}/> {m('status.ok')}</span>;
         } else if (newDsName && dataSource.Name === newDsName) {
+            if(asNumber){
+                return 1
+            }
             return <span style={{color:'#ef6c00'}}><span className={"mdi mdi-timer-sand"}/> {m('status.starting')}</span>;
         } else if (!index && !sync && !object) {
             let koMessage = m('status.ko');
             if(peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
                 koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+            }
+            if(asNumber){
+                return 2
             }
             return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {koMessage}</span>;
         } else {
@@ -153,6 +167,9 @@ class DataSourcesBoard extends React.Component {
             }
             if(!object) {
                 services.push(m('status.object'));
+            }
+            if(asNumber){
+                return 3
             }
             return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {services.join(' - ')}</span>;
         }
@@ -192,6 +209,21 @@ class DataSourcesBoard extends React.Component {
         });
     }
 
+    deleteVersionPolicy(policy){
+        const {pydio} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
+            validCallback:() => {
+                ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                    const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+                    api.deleteVersioningPolicy(policy.Uuid).then((r) =>{
+                        this.load();
+                    });
+                });
+            }
+        });
+    }
+
     createDataSource(){
         const {pydio, storageTypes} = this.props;
         this.props.openRightPane({
@@ -223,10 +255,13 @@ class DataSourcesBoard extends React.Component {
 
         const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
-            {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}},
-            {name:'Status', label:m('status'), renderCell:(row)=>{
-                return row.Disabled ? <span style={{color:'#757575'}}><span className={"mdi mdi-checkbox-blank-circle-outline"}/> {m('status.disabled')}</span> : this.computeStatus(row);
-            }},
+            {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}, sorter:{type:'string', default:true}},
+            {name:'Status', label:m('status'),
+                renderCell:(row)=>{
+                    return row.Disabled ? <span style={{color:'#757575'}}><span className={"mdi mdi-checkbox-blank-circle-outline"}/> {m('status.disabled')}</span> : this.computeStatus(row);
+                },
+                sorter:{type:'number', value:row=>this.computeStatus(row, true)}
+            },
             {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'20%'}, headerStyle:{width:'20%'}, renderCell:(row)=>{
                 let s = 'storage.fs';
                 switch (row.StorageType) {
@@ -243,7 +278,7 @@ class DataSourcesBoard extends React.Component {
                         break;
                 }
                 return m(s);
-            }},
+            }, sorter:{type:'string'}},
             {name:'VersioningPolicyName', label:m('versioning'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
@@ -251,10 +286,10 @@ class DataSourcesBoard extends React.Component {
                 } else {
                     return row['VersioningPolicyName'] || '-';
                 }
-            }},
+            }, sorter:{type:'string'}},
             {name:'EncryptionMode', label:m('encryption'), hideSmall:true, style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%'}, renderCell:(row) => {
                 return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
-            }},
+            }, sorter:{type:'string'}},
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
@@ -262,16 +297,49 @@ class DataSourcesBoard extends React.Component {
         if(accessByName('CreateDatasource')){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
         }
-        if(!versioningReadonly && accessByName('CreateVersioning')){
+        const versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
+        if(versioningEditable){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
         const policiesColumns = [
-            {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}},
-            {name:'Description', label: m('versioning.description')},
+            {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}, sorter:{type:'string', default:true}},
+            {name:'Description', label: m('versioning.description'), sorter:{type:'string'}},
             {name:'KeepPeriods', hideSmall:true, label: m('versioning.periods'), renderCell:(row) => {
                 return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods} pydio={pydio}/>
             }}
         ];
+
+        const dsActions = [];
+        if(accessByName('CreateDatasource')){
+            dsActions.push({
+                iconClassName:'mdi mdi-pencil',
+                tooltip:'Edit datasource',
+                onTouchTap:row=>{this.openDataSource([row])}
+            });
+        }
+        dsActions.push({
+            iconClassName:'mdi mdi-refresh',
+            tooltip:'Resynchronize',
+            onTouchTap:row => {
+                const ds = new DataSource(row);
+                ds.resyncSource();
+            }
+        });
+
+        const vsActions = [];
+        vsActions.push({
+            iconClassName:versioningEditable?'mdi mdi-pencil':'mdi mdi-eye',
+            tooltip: versioningEditable?'Edit policy':'Display policy',
+            onTouchTap:row => {this.openVersionPolicy([row])}
+        });
+        if(versioningEditable){
+            vsActions.push({
+                iconClassName:'mdi mdi-delete',
+                tooltip:'Delete policy',
+                destructive:true,
+                onTouchTap:row => this.deleteVersionPolicy(row)
+            })
+        }
 
         return (
 
@@ -290,6 +358,7 @@ class DataSourcesBoard extends React.Component {
                             <MaterialTable
                                 data={dataSources}
                                 columns={dsColumns}
+                                actions={dsActions}
                                 onSelectRows={this.openDataSource.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
@@ -303,6 +372,7 @@ class DataSourcesBoard extends React.Component {
                             <MaterialTable
                                 data={versioningPolicies}
                                 columns={policiesColumns}
+                                actions={vsActions}
                                 onSelectRows={this.openVersionPolicy.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}

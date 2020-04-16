@@ -24,6 +24,7 @@ import Pydio from 'pydio'
 import {Paper, RaisedButton, FlatButton, IconButton, Dialog} from 'material-ui'
 import {ConfigServiceApi, EncryptionAdminExportKeyRequest, EncryptionAdminImportKeyRequest,
     EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'pydio/http/rest-api'
+import Workspace from "../model/Ws";
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
@@ -95,15 +96,19 @@ class EncryptionKeys extends React.Component{
     }
 
     deleteKey(keyId){
+        const {pydio} = this.props;
         const {m} = this.state;
-        if (confirm(m('key.delete.warning'))){
-            const api = new ConfigServiceApi(PydioApi.getRestClient());
-            let req = new EncryptionAdminDeleteKeyRequest();
-            req.KeyID = keyId;
-            api.deleteEncryptionKey(req).then(result => {
-                this.load();
-            });
-        }
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:m('key.delete.warning'),
+            validCallback:() => {
+                const api = new ConfigServiceApi(PydioApi.getRestClient());
+                let req = new EncryptionAdminDeleteKeyRequest();
+                req.KeyID = keyId;
+                api.deleteEncryptionKey(req).then(result => {
+                    this.load();
+                });
+            }
+        });
     }
 
     importKey(){
@@ -146,23 +151,19 @@ class EncryptionKeys extends React.Component{
         const {pydio, accessByName, adminStyles} = this.props;
 
         const columns = [
-            {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
-            {name:'ID', label: m('key.id'), hideSmall:true},
-            {name:'Owner', label: m('key.owner'), hideSmall:true},
-            {name:'CreationDate', label: m('key.created'), hideSmall:true, renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
-            {name:'Actions', label:'', style:{width:170, textAlign:'right', overflow:'visible'}, headerStyle:{width:170}, renderCell:(row => {
-                if(!accessByName('CreateEncryption')){
-                    return null;
-                }
-                return (
-                    <div>
-                        <IconButton tooltip={m('key.import')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={m('key.export')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-export"} onTouchTap={() => {this.setState({showDialog: true, showExportKey:row.ID})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={m('key.delete')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-delete"} onTouchTap={() => {this.deleteKey(row.ID)}} onClick={e=>e.stopPropagation()}/>
-                    </div>
-                );
-            })}
+            {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}, sorter:{type:'string', default:true}},
+            {name:'ID', label: m('key.id'), hideSmall:true, sorter:{type:'string'}},
+            {name:'Owner', label: m('key.owner'), hideSmall:true, sorter:{type:'string'}},
+            {name:'CreationDate', label: m('key.created'), hideSmall:true, useMoment:true, sorter:{type:'number'}},
         ];
+        const actions = [];
+        if(accessByName('CreateEncryption')){
+            actions.push(
+                {iconClassName:'mdi mdi-import', tooltip:m('key.import'), onTouchTap:(row)=>{this.setState({showDialog: true, showImportKey:row})}},
+                {iconClassName:'mdi mdi-export', tooltip:m('key.export'), onTouchTap:(row)=>{this.setState({showDialog: true, showExportKey:row.ID})}},
+                {iconClassName:'mdi mdi-delete', tooltip:m('key.delete'), onTouchTap:(row)=>{this.deleteKey(row.ID)}},
+            )
+        }
 
         let dialogContent, dialogTitle, dialogActions = [];
         if(showExportKey || exportedKey){
@@ -243,22 +244,23 @@ class EncryptionKeys extends React.Component{
                 >
                     {dialogContent}
                 </Dialog>
-                {accessByName('CreateEncryption') &&
-                    <div style={{textAlign:'right', paddingRight: 24}}>
-                        <FlatButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
-                        <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
-                    </div>
-                }
                 <Paper {...blockProps} style={blockStyle}>
                     <MaterialTable
                         data={keys}
                         columns={columns}
+                        actions={actions}
                         onSelectRows={()=>{}}
                         showCheckboxes={false}
                         emptyStateString={m('key.emptyState')}
                         masterStyles={tableMaster}
                     />
                 </Paper>
+                {accessByName('CreateEncryption') &&
+                <div style={{textAlign:'right', paddingRight: 24, paddingBottom: 24}}>
+                    <FlatButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
+                    <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
+                </div>
+                }
             </div>
         );
 

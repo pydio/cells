@@ -92,7 +92,7 @@ var JobsList = (function (_React$Component) {
             }
             jobs.map(function (job) {
 
-                var data = _extends({}, job);
+                var data = _extends({}, job, { SortEndTime: 0, SortStatus: 'UNKOWN' });
                 if (job.Tasks !== undefined) {
                     // Sort task by StartTime
                     job.Tasks.sort(function (a, b) {
@@ -108,6 +108,8 @@ var JobsList = (function (_React$Component) {
                     } else {
                         data.TaskEndTime = '-';
                     }
+                    data.SortEndTime = t.EndTime || 0;
+                    data.SortStatus = t.Status;
                     if (t.Status === 'Finished') {
                         data.TaskStatus = t.Status;
                     } else if (t.Status === 'Running') {
@@ -220,8 +222,6 @@ var JobsList = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
-
             var _props = this.props;
             var pydio = _props.pydio;
             var selectRows = _props.selectRows;
@@ -240,30 +240,35 @@ var JobsList = (function (_React$Component) {
                 label: m('job.trigger'),
                 style: { width: 180, textAlign: 'left', paddingRight: 0 },
                 headerStyle: { width: 180, paddingRight: 0 },
-                hideSmall: true
+                hideSmall: true,
+                sorter: {
+                    type: 'number',
+                    'default': true,
+                    value: function value(row) {
+                        return row.SortValue;
+                    }
+                }
             }, {
                 name: 'Label',
                 label: m('job.label'),
                 style: { width: '40%', fontSize: 15 },
-                headerStyle: { width: '40%' }
+                headerStyle: { width: '40%' },
+                sorter: { type: 'string' }
             }, {
                 name: 'TaskEndTime',
                 label: m('job.endTime'),
                 style: { width: '15%' },
                 headerStyle: { width: '15%' },
+                sorter: { type: 'number', value: function value(row) {
+                        return row.SortEndTime;
+                    } },
                 hideSmall: true
             }, {
                 name: 'TaskStatus',
-                label: m('job.status')
-            }, {
-                name: 'More',
-                label: '',
-                style: { width: 100 }, headerStyle: { width: 100 },
-                renderCell: function renderCell(row) {
-                    return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
-                            _this.setState({ selectJob: row.ID });
-                        } });
-                }
+                label: m('job.status'),
+                sorter: { type: 'string', value: function value(row) {
+                        return row.SortStatus;
+                    } }
             }];
 
             var userKeys = [].concat(keys);
@@ -281,9 +286,12 @@ var JobsList = (function (_React$Component) {
             var system = _extractRowsInfo.system;
             var other = _extractRowsInfo.other;
 
-            system.sort(function (a, b) {
-                return a.SortValue === b.SortValue ? 0 : a.SortValue > b.SortValue ? 1 : -1;
-            });
+            var actions = [{
+                iconClassName: 'mdi mdi-chevron-right',
+                onTouchTap: function onTouchTap(row) {
+                    return selectRows([row]);
+                }
+            }];
 
             return _react2['default'].createElement(
                 'div',
@@ -298,6 +306,7 @@ var JobsList = (function (_React$Component) {
                     _react2['default'].createElement(MaterialTable, {
                         data: system,
                         columns: keys,
+                        actions: actions,
                         onSelectRows: function (rows) {
                             selectRows(rows);
                         },

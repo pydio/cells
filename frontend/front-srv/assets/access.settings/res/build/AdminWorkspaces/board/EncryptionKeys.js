@@ -52,6 +52,10 @@ var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _modelWs = require("../model/Ws");
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
@@ -148,16 +152,20 @@ var EncryptionKeys = (function (_React$Component) {
         value: function deleteKey(keyId) {
             var _this4 = this;
 
+            var pydio = this.props.pydio;
             var m = this.state.m;
 
-            if (confirm(m('key.delete.warning'))) {
-                var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();
-                req.KeyID = keyId;
-                api.deleteEncryptionKey(req).then(function (result) {
-                    _this4.load();
-                });
-            }
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: m('key.delete.warning'),
+                validCallback: function validCallback() {
+                    var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();
+                    req.KeyID = keyId;
+                    api.deleteEncryptionKey(req).then(function (result) {
+                        _this4.load();
+                    });
+                }
+            });
         }
     }, {
         key: 'importKey',
@@ -213,32 +221,17 @@ var EncryptionKeys = (function (_React$Component) {
             var accessByName = _props.accessByName;
             var adminStyles = _props.adminStyles;
 
-            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
-                    return new Date(row.CreationDate * 1000).toUTCString();
-                } }, { name: 'Actions', label: '', style: { width: 170, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: 170 }, renderCell: function renderCell(row) {
-                    if (!accessByName('CreateEncryption')) {
-                        return null;
-                    }
-                    return _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.import'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
-                                _this6.setState({ showDialog: true, showImportKey: row });
-                            }, onClick: function (e) {
-                                return e.stopPropagation();
-                            } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.export'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
-                                _this6.setState({ showDialog: true, showExportKey: row.ID });
-                            }, onClick: function (e) {
-                                return e.stopPropagation();
-                            } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.delete'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
-                                _this6.deleteKey(row.ID);
-                            }, onClick: function (e) {
-                                return e.stopPropagation();
-                            } })
-                    );
-                } }];
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' }, sorter: { type: 'string', 'default': true } }, { name: 'ID', label: m('key.id'), hideSmall: true, sorter: { type: 'string' } }, { name: 'Owner', label: m('key.owner'), hideSmall: true, sorter: { type: 'string' } }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, useMoment: true, sorter: { type: 'number' } }];
+            var actions = [];
+            if (accessByName('CreateEncryption')) {
+                actions.push({ iconClassName: 'mdi mdi-import', tooltip: m('key.import'), onTouchTap: function onTouchTap(row) {
+                        _this6.setState({ showDialog: true, showImportKey: row });
+                    } }, { iconClassName: 'mdi mdi-export', tooltip: m('key.export'), onTouchTap: function onTouchTap(row) {
+                        _this6.setState({ showDialog: true, showExportKey: row.ID });
+                    } }, { iconClassName: 'mdi mdi-delete', tooltip: m('key.delete'), onTouchTap: function onTouchTap(row) {
+                        _this6.deleteKey(row.ID);
+                    } });
+            }
 
             var dialogContent = undefined,
                 dialogTitle = undefined,
@@ -329,9 +322,22 @@ var EncryptionKeys = (function (_React$Component) {
                     },
                     dialogContent
                 ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, blockProps, { style: blockStyle }),
+                    _react2['default'].createElement(MaterialTable, {
+                        data: keys,
+                        columns: columns,
+                        actions: actions,
+                        onSelectRows: function () {},
+                        showCheckboxes: false,
+                        emptyStateString: m('key.emptyState'),
+                        masterStyles: tableMaster
+                    })
+                ),
                 accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
-                    { style: { textAlign: 'right', paddingRight: 24 } },
+                    { style: { textAlign: 'right', paddingRight: 24, paddingBottom: 24 } },
                     _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
                         } }, adminStyles.props.header.flatButton)),
@@ -342,18 +348,6 @@ var EncryptionKeys = (function (_React$Component) {
                                 _this6.setState({ showCreateKey: true, showDialog: true });
                             } }, adminStyles.props.header.flatButton))
                     )
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    _extends({}, blockProps, { style: blockStyle }),
-                    _react2['default'].createElement(MaterialTable, {
-                        data: keys,
-                        columns: columns,
-                        onSelectRows: function () {},
-                        showCheckboxes: false,
-                        emptyStateString: m('key.emptyState'),
-                        masterStyles: tableMaster
-                    })
                 )
             );
         }

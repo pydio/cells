@@ -28,7 +28,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -65,6 +65,14 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _modelDataSource = require('../model/DataSource');
 
@@ -118,7 +126,7 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function componentDidMount() {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             this.statusPoller = setInterval(function () {
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
                     _this.setState({ startedServices: data.Services });
@@ -195,6 +203,11 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function computeStatus(dataSource) {
             var _this3 = this;
 
+            var asNumber = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+            if (asNumber && dataSource.Disabled) {
+                return -1;
+            }
             var _state = this.state;
             var startedServices = _state.startedServices;
             var peerAddresses = _state.peerAddresses;
@@ -222,6 +235,9 @@ var DataSourcesBoard = (function (_React$Component) {
                         _this3.setState({ newDsName: null });
                     }, 100);
                 }
+                if (asNumber) {
+                    return 0;
+                }
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#1b5e20' } },
@@ -230,6 +246,9 @@ var DataSourcesBoard = (function (_React$Component) {
                     m('status.ok')
                 );
             } else if (newDsName && dataSource.Name === newDsName) {
+                if (asNumber) {
+                    return 1;
+                }
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#ef6c00' } },
@@ -241,6 +260,9 @@ var DataSourcesBoard = (function (_React$Component) {
                 var koMessage = m('status.ko');
                 if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
                     koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+                }
+                if (asNumber) {
+                    return 2;
                 }
                 return _react2['default'].createElement(
                     'span',
@@ -259,6 +281,9 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
                 if (!object) {
                     services.push(m('status.object'));
+                }
+                if (asNumber) {
+                    return 3;
                 }
                 return _react2['default'].createElement(
                     'span',
@@ -312,6 +337,25 @@ var DataSourcesBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'deleteVersionPolicy',
+        value: function deleteVersionPolicy(policy) {
+            var _this4 = this;
+
+            var pydio = this.props.pydio;
+
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
+                validCallback: function validCallback() {
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
+                            _this4.load();
+                        });
+                    });
+                }
+            });
+        }
+    }, {
         key: 'createDataSource',
         value: function createDataSource() {
             var _props3 = this.props;
@@ -333,7 +377,7 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             var _state2 = this.state;
             var dataSources = _state2.dataSources;
@@ -356,15 +400,20 @@ var DataSourcesBoard = (function (_React$Component) {
             var versioningReadonly = _props4.versioningReadonly;
             var accessByName = _props4.accessByName;
 
-            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' }, sorter: { type: 'string', 'default': true } }, { name: 'Status', label: m('status'),
+                renderCell: function renderCell(row) {
                     return row.Disabled ? _react2['default'].createElement(
                         'span',
                         { style: { color: '#757575' } },
                         _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
                         ' ',
                         m('status.disabled')
-                    ) : _this4.computeStatus(row);
-                } }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
+                    ) : _this5.computeStatus(row);
+                },
+                sorter: { type: 'number', value: function value(row) {
+                        return _this5.computeStatus(row, true);
+                    } }
+            }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
                     switch (row.StorageType) {
                         case "S3":
@@ -380,7 +429,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true, renderCell: function renderCell(row) {
+                }, sorter: { type: 'string' } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -389,23 +438,62 @@ var DataSourcesBoard = (function (_React$Component) {
                     } else {
                         return row['VersioningPolicyName'] || '-';
                     }
-                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%' }, renderCell: function renderCell(row) {
+                }, sorter: { type: 'string' } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%' }, renderCell: function renderCell(row) {
                     return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                } }];
+                }, sorter: { type: 'string' } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
             if (accessByName('CreateDatasource')) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
             }
-            if (!versioningReadonly && accessByName('CreateVersioning')) {
+            var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
+            if (versioningEditable) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
-                        _this4.openVersionPolicy();
+                        _this5.openVersionPolicy();
                     } }, adminStyles.props.header.flatButton)));
             }
-            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 }, sorter: { type: 'string', 'default': true } }, { name: 'Description', label: m('versioning.description'), sorter: { type: 'string' } }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
                 } }];
+
+            var dsActions = [];
+            if (accessByName('CreateDatasource')) {
+                dsActions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    tooltip: 'Edit datasource',
+                    onTouchTap: function onTouchTap(row) {
+                        _this5.openDataSource([row]);
+                    }
+                });
+            }
+            dsActions.push({
+                iconClassName: 'mdi mdi-refresh',
+                tooltip: 'Resynchronize',
+                onTouchTap: function onTouchTap(row) {
+                    var ds = new _modelDataSource2['default'](row);
+                    ds.resyncSource();
+                }
+            });
+
+            var vsActions = [];
+            vsActions.push({
+                iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
+                tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
+                onTouchTap: function onTouchTap(row) {
+                    _this5.openVersionPolicy([row]);
+                }
+            });
+            if (versioningEditable) {
+                vsActions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: 'Delete policy',
+                    destructive: true,
+                    onTouchTap: function onTouchTap(row) {
+                        return _this5.deleteVersionPolicy(row);
+                    }
+                });
+            }
 
             return _react2['default'].createElement(
                 'div',
@@ -430,6 +518,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             _react2['default'].createElement(MaterialTable, {
                                 data: dataSources,
                                 columns: dsColumns,
+                                actions: dsActions,
                                 onSelectRows: this.openDataSource.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
@@ -444,6 +533,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             _react2['default'].createElement(MaterialTable, {
                                 data: versioningPolicies,
                                 columns: policiesColumns,
+                                actions: vsActions,
                                 onSelectRows: this.openVersionPolicy.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,

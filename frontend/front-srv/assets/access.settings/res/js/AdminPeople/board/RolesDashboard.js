@@ -132,7 +132,7 @@ let RolesDashboard = React.createClass({
                 roleId: role.Uuid,
                 roleLabel: label,
                 isDefault: role.AutoApplies.join(', ') || '-',
-                roleSummary: new Date(parseInt(role.LastUpdated)*1000).toISOString()
+                lastUpdated: role.LastUpdated
             });
         });
         return data;
@@ -177,17 +177,26 @@ let RolesDashboard = React.createClass({
             fontSize: 20
         };
         const columns = [
-            {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}},
-            {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true},
-            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true},
-            {name:'actions', label:'', style:{width:80, textOverflow:'none'}, headerStyle:{width:80}, renderCell:(row) => {
-                if(hasEditRight && row.role.PoliciesContextEditable){
-                    return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
-                } else {
-                    return null;
-                }
-            }}
+            {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}, sorter:{type:'string', default: true}},
+            {name:'lastUpdated', useMoment: true, label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true, sorter:{type:'number'}},
+            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true, sorter:{type:'string'}},
         ];
+
+        const tableActions = [];
+        if(hasEditRight){
+            tableActions.push({
+                iconClassName:"mdi mdi-pencil" ,
+                tooltip:'Edit',
+                onTouchTap:(row)=>{this.openRoleEditor(row.role)},
+                disable:(row)=>{return !row.role.PoliciesContextEditable}
+            });
+            tableActions.push({
+                iconClassName:"mdi mdi-delete" ,
+                tooltip:'Delete',
+                onTouchTap:(row)=>{this.deleteAction(row.role.Uuid)},
+                disable:(row)=>{return !row.role.PoliciesContextEditable}
+            });
+        }
         const data = this.computeTableData(searchRoleString);
         const {body} = AdminComponents.AdminStyles();
         const {tableMaster} = body;
@@ -211,6 +220,7 @@ let RolesDashboard = React.createClass({
                         <MaterialTable
                             data={data}
                             columns={columns}
+                            actions={tableActions}
                             onSelectRows={selectRows}
                             deselectOnClickAway={true}
                             showCheckboxes={false}

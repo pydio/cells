@@ -1880,7 +1880,7 @@ var RolesDashboard = _react2['default'].createClass({
                 roleId: role.Uuid,
                 roleLabel: label,
                 isDefault: role.AutoApplies.join(', ') || '-',
-                roleSummary: new Date(parseInt(role.LastUpdated) * 1000).toISOString()
+                lastUpdated: role.LastUpdated
             });
         });
         return data;
@@ -1939,17 +1939,31 @@ var RolesDashboard = _react2['default'].createClass({
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                if (hasEditRight && row.role.PoliciesContextEditable) {
-                    return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                            _this5.deleteAction(row.roleId);
-                        }, onClick: function (e) {
-                            e.stopPropagation();
-                        }, iconStyle: iconStyle });
-                } else {
-                    return null;
+        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' }, sorter: { type: 'string', 'default': true } }, { name: 'lastUpdated', useMoment: true, label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true, sorter: { type: 'number' } }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true, sorter: { type: 'string' } }];
+
+        var tableActions = [];
+        if (hasEditRight) {
+            tableActions.push({
+                iconClassName: "mdi mdi-pencil",
+                tooltip: 'Edit',
+                onTouchTap: function onTouchTap(row) {
+                    _this5.openRoleEditor(row.role);
+                },
+                disable: function disable(row) {
+                    return !row.role.PoliciesContextEditable;
                 }
-            } }];
+            });
+            tableActions.push({
+                iconClassName: "mdi mdi-delete",
+                tooltip: 'Delete',
+                onTouchTap: function onTouchTap(row) {
+                    _this5.deleteAction(row.role.Uuid);
+                },
+                disable: function disable(row) {
+                    return !row.role.PoliciesContextEditable;
+                }
+            });
+        }
         var data = this.computeTableData(searchRoleString);
 
         var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
@@ -1983,6 +1997,7 @@ var RolesDashboard = _react2['default'].createClass({
                     _react2['default'].createElement(MaterialTable, {
                         data: data,
                         columns: columns,
+                        actions: tableActions,
                         onSelectRows: selectRows,
                         deselectOnClickAway: true,
                         showCheckboxes: false,

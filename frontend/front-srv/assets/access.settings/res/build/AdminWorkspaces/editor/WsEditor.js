@@ -151,12 +151,15 @@ var WsEditor = (function (_React$Component) {
             var reloadList = _props2.reloadList;
             var pydio = _props2.pydio;
 
-            if (confirm(pydio.MessageHash['settings.35'])) {
-                container.remove().then(function () {
-                    reloadList();
-                    closeEditor();
-                });
-            }
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: pydio.MessageHash['settings.35'],
+                validCallback: function validCallback() {
+                    container.remove().then(function () {
+                        reloadList();
+                        closeEditor();
+                    });
+                }
+            });
         }
     }, {
         key: 'render',

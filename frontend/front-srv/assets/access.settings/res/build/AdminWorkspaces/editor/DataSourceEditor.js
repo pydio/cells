@@ -163,13 +163,17 @@ var DataSourceEditor = (function (_React$Component) {
             var _this4 = this;
 
             var m = this.state.m;
+            var pydio = this.props.pydio;
 
-            if (confirm(m('delete.warning'))) {
-                this.state.observable.deleteSource().then(function () {
-                    _this4.props.closeEditor();
-                    _this4.props.reloadList();
-                });
-            }
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: m('delete.warning'),
+                validCallback: function validCallback() {
+                    _this4.state.observable.deleteSource().then(function () {
+                        _this4.props.closeEditor();
+                        _this4.props.reloadList();
+                    });
+                }
+            });
         }
     }, {
         key: 'saveSource',
