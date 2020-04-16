@@ -26,6 +26,7 @@
     "grunt-babel": "^7.0.0",
     "grunt-browserify": "^5.2.0",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-json": "^0.2.0",
     "material-ui": "^0.20.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

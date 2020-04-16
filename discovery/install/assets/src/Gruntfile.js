@@ -31,12 +31,27 @@ module.exports = function(grunt) {
                 }
             }
         },
+        json: {
+            main: {
+                options: {
+                    namespace: 'languages',
+                    includePath: false,
+                    commonjs: true,
+                    processName: (filename) => {
+                        return filename.split('.').shift();
+                    }
+                },
+                src: ['res/i18n/*.json'],
+                dest: 'res/js/gen/languages.js'
+            }
+        },
         watch: {
             js: {
                 files: [
-                    "res/js/**/*"
+                    "res/js/**/*",
+                    "res/i18n/*.json"
                 ],
-                tasks: ['babel', 'browserify:ui'],
+                tasks: ['json', 'babel', 'browserify:ui'],
                 options: {
                     spawn: false
                 }
@@ -46,5 +61,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('default', ['babel', 'browserify:ui']);
+    grunt.loadNpmTasks('grunt-json');
+    grunt.registerTask('default', ['json', 'babel', 'browserify:ui']);
 };

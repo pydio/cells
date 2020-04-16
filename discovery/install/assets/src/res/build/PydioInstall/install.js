@@ -44,6 +44,10 @@ var _InstallPerformCheckRequest2 = _interopRequireDefault(_InstallPerformCheckRe
 
 var _config = require('./config');
 
+var _languages = require('./gen/languages');
+
+var _languages2 = _interopRequireDefault(_languages);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -55,6 +59,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var defaultLanguage = 'en-us';
 
 var client = new _client2.default();
 var api = new _InstallServiceApi2.default(client);
@@ -169,7 +175,8 @@ var InstallForm = function (_React$Component) {
             showAdvanced: false,
             installEvents: [],
             installProgress: 0,
-            serverRestarted: false
+            serverRestarted: false,
+            lang: defaultLanguage
         };
 
         _this.reset = function () {
@@ -206,6 +213,19 @@ var InstallForm = function (_React$Component) {
     }
 
     _createClass(InstallForm, [{
+        key: 't',
+        value: function t(s) {
+            var lang = this.state.lang;
+
+            if (_languages2.default && _languages2.default[lang] && _languages2.default[lang][s]) {
+                return _languages2.default[lang][s]['other'];
+            } else if (lang !== defaultLanguage && _languages2.default && _languages2.default[defaultLanguage] && _languages2.default[defaultLanguage][s]) {
+                return _languages2.default[defaultLanguage][s]['other'];
+            } else {
+                return s;
+            }
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this2 = this;
@@ -290,7 +310,10 @@ var InstallForm = function (_React$Component) {
 
             var nextDisabled = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var leftAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-            var stepIndex = this.state.stepIndex;
+            var _state = this.state,
+                stepIndex = _state.stepIndex,
+                tablesFoundConfirm = _state.tablesFoundConfirm,
+                dbCheckSuccess = _state.dbCheckSuccess;
             var _props = this.props,
                 handleSubmit = _props.handleSubmit,
                 licenseRequired = _props.licenseRequired,
@@ -299,18 +322,25 @@ var InstallForm = function (_React$Component) {
             var stepOffset = licenseRequired ? 1 : 0;
 
             var nextAction = void 0;
+            var nextInvalid = void 0;
             switch (stepIndex) {
                 case 1 + stepOffset:
                     nextAction = function nextAction() {
                         _this5.checkDbConfig(function (checkResult) {
                             if (checkResult.Success) {
-                                _this5.handleNext();
-                                _this5.setState({ dbCheckError: null });
+                                var successData = JSON.parse(checkResult.JsonResult);
+                                if (!successData || !successData.tablesFound || tablesFoundConfirm) {
+                                    _this5.handleNext();
+                                }
+                                _this5.setState({ dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult) });
                             } else {
-                                _this5.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error });
+                                _this5.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null });
                             }
                         });
                     };
+                    if (dbCheckSuccess && dbCheckSuccess.tablesFound && !tablesFoundConfirm) {
+                        nextInvalid = true;
+                    }
                     break;
                 case 3 + stepOffset:
                     nextAction = function nextAction() {
@@ -331,16 +361,16 @@ var InstallForm = function (_React$Component) {
                     'div',
                     null,
                     step > 0 && _react2.default.createElement(_materialUi.FlatButton, {
-                        label: 'Back',
+                        label: this.t('stepper.button.back'),
                         disabled: stepIndex === 0,
                         onClick: this.handlePrev,
                         style: { marginRight: 5 }
                     }),
                     _react2.default.createElement(_materialUi.RaisedButton, {
-                        label: stepIndex === 3 + stepOffset ? 'Install Now' : 'Next',
+                        label: stepIndex === 3 + stepOffset ? this.t('stepper.button.last') : this.t('stepper.button.next'),
                         primary: true,
                         onClick: nextAction,
-                        disabled: nextDisabled || invalid
+                        disabled: nextDisabled || invalid || nextInvalid
                     })
                 )
             );
@@ -358,18 +388,24 @@ var InstallForm = function (_React$Component) {
                 initialChecks = _props2.initialChecks,
                 licenseRequired = _props2.licenseRequired,
                 licenseString = _props2.licenseString,
-                frontendPassword = _props2.frontendPassword;
-            var _state = this.state,
-                stepIndex = _state.stepIndex,
-                licenseAgreed = _state.licenseAgreed,
-                showAdvanced = _state.showAdvanced,
-                installEvents = _state.installEvents,
-                installProgress = _state.installProgress,
-                serverRestarted = _state.serverRestarted,
-                willReloadIn = _state.willReloadIn,
-                agreementText = _state.agreementText,
-                dbCheckError = _state.dbCheckError,
-                licCheckFailed = _state.licCheckFailed;
+                frontendPassword = _props2.frontendPassword,
+                frontendLogin = _props2.frontendLogin,
+                frontendRepeatPassword = _props2.frontendRepeatPassword;
+            var _state2 = this.state,
+                stepIndex = _state2.stepIndex,
+                licenseAgreed = _state2.licenseAgreed,
+                showAdvanced = _state2.showAdvanced,
+                installEvents = _state2.installEvents,
+                installProgress = _state2.installProgress,
+                serverRestarted = _state2.serverRestarted,
+                willReloadIn = _state2.willReloadIn,
+                agreementText = _state2.agreementText,
+                dbCheckError = _state2.dbCheckError,
+                dbCheckSuccess = _state2.dbCheckSuccess,
+                licCheckFailed = _state2.licCheckFailed,
+                tablesFoundConfirm = _state2.tablesFoundConfirm,
+                adminFoundOverride = _state2.adminFoundOverride,
+                lang = _state2.lang;
 
 
             var flexContainer = {
@@ -409,7 +445,7 @@ var InstallForm = function (_React$Component) {
                 leftAction = _react2.default.createElement(
                     'div',
                     null,
-                    _react2.default.createElement(_materialUi.Checkbox, { checked: licenseAgreed, label: "I agree with these terms", style: { width: 300 }, onCheck: function onCheck() {
+                    _react2.default.createElement(_materialUi.Checkbox, { checked: licenseAgreed, label: this.t('welcome.agreed'), style: { width: 300 }, onCheck: function onCheck() {
                             _this6.setState({ licenseAgreed: !licenseAgreed });
                         } })
                 );
@@ -444,7 +480,7 @@ var InstallForm = function (_React$Component) {
                     _react2.default.createElement(
                         _materialUi.StepLabel,
                         { style: stepIndex >= 1 ? stepperStyles.label : {} },
-                        'Enterprise License'
+                        this.t('license.stepLabel')
                     ),
                     _react2.default.createElement(
                         _materialUi.StepContent,
@@ -455,35 +491,34 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 'h3',
                                 null,
-                                'Pydio Cells Enterprise License'
+                                this.t('license.title')
                             ),
                             licCheckPassed && _react2.default.createElement(
                                 'div',
                                 { style: { padding: '20px 0', color: '#388E3C', fontSize: 14 } },
-                                'License file was successfully detected.',
+                                this.t('license.success'),
+                                '.',
                                 _react2.default.createElement('br', null),
-                                'This installation is valid for ',
-                                licCheckPassed.users,
-                                ' users until ',
-                                new Date(licCheckPassed.expireTime * 1000).toISOString(),
+                                this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime * 1000).toISOString()),
                                 '.'
                             ),
                             licCheckFailed && _react2.default.createElement(
                                 'div',
                                 { style: { color: '#E53935', paddingTop: 10, fontWeight: 500 } },
-                                'Error while trying to verify this license key. Please contact the support.'
+                                this.t('license.failed')
                             ),
                             !licCheckPassed && _react2.default.createElement(
                                 'div',
                                 null,
-                                'A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact ',
+                                this.t('license.required'),
+                                ' ',
                                 _react2.default.createElement(
                                     'a',
                                     { href: "mailto:services@pydio.com" },
                                     'services@pydio.com'
                                 ),
                                 '.',
-                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: 'License String', label: 'Please copy/paste the license key provided to you.' })
+                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: this.t('license.fieldLabel'), label: this.t('license.fieldLegend') })
                             )
                         ),
                         _react2.default.createElement(
@@ -508,7 +543,7 @@ var InstallForm = function (_React$Component) {
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepperStyles.label },
-                    'Terms of Use '
+                    this.t('welcome.stepLabel')
                 ),
                 _react2.default.createElement(
                     _materialUi.StepContent,
@@ -519,12 +554,12 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Welcome to Pydio Cells Installation Wizard'
+                            this.t('welcome.title')
                         ),
                         _react2.default.createElement(
                             'p',
                             null,
-                            'This will install all services on the current server. Please agree with the terms of the license below before starting'
+                            this.t('welcome.legend')
                         ),
                         _react2.default.createElement(
                             'pre',
@@ -540,13 +575,14 @@ var InstallForm = function (_React$Component) {
                 steps.push(additionalStep);
             }
 
+            var tablesFound = dbCheckSuccess && dbCheckSuccess.tablesFound;
             steps.push(_react2.default.createElement(
                 _materialUi.Step,
                 { key: steps.length - 1, style: stepperStyles.step },
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepIndex >= 1 + stepOffset ? stepperStyles.label : {} },
-                    'Database connection'
+                    this.t('database.stepLabel')
                 ),
                 _react2.default.createElement(
                     _materialUi.StepContent,
@@ -557,15 +593,14 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Database Configuration'
+                            this.t('database.title')
                         ),
-                        'Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server. Please make sure that your database is running ',
+                        this.t('database.legend'),
                         _react2.default.createElement(
                             'b',
                             null,
-                            'MySQL version 5.6 or higher'
+                            this.t('database.legend.bold')
                         ),
-                        '.',
                         dbCheckError && _react2.default.createElement(
                             'div',
                             { style: { color: '#E53935', paddingTop: 10, fontWeight: 500 } },
@@ -577,9 +612,9 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 _reduxForm.Field,
                                 { name: 'dbConnectionType', component: renderSelectField },
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'tcp', primaryText: 'TCP' }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'socket', primaryText: 'Socket' }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: 'manual', primaryText: 'Manual' })
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'tcp', primaryText: this.t('form.dbConnectionType.tcp') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'socket', primaryText: this.t('form.dbConnectionType.socket') }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.t('form.dbConnectionType.manual') })
                             ),
                             dbConnectionType === "tcp" && _react2.default.createElement(
                                 'div',
@@ -590,54 +625,78 @@ var InstallForm = function (_React$Component) {
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginRight: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPHostname', component: renderTextField, floatingLabel: 'Host Name', label: 'Server where mysql is running' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPHostname', component: renderTextField, floatingLabel: this.t('form.dbTCPHostname.label'), label: this.t('form.dbTCPHostname.legend') })
                                     ),
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginLeft: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPort', component: renderTextField, floatingLabel: 'Port', label: 'Port to connect to mysql' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPort', component: renderTextField, floatingLabel: this.t('form.dbTCPPort.label'), label: this.t('form.dbTCPPort.legend') })
                                     )
                                 ),
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPName', component: renderTextField, floatingLabel: 'Database Name', label: 'Database to use (created it if does not exist)' }),
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPName', component: renderTextField, floatingLabel: this.t('form.dbName.label'), label: this.t('form.dbName.legend') }),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { display: 'flex' } },
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginRight: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPUser', component: renderTextField, floatingLabel: 'Database User', label: 'Leave blank if not required' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPUser', component: renderTextField, floatingLabel: this.t('form.dbUser.label'), label: this.t('form.dbUser.legend') })
                                     ),
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginLeft: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPassword', component: renderPassField, floatingLabel: 'Database Password', label: 'Leave blank if not required' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPassword', component: renderPassField, floatingLabel: this.t('form.dbPassword.label'), label: this.t('form.dbPassword.legend') })
                                     )
                                 )
                             ),
                             dbConnectionType === "socket" && _react2.default.createElement(
                                 'div',
                                 { style: flexContainer },
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: 'Socket', label: 'Enter the location of the socket file to use to connect', defaultValue: '/tmp/mysql.sock' }),
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketName', component: renderTextField, floatingLabel: 'Database Name', label: 'Enter the name of a database to use - it will be created if it doesn\'t already exist', defaultValue: 'pydio' }),
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketFile', component: renderTextField, floatingLabel: this.t('form.dbSocketFile.label'), label: this.t('form.dbSocketFile.legend'), defaultValue: '/tmp/mysql.sock' }),
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketName', component: renderTextField, floatingLabel: this.t('form.dbName.label'), label: this.t('form.dbName.legend'), defaultValue: 'pydio' }),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { display: 'flex' } },
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginRight: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketUser', component: renderTextField, floatingLabel: 'Database User', label: 'Leave blank if not required' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketUser', component: renderTextField, floatingLabel: this.t('form.dbUser.label'), label: this.t('form.dbUser.legend') })
                                     ),
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginLeft: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketPassword', component: renderTextField, floatingLabel: 'Database Password', label: 'Leave blank if not required' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbSocketPassword', component: renderTextField, floatingLabel: this.t('form.dbPassword.label'), label: this.t('form.dbPassword.legend') })
                                     )
                                 )
                             ),
                             dbConnectionType === "manual" && _react2.default.createElement(
                                 'div',
                                 { style: flexContainer },
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dbManualDSN', component: renderTextField, floatingLabel: 'DSN', label: 'Use golang style DSN to describe the DB connection' })
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dbManualDSN', component: renderTextField, floatingLabel: this.t('form.dbManualDSN.label'), label: this.t('form.dbManualDSN.legend') })
+                            )
+                        ),
+                        tablesFound && _react2.default.createElement(
+                            'div',
+                            { style: { marginTop: 40, display: 'flex' } },
+                            _react2.default.createElement(
+                                'div',
+                                null,
+                                _react2.default.createElement(_materialUi.Checkbox, { checked: tablesFoundConfirm, onCheck: function onCheck(e, v) {
+                                        _this6.setState({ tablesFoundConfirm: v });
+                                    } })
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { style: { color: '#E65100', flex: 1 } },
+                                this.t('database.installDetected'),
+                                _react2.default.createElement(
+                                    'a',
+                                    { style: { fontWeight: 500, cursor: 'pointer' }, onClick: function onClick(e) {
+                                            e.preventDefault();e.stopPropagation();_this6.setState({ dbCheckSuccess: null, tablesFoundConfirm: null });
+                                        } },
+                                    this.t('database.installDetected.retry')
+                                ),
+                                '.'
                             )
                         )
                     ),
@@ -645,13 +704,14 @@ var InstallForm = function (_React$Component) {
                 )
             ));
 
+            var adminFound = dbCheckSuccess && dbCheckSuccess.adminFound;
             steps.push(_react2.default.createElement(
                 _materialUi.Step,
                 { key: steps.length - 1, style: stepperStyles.step },
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepIndex >= 2 + stepOffset ? stepperStyles.label : {} },
-                    'Admin User'
+                    this.t('admin.stepLabel')
                 ),
                 _react2.default.createElement(
                     _materialUi.StepContent,
@@ -662,16 +722,16 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Admin user and frontend defaults'
+                            this.t('admin.title')
                         ),
-                        'Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation.',
+                        this.t('admin.legend'),
                         _react2.default.createElement(
                             'div',
                             { style: flexContainer },
-                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendApplicationTitle', component: renderTextField, floatingLabel: 'Application Title', label: 'Main title of your installation.' }),
+                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendApplicationTitle', component: renderTextField, floatingLabel: this.t('form.frontendApplicationTitle.label'), label: this.t('form.frontendApplicationTitle.legend') }),
                             _react2.default.createElement(
                                 _reduxForm.Field,
-                                { name: 'frontendDefaultLanguage', component: renderSelectField, label: 'Default Language (set by default for all users).' },
+                                { name: 'frontendDefaultLanguage', component: renderSelectField, label: this.t('form.frontendDefaultLanguage.label') },
                                 _react2.default.createElement(_materialUi.MenuItem, { value: "en", primaryText: "English" }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: "de", primaryText: "Deutsch" }),
@@ -679,12 +739,35 @@ var InstallForm = function (_React$Component) {
                                 _react2.default.createElement(_materialUi.MenuItem, { value: "it", primaryText: "Italiano" }),
                                 _react2.default.createElement(_materialUi.MenuItem, { value: "pt", primaryText: "Português" })
                             ),
-                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendLogin', component: renderTextField, floatingLabel: 'Login of the admin user', label: 'Skip this if an admin is already created in the database.' }),
-                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendPassword', component: renderPassField, floatingLabel: 'Password of the admin user', label: 'Skip this if an admin is already created in the database.' }),
-                            frontendPassword && _react2.default.createElement(_reduxForm.Field, { name: 'frontendRepeatPassword', component: renderPassField, floatingLabel: 'Please confirm password', label: 'Type again the admin password' })
+                            adminFound && _react2.default.createElement(
+                                'div',
+                                { style: { marginTop: 10 } },
+                                _react2.default.createElement(_materialUi.Checkbox, { checked: adminFoundOverride, onCheck: function onCheck(e, v) {
+                                        _this6.setState({ adminFoundOverride: v });
+                                    }, label: this.t('admin.adminFound') })
+                            ),
+                            (!adminFound || adminFoundOverride) && _react2.default.createElement(
+                                'div',
+                                null,
+                                _react2.default.createElement(_reduxForm.Field, { name: 'frontendLogin', component: renderTextField, floatingLabel: this.t('form.frontendLogin.label'), label: this.t('form.frontendLogin.legend') }),
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { display: 'flex' } },
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginRight: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'frontendPassword', component: renderPassField, floatingLabel: this.t('form.frontendPassword.label'), label: this.t('form.frontendPassword.legend') })
+                                    ),
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginLeft: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'frontendRepeatPassword', component: renderPassField, floatingLabel: this.t('form.frontendRepeatPassword.label'), label: this.t('form.frontendRepeatPassword.legend') })
+                                    )
+                                )
+                            )
                         )
                     ),
-                    this.renderStepActions(3 + stepOffset)
+                    this.renderStepActions(3 + stepOffset, !(adminFound || frontendLogin && frontendPassword && frontendRepeatPassword))
                 )
             ));
 
@@ -694,7 +777,7 @@ var InstallForm = function (_React$Component) {
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepIndex >= 3 + stepOffset ? stepperStyles.label : {} },
-                    'Advanced Settings'
+                    this.t('advanced.stepLabel')
                 ),
                 _react2.default.createElement(
                     _materialUi.StepContent,
@@ -705,9 +788,9 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Advanced Settings'
+                            this.t('advanced.title')
                         ),
-                        'Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration.',
+                        this.t('advanced.legend'),
                         _react2.default.createElement(
                             'div',
                             { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer' }, onClick: function onClick() {
@@ -716,7 +799,7 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 'div',
                                 { style: { flex: 1, fontSize: 14 } },
-                                'Show Advanced Settings'
+                                this.t('advanced.toggle')
                             ),
                             _react2.default.createElement(_materialUi.FontIcon, { className: showAdvanced ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right" })
                         ),
@@ -726,17 +809,17 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 'div',
                                 { style: { marginTop: 10 } },
-                                'A default data source to store users personal data and cells data is created at startup. You can create other datasources later on.'
+                                this.t('advanced.default.datasource')
                             ),
                             _react2.default.createElement(
                                 'div',
                                 null,
-                                _react2.default.createElement(_reduxForm.Field, { name: 'dsFolder', component: renderTextField, floatingLabel: 'Path of the default datasource', label: 'Use an absolute path on the server' })
+                                _react2.default.createElement(_reduxForm.Field, { name: 'dsFolder', component: renderTextField, floatingLabel: this.t('form.dsFolder.label'), label: this.t('form.dsFolder.legend') })
                             ),
                             _react2.default.createElement(
                                 'div',
                                 { style: { marginTop: 20 } },
-                                'Services are authenticating using OpenIDConnect protocol. This keypair will be added to the frontend, it is not used outside of the application. You should leave the default value unless you are reinstalling on a top of a running frontend.'
+                                this.t('advanced.default.oidc')
                             ),
                             _react2.default.createElement(
                                 'div',
@@ -744,12 +827,12 @@ var InstallForm = function (_React$Component) {
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginRight: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexID', component: renderTextField, floatingLabel: 'OIDC Client ID', label: 'Use default if not sure' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexID', component: renderTextField, floatingLabel: this.t('form.externalDexID.label'), label: this.t('form.externalDexID.legend') })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexSecret', component: renderTextField, floatingLabel: 'OIDC Client Secret', label: 'Leave blank if not required' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexSecret', component: renderTextField, floatingLabel: this.t('form.externalDexSecret.label'), label: this.t('form.externalDexSecret.legend') })
                                 )
                             )
                         )
@@ -765,7 +848,7 @@ var InstallForm = function (_React$Component) {
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepIndex >= 4 + stepOffset ? stepperStyles.label : {} },
-                    'Apply Installation'
+                    this.t('apply.stepLabel')
                 ),
                 _react2.default.createElement(
                     _materialUi.StepContent,
@@ -776,7 +859,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Please wait while installing Pydio ...'
+                            this.t('apply.title')
                         ),
                         _react2.default.createElement(
                             'div',
@@ -807,36 +890,19 @@ var InstallForm = function (_React$Component) {
                         installPerformed && !serverRestarted && _react2.default.createElement(
                             'div',
                             null,
-                            'Install was succesful and services are now starting, this installer will reload the page when services are started.',
-                            _react2.default.createElement('br', null),
-                            _react2.default.createElement(
-                                'b',
-                                null,
-                                'Please note'
-                            ),
-                            ' that if you have configured the server with a self-signed certificate, browser security will prevent automatic reloading. In that case, please wait and manually ',
-                            _react2.default.createElement(
-                                'a',
-                                { style: { textDecoration: 'underline', cursor: 'pointer' }, onClick: function onClick() {
-                                        window.location.reload();
-                                    } },
-                                'reload the page'
-                            ),
-                            '.'
+                            this.t('apply.success')
                         ),
                         installPerformed && serverRestarted && _react2.default.createElement(
                             'div',
                             null,
-                            'Install was succesful and services are now started, please reload the page now (it will be automatically reloaded in ',
-                            willReloadIn,
-                            's)'
+                            this.t('apply.success.restarted')
                         ),
                         installError && _react2.default.createElement(
                             'div',
                             null,
-                            'There was an error while performing installation! Please check your configuration. ',
+                            this.t('apply.error'),
                             _react2.default.createElement('br', null),
-                            'Error was: ',
+                            this.t('apply.error.detail'),
                             _react2.default.createElement('br', null),
                             installError
                         )
@@ -849,7 +915,7 @@ var InstallForm = function (_React$Component) {
                             'div',
                             null,
                             _react2.default.createElement(_materialUi.RaisedButton, {
-                                label: 'Reload',
+                                label: this.t('stepper.button.reload'),
                                 secondary: true,
                                 onClick: function onClick() {
                                     window.location.reload();
@@ -865,16 +931,32 @@ var InstallForm = function (_React$Component) {
                 { zDepth: 2, style: { width: 800, minHeight: panelHeight, margin: 'auto', position: 'relative', backgroundColor: 'rgba(255,255,255,0.96)' } },
                 _react2.default.createElement(
                     'div',
-                    { style: { width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13 } },
+                    { style: { width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13, display: 'flex', flexDirection: 'column' } },
                     _react2.default.createElement('div', { style: { backgroundImage: 'url(res/css/PydioLogo250.png)', backgroundSize: '90%',
                             backgroundRepeat: 'no-repeat', backgroundPosition: 'center center', width: 256, height: 100 } }),
                     _react2.default.createElement(
                         'form',
-                        { onSubmit: handleSubmit, autoComplete: "off" },
+                        { onSubmit: handleSubmit, autoComplete: "off", style: { flex: 1 } },
                         _react2.default.createElement(
                             _materialUi.Stepper,
                             { activeStep: stepIndex, orientation: 'vertical' },
                             steps
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { style: { height: 56, padding: '0px 120px 0px 16px' } },
+                        _react2.default.createElement(
+                            _materialUi.SelectField,
+                            { value: lang, onChange: function onChange(e, i, v) {
+                                    _this6.setState({ lang: v });
+                                }, fullWidth: true, labelStyle: { color: 'rgba(255,255,255,.87)' }, underlineStyle: { display: 'none' } },
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "en-us", primaryText: "English" }),
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "de", primaryText: "Deutsch" }),
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "es", primaryText: "Español" }),
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "it", primaryText: "Italiano" }),
+                            _react2.default.createElement(_materialUi.MenuItem, { value: "pt", primaryText: "Português" })
                         )
                     )
                 )
@@ -901,7 +983,7 @@ InstallForm = (0, _reduxForm.reduxForm)({
                 errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
             }
         }
-        if (values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
+        if (values['frontendPassword'] && values['frontendRepeatPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
             errors['frontendRepeatPassword'] = 'Passwords differ!';
         }
         //console.log(errors);
@@ -917,7 +999,9 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
     var initialChecks = selector(state, 'CheckResults');
     var licenseRequired = selector(state, 'licenseRequired');
     var licenseString = selector(state, 'licenseString');
+    var frontendLogin = selector(state, 'frontendLogin');
     var frontendPassword = selector(state, 'frontendPassword');
+    var frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
 
     // Make a request to retrieve those values
     return {
@@ -926,7 +1010,7 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
         dbConfig: dbConfig,
         initialChecks: initialChecks,
         licenseRequired: licenseRequired,
-        licenseString: licenseString, frontendPassword: frontendPassword
+        licenseString: licenseString, frontendPassword: frontendPassword, frontendLogin: frontendLogin, frontendRepeatPassword: frontendRepeatPassword
     };
 }, { load: _config.load })(InstallForm);
 

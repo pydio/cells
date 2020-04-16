@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -47,12 +48,13 @@ func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error
 	cliConfig.ProxyConfig = proxyConfig
 
 	fmt.Println("\n\033[1m## Database Connection\033[0m")
-	if e := promptDB(cliConfig); e != nil {
+	adminRequired, e := promptDB(cliConfig)
+	if e != nil {
 		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Frontend Configuration\033[0m")
-	if e := promptFrontendAdmin(cliConfig); e != nil {
+	if e := promptFrontendAdmin(cliConfig, adminRequired); e != nil {
 		return nil, e
 	}
 
@@ -62,7 +64,7 @@ func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error
 	}
 
 	fmt.Println("\n\033[1m## Performing Installation\033[0m")
-	e := lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	e = lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		fmt.Println(p.IconGood + " " + event.Message)
 	})
 	if e != nil {
@@ -76,7 +78,7 @@ func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error
 
 }
 
-func promptDB(c *install.InstallConfig) error {
+func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 
 	connType := p.Select{
 		Label: "Database Connection Type",
@@ -96,32 +98,32 @@ func promptDB(c *install.InstallConfig) error {
 	var e error
 	if uConnIdx == 2 {
 		if c.DbManualDSN, e = dbDSN.Run(); e != nil {
-			return e
+			return false, e
 		}
 	} else {
 		if uConnIdx == 0 {
 			c.DbConnectionType = "tcp"
 			if c.DbTCPHostname, e = dbTcpHost.Run(); e != nil {
-				return e
+				return false, e
 			}
 			if c.DbTCPPort, e = dbTcpPort.Run(); e != nil {
-				return e
+				return false, e
 			}
 		} else if uConnIdx == 1 {
 			c.DbConnectionType = "socket"
 			if c.DbSocketFile, e = dbSocketFile.Run(); e != nil {
-				return e
+				return false, e
 			}
 		}
 		var name, user, pass string
 		if name, e = dbName.Run(); e != nil {
-			return e
+			return false, e
 		}
 		if user, e = dbUser.Run(); e != nil {
-			return e
+			return false, e
 		}
 		if pass, e = dbPass.Run(); e != nil {
-			return e
+			return false, e
 		}
 		if uConnIdx == 0 {
 			c.DbTCPName = name
@@ -133,36 +135,62 @@ func promptDB(c *install.InstallConfig) error {
 			c.DbSocketPassword = pass
 		}
 	}
+	adminRequired = true
 	if res := lib.PerformCheck(context.Background(), "DB", c); !res.Success {
 		fmt.Println(p.IconBad + " Cannot connect to database, please review the parameters")
 		return promptDB(c)
+	} else {
+		var info map[string]interface{}
+		var existConfirm string
+		if e := json.Unmarshal([]byte(res.JsonResult), &info); e == nil {
+			if a, o := info["adminFound"]; o && a.(bool) {
+				existConfirm = "An existing installation was found in this database, and an administrator user already exists!"
+				adminRequired = false
+			} else if t, o := info["tablesFound"]; o && t.(bool) {
+				existConfirm = "An existing installation was found in this database!"
+			}
+		}
+		if existConfirm != "" {
+			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue?", IsConfirm: true}
+			if _, e := confirm.Run(); e != nil {
+				return promptDB(c)
+			}
+		}
 	}
 	fmt.Println(p.IconGood + " Successfully connected to the database")
-	return nil
+	return
 }
 
-func promptFrontendAdmin(c *install.InstallConfig) error {
+func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
-	login := p.Prompt{Label: "Admin Login (leave passwords empty if an admin is already created)", Default: "admin", Validate: notEmpty}
+	login := p.Prompt{Label: "Admin Login (leave empty if you want to use existing admin)", Default: ""}
 	pwd := p.Prompt{Label: "Admin Password", Mask: '*'}
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
-			return fmt.Errorf("Password differ!")
+			return fmt.Errorf("Passwords differ!")
 		}
 		return nil
-
 	}}
+	if adminRequired {
+		login.Label = "Admin Login"
+		login.Default = "admin"
+		login.Validate = notEmpty
+		pwd.Validate = notEmpty
+	}
 	var e error
 	if c.FrontendLogin, e = login.Run(); e != nil {
 		return e
 	}
-	if c.FrontendPassword, e = pwd.Run(); e != nil {
-		return e
-	}
-	if c.FrontendRepeatPassword, e = pwd2.Run(); e != nil {
-		return e
+	if adminRequired || c.FrontendLogin != "" {
+		if c.FrontendPassword, e = pwd.Run(); e != nil {
+			return e
+		}
+		if c.FrontendRepeatPassword, e = pwd2.Run(); e != nil {
+			return e
+		}
 	}
 	return nil
+
 }
 
 func promptAdvanced(c *install.InstallConfig) error {
@@ -175,15 +203,6 @@ func promptAdvanced(c *install.InstallConfig) error {
 
 	oidcId := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexID, Validate: notEmpty}
 	oidcSecret := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexSecret, Validate: notEmpty}
-
-	/*
-		dexPort := p.Prompt{Label: "OpenIdConnect Server Port", Default: c.ExternalDex, Validate: validPortNumber}
-		microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
-		gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
-		websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
-		davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
-		wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
-	*/
 
 	if folder, e := dsPath.Run(); e == nil {
 		c.DsFolder = folder
@@ -198,26 +217,6 @@ func promptAdvanced(c *install.InstallConfig) error {
 	if c.ExternalDexSecret, e = oidcSecret.Run(); e != nil {
 		return e
 	}
-	/*
-		if c.ExternalDex, e = dexPort.Run(); e != nil {
-			return e
-		}
-		if c.ExternalMicro, e = microPort.Run(); e != nil {
-			return e
-		}
-		if c.ExternalGateway, e = gatewayPort.Run(); e != nil {
-			return e
-		}
-		if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
-			return e
-		}
-		if c.ExternalDAV, e = davPort.Run(); e != nil {
-			return e
-		}
-		if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
-			return e
-		}
-	*/
 	return nil
 }
 

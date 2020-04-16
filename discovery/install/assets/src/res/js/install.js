@@ -10,6 +10,8 @@ import InstallServiceApi from './gen/api/InstallServiceApi';
 import InstallCheckResult from './gen/model/InstallCheckResult';
 import InstallPerformCheckRequest from './gen/model/InstallPerformCheckRequest';
 import { load as loadConfig } from './config'
+import languages from './gen/languages'
+const defaultLanguage = 'en-us';
 
 const client = new Client();
 const api = new InstallServiceApi(client);
@@ -98,6 +100,7 @@ class InstallForm extends React.Component {
         installEvents: [],
         installProgress: 0,
         serverRestarted:false,
+        lang:defaultLanguage
     };
 
     constructor(props) {
@@ -109,6 +112,17 @@ class InstallForm extends React.Component {
         api.getAgreement().then((resp) => {
             this.setState({agreementText: resp.Text});
         });
+    }
+
+    t(s){
+        const {lang} = this.state;
+        if(languages && languages[lang] && languages[lang][s]){
+            return languages[lang][s]['other']
+        } else if(lang !== defaultLanguage && languages && languages[defaultLanguage] && languages[defaultLanguage][s]){
+            return languages[defaultLanguage][s]['other']
+        } else {
+            return s
+        }
     }
 
     componentDidMount(){
@@ -194,23 +208,30 @@ class InstallForm extends React.Component {
     };
 
     renderStepActions(step, nextDisabled = false, leftAction = null) {
-        const {stepIndex} = this.state;
+        const {stepIndex, tablesFoundConfirm, dbCheckSuccess} = this.state;
         const {handleSubmit, licenseRequired, invalid} = this.props;
         const stepOffset = licenseRequired ? 1 : 0;
 
         let nextAction;
+        let nextInvalid;
         switch (stepIndex) {
             case 1 + stepOffset :
                 nextAction = () => {
                     this.checkDbConfig((checkResult) => {
                         if (checkResult.Success){
-                            this.handleNext();
-                            this.setState({dbCheckError: null});
+                            const successData = JSON.parse(checkResult.JsonResult);
+                            if(!successData || !successData.tablesFound || tablesFoundConfirm) {
+                                this.handleNext();
+                            }
+                            this.setState({dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult)});
                         } else {
-                            this.setState({dbCheckError: JSON.parse(checkResult.JsonResult).error});
+                            this.setState({dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null});
                         }
                     })
                 };
+                if(dbCheckSuccess && dbCheckSuccess.tablesFound && !tablesFoundConfirm){
+                    nextInvalid = true;
+                }
                 break;
             case 3 + stepOffset :
                 nextAction = () => {this.handleNext(); handleSubmit()};
@@ -227,17 +248,17 @@ class InstallForm extends React.Component {
                 <div>
                     {step > 0 && (
                         <FlatButton
-                        label="Back"
+                        label={this.t('stepper.button.back')}
                         disabled={stepIndex === 0}
                         onClick={this.handlePrev}
                         style={{marginRight: 5}}
                         />
                     )}
                     <RaisedButton
-                        label={stepIndex === 3 + stepOffset? 'Install Now' : 'Next'}
+                        label={stepIndex === 3 + stepOffset? this.t('stepper.button.last') : this.t('stepper.button.next')}
                         primary={true}
                         onClick={nextAction}
-                        disabled={nextDisabled || invalid}
+                        disabled={nextDisabled || invalid || nextInvalid}
                     />
                 </div>
             </div>
@@ -246,8 +267,11 @@ class InstallForm extends React.Component {
 
     render() {
 
-        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString, frontendPassword} = this.props;
-        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, licCheckFailed} = this.state;
+        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString,
+            frontendPassword, frontendLogin, frontendRepeatPassword} = this.props;
+
+        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn,
+            agreementText, dbCheckError, dbCheckSuccess, licCheckFailed, tablesFoundConfirm, adminFoundOverride, lang} = this.state;
 
         const flexContainer = {
             display: 'flex',
@@ -284,7 +308,7 @@ class InstallForm extends React.Component {
         if(stepIndex === 0){
             leftAction = (
                 <div>
-                    <Checkbox checked={licenseAgreed} label={"I agree with these terms"} style={{width: 300}} onCheck={() => {this.setState({licenseAgreed:!licenseAgreed})}}/>
+                    <Checkbox checked={licenseAgreed} label={this.t('welcome.agreed')} style={{width: 300}} onCheck={() => {this.setState({licenseAgreed:!licenseAgreed})}}/>
                 </div>
             );
         }
@@ -313,23 +337,22 @@ class InstallForm extends React.Component {
             }
             additionalStep = (
                 <Step key={"license"} style={stepperStyles.step}>
-                    <StepLabel style={stepIndex >= 1 ? stepperStyles.label : {}}>Enterprise License</StepLabel>
+                    <StepLabel style={stepIndex >= 1 ? stepperStyles.label : {}}>{this.t('license.stepLabel')}</StepLabel>
                     <StepContent style={stepperStyles.content}>
                         <div style={stepperStyles.contentScroller}>
-                            <h3>Pydio Cells Enterprise License</h3>
+                            <h3>{this.t('license.title')}</h3>
                             {licCheckPassed &&
-                                <div style={{padding:'20px 0', color:'#388E3C', fontSize:14}}>License file was successfully detected.
-                                    <br/>This installation is valid for {licCheckPassed.users} users until {new Date(licCheckPassed.expireTime*1000).toISOString()}.
+                                <div style={{padding:'20px 0', color:'#388E3C', fontSize:14}}>{this.t('license.success')}.
+                                    <br/>{this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime*1000).toISOString())}.
                                     </div>
                             }
                             {licCheckFailed &&
-                                <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>Error while trying to verify this license key. Please contact the support.</div>
+                                <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{this.t('license.failed')}</div>
                             }
                             {!licCheckPassed &&
                                 <div>
-                                    A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation,
-                                    please contact <a href={"mailto:services@pydio.com"}>services@pydio.com</a>.
-                                    <Field name="licenseString" component={renderTextField} floatingLabel="License String" label="Please copy/paste the license key provided to you." />
+                                    {this.t('license.required')} <a href={"mailto:services@pydio.com"}>services@pydio.com</a>.
+                                    <Field name="licenseString" component={renderTextField} floatingLabel={this.t('license.fieldLabel')} label={this.t('license.fieldLegend')} />
                                 </div>
                             }
                         </div>
@@ -348,14 +371,14 @@ class InstallForm extends React.Component {
         const steps = [];
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepperStyles.label}>Terms of Use </StepLabel>
+                <StepLabel style={stepperStyles.label}>{this.t('welcome.stepLabel')}</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Welcome to Pydio Cells Installation Wizard</h3>
-                        <p>This will install all services on the current server. Please agree with the terms of the license below before starting</p>
+                        <h3>{this.t('welcome.title')}</h3>
+                        <p>{this.t('welcome.legend')}</p>
                         <pre style={{height: 350, border: '1px solid #CFD8DC', borderRadius: 2, backgroundColor: '#ECEFF1', padding: 10, overflowY:'scroll', lineHeight:'1.4em'}}>
-                                            {agreementText}
-                                        </pre>
+                            {agreementText}
+                        </pre>
                     </div>
                     {this.renderStepActions(0, !licenseAgreed, leftAction)}
                 </StepContent>
@@ -365,72 +388,85 @@ class InstallForm extends React.Component {
             steps.push(additionalStep);
         }
 
+        const tablesFound = dbCheckSuccess && dbCheckSuccess.tablesFound;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 1 + stepOffset ? stepperStyles.label : {}}>Database connection</StepLabel>
+                <StepLabel style={stepIndex >= 1 + stepOffset ? stepperStyles.label : {}}>{this.t('database.stepLabel')}</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Database Configuration</h3>
-                        Pydio requires at least one SQL storage for configuration and data indexation.
-                        Configure here the connection to your MySQL/MariaDB server. Please make sure that your database is running <b>MySQL version 5.6 or higher</b>.
+                        <h3>{this.t('database.title')}</h3>
+                        {this.t('database.legend')}
+                        <b>{this.t('database.legend.bold')}</b>
                         {dbCheckError &&
-                        <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
+                            <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
                         }
                         <div style={flexContainer}>
                             <Field name="dbConnectionType" component={renderSelectField}>
-                                <MenuItem value="tcp" primaryText="TCP" />
-                                <MenuItem value="socket" primaryText="Socket" />
-                                <MenuItem value="manual" primaryText="Manual" />
+                                <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.tcp')} />
+                                <MenuItem value="socket" primaryText={this.t('form.dbConnectionType.socket')} />
+                                <MenuItem value="manual" primaryText={this.t('form.dbConnectionType.manual')} />
                             </Field>
 
                             {dbConnectionType === "tcp" && (
                                 <div style={flexContainer}>
                                     <div style={{display:'flex'}}>
-                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel="Host Name" label="Server where mysql is running" /></div>
-                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPort" component={renderTextField} floatingLabel="Port" label="Port to connect to mysql" /></div>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel={this.t('form.dbTCPHostname.label')} label={this.t('form.dbTCPHostname.legend')} /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPort" component={renderTextField} floatingLabel={this.t('form.dbTCPPort.label')} label={this.t('form.dbTCPPort.legend')} /></div>
                                     </div>
-                                    <Field name="dbTCPName" component={renderTextField} floatingLabel="Database Name" label="Database to use (created it if does not exist)" />
+                                    <Field name="dbTCPName" component={renderTextField} floatingLabel={this.t('form.dbName.label')} label={this.t('form.dbName.legend')} />
                                     <div style={{display:'flex'}}>
-                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPUser" component={renderTextField} floatingLabel="Database User" label="Leave blank if not required" /></div>
-                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPassword" component={renderPassField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPUser" component={renderTextField} floatingLabel={this.t('form.dbUser.label')} label={this.t('form.dbUser.legend')} /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPassword" component={renderPassField} floatingLabel={this.t('form.dbPassword.label')} label={this.t('form.dbPassword.legend')} /></div>
                                     </div>
                                 </div>
                             )}
 
                             {dbConnectionType === "socket" && (
                                 <div style={flexContainer}>
-                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel="Socket" label="Enter the location of the socket file to use to connect" defaultValue="/tmp/mysql.sock" />
-                                    <Field name="dbSocketName" component={renderTextField} floatingLabel="Database Name" label="Enter the name of a database to use - it will be created if it doesn't already exist" defaultValue="pydio" />
+                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel={this.t('form.dbSocketFile.label')} label={this.t('form.dbSocketFile.legend')} defaultValue="/tmp/mysql.sock" />
+                                    <Field name="dbSocketName" component={renderTextField} floatingLabel={this.t('form.dbName.label')} label={this.t('form.dbName.legend')} defaultValue="pydio" />
                                     <div style={{display:'flex'}}>
-                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbSocketUser" component={renderTextField} floatingLabel="Database User" label="Leave blank if not required" /></div>
-                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbSocketPassword" component={renderTextField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbSocketUser" component={renderTextField} floatingLabel={this.t('form.dbUser.label')} label={this.t('form.dbUser.legend')} /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbSocketPassword" component={renderTextField} floatingLabel={this.t('form.dbPassword.label')} label={this.t('form.dbPassword.legend')} /></div>
                                     </div>
                                 </div>
                             )}
 
                             {dbConnectionType === "manual" && (
                                 <div style={flexContainer}>
-                                    <Field name="dbManualDSN" component={renderTextField} floatingLabel="DSN" label="Use golang style DSN to describe the DB connection" />
+                                    <Field name="dbManualDSN" component={renderTextField} floatingLabel={this.t('form.dbManualDSN.label')} label={this.t('form.dbManualDSN.legend')} />
                                 </div>
                             )}
                         </div>
+                        {tablesFound &&
+                            <div style={{marginTop: 40, display: 'flex'}}>
+                                <div>
+                                    <Checkbox checked={tablesFoundConfirm} onCheck={(e,v) => {this.setState({tablesFoundConfirm: v})}}/>
+                                </div>
+                                <div style={{color:'#E65100', flex: 1}}>
+                                    {this.t('database.installDetected')}
+                                    <a style={{fontWeight: 500, cursor: 'pointer'}} onClick={(e) => {e.preventDefault(); e.stopPropagation(); this.setState({dbCheckSuccess: null, tablesFoundConfirm: null})}}>{this.t('database.installDetected.retry')}</a>.
+                                </div>
+                            </div>
+                        }
                     </div>
                     {this.renderStepActions(1 + stepOffset)}
                 </StepContent>
             </Step>
         );
 
+        const adminFound = dbCheckSuccess && dbCheckSuccess.adminFound;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>Admin User</StepLabel>
+                <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>{this.t('admin.stepLabel')}</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Admin user and frontend defaults</h3>
-                        Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation.
+                        <h3>{this.t('admin.title')}</h3>
+                        {this.t('admin.legend')}
 
                         <div style={flexContainer}>
-                            <Field name="frontendApplicationTitle" component={renderTextField} floatingLabel="Application Title" label="Main title of your installation." />
-                            <Field name="frontendDefaultLanguage" component={renderSelectField} label="Default Language (set by default for all users).">
+                            <Field name="frontendApplicationTitle" component={renderTextField} floatingLabel={this.t('form.frontendApplicationTitle.label')} label={this.t('form.frontendApplicationTitle.legend')} />
+                            <Field name="frontendDefaultLanguage" component={renderSelectField} label={this.t('form.frontendDefaultLanguage.label')}>
                                 <MenuItem value={"en"} primaryText={"English"}/>
                                 <MenuItem value={"fr"} primaryText={"Français"}/>
                                 <MenuItem value={"de"} primaryText={"Deutsch"}/>
@@ -438,45 +474,57 @@ class InstallForm extends React.Component {
                                 <MenuItem value={"it"} primaryText={"Italiano"}/>
                                 <MenuItem value={"pt"} primaryText={"Português"}/>
                             </Field>
-                            <Field name="frontendLogin" component={renderTextField} floatingLabel="Login of the admin user" label="Skip this if an admin is already created in the database." />
-                            <Field name="frontendPassword" component={renderPassField} floatingLabel="Password of the admin user" label="Skip this if an admin is already created in the database." />
-                            {frontendPassword &&
-                                <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel="Please confirm password" label="Type again the admin password" />
+                            {adminFound &&
+                            <div style={{marginTop: 10}}>
+                                <Checkbox checked={adminFoundOverride} onCheck={(e,v)=>{this.setState({adminFoundOverride: v})}} label={this.t('admin.adminFound')}/>
+                            </div>
+                            }
+                            {(!adminFound || adminFoundOverride) &&
+                            <div>
+                                <Field name="frontendLogin" component={renderTextField} floatingLabel={this.t('form.frontendLogin.label')} label={this.t('form.frontendLogin.legend')} />
+                                <div style={{display:'flex'}}>
+                                    <div style={{flex: 1, marginRight: 5}}>
+                                        <Field name="frontendPassword" component={renderPassField} floatingLabel={this.t('form.frontendPassword.label')} label={this.t('form.frontendPassword.legend')} />
+                                    </div>
+                                    <div style={{flex: 1, marginLeft: 5}}>
+                                        <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel={this.t('form.frontendRepeatPassword.label')} label={this.t('form.frontendRepeatPassword.legend')} />
+                                    </div>
+                                </div>
+                            </div>
                             }
                         </div>
                     </div>
-                    {this.renderStepActions(3 + stepOffset)}
+                    {this.renderStepActions(3 + stepOffset, !(adminFound || (frontendLogin && frontendPassword && frontendRepeatPassword)))}
                 </StepContent>
             </Step>
         );
 
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>Advanced Settings</StepLabel>
+                <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>{this.t('advanced.stepLabel')}</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Advanced Settings</h3>
-                        Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration.
+                        <h3>{this.t('advanced.title')}</h3>
+                        {this.t('advanced.legend')}
 
                         <div style={{display:'flex', alignItems:'center', height: 40, cursor:'pointer'}} onClick={() => {this.setState({showAdvanced:!showAdvanced})}}>
-                            <div style={{flex: 1, fontSize: 14}}>Show Advanced Settings</div>
+                            <div style={{flex: 1, fontSize: 14}}>{this.t('advanced.toggle')}</div>
                             <FontIcon className={showAdvanced?"mdi mdi-chevron-down":"mdi mdi-chevron-right"}/>
                         </div>
                         {showAdvanced &&
                         <div style={flexContainer}>
                             <div style={{marginTop: 10}}>
-                                A default data source to store users personal data and cells data is created at startup. You can create other datasources later on.
+                                {this.t('advanced.default.datasource')}
                             </div>
                             <div>
-                                <Field name="dsFolder" component={renderTextField} floatingLabel="Path of the default datasource" label="Use an absolute path on the server" />
+                                <Field name="dsFolder" component={renderTextField} floatingLabel={this.t('form.dsFolder.label')} label={this.t('form.dsFolder.legend')} />
                             </div>
                             <div style={{marginTop: 20}}>
-                                Services are authenticating using OpenIDConnect protocol. This keypair will be added to the frontend, it is not used outside of the application.
-                                You should leave the default value unless you are reinstalling on a top of a running frontend.
+                                {this.t('advanced.default.oidc')}
                             </div>
                             <div style={{display:'flex'}}>
-                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDexID" component={renderTextField} floatingLabel="OIDC Client ID" label="Use default if not sure" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDexSecret" component={renderTextField} floatingLabel="OIDC Client Secret" label="Leave blank if not required" /></div>
+                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDexID" component={renderTextField} floatingLabel={this.t('form.externalDexID.label')} label={this.t('form.externalDexID.legend')}/></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDexSecret" component={renderTextField} floatingLabel={this.t('form.externalDexSecret.label')} label={this.t('form.externalDexSecret.legend')}/></div>
                             </div>
                         </div>
                         }
@@ -489,10 +537,10 @@ class InstallForm extends React.Component {
         const eventsLength = installEvents.length - 1;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 4 + stepOffset ? stepperStyles.label : {}}>Apply Installation</StepLabel>
+                <StepLabel style={stepIndex >= 4 + stepOffset ? stepperStyles.label : {}}>{this.t('apply.stepLabel')}</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Please wait while installing Pydio ...</h3>
+                        <h3>{this.t('apply.title')}</h3>
                         <div style={{padding: '20px 0'}}>
                             <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"determinate"}/>
                         </div>
@@ -508,20 +556,18 @@ class InstallForm extends React.Component {
                         </div>
                         {installPerformed && !serverRestarted &&
                         <div>
-                            Install was succesful and services are now starting, this installer will reload the page when services are started.
-                            <br/><b>Please note</b> that if you have configured the server with a self-signed certificate, browser security will prevent automatic reloading.
-                            In that case, please wait and manually <a style={{textDecoration:'underline', cursor:'pointer'}} onClick={()=>{window.location.reload()}}>reload the page</a>.
+                            {this.t('apply.success')}
                         </div>
                         }
                         {installPerformed && serverRestarted &&
                         <div>
-                            Install was succesful and services are now started, please reload the page now (it will be automatically reloaded in {willReloadIn}s)
+                            {this.t('apply.success.restarted')}
                         </div>
                         }
                         {installError &&
                         <div>
-                            There was an error while performing installation! Please check your configuration. <br/>
-                            Error was: <br/>
+                            {this.t('apply.error')}<br/>
+                            {this.t('apply.error.detail')}<br/>
                             {installError}
                         </div>
                         }
@@ -531,7 +577,7 @@ class InstallForm extends React.Component {
                         <span style={{flex: 1}}/>
                         <div>
                             <RaisedButton
-                                label={'Reload'}
+                                label={this.t('stepper.button.reload')}
                                 secondary={true}
                                 onClick={() => {window.location.reload()}}
                             />
@@ -544,14 +590,24 @@ class InstallForm extends React.Component {
 
         return (
             <Paper zDepth={2} style={{width: 800, minHeight: panelHeight, margin: 'auto', position:'relative', backgroundColor:'rgba(255,255,255,0.96)'}}>
-                <div style={{width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13}}>
+                <div style={{width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13, display:'flex', flexDirection:'column'}}>
                     <div style={{backgroundImage:'url(res/css/PydioLogo250.png)', backgroundSize:'90%',
                         backgroundRepeat: 'no-repeat', backgroundPosition:'center center', width: 256, height: 100}}></div>
-                    <form onSubmit={handleSubmit} autoComplete={"off"}>
+                    <form onSubmit={handleSubmit} autoComplete={"off"} style={{flex: 1}}>
                         <Stepper activeStep={stepIndex} orientation="vertical">
                             {steps}
                         </Stepper>
                     </form>
+                    <div style={{height: 56, padding:'0px 120px 0px 16px'}}>
+                        <SelectField value={lang} onChange={(e,i,v)=>{this.setState({lang: v})}} fullWidth={true} labelStyle={{color: 'rgba(255,255,255,.87)'}} underlineStyle={{display:'none'}}>
+                            <MenuItem value={"en-us"} primaryText={"English"}/>
+                            <MenuItem value={"fr"} primaryText={"Français"}/>
+                            <MenuItem value={"de"} primaryText={"Deutsch"}/>
+                            <MenuItem value={"es"} primaryText={"Español"}/>
+                            <MenuItem value={"it"} primaryText={"Italiano"}/>
+                            <MenuItem value={"pt"} primaryText={"Português"}/>
+                        </SelectField>
+                    </div>
                 </div>
             </Paper>
     );
@@ -572,7 +628,7 @@ InstallForm = reduxForm({
                 errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
             }
         }
-        if(values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
+        if(values['frontendPassword'] && values['frontendRepeatPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
             errors['frontendRepeatPassword'] = 'Passwords differ!'
         }
         //console.log(errors);
@@ -588,7 +644,9 @@ InstallForm = connect(state => {
     const initialChecks = selector(state, 'CheckResults');
     const licenseRequired = selector(state, 'licenseRequired');
     const licenseString = selector(state, 'licenseString');
+    const frontendLogin = selector(state, 'frontendLogin');
     const frontendPassword = selector(state, 'frontendPassword');
+    const frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
 
 
     // Make a request to retrieve those values
@@ -598,7 +656,7 @@ InstallForm = connect(state => {
         dbConfig: dbConfig,
         initialChecks: initialChecks,
         licenseRequired,
-        licenseString, frontendPassword
+        licenseString, frontendPassword, frontendLogin, frontendRepeatPassword
     }
 }, { load: loadConfig } )(InstallForm);
 
