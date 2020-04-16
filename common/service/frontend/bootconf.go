@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -91,10 +93,18 @@ func numberFromIntOrString(value reader.Value, def int) int {
 	return intVal
 }
 
-func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
+func ComputeBootConf(pool *PluginsPool, req *http.Request, showVersion ...bool) *BootConf {
 
-	url := config.Get("defaults", "url").String("")
-	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
+	var u string
+	if req.URL.Host == "" {
+		h := req.Header.Get("X-Forwarded-For")
+		sc := req.Header.Get("X-Forwarded-Proto")
+		pt := req.Header.Get("X-Forwarded-Port")
+		u = fmt.Sprintf("%s://%s:%s", sc, h, pt)
+	} else {
+		u = fmt.Sprintf("%s://%s:%s", req.URL.Scheme, req.URL.Host, req.URL.Port())
+	}
+	wsUrl := strings.Replace(strings.Replace(u, "https", "wss", -1), "http", "ws", -1)
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
 	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
@@ -111,10 +121,10 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
-		ENDPOINT_REST_API:            url + "/a",
-		ENDPOINT_S3_GATEWAY:          url + "/io",
+		ENDPOINT_REST_API:            "/a",
+		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
-		FRONTEND_URL:                 url,
+		FRONTEND_URL:                 u,
 		PUBLIC_BASEURI:               "/public",
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,

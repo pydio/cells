@@ -53,13 +53,11 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Request:       r,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
-	bootConf := frontend.ComputeBootConf(pool)
+	bootConf := frontend.ComputeBootConf(pool, r)
 
-	url := config.Get("defaults", "url").String("")
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        "ajxp_desktop",
-		"REBASE":              url,
 		"PRELOADED_BOOT_CONF": bootConf,
 	}
 
@@ -69,7 +67,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tplConf := &TplConf{
 		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Cells"),
-		Rebase:           url,
+		Rebase:           "/",
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",

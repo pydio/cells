@@ -40,17 +40,18 @@ func NewPublicHandler() *PublicHandler {
 	return h
 }
 
-func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (statusCode int, tplConf *TplConf) {
+func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (statusCode int, tplConf *TplConf) {
 
-	url := config.Get("defaults", "url").String("")
+	ctx := req.Context()
+
 	tplConf = &TplConf{
 		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").String("Pydio Cells"),
-		Rebase:           url,
-		ResourcesFolder:  "plug/gui.ajax/res",
-		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
-		Theme:            "material",
-		Version:          common.Version().String(),
-		Debug:            config.Get("frontend", "debug").Bool(false),
+		//Rebase:           url,
+		ResourcesFolder: "plug/gui.ajax/res",
+		Favicon:         "plug/gui.ajax/res/themes/common/images/favicon.png",
+		Theme:           "material",
+		Version:         common.Version().String(),
+		Debug:           config.Get("frontend", "debug").Bool(false),
 	}
 	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
@@ -122,11 +123,10 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
-	bootConf := frontend.ComputeBootConf(pool)
+	bootConf := frontend.ComputeBootConf(pool, req)
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,
-		"REBASE":              url,
 		"PRELOADED_BOOT_CONF": bootConf,
 		"MINISITE":            linkId,
 		"START_REPOSITORY":    linkData.RepositoryId,
@@ -160,7 +160,7 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	link := mux.Vars(r)["link"]
-	status, tplConf := h.computeTplConf(r.Context(), link)
+	status, tplConf := h.computeTplConf(r, link)
 	if status != 200 {
 		w.WriteHeader(status)
 		h.error.Execute(w, tplConf)
