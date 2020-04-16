@@ -11,27 +11,27 @@
     "other": "{{.DeletionCount}} abgelaufenen Passwort-Reset-Token gelöscht"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "Die entsprechende E-Mail-Adresse konnte nicht gefunden werden"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Sie haben eine E-Mail mit weiteren Anweisungen erhalten"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Hoppla, etwas ist falsch passiert - Bitte starten Sie den Prozess zum Zurücksetzen des Passworts erneut"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "Token ist abgelaufen, bitte folgen Sie erneut dem Vorgang zum Zurücksetzen des Passworts!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "Token entspricht nicht dieser Benutzerkennung!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "Kann entsprechenden Benutzer nicht finden!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "Beim Versuch, ein neues Passwort festzulegen, ist ein Fehler aufgetreten!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "Ihr Passwort wurde erfolgreich zurückgesetzt, Sie können jetzt zur Anmeldeseite zurückkehren!"
   }
 }

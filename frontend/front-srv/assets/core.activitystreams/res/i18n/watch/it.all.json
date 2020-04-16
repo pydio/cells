@@ -52,5 +52,26 @@
   },
   "9": {
     "other": "Consultazione"
+  },
+  "selector.legend": {
+    "other": "Receive notifications when..."
+  },
+  "selector.ignore": {
+    "other": "Never (no notifications)"
+  },
+  "selector.read": {
+    "other": "Content is accessed"
+  },
+  "selector.change": {
+    "other": "Content is modified"
+  },
+  "selector.both": {
+    "other": "Content is accessed or modified"
+  },
+  "selector.mixed": {
+    "other": "Mixed values"
+  },
+  "selector.saving": {
+    "other": "Saving status"
   }
 }
