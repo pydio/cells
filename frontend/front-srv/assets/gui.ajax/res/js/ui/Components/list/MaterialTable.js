@@ -23,6 +23,81 @@ import Pydio from 'pydio'
 const {moment} = Pydio.requireLib("boot");
 const {ModernStyles} = Pydio.requireLib("hoc");
 
+class Sorter {
+
+    constructor(state, onSort, defaultCol = null, defaultDir = null){
+        this.state = {...state};
+        if(!state.sortCol && defaultCol){
+            state.sortCol = defaultCol;
+            state.sortDir = defaultDir || 'asc'
+        }
+        this.onSort = onSort;
+    }
+
+    renderHeader(name, label){
+        const {sortCol, sortDir} = this.state;
+        const hStyle = {cursor: 'pointer', position:'relative'};
+        const icStyle = {left: -17, position:'absolute'};
+        if(sortCol !== name || sortDir === ''){
+            return <span onClick={()=>{this.onSort(name, 'asc')}} style={hStyle}>{label}</span>
+        }
+        let header = label;
+        if(sortDir === 'asc') {
+            header = <span onClick={()=>{this.onSort(name, 'desc')}} style={hStyle}>{label} <span style={icStyle} className={"mdi mdi-arrow-up"}/></span>
+        } else if(sortDir === 'desc') {
+            header = <span onClick={()=>{this.onSort(name, '')}} style={hStyle}>{label} <span style={icStyle} className={"mdi mdi-arrow-down"}/></span>
+        }
+        return header;
+    }
+
+    setData(columns, data){
+        this.columns = columns;
+        this.data = data;
+    }
+
+    sorted() {
+        let {sortCol, sortDir} = this.state;
+        if(!sortCol || !sortDir){
+            return this.data;
+        }
+        const data = [...this.data];
+        const col = this.columns.filter(c => c.name === sortCol)[0];
+        const sorter = col.sorter;
+        if(!sorter){
+            return this.data;
+        }
+        data.sort((a, b) => {
+            let cpa, cpb;
+            if(sorter.value){
+                cpa = sorter.value(a);
+                cpb = sorter.value(b);
+            } else if (col.renderCell) {
+                cpa = col.renderCell(a);
+                cpb = col.renderCell(b);
+            } else {
+                cpa = a[sortCol];
+                cpb = b[sortCol];
+            }
+            if(sorter.type === 'string'){
+                if (!cpa) cpa = '';
+                if (!cpb) cpb = '';
+                cpa = cpa.toLowerCase();
+                cpb = cpb.toLowerCase();
+            } else if (sorter.type === 'number'){
+                cpa = parseInt(cpa)
+                cpb = parseInt(cpb)
+            }
+            if(sortDir === 'asc'){
+                return cpa > cpb ? 1 : (cpa < cpb ? -1 : 0);
+            } else {
+                return cpa < cpb ? 1 : (cpa > cpb ? -1 : 0);
+            }
+        });
+        return data;
+    }
+}
+
+
 /**
  * Simple material table
  * columns are objects of shape {name, label, style, headerStyle}
@@ -44,8 +119,12 @@ class MaterialTable extends React.Component{
         } else if(indexes === 'all'){
             onSelectRows(data);
         } else {
-            const pagination = this.computePagination();
             let src = data;
+            const sorter = this.computeSorter();
+            if(sorter){
+                src = sorter.sorted();
+            }
+            const pagination = this.computePagination();
             if(pagination.use){
                 src = src.slice(pagination.sliceStart, pagination.sliceEnd);
             }
@@ -54,12 +133,30 @@ class MaterialTable extends React.Component{
                 // Find if previous data has expanded rows : do not count them in for selection
                 const expanded = src.slice(0, i).filter(d => d.expandedRow).length;
                 if (expanded){
-                    i = i - expanded;
+                    i -= expanded;
                 }
                 selection.push(src[i]);
             });
             onSelectRows(selection);
         }
+    }
+
+    computeSorter(){
+        const {columns, data} = this.props;
+        let sorter;
+        const withSorter = columns.filter(c => c.sorter);
+        if(withSorter.length) {
+            let defaultSortColumn = withSorter[0].name;
+            const defaultSorter = withSorter.filter(c => c.sorter.default);
+            if (defaultSorter.length) {
+                defaultSortColumn = defaultSorter[0].name;
+            }
+            sorter = new Sorter(this.state, (sortCol, sortDir) => {
+                this.setState({sortCol, sortDir})
+            }, defaultSortColumn);
+            sorter.setData(columns, data);
+        }
+        return sorter
     }
 
     computePagination(){
@@ -136,14 +233,28 @@ class MaterialTable extends React.Component{
     render(){
 
         const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
-        let {data} = this.props;
-        let {showCheckboxes} = this.props;
+        const {actions} = this.props;
+        let {data, showCheckboxes} = this.props;
+
+        const actionsColor = masterStyles.actionsColor || 'rgba(0,0,0,.33)';
+
+        // Detect sorting info
+        const sorter = this.computeSorter();
+        if(sorter){
+            data = sorter.sorted();
+        }
 
         const pagination = this.computePagination();
         let paginator;
         if(pagination.use){
             data = data.slice(pagination.sliceStart, pagination.sliceEnd);
             paginator = this.renderPagination(pagination);
+        }
+
+        let actionsColumn, actionsSpan = 0;
+        if(actions && actions.length){
+            actionsColumn = true;
+            actionsSpan = 1;
         }
 
         let rows = [];
@@ -159,7 +270,7 @@ class MaterialTable extends React.Component{
                 };
                 rows.push(
                     <TableRow className={"media-small-hide"} style={{...masterStyles.row}}>
-                        <TableRowColumn colSpan={columns.length} style={headerStyle}>
+                        <TableRowColumn colSpan={columns.length + actionsSpan} style={headerStyle}>
                             {model.Subheader}
                         </TableRowColumn>
                     </TableRow>
@@ -169,7 +280,7 @@ class MaterialTable extends React.Component{
             if(model.colSpan){
                 rows.push(
                     <TableRow style={{...model.rowStyle,...masterStyles.row}}>
-                        <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.element}</TableRowColumn>
+                        <TableRowColumn colSpan={columns.length + actionsSpan} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.element}</TableRowColumn>
                     </TableRow>
                 );
                 return;
@@ -198,22 +309,44 @@ class MaterialTable extends React.Component{
                             title={typeof tip === 'object' ? null : tip}
                             className={column.hideSmall?'media-small-hide':null}>{value}</TableRowColumn>
                     })}
+                    {actionsColumn &&
+                        <TableRowColumn style={{overflow:'visible', textOverflow:'none', width:actions.length*48+32}}>
+                            {actions.map(a =>
+                                <IconButton
+                                    style={{padding: 14}}
+                                    iconStyle={{fontSize:20, color:actionsColor}}
+                                    onTouchTap={()=>{a.onTouchTap(model)}}
+                                    iconClassName={a.iconClassName}
+                                    tooltip={a.tooltip}
+                                    disabled={a.disable?a.disable(model):null}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            )}
+                        </TableRowColumn>
+                    }
                 </TableRow>
             );
             if(model.expandedRow){
                 rows.push(
                     <TableRow selectable={false} style={{...masterStyles.row,...masterStyles.expandedRow}}>
-                        <TableRowColumn colSpan={columns.length} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.expandedRow}</TableRowColumn>
+                        <TableRowColumn colSpan={columns.length + actionsSpan} style={{height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor:'transparent', ...model.cellStyle}}>{model.expandedRow}</TableRowColumn>
                     </TableRow>
                 );
             }
         });
         const headers = columns.map((column) => {
+            let label = column.label;
+            if(sorter && column.sorter){
+                label = sorter.renderHeader(column.name, column.label);
+            }
             return <TableHeaderColumn
                 style={{...column.headerStyle, height: 48, backgroundColor:'#F5F5F5', fontWeight: 500, ...masterStyles.head}}
                 className={column.hideSmall?'media-small-hide':null}
-            >{column.label}</TableHeaderColumn>
+            >{label}</TableHeaderColumn>
         });
+        if(actionsColumn){
+            headers.push(<TableHeaderColumn style={{width:48*actions.length + 32}}/>)
+        }
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
             rows = [
