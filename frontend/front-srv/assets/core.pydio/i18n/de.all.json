@@ -183,16 +183,16 @@
     "other": "Aktuellen Ordner zu \"Meine Lesezeichen\" hinzufügen"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Lesezeichen"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Element zu \"Meine Lesezeichen\" hinzufügen"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Lesezeichen entfernen"
   },
   "153-off": {
-    "other": "Remove item to MyBookmarks"
+    "other": "Element aus MyLesezeichen entfernen"
   },
   "154": {
     "other": "Neuer Ordner"
@@ -2237,6 +2237,18 @@
   "overlay.bookmark.folder": {
     "other": "Der Ordner ist mit Lesezeichen"
   },
+  "bookmark.button.tip.add": {
+    "other": "Lesezeichen für dieses Element setzen"
+  },
+  "bookmark.button.tip.remove": {
+    "other": "Lesezeichen löschen"
+  },
+  "bookmark.button.tip.mixed": {
+    "other": "Gemischte Werte, klicken Sie, um alle zu bookmarken"
+  },
+  "bookmark.button.tip.saving": {
+    "other": "Lesezeichenstatus speichern"
+  },
   "mkfile.empty.template.label": {
     "other": "Leere Datei"
   },
@@ -2256,7 +2268,7 @@
     "other": "Zellen filtern"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Workspace filtern"
   },
   "visibility.panel.title": {
     "other": "Sichtbarkeit"

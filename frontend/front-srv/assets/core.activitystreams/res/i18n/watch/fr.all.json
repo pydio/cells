@@ -3,7 +3,7 @@
     "other": "Surveiller..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "Surveillance..."
   },
   "10": {
     "other": "Un utilisateur ouvre le fichier"
@@ -52,5 +52,26 @@
   },
   "9": {
     "other": "Consultation"
+  },
+  "selector.legend": {
+    "other": "Recevoir des notifications quand..."
+  },
+  "selector.ignore": {
+    "other": "Jamais (aucune notification)"
+  },
+  "selector.read": {
+    "other": "Le contenu est accédé"
+  },
+  "selector.change": {
+    "other": "Le contenu est modifié"
+  },
+  "selector.both": {
+    "other": "Le contenu est accédé ou modifié"
+  },
+  "selector.mixed": {
+    "other": "Valeurs multiples"
+  },
+  "selector.saving": {
+    "other": "Enregistrement du statut"
   }
 }

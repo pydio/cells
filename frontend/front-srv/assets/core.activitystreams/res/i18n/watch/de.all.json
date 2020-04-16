@@ -3,7 +3,7 @@
     "other": "Beobachten auf..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "Aufpassen..."
   },
   "10": {
     "other": "Benachrichtigen, wenn die Datei geöffnet wird"
@@ -52,5 +52,26 @@
   },
   "9": {
     "other": "Zugriffe"
+  },
+  "selector.legend": {
+    "other": "Benachrichtigungen erhalten, wenn..."
+  },
+  "selector.ignore": {
+    "other": "Niemals (keine Benachrichtigungen)"
+  },
+  "selector.read": {
+    "other": "Auf Inhalte wird zugegriffen"
+  },
+  "selector.change": {
+    "other": "Inhalt wird geändert"
+  },
+  "selector.both": {
+    "other": "Inhalt wird aufgerufen oder geändert"
+  },
+  "selector.mixed": {
+    "other": "Gemischte Werte"
+  },
+  "selector.saving": {
+    "other": "Status wird gespeichert"
   }
 }
