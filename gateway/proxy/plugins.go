@@ -84,6 +84,7 @@ var (
 		websocket
 		without /ws
 	}
+<<<<<<< HEAD
 	proxy /dav {{$.DAV | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
@@ -94,15 +95,33 @@ var (
 	
 	proxy /plug/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+=======
+	proxy /dav {{.DAV | urls}} {
+		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /plug/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+>>>>>>> ccaf5eeec... Some testing for Bind All ability
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+		header_upstream X-Forwarded-Port {port}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
+<<<<<<< HEAD
 	proxy /public/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+=======
+	proxy /public/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+>>>>>>> ccaf5eeec... Some testing for Bind All ability
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_upstream X-Forwarded-Port {port}
 	}
+<<<<<<< HEAD
 	proxy /public/plug/ {{$.FrontPlugins | urls}} {
 		without /public
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
@@ -112,8 +131,21 @@ var (
 	}
 	proxy /user/reset-password/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+=======
+	proxy /public/plug/ {{.FrontPlugins | urls}} {
+		without /public
+		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_upstream X-Forwarded-Port {port}
+		header_downstream Cache-Control "public, max-age=31536000"
+	}
+	proxy /user/reset-password/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+>>>>>>> ccaf5eeec... Some testing for Bind All ability
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+		header_upstream X-Forwarded-Port {port}
 	}
 	
 	proxy /robots.txt {{$.FrontPlugins | urls}} {
@@ -127,6 +159,7 @@ var (
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_upstream X-Forwarded-Port {port}
 	}
 {{if $.ProxyGRPC}}
 	proxy /grpc https://{{$.ProxyGRPC | urls}} {

@@ -19,12 +19,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 type PublicHandler struct {
@@ -121,7 +121,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
-	bootConf := frontend.ComputeBootConf(pool)
+	bootConf := frontend.ComputeBootConf(pool, req)
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,

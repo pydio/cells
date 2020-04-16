@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"net/http"
 	"strconv"
 
 	"github.com/micro/go-config/reader"
@@ -89,7 +90,7 @@ func numberFromIntOrString(value reader.Value, def int) int {
 	return intVal
 }
 
-func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
+func ComputeBootConf(pool *PluginsPool, req *http.Request, showVersion ...bool) *BootConf {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
 	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
