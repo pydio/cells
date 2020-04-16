@@ -497,10 +497,8 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 { style: { padding: '20px 0', color: '#388E3C', fontSize: 14 } },
                                 this.t('license.success'),
-                                '.',
                                 _react2.default.createElement('br', null),
-                                this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime * 1000).toISOString()),
-                                '.'
+                                this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime * 1000).toISOString())
                             ),
                             licCheckFailed && _react2.default.createElement(
                                 'div',

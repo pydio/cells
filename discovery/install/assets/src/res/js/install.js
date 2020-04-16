@@ -342,9 +342,11 @@ class InstallForm extends React.Component {
                         <div style={stepperStyles.contentScroller}>
                             <h3>{this.t('license.title')}</h3>
                             {licCheckPassed &&
-                                <div style={{padding:'20px 0', color:'#388E3C', fontSize:14}}>{this.t('license.success')}.
-                                    <br/>{this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime*1000).toISOString())}.
-                                    </div>
+                                <div style={{padding:'20px 0', color:'#388E3C', fontSize:14}}>
+                                    {this.t('license.success')}
+                                    <br/>
+                                    {this.t('license.details').replace('%count', licCheckPassed.users).replace('%expiration', new Date(licCheckPassed.expireTime*1000).toISOString())}
+                                </div>
                             }
                             {licCheckFailed &&
                                 <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{this.t('license.failed')}</div>
