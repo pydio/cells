@@ -260,8 +260,10 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 					}
 				}
 
-				if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
-					cmd.Process.Kill()
+				if cmd.Process != nil {
+					if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
+						cmd.Process.Kill()
+					}
 				}
 				c.mutex.Lock()
 				delete(c.services, name)
