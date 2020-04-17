@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Noteikumu nosaukums"
   },
+  "policies.policy.rules": {
+    "other": "# Rules"
+  },
+  "policies.policy.display": {
+    "other": "Show policy rules"
+  },
+  "policies.policy.edit": {
+    "other": "Edit policy rules"
+  },
+  "policies.policy.editLabels": {
+    "other": "Edit Labels"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Save Changes"
+  },
+  "policies.policy.delete": {
+    "other": "Delete policy"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+  },
   "policies.policy.new": {
     "other": "+ Jauns noteikums"
   },
   "policies.policy.type": {
     "other": "Noteikuma veids"
+  },
+  "policies.rule.create": {
+    "other": "Add new rule"
+  },
+  "policies.rule.delete": {
+    "other": "Delete Rule"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
   },
   "policies.type.acl.legend": {
     "other": "Šie noteikumi tiek lietoti lai dinamiski piešķirtu lasīšanas/rakstīšanas tiesības darbvirsmu piekļuvei vai šūnām balstoties un pieprasījuma kontekstu un/vai šūnas meta datiem. Tās tiek definētas šeit un tiek lietotas Piekļuves Kontroles Panelī (Acl) priekš lietotājiem un lomām."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Nosaukums"
   },
+  "virtual.col.id": {
+    "other": "Template ID"
+  },
+  "virtual.col.code": {
+    "other": "Template Code"
+  },
+  "virtual.label.new": {
+    "other": "Label for template"
+  },
   "virtual.legend.1": {
     "other": "Šablonu ceļi tiek izrēķināti dinamiski atkarībā no konteksta. Tos var lietot kā darbvirsmu pamatu aizvietotājus fiksētam datu avota ceļam.     Pēc noklusējuma tos izmanto lai izveidotu Personīgo failu darbvirsmas kuras norāda uz atsevišķu direktoriju katram lietotājam un lai aprēķinātu ceļu lietotāju Šūnu direktorijām."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Šablonu ceļi"
+  },
+  "virtual.save": {
+    "other": "Save template"
+  },
+  "virtual.delete": {
+    "other": "Delete template"
+  },
+  "virtual.delete.confirm": {
+    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+  },
+  "virtual.code": {
+    "other": "Template code"
+  },
+  "virtual.code.display": {
+    "other": "Display code"
+  },
+  "virtual.code.edit": {
+    "other": "Edit code"
   },
   "ws.1": {
     "other": "Pārvaldīt Datu avotus"

@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Tên Policy"
   },
+  "policies.policy.rules": {
+    "other": "# Rules"
+  },
+  "policies.policy.display": {
+    "other": "Show policy rules"
+  },
+  "policies.policy.edit": {
+    "other": "Edit policy rules"
+  },
+  "policies.policy.editLabels": {
+    "other": "Edit Labels"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Save Changes"
+  },
+  "policies.policy.delete": {
+    "other": "Delete policy"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+  },
   "policies.policy.new": {
     "other": "+ Policy mới"
   },
   "policies.policy.type": {
     "other": "Loại Policy"
+  },
+  "policies.rule.create": {
+    "other": "Add new rule"
+  },
+  "policies.rule.delete": {
+    "other": "Delete Rule"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
   },
   "policies.type.acl.legend": {
     "other": "Các Policy này được sử dụng để tự động cung cấp quyền truy cập đọc / ghi vào các workspaces hoặc các thư mục tùy theo hoàn cảnh hoặc tùy theo giá trị metadata đính kèm trên dữ liệu. Chúng được định nghĩa ở đây và được sử dụng trong bảng Access Control của users hoặc roles."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Tên"
   },
+  "virtual.col.id": {
+    "other": "Template ID"
+  },
+  "virtual.col.code": {
+    "other": "Template Code"
+  },
+  "virtual.label.new": {
+    "other": "Label for template"
+  },
   "virtual.legend.1": {
     "other": "Template Path được tính toán tùy thuộc vào ngữ cảnh. Chúng có thể được sử dụng làm gốc cho các workspaces thay thế một đường dẫn datasource. Chúng được sử dụng theo mặc định để tạo workspace Personal Files để trỏ đến một thư mục khác nhau cho mỗi người dùng và để tính toán vị trí của các thư mục Cells của người dùng."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Đường dẫn Template"
+  },
+  "virtual.save": {
+    "other": "Save template"
+  },
+  "virtual.delete": {
+    "other": "Delete template"
+  },
+  "virtual.delete.confirm": {
+    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+  },
+  "virtual.code": {
+    "other": "Template code"
+  },
+  "virtual.code.display": {
+    "other": "Display code"
+  },
+  "virtual.code.edit": {
+    "other": "Edit code"
   },
   "ws.1": {
     "other": "Manage DataSources"

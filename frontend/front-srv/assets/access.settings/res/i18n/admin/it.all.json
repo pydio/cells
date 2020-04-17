@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Nome della policy"
   },
+  "policies.policy.rules": {
+    "other": "# Rules"
+  },
+  "policies.policy.display": {
+    "other": "Show policy rules"
+  },
+  "policies.policy.edit": {
+    "other": "Edit policy rules"
+  },
+  "policies.policy.editLabels": {
+    "other": "Edit Labels"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Save Changes"
+  },
+  "policies.policy.delete": {
+    "other": "Delete policy"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+  },
   "policies.policy.new": {
     "other": "+ Nuova policy"
   },
   "policies.policy.type": {
     "other": "Tipo di Policy"
+  },
+  "policies.rule.create": {
+    "other": "Add new rule"
+  },
+  "policies.rule.delete": {
+    "other": "Delete Rule"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
   },
   "policies.type.acl.legend": {
     "other": "Queste policy sono usate per fornire un accesso dinamico in lettura/scrittura ai workspace o ai nodi basati sul contesto della richiesta e/o sui metadati del nodo. Sono definiti qui e usati nel Pannello di Controllo Accessi degli utenti e dei ruoli."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Etichetta"
   },
+  "virtual.col.id": {
+    "other": "Template ID"
+  },
+  "virtual.col.code": {
+    "other": "Template Code"
+  },
+  "virtual.label.new": {
+    "other": "Label for template"
+  },
   "virtual.legend.1": {
     "other": "I percorsi dei modelli sono calcolati in modo dinamico a seconda del contesto. Possono essere usati come root per i workspace in sostituzione di un percorso fisso di origine dei dati.     Sono usati come predefiniti per creare il workspace dei file personali che punta a una cartella diversa per ogni utente e per calcolare la posizione delle cartelle degli utenti Cells."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Percorso dei modelli"
+  },
+  "virtual.save": {
+    "other": "Save template"
+  },
+  "virtual.delete": {
+    "other": "Delete template"
+  },
+  "virtual.delete.confirm": {
+    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+  },
+  "virtual.code": {
+    "other": "Template code"
+  },
+  "virtual.code.display": {
+    "other": "Display code"
+  },
+  "virtual.code.edit": {
+    "other": "Edit code"
   },
   "ws.1": {
     "other": "Gestisci i DataSource"

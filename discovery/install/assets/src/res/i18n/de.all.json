@@ -117,31 +117,31 @@
     "other": "Hostname"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server, auf dem MySQL ausgeführt wird"
+    "other": "auf dem MySQL läuft"
   },
   "form.dbName.label": {
     "other": "Name der Datenbank"
   },
   "form.dbName.legend": {
-    "other": "Zu verwendende Datenbank (wird erstellt, wenn sie nicht vorhanden ist)"
+    "other": "Zu verwendende DB (wird erstellt, wenn sie nicht vorhanden ist)"
   },
   "form.dbTCPPort.label": {
     "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port, um eine Verbindung zu MySQL herzustellen"
+    "other": "Port zum Verbinden mit MySQL"
   },
   "form.dbUser.label": {
     "other": "Datenbank-User"
   },
   "form.dbUser.legend": {
-    "other": "Leer lassen, wenn nicht erforderlich"
+    "other": "Leer lassen, falls nicht benötigt"
   },
   "form.dbPassword.label": {
     "other": "Datenbank Passwort"
   },
   "form.dbPassword.legend": {
-    "other": "Leer lassen, wenn nicht erforderlich"
+    "other": "Leer lassen, falls nicht benötigt"
   },
   "form.dbSocketFile.label": {
     "other": "Socket"
@@ -198,7 +198,7 @@
     "other": "OIDC-Client-Secret"
   },
   "form.externalDexSecret.legend": {
-    "other": "Leer lassen, wenn nicht erforderlich"
+    "other": "Leer lassen, falls nicht benötigt"
   },
   "stepper.button.next": {
     "other": "Weiter"
