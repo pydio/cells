@@ -19040,6 +19040,10 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib2.MaterialTable;
+
 var VirtualNodes = (function (_React$Component) {
     _inherits(VirtualNodes, _React$Component);
 
@@ -19117,20 +19121,76 @@ var VirtualNodes = (function (_React$Component) {
             var dataSources = _state.dataSources;
             var nodesLoaded = _state.nodesLoaded;
             var dataSourcesLoaded = _state.dataSourcesLoaded;
+            var selectedNode = _state.selectedNode;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
             };
             var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-            var vNodes = [];
-            nodes.map(function (node) {
-                vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly || !accessByName('Create'), adminStyles: adminStyles }));
+            var vNodes = nodes.map(function (node) {
+                if (node.getName() === selectedNode) {
+                    return {
+                        node: node,
+                        expandedRow: _react2['default'].createElement(_virtualNodeCard2['default'], {
+                            pydio: pydio,
+                            dataSources: dataSources,
+                            node: node,
+                            reloadList: _this4.reload.bind(_this4),
+                            readonly: readonly || !accessByName('Create'),
+                            adminStyles: adminStyles
+                        })
+                    };
+                } else {
+                    return { node: node };
+                }
             });
 
             var headerActions = [];
             if (!readonly && accessByName('Create')) {
                 headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
+            }
+
+            var columns = [{ name: 'id', label: m('col.id'), style: { width: '25%', fontSize: 15 }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+                    return row.node.getName();
+                }, sorter: { type: 'string' } }, { name: 'code', label: m('col.code'), renderCell: function renderCell(row) {
+                    return _react2['default'].createElement(
+                        'pre',
+                        null,
+                        row.node.getValue().split('\n').pop()
+                    );
+                } }];
+            var actions = [];
+            if (readonly) {
+                actions.push({
+                    iconClassName: 'mdi mdi-eye',
+                    tooltip: m('code.display'),
+                    onTouchTap: function onTouchTap(row) {
+                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
+                    }
+                });
+            } else {
+                actions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    tooltip: m('code.edit'),
+                    onTouchTap: function onTouchTap(row) {
+                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
+                    }
+                });
+                actions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: m('delete'),
+                    onTouchTap: function onTouchTap(row) {
+                        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                            message: m('delete.confirm'),
+                            validCallback: function validCallback() {
+                                row.node.remove();
+                            } });
+                    },
+                    disable: function disable(row) {
+                        return row.node.getName() === 'cells' || row.node.getName() === 'my-files';
+                    }
+                });
             }
 
             return _react2['default'].createElement(
@@ -19157,7 +19217,7 @@ var VirtualNodes = (function (_React$Component) {
                         { style: { margin: '0 10px' } },
                         _react2['default'].createElement(ModernTextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
                                 _this4.setState({ newName: v });
-                            }, hintText: "Provide a label for this node" })
+                            }, hintText: m('label.new') })
                     ),
                     _react2['default'].createElement(_materialUi.Divider, null),
                     _react2['default'].createElement(
@@ -19173,19 +19233,29 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 20, paddingBottom: 0 } },
-                        m('legend.1'),
-                        _react2['default'].createElement('br', null),
-                        !readonly && accessByName('Create') && _react2['default'].createElement(
-                            'span',
-                            null,
-                            m('legend.2')
-                        )
+                        m('legend.1')
                     ),
-                    nodesLoaded && dataSourcesLoaded && vNodes,
+                    nodesLoaded && dataSourcesLoaded && _react2['default'].createElement(
+                        _materialUi.Paper,
+                        _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                        _react2['default'].createElement(MaterialTable, {
+                            columns: columns,
+                            data: vNodes,
+                            actions: actions,
+                            deselectOnClickAway: true,
+                            showCheckboxes: false,
+                            masterStyles: adminStyles.body.tableMaster
+                        })
+                    ),
                     (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
                         'div',
                         { style: { margin: 16, textAlign: 'center', padding: 20 } },
                         pydio.MessageHash['ajxp_admin.home.6']
+                    ),
+                    !readonly && accessByName('Create') && _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '0 24px', opacity: '.5' } },
+                        m('legend.2')
                     )
                 )
             );
@@ -24114,8 +24184,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -24192,13 +24260,19 @@ var NodeCard = (function (_React$Component) {
         key: 'render',
         value: function render() {
             var _props2 = this.props;
+            var pydio = _props2.pydio;
             var dataSources = _props2.dataSources;
-            var node = _props2.node;
             var readonly = _props2.readonly;
             var oneLiner = _props2.oneLiner;
-            var adminStyles = _props2.adminStyles;
             var _props2$onClose = _props2.onClose;
             var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
+            var _state = this.state;
+            var value = _state.value;
+            var dirty = _state.dirty;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+            };
 
             var ds = {};
             if (dataSources) {
@@ -24215,7 +24289,7 @@ var NodeCard = (function (_React$Component) {
             var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                 mode: 'javascript',
                 globalScope: globalScope,
-                value: this.state.value,
+                value: value,
                 onChange: this.onChange.bind(this),
                 readOnly: readonly
             });
@@ -24232,39 +24306,29 @@ var NodeCard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { display: "flex" } },
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: "Save" }),
                         _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
                                 return onClose();
                             }, tooltip: "Close" })
                     )
                 );
             } else {
-                var titleComponent = _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'center', height: 48 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1 } },
-                        node.getName()
-                    ),
-                    !readonly && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }, adminStyles.props.header.iconButton)),
-                        _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' }, adminStyles.props.header.iconButton))
-                    )
-                );
                 return _react2['default'].createElement(
-                    _materialUi.Paper,
-                    _extends({}, adminStyles.body.block.props, { style: _extends({}, adminStyles.body.block.container, { marginBottom: 10 }) }),
+                    'div',
+                    { style: { backgroundColor: '#f5f5f5', paddingBottom: 24 } },
                     _react2['default'].createElement(
                         'div',
-                        { style: adminStyles.body.block.headerFull },
-                        titleComponent
+                        { style: { padding: readonly ? '12px 24px' : '0 24px', fontWeight: 500, display: 'flex', alignItems: 'center' } },
+                        _react2['default'].createElement(
+                            'div',
+                            null,
+                            'Template Path Code'
+                        ),
+                        !readonly && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: m('save'), style: { width: 36, height: 36, padding: 8 }, iconStyle: { fontSize: 20, color: 'rgba(0,0,0,.33)' } })
                     ),
                     _react2['default'].createElement(
                         'div',
-                        null,
+                        { style: { margin: '12px 24px 0 24px', border: '1px solid #e0e0e0' } },
                         codeMirrorField
                     )
                 );
