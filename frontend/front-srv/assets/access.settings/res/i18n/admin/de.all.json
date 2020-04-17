@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Richtlinienname"
   },
+  "policies.policy.rules": {
+    "other": "# Regeln"
+  },
+  "policies.policy.display": {
+    "other": "Richtlinienregeln anzeigen"
+  },
+  "policies.policy.edit": {
+    "other": "Richtlinienregeln bearbeiten"
+  },
+  "policies.policy.editLabels": {
+    "other": "Label bearbeiten"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Änderungen speichern"
+  },
+  "policies.policy.delete": {
+    "other": "Richtlinie löschen"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Möchten Sie diese Richtlinie wirklich löschen? Stellen Sie sicher, dass die Sicherheit der Anwendung dadurch nicht beeinträchtigt wird!"
+  },
   "policies.policy.new": {
     "other": "+ Neue Richtlinie"
   },
   "policies.policy.type": {
     "other": "Richtlinientyp"
+  },
+  "policies.rule.create": {
+    "other": "Neue Regel hinzufügen"
+  },
+  "policies.rule.delete": {
+    "other": "Regel löschen"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Möchten Sie diese Sicherheitsregel wirklich entfernen? Dies könnte das Sicherheitsmodell der Anwendung beschädigen!"
   },
   "policies.type.acl.legend": {
     "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Worspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Label"
   },
+  "virtual.col.id": {
+    "other": "Vorlagen-ID"
+  },
+  "virtual.col.code": {
+    "other": "Vorlagencode"
+  },
+  "virtual.label.new": {
+    "other": "Beschriftung für Vorlage"
+  },
   "virtual.legend.1": {
     "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Workspace als Ersatz für einen festen Datasource-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Workspace zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Cells Ordner zuberechnen."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Vorlagenpfade"
+  },
+  "virtual.save": {
+    "other": "Vorlage speichern"
+  },
+  "virtual.delete": {
+    "other": "Vorlage löschen"
+  },
+  "virtual.delete.confirm": {
+    "other": "Möchten Sie diesen Vorlagenpfad wirklich löschen? Dieser Schritt ist nicht umkehrbar!"
+  },
+  "virtual.code": {
+    "other": "Vorlagencode"
+  },
+  "virtual.code.display": {
+    "other": "Anzeigencode"
+  },
+  "virtual.code.edit": {
+    "other": "Code bearbeiten"
   },
   "ws.1": {
     "other": "Vorlagen verwalten"

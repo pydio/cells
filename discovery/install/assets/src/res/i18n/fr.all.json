@@ -174,7 +174,7 @@
     "other": "Mot de passe admin *"
   },
   "form.frontendPassword.legend": {
-    "other": "Mot de passe utilisé pour se connecter comme adminisatrateur"
+    "other": "Mot de passe de connexion"
   },
   "form.frontendRepeatPassword.label": {
     "other": "Confirmer le mot de passe"

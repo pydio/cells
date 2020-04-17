@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Nom de la stratégie"
   },
+  "policies.policy.rules": {
+    "other": "# Règles"
+  },
+  "policies.policy.display": {
+    "other": "Afficher les règles"
+  },
+  "policies.policy.edit": {
+    "other": "Editer les règles"
+  },
+  "policies.policy.editLabels": {
+    "other": "Modifier les libellés"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Sauver"
+  },
+  "policies.policy.delete": {
+    "other": "Supprimer la stratégie"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Êtes-vous sûr de vouloir supprimer cette stratégie de sécurité ? Assurez-vous que ceci ne porte pas atteinte à la sécurité de l'application !"
+  },
   "policies.policy.new": {
     "other": "+ Stratégie"
   },
   "policies.policy.type": {
     "other": "Type"
+  },
+  "policies.rule.create": {
+    "other": "Créer une nouvelle règle"
+  },
+  "policies.rule.delete": {
+    "other": "Supprimer la règle"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Êtes-vous sûr de vouloir supprimer cette règle de sécurité ? Cela pourrait casser le modèle de sécurité de l'application !"
   },
   "policies.type.acl.legend": {
     "other": "Ces stratégies permettent de calculer dynamiquement des droits d'accès en lecture/écriture à des workspaces ou des répertoires à partir du context. Elles sont définies ici, et vous pouvez les utiliser dans le panneau d'assignation des droits d'accès (via les users / roles) en remplacement des valeurs basiques lecture/écriture."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Libellé"
   },
+  "virtual.col.id": {
+    "other": "ID du modèle"
+  },
+  "virtual.col.code": {
+    "other": "Code du modèle"
+  },
+  "virtual.label.new": {
+    "other": "Libellé"
+  },
   "virtual.legend.1": {
     "other": "Les modèles prédéfinis sont des chemins dans l'arborescence calculés dynamiquement en fonction du contexte. Ils sont utilisés comme racine de Workspaces à la place de chemins dans les Datasources. Par défaut, ils sont utilisés pour le workspace des fichiers personnels (qui pointe vers un dossier différent pour chaque utilisateur), et pour créer des répertoires uniques pour les Cellules créées par les utilisateurs."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Modèles prédéfinis"
+  },
+  "virtual.save": {
+    "other": "Sauver le modèle"
+  },
+  "virtual.delete": {
+    "other": "Supprimer le modèle"
+  },
+  "virtual.delete.confirm": {
+    "other": "Êtes-vous sûr de vouloir supprimer ce modèle ? L'opération n'est pas réversible !"
+  },
+  "virtual.code": {
+    "other": "Code du modèle"
+  },
+  "virtual.code.display": {
+    "other": "Afficher le code"
+  },
+  "virtual.code.edit": {
+    "other": "Editer le code"
   },
   "ws.1": {
     "other": "Gérer les Datasources"

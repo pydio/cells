@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Nombre de la Política"
   },
+  "policies.policy.rules": {
+    "other": "# Rules"
+  },
+  "policies.policy.display": {
+    "other": "Show policy rules"
+  },
+  "policies.policy.edit": {
+    "other": "Edit policy rules"
+  },
+  "policies.policy.editLabels": {
+    "other": "Edit Labels"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Save Changes"
+  },
+  "policies.policy.delete": {
+    "other": "Delete policy"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+  },
   "policies.policy.new": {
     "other": "+ Nueva política"
   },
   "policies.policy.type": {
     "other": "Tipo de Política"
+  },
+  "policies.rule.create": {
+    "other": "Add new rule"
+  },
+  "policies.rule.delete": {
+    "other": "Delete Rule"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
   },
   "policies.type.acl.legend": {
     "other": "Estas políticas se utilizan para proporcionar dinámicamente acceso de lectura/escritura a espacios de trabajo o nodos basados en el contexto de solicitud y/o de los metadatos de nodo. Se definen aquí y se utilizan en el Panel de Control de Acceso de los usuarios y roles."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Etiqueta"
   },
+  "virtual.col.id": {
+    "other": "Template ID"
+  },
+  "virtual.col.code": {
+    "other": "Template Code"
+  },
+  "virtual.label.new": {
+    "other": "Label for template"
+  },
   "virtual.legend.1": {
     "other": "Las Rutas de Plantillas se procesan dinámicamente dependiendo del contexto. Pueden utilizarse como raíces para espacios de trabajo que para sustituir rutas de origen de datos fijas. Se utilizan por defecto para crear el espacio de trabajo de Archivos Personales que apunta a un directorio diferente para cada usuario, y para procesar la ubicación de los directorios de los directorios de los usuarios de Cells."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Ruta de plantillas"
+  },
+  "virtual.save": {
+    "other": "Save template"
+  },
+  "virtual.delete": {
+    "other": "Delete template"
+  },
+  "virtual.delete.confirm": {
+    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+  },
+  "virtual.code": {
+    "other": "Template code"
+  },
+  "virtual.code.display": {
+    "other": "Display code"
+  },
+  "virtual.code.edit": {
+    "other": "Edit code"
   },
   "ws.1": {
     "other": "Gestionar DataSources"
