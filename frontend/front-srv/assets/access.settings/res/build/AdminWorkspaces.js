@@ -19138,7 +19138,8 @@ var VirtualNodes = (function (_React$Component) {
                             node: node,
                             reloadList: _this4.reload.bind(_this4),
                             readonly: readonly || !accessByName('Create'),
-                            adminStyles: adminStyles
+                            adminStyles: adminStyles,
+                            onSave: _this4.reload.bind(_this4)
                         })
                     };
                 } else {
@@ -19184,7 +19185,9 @@ var VirtualNodes = (function (_React$Component) {
                         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
                             message: m('delete.confirm'),
                             validCallback: function validCallback() {
-                                row.node.remove();
+                                row.node.remove(function () {
+                                    _this4.reload();
+                                });
                             } });
                     },
                     disable: function disable(row) {
