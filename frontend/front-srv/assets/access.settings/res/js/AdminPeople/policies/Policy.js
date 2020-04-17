@@ -55,8 +55,12 @@ class Policy extends React.Component{
 
     saveLabels(){
         const {pName, pDesc, policy} = this.state;
-        policy.Name = pName;
-        policy.Description = pDesc;
+        if(pName){
+            policy.Name = pName;
+        }
+        if(pDesc) {
+            policy.Description = pDesc;
+        }
         this.setState({pName: null, pDesc: null});
         this.props.savePolicy(policy);
     }

@@ -94,6 +94,7 @@ class VirtualNodes extends React.Component{
                         reloadList={this.reload.bind(this)}
                         readonly={readonly || !accessByName('Create')}
                         adminStyles={adminStyles}
+                        onSave={this.reload.bind(this)}
                     />
                 }
             } else {
@@ -130,7 +131,9 @@ class VirtualNodes extends React.Component{
                     pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
                         message:m('delete.confirm'),
                         validCallback:() => {
-                            row.node.remove();
+                            row.node.remove(()=>{
+                                this.reload();
+                            });
                         }}
                     );
                 },

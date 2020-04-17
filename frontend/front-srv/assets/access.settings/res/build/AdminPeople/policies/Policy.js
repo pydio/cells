@@ -99,8 +99,12 @@ var Policy = (function (_React$Component) {
             var pDesc = _state.pDesc;
             var policy = _state.policy;
 
-            policy.Name = pName;
-            policy.Description = pDesc;
+            if (pName) {
+                policy.Name = pName;
+            }
+            if (pDesc) {
+                policy.Description = pDesc;
+            }
             this.setState({ pName: null, pDesc: null });
             this.props.savePolicy(policy);
         }
