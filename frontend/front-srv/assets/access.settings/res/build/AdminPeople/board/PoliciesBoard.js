@@ -63,6 +63,10 @@ var _policiesPolicy = require('../policies/Policy');
 
 var _policiesPolicy2 = _interopRequireDefault(_policiesPolicy);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
+
 var ResourceGroups = ["acl", "rest", "oidc"];
 
 var PoliciesBoard = _react2['default'].createClass({
@@ -148,17 +152,22 @@ var PoliciesBoard = _react2['default'].createClass({
     },
 
     deletePolicy: function deletePolicy(policy) {
-        "use strict";
-
         var _this3 = this;
 
-        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.deletePolicy(policy.Uuid).then(function () {
-                _this3.listPolicies();
-            })['catch'](function (reason) {
-                _this3.setState({ error: reason });
-            });
+        var pydio = this.props.pydio;
+
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message: pydio.MessageHash['ajxp_admin.policies.policy.delete.confirm'],
+            validCallback: function validCallback() {
+                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    api.deletePolicy(policy.Uuid).then(function () {
+                        _this3.listPolicies();
+                    })['catch'](function (reason) {
+                        _this3.setState({ error: reason });
+                    });
+                });
+            }
         });
     },
 
@@ -227,54 +236,82 @@ var PoliciesBoard = _react2['default'].createClass({
         var readonly = this.props.readonly;
 
         readonly = readonly || !accessByName('Create');
-        var policies = this.state.policies;
+        var _state = this.state;
+        var policies = _state.policies;
+        var selectedPolicy = _state.selectedPolicy;
+        var newPolicyId = _state.newPolicyId;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        var lists = Object.keys(policies).map(function (k) {
+        var columns = [{ name: 'Name', label: m('policy.name'), style: { fontSize: 15 }, sorter: { type: 'string', 'default': true } }, { name: 'Rules', label: m('policy.rules'), style: { width: 80, textAlign: 'center' }, headerStyle: { width: 80, textAlign: 'center' }, renderCell: function renderCell(row) {
+                return row.Policies.length;
+            }, sorter: { type: 'number' } }, { name: 'Description', label: m('policy.description'), sorter: { type: 'string' } }];
+
+        var actions = [];
+        if (readonly) {
+            actions.push({
+                iconClassName: 'mdi mdi-eye',
+                tooltip: m('policy.display'),
+                onTouchTap: function onTouchTap(policy) {
+                    return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
+                }
+            });
+        } else {
+            actions.push({
+                iconClassName: 'mdi mdi-pencil',
+                tooltip: m('policy.edit'),
+                onTouchTap: function onTouchTap(policy) {
+                    return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
+                }
+            });
+            actions.push({
+                iconClassName: 'mdi mdi-delete',
+                tooltip: m('policy.delete'),
+                onTouchTap: function onTouchTap(policy) {
+                    _this5.deletePolicy(policy);
+                }
+            });
+        }
+
+        var tables = Object.keys(policies).map(function (k) {
             if (readonly && k === 'acl') {
                 return null;
             }
+            var data = policies[k];
+            var dd = data.map(function (policy) {
+                if (policy.Uuid === selectedPolicy) {
+                    return _extends({}, policy, { expandedRow: _react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
+                            readonly: readonly,
+                            key: policy.Name,
+                            policy: policy,
+                            savePolicy: _this5.savePolicy.bind(_this5),
+                            deletePolicy: _this5.deletePolicy.bind(_this5),
+                            newPolicyWithRule: newPolicyId === policy.Uuid ? policy.Name : null
+                        })) });
+                } else {
+                    return policy;
+                }
+            });
             var title = m('type.' + k + '.title');
             var legend = m('type.' + k + '.legend');
-            var data = policies[k];
-            var items = [];
-            data.map(function (policy) {
-                items.push(_react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
-                    readonly: readonly,
-                    key: policy.Name,
-                    policy: policy,
-                    savePolicy: _this5.savePolicy.bind(_this5),
-                    deletePolicy: _this5.deletePolicy.bind(_this5),
-                    newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
-                })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
-            });
-            items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
+                _react2['default'].createElement(AdminComponents.SubHeader, { title: title, legend: legend }),
                 _react2['default'].createElement(
                     _materialUi.Paper,
                     _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: adminStyles.body.block.headerFull },
-                        title
-                    ),
-                    _react2['default'].createElement(
-                        _materialUi.List,
-                        null,
-                        items
-                    )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
-                    legend
+                    _react2['default'].createElement(MaterialTable, {
+                        data: dd,
+                        columns: columns,
+                        actions: actions,
+                        deselectOnClickAway: true,
+                        showCheckboxes: false,
+                        masterStyles: adminStyles.body.tableMaster
+                    })
                 )
             );
         });
@@ -343,7 +380,7 @@ var PoliciesBoard = _react2['default'].createClass({
             _react2['default'].createElement(
                 'div',
                 { className: 'layout-fill' },
-                lists
+                tables
             )
         );
     }
