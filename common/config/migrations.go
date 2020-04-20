@@ -371,7 +371,7 @@ func movePydioConnectors(config *Config) (bool, error) {
 					continue
 				}
 
-				if typ != "pydioapi" {
+				if typ != "pydio-api" {
 					connectors = append(connectors, pydioconnector)
 					changed = true
 				}
