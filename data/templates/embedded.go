@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/micro/go-micro/errors"
@@ -55,6 +56,9 @@ func (e *Embedded) List() []Node {
 		node.Template = *tpl
 		nodes = append(nodes, node)
 	}
+	sort.Slice(nodes, func(i, j int) bool {
+		return nodes[i].(*EmbeddedNode).UUID < nodes[j].(*EmbeddedNode).UUID
+	})
 	return nodes
 }
 
