@@ -44,6 +44,11 @@ class DataSource extends Observable {
                 } else if(p === 'Name') {
                     // Limit Name to 33 chars
                     val = LangUtils.computeStringSlug(val).replace("-", "").substr(0, 33);
+                    if(this.existingNames && this.existingNames.indexOf(val) > -1) {
+                        this.nameInvalid = true;
+                    } else {
+                        this.nameInvalid = false;
+                    }
                 } else if(p === 'folder') {
                     if (val[0] !== '/') {
                         val = '/' + val;
@@ -72,9 +77,11 @@ class DataSource extends Observable {
         });
     }
 
-    constructor(model){
+    constructor(model, existingNames = []){
         super();
         this.internalInvalid = false;
+        this.nameInvalid = false;
+        this.existingNames = existingNames;
         if (model) {
             this.model = model;
             if(!model.StorageConfiguration){
@@ -99,7 +106,7 @@ class DataSource extends Observable {
     }
 
     isValid(){
-        if(this.internalInvalid){
+        if(this.internalInvalid || this.nameInvalid){
             return false;
         }
         if(this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
@@ -108,6 +115,19 @@ class DataSource extends Observable {
             return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
         } else {
             return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
+        }
+    }
+
+    /**
+     *
+     * @param translateFunc {Function} Translate function
+     * @return {*}
+     */
+    getNameError(translateFunc){
+        if(this.nameInvalid){
+            return translateFunc('name.inuse')
+        } else {
+            return null;
         }
     }
 

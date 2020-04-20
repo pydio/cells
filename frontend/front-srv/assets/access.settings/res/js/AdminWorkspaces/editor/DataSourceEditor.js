@@ -32,7 +32,7 @@ class DataSourceEditor extends React.Component{
 
     constructor(props){
         super(props);
-        const observable = new DataSource(props.dataSource);
+        const observable = new DataSource(props.dataSource, props.existingNames);
         this.state = {
             dirty:false,
             create: props.create,
@@ -285,7 +285,7 @@ class DataSourceEditor extends React.Component{
                 </Dialog>
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('options')}</div>
-                    <ModernTextField fullWidth={true}  hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}}/>
+                    <ModernTextField fullWidth={true}  hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
                     {!create &&
                         <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} {...ModernStyles.toggleField} /></div>
                     }

@@ -81,7 +81,7 @@ var DataSourceEditor = (function (_React$Component) {
         _classCallCheck(this, DataSourceEditor);
 
         _get(Object.getPrototypeOf(DataSourceEditor.prototype), 'constructor', this).call(this, props);
-        var observable = new _modelDataSource2['default'](props.dataSource);
+        var observable = new _modelDataSource2['default'](props.dataSource, props.existingNames);
         this.state = {
             dirty: false,
             create: props.create,
@@ -451,7 +451,7 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
-                        } }),
+                        }, errorText: observable.getNameError(m) }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },

@@ -26,7 +26,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -68,6 +68,11 @@ var DataSource = (function (_Observable) {
                     } else if (p === 'Name') {
                             // Limit Name to 33 chars
                             val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 33);
+                            if (_this.existingNames && _this.existingNames.indexOf(val) > -1) {
+                                _this.nameInvalid = true;
+                            } else {
+                                _this.nameInvalid = false;
+                            }
                         } else if (p === 'folder') {
                             if (val[0] !== '/') {
                                 val = '/' + val;
@@ -98,10 +103,14 @@ var DataSource = (function (_Observable) {
     }]);
 
     function DataSource(model) {
+        var existingNames = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
         _classCallCheck(this, DataSource);
 
         _get(Object.getPrototypeOf(DataSource.prototype), 'constructor', this).call(this);
         this.internalInvalid = false;
+        this.nameInvalid = false;
+        this.existingNames = existingNames;
         if (model) {
             this.model = model;
             if (!model.StorageConfiguration) {
@@ -129,7 +138,7 @@ var DataSource = (function (_Observable) {
     }, {
         key: 'isValid',
         value: function isValid() {
-            if (this.internalInvalid) {
+            if (this.internalInvalid || this.nameInvalid) {
                 return false;
             }
             if (this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
@@ -138,6 +147,21 @@ var DataSource = (function (_Observable) {
                 return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
             } else {
                 return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
+            }
+        }
+
+        /**
+         *
+         * @param translateFunc {Function} Translate function
+         * @return {*}
+         */
+    }, {
+        key: 'getNameError',
+        value: function getNameError(translateFunc) {
+            if (this.nameInvalid) {
+                return translateFunc('name.inuse');
+            } else {
+                return null;
             }
         }
     }, {

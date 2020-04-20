@@ -122,6 +122,9 @@
   "ds.editor.new": {
     "other": "New DataSource"
   },
+  "ds.editor.name.inuse": {
+    "other": "This name is already in use, make sure to pick another one!"
+  },
   "ds.editor.options": {
     "other": "Main Options"
   },

@@ -361,12 +361,16 @@ var DataSourcesBoard = (function (_React$Component) {
             var _props3 = this.props;
             var pydio = _props3.pydio;
             var storageTypes = _props3.storageTypes;
+            var dataSources = this.state.dataSources;
 
             this.props.openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
                     create: true,
+                    existingNames: dataSources.map(function (ds) {
+                        return ds.Name;
+                    }),
                     pydio: pydio,
                     storageTypes: storageTypes,
                     closeEditor: this.closeEditor.bind(this),

@@ -226,11 +226,13 @@ class DataSourcesBoard extends React.Component {
 
     createDataSource(){
         const {pydio, storageTypes} = this.props;
+        const {dataSources} = this.state;
         this.props.openRightPane({
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
                 create:true,
+                existingNames:dataSources.map(ds => ds.Name),
                 pydio:pydio,
                 storageTypes:storageTypes,
                 closeEditor:this.closeEditor.bind(this),
