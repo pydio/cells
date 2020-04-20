@@ -11,35 +11,34 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
 /**
 * The InstallInstallResponse model module.
 * @module model/InstallInstallResponse
 * @version 1.0
 */
-
-var InstallInstallResponse = (function () {
+export default class InstallInstallResponse {
     /**
     * Constructs a new <code>InstallInstallResponse</code>.
     * @alias module:model/InstallInstallResponse
     * @class
     */
 
-    function InstallInstallResponse() {
-        _classCallCheck(this, InstallInstallResponse);
+    constructor() {
+        
 
-        this.success = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -49,23 +48,33 @@ var InstallInstallResponse = (function () {
     * @param {module:model/InstallInstallResponse} obj Optional instance to populate.
     * @return {module:model/InstallInstallResponse} The populated <code>InstallInstallResponse</code> instance.
     */
-
-    InstallInstallResponse.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallInstallResponse();
 
+            
+            
+            
+
             if (data.hasOwnProperty('success')) {
-                obj['success'] = _ApiClient2['default'].convertToType(data['success'], 'Boolean');
+                obj['success'] = ApiClient.convertToType(data['success'], 'Boolean');
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {Boolean} success
     */
-    return InstallInstallResponse;
-})();
+    success = undefined;
 
-exports['default'] = InstallInstallResponse;
-module.exports = exports['default'];
+
+
+
+
+
+
+
+}
+
+

@@ -11,39 +11,35 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
+import InstallInstallConfig from './InstallInstallConfig';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
-
-var _InstallInstallConfig = require('./InstallInstallConfig');
-
-var _InstallInstallConfig2 = _interopRequireDefault(_InstallInstallConfig);
 
 /**
 * The InstallInstallRequest model module.
 * @module model/InstallInstallRequest
 * @version 1.0
 */
-
-var InstallInstallRequest = (function () {
+export default class InstallInstallRequest {
     /**
     * Constructs a new <code>InstallInstallRequest</code>.
     * @alias module:model/InstallInstallRequest
     * @class
     */
 
-    function InstallInstallRequest() {
-        _classCallCheck(this, InstallInstallRequest);
+    constructor() {
+        
 
-        this.config = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -53,23 +49,33 @@ var InstallInstallRequest = (function () {
     * @param {module:model/InstallInstallRequest} obj Optional instance to populate.
     * @return {module:model/InstallInstallRequest} The populated <code>InstallInstallRequest</code> instance.
     */
-
-    InstallInstallRequest.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallInstallRequest();
 
+            
+            
+            
+
             if (data.hasOwnProperty('config')) {
-                obj['config'] = _InstallInstallConfig2['default'].constructFromObject(data['config']);
+                obj['config'] = InstallInstallConfig.constructFromObject(data['config']);
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {module:model/InstallInstallConfig} config
     */
-    return InstallInstallRequest;
-})();
+    config = undefined;
 
-exports['default'] = InstallInstallRequest;
-module.exports = exports['default'];
+
+
+
+
+
+
+
+}
+
+

@@ -59,9 +59,6 @@
   "advanced.default.datasource":{
     "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
   },
-  "advanced.default.oidc":{
-    "other": "Services are authenticating using OpenIDConnect protocol. This keypair will be added to the frontend, it is not used outside of the application.  You should leave the default value unless you are reinstalling on a top of a running frontend."
-  },
 
   "license.stepLabel": {
     "other": "Enterprise License"
@@ -193,18 +190,6 @@
   },
   "form.dsFolder.legend":{
     "other":"Use an absolute path on the server"
-  },
-  "form.externalDexID.label":{
-    "other":"OIDC Client ID"
-  },
-  "form.externalDexID.legend":{
-    "other":"Use default if not sure"
-  },
-  "form.externalDexSecret.label":{
-    "other":"OIDC Client Secret"
-  },
-  "form.externalDexSecret.legend":{
-    "other":"Leave blank if not required"
   },
 
   "stepper.button.next":{

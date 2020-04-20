@@ -4498,33 +4498,6 @@ var SwaggerJson = `{
         "dsFolder": {
           "type": "string"
         },
-        "externalMicro": {
-          "type": "string"
-        },
-        "externalGateway": {
-          "type": "string"
-        },
-        "externalWebsocket": {
-          "type": "string"
-        },
-        "externalFrontPlugins": {
-          "type": "string"
-        },
-        "externalDAV": {
-          "type": "string"
-        },
-        "externalWOPI": {
-          "type": "string"
-        },
-        "externalDex": {
-          "type": "string"
-        },
-        "externalDexID": {
-          "type": "string"
-        },
-        "externalDexSecret": {
-          "type": "string"
-        },
         "frontendHosts": {
           "type": "string"
         },

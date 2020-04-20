@@ -521,13 +521,6 @@ class InstallForm extends React.Component {
                             <div>
                                 <Field name="dsFolder" component={renderTextField} floatingLabel={this.t('form.dsFolder.label')} label={this.t('form.dsFolder.legend')} />
                             </div>
-                            <div style={{marginTop: 20}}>
-                                {this.t('advanced.default.oidc')}
-                            </div>
-                            <div style={{display:'flex'}}>
-                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDexID" component={renderTextField} floatingLabel={this.t('form.externalDexID.label')} label={this.t('form.externalDexID.legend')}/></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDexSecret" component={renderTextField} floatingLabel={this.t('form.externalDexSecret.label')} label={this.t('form.externalDexSecret.legend')}/></div>
-                            </div>
                         </div>
                         }
                     </div>

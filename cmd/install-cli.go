@@ -201,22 +201,12 @@ func promptAdvanced(c *install.InstallConfig) error {
 	}
 	dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, Validate: notEmpty}
 
-	oidcId := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexID, Validate: notEmpty}
-	oidcSecret := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexSecret, Validate: notEmpty}
-
 	if folder, e := dsPath.Run(); e == nil {
 		c.DsFolder = folder
 	} else {
 		return e
 	}
 
-	var e error
-	if c.ExternalDexID, e = oidcId.Run(); e != nil {
-		return e
-	}
-	if c.ExternalDexSecret, e = oidcSecret.Run(); e != nil {
-		return e
-	}
 	return nil
 }
 

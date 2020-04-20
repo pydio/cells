@@ -62,15 +62,6 @@ var InstallInstallConfig = (function () {
         this.dsName = undefined;
         this.dsPort = undefined;
         this.dsFolder = undefined;
-        this.externalMicro = undefined;
-        this.externalGateway = undefined;
-        this.externalWebsocket = undefined;
-        this.externalFrontPlugins = undefined;
-        this.externalDAV = undefined;
-        this.externalWOPI = undefined;
-        this.externalDex = undefined;
-        this.externalDexID = undefined;
-        this.externalDexSecret = undefined;
         this.frontendHosts = undefined;
         this.frontendLogin = undefined;
         this.frontendPassword = undefined;
@@ -139,33 +130,6 @@ var InstallInstallConfig = (function () {
             }
             if (data.hasOwnProperty('dsFolder')) {
                 obj['dsFolder'] = _ApiClient2['default'].convertToType(data['dsFolder'], 'String');
-            }
-            if (data.hasOwnProperty('externalMicro')) {
-                obj['externalMicro'] = _ApiClient2['default'].convertToType(data['externalMicro'], 'String');
-            }
-            if (data.hasOwnProperty('externalGateway')) {
-                obj['externalGateway'] = _ApiClient2['default'].convertToType(data['externalGateway'], 'String');
-            }
-            if (data.hasOwnProperty('externalWebsocket')) {
-                obj['externalWebsocket'] = _ApiClient2['default'].convertToType(data['externalWebsocket'], 'String');
-            }
-            if (data.hasOwnProperty('externalFrontPlugins')) {
-                obj['externalFrontPlugins'] = _ApiClient2['default'].convertToType(data['externalFrontPlugins'], 'String');
-            }
-            if (data.hasOwnProperty('externalDAV')) {
-                obj['externalDAV'] = _ApiClient2['default'].convertToType(data['externalDAV'], 'String');
-            }
-            if (data.hasOwnProperty('externalWOPI')) {
-                obj['externalWOPI'] = _ApiClient2['default'].convertToType(data['externalWOPI'], 'String');
-            }
-            if (data.hasOwnProperty('externalDex')) {
-                obj['externalDex'] = _ApiClient2['default'].convertToType(data['externalDex'], 'String');
-            }
-            if (data.hasOwnProperty('externalDexID')) {
-                obj['externalDexID'] = _ApiClient2['default'].convertToType(data['externalDexID'], 'String');
-            }
-            if (data.hasOwnProperty('externalDexSecret')) {
-                obj['externalDexSecret'] = _ApiClient2['default'].convertToType(data['externalDexSecret'], 'String');
             }
             if (data.hasOwnProperty('frontendHosts')) {
                 obj['frontendHosts'] = _ApiClient2['default'].convertToType(data['frontendHosts'], 'String');
@@ -264,42 +228,6 @@ module.exports = exports['default'];
 
 /**
 * @member {String} dsFolder
-*/
-
-/**
-* @member {String} externalMicro
-*/
-
-/**
-* @member {String} externalGateway
-*/
-
-/**
-* @member {String} externalWebsocket
-*/
-
-/**
-* @member {String} externalFrontPlugins
-*/
-
-/**
-* @member {String} externalDAV
-*/
-
-/**
-* @member {String} externalWOPI
-*/
-
-/**
-* @member {String} externalDex
-*/
-
-/**
-* @member {String} externalDexID
-*/
-
-/**
-* @member {String} externalDexSecret
 */
 
 /**

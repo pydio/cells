@@ -103,33 +103,6 @@ export default class InstallInstallConfig {
             if (data.hasOwnProperty('dsFolder')) {
                 obj['dsFolder'] = ApiClient.convertToType(data['dsFolder'], 'String');
             }
-            if (data.hasOwnProperty('externalMicro')) {
-                obj['externalMicro'] = ApiClient.convertToType(data['externalMicro'], 'String');
-            }
-            if (data.hasOwnProperty('externalGateway')) {
-                obj['externalGateway'] = ApiClient.convertToType(data['externalGateway'], 'String');
-            }
-            if (data.hasOwnProperty('externalWebsocket')) {
-                obj['externalWebsocket'] = ApiClient.convertToType(data['externalWebsocket'], 'String');
-            }
-            if (data.hasOwnProperty('externalFrontPlugins')) {
-                obj['externalFrontPlugins'] = ApiClient.convertToType(data['externalFrontPlugins'], 'String');
-            }
-            if (data.hasOwnProperty('externalDAV')) {
-                obj['externalDAV'] = ApiClient.convertToType(data['externalDAV'], 'String');
-            }
-            if (data.hasOwnProperty('externalWOPI')) {
-                obj['externalWOPI'] = ApiClient.convertToType(data['externalWOPI'], 'String');
-            }
-            if (data.hasOwnProperty('externalDex')) {
-                obj['externalDex'] = ApiClient.convertToType(data['externalDex'], 'String');
-            }
-            if (data.hasOwnProperty('externalDexID')) {
-                obj['externalDexID'] = ApiClient.convertToType(data['externalDexID'], 'String');
-            }
-            if (data.hasOwnProperty('externalDexSecret')) {
-                obj['externalDexSecret'] = ApiClient.convertToType(data['externalDexSecret'], 'String');
-            }
             if (data.hasOwnProperty('frontendHosts')) {
                 obj['frontendHosts'] = ApiClient.convertToType(data['frontendHosts'], 'String');
             }
@@ -224,42 +197,6 @@ export default class InstallInstallConfig {
     * @member {String} dsFolder
     */
     dsFolder = undefined;
-    /**
-    * @member {String} externalMicro
-    */
-    externalMicro = undefined;
-    /**
-    * @member {String} externalGateway
-    */
-    externalGateway = undefined;
-    /**
-    * @member {String} externalWebsocket
-    */
-    externalWebsocket = undefined;
-    /**
-    * @member {String} externalFrontPlugins
-    */
-    externalFrontPlugins = undefined;
-    /**
-    * @member {String} externalDAV
-    */
-    externalDAV = undefined;
-    /**
-    * @member {String} externalWOPI
-    */
-    externalWOPI = undefined;
-    /**
-    * @member {String} externalDex
-    */
-    externalDex = undefined;
-    /**
-    * @member {String} externalDexID
-    */
-    externalDexID = undefined;
-    /**
-    * @member {String} externalDexSecret
-    */
-    externalDexSecret = undefined;
     /**
     * @member {String} frontendHosts
     */

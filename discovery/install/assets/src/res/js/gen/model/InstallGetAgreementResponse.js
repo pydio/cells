@@ -11,35 +11,34 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
 /**
 * The InstallGetAgreementResponse model module.
 * @module model/InstallGetAgreementResponse
 * @version 1.0
 */
-
-var InstallGetAgreementResponse = (function () {
+export default class InstallGetAgreementResponse {
     /**
     * Constructs a new <code>InstallGetAgreementResponse</code>.
     * @alias module:model/InstallGetAgreementResponse
     * @class
     */
 
-    function InstallGetAgreementResponse() {
-        _classCallCheck(this, InstallGetAgreementResponse);
+    constructor() {
+        
 
-        this.Text = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -49,23 +48,33 @@ var InstallGetAgreementResponse = (function () {
     * @param {module:model/InstallGetAgreementResponse} obj Optional instance to populate.
     * @return {module:model/InstallGetAgreementResponse} The populated <code>InstallGetAgreementResponse</code> instance.
     */
-
-    InstallGetAgreementResponse.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallGetAgreementResponse();
 
+            
+            
+            
+
             if (data.hasOwnProperty('Text')) {
-                obj['Text'] = _ApiClient2['default'].convertToType(data['Text'], 'String');
+                obj['Text'] = ApiClient.convertToType(data['Text'], 'String');
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {String} Text
     */
-    return InstallGetAgreementResponse;
-})();
+    Text = undefined;
 
-exports['default'] = InstallGetAgreementResponse;
-module.exports = exports['default'];
+
+
+
+
+
+
+
+}
+
+

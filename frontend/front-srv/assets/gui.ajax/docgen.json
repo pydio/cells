@@ -2502,6 +2502,13 @@
             "returns": null
           },
           {
+            "name": "saveLabels",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "onRuleChange",
             "docblock": null,
             "modifiers": [],
@@ -2527,13 +2534,6 @@
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "onDeletePolicy",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           },
           {
@@ -4069,6 +4069,10 @@
               {
                 "name": "dataSource",
                 "type": null
+              },
+              {
+                "name": "asNumber",
+                "type": null
               }
             ],
             "returns": null
@@ -4080,6 +4084,18 @@
             "params": [
               {
                 "name": "versionPolicies",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteVersionPolicy",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "policy",
                 "type": null
               }
             ],
@@ -4337,6 +4353,18 @@
             "params": [
               {
                 "name": "rows",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "workspace",
                 "type": null
               }
             ],
@@ -6789,7 +6817,20 @@
       {
         "description": "",
         "displayName": "Activity",
-        "methods": []
+        "methods": [
+          {
+            "name": "computeIcon",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "activity",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
       }
     ],
     "ActivityList.js": [
@@ -32567,6 +32608,13 @@
             "returns": null
           },
           {
+            "name": "computeSorter",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "computePagination",
             "docblock": null,
             "modifiers": [],
@@ -40933,13 +40981,6 @@
             "required": false
           }
         }
-      }
-    ],
-    "recent/ActivityStreams.js": [
-      {
-        "description": "",
-        "displayName": "ActivityStreamsPanel",
-        "methods": []
       }
     ],
     "recent/SmartRecents.js": [

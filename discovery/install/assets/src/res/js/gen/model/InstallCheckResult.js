@@ -11,37 +11,34 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
 /**
 * The InstallCheckResult model module.
 * @module model/InstallCheckResult
 * @version 1.0
 */
-
-var InstallCheckResult = (function () {
+export default class InstallCheckResult {
     /**
     * Constructs a new <code>InstallCheckResult</code>.
     * @alias module:model/InstallCheckResult
     * @class
     */
 
-    function InstallCheckResult() {
-        _classCallCheck(this, InstallCheckResult);
+    constructor() {
+        
 
-        this.Name = undefined;
-        this.Success = undefined;
-        this.JsonResult = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -51,37 +48,47 @@ var InstallCheckResult = (function () {
     * @param {module:model/InstallCheckResult} obj Optional instance to populate.
     * @return {module:model/InstallCheckResult} The populated <code>InstallCheckResult</code> instance.
     */
-
-    InstallCheckResult.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallCheckResult();
 
+            
+            
+            
+
             if (data.hasOwnProperty('Name')) {
-                obj['Name'] = _ApiClient2['default'].convertToType(data['Name'], 'String');
+                obj['Name'] = ApiClient.convertToType(data['Name'], 'String');
             }
             if (data.hasOwnProperty('Success')) {
-                obj['Success'] = _ApiClient2['default'].convertToType(data['Success'], 'Boolean');
+                obj['Success'] = ApiClient.convertToType(data['Success'], 'Boolean');
             }
             if (data.hasOwnProperty('JsonResult')) {
-                obj['JsonResult'] = _ApiClient2['default'].convertToType(data['JsonResult'], 'String');
+                obj['JsonResult'] = ApiClient.convertToType(data['JsonResult'], 'String');
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {String} Name
     */
-    return InstallCheckResult;
-})();
+    Name = undefined;
+    /**
+    * @member {Boolean} Success
+    */
+    Success = undefined;
+    /**
+    * @member {String} JsonResult
+    */
+    JsonResult = undefined;
 
-exports['default'] = InstallCheckResult;
-module.exports = exports['default'];
 
-/**
-* @member {Boolean} Success
-*/
 
-/**
-* @member {String} JsonResult
-*/
+
+
+
+
+
+}
+
+

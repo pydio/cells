@@ -813,25 +813,6 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 null,
                                 _react2.default.createElement(_reduxForm.Field, { name: 'dsFolder', component: renderTextField, floatingLabel: this.t('form.dsFolder.label'), label: this.t('form.dsFolder.legend') })
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { marginTop: 20 } },
-                                this.t('advanced.default.oidc')
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { display: 'flex' } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginRight: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexID', component: renderTextField, floatingLabel: this.t('form.externalDexID.label'), label: this.t('form.externalDexID.legend') })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDexSecret', component: renderTextField, floatingLabel: this.t('form.externalDexSecret.label'), label: this.t('form.externalDexSecret.legend') })
-                                )
                             )
                         )
                     ),

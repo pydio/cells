@@ -11,40 +11,35 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
+import InstallInstallConfig from './InstallInstallConfig';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
-
-var _InstallInstallConfig = require('./InstallInstallConfig');
-
-var _InstallInstallConfig2 = _interopRequireDefault(_InstallInstallConfig);
 
 /**
 * The InstallPerformCheckRequest model module.
 * @module model/InstallPerformCheckRequest
 * @version 1.0
 */
-
-var InstallPerformCheckRequest = (function () {
+export default class InstallPerformCheckRequest {
     /**
     * Constructs a new <code>InstallPerformCheckRequest</code>.
     * @alias module:model/InstallPerformCheckRequest
     * @class
     */
 
-    function InstallPerformCheckRequest() {
-        _classCallCheck(this, InstallPerformCheckRequest);
+    constructor() {
+        
 
-        this.Name = undefined;
-        this.Config = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -54,30 +49,40 @@ var InstallPerformCheckRequest = (function () {
     * @param {module:model/InstallPerformCheckRequest} obj Optional instance to populate.
     * @return {module:model/InstallPerformCheckRequest} The populated <code>InstallPerformCheckRequest</code> instance.
     */
-
-    InstallPerformCheckRequest.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallPerformCheckRequest();
 
+            
+            
+            
+
             if (data.hasOwnProperty('Name')) {
-                obj['Name'] = _ApiClient2['default'].convertToType(data['Name'], 'String');
+                obj['Name'] = ApiClient.convertToType(data['Name'], 'String');
             }
             if (data.hasOwnProperty('Config')) {
-                obj['Config'] = _InstallInstallConfig2['default'].constructFromObject(data['Config']);
+                obj['Config'] = InstallInstallConfig.constructFromObject(data['Config']);
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {String} Name
     */
-    return InstallPerformCheckRequest;
-})();
+    Name = undefined;
+    /**
+    * @member {module:model/InstallInstallConfig} Config
+    */
+    Config = undefined;
 
-exports['default'] = InstallPerformCheckRequest;
-module.exports = exports['default'];
 
-/**
-* @member {module:model/InstallInstallConfig} Config
-*/
+
+
+
+
+
+
+}
+
+

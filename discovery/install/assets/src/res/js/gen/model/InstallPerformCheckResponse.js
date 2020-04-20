@@ -11,39 +11,35 @@
  *
  */
 
-'use strict';
 
-exports.__esModule = true;
+import ApiClient from '../ApiClient';
+import InstallCheckResult from './InstallCheckResult';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ApiClient = require('../ApiClient');
 
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
-
-var _InstallCheckResult = require('./InstallCheckResult');
-
-var _InstallCheckResult2 = _interopRequireDefault(_InstallCheckResult);
 
 /**
 * The InstallPerformCheckResponse model module.
 * @module model/InstallPerformCheckResponse
 * @version 1.0
 */
-
-var InstallPerformCheckResponse = (function () {
+export default class InstallPerformCheckResponse {
     /**
     * Constructs a new <code>InstallPerformCheckResponse</code>.
     * @alias module:model/InstallPerformCheckResponse
     * @class
     */
 
-    function InstallPerformCheckResponse() {
-        _classCallCheck(this, InstallPerformCheckResponse);
+    constructor() {
+        
 
-        this.Result = undefined;
+        
+        
+
+        
+
+        
     }
 
     /**
@@ -53,23 +49,33 @@ var InstallPerformCheckResponse = (function () {
     * @param {module:model/InstallPerformCheckResponse} obj Optional instance to populate.
     * @return {module:model/InstallPerformCheckResponse} The populated <code>InstallPerformCheckResponse</code> instance.
     */
-
-    InstallPerformCheckResponse.constructFromObject = function constructFromObject(data, obj) {
+    static constructFromObject(data, obj) {
         if (data) {
             obj = obj || new InstallPerformCheckResponse();
 
+            
+            
+            
+
             if (data.hasOwnProperty('Result')) {
-                obj['Result'] = _InstallCheckResult2['default'].constructFromObject(data['Result']);
+                obj['Result'] = InstallCheckResult.constructFromObject(data['Result']);
             }
         }
         return obj;
-    };
+    }
 
     /**
     * @member {module:model/InstallCheckResult} Result
     */
-    return InstallPerformCheckResponse;
-})();
+    Result = undefined;
 
-exports['default'] = InstallPerformCheckResponse;
-module.exports = exports['default'];
+
+
+
+
+
+
+
+}
+
+
