@@ -97,7 +97,7 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	}
 
 	oAuthFrontendConfig := map[string]interface{}{
-		"client_id":                 "cells-frontend",
+		"client_id":                 config.DefaultOAuthClientID,
 		"client_name":               "CellsFrontend Application",
 		"grant_types":               []string{"authorization_code", "refresh_token"},
 		"redirect_uris":             []string{url + "/auth/callback"},
@@ -113,7 +113,7 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		var addCellsFrontend = true
 		for _, static := range data {
 			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
-				if clientID == "cells-frontend" {
+				if clientID == config.DefaultOAuthClientID {
 					addCellsFrontend = false
 				}
 			}

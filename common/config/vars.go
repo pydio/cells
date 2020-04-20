@@ -59,6 +59,8 @@ var (
 	postInitializers []func()
 )
 
+const DefaultOAuthClientID = "cells-frontend"
+
 func init() {
 	cobra.OnInitialize(initConfig)
 }

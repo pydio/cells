@@ -100,7 +100,7 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 	external := config.Get("defaults", "url").String("")
 	oAuthFrontendConfig := map[string]interface{}{
-		"client_id":                 "cells-frontend",
+		"client_id":                 DefaultOAuthClientID,
 		"client_name":               "CellsFrontend Application",
 		"grant_types":               []string{"authorization_code", "refresh_token"},
 		"redirect_uris":             []string{external + "/auth/callback"},
@@ -234,7 +234,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 	}
 
 	oAuthFrontendConfig := map[string]interface{}{
-		"client_id":                 "cells-frontend",
+		"client_id":                 DefaultOAuthClientID,
 		"client_name":               "CellsFrontend Application",
 		"grant_types":               []string{"authorization_code", "refresh_token"},
 		"redirect_uris":             []string{external + "/auth/callback"},
@@ -251,7 +251,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		var addCellsFrontend = true
 		for _, static := range data {
 			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
-				if clientID == "cells-frontend" {
+				if clientID == DefaultOAuthClientID {
 					addCellsFrontend = false
 				}
 			}

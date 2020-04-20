@@ -131,7 +131,7 @@ var SampleConfig = `{
 			},
 			"staticClients": [
                 {
-					"client_id": "cells-frontend",
+					"client_id": "` + DefaultOAuthClientID + `",
 					"client_name": "CellsFrontend Application",
 					"grant_types": [
 						"authorization_code", 

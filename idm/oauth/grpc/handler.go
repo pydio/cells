@@ -59,13 +59,12 @@ var (
 )
 
 var (
-	DefaultClientID    = "cells-frontend"
-	DefaultRedirectURI string
+	defaultRedirectURI string
 )
 
 func init() {
 	config.OnInitialized(func() {
-		DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+		defaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
 	})
 }
 
@@ -461,10 +460,10 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest, out *
 	session := oauth2.NewSession("")
 
 	values := url.Values{}
-	values.Set("client_id", DefaultClientID)
+	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
-	values.Set("redirect_uri", DefaultRedirectURI)
+	values.Set("redirect_uri", defaultRedirectURI)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -495,10 +494,10 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	session := oauth2.NewSession("")
 
 	values := url.Values{}
-	values.Set("client_id", DefaultClientID)
+	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
-	values.Set("redirect_uri", DefaultRedirectURI)
+	values.Set("redirect_uri", defaultRedirectURI)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

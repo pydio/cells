@@ -34,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/auth/hydra"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 )
 
@@ -66,7 +67,7 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 	// Getting or creating challenge
 	challenge := v.Get("challenge")
 	if challenge == "" {
-		if c, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{}); err != nil {
+		if c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
 			return "", err
 		} else {
 			challenge = c.Challenge
@@ -143,7 +144,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	// Getting or creating challenge
 	challenge := v.Get("challenge")
 	if challenge == "" {
-		if c, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{}); err != nil {
+		if c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
 			return "", err
 		} else {
 			challenge = c.Challenge
@@ -243,7 +244,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName string, password string) (*goauth.Token, error) {
 
 	// Getting or creating challenge
-	c, err := hydra.CreateLogin("cells-frontend", []string{"openid", "profile", "offline"}, []string{})
+	c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {
 		return nil, errors.Wrap(err, "PasswordCredentialsToken")
 	}
