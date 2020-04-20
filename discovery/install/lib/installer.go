@@ -24,13 +24,11 @@ package lib
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils/net"
 )
 
 const (
@@ -67,7 +65,6 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_CONFIG) != 0 {
-		c.ExternalFrontPlugins = fmt.Sprintf("%d", net.GetAvailablePort())
 		if err := actionConfigsSet(c); err != nil {
 			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
 			return err
