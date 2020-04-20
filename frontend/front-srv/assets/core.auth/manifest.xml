@@ -18,7 +18,7 @@
 
         <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Maximum number of users displayed in the users autocompleter]" label="CONF_MESSAGE[Users completer limit]" name="USERS_LIST_COMPLETE_LIMIT" type="integer" default="40"/>
         <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Minimum number of characters to trigger the auto completion feature]" label="CONF_MESSAGE[Users completer min chars]" name="USERS_LIST_COMPLETE_MIN_CHARS" type="integer" default="0" expose="true"/>
-        <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.]" label="CONF_MESSAGE[Make regexp mandatory]" name="USERS_LIST_REGEXP_MANDATORY" type="boolean" default="false" expose="true"/>
+        <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.]" label="CONF_MESSAGE[Auto-wildcard search]" name="USERS_LIST_AUTO_WILDCARD" type="boolean" default="false" expose="true"/>
 
     </server_settings>
 </plugin>

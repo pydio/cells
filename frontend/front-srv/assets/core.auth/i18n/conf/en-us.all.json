@@ -145,5 +145,11 @@
   },
   "Delegation": {
     "other": "Delegation"
+  },
+  "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.":{
+    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+  },
+  "Auto-wildcard search":{
+    "other": "Auto-wildcard search"
   }
 }

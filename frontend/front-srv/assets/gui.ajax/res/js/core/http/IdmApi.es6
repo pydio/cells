@@ -1,3 +1,4 @@
+import Pydio from '../Pydio';
 import UserServiceApi from "./gen/api/UserServiceApi";
 import RestSearchUserRequest from "./gen/model/RestSearchUserRequest";
 import IdmUserSingleQuery from "./gen/model/IdmUserSingleQuery";
@@ -17,6 +18,7 @@ class IdmApi {
 
     constructor(restClient){
         this.client = restClient;
+        this.autoWildCard = Pydio.getInstance().getPluginConfigs('core.auth').get('USERS_LIST_AUTO_WILDCARD');
     }
 
     /**
@@ -76,6 +78,9 @@ class IdmApi {
 
         if(filterString){
             const queryString = new IdmUserSingleQuery();
+            if (this.autoWildCard){
+                filterString = '*' + filterString;
+            }
             queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
@@ -158,6 +163,9 @@ class IdmApi {
         request.Queries.push(query2);
         if(filterString){
             const queryString = new IdmUserSingleQuery();
+            if (this.autoWildCard){
+                filterString = '*' + filterString;
+            }
             queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
@@ -199,9 +207,12 @@ class IdmApi {
         request.Queries.push(query);
 
         if(filterString){
+            // Use Login as for users, it will detect the trailing *
             const queryString = new IdmUserSingleQuery();
-            queryString.AttributeName = 'displayName';
-            queryString.AttributeValue = filterString + '*';
+            if (this.autoWildCard){
+                filterString = '*' + filterString;
+            }
+            queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
 
@@ -303,6 +314,9 @@ class IdmApi {
         request.Queries.push(q);
         if (filterString) {
             const q2 = new IdmRoleSingleQuery();
+            if (this.autoWildCard){
+                filterString = '*' + filterString;
+            }
             q2.Label = filterString + '*';
             request.Queries.push(q2);
         }

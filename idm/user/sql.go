@@ -254,12 +254,18 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes[idm.UserAttrLabelLike] = user.GroupLabel
+		user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.GroupLabel)
+		if user.Attributes[idm.UserAttrDisplayName] != "" {
+			user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.Attributes[idm.UserAttrDisplayName])
+		}
 	} else if user.Login != "" {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
 		user.Attributes[idm.UserAttrLabelLike] = user.Login
+		if user.Attributes[idm.UserAttrDisplayName] != "" {
+			user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.Attributes[idm.UserAttrDisplayName])
+		}
 	}
 
 	// Use a transaction to perform update on the user

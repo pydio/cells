@@ -6,6 +6,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
 var _genApiUserServiceApi = require("./gen/api/UserServiceApi");
 
 var _genApiUserServiceApi2 = _interopRequireDefault(_genApiUserServiceApi);
@@ -67,6 +71,7 @@ var IdmApi = (function () {
         _classCallCheck(this, IdmApi);
 
         this.client = restClient;
+        this.autoWildCard = _Pydio2["default"].getInstance().getPluginConfigs('core.auth').get('USERS_LIST_AUTO_WILDCARD');
     }
 
     /**
@@ -135,6 +140,9 @@ var IdmApi = (function () {
 
         if (filterString) {
             var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            if (this.autoWildCard) {
+                filterString = '*' + filterString;
+            }
             queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
@@ -227,6 +235,9 @@ var IdmApi = (function () {
         request.Queries.push(query2);
         if (filterString) {
             var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            if (this.autoWildCard) {
+                filterString = '*' + filterString;
+            }
             queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
@@ -273,9 +284,12 @@ var IdmApi = (function () {
         request.Queries.push(query);
 
         if (filterString) {
+            // Use Login as for users, it will detect the trailing *
             var queryString = new _genModelIdmUserSingleQuery2["default"]();
-            queryString.AttributeName = 'displayName';
-            queryString.AttributeValue = filterString + '*';
+            if (this.autoWildCard) {
+                filterString = '*' + filterString;
+            }
+            queryString.Login = filterString + '*';
             request.Queries.push(queryString);
         }
 
@@ -380,6 +394,9 @@ var IdmApi = (function () {
         request.Queries.push(q);
         if (filterString) {
             var q2 = new _genModelIdmRoleSingleQuery2["default"]();
+            if (this.autoWildCard) {
+                filterString = '*' + filterString;
+            }
             q2.Label = filterString + '*';
             request.Queries.push(q2);
         }
