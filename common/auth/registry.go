@@ -12,6 +12,7 @@ import (
 	"github.com/ory/hydra/driver"
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
+	"github.com/ory/hydra/x"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -46,9 +47,20 @@ func InitRegistry(dao sql.DAO) {
 			return
 		}
 
-		if _, err := r.KeyManager().(*jwk.SQLManager).CreateSchemas(dao.Driver()); err != nil {
+		km := r.KeyManager().(*jwk.SQLManager)
+		if _, err := km.CreateSchemas(dao.Driver()); err != nil {
 			log.Warn("Failed to create key schemas", zap.Error(err))
 			return
+		} else {
+			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OpenIDConnectKeyName); err != nil {
+				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OpenIDConnectKeyName))
+				km.DeleteKeySet(context.Background(), x.OpenIDConnectKeyName)
+			}
+
+			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OAuth2JWTKeyName); err != nil {
+				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OAuth2JWTKeyName))
+				km.DeleteKeySet(context.Background(), x.OAuth2JWTKeyName)
+			}
 		}
 
 		if _, err := r.ConsentManager().(*consent.SQLManager).CreateSchemas(dao.Driver()); err != nil {
