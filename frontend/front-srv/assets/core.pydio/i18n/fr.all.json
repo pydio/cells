@@ -183,16 +183,16 @@
     "other": "Ajouter/retirer la sélection à \"Mes favoris\""
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Mettre en favori"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Ajouter la sélection à Mes favoris"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Supprimer le favori"
   },
   "153-off": {
-    "other": "Remove item to MyBookmarks"
+    "other": "Retirer la sélection de \"Mes favoris\""
   },
   "154": {
     "other": "Nouveau répertoire"
@@ -2237,6 +2237,18 @@
   "overlay.bookmark.folder": {
     "other": "Répertoire favori"
   },
+  "bookmark.button.tip.add": {
+    "other": "Ajouter cet élément aux favoris"
+  },
+  "bookmark.button.tip.remove": {
+    "other": "Supprimer ce favori"
+  },
+  "bookmark.button.tip.mixed": {
+    "other": "Valeurs multiples, cliquez pour tout mettre en favori"
+  },
+  "bookmark.button.tip.saving": {
+    "other": "Enregistrement du statut"
+  },
   "mkfile.empty.template.label": {
     "other": "Fichier vide"
   },
@@ -2256,7 +2268,7 @@
     "other": "Filtrer les Cells"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtrer les workspaces"
   },
   "visibility.panel.title": {
     "other": "Visibilité"

@@ -36,11 +36,11 @@ type BoltStore struct {
 }
 
 // Open a new store
-func NewStore(configDir string) (VersionsStore, error) {
+func NewStore(configDir string) VersionsStore {
 	filename := filepath.Join(configDir, "configs-versions.db")
 	return &BoltStore{
 		FileName: filename,
-	}, nil
+	}
 }
 
 func (b *BoltStore) GetConnection() (*bolt.DB, error) {

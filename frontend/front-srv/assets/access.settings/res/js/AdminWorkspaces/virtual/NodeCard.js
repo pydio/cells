@@ -66,7 +66,9 @@ class NodeCard extends React.Component{
 
     render(){
 
-        const {dataSources, node, readonly, oneLiner, adminStyles, onClose = () => {}} = this.props;
+        const {pydio, dataSources, readonly, oneLiner, onClose = () => {}} = this.props;
+        const {value, dirty} = this.state;
+        const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
 
         let ds = {};
         if(dataSources){
@@ -84,7 +86,7 @@ class NodeCard extends React.Component{
             <AdminComponents.CodeMirrorField
                 mode="javascript"
                 globalScope={globalScope}
-                value={this.state.value}
+                value={value}
                 onChange={this.onChange.bind(this)}
                 readOnly={readonly}
             />
@@ -95,28 +97,20 @@ class NodeCard extends React.Component{
                 <div style={{display:'flex'}}>
                     <div style={{flex: 1, lineHeight: "40px"}}>{codeMirrorField}</div>
                     <div style={{display: "flex"}}>
-                        <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/>
+                        <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!dirty} tooltip={"Save"}/>
                         <IconButton iconClassName={"mdi mdi-close"} onClick={() => onClose()} tooltip={"Close"}/>
                     </div>
                 </div>
             );
         } else {
-            const titleComponent = (
-                <div style={{display:'flex', alignItems:'center', height:48}}>
-                    <div style={{flex: 1}}>{node.getName()}</div>
-                    {!readonly &&
-                        <div>
-                            <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"} {...adminStyles.props.header.iconButton}/>
-                            <IconButton iconClassName={"mdi mdi-delete"}  onClick={this.remove.bind(this)} tooltip={"Delete"} disabled={node.getName() === 'cells' || node.getName() === 'my-files'} {...adminStyles.props.header.iconButton}/>
-                        </div>
-                    }
-                </div>
-            );
             return (
-                <Paper {...adminStyles.body.block.props} style={{...adminStyles.body.block.container, marginBottom: 10}}>
-                    <div style={adminStyles.body.block.headerFull}>{titleComponent}</div>
-                    <div>{codeMirrorField}</div>
-                </Paper>
+                <div style={{backgroundColor:'#f5f5f5', paddingBottom: 24}}>
+                    <div style={{padding: readonly?'12px 24px':'0 24px', fontWeight:500, display:'flex', alignItems:'center'}}>
+                        <div>Template Path Code</div>
+                        {!readonly && <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!dirty} tooltip={m('save')} style={{width:36, height: 36, padding: 8}} iconStyle={{fontSize: 20, color:'rgba(0,0,0,.33)'}}/>}
+                    </div>
+                    <div style={{margin:'12px 24px 0 24px', border:'1px solid #e0e0e0'}}>{codeMirrorField}</div>
+                </div>
             );
         }
 

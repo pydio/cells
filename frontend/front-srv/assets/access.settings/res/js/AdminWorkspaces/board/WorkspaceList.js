@@ -72,8 +72,21 @@ export default React.createClass({
 
     openTableRows(rows) {
         if(rows.length){
-            this.props.openSelection(rows[0].payload);
+            this.props.openSelection(rows[0].workspace);
         }
+    },
+
+    deleteAction(workspace){
+        const {pydio} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:pydio.MessageHash['settings.35'],
+            validCallback:() => {
+                const ws = new Workspace(workspace);
+                ws.remove().then(() => {
+                    this.reload();
+                });
+            }
+        });
     },
 
     computeTableData(){
@@ -106,7 +119,7 @@ export default React.createClass({
                 }
             }
             data.push({
-                payload: workspace,
+                workspace: workspace,
                 label: workspace.Label,
                 description : workspace.Description,
                 slug : workspace.Slug,
@@ -120,31 +133,55 @@ export default React.createClass({
 
     render(){
 
-        const {pydio, advanced, editable, tableStyles} = this.props;
+        const {pydio, advanced, editable, tableStyles, openSelection} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
         const s = (id) => pydio.MessageHash['settings.' + id];
 
         const columns = [
-            {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-            {name:'description', label: s('103'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
-            {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
+            {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}, sorter:{type:'string', default:'true'}},
+            {name:'description', label: s('103'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}, sorter:{type:'string'}},
+            {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}, sorter:{type:'string'}},
             ];
         if (advanced){
             columns.push({
-                name:'syncable', label: m('ws.board.syncable'), style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%', textAlign:'center'}, renderCell:(row)=>{
+                name:'syncable', label: m('ws.board.syncable'), style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%', textAlign:'center'}, sorter:{type:'number', sortValue:(row)=>row.syncable?1:0}, renderCell:(row)=>{
                     return <span className={"mdi mdi-check"} style={{fontSize:18, opacity:row.syncable?1:0}}/>
                 }});
         }
 
-        columns.push({name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}});
+        columns.push({name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}, sorter:{type:'string'}});
 
         const {loading} = this.state;
         const data = this.computeTableData();
+        const actions = [];
+        if(editable){
+            actions.push({
+                iconClassName:"mdi mdi-pencil" ,
+                tooltip:'Edit Workspace',
+                onTouchTap:(row)=>{openSelection(row.workspace)},
+                disable:(row)=>{return !row.workspace.PoliciesContextEditable}
+            });
+        }
+        const repos = pydio.user.getRepositoriesList();
+        actions.push({
+            iconClassName:'mdi mdi-open-in-new',
+            tooltip:'Open this workspace...',
+            onTouchTap:(row => {pydio.triggerRepositoryChange(row.workspace.UUID)}),
+            disable:(row => !repos.has(row.workspace.UUID))
+        });
+        if(editable){
+            actions.push({
+                iconClassName:"mdi mdi-delete" ,
+                onTouchTap:(row)=>{this.deleteAction(row.workspace)},
+                disable:(row)=>{return !row.workspace.PoliciesContextEditable}
+            });
+        }
 
         return (
             <MaterialTable
                 data={data}
                 columns={columns}
+                actions={actions}
                 onSelectRows={editable?this.openTableRows.bind(this):null}
                 deselectOnClickAway={true}
                 showCheckboxes={false}

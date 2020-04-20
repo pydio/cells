@@ -192,7 +192,7 @@
     "other": "Remove Bookmark"
   },
   "153-off": {
-    "other": "Remove item to MyBookmarks"
+    "other": "Remove item from MyBookmarks"
   },
   "154": {
     "other": "Nuova cartella"
@@ -2236,6 +2236,18 @@
   },
   "overlay.bookmark.folder": {
     "other": "La cartella è stata aggiunta ai preferiti"
+  },
+  "bookmark.button.tip.add": {
+    "other": "Bookmark this element"
+  },
+  "bookmark.button.tip.remove": {
+    "other": "Remove this bookmark"
+  },
+  "bookmark.button.tip.mixed": {
+    "other": "Mixed values, click to bookmark all"
+  },
+  "bookmark.button.tip.saving": {
+    "other": "Saving bookmark status"
   },
   "mkfile.empty.template.label": {
     "other": "File vuoto"

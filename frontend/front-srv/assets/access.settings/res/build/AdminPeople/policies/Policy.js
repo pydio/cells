@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -36,6 +35,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -46,11 +49,11 @@ var _Rule2 = _interopRequireDefault(_Rule);
 
 var _materialUi = require('material-ui');
 
-var _InlineLabel = require('./InlineLabel');
-
-var _InlineLabel2 = _interopRequireDefault(_InlineLabel);
-
 var _uuid = require('uuid');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var Policy = (function (_React$Component) {
     _inherits(Policy, _React$Component);
@@ -89,6 +92,23 @@ var Policy = (function (_React$Component) {
             this.props.savePolicy(policy);
         }
     }, {
+        key: 'saveLabels',
+        value: function saveLabels() {
+            var _state = this.state;
+            var pName = _state.pName;
+            var pDesc = _state.pDesc;
+            var policy = _state.policy;
+
+            if (pName) {
+                policy.Name = pName;
+            }
+            if (pDesc) {
+                policy.Description = pDesc;
+            }
+            this.setState({ pName: null, pDesc: null });
+            this.props.savePolicy(policy);
+        }
+    }, {
         key: 'onRuleChange',
         value: function onRuleChange(rule) {
 
@@ -114,13 +134,6 @@ var Policy = (function (_React$Component) {
                 return p.id !== rule.id;
             });
             this.props.savePolicy(policy, dontSave);
-        }
-    }, {
-        key: 'onDeletePolicy',
-        value: function onDeletePolicy() {
-            if (window.confirm('Are you sure you want to delete this policy? This may break the security model of the application!')) {
-                this.props.deletePolicy(this.state.policy);
-            }
         }
     }, {
         key: 'onAddRule',
@@ -161,76 +174,113 @@ var Policy = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var readonly = this.props.readonly;
-            var _state = this.state;
-            var policy = _state.policy;
-            var openRule = _state.openRule;
+            var _props = this.props;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
+            var _state2 = this.state;
+            var policy = _state2.policy;
+            var openRule = _state2.openRule;
 
-            var nestedItems = policy.Policies.map(function (rule) {
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
+            };
+
+            var rules = policy.Policies.map(function (rule, i) {
                 return _react2['default'].createElement(_Rule2['default'], _extends({}, _this2.props, {
                     key: rule.description,
                     rule: rule,
+                    isLast: i === policy.Policies.length - 1,
                     create: openRule === rule.id,
                     onRuleChange: _this2.onRuleChange.bind(_this2),
                     onRemoveRule: _this2.onRemoveRule.bind(_this2)
                 }));
             });
 
-            if (!readonly) {
-                var buttonsContent = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Add New Rule", onTouchTap: this.onAddRule.bind(this) }),
-                    '  ',
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Delete Policy", onTouchTap: this.onDeletePolicy.bind(this) })
-                );
-                nestedItems.push(_react2['default'].createElement(_materialUi.ListItem, {
-                    primaryText: buttonsContent,
-                    disabled: true
-                }));
-            }
+            var icButtonsProps = {
+                iconStyle: { fontSize: 18, color: 'rgba(0,0,0,.33)' },
+                style: { padding: 8, width: 36, height: 36 },
+                tooltipPosition: "top-right"
+            };
 
-            var ruleWord = 'rule';
-            var policyNumber = policy.Policies.length;
-            if (policyNumber > 1) {
-                ruleWord = 'rules';
-            }
-            var legend = _react2['default'].createElement(
-                'span',
-                null,
-                '(',
-                policyNumber,
-                ' ',
-                ruleWord,
-                ')'
+            var rulesTitle = _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 14, fontWeight: 500 } },
+                    'Rules'
+                ),
+                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onTouchTap: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
             );
-            var primaryText = undefined,
-                secondaryText = undefined;
-            var secondaryStyle = { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' };
-            if (readonly) {
-                primaryText = policy.Name;
-                secondaryText = _react2['default'].createElement(
-                    'div',
-                    { style: secondaryStyle },
-                    policy.Description
-                );
-            } else {
-                primaryText = _react2['default'].createElement(_InlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
-                secondaryText = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_InlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
-                );
+
+            var labelsBlock = undefined;
+            if (!readonly) {
+                (function () {
+                    var _state3 = _this2.state;
+                    var showLabels = _state3.showLabels;
+                    var pName = _state3.pName;
+                    var pDesc = _state3.pDesc;
+
+                    var labelsModified = pName && pName !== policy.Name || pDesc && pDesc !== policy.Description;
+                    labelsBlock = _react2['default'].createElement(
+                        'div',
+                        { style: { marginTop: 10, paddingTop: 10 } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex', alignItems: 'center' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { fontSize: 14, fontWeight: 500 } },
+                                'Edit Labels'
+                            ),
+                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onTouchTap: function () {
+                                    return _this2.setState({ showLabels: !showLabels });
+                                } }, icButtonsProps))
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: showLabels ? 'flex' : 'none' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { marginRight: 6, flex: 1 } },
+                                _react2['default'].createElement(ModernTextField, { value: pName || policy.Name, fullWidth: true, onChange: function (e, v) {
+                                        _this2.setState({ pName: v });
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { marginLeft: 6, flex: 1 } },
+                                _react2['default'].createElement(ModernTextField, { value: pDesc || policy.Description, fullWidth: true, onChange: function (e, v) {
+                                        _this2.setState({ pDesc: v });
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { width: 80 } },
+                                _react2['default'].createElement(_materialUi.IconButton, {
+                                    disabled: !labelsModified,
+                                    iconClassName: "mdi mdi-content-save",
+                                    tooltip: m('policy.saveLabels'),
+                                    tooltipPosition: "top-center",
+                                    onTouchTap: function () {
+                                        _this2.saveLabels();
+                                    },
+                                    iconStyle: { fontSize: 20, color: 'rgba(0,0,0,' + (labelsModified ? '.43' : '.10') + ')' },
+                                    style: { padding: 14 }
+                                })
+                            )
+                        )
+                    );
+                })();
             }
 
-            return _react2['default'].createElement(_materialUi.ListItem, _extends({}, this.props, {
-                primaryText: primaryText,
-                secondaryText: secondaryText,
-                nestedItems: nestedItems,
-                primaryTogglesNestedList: false,
-                disabled: true,
-                initiallyOpen: !!this.props.newPolicyWithRule
-            }));
+            return _react2['default'].createElement(
+                'div',
+                { style: { padding: '12px 24px', backgroundColor: '#f5f5f5' } },
+                rulesTitle,
+                rules,
+                labelsBlock
+            );
         }
     }]);
 

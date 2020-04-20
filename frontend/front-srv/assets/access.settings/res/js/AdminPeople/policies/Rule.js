@@ -81,19 +81,23 @@ class Rule extends React.Component{
 
 
     removeRule(){
-        if(window.confirm('Are you sure you want to remove this security rule?')){
-            this.props.onRemoveRule(this.props.rule);
-        }
+        const {pydio, onRemoveRule, rule} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message: pydio.MessageHash['ajxp_admin.policies.rule.delete.confirm'],
+            validCallback: () => {
+                onRemoveRule(rule);
+            }
+        });
     }
 
     render(){
-        const {rule, readonly} = this.props;
+        const {rule, readonly, isLast} = this.props;
         const iconColor = rule.effect === 'allow' ? '#33691e' : '#d32f2f';
         let buttons = [];
         if(!readonly){
             buttons = [
-                <span className="mdi mdi-delete" style={{color: '#9e9e9e', cursor:'pointer', marginLeft: 5}} onTouchTap={this.removeRule.bind(this)}/>,
-                <span className="mdi mdi-pencil" style={{color: '#9e9e9e', cursor:'pointer', marginLeft: 5}} onTouchTap={this.openEditor.bind(this)}/>
+                <span className="mdi mdi-pencil" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onTouchTap={this.openEditor.bind(this)}/>,
+                <span className="mdi mdi-delete" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onTouchTap={this.removeRule.bind(this)}/>
             ]
         }
         const label = (
@@ -104,13 +108,13 @@ class Rule extends React.Component{
         );
 
         return (
-            <ListItem
-                {...this.props}
-                style={{fontStyle:'italic', fontSize: 15}}
-                primaryText={label}
-                leftIcon={<FontIcon className="mdi mdi-traffic-light" color={iconColor}/>}
-                disabled={true}
-            />
+            <div style={{display:'flex', padding:'6px 0 5px', borderBottom:isLast?null:'1px solid white'}}>
+                <FontIcon className="mdi mdi-traffic-light" color={iconColor} style={{fontSize: 16, marginRight: 10}}/>
+                <div style={{flex: 1}}>
+                    {rule.description}
+                    {buttons}
+                </div>
+            </div>
         );
     }
 

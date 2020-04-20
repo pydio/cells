@@ -1,0 +1,215 @@
+{
+  "welcome.stepLabel": {
+    "other": "Conditions d'utilisation"
+  },
+  "welcome.title": {
+    "other": "Bienvenue dans l'assistant d'installation de Pydio Cells"
+  },
+  "welcome.legend": {
+    "other": "Ceci installera tous les services sur votre serveur. Veuillez accepter les conditions de la licence ci-dessous avant de commencer"
+  },
+  "welcome.agreed": {
+    "other": "J'accepte les termes d'utilisation"
+  },
+  "database.stepLabel": {
+    "other": "Connexion à la base de données"
+  },
+  "database.title": {
+    "other": "Configuration de la base de données"
+  },
+  "database.legend": {
+    "other": "Pydio a, au minimum, besoin d'un stockage SQL pour la configuration et l'indexation des données. Configurez ici la connexion à votre serveur MySQL/MariaDB."
+  },
+  "database.legend.bold": {
+    "other": "Veuillez vous assurer que votre base de données utilise MySQL version 5.6 ou supérieure"
+  },
+  "database.installDetected": {
+    "other": "Il semble y avoir une instance de Cells déjà installée dans cette base de données. Veuillez confirmer pour continuer ou "
+  },
+  "database.installDetected.retry": {
+    "other": "réessayer avec une autre base"
+  },
+  "admin.stepLabel": {
+    "other": "Administrateur"
+  },
+  "admin.title": {
+    "other": "Administrateur et interface par défaut"
+  },
+  "admin.legend": {
+    "other": "Fournissez les informations d'identification à l'utilisateur admin. Laissez les champs vides si vous déployez sur une installation existante."
+  },
+  "admin.adminFound": {
+    "other": "Un utilisateur admin a été trouvé dans la base de données. Cochez la case si vous souhaitez en créer un nouveau."
+  },
+  "advanced.stepLabel": {
+    "other": "Configuration avancée"
+  },
+  "advanced.title": {
+    "other": "Paramètres avancés (optionnel)"
+  },
+  "advanced.legend": {
+    "other": "Les services Pydio Cells seront déployés sur cette machine. Vous pouvez consulter certains paramètres avancés ci-dessous pour affiner votre configuration."
+  },
+  "advanced.toggle": {
+    "other": "Afficher les paramètres avancés"
+  },
+  "advanced.default.datasource": {
+    "other": "Une DataSource par défaut est créée au démarrage pour stocker les données personnelles des utilisateurs et les données des Cells. Vous pourrez créer d'autres DataSource plus tard."
+  },
+  "advanced.default.oidc": {
+    "other": "Les services s'authentifient en utilisant le protocole OpenIDConnect. Ces clés ne sont pas utilisé en dehors de l'application, laissez la valeur par défaut à moins que vous ne réinstalliez sur une installation existante."
+  },
+  "license.stepLabel": {
+    "other": "Licence Entreprise"
+  },
+  "license.title": {
+    "other": "Licence Pydio Cells Entreprise"
+  },
+  "license.success": {
+    "other": "Le fichier de licence a été correctement détecté."
+  },
+  "license.details": {
+    "other": "Cette installation est valide pour %count utilisateurs jusqu'à %expiration."
+  },
+  "license.failed": {
+    "other": "Erreur lors de la vérification de cette clé de licence. Veuillez contacter le support."
+  },
+  "license.required": {
+    "other": "Une clé de licence valide est requise pour utiliser la distribution Entreprise. Pour obtenir une licence d'essai de 30 jours ou un devis, veuillez contacter"
+  },
+  "license.fieldLabel": {
+    "other": "Licence"
+  },
+  "license.fieldLegend": {
+    "other": "Veuillez copier/coller la clé de licence qui vous a été fournie."
+  },
+  "apply.stepLabel": {
+    "other": "Lancer l'installation"
+  },
+  "apply.title": {
+    "other": "Veuillez patienter pendant l'installation de Pydio Cells..."
+  },
+  "apply.success": {
+    "other": "L'installation a été effectuée avec succès et les services sont en cours de démarrage, l'installateur rechargera la page lorsque les services auront été redémarrés."
+  },
+  "apply.success.restarted": {
+    "other": "L'installation a été effectuée avec succès et les services sont maintenant démarrés. Veuillez recharger la page maintenant (elle sera automatiquement rechargée dans %1s)"
+  },
+  "apply.error": {
+    "other": "Il y a eu une erreur lors de l'installation ! Veuillez vérifier votre configuration."
+  },
+  "apply.error.detail": {
+    "other": "L'erreur était: "
+  },
+  "form.dbConnectionType.label": {
+    "other": "Type de connexion"
+  },
+  "form.dbConnectionType.tcp": {
+    "other": "TCP"
+  },
+  "form.dbConnectionType.socket": {
+    "other": "Socket"
+  },
+  "form.dbConnectionType.manual": {
+    "other": "Manuel"
+  },
+  "form.dbTCPHostname.label": {
+    "other": "Nom de l'hôte"
+  },
+  "form.dbTCPHostname.legend": {
+    "other": "Serveur sur lequel MySQL tourne"
+  },
+  "form.dbName.label": {
+    "other": "Nom de la base de données"
+  },
+  "form.dbName.legend": {
+    "other": "Base de données à utiliser (celle-ci sera créée si elle n'existe pas encore)"
+  },
+  "form.dbTCPPort.label": {
+    "other": "Port"
+  },
+  "form.dbTCPPort.legend": {
+    "other": "Port pour se connecter à MySQL"
+  },
+  "form.dbUser.label": {
+    "other": "Utilisateur de la base de données"
+  },
+  "form.dbUser.legend": {
+    "other": "Laissez vide si non requis"
+  },
+  "form.dbPassword.label": {
+    "other": "Mot de passe de la base"
+  },
+  "form.dbPassword.legend": {
+    "other": "Laissez vide si non requis"
+  },
+  "form.dbSocketFile.label": {
+    "other": "Socket"
+  },
+  "form.dbSocketFile.legend": {
+    "other": "Entrez l'emplacement du fichier de socket à utiliser pour se connecter"
+  },
+  "form.dbManualDSN.label": {
+    "other": "DSN"
+  },
+  "form.dbManualDSN.legend": {
+    "other": "Utiliser un DSN de style Golang pour décrire la connexion à la base de données"
+  },
+  "form.frontendApplicationTitle.label": {
+    "other": "Titre de l'application"
+  },
+  "form.frontendApplicationTitle.legend": {
+    "other": "Titre principal de votre installation"
+  },
+  "form.frontendDefaultLanguage.label": {
+    "other": "Langue par défaut"
+  },
+  "form.frontendLogin.label": {
+    "other": "Identifiant de l'admin *"
+  },
+  "form.frontendLogin.legend": {
+    "other": "Utilisé pour se connecter"
+  },
+  "form.frontendPassword.label": {
+    "other": "Mot de passe admin *"
+  },
+  "form.frontendPassword.legend": {
+    "other": "Mot de passe de connexion"
+  },
+  "form.frontendRepeatPassword.label": {
+    "other": "Confirmer le mot de passe"
+  },
+  "form.frontendRepeatPassword.legend": {
+    "other": "Confirmer le mot de passe"
+  },
+  "form.dsFolder.label": {
+    "other": "Chemin vers la DataSource par défaut"
+  },
+  "form.dsFolder.legend": {
+    "other": "Utiliser un chemin absolu sur le serveur"
+  },
+  "form.externalDexID.label": {
+    "other": "ID du client OIDC"
+  },
+  "form.externalDexID.legend": {
+    "other": "Utiliser la valeur par défaut si vous n'êtes pas certain"
+  },
+  "form.externalDexSecret.label": {
+    "other": "Code secret du client OIDC"
+  },
+  "form.externalDexSecret.legend": {
+    "other": "Laissez vide si non requis"
+  },
+  "stepper.button.next": {
+    "other": "Suivant"
+  },
+  "stepper.button.back": {
+    "other": "Précédent"
+  },
+  "stepper.button.last": {
+    "other": "Lancer l'installation"
+  },
+  "stepper.button.reload": {
+    "other": "Recharger"
+  }
+}

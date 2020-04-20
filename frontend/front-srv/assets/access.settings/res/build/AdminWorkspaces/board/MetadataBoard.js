@@ -97,11 +97,17 @@ var MetadataBoard = (function (_React$Component) {
         value: function deleteNs(row) {
             var _this2 = this;
 
-            if (confirm(this.state.m('delete.confirm'))) {
-                _modelMetadata2['default'].deleteNS(row).then(function () {
-                    _this2.load();
-                });
-            }
+            var pydio = this.props.pydio;
+            var m = this.state.m;
+
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: m('delete.confirm'),
+                validCallback: function validCallback() {
+                    _modelMetadata2['default'].deleteNS(row).then(function () {
+                        _this2.load();
+                    });
+                }
+            });
         }
     }, {
         key: 'open',
@@ -152,37 +158,37 @@ var MetadataBoard = (function (_React$Component) {
 
             var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Order || '0';
-                } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, hideSmall: true, renderCell: function renderCell(row) {
+                }, sorter: { type: 'number' } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 }, sorter: { type: 'string' } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'Indexable', label: m('indexable'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
-                } }, { name: 'JsonDefinition', label: m('definition'), hideSmall: true, renderCell: function renderCell(row) {
+                }, sorter: { type: 'number', value: function value(row) {
+                        return row.Indexable ? 1 : 0;
+                    } } }, { name: 'JsonDefinition', label: m('definition'), hideSmall: true, renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;
                     if (!def) {
                         return '';
                     }
                     var data = JSON.parse(def);
                     return _modelMetadata2['default'].MetaTypes[data.type] || data.type;
-                } }, { name: 'actions', label: '', style: { width: 100 }, headerStyle: { width: 100 }, renderCell: function renderCell(row) {
-                    if (!accessByName('Create')) {
-                        return null;
-                    }
-                    return _react2['default'].createElement(_materialUi.IconButton, {
-                        iconClassName: 'mdi mdi-delete',
-                        onTouchTap: function () {
-                            _this3.deleteNs(row);
-                        },
-                        onClick: function (e) {
-                            e.stopPropagation();
-                        },
-                        iconStyle: { color: 'rgba(0,0,0,0.3)', fontSize: 20 }
-                    });
-                } }];
+                }, sorter: { type: 'string' } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
+            var actions = [];
             if (accessByName('Create')) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onTouchTap: function () {
                         _this3.create();
                     } }, adminStyle.props.header.flatButton)));
+                actions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    onTouchTap: function onTouchTap(row) {
+                        _this3.open([row]);
+                    }
+                }, {
+                    iconClassName: 'mdi mdi-delete',
+                    onTouchTap: function onTouchTap(row) {
+                        _this3.deleteNs(row);
+                    }
+                });
             }
 
             return _react2['default'].createElement(
@@ -222,6 +228,7 @@ var MetadataBoard = (function (_React$Component) {
                             _react2['default'].createElement(MaterialTable, {
                                 data: namespaces,
                                 columns: columns,
+                                actions: actions,
                                 onSelectRows: this.open.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,

@@ -25,9 +25,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var _react = require('react');
 
@@ -47,10 +47,123 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib("hoc");
 
 var ModernStyles = _Pydio$requireLib2.ModernStyles;
 
-/**
- * Simple material table
- * columns are objects of shape {name, label, style, headerStyle}
- */
+var Sorter = (function () {
+    function Sorter(state, onSort) {
+        var defaultCol = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+        var defaultDir = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+
+        _classCallCheck(this, Sorter);
+
+        this.state = _extends({}, state);
+        if (!state.sortCol && defaultCol) {
+            state.sortCol = defaultCol;
+            state.sortDir = defaultDir || 'asc';
+        }
+        this.onSort = onSort;
+    }
+
+    /**
+     * Simple material table
+     * columns are objects of shape {name, label, style, headerStyle}
+     */
+
+    Sorter.prototype.renderHeader = function renderHeader(name, label) {
+        var _this = this;
+
+        var _state = this.state;
+        var sortCol = _state.sortCol;
+        var sortDir = _state.sortDir;
+
+        var hStyle = { cursor: 'pointer', position: 'relative' };
+        var icStyle = { left: -17, position: 'absolute' };
+        if (sortCol !== name || sortDir === '') {
+            return _react2['default'].createElement(
+                'span',
+                { onClick: function () {
+                        _this.onSort(name, 'asc');
+                    }, style: hStyle },
+                label
+            );
+        }
+        var header = label;
+        if (sortDir === 'asc') {
+            header = _react2['default'].createElement(
+                'span',
+                { onClick: function () {
+                        _this.onSort(name, 'desc');
+                    }, style: hStyle },
+                label,
+                ' ',
+                _react2['default'].createElement('span', { style: icStyle, className: "mdi mdi-arrow-up" })
+            );
+        } else if (sortDir === 'desc') {
+            header = _react2['default'].createElement(
+                'span',
+                { onClick: function () {
+                        _this.onSort(name, '');
+                    }, style: hStyle },
+                label,
+                ' ',
+                _react2['default'].createElement('span', { style: icStyle, className: "mdi mdi-arrow-down" })
+            );
+        }
+        return header;
+    };
+
+    Sorter.prototype.setData = function setData(columns, data) {
+        this.columns = columns;
+        this.data = data;
+    };
+
+    Sorter.prototype.sorted = function sorted() {
+        var _state2 = this.state;
+        var sortCol = _state2.sortCol;
+        var sortDir = _state2.sortDir;
+
+        if (!sortCol || !sortDir) {
+            return this.data;
+        }
+        var data = [].concat(this.data);
+        var col = this.columns.filter(function (c) {
+            return c.name === sortCol;
+        })[0];
+        var sorter = col.sorter;
+        if (!sorter) {
+            return this.data;
+        }
+        data.sort(function (a, b) {
+            var cpa = undefined,
+                cpb = undefined;
+            if (sorter.value) {
+                cpa = sorter.value(a);
+                cpb = sorter.value(b);
+            } else if (col.renderCell) {
+                cpa = col.renderCell(a);
+                cpb = col.renderCell(b);
+            } else {
+                cpa = a[sortCol];
+                cpb = b[sortCol];
+            }
+            if (sorter.type === 'string') {
+                if (!cpa) cpa = '';
+                if (!cpb) cpb = '';
+                cpa = cpa.toLowerCase();
+                cpb = cpb.toLowerCase();
+            } else if (sorter.type === 'number') {
+                cpa = parseInt(cpa);
+                cpb = parseInt(cpb);
+            }
+            if (sortDir === 'asc') {
+                return cpa > cpb ? 1 : cpa < cpb ? -1 : 0;
+            } else {
+                return cpa < cpb ? 1 : cpa > cpb ? -1 : 0;
+            }
+        });
+        return data;
+    };
+
+    return Sorter;
+})();
 
 var MaterialTable = (function (_React$Component) {
     _inherits(MaterialTable, _React$Component);
@@ -63,7 +176,7 @@ var MaterialTable = (function (_React$Component) {
     }
 
     MaterialTable.prototype.onRowSelection = function onRowSelection(indexes) {
-        var _this = this;
+        var _this2 = this;
 
         var _props = this.props;
         var data = _props.data;
@@ -78,8 +191,12 @@ var MaterialTable = (function (_React$Component) {
             onSelectRows(data);
         } else {
             (function () {
-                var pagination = _this.computePagination();
                 var src = data;
+                var sorter = _this2.computeSorter();
+                if (sorter) {
+                    src = sorter.sorted();
+                }
+                var pagination = _this2.computePagination();
                 if (pagination.use) {
                     src = src.slice(pagination.sliceStart, pagination.sliceEnd);
                 }
@@ -90,7 +207,7 @@ var MaterialTable = (function (_React$Component) {
                         return d.expandedRow;
                     }).length;
                     if (expanded) {
-                        i = i - expanded;
+                        i -= expanded;
                     }
                     selection.push(src[i]);
                 });
@@ -99,12 +216,39 @@ var MaterialTable = (function (_React$Component) {
         }
     };
 
-    MaterialTable.prototype.computePagination = function computePagination() {
+    MaterialTable.prototype.computeSorter = function computeSorter() {
+        var _this3 = this;
+
         var _props2 = this.props;
+        var columns = _props2.columns;
         var data = _props2.data;
-        var paginate = _props2.paginate;
-        var defaultPageSize = _props2.defaultPageSize;
-        var pagination = _props2.pagination;
+
+        var sorter = undefined;
+        var withSorter = columns.filter(function (c) {
+            return c.sorter;
+        });
+        if (withSorter.length) {
+            var defaultSortColumn = withSorter[0].name;
+            var defaultSorter = withSorter.filter(function (c) {
+                return c.sorter['default'];
+            });
+            if (defaultSorter.length) {
+                defaultSortColumn = defaultSorter[0].name;
+            }
+            sorter = new Sorter(this.state, function (sortCol, sortDir) {
+                _this3.setState({ sortCol: sortCol, sortDir: sortDir });
+            }, defaultSortColumn);
+            sorter.setData(columns, data);
+        }
+        return sorter;
+    };
+
+    MaterialTable.prototype.computePagination = function computePagination() {
+        var _props3 = this.props;
+        var data = _props3.data;
+        var paginate = _props3.paginate;
+        var defaultPageSize = _props3.defaultPageSize;
+        var pagination = _props3.pagination;
 
         if (pagination) {
             // externally managed
@@ -139,7 +283,7 @@ var MaterialTable = (function (_React$Component) {
     };
 
     MaterialTable.prototype.renderPagination = function renderPagination(pagination) {
-        var _this2 = this;
+        var _this4 = this;
 
         var data = this.props.data;
         var page = pagination.page;
@@ -171,7 +315,7 @@ var MaterialTable = (function (_React$Component) {
                             if (onPageSizeChange) {
                                 onPageSizeChange(v);
                             } else {
-                                _this2.setState({ page: 1, pageSize: v });
+                                _this4.setState({ page: 1, pageSize: v });
                             }
                         } }),
                     pageSizes.map(function (ps) {
@@ -183,7 +327,7 @@ var MaterialTable = (function (_React$Component) {
                     return onPagePrev();
                 } }),
             !onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
-                    return _this2.setState({ page: page - 1 });
+                    return _this4.setState({ page: page - 1 });
                 } }),
             (sliceStart || sliceEnd) && _react2['default'].createElement(
                 'div',
@@ -198,29 +342,46 @@ var MaterialTable = (function (_React$Component) {
                     return onPageNext();
                 } }),
             !onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
-                    return _this2.setState({ page: page + 1 });
+                    return _this4.setState({ page: page + 1 });
                 } })
         );
     };
 
     MaterialTable.prototype.render = function render() {
-        var _props3 = this.props;
-        var columns = _props3.columns;
-        var deselectOnClickAway = _props3.deselectOnClickAway;
-        var emptyStateString = _props3.emptyStateString;
-        var _props3$masterStyles = _props3.masterStyles;
-        var masterStyles = _props3$masterStyles === undefined ? {} : _props3$masterStyles;
-        var emptyStateStyle = _props3.emptyStateStyle;
-        var onSelectRows = _props3.onSelectRows;
-        var computeRowStyle = _props3.computeRowStyle;
-        var data = this.props.data;
-        var showCheckboxes = this.props.showCheckboxes;
+        var _props4 = this.props;
+        var columns = _props4.columns;
+        var deselectOnClickAway = _props4.deselectOnClickAway;
+        var emptyStateString = _props4.emptyStateString;
+        var _props4$masterStyles = _props4.masterStyles;
+        var masterStyles = _props4$masterStyles === undefined ? {} : _props4$masterStyles;
+        var emptyStateStyle = _props4.emptyStateStyle;
+        var onSelectRows = _props4.onSelectRows;
+        var computeRowStyle = _props4.computeRowStyle;
+        var actions = this.props.actions;
+        var _props5 = this.props;
+        var data = _props5.data;
+        var showCheckboxes = _props5.showCheckboxes;
+
+        var actionsColor = masterStyles.actionsColor || 'rgba(0,0,0,.33)';
+
+        // Detect sorting info
+        var sorter = this.computeSorter();
+        if (sorter) {
+            data = sorter.sorted();
+        }
 
         var pagination = this.computePagination();
         var paginator = undefined;
         if (pagination.use) {
             data = data.slice(pagination.sliceStart, pagination.sliceEnd);
             paginator = this.renderPagination(pagination);
+        }
+
+        var actionsColumn = undefined,
+            actionsSpan = 0;
+        if (actions && actions.length) {
+            actionsColumn = true;
+            actionsSpan = 1;
         }
 
         var rows = [];
@@ -238,7 +399,7 @@ var MaterialTable = (function (_React$Component) {
                     { className: "media-small-hide", style: _extends({}, masterStyles.row) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { colSpan: columns.length, style: headerStyle },
+                        { colSpan: columns.length + actionsSpan, style: headerStyle },
                         model.Subheader
                     )
                 ));
@@ -250,7 +411,7 @@ var MaterialTable = (function (_React$Component) {
                     { style: _extends({}, model.rowStyle, masterStyles.row) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        { colSpan: columns.length + actionsSpan, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
                         model.element
                     )
                 ));
@@ -284,7 +445,26 @@ var MaterialTable = (function (_React$Component) {
                             className: column.hideSmall ? 'media-small-hide' : null },
                         value
                     );
-                })
+                }),
+                actionsColumn && _react2['default'].createElement(
+                    _materialUi.TableRowColumn,
+                    { style: { overflow: 'visible', textOverflow: 'none', width: actions.length * 48 + 32 } },
+                    actions.map(function (a) {
+                        return _react2['default'].createElement(_materialUi.IconButton, {
+                            style: { padding: 14 },
+                            iconStyle: { fontSize: 20, color: actionsColor },
+                            onTouchTap: function () {
+                                a.onTouchTap(model);
+                            },
+                            iconClassName: a.iconClassName,
+                            tooltip: a.tooltip,
+                            disabled: a.disable ? a.disable(model) : null,
+                            onClick: function (e) {
+                                return e.stopPropagation();
+                            }
+                        });
+                    })
+                )
             ));
             if (model.expandedRow) {
                 rows.push(_react2['default'].createElement(
@@ -292,22 +472,29 @@ var MaterialTable = (function (_React$Component) {
                     { selectable: false, style: _extends({}, masterStyles.row, masterStyles.expandedRow) },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { colSpan: columns.length, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
+                        { colSpan: columns.length + actionsSpan, style: _extends({ height: 'auto', paddingLeft: 0, paddingRight: 0, backgroundColor: 'transparent' }, model.cellStyle) },
                         model.expandedRow
                     )
                 ));
             }
         });
         var headers = columns.map(function (column) {
+            var label = column.label;
+            if (sorter && column.sorter) {
+                label = sorter.renderHeader(column.name, column.label);
+            }
             return _react2['default'].createElement(
                 _materialUi.TableHeaderColumn,
                 {
                     style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }, masterStyles.head),
                     className: column.hideSmall ? 'media-small-hide' : null
                 },
-                column.label
+                label
             );
         });
+        if (actionsColumn) {
+            headers.push(_react2['default'].createElement(_materialUi.TableHeaderColumn, { style: { width: 48 * actions.length + 32 } }));
+        }
         if (emptyStateString && !rows.length) {
             showCheckboxes = false;
             rows = [_react2['default'].createElement(

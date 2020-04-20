@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/jaytaylor/go-hostsfile"
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
@@ -60,7 +61,7 @@ var urlCmd = &cobra.Command{
 
 func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 	// Get URL info from end user
-	e = promptBindURL(proxyConfig)
+	e = promptBindURL(proxyConfig, false)
 	if e != nil {
 		return
 	}
@@ -88,7 +89,7 @@ func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 	return
 }
 
-func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
+func promptBindURL(proxyConfig *install.ProxyConfig, resolveHosts bool) (e error) {
 
 	defaultPort := "8080"
 	var bindHost string
@@ -97,6 +98,17 @@ func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 		return
 	}
 	var items []string
+	var hasLocalhost bool
+	if resolveHosts {
+		if res, err := hostsfile.ReverseLookup("127.0.0.1"); err == nil {
+			for _, h := range res {
+				if h == "localhost" {
+					hasLocalhost = true
+				}
+				items = append(items, fmt.Sprintf("%s:%s", h, defaultPort))
+			}
+		}
+	}
 
 	testExt, eExt := net.GetOutboundIP()
 	if eExt == nil {
@@ -108,7 +120,13 @@ func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 		}
 		items = append(items, fmt.Sprintf("%s:%s", ip.String(), defaultPort))
 	}
-	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
+	if !hasLocalhost {
+		items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
+	}
+	resolveString := "Additional hosts from /etc/hosts..."
+	if !resolveHosts {
+		items = append(items, resolveString)
+	}
 
 	prompt := p.SelectWithAdd{
 		Label:    "Internal Url (address that the webserver will listen to, use ip:port or yourdomain.tld:port, without http/https)",
@@ -119,6 +137,9 @@ func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 	_, bindHost, e = prompt.Run()
 	if e != nil {
 		return
+	}
+	if bindHost == resolveString {
+		return promptBindURL(proxyConfig, true)
 	}
 
 	// Sanity checks

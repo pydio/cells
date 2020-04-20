@@ -27,6 +27,7 @@ import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
 import {v4 as uuid} from 'uuid'
+const {MaterialTable} = Pydio.requireLib('components');
 
 import Policy from '../policies/Policy'
 
@@ -110,15 +111,19 @@ let PoliciesBoard = React.createClass({
     },
 
     deletePolicy(policy){
-        "use strict";
-
-        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
-            const api = new sdk.EnterprisePolicyServiceApi(PydioApi.getRestClient());
-            api.deletePolicy(policy.Uuid).then(() => {
-                this.listPolicies();
-            }).catch((reason) => {
-                this.setState({error: reason});
-            });
+        const {pydio} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:pydio.MessageHash['ajxp_admin.policies.policy.delete.confirm'],
+            validCallback:() => {
+                ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                    const api = new sdk.EnterprisePolicyServiceApi(PydioApi.getRestClient());
+                    api.deletePolicy(policy.Uuid).then(() => {
+                        this.listPolicies();
+                    }).catch((reason) => {
+                        this.setState({error: reason});
+                    });
+                });
+            }
         });
     },
 
@@ -175,42 +180,77 @@ let PoliciesBoard = React.createClass({
         const {muiTheme, currentNode, pydio, accessByName} = this.props;
         let {readonly} = this.props;
         readonly = readonly || !accessByName('Create');
-        const {policies} = this.state;
+        const {policies, selectedPolicy, newPolicyId} = this.state;
         const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        const lists = Object.keys(policies).map((k) => {
+        const columns = [
+            {name:'Name',label:m('policy.name'), style:{fontSize: 15}, sorter:{type:'string', default:true}},
+            {name:'Rules', label:m('policy.rules'), style:{width:80, textAlign:'center'}, headerStyle:{width:80, textAlign:'center'}, renderCell:(row)=>row.Policies.length, sorter:{type:'number'}},
+            {name:'Description',label:m('policy.description'), sorter:{type:'string'}},
+        ];
+
+        const actions = [];
+        if(readonly){
+            actions.push({
+                iconClassName:'mdi mdi-eye',
+                tooltip:m('policy.display'),
+                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+            })
+        } else {
+            actions.push({
+                iconClassName:'mdi mdi-pencil',
+                tooltip:m('policy.edit'),
+                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+            });
+            actions.push({
+                iconClassName:'mdi mdi-delete',
+                tooltip:m('policy.delete'),
+                onTouchTap:(policy) => {this.deletePolicy(policy)}
+            });
+        }
+
+        const tables = Object.keys(policies).map((k)=> {
             if (readonly && k === 'acl') {
                 return null;
             }
+            const data = policies[k];
+            const dd = data.map(policy => {
+                if(policy.Uuid === selectedPolicy){
+                    return {...policy, expandedRow: (
+                        <Policy
+                            {...this.props}
+                            readonly={readonly}
+                            key={policy.Name}
+                            policy={policy}
+                            savePolicy={this.savePolicy.bind(this)}
+                            deletePolicy={this.deletePolicy.bind(this)}
+                            newPolicyWithRule={newPolicyId === policy.Uuid ? policy.Name : null}
+                        />
+                    )}
+                } else {
+                    return policy
+                }
+            });
             const title = m('type.' + k + '.title');
             const legend = m('type.' + k + '.legend');
-            const data = policies[k];
-            let items = [];
-            data.map((policy) => {
-                items.push(
-                    <Policy
-                        {...this.props}
-                        readonly={readonly}
-                        key={policy.Name}
-                        policy={policy}
-                        savePolicy={this.savePolicy.bind(this)}
-                        deletePolicy={this.deletePolicy.bind(this)}
-                        newPolicyWithRule={this.state.newPolicyId === policy.Uuid ? policy.Name : null}
-                    />);
-                items.push(<Divider style={{backgroundColor:adminStyles.body.lineColor}}/>);
-            });
-            items.pop();
             return (
                 <div>
+                    <AdminComponents.SubHeader title={title} legend={legend}/>
                     <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
-                        <div style={adminStyles.body.block.headerFull}>{title}</div>
-                        <List>{items}</List>
+                        <MaterialTable
+                            data={dd}
+                            columns={columns}
+                            actions={actions}
+                            deselectOnClickAway={true}
+                            showCheckboxes={false}
+                            masterStyles={adminStyles.body.tableMaster}
+                        />
                     </Paper>
-                    <div style={{padding: '0 24px', marginTop: -6, marginBottom: 24, ...adminStyles.body.legend}}>{legend}</div>
                 </div>
             );
         });
+
 
         const action = (
             <div>
@@ -263,7 +303,7 @@ let PoliciesBoard = React.createClass({
                     loading={this.state.loading}
                 />
                 <div className="layout-fill">
-                {lists}
+                    {tables}
                 </div>
             </div>
         );

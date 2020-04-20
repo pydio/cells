@@ -26,6 +26,8 @@ import NodeCard from '../virtual/NodeCard'
 import {Paper, Divider, IconButton, FlatButton, RaisedButton, Popover} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
+const {MaterialTable} = Pydio.requireLib('components');
+
 
 class VirtualNodes extends React.Component{
 
@@ -77,18 +79,68 @@ class VirtualNodes extends React.Component{
 
     render(){
         const {readonly, pydio, muiTheme, accessByName} = this.props;
-        const {nodes, dataSources, nodesLoaded, dataSourcesLoaded} = this.state;
+        const {nodes, dataSources, nodesLoaded, dataSourcesLoaded, selectedNode} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        let vNodes = [];
-        nodes.map((node) => {
-            vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly || !accessByName('Create')} adminStyles={adminStyles}/>);
+        const vNodes = nodes.map(node => {
+            if(node.getName() === selectedNode){
+                return {
+                    node: node,
+                    expandedRow: <NodeCard
+                        pydio={pydio}
+                        dataSources={dataSources}
+                        node={node}
+                        reloadList={this.reload.bind(this)}
+                        readonly={readonly || !accessByName('Create')}
+                        adminStyles={adminStyles}
+                        onSave={this.reload.bind(this)}
+                    />
+                }
+            } else {
+                return {node: node}
+            }
         });
 
         let headerActions = [];
         if(!readonly && accessByName('Create')){
             headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)} {...adminStyles.props.header.flatButton}/>);
+        }
+
+        const  columns = [
+            {name:'id', label:m('col.id'), style:{width:'25%', fontSize: 15}, headerStyle:{width:'25%'}, renderCell:(row)=>row.node.getName(), sorter:{type:'string'}},
+            {name:'code', label:m('col.code'), renderCell: (row)=> <pre>{row.node.getValue().split('\n').pop()}</pre>},
+        ];
+        const actions = [];
+        if(readonly) {
+            actions.push({
+                iconClassName:'mdi mdi-eye',
+                tooltip:m('code.display'),
+                onTouchTap:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
+            })
+        } else {
+            actions.push({
+                iconClassName:'mdi mdi-pencil',
+                tooltip:m('code.edit'),
+                onTouchTap:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
+            });
+            actions.push({
+                iconClassName:'mdi mdi-delete',
+                tooltip:m('delete'),
+                onTouchTap:(row) => {
+                    pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                        message:m('delete.confirm'),
+                        validCallback:() => {
+                            row.node.remove(()=>{
+                                this.reload();
+                            });
+                        }}
+                    );
+                },
+                disable:(row)=> {
+                    return row.node.getName() === 'cells' || row.node.getName() === 'my-files'
+                }
+            })
         }
 
         return (
@@ -108,7 +160,7 @@ class VirtualNodes extends React.Component{
                     onRequestClose={this.handleRequestClose.bind(this)}
                 >
                     <div style={{margin:'0 10px'}}>
-                        <ModernTextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={"Provide a label for this node"}/>
+                        <ModernTextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={m('label.new')}/>
                     </div>
                     <Divider/>
                     <div style={{textAlign:'right', padding:'4px 10px'}}>
@@ -119,17 +171,24 @@ class VirtualNodes extends React.Component{
                 <div className={"layout-fill"} style={{overflowY: 'auto'}}>
                     <div style={{padding: 20, paddingBottom: 0}}>
                         {m('legend.1')}
-                        <br/>
-                        {!readonly && accessByName('Create') &&
-                            <span>{m('legend.2')}</span>
-                        }
-
                     </div>
                     {nodesLoaded && dataSourcesLoaded &&
-                        vNodes
+                        <Paper {...adminStyles.body.block.props} style={adminStyles.body.block.container}>
+                            <MaterialTable
+                                columns={columns}
+                                data={vNodes}
+                                actions={actions}
+                                deselectOnClickAway={true}
+                                showCheckboxes={false}
+                                masterStyles={adminStyles.body.tableMaster}
+                            />
+                        </Paper>
                     }
                     {(!nodesLoaded || !dataSourcesLoaded) &&
                         <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.home.6']}</div>
+                    }
+                    {!readonly && accessByName('Create') &&
+                        <div style={{padding:'0 24px', opacity:'.5'}}>{m('legend.2')}</div>
                     }
                 </div>
             </div>

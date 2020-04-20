@@ -2178,6 +2178,12 @@
 			"revisionTime": "2016-01-12T19:33:35Z"
 		},
 		{
+			"checksumSHA1": "fcElpCl9VdrRP0OQkjipAIaQUDk=",
+			"path": "github.com/jaytaylor/go-hostsfile",
+			"revision": "8a26595405fb4058a2966e4a16dea1b0ddd5e012",
+			"revisionTime": "2020-03-27T01:57:46Z"
+		},
+		{
 			"checksumSHA1": "jTmR+fQieLQi9P4D7XGMPL4uQ8g=",
 			"path": "github.com/jaytaylor/html2text",
 			"revision": "190166da35878a77103b951ae035a473531c1fc2",

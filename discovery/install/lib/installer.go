@@ -106,8 +106,17 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 			result.JsonResult = string(data)
 			break
 		}
+		jData := map[string]interface{}{"message": "successfully connected to database"}
+		if installExists, adminExists, err := checkCellsInstallExists(dsn); err == nil {
+			if installExists {
+				jData["tablesFound"] = true
+			}
+			if adminExists {
+				jData["adminFound"] = true
+			}
+		}
 		result.Success = true
-		data, _ := json.Marshal(map[string]string{"message": "successfully connected to database"})
+		data, _ := json.Marshal(jData)
 		result.JsonResult = string(data)
 		break
 	default:

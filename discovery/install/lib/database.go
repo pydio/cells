@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"context"
 	"crypto/sha1"
 	"database/sql"
 	"errors"
@@ -28,6 +29,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pydio/cells/common/config"
@@ -138,7 +140,9 @@ func checkConnection(dsn string) error {
 			return err
 		} else {
 			// Open doesn't open a connection. Validate DSN data:
-			if err := db.Ping(); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
+			c, cf := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cf()
+			if err := db.PingContext(c); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
 				rootconf, _ := mysql.ParseDSN(dsn)
 				dbname := rootconf.DBName
 				rootconf.DBName = ""
@@ -213,4 +217,39 @@ func checkMysqlCharset(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func checkCellsInstallExists(dsn string) (install bool, admin bool, e error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return
+	}
+	rows, er := db.Query("SHOW TABLES LIKE 'idm_user_%'")
+	if er != nil {
+		return
+	}
+	defer rows.Close()
+	//var tables []string
+	var table string
+	var iut, iua bool
+	for rows.Next() {
+		if er = rows.Scan(&table); er == nil {
+			switch table {
+			case "idm_user_idx_tree":
+				iut = true
+			case "idm_user_attributes":
+				iua = true
+			}
+		}
+	}
+	if iut && iua {
+		install = true
+		q := "SELECT count(t.name) FROM `idm_user_idx_tree` as t , `idm_user_attributes` as a WHERE (a.name = 'profile' AND a.value = 'admin') AND (t.uuid = a.uuid) LIMIT 1"
+		var count int
+		if er := db.QueryRow(q).Scan(&count); er == nil && count > 0 {
+			admin = true
+		}
+	}
+
+	return
 }

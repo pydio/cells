@@ -84,12 +84,15 @@ class WsEditor extends React.Component {
     remove(){
         const {container} = this.state;
         const {closeEditor, reloadList, pydio} = this.props;
-        if (confirm(pydio.MessageHash['settings.35'])){
-            container.remove().then(() => {
-                reloadList();
-                closeEditor();
-            });
-        }
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:pydio.MessageHash['settings.35'],
+            validCallback:() => {
+                container.remove().then(() => {
+                    reloadList();
+                    closeEditor();
+                });
+            }
+        });
     }
 
     render(){

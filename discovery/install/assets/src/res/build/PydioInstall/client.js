@@ -76,7 +76,6 @@ var Client = function (_ApiClient) {
                     _this2.pollDiscovery(reloadObserver);
                 }
             }).catch(function (reason) {
-                console.log("Got events error", reason);
                 _this2.pollDiscovery(reloadObserver);
             });
         }

@@ -99,25 +99,25 @@
     "other": "Durchsuchen Sie Daten aus einem Google Cloud Storage-Bucket."
   },
   "ds.editor.storage.legend.versioning": {
-    "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
+    "other": "Richten Sie eine Versionsrichtlinie ein, um den Änderungsverlauf des Dateiinhalts beizubehalten. Beachten Sie, dass zusätzlicher Speicherplatz benötigt wird."
   },
   "ds.editor.storage.legend.encryption": {
-    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+    "other": "Die Verschlüsselung kann verwendet werden, um sicherzustellen, dass Dateien niemals in einem klaren Format im Speicher gespeichert werden. Dies kann nützlich sein, wenn Sie dem Speicheranbieter nicht vertrauen."
   },
   "ds.editor.storage.readOnly": {
-    "other": "Read-only mode"
+    "other": "Schreibgeschützter Modus"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+    "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Arbeitsbereiche als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
   },
   "ds.editor.storage.checksumMapper": {
-    "other": "Store checksums locally (do not modify objects)"
+    "other": "Prüfsummen lokal speichern (Objekte nicht ändern)"
   },
   "ds.editor.storage.nativeEtags": {
-    "other": "Use Native Etags (will disable Desktop Sync)"
+    "other": "Native Etags verwenden (deaktiviert die Desktop-Synchronisierung)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
+    "other": "Zur ordnungsgemäßen Erkennung von Änderungen werden Dateiprüfsummen (md5) von Zellen (oder, wenn möglich, vom Speicher mit einer vorhandenen Kopie) berechnet und als Metadaten an Objekte angehängt. Verwenden Sie für optimale Leistungen das Native ETags-Flag, um die ursprünglichen Speicherwerte beizubehalten. Beachten Sie jedoch, dass dadurch die Desktop-Synchronisierung für diese Datenquelle deaktiviert wird. Sie können die Änderung von Objekten auch einfach verhindern, während Sie weiterhin Prüfsummen berechnen, indem Sie Metadaten lokal speichern."
   },
   "ds.editor.new": {
     "other": "Neue Datenquelle"
@@ -228,13 +228,13 @@
     "other": "Kein Bucket gefunden"
   },
   "ds.editor.storage.s3.legend.tags": {
-    "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
+    "other": "Synchronisieren Sie S3-Tags aus Buckets oder Objekten (verwenden Sie eine durch Kommas getrennte Liste von Mustern, um sie abzugleichen). Bitte beachten Sie, dass dies zusätzliche Speicheranforderungen ausführt und den Synchronisierungsprozess verlangsamen kann. Ursprüngliche Tags werden intern pydio: s3-Bucket-Tag-NAME und pydio: s3-Objekt-Tag-NAME zugeordnet."
   },
   "ds.editor.storage.s3.bucketsTags": {
-    "other": "Buckets Tags (multiple buckets enabled)"
+    "other": "Buckets Tags (mehrere Buckets aktiviert)"
   },
   "ds.editor.storage.s3.objectsTags": {
-    "other": "Objects Tags"
+    "other": "Objekte Tags"
   },
   "ds.editor.title": {
     "other": "Datenquelle %s"
@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Richtlinienname"
   },
+  "policies.policy.rules": {
+    "other": "# Regeln"
+  },
+  "policies.policy.display": {
+    "other": "Richtlinienregeln anzeigen"
+  },
+  "policies.policy.edit": {
+    "other": "Richtlinienregeln bearbeiten"
+  },
+  "policies.policy.editLabels": {
+    "other": "Label bearbeiten"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Änderungen speichern"
+  },
+  "policies.policy.delete": {
+    "other": "Richtlinie löschen"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Möchten Sie diese Richtlinie wirklich löschen? Stellen Sie sicher, dass die Sicherheit der Anwendung dadurch nicht beeinträchtigt wird!"
+  },
   "policies.policy.new": {
     "other": "+ Neue Richtlinie"
   },
   "policies.policy.type": {
     "other": "Richtlinientyp"
+  },
+  "policies.rule.create": {
+    "other": "Neue Regel hinzufügen"
+  },
+  "policies.rule.delete": {
+    "other": "Regel löschen"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Möchten Sie diese Sicherheitsregel wirklich entfernen? Dies könnte das Sicherheitsmodell der Anwendung beschädigen!"
   },
   "policies.type.acl.legend": {
     "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Worspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Label"
   },
+  "virtual.col.id": {
+    "other": "Vorlagen-ID"
+  },
+  "virtual.col.code": {
+    "other": "Vorlagencode"
+  },
+  "virtual.label.new": {
+    "other": "Beschriftung für Vorlage"
+  },
   "virtual.legend.1": {
     "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Workspace als Ersatz für einen festen Datasource-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Workspace zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Cells Ordner zuberechnen."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Vorlagenpfade"
+  },
+  "virtual.save": {
+    "other": "Vorlage speichern"
+  },
+  "virtual.delete": {
+    "other": "Vorlage löschen"
+  },
+  "virtual.delete.confirm": {
+    "other": "Möchten Sie diesen Vorlagenpfad wirklich löschen? Dieser Schritt ist nicht umkehrbar!"
+  },
+  "virtual.code": {
+    "other": "Vorlagencode"
+  },
+  "virtual.code.display": {
+    "other": "Anzeigencode"
+  },
+  "virtual.code.edit": {
+    "other": "Code bearbeiten"
   },
   "ws.1": {
     "other": "Vorlagen verwalten"
@@ -1689,10 +1746,10 @@
     "other": "Trigger"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Löschen"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+    "other": "Soll der Aufgabe wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
   },
   "scheduler.trigger.create.node": {
     "other": "Node erstellen"
@@ -1710,7 +1767,7 @@
     "other": "Metadaten aktualisieren"
   },
   "scheduler.trigger.update.user-metadata": {
-    "other": "Update User Metadata"
+    "other": "Benützer Metadaten aktualisieren"
   },
   "scheduler.trigger.delete.node": {
     "other": "Node löschen"
@@ -1779,7 +1836,7 @@
     "other": "Beenden"
   },
   "scheduler.task.duration": {
-    "other": "Duration"
+    "other": "Laufzeit"
   },
   "scheduler.task.status": {
     "other": "Zustand"

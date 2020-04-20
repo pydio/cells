@@ -965,11 +965,41 @@
   "policies.policy.name": {
     "other": "Policy Name"
   },
+  "policies.policy.rules": {
+    "other": "# Rules"
+  },
+  "policies.policy.display": {
+    "other": "Show policy rules"
+  },
+  "policies.policy.edit": {
+    "other": "Edit policy rules"
+  },
+  "policies.policy.editLabels": {
+    "other": "Edit Labels"
+  },
+  "policies.policy.saveLabels": {
+    "other": "Save Changes"
+  },
+  "policies.policy.delete": {
+    "other": "Delete policy"
+  },
+  "policies.policy.delete.confirm": {
+    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+  },
   "policies.policy.new": {
     "other": "+ New Policy"
   },
   "policies.policy.type": {
     "other": "Policy Type"
+  },
+  "policies.rule.create": {
+    "other": "Add new rule"
+  },
+  "policies.rule.delete": {
+    "other": "Delete Rule"
+  },
+  "policies.rule.delete.confirm": {
+    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
   },
   "policies.type.acl.legend": {
     "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
@@ -1202,6 +1232,15 @@
   "virtual.label": {
     "other": "Label"
   },
+  "virtual.col.id": {
+    "other": "Template ID"
+  },
+  "virtual.col.code": {
+    "other": "Template Code"
+  },
+  "virtual.label.new": {
+    "other": "Label for template"
+  },
   "virtual.legend.1": {
     "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
   },
@@ -1210,6 +1249,24 @@
   },
   "virtual.title": {
     "other": "Template Paths"
+  },
+  "virtual.save": {
+    "other": "Save template"
+  },
+  "virtual.delete": {
+    "other": "Delete template"
+  },
+  "virtual.delete.confirm": {
+    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+  },
+  "virtual.code": {
+    "other": "Template code"
+  },
+  "virtual.code.display": {
+    "other": "Display code"
+  },
+  "virtual.code.edit": {
+    "other": "Edit code"
   },
   "ws.1": {
     "other": "Manage DataSources"

@@ -60,6 +60,7 @@ and the user originating this call.
 		if configVersionDb != "" {
 			store = &file.BoltStore{FileName: configVersionDb}
 		} else {
+			config.Default()
 			store = config.VersionsStore
 		}
 

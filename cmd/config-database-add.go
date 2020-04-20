@@ -42,7 +42,7 @@ To assign the database connection to a service, you need to use the config datab
 	Run: func(cmd *cobra.Command, args []string) {
 
 		installConfig := lib.GenerateDefaultConfig()
-		if err := promptDB(installConfig); err != nil {
+		if _, err := promptDB(installConfig); err != nil {
 			cmd.Println(err)
 			os.Exit(1)
 		}

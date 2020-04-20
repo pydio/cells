@@ -17,12 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import React from 'react'
 import Rule from './Rule'
-import {ListItem, FontIcon, RaisedButton} from 'material-ui'
-import InlineLabel from './InlineLabel'
+import {ListItem, FontIcon, RaisedButton, IconButton} from 'material-ui'
 import {v4 as uuid} from 'uuid'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 class Policy extends React.Component{
 
@@ -53,6 +53,18 @@ class Policy extends React.Component{
         this.props.savePolicy(policy);
     }
 
+    saveLabels(){
+        const {pName, pDesc, policy} = this.state;
+        if(pName){
+            policy.Name = pName;
+        }
+        if(pDesc) {
+            policy.Description = pDesc;
+        }
+        this.setState({pName: null, pDesc: null});
+        this.props.savePolicy(policy);
+    }
+
     onRuleChange(rule){
 
         let policy = {...this.state.policy};
@@ -71,12 +83,6 @@ class Policy extends React.Component{
         let policy = {...this.state.policy};
         policy.Policies = policy.Policies.filter((p) => (p.id !== rule.id));
         this.props.savePolicy(policy, dontSave);
-    }
-
-    onDeletePolicy(){
-        if(window.confirm('Are you sure you want to delete this policy? This may break the security model of the application!')){
-            this.props.deletePolicy(this.state.policy);
-        }
     }
 
     onAddRule(event, ruleLabel = ""){
@@ -109,14 +115,18 @@ class Policy extends React.Component{
     }
 
     render(){
-        const {readonly} = this.props;
+        const {readonly, pydio} = this.props;
         const {policy, openRule} = this.state;
-        let nestedItems = policy.Policies.map((rule) => {
+
+        const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
+
+        const rules = policy.Policies.map((rule, i) => {
             return (
                 <Rule
                     {...this.props}
                     key={rule.description}
                     rule={rule}
+                    isLast={i === policy.Policies.length-1}
                     create={openRule === rule.id}
                     onRuleChange={this.onRuleChange.bind(this)}
                     onRemoveRule={this.onRemoveRule.bind(this)}
@@ -124,47 +134,60 @@ class Policy extends React.Component{
             );
         });
 
-        if(!readonly){
-            const buttonsContent = (
-                <div>
-                    <RaisedButton label={"Add New Rule"} onTouchTap={this.onAddRule.bind(this)}/>&nbsp;&nbsp;
-                    <RaisedButton label={"Delete Policy"} onTouchTap={this.onDeletePolicy.bind(this)}/>
+        const icButtonsProps = {
+            iconStyle:{fontSize:18, color:'rgba(0,0,0,.33)'},
+            style:{padding:8, width:36, height: 36},
+            tooltipPosition:"top-right"
+        };
+
+        const rulesTitle = (
+            <div style={{display:'flex', alignItems:'center'}}>
+                <div style={{fontSize: 14, fontWeight: 500}}>Rules</div>
+                {!readonly && <IconButton iconClassName={"mdi mdi-plus"} tooltip={m('rule.create')} onTouchTap={this.onAddRule.bind(this)} {...icButtonsProps} tooltipPosition={"bottom-right"}/>}
+            </div>
+        );
+
+        let labelsBlock;
+        if(!readonly) {
+            const {showLabels, pName, pDesc} = this.state;
+            const labelsModified = (pName && pName !== policy.Name) || (pDesc && pDesc !== policy.Description);
+            labelsBlock = (
+                <div style={{marginTop: 10, paddingTop: 10}}>
+                    <div style={{display:'flex', alignItems:'center'}}>
+                        <div  style={{fontSize: 14, fontWeight: 500}}>Edit Labels</div>
+                        <IconButton iconClassName={"mdi mdi-chevron-" + (showLabels?'down':'right')} tooltip={m('policy.editLabels')} onTouchTap={()=>this.setState({showLabels:!showLabels})} {...icButtonsProps}/>
+                    </div>
+                    <div style={{display: showLabels?'flex':'none'}}>
+                        <div style={{marginRight:6, flex: 1}}>
+                            <ModernTextField value={pName || policy.Name} fullWidth={true} onChange={(e,v)=>{this.setState({pName:v})}}/>
+                        </div>
+                        <div style={{marginLeft:6, flex: 1}}>
+                            <ModernTextField value={pDesc || policy.Description} fullWidth={true} onChange={(e,v)=>{this.setState({pDesc:v})}}/>
+                        </div>
+                        <div style={{width: 80}}>
+                            <IconButton
+                                disabled={!labelsModified}
+                                iconClassName={"mdi mdi-content-save"}
+                                tooltip={m('policy.saveLabels')}
+                                tooltipPosition={"top-center"}
+                                onTouchTap={()=>{
+                                    this.saveLabels();
+                                }}
+                                iconStyle={{fontSize:20, color:'rgba(0,0,0,'+(labelsModified?'.43':'.10')+')'}}
+                                style={{padding:14}}
+                            />
+                        </div>
+                    </div>
                 </div>
             );
-            nestedItems.push(
-                <ListItem
-                    primaryText={buttonsContent}
-                    disabled={true}
-                />
-            );
-        }
-
-        let ruleWord = 'rule';
-        const policyNumber = policy.Policies.length;
-        if(policyNumber > 1) {
-            ruleWord = 'rules';
-        }
-        const legend = <span>({policyNumber} {ruleWord})</span>;
-        let primaryText, secondaryText;
-        const secondaryStyle = {fontSize:14,color:'rgba(0, 0, 0, 0.54)'};
-        if(readonly) {
-            primaryText = policy.Name;
-            secondaryText = <div style={secondaryStyle}>{policy.Description}</div>
-        } else {
-            primaryText = <InlineLabel label={policy.Name} onChange={this.onNameChange.bind(this)}/>;
-            secondaryText = <div><InlineLabel onChange={this.onDescriptionChange.bind(this)} inputStyle={{fontSize:14,color:'rgba(0, 0, 0, 0.54)'}} label={policy.Description} legend={legend}/></div>;
         }
 
         return (
-            <ListItem
-                {...this.props}
-                primaryText={primaryText}
-                secondaryText={secondaryText}
-                nestedItems={nestedItems}
-                primaryTogglesNestedList={false}
-                disabled={true}
-                initiallyOpen={!!this.props.newPolicyWithRule}
-            />
+            <div style={{padding:'12px 24px', backgroundColor:'#f5f5f5'}}>
+                {rulesTitle}
+                {rules}
+                {labelsBlock}
+            </div>
         );
     }
 

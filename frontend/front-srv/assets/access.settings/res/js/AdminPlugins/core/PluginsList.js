@@ -114,6 +114,17 @@ const PluginsList = React.createClass({
                 />
             );
         };
+        const enabledSortValue = (row) => {
+            const enableValue = row.xmlNode.getAttribute("enabled");
+            const disabled = enableValue === 'always' || enableValue === 'auto'  || !accessByName('Create')  || row.id === 'meta.layout_sendfile';
+            if(disabled) {
+                return -1;
+            } else if (row.xmlNode.getAttribute('enabled') !== 'false'){
+                return 1;
+            } else {
+                return 0;
+            }
+        };
         const renderEditButton = (row) => {
             if(!accessByName('Create')){
                 return null;
@@ -121,7 +132,7 @@ const PluginsList = React.createClass({
             if(XMLUtils.XPathSelectNodes(row.xmlNode, "server_settings/global_param").length){
                 return (
                     <IconButton
-                        iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:21}}
+                        iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:20}}
                         iconClassName="mdi mdi-pencil"
                         tooltip={m('action.edit')}
                         onTouchTap={()=>this.openTableRows([row])}
@@ -141,10 +152,10 @@ const PluginsList = React.createClass({
 
         } else {
             columns = [
-                {name:'enabled', label: m('column.enabled'), style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
-                {name:'label', label: m('column.label'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-                {name:'id', label: m('column.id'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall: true},
-                {name:'description', label: m('column.description'), hideSmall: true},
+                {name:'enabled', label: m('column.enabled'), style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled, sorter:{type:'number', value:enabledSortValue}},
+                {name:'label', label: m('column.label'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}, sorter:{type:'string'}},
+                {name:'id', label: m('column.id'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall: true, sorter:{type:'string', default:true}},
+                {name:'description', label: m('column.description'), hideSmall: true, sorter:{type:'string'}},
                 {name:'action', label: '', style:{width:80, textOverflow:'inherit'}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
         }

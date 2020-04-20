@@ -1408,6 +1408,10 @@ var _policiesPolicy = require('../policies/Policy');
 
 var _policiesPolicy2 = _interopRequireDefault(_policiesPolicy);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
+
 var ResourceGroups = ["acl", "rest", "oidc"];
 
 var PoliciesBoard = _react2['default'].createClass({
@@ -1493,17 +1497,22 @@ var PoliciesBoard = _react2['default'].createClass({
     },
 
     deletePolicy: function deletePolicy(policy) {
-        "use strict";
-
         var _this3 = this;
 
-        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.deletePolicy(policy.Uuid).then(function () {
-                _this3.listPolicies();
-            })['catch'](function (reason) {
-                _this3.setState({ error: reason });
-            });
+        var pydio = this.props.pydio;
+
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message: pydio.MessageHash['ajxp_admin.policies.policy.delete.confirm'],
+            validCallback: function validCallback() {
+                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    api.deletePolicy(policy.Uuid).then(function () {
+                        _this3.listPolicies();
+                    })['catch'](function (reason) {
+                        _this3.setState({ error: reason });
+                    });
+                });
+            }
         });
     },
 
@@ -1572,54 +1581,82 @@ var PoliciesBoard = _react2['default'].createClass({
         var readonly = this.props.readonly;
 
         readonly = readonly || !accessByName('Create');
-        var policies = this.state.policies;
+        var _state = this.state;
+        var policies = _state.policies;
+        var selectedPolicy = _state.selectedPolicy;
+        var newPolicyId = _state.newPolicyId;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
         };
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        var lists = Object.keys(policies).map(function (k) {
+        var columns = [{ name: 'Name', label: m('policy.name'), style: { fontSize: 15 }, sorter: { type: 'string', 'default': true } }, { name: 'Rules', label: m('policy.rules'), style: { width: 80, textAlign: 'center' }, headerStyle: { width: 80, textAlign: 'center' }, renderCell: function renderCell(row) {
+                return row.Policies.length;
+            }, sorter: { type: 'number' } }, { name: 'Description', label: m('policy.description'), sorter: { type: 'string' } }];
+
+        var actions = [];
+        if (readonly) {
+            actions.push({
+                iconClassName: 'mdi mdi-eye',
+                tooltip: m('policy.display'),
+                onTouchTap: function onTouchTap(policy) {
+                    return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
+                }
+            });
+        } else {
+            actions.push({
+                iconClassName: 'mdi mdi-pencil',
+                tooltip: m('policy.edit'),
+                onTouchTap: function onTouchTap(policy) {
+                    return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
+                }
+            });
+            actions.push({
+                iconClassName: 'mdi mdi-delete',
+                tooltip: m('policy.delete'),
+                onTouchTap: function onTouchTap(policy) {
+                    _this5.deletePolicy(policy);
+                }
+            });
+        }
+
+        var tables = Object.keys(policies).map(function (k) {
             if (readonly && k === 'acl') {
                 return null;
             }
+            var data = policies[k];
+            var dd = data.map(function (policy) {
+                if (policy.Uuid === selectedPolicy) {
+                    return _extends({}, policy, { expandedRow: _react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
+                            readonly: readonly,
+                            key: policy.Name,
+                            policy: policy,
+                            savePolicy: _this5.savePolicy.bind(_this5),
+                            deletePolicy: _this5.deletePolicy.bind(_this5),
+                            newPolicyWithRule: newPolicyId === policy.Uuid ? policy.Name : null
+                        })) });
+                } else {
+                    return policy;
+                }
+            });
             var title = m('type.' + k + '.title');
             var legend = m('type.' + k + '.legend');
-            var data = policies[k];
-            var items = [];
-            data.map(function (policy) {
-                items.push(_react2['default'].createElement(_policiesPolicy2['default'], _extends({}, _this5.props, {
-                    readonly: readonly,
-                    key: policy.Name,
-                    policy: policy,
-                    savePolicy: _this5.savePolicy.bind(_this5),
-                    deletePolicy: _this5.deletePolicy.bind(_this5),
-                    newPolicyWithRule: _this5.state.newPolicyId === policy.Uuid ? policy.Name : null
-                })));
-                items.push(_react2['default'].createElement(_materialUi.Divider, { style: { backgroundColor: adminStyles.body.lineColor } }));
-            });
-            items.pop();
             return _react2['default'].createElement(
                 'div',
                 null,
+                _react2['default'].createElement(AdminComponents.SubHeader, { title: title, legend: legend }),
                 _react2['default'].createElement(
                     _materialUi.Paper,
                     _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: adminStyles.body.block.headerFull },
-                        title
-                    ),
-                    _react2['default'].createElement(
-                        _materialUi.List,
-                        null,
-                        items
-                    )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: _extends({ padding: '0 24px', marginTop: -6, marginBottom: 24 }, adminStyles.body.legend) },
-                    legend
+                    _react2['default'].createElement(MaterialTable, {
+                        data: dd,
+                        columns: columns,
+                        actions: actions,
+                        deselectOnClickAway: true,
+                        showCheckboxes: false,
+                        masterStyles: adminStyles.body.tableMaster
+                    })
                 )
             );
         });
@@ -1688,7 +1725,7 @@ var PoliciesBoard = _react2['default'].createClass({
             _react2['default'].createElement(
                 'div',
                 { className: 'layout-fill' },
-                lists
+                tables
             )
         );
     }
@@ -1699,7 +1736,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":60,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid":2}],14:[function(require,module,exports){
+},{"../policies/Policy":59,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid":2}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1880,7 +1917,7 @@ var RolesDashboard = _react2['default'].createClass({
                 roleId: role.Uuid,
                 roleLabel: label,
                 isDefault: role.AutoApplies.join(', ') || '-',
-                roleSummary: new Date(parseInt(role.LastUpdated) * 1000).toISOString()
+                lastUpdated: role.LastUpdated
             });
         });
         return data;
@@ -1939,17 +1976,31 @@ var RolesDashboard = _react2['default'].createClass({
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                if (hasEditRight && row.role.PoliciesContextEditable) {
-                    return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                            _this5.deleteAction(row.roleId);
-                        }, onClick: function (e) {
-                            e.stopPropagation();
-                        }, iconStyle: iconStyle });
-                } else {
-                    return null;
+        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' }, sorter: { type: 'string', 'default': true } }, { name: 'lastUpdated', useMoment: true, label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true, sorter: { type: 'number' } }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true, sorter: { type: 'string' } }];
+
+        var tableActions = [];
+        if (hasEditRight) {
+            tableActions.push({
+                iconClassName: "mdi mdi-pencil",
+                tooltip: 'Edit',
+                onTouchTap: function onTouchTap(row) {
+                    _this5.openRoleEditor(row.role);
+                },
+                disable: function disable(row) {
+                    return !row.role.PoliciesContextEditable;
                 }
-            } }];
+            });
+            tableActions.push({
+                iconClassName: "mdi mdi-delete",
+                tooltip: 'Delete',
+                onTouchTap: function onTouchTap(row) {
+                    _this5.deleteAction(row.role.Uuid);
+                },
+                disable: function disable(row) {
+                    return !row.role.PoliciesContextEditable;
+                }
+            });
+        }
         var data = this.computeTableData(searchRoleString);
 
         var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
@@ -1983,6 +2034,7 @@ var RolesDashboard = _react2['default'].createClass({
                     _react2['default'].createElement(MaterialTable, {
                         data: data,
                         columns: columns,
+                        actions: tableActions,
                         onSelectRows: selectRows,
                         deselectOnClickAway: true,
                         showCheckboxes: false,
@@ -6833,160 +6885,6 @@ window.AdminPeople = {
 
 },{"./board/Callbacks":11,"./board/Dashboard":12,"./board/PoliciesBoard":13,"./board/RolesDashboard":14,"./editor/ACL":21,"./editor/Info":26,"./editor/Model":29,"./editor/Params":34,"./editor/User":37,"./editor/Util":41,"./forms/CreateRoleOrGroupForm":56,"./forms/CreateUserForm":57}],59:[function(require,module,exports){
 /*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var InlineLabel = (function (_React$Component) {
-    _inherits(InlineLabel, _React$Component);
-
-    function InlineLabel(props) {
-        _classCallCheck(this, InlineLabel);
-
-        _get(Object.getPrototypeOf(InlineLabel.prototype), 'constructor', this).call(this, props);
-        this.state = { edit: false, hover: false, label: props.label };
-    }
-
-    _createClass(InlineLabel, [{
-        key: 'onChange',
-        value: function onChange(event, value) {
-            this.setState({ label: value });
-        }
-    }, {
-        key: 'onEnter',
-        value: function onEnter(event) {
-            if (event.key === "Enter") {
-                this.setState({ edit: false });
-                this.props.onChange(this.state.label);
-            }
-        }
-    }, {
-        key: 'cancel',
-        value: function cancel() {
-            this.setState({ edit: false, hover: false, label: this.props.label });
-        }
-    }, {
-        key: 'open',
-        value: function open(event) {
-            var _this = this;
-
-            this.setState({
-                edit: true,
-                elementWidth: Math.max(event.target.offsetWidth, 256)
-            }, function () {
-                _this.refs.text.select();
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var edit = _state.edit;
-            var hover = _state.hover;
-            var label = _state.label;
-
-            if (edit) {
-                return _react2['default'].createElement(
-                    'div',
-                    { style: { backgroundColor: '#f4f4f4' } },
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: this.state.elementWidth,
-                        style: { marginTop: -20, width: this.state.elementWidth },
-                        value: label,
-                        onChange: this.onChange.bind(this),
-                        onKeyDown: this.onEnter.bind(this),
-                        underlineShow: false,
-                        ref: 'text',
-                        inputStyle: this.props.inputStyle,
-                        onBlur: this.cancel.bind(this)
-                    }),
-                    ' ',
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { fontStyle: 'italic', opacity: 0.8 } },
-                        '(Hit enter to save)'
-                    )
-                );
-            } else {
-                var editIcon = undefined;
-                if (hover) {
-                    editIcon = _react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { color: '#e0e0e0' }, onMouseOver: function () {
-                            _this2.setState({ hover: true });
-                        } });
-                }
-                return _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement(
-                        'span',
-                        {
-                            style: { pointer: 'cursor' },
-                            title: 'Click to edit',
-                            onClick: this.open.bind(this),
-                            onMouseOver: function () {
-                                _this2.setState({ hover: true });
-                            },
-                            onMouseOut: function () {
-                                _this2.setState({ hover: false });
-                            }
-                        },
-                        label,
-                        ' ',
-                        editIcon,
-                        ' '
-                    ),
-                    this.props.legend
-                );
-            }
-        }
-    }]);
-
-    return InlineLabel;
-})(_react2['default'].Component);
-
-exports['default'] = InlineLabel;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],60:[function(require,module,exports){
-/*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
@@ -7005,7 +6903,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -7024,6 +6921,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -7034,11 +6935,11 @@ var _Rule2 = _interopRequireDefault(_Rule);
 
 var _materialUi = require('material-ui');
 
-var _InlineLabel = require('./InlineLabel');
-
-var _InlineLabel2 = _interopRequireDefault(_InlineLabel);
-
 var _uuid = require('uuid');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var Policy = (function (_React$Component) {
     _inherits(Policy, _React$Component);
@@ -7077,6 +6978,23 @@ var Policy = (function (_React$Component) {
             this.props.savePolicy(policy);
         }
     }, {
+        key: 'saveLabels',
+        value: function saveLabels() {
+            var _state = this.state;
+            var pName = _state.pName;
+            var pDesc = _state.pDesc;
+            var policy = _state.policy;
+
+            if (pName) {
+                policy.Name = pName;
+            }
+            if (pDesc) {
+                policy.Description = pDesc;
+            }
+            this.setState({ pName: null, pDesc: null });
+            this.props.savePolicy(policy);
+        }
+    }, {
         key: 'onRuleChange',
         value: function onRuleChange(rule) {
 
@@ -7102,13 +7020,6 @@ var Policy = (function (_React$Component) {
                 return p.id !== rule.id;
             });
             this.props.savePolicy(policy, dontSave);
-        }
-    }, {
-        key: 'onDeletePolicy',
-        value: function onDeletePolicy() {
-            if (window.confirm('Are you sure you want to delete this policy? This may break the security model of the application!')) {
-                this.props.deletePolicy(this.state.policy);
-            }
         }
     }, {
         key: 'onAddRule',
@@ -7149,76 +7060,113 @@ var Policy = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var readonly = this.props.readonly;
-            var _state = this.state;
-            var policy = _state.policy;
-            var openRule = _state.openRule;
+            var _props = this.props;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
+            var _state2 = this.state;
+            var policy = _state2.policy;
+            var openRule = _state2.openRule;
 
-            var nestedItems = policy.Policies.map(function (rule) {
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
+            };
+
+            var rules = policy.Policies.map(function (rule, i) {
                 return _react2['default'].createElement(_Rule2['default'], _extends({}, _this2.props, {
                     key: rule.description,
                     rule: rule,
+                    isLast: i === policy.Policies.length - 1,
                     create: openRule === rule.id,
                     onRuleChange: _this2.onRuleChange.bind(_this2),
                     onRemoveRule: _this2.onRemoveRule.bind(_this2)
                 }));
             });
 
-            if (!readonly) {
-                var buttonsContent = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Add New Rule", onTouchTap: this.onAddRule.bind(this) }),
-                    '  ',
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: "Delete Policy", onTouchTap: this.onDeletePolicy.bind(this) })
-                );
-                nestedItems.push(_react2['default'].createElement(_materialUi.ListItem, {
-                    primaryText: buttonsContent,
-                    disabled: true
-                }));
-            }
+            var icButtonsProps = {
+                iconStyle: { fontSize: 18, color: 'rgba(0,0,0,.33)' },
+                style: { padding: 8, width: 36, height: 36 },
+                tooltipPosition: "top-right"
+            };
 
-            var ruleWord = 'rule';
-            var policyNumber = policy.Policies.length;
-            if (policyNumber > 1) {
-                ruleWord = 'rules';
-            }
-            var legend = _react2['default'].createElement(
-                'span',
-                null,
-                '(',
-                policyNumber,
-                ' ',
-                ruleWord,
-                ')'
+            var rulesTitle = _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center' } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 14, fontWeight: 500 } },
+                    'Rules'
+                ),
+                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onTouchTap: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
             );
-            var primaryText = undefined,
-                secondaryText = undefined;
-            var secondaryStyle = { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' };
-            if (readonly) {
-                primaryText = policy.Name;
-                secondaryText = _react2['default'].createElement(
-                    'div',
-                    { style: secondaryStyle },
-                    policy.Description
-                );
-            } else {
-                primaryText = _react2['default'].createElement(_InlineLabel2['default'], { label: policy.Name, onChange: this.onNameChange.bind(this) });
-                secondaryText = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_InlineLabel2['default'], { onChange: this.onDescriptionChange.bind(this), inputStyle: { fontSize: 14, color: 'rgba(0, 0, 0, 0.54)' }, label: policy.Description, legend: legend })
-                );
+
+            var labelsBlock = undefined;
+            if (!readonly) {
+                (function () {
+                    var _state3 = _this2.state;
+                    var showLabels = _state3.showLabels;
+                    var pName = _state3.pName;
+                    var pDesc = _state3.pDesc;
+
+                    var labelsModified = pName && pName !== policy.Name || pDesc && pDesc !== policy.Description;
+                    labelsBlock = _react2['default'].createElement(
+                        'div',
+                        { style: { marginTop: 10, paddingTop: 10 } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex', alignItems: 'center' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { fontSize: 14, fontWeight: 500 } },
+                                'Edit Labels'
+                            ),
+                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onTouchTap: function () {
+                                    return _this2.setState({ showLabels: !showLabels });
+                                } }, icButtonsProps))
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: showLabels ? 'flex' : 'none' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { marginRight: 6, flex: 1 } },
+                                _react2['default'].createElement(ModernTextField, { value: pName || policy.Name, fullWidth: true, onChange: function (e, v) {
+                                        _this2.setState({ pName: v });
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { marginLeft: 6, flex: 1 } },
+                                _react2['default'].createElement(ModernTextField, { value: pDesc || policy.Description, fullWidth: true, onChange: function (e, v) {
+                                        _this2.setState({ pDesc: v });
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { width: 80 } },
+                                _react2['default'].createElement(_materialUi.IconButton, {
+                                    disabled: !labelsModified,
+                                    iconClassName: "mdi mdi-content-save",
+                                    tooltip: m('policy.saveLabels'),
+                                    tooltipPosition: "top-center",
+                                    onTouchTap: function () {
+                                        _this2.saveLabels();
+                                    },
+                                    iconStyle: { fontSize: 20, color: 'rgba(0,0,0,' + (labelsModified ? '.43' : '.10') + ')' },
+                                    style: { padding: 14 }
+                                })
+                            )
+                        )
+                    );
+                })();
             }
 
-            return _react2['default'].createElement(_materialUi.ListItem, _extends({}, this.props, {
-                primaryText: primaryText,
-                secondaryText: secondaryText,
-                nestedItems: nestedItems,
-                primaryTogglesNestedList: false,
-                disabled: true,
-                initiallyOpen: !!this.props.newPolicyWithRule
-            }));
+            return _react2['default'].createElement(
+                'div',
+                { style: { padding: '12px 24px', backgroundColor: '#f5f5f5' } },
+                rulesTitle,
+                rules,
+                labelsBlock
+            );
         }
     }]);
 
@@ -7228,7 +7176,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./InlineLabel":59,"./Rule":61,"material-ui":"material-ui","react":"react","uuid":2}],61:[function(require,module,exports){
+},{"./Rule":60,"material-ui":"material-ui","pydio":"pydio","react":"react","uuid":2}],60:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7254,8 +7202,6 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -7358,21 +7304,30 @@ var Rule = (function (_React$Component) {
     }, {
         key: 'removeRule',
         value: function removeRule() {
-            if (window.confirm('Are you sure you want to remove this security rule?')) {
-                this.props.onRemoveRule(this.props.rule);
-            }
+            var _props3 = this.props;
+            var pydio = _props3.pydio;
+            var onRemoveRule = _props3.onRemoveRule;
+            var rule = _props3.rule;
+
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message: pydio.MessageHash['ajxp_admin.policies.rule.delete.confirm'],
+                validCallback: function validCallback() {
+                    onRemoveRule(rule);
+                }
+            });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _props3 = this.props;
-            var rule = _props3.rule;
-            var readonly = _props3.readonly;
+            var _props4 = this.props;
+            var rule = _props4.rule;
+            var readonly = _props4.readonly;
+            var isLast = _props4.isLast;
 
             var iconColor = rule.effect === 'allow' ? '#33691e' : '#d32f2f';
             var buttons = [];
             if (!readonly) {
-                buttons = [_react2['default'].createElement('span', { className: 'mdi mdi-delete', style: { color: '#9e9e9e', cursor: 'pointer', marginLeft: 5 }, onTouchTap: this.removeRule.bind(this) }), _react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { color: '#9e9e9e', cursor: 'pointer', marginLeft: 5 }, onTouchTap: this.openEditor.bind(this) })];
+                buttons = [_react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onTouchTap: this.openEditor.bind(this) }), _react2['default'].createElement('span', { className: 'mdi mdi-delete', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onTouchTap: this.removeRule.bind(this) })];
             }
             var label = _react2['default'].createElement(
                 'div',
@@ -7381,12 +7336,17 @@ var Rule = (function (_React$Component) {
                 buttons
             );
 
-            return _react2['default'].createElement(_materialUi.ListItem, _extends({}, this.props, {
-                style: { fontStyle: 'italic', fontSize: 15 },
-                primaryText: label,
-                leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-traffic-light', color: iconColor }),
-                disabled: true
-            }));
+            return _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', padding: '6px 0 5px', borderBottom: isLast ? null : '1px solid white' } },
+                _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-traffic-light', color: iconColor, style: { fontSize: 16, marginRight: 10 } }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { flex: 1 } },
+                    rule.description,
+                    buttons
+                )
+            );
         }
     }]);
 
