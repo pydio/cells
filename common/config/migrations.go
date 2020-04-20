@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"strings"
 
@@ -35,7 +36,7 @@ var (
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, deleteConfigKeys, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL)
+	configsMigrations = append(configsMigrations, renameServices1, deleteConfigKeys, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL, movePydioConnectors)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -327,6 +328,67 @@ func migrateVault(vault *Config, defaultConfig *Config) bool {
 	}
 
 	return save
+}
+
+func movePydioConnectors(config *Config) (bool, error) {
+
+	var connectors []map[string]interface{}
+
+	key := "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors"
+	path := strings.Split(key, "/")
+
+	err := config.Get(path...).Scan(&connectors)
+	if err != nil {
+		return false, err
+	}
+
+	if connectors == nil {
+		return false, nil
+	}
+
+	var changed = false
+	for _, connector := range connectors {
+		typ, ok := connector["type"].(string)
+		if !ok {
+			log.Println("Connector type missing, skipping")
+			continue
+		}
+		if typ == "pydio" {
+			c, ok := connector["config"].(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			pydioconnectors, ok := c["pydioconnectors"].([]interface{})
+			if !ok {
+				continue
+			}
+
+			for _, p := range pydioconnectors {
+				pydioconnector := p.(map[string]interface{})
+				typ, ok := pydioconnector["type"].(string)
+				if !ok {
+					continue
+				}
+
+				if typ != "pydioapi" {
+					connectors = append(connectors, pydioconnector)
+					changed = true
+				}
+			}
+
+			// deleting pydio connector config
+			delete(c, "pydioconnectors")
+		}
+	}
+
+	if !changed {
+		return false, nil
+	}
+
+	config.Set(connectors, path...)
+
+	return true, nil
 }
 
 func stringSliceEqual(a, b []string) bool {
