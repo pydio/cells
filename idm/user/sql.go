@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -31,6 +32,8 @@ import (
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -254,9 +257,9 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.GroupLabel)
+		user.Attributes[idm.UserAttrLabelLike] = toASCII(user.GroupLabel)
 		if user.Attributes[idm.UserAttrDisplayName] != "" {
-			user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.Attributes[idm.UserAttrDisplayName])
+			user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Attributes[idm.UserAttrDisplayName])
 		}
 	} else if user.Login != "" {
 		if user.Attributes == nil {
@@ -264,7 +267,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 		user.Attributes[idm.UserAttrLabelLike] = user.Login
 		if user.Attributes[idm.UserAttrDisplayName] != "" {
-			user.Attributes[idm.UserAttrLabelLike] = strings.ToLower(user.Attributes[idm.UserAttrDisplayName])
+			user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Attributes[idm.UserAttrDisplayName])
 		}
 	}
 
@@ -702,4 +705,19 @@ func getMPathLike(mpath []byte) string {
 	}
 
 	return strings.Join(res, " and ")
+}
+
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
+// toASCII removes accented chars and converts to lowercase
+func toASCII(label string) string {
+	label = strings.ToLower(label)
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	if result, _, e := transform.String(t, label); e == nil {
+		return result
+	} else {
+		return label
+	}
 }

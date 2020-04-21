@@ -124,7 +124,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		if strings.Contains(q.Login, "*") && !q.Not {
 			// Special case for searching on "login LIKE" => use dedicated attribute instead
 			attributeOrLogin = true
-			q.Login = strings.ToLower(q.Login)
+			q.Login = toASCII(q.Login)
 			q.AttributeName = idm.UserAttrLabelLike
 			q.AttributeValue = q.Login
 		} else {
