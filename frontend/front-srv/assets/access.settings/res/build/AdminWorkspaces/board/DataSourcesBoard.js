@@ -78,6 +78,10 @@ var _modelDataSource = require('../model/DataSource');
 
 var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
 
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _uuid = require('uuid');
@@ -343,8 +347,9 @@ var DataSourcesBoard = (function (_React$Component) {
 
             var pydio = this.props.pydio;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
+                destructive: [policy.Name],
                 validCallback: function validCallback() {
                     _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                         var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
@@ -379,9 +384,63 @@ var DataSourcesBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'resyncDataSource',
+        value: function resyncDataSource(pydio, m, row) {
+            pydio.UI.openConfirmDialog({
+                message: m('editor.legend.resync'),
+                skipNext: 'datasource.resync.confirm',
+                validCallback: function validCallback() {
+                    var ds = new _modelDataSource2['default'](row);
+                    ds.resyncSource();
+                }
+            });
+        }
+    }, {
+        key: 'deleteDataSource',
+        value: function deleteDataSource(pydio, m, row) {
+            var _this5 = this;
+
+            pydio.UI.openConfirmDialog({
+                message: m('editor.delete.warning'),
+                validCallback: function validCallback() {
+                    var ds = new _modelDataSource2['default'](row);
+                    ds.deleteSource().then(function () {
+                        _this5.load();
+                    });
+                },
+                destructive: [row.Name]
+            });
+        }
+    }, {
+        key: 'createWorkspaceFromDatasource',
+        value: function createWorkspaceFromDatasource(pydio, m, row) {
+            var ws = new _modelWs2['default']();
+            var model = ws.getModel();
+            var dsName = row.Name;
+            model.Label = dsName;
+            model.Description = "Root of " + dsName;
+            model.Slug = dsName;
+            model.Attributes['DEFAULT_RIGHT'] = '';
+            var roots = model.RootNodes;
+            var fakeRoot = { Uuid: 'DATASOURCE:' + dsName, Path: dsName };
+            roots[fakeRoot.Uuid] = fakeRoot;
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitle: m('board.wsfromds.title'),
+                legendId: m('board.wsfromds.legend').replace('%s', dsName),
+                fieldLabelId: m('board.wsfromds.field'),
+                defaultValue: m('board.wsfromds.defaultPrefix').replace('%s', dsName),
+                submitValue: function submitValue(v) {
+                    model.Label = v;
+                    ws.save().then(function () {
+                        pydio.goTo('/data/workspaces');
+                    });
+                }
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this5 = this;
+            var _this6 = this;
 
             var _state2 = this.state;
             var dataSources = _state2.dataSources;
@@ -412,10 +471,10 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
                         ' ',
                         m('status.disabled')
-                    ) : _this5.computeStatus(row);
+                    ) : _this6.computeStatus(row);
                 },
                 sorter: { type: 'number', value: function value(row) {
-                        return _this5.computeStatus(row, true);
+                        return _this6.computeStatus(row, true);
                     } }
             }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
@@ -442,9 +501,18 @@ var DataSourcesBoard = (function (_React$Component) {
                     } else {
                         return row['VersioningPolicyName'] || '-';
                     }
-                }, sorter: { type: 'string' } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%' }, renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                }, sorter: { type: 'string' } }];
+                }, sorter: { type: 'string' } }, {
+                name: 'EncryptionMode',
+                label: m('encryption'),
+                hideSmall: true,
+                style: { width: '10%', textAlign: 'center' },
+                headerStyle: { width: '10%' },
+                renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? _react2['default'].createElement('span', { className: "mdi mdi-check" }) : '-';
+                },
+                sorter: { type: 'number', value: function value(row) {
+                        return row['EncryptionMode'] === 'MASTER' ? 1 : 0;
+                    } } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
@@ -454,7 +522,7 @@ var DataSourcesBoard = (function (_React$Component) {
             var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
             if (versioningEditable) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
-                        _this5.openVersionPolicy();
+                        _this6.openVersionPolicy();
                     } }, adminStyles.props.header.flatButton)));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 }, sorter: { type: 'string', 'default': true } }, { name: 'Description', label: m('versioning.description'), sorter: { type: 'string' } }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
@@ -467,25 +535,40 @@ var DataSourcesBoard = (function (_React$Component) {
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: 'Edit datasource',
                     onTouchTap: function onTouchTap(row) {
-                        _this5.openDataSource([row]);
+                        _this6.openDataSource([row]);
                     }
                 });
             }
             dsActions.push({
-                iconClassName: 'mdi mdi-refresh',
-                tooltip: 'Resynchronize',
+                iconClassName: 'mdi mdi-sync',
+                tooltip: m('editor.legend.resync.button'),
                 onTouchTap: function onTouchTap(row) {
-                    var ds = new _modelDataSource2['default'](row);
-                    ds.resyncSource();
+                    return _this6.resyncDataSource(pydio, m, row);
                 }
             });
+            dsActions.push({
+                iconClassName: 'mdi mdi-folder-plus',
+                tooltip: 'Create workspace here',
+                onTouchTap: function onTouchTap(row) {
+                    return _this6.createWorkspaceFromDatasource(pydio, m, row);
+                }
+            });
+            if (accessByName('CreateDatasource')) {
+                dsActions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: m('editor.legend.delete.button'),
+                    onTouchTap: function onTouchTap(row) {
+                        return _this6.deleteDataSource(pydio, m, row);
+                    }
+                });
+            }
 
             var vsActions = [];
             vsActions.push({
                 iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
                 tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
                 onTouchTap: function onTouchTap(row) {
-                    _this5.openVersionPolicy([row]);
+                    _this6.openVersionPolicy([row]);
                 }
             });
             if (versioningEditable) {
@@ -494,7 +577,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     tooltip: 'Delete policy',
                     destructive: true,
                     onTouchTap: function onTouchTap(row) {
-                        return _this5.deleteVersionPolicy(row);
+                        return _this6.deleteVersionPolicy(row);
                     }
                 });
             }

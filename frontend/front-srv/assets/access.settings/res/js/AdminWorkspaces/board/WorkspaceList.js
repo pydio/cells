@@ -78,8 +78,9 @@ export default React.createClass({
 
     deleteAction(workspace){
         const {pydio} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:pydio.MessageHash['settings.35'],
+            destructive:[workspace.Label],
             validCallback:() => {
                 const ws = new Workspace(workspace);
                 ws.remove().then(() => {

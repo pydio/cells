@@ -50,6 +50,8 @@ var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
 
 var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
@@ -162,17 +164,20 @@ var DataSourceEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this4 = this;
 
-            var m = this.state.m;
+            var _state = this.state;
+            var m = _state.m;
+            var observable = _state.observable;
             var pydio = this.props.pydio;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: m('delete.warning'),
                 validCallback: function validCallback() {
-                    _this4.state.observable.deleteSource().then(function () {
+                    observable.deleteSource().then(function () {
                         _this4.props.closeEditor();
                         _this4.props.reloadList();
                     });
-                }
+                },
+                destructive: [observable.getModel().Name]
             });
         }
     }, {
@@ -180,9 +185,9 @@ var DataSourceEditor = (function (_React$Component) {
         value: function saveSource() {
             var _this5 = this;
 
-            var _state = this.state;
-            var observable = _state.observable;
-            var create = _state.create;
+            var _state2 = this.state;
+            var observable = _state2.observable;
+            var create = _state2.create;
 
             this.state.observable.saveSource().then(function () {
                 var newDsName = null;
@@ -213,9 +218,9 @@ var DataSourceEditor = (function (_React$Component) {
     }, {
         key: 'confirmEncryption',
         value: function confirmEncryption(value) {
-            var _state2 = this.state;
-            var model = _state2.model;
-            var encryptionKeys = _state2.encryptionKeys;
+            var _state3 = this.state;
+            var model = _state3.model;
+            var encryptionKeys = _state3.encryptionKeys;
 
             model.EncryptionMode = value ? "MASTER" : "CLEAR";
             if (value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length) {
@@ -243,16 +248,16 @@ var DataSourceEditor = (function (_React$Component) {
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
             var readonly = _props.readonly;
-            var _state3 = this.state;
-            var model = _state3.model;
-            var create = _state3.create;
-            var observable = _state3.observable;
-            var encryptionKeys = _state3.encryptionKeys;
-            var versioningPolicies = _state3.versioningPolicies;
-            var showDialog = _state3.showDialog;
-            var dialogTargetValue = _state3.dialogTargetValue;
-            var s3Custom = _state3.s3Custom;
-            var m = _state3.m;
+            var _state4 = this.state;
+            var model = _state4.model;
+            var create = _state4.create;
+            var observable = _state4.observable;
+            var encryptionKeys = _state4.encryptionKeys;
+            var versioningPolicies = _state4.versioningPolicies;
+            var showDialog = _state4.showDialog;
+            var dialogTargetValue = _state4.dialogTargetValue;
+            var s3Custom = _state4.s3Custom;
+            var m = _state4.m;
 
             var titleActionBarButtons = [];
             if (!readonly) {
@@ -358,6 +363,7 @@ var DataSourceEditor = (function (_React$Component) {
 
             var title = model.Name ? m('title').replace('%s', model.Name) : m('new');
             var storageConfig = model.StorageConfiguration;
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
             var styles = {
                 title: {
                     fontSize: 20,
@@ -365,7 +371,7 @@ var DataSourceEditor = (function (_React$Component) {
                     marginBottom: 10
                 },
                 legend: {},
-                section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
+                section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
                 storageSection: { padding: 20, marginTop: -1 },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
@@ -443,7 +449,7 @@ var DataSourceEditor = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: styles.section },
+                    { zDepth: 0, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -462,7 +468,7 @@ var DataSourceEditor = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: _extends({}, styles.section, { padding: 0 }) },
+                    { zDepth: 0, style: _extends({}, styles.section, { padding: 0 }) },
                     _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
                             model.StorageType = v;
                         }, values: storageData }),
@@ -597,7 +603,7 @@ var DataSourceEditor = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: styles.section },
+                    { zDepth: 0, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -698,6 +704,8 @@ DataSourceEditor.contextTypes = {
     messages: _react2['default'].PropTypes.object,
     getMessage: _react2['default'].PropTypes.func
 };
+
+exports['default'] = DataSourceEditor = (0, _materialUiStyles.muiThemeable)()(DataSourceEditor);
 
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];

@@ -97,16 +97,19 @@ class TasksList extends React.Component {
     }
 
     deleteAll(){
-        if(window.confirm('Are you sure?')){
-            this.setLoading(true);
-            const {job} = this.props;
-            const store = JobsStore.getInstance();
-            store.deleteAllTasksForJob(job.ID).then(() => {
-                this.setLoading(false);
-            }).catch(()=> {
-                this.setLoading(false);
-            })
-        }
+        const {pydio, job} = this.props;
+        pydio.UI.openConfirmDialog({
+            message:pydio.MessageHash['ajxp_admin.scheduler.tasks.delete.confirm'],
+            validCallback:()=>{
+                this.setLoading(true);
+                const store = JobsStore.getInstance();
+                store.deleteAllTasksForJob(job.ID).then(() => {
+                    this.setLoading(false);
+                }).catch(()=> {
+                    this.setLoading(false);
+                })
+            }
+        });
     }
 
 

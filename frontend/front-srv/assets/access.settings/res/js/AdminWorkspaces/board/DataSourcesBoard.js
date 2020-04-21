@@ -30,6 +30,7 @@ import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
+import Workspace from '../model/Ws'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
 import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
@@ -211,8 +212,9 @@ class DataSourcesBoard extends React.Component {
 
     deleteVersionPolicy(policy){
         const {pydio} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
+            destructive:[policy.Name],
             validCallback:() => {
                 ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
                     const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
@@ -220,7 +222,7 @@ class DataSourcesBoard extends React.Component {
                         this.load();
                     });
                 });
-            }
+            },
         });
     }
 
@@ -241,6 +243,55 @@ class DataSourcesBoard extends React.Component {
         });
     }
 
+    resyncDataSource(pydio, m, row){
+        pydio.UI.openConfirmDialog({
+            message:m('editor.legend.resync'),
+            skipNext:'datasource.resync.confirm',
+            validCallback:() => {
+                const ds = new DataSource(row);
+                ds.resyncSource();
+            },
+        });
+    }
+
+    deleteDataSource(pydio, m, row){
+        pydio.UI.openConfirmDialog({
+            message:m('editor.delete.warning'),
+            validCallback:() => {
+                const ds = new DataSource(row);
+                ds.deleteSource().then(()=> {
+                    this.load();
+                });
+            },
+            destructive:[row.Name]
+        });
+    }
+
+    createWorkspaceFromDatasource(pydio, m, row){
+        const ws = new Workspace();
+        const model = ws.getModel();
+        const dsName = row.Name;
+        model.Label = dsName;
+        model.Description = "Root of " + dsName;
+        model.Slug = dsName;
+        model.Attributes['DEFAULT_RIGHT'] = '';
+        const roots = model.RootNodes;
+        const fakeRoot = {Uuid:'DATASOURCE:' +dsName, Path:dsName};
+        roots[fakeRoot.Uuid] = fakeRoot;
+        pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+            dialogTitle:m('board.wsfromds.title'),
+            legendId:m('board.wsfromds.legend').replace('%s', dsName),
+            fieldLabelId:m('board.wsfromds.field'),
+            defaultValue: m('board.wsfromds.defaultPrefix').replace('%s', dsName),
+            submitValue:(v) => {
+                model.Label = v;
+                ws.save().then(() => {
+                    pydio.goTo('/data/workspaces');
+                });
+            }
+        });
+    }
+
     render(){
         const {dataSources, versioningPolicies, m} = this.state;
         dataSources.sort(LangUtils.arraySorter('Name'));
@@ -251,9 +302,6 @@ class DataSourcesBoard extends React.Component {
         const {tableMaster} = body;
         const blockProps = body.block.props;
         const blockStyle = body.block.container;
-
-
-
 
         const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
@@ -289,9 +337,16 @@ class DataSourcesBoard extends React.Component {
                     return row['VersioningPolicyName'] || '-';
                 }
             }, sorter:{type:'string'}},
-            {name:'EncryptionMode', label:m('encryption'), hideSmall:true, style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%'}, renderCell:(row) => {
-                return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
-            }, sorter:{type:'string'}},
+            {
+                name:'EncryptionMode',
+                label:m('encryption'),
+                hideSmall:true,
+                style:{width:'10%', textAlign:'center'},
+                headerStyle:{width:'10%'},
+                renderCell:(row) => {
+                    return row['EncryptionMode'] === 'MASTER' ? <span className={"mdi mdi-check"}/> : '-' ;
+                },
+                sorter:{type:'number', value:(row)=> row['EncryptionMode'] === 'MASTER' ? 1 : 0 }},
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
@@ -320,13 +375,22 @@ class DataSourcesBoard extends React.Component {
             });
         }
         dsActions.push({
-            iconClassName:'mdi mdi-refresh',
-            tooltip:'Resynchronize',
-            onTouchTap:row => {
-                const ds = new DataSource(row);
-                ds.resyncSource();
-            }
+            iconClassName:'mdi mdi-sync',
+            tooltip:m('editor.legend.resync.button'),
+            onTouchTap:row => this.resyncDataSource(pydio, m, row)
         });
+        dsActions.push({
+            iconClassName:'mdi mdi-folder-plus',
+            tooltip:'Create workspace here',
+            onTouchTap:row => this.createWorkspaceFromDatasource(pydio, m, row)
+        });
+        if(accessByName('CreateDatasource')){
+            dsActions.push({
+                iconClassName:'mdi mdi-delete',
+                tooltip:m('editor.legend.delete.button'),
+                onTouchTap:row => this.deleteDataSource(pydio, m, row)
+            });
+        }
 
         const vsActions = [];
         vsActions.push({

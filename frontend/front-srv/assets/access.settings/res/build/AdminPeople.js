@@ -745,7 +745,7 @@ var Callbacks = (function () {
                 next();
             };
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: MessageHash[deleteMessageId],
                 validCallback: callback
             });
@@ -1501,8 +1501,9 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var pydio = this.props.pydio;
 
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['ajxp_admin.policies.policy.delete.confirm'],
+            destructive: [policy.Name],
             validCallback: function validCallback() {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
@@ -1880,8 +1881,9 @@ var RolesDashboard = _react2['default'].createClass({
 
         var pydio = this.props.pydio;
 
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['settings.126'],
+            destructive: [roleId],
             validCallback: function validCallback() {
                 _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(roleId).then(function () {
                     _this3.load();
@@ -7309,8 +7311,9 @@ var Rule = (function (_React$Component) {
             var onRemoveRule = _props3.onRemoveRule;
             var rule = _props3.rule;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: pydio.MessageHash['ajxp_admin.policies.rule.delete.confirm'],
+                destructive: [rule.description],
                 validCallback: function validCallback() {
                     onRemoveRule(rule);
                 }

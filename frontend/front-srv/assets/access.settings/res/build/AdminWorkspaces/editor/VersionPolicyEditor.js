@@ -100,15 +100,18 @@ var VersionPolicyEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this2 = this;
 
-            var m = this.state.m;
+            var _state = this.state;
+            var m = _state.m;
+            var policy = _state.policy;
             var pydio = this.props.pydio;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: m('delete.confirm'),
+                destructive: [policy.Label],
                 validCallback: function validCallback() {
                     _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                         var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                        api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
+                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
                             _this2.props.closeEditor();
                         });
                     });
@@ -176,12 +179,12 @@ var VersionPolicyEditor = (function (_React$Component) {
             var create = _props.create;
             var readonly = _props.readonly;
             var pydio = _props.pydio;
-            var _state = this.state;
-            var loaded = _state.loaded;
-            var parameters = _state.parameters;
-            var policy = _state.policy;
-            var saveValue = _state.saveValue;
-            var m = _state.m;
+            var _state2 = this.state;
+            var loaded = _state2.loaded;
+            var parameters = _state2.parameters;
+            var policy = _state2.policy;
+            var saveValue = _state2.saveValue;
+            var m = _state2.m;
 
             var form = undefined;
             if (parameters && loaded) {

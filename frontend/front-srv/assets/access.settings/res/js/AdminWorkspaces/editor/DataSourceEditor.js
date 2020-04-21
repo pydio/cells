@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import React from 'react'
 import DataSource from '../model/DataSource'
 import {Dialog, Divider, Subheader, SelectField, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
 import DataSourceBucketSelector from './DataSourceBucketSelector'
@@ -94,16 +95,17 @@ class DataSourceEditor extends React.Component{
     }
 
     deleteSource(){
-        const {m} = this.state;
+        const {m, observable} = this.state;
         const {pydio} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:m('delete.warning'),
             validCallback:() => {
-                this.state.observable.deleteSource().then(() => {
+                observable.deleteSource().then(() => {
                     this.props.closeEditor();
                     this.props.reloadList();
                 });
-            }
+            },
+            destructive:[observable.getModel().Name]
         });
     }
 
@@ -224,6 +226,7 @@ class DataSourceEditor extends React.Component{
 
         const title = model.Name ? m('title').replace('%s', model.Name) : m('new');
         let storageConfig = model.StorageConfiguration;
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette)
         const styles = {
             title: {
                 fontSize: 20,
@@ -231,7 +234,7 @@ class DataSourceEditor extends React.Component{
                 marginBottom: 10,
             },
             legend: {},
-            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white'},
+            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
             storageSection: {padding: 20, marginTop: -1},
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
@@ -283,14 +286,14 @@ class DataSourceEditor extends React.Component{
                         </div>
                     }
                 </Dialog>
-                <Paper zDepth={1} style={styles.section}>
+                <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('options')}</div>
                     <ModernTextField fullWidth={true}  hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
                     {!create &&
                         <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} {...ModernStyles.toggleField} /></div>
                     }
                 </Paper>
-                <Paper zDepth={1} style={{...styles.section, padding: 0}}>
+                <Paper zDepth={0} style={{...styles.section, padding: 0}}>
                     <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageData}/>
                     {model.StorageType === 'LOCAL' &&
                     <div style={styles.storageSection}>
@@ -357,7 +360,7 @@ class DataSourceEditor extends React.Component{
                     </div>
                     }
                 </Paper>
-                <Paper zDepth={1} style={styles.section}>
+                <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
 
                     {model.StorageType !== 'LOCAL' &&
@@ -428,5 +431,7 @@ DataSourceEditor.contextTypes = {
     messages    : React.PropTypes.object,
     getMessage  : React.PropTypes.func
 };
+
+DataSourceEditor = muiThemeable()(DataSourceEditor);
 
 export {DataSourceEditor as default};

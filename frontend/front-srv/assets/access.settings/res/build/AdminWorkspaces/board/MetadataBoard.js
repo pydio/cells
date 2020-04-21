@@ -100,8 +100,9 @@ var MetadataBoard = (function (_React$Component) {
             var pydio = this.props.pydio;
             var m = this.state.m;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: m('delete.confirm'),
+                destructive: [row.Namespace],
                 validCallback: function validCallback() {
                     _modelMetadata2['default'].deleteNS(row).then(function () {
                         _this2.load();

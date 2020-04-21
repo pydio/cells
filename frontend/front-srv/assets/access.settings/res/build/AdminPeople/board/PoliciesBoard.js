@@ -156,8 +156,9 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var pydio = this.props.pydio;
 
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['ajxp_admin.policies.policy.delete.confirm'],
+            destructive: [policy.Name],
             validCallback: function validCallback() {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());

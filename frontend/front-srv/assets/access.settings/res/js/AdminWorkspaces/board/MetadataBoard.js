@@ -51,8 +51,9 @@ class MetadataBoard extends React.Component{
     deleteNs(row){
         const {pydio} = this.props;
         const {m} = this.state;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:m('delete.confirm'),
+            destructive:[row.Namespace],
             validCallback:() => {
                 Metadata.deleteNS(row).then(() => {
                     this.load();

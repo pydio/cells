@@ -100,8 +100,9 @@ let RolesDashboard = React.createClass({
 
     deleteAction(roleId){
         const {pydio} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:pydio.MessageHash['settings.126'],
+            destructive:[roleId],
             validCallback:() => {
                 PydioApi.getRestClient().getIdmApi().deleteRole(roleId).then(()=> {
                     this.load();

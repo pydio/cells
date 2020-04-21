@@ -208,8 +208,9 @@ var VirtualNodes = (function (_React$Component) {
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('delete'),
                     onTouchTap: function onTouchTap(row) {
-                        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                        pydio.UI.openConfirmDialog({
                             message: m('delete.confirm'),
+                            destructive: [row.node.getName()],
                             validCallback: function validCallback() {
                                 row.node.remove(function () {
                                     _this4.reload();

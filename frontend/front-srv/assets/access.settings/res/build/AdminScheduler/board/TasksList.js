@@ -162,28 +162,33 @@ var TasksList = (function (_React$Component) {
         value: function deleteAll() {
             var _this2 = this;
 
-            if (window.confirm('Are you sure?')) {
-                this.setLoading(true);
-                var job = this.props.job;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var job = _props.job;
 
-                var store = JobsStore.getInstance();
-                store.deleteAllTasksForJob(job.ID).then(function () {
-                    _this2.setLoading(false);
-                })['catch'](function () {
-                    _this2.setLoading(false);
-                });
-            }
+            pydio.UI.openConfirmDialog({
+                message: pydio.MessageHash['ajxp_admin.scheduler.tasks.delete.confirm'],
+                validCallback: function validCallback() {
+                    _this2.setLoading(true);
+                    var store = JobsStore.getInstance();
+                    store.deleteAllTasksForJob(job.ID).then(function () {
+                        _this2.setLoading(false);
+                    })['catch'](function () {
+                        _this2.setLoading(false);
+                    });
+                }
+            });
         }
     }, {
         key: 'insertTaskLogRow',
         value: function insertTaskLogRow(rows) {
             var _this3 = this;
 
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var job = _props.job;
-            var _props$descriptions = _props.descriptions;
-            var descriptions = _props$descriptions === undefined ? [] : _props$descriptions;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var job = _props2.job;
+            var _props2$descriptions = _props2.descriptions;
+            var descriptions = _props2$descriptions === undefined ? [] : _props2$descriptions;
             var _state = this.state;
             var taskLogs = _state.taskLogs;
             var mode = _state.mode;
@@ -213,10 +218,10 @@ var TasksList = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var _props2 = this.props;
-            var pydio = _props2.pydio;
-            var adminStyles = _props2.adminStyles;
-            var job = _props2.job;
+            var _props3 = this.props;
+            var pydio = _props3.pydio;
+            var adminStyles = _props3.adminStyles;
+            var job = _props3.job;
             var _state2 = this.state;
             var selectedRows = _state2.selectedRows;
             var working = _state2.working;

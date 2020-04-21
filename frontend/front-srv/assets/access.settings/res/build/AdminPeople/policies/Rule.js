@@ -130,8 +130,9 @@ var Rule = (function (_React$Component) {
             var onRemoveRule = _props3.onRemoveRule;
             var rule = _props3.rule;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: pydio.MessageHash['ajxp_admin.policies.rule.delete.confirm'],
+                destructive: [rule.description],
                 validCallback: function validCallback() {
                     onRemoveRule(rule);
                 }
