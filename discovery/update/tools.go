@@ -100,10 +100,30 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 	marshaller := jsonpb.Marshaler{}
 	jsonReq, _ := marshaller.MarshalToString(request)
 	reader := strings.NewReader(string(jsonReq))
-	response, err := http.Post(strings.TrimRight(parsed.String(), "/")+"/", "application/json", reader)
-	if err != nil {
-		return nil, err
+	proxy := os.Getenv("CELLS_UPDATE_HTTP_PROXY")
+	
+	var response *http.Response
+	var err error
+	if proxy == "" {		
+		response, err = http.Post(strings.TrimRight(parsed.String(), "/")+"/", "application/json", reader)
+		if err != nil {
+			return nil, err
+		}
+	}else{		
+		postRequest, err := http.NewRequest("POST", strings.TrimRight(parsed.String(), "/")+"/", reader)
+		if err != nil {
+			return nil, err
+		}
+		postRequest.Header.Add("Content-type","application/json")
+
+		proxyUrl, err := url.Parse(proxy)
+		if err != nil {
+			return nil, err
+		}
+		myClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+		response, err = myClient.Do(postRequest)
 	}
+	
 	if response.StatusCode != 200 {
 		rErr := fmt.Errorf("could not connect to the update server, error code was %d", response.StatusCode)
 		if response.StatusCode == 500 {
