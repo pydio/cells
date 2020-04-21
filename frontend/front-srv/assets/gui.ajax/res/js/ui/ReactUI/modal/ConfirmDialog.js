@@ -17,10 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
+import {Checkbox} from 'material-ui'
 
 export default React.createClass({
 
@@ -37,16 +38,61 @@ export default React.createClass({
 
     getDefaultProps: function(){
         return {
-            dialogTitle: 'Confirm',
+            dialogTitle: Pydio.getInstance().MessageHash['confirm.dialog.title'],
             dialogIsModal: true
         };
     },
+    getInitialState(){
+        return {};
+    },
     submit(){
-        this.props.validCallback();
+        const {validCallback, skipNext} = this.props;
+        const {skipChecked} = this.state;
+        if(skipNext && skipChecked){
+            localStorage.setItem('confirm.skip.' + skipNext, 'true');
+        }
+        validCallback();
         this.dismiss();
     },
     render: function(){
-        return <div>{this.props.message}</div>;
+        const {destructive, message, skipNext, pydio} = this.props;
+        const {skipChecked} = this.state;
+        const m = (id) => pydio.MessageHash['confirm.dialog.' + id] || id;
+        let dMess, sMess;
+        if(destructive && destructive.join){
+            dMess = (
+                <div style={{marginTop:12}}>
+                    {m('destructive')} : <span style={{color: '#C62828'}}>{destructive.join(', ')}</span>.
+                </div>
+            );
+        }
+        if(skipNext) {
+            if(localStorage.getItem('confirm.skip.' + skipNext)) {
+                this.submit();
+                return null;
+            } else {
+                sMess = (
+                    <div style={{marginTop:24, marginBottom: -24}}>
+                        <Checkbox
+                            checked={skipChecked}
+                            onCheck={(e,v) => {this.setState({skipChecked:v})}}
+                            labelPosition={"right"}
+                            label={m('skipNext')}
+                            labelStyle={{color:'inherit'}}
+                        />
+                    </div>
+                )
+            }
+        }
+        return (
+            <div>
+                {message}
+                {dMess && <br/>}
+                {dMess}
+                {sMess && <br/>}
+                {sMess}
+            </div>
+        );
     }
 
 });
