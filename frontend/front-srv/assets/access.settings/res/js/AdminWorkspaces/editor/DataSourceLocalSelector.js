@@ -21,8 +21,8 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestListPeerFoldersRequest, TreeNode} from 'pydio/http/rest-api'
-import {SelectField, TextField, MenuItem, FontIcon, AutoComplete, RefreshIndicator} from 'material-ui'
+import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'pydio/http/rest-api'
+import {SelectField, TextField, MenuItem, FontIcon, IconButton, AutoComplete, RefreshIndicator} from 'material-ui'
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'
 import PathUtils from 'pydio/util/path'
@@ -91,7 +91,7 @@ class AutocompleteTree extends React.Component{
             basePath = searchText.substr(0, last);
         }
         if(this.lastSearch !== null && this.lastSearch === basePath){
-            return;
+            return Promise.resolve();
         }
         this.lastSearch = basePath;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
@@ -99,7 +99,7 @@ class AutocompleteTree extends React.Component{
         listRequest.PeerAddress = peerAddress;
         listRequest.Path = basePath;
         this.setState({loading: true});
-        api.listPeerFolders(peerAddress, listRequest).then(nodesColl => {
+        return api.listPeerFolders(peerAddress, listRequest).then(nodesColl => {
             let children = nodesColl.Children || [];
             children = children.map(c => {
                 if(c.Path[0] !== '/'){
@@ -111,6 +111,24 @@ class AutocompleteTree extends React.Component{
         }).catch(() => {
             this.setState({loading: false});
         })
+    }
+
+    createFolder(newName){
+        const {peerAddress, pydio} = this.props;
+        const {value} = this.state;
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const createRequest = new RestCreatePeerFolderRequest();
+        createRequest.PeerAddress = peerAddress;
+        createRequest.Path = value + '/' + newName;
+        api.createPeerFolder(peerAddress, createRequest).then(result => {
+            this.lastSearch = null; // Force reload
+            this.loadValues(value).then(()=>{
+                // Select path after reload
+                this.handleNewRequest(createRequest.Path);
+            });
+        }).catch(e => {
+            pydio.UI.displayMessage('ERROR', e.message);
+        });
     }
 
     renderNode(node) {
@@ -132,10 +150,29 @@ class AutocompleteTree extends React.Component{
         };
     }
 
+
+
+    showCreateDialog(){
+        const {pydio} = this.props;
+        const {value} = this.state;
+        const m = id => pydio.MessageHash['ajxp_admin.ds.editor.selector.' + id] || id;
+        pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+            dialogTitle     : m('mkdir'),
+            legendId        : m('mkdir.legend').replace('%s', value),
+            fieldLabelId    : m('mkdir.field'),
+            submitValue:(v) => {
+                if(!v){
+                    return;
+                }
+                this.createFolder(v);
+            }
+        });
+    }
+
     render(){
 
-        const {nodes, loading, exist, value} = this.state;
-        const {fieldLabel} = this.props;
+        const {nodes, loading, exist, value, searchText} = this.state;
+        const {fieldLabel, pydio} = this.props;
         let dataSource = [];
         if (nodes){
             nodes.forEach((node) => {
@@ -148,13 +185,23 @@ class AutocompleteTree extends React.Component{
         return (
             <div style={{position:'relative', marginTop: -5}}>
                 <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
-                <RefreshIndicator
-                    size={30}
-                    left={0}
-                    top={0}
-                    status={loading ? "loading" : "hide"}
-                />
+                    <RefreshIndicator
+                        size={30}
+                        left={0}
+                        top={0}
+                        status={loading ? "loading" : "hide"}
+                    />
                 </div>
+                {value && exist && !loading && (!searchText || searchText === value) &&
+                    <div style={{position:'absolute', right: 0}}>
+                        <IconButton
+                            iconClassName={"mdi mdi-folder-plus"}
+                            iconStyle={{color:'#9e9e9e'}}
+                            onTouchTap={()=>this.showCreateDialog()}
+                            tooltip={pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']}
+                        />
+                    </div>
+                }
                 <AutoComplete
                     fullWidth={true}
                     searchText={displayText}
@@ -254,7 +301,7 @@ class DataSourceLocalSelector extends React.Component{
 
     render(){
 
-        const {model} = this.props;
+        const {model, pydio} = this.props;
         const {peerAddresses, invalidAddress, invalid, m} = this.state;
         let pAds = peerAddresses || [];
         if(invalidAddress){
@@ -278,6 +325,7 @@ class DataSourceLocalSelector extends React.Component{
                 <div>
                     {model.PeerAddress &&
                     <AutocompleteTree
+                        pydio={pydio}
                         value={model.StorageConfiguration.folder}
                         peerAddress={model.PeerAddress}
                         onChange={this.onPathChange.bind(this)}

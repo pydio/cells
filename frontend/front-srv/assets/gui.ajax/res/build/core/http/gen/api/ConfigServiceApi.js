@@ -79,6 +79,14 @@ var _modelRestControlServiceRequest = require('../model/RestControlServiceReques
 
 var _modelRestControlServiceRequest2 = _interopRequireDefault(_modelRestControlServiceRequest);
 
+var _modelRestCreatePeerFolderRequest = require('../model/RestCreatePeerFolderRequest');
+
+var _modelRestCreatePeerFolderRequest2 = _interopRequireDefault(_modelRestCreatePeerFolderRequest);
+
+var _modelRestCreatePeerFolderResponse = require('../model/RestCreatePeerFolderResponse');
+
+var _modelRestCreatePeerFolderResponse2 = _interopRequireDefault(_modelRestCreatePeerFolderResponse);
+
 var _modelRestDataSourceCollection = require('../model/RestDataSourceCollection');
 
 var _modelRestDataSourceCollection2 = _interopRequireDefault(_modelRestDataSourceCollection);
@@ -276,6 +284,54 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.createEncryptionKey = function createEncryptionKey(body) {
     return this.createEncryptionKeyWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Create a folder on a given path for a given peer (filesystem)
+   * @param {String} peerAddress 
+   * @param {module:model/RestCreatePeerFolderRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreatePeerFolderResponse} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.createPeerFolderWithHttpInfo = function createPeerFolderWithHttpInfo(peerAddress, body) {
+    var postBody = body;
+
+    // verify the required parameter 'peerAddress' is set
+    if (peerAddress === undefined || peerAddress === null) {
+      throw new Error("Missing the required parameter 'peerAddress' when calling createPeerFolder");
+    }
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling createPeerFolder");
+    }
+
+    var pathParams = {
+      'PeerAddress': peerAddress
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestCreatePeerFolderResponse2['default'];
+
+    return this.apiClient.callApi('/config/peers/{PeerAddress}', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Create a folder on a given path for a given peer (filesystem)
+   * @param {String} peerAddress 
+   * @param {module:model/RestCreatePeerFolderRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreatePeerFolderResponse}
+   */
+
+  ConfigServiceApi.prototype.createPeerFolder = function createPeerFolder(peerAddress, body) {
+    return this.createPeerFolderWithHttpInfo(peerAddress, body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

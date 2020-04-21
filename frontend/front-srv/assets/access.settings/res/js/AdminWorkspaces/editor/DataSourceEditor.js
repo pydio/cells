@@ -363,6 +363,14 @@ class DataSourceEditor extends React.Component{
                 <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
 
+                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
+                    <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
+                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
+                        {versioningPolicies.map(key => {
+                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
+                        })}
+                    </ModernSelectField>
+
                     {model.StorageType !== 'LOCAL' &&
                     <div>
                         <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
@@ -399,14 +407,6 @@ class DataSourceEditor extends React.Component{
                         }
                     </div>
                     }
-
-                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
-                    <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
-                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
-                        {versioningPolicies.map(key => {
-                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
-                        })}
-                    </ModernSelectField>
 
                     <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                     <div style={styles.toggleDiv}>

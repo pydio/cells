@@ -609,6 +609,21 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('datamanagement')
                     ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.versioning')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                                model.VersioningPolicyName = v;
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
+                        versioningPolicies.map(function (key) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
+                        })
+                    ),
                     model.StorageType !== 'LOCAL' && _react2['default'].createElement(
                         'div',
                         null,
@@ -654,21 +669,6 @@ var DataSourceEditor = (function (_React$Component) {
                                 }
                             }, ModernStyles.toggleField))
                         )
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
-                        m('storage.legend.versioning')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
-                                model.VersioningPolicyName = v;
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
-                        versioningPolicies.map(function (key) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
-                        })
                     ),
                     _react2['default'].createElement(
                         'div',

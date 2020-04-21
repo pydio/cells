@@ -4107,6 +4107,66 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "resyncDataSource",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "pydio",
+                "type": null
+              },
+              {
+                "name": "m",
+                "type": null
+              },
+              {
+                "name": "row",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteDataSource",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "pydio",
+                "type": null
+              },
+              {
+                "name": "m",
+                "type": null
+              },
+              {
+                "name": "row",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "createWorkspaceFromDatasource",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "pydio",
+                "type": null
+              },
+              {
+                "name": "m",
+                "type": null
+              },
+              {
+                "name": "row",
+                "type": null
+              }
+            ],
+            "returns": null
           }
         ],
         "props": {
@@ -4732,6 +4792,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "showCreateDialog",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           }
         ]
@@ -12138,6 +12205,62 @@
               }
             },
             "description": "Create a new master key"
+          },
+          {
+            "name": "createPeerFolderWithHttpInfo",
+            "docblock": "Create a folder on a given path for a given peer (filesystem)\n@param {String} peerAddress \n@param {module:model/RestCreatePeerFolderRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreatePeerFolderResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "peerAddress",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestCreatePeerFolderRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreatePeerFolderResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Create a folder on a given path for a given peer (filesystem)"
+          },
+          {
+            "name": "createPeerFolder",
+            "docblock": "Create a folder on a given path for a given peer (filesystem)\n@param {String} peerAddress \n@param {module:model/RestCreatePeerFolderRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreatePeerFolderResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "peerAddress",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestCreatePeerFolderRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreatePeerFolderResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Create a folder on a given path for a given peer (filesystem)"
           },
           {
             "name": "deleteDataSourceWithHttpInfo",
@@ -21135,6 +21258,98 @@
               }
             },
             "description": "Constructs a <code>RestCreateNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestCreatePeerFolderRequest.js": [
+      {
+        "description": "The RestCreatePeerFolderRequest model module.\n@module model/RestCreatePeerFolderRequest\n@version 1.0",
+        "displayName": "RestCreatePeerFolderRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestCreatePeerFolderRequest</code>.\n@alias module:model/RestCreatePeerFolderRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestCreatePeerFolderRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestCreatePeerFolderRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestCreatePeerFolderRequest} obj Optional instance to populate.\n@return {module:model/RestCreatePeerFolderRequest} The populated <code>RestCreatePeerFolderRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestCreatePeerFolderRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestCreatePeerFolderRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestCreatePeerFolderRequest"
+              }
+            },
+            "description": "Constructs a <code>RestCreatePeerFolderRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestCreatePeerFolderResponse.js": [
+      {
+        "description": "The RestCreatePeerFolderResponse model module.\n@module model/RestCreatePeerFolderResponse\n@version 1.0",
+        "displayName": "RestCreatePeerFolderResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestCreatePeerFolderResponse</code>.\n@alias module:model/RestCreatePeerFolderResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestCreatePeerFolderResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestCreatePeerFolderResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestCreatePeerFolderResponse} obj Optional instance to populate.\n@return {module:model/RestCreatePeerFolderResponse} The populated <code>RestCreatePeerFolderResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestCreatePeerFolderResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestCreatePeerFolderResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestCreatePeerFolderResponse"
+              }
+            },
+            "description": "Constructs a <code>RestCreatePeerFolderResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

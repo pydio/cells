@@ -148,7 +148,7 @@ var AutocompleteTree = (function (_React$Component) {
                 basePath = searchText.substr(0, last);
             }
             if (this.lastSearch !== null && this.lastSearch === basePath) {
-                return;
+                return Promise.resolve();
             }
             this.lastSearch = basePath;
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
@@ -156,7 +156,7 @@ var AutocompleteTree = (function (_React$Component) {
             listRequest.PeerAddress = peerAddress;
             listRequest.Path = basePath;
             this.setState({ loading: true });
-            api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
+            return api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
                 var children = nodesColl.Children || [];
                 children = children.map(function (c) {
                     if (c.Path[0] !== '/') {
@@ -167,6 +167,30 @@ var AutocompleteTree = (function (_React$Component) {
                 _this.setState({ nodes: children, loading: false });
             })['catch'](function () {
                 _this.setState({ loading: false });
+            });
+        }
+    }, {
+        key: 'createFolder',
+        value: function createFolder(newName) {
+            var _this2 = this;
+
+            var _props = this.props;
+            var peerAddress = _props.peerAddress;
+            var pydio = _props.pydio;
+            var value = this.state.value;
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var createRequest = new _pydioHttpRestApi.RestCreatePeerFolderRequest();
+            createRequest.PeerAddress = peerAddress;
+            createRequest.Path = value + '/' + newName;
+            api.createPeerFolder(peerAddress, createRequest).then(function (result) {
+                _this2.lastSearch = null; // Force reload
+                _this2.loadValues(value).then(function () {
+                    // Select path after reload
+                    _this2.handleNewRequest(createRequest.Path);
+                });
+            })['catch'](function (e) {
+                pydio.UI.displayMessage('ERROR', e.message);
             });
         }
     }, {
@@ -228,21 +252,47 @@ var AutocompleteTree = (function (_React$Component) {
             };
         }
     }, {
+        key: 'showCreateDialog',
+        value: function showCreateDialog() {
+            var _this3 = this;
+
+            var pydio = this.props.pydio;
+            var value = this.state.value;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.ds.editor.selector.' + id] || id;
+            };
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitle: m('mkdir'),
+                legendId: m('mkdir.legend').replace('%s', value),
+                fieldLabelId: m('mkdir.field'),
+                submitValue: function submitValue(v) {
+                    if (!v) {
+                        return;
+                    }
+                    _this3.createFolder(v);
+                }
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
+            var _this4 = this;
 
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
             var exist = _state.exist;
             var value = _state.value;
-            var fieldLabel = this.props.fieldLabel;
+            var searchText = _state.searchText;
+            var _props2 = this.props;
+            var fieldLabel = _props2.fieldLabel;
+            var pydio = _props2.pydio;
 
             var dataSource = [];
             if (nodes) {
                 nodes.forEach(function (node) {
-                    dataSource.push(_this2.renderNode(node));
+                    dataSource.push(_this4.renderNode(node));
                 });
             }
 
@@ -259,6 +309,18 @@ var AutocompleteTree = (function (_React$Component) {
                         left: 0,
                         top: 0,
                         status: loading ? "loading" : "hide"
+                    })
+                ),
+                value && exist && !loading && (!searchText || searchText === value) && _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'absolute', right: 0 } },
+                    _react2['default'].createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi mdi-folder-plus",
+                        iconStyle: { color: '#9e9e9e' },
+                        onTouchTap: function () {
+                            return _this4.showCreateDialog();
+                        },
+                        tooltip: pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']
                     })
                 ),
                 _react2['default'].createElement(_materialUi.AutoComplete, _extends({
@@ -311,7 +373,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
     }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this3 = this;
+            var _this5 = this;
 
             var model = this.props.model;
 
@@ -321,17 +383,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                 if (aa === 1 && !model.PeerAddress) {
                     model.PeerAddress = aa[0];
                 }
-                _this3.setState({ peerAddresses: aa });
+                _this5.setState({ peerAddresses: aa });
                 if (model.PeerAddress && aa.indexOf(model.PeerAddress) === -1) {
                     var rep = aa.filter(function (a) {
-                        return _this3.compareAddresses(a, model.PeerAddress);
+                        return _this5.compareAddresses(a, model.PeerAddress);
                     });
                     if (rep.length) {
                         // If model address is contained in one of the res, replace it
                         model.PeerAddress = rep[0];
                     } else {
                         // Otherwise show it as invalid
-                        _this3.setState({ invalidAddress: model.PeerAddress });
+                        _this5.setState({ invalidAddress: model.PeerAddress });
                     }
                 }
             });
@@ -384,9 +446,11 @@ var DataSourceLocalSelector = (function (_React$Component2) {
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this6 = this;
 
-            var model = this.props.model;
+            var _props3 = this.props;
+            var model = _props3.model;
+            var pydio = _props3.pydio;
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
             var invalidAddress = _state2.invalidAddress;
@@ -410,7 +474,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             value: model.PeerAddress || '',
                             hintText: m('selector.peer') + ' *',
                             onChange: function (e, i, v) {
-                                return _this4.onPeerChange(v);
+                                return _this6.onPeerChange(v);
                             },
                             fullWidth: true
                         },
@@ -423,6 +487,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                     'div',
                     null,
                     model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
+                        pydio: pydio,
                         value: model.StorageConfiguration.folder,
                         peerAddress: model.PeerAddress,
                         onChange: this.onPathChange.bind(this),

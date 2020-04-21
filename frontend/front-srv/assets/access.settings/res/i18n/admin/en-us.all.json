@@ -176,6 +176,15 @@
   "ds.editor.selector.peer": {
     "other": "Peer Address"
   },
+  "ds.editor.selector.mkdir": {
+    "other": "Create Folder"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Create a new folder under %s"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Folder name"
+  },
   "ds.editor.storage.fs.macos": {
     "other": "Operating System is MacOSX"
   },
