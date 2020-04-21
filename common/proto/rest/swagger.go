@@ -872,6 +872,37 @@ var SwaggerJson = `{
         "tags": [
           "ConfigService"
         ]
+      },
+      "put": {
+        "summary": "Create a folder on a given path for a given peer (filesystem)",
+        "operationId": "CreatePeerFolder",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restCreatePeerFolderResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "PeerAddress",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restCreatePeerFolderRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
       }
     },
     "/config/processes": {
@@ -5854,6 +5885,31 @@ var SwaggerJson = `{
         "TemplateUUID": {
           "type": "string",
           "title": "Use a template to create this node"
+        }
+      }
+    },
+    "restCreatePeerFolderRequest": {
+      "type": "object",
+      "properties": {
+        "PeerAddress": {
+          "type": "string",
+          "title": "Restrict listing to a given peer"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path to the folder to be created"
+        }
+      }
+    },
+    "restCreatePeerFolderResponse": {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "Node": {
+          "$ref": "#/definitions/treeNode"
         }
       }
     },

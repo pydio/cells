@@ -131,6 +131,13 @@ service ConfigService {
             body: "*"
         };
     }
+    // Create a folder on a given path for a given peer (filesystem)
+    rpc CreatePeerFolder(CreatePeerFolderRequest) returns (CreatePeerFolderResponse) {
+        option (google.api.http) = {
+            put: "/config/peers/{PeerAddress}"
+            body: "*"
+        };
+    }
     // List Buckets on a given object storage
     rpc ListStorageBuckets(ListStorageBucketsRequest) returns (NodesCollection) {
         option (google.api.http) = {
