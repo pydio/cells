@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PydioApi from './PydioApi'
 import Pydio from 'pydio'
 const {ApiClient} = require('./gen/index');
 import moment from 'moment'
@@ -67,8 +66,7 @@ class RestClient extends ApiClient{
     }
 
     /**
-     *
-     * @param frontJwtResponse {RestFrontSessionResponse}
+     * Get current JWT Token
      */
     static get() {
         return JSON.parse(window.sessionStorage.getItem("token"))
@@ -120,14 +118,14 @@ class RestClient extends ApiClient{
                 }
             }).catch(e => {
                 this.pydio.getController().fireAction('logout');
-                RestClient.remove()
+                RestClient.remove();
                 
                 throw e
             });
     }
 
     getAuthToken() {
-        const token = RestClient.get()
+        const token = RestClient.get();
         const now = Math.floor(Date.now() / 1000);
 
         if (!token) {
@@ -143,7 +141,7 @@ class RestClient extends ApiClient{
         }
 
         return RestClient._updating.then(() => {
-            RestClient._updating = null
+            RestClient._updating = null;
             return this.getAuthToken()
         }).catch(() => RestClient._updating = null)
     }
@@ -183,9 +181,9 @@ class RestClient extends ApiClient{
             .then(token => token)
             .catch(() => "") // If no user we still want to call the request but with no authentication
             .then((accessToken) => {
-                const authNames = []
+                const authNames = [];
                 if (accessToken !== "") {
-                    authNames.push('oauth2')
+                    authNames.push('oauth2');
                     this.authentications = {'oauth2': {type:'oauth2', accessToken: accessToken}};
                 }
                 return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);

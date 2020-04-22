@@ -4783,6 +4783,18 @@
             "returns": null
           },
           {
+            "name": "createFolder",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newName",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "renderNode",
             "docblock": null,
             "modifiers": [],
@@ -10910,13 +10922,13 @@
           },
           {
             "name": "get",
-            "docblock": "@param frontJwtResponse {RestFrontSessionResponse}",
+            "docblock": "Get current JWT Token",
             "modifiers": [
               "static"
             ],
             "params": [],
             "returns": null,
-            "description": null
+            "description": "Get current JWT Token"
           },
           {
             "name": "store",
