@@ -20,6 +20,7 @@
 import Pydio from 'pydio'
 import React from 'react'
 import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader, Dialog} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 const {PaperEditorLayout} = Pydio.requireLib('components');
@@ -84,8 +85,9 @@ class WsEditor extends React.Component {
     remove(){
         const {container} = this.state;
         const {closeEditor, reloadList, pydio} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:pydio.MessageHash['settings.35'],
+            destructive:[container.getModel().Label],
             validCallback:() => {
                 container.remove().then(() => {
                     reloadList();
@@ -135,6 +137,7 @@ class WsEditor extends React.Component {
             </div>
         );
 
+        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
         const styles = {
             title: {
                 fontSize: 20,
@@ -142,7 +145,7 @@ class WsEditor extends React.Component {
                 marginBottom: 0,
             },
             legend: {color: '#9E9E9E', paddingTop: 10},
-            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white'},
+            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
 
@@ -212,7 +215,7 @@ class WsEditor extends React.Component {
                     }
                 </Dialog>
 
-                <Paper zDepth={1} style={styles.section}>
+                <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('ws.30')}</div>
                     <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
 
@@ -238,14 +241,14 @@ class WsEditor extends React.Component {
                         onChange={(e,v)=>{workspace.Slug = v}}
                     />
                 </Paper>
-                <Paper zDepth={1} style={styles.section}>
+                <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.data.title')}</div>
                     <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
                     {completers}
                     <div style={styles.legend}>{m('ws.editor.default_rights')}</div>
                     <ModernSelectField
                         fullWidth={true}
-                        value={workspace.Attributes['DEFAULT_RIGHTS']}
+                        value={workspace.Attributes['DEFAULT_RIGHTS'] || ''}
                         onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
                     >
                         <MenuItem primaryText={m('ws.editor.default_rights.none')} value={""}/>
@@ -255,7 +258,7 @@ class WsEditor extends React.Component {
                     </ModernSelectField>
                 </Paper>
                 {advanced &&
-                    <Paper zDepth={1} style={styles.section}>
+                    <Paper zDepth={0} style={styles.section}>
                         <div style={styles.title}>{m('ws.editor.other')}</div>
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
                         <div style={styles.toggleDiv}>
@@ -301,4 +304,5 @@ class WsEditor extends React.Component {
 
 }
 
+WsEditor = muiThemeable()(WsEditor);
 export {WsEditor as default}

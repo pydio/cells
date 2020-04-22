@@ -98,8 +98,9 @@ class EncryptionKeys extends React.Component{
     deleteKey(keyId){
         const {pydio} = this.props;
         const {m} = this.state;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message:m('key.delete.warning'),
+            destructive:[keyId],
             validCallback:() => {
                 const api = new ConfigServiceApi(PydioApi.getRestClient());
                 let req = new EncryptionAdminDeleteKeyRequest();

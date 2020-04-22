@@ -53,6 +53,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	childrenMoved := 0
 	var totalSize int64
 
+	var locker permissions.SessionLocker
 	ctx = WithSessionID(ctx, session)
 
 	// Make sure all sessions are purged !
@@ -62,10 +63,13 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			oErr = p.(error)
 			go func() {
 				<-time.After(10 * time.Second)
-				log.Logger(ctx).Debug("Force close session now:" + session)
+				log.Logger(ctx).Info("Forcing close session " + session + " and unlock")
 				client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
 					SessionForceClose: session,
 				}))
+				if locker != nil {
+					locker.Unlock(ctx)
+				}
 			}()
 		}
 	}()
@@ -107,10 +111,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 	}
 
-	var locker permissions.SessionLocker
 	if move && !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
 		log.Logger(ctx).Info("Setting Lock on Node with session " + session)
-		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*5)
+		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*30)
 		// Will be unlocked by sync process
 		if err := locker.Lock(ctx); err != nil {
 			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))

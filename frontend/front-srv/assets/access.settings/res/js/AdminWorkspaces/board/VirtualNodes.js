@@ -128,8 +128,9 @@ class VirtualNodes extends React.Component{
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('delete'),
                 onTouchTap:(row) => {
-                    pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                    pydio.UI.openConfirmDialog({
                         message:m('delete.confirm'),
+                        destructive:[row.node.getName()],
                         validCallback:() => {
                             row.node.remove(()=>{
                                 this.reload();

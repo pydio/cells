@@ -82,8 +82,9 @@ class Rule extends React.Component{
 
     removeRule(){
         const {pydio, onRemoveRule, rule} = this.props;
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['ajxp_admin.policies.rule.delete.confirm'],
+            destructive:[rule.description],
             validCallback: () => {
                 onRemoveRule(rule);
             }

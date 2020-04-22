@@ -292,6 +292,17 @@ var Builder = (function () {
         this._modalOpener.open('PydioReactUI', 'ServerPromptDialog', json);
     };
 
+    Builder.prototype.openConfirmDialog = function openConfirmDialog(props) {
+        var validCallback = props.validCallback;
+        var skipNext = props.skipNext;
+
+        if (validCallback && skipNext && localStorage.getItem('confirm.skip.' + skipNext)) {
+            validCallback();
+            return;
+        }
+        this.openComponentInModal('PydioReactUI', 'ConfirmDialog', props);
+    };
+
     return Builder;
 })();
 

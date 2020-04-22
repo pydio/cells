@@ -76,7 +76,7 @@ func RestError403(req *restful.Request, resp *restful.Response, err error) {
 	resp.WriteHeaderAndEntity(403, e)
 }
 
-// RestError403 logs the error with context and write an Error 403 on the response.
+// RestError503 logs the error with context and write an Error 503 on the response.
 func RestError503(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 503", zap.Error(err))
 	resp.AddHeader("Content-Type", "application/json")
@@ -89,6 +89,21 @@ func RestError503(req *restful.Request, resp *restful.Response, err error) {
 		e.Detail = "Service temporarily unavailable"
 	}
 	resp.WriteHeaderAndEntity(503, e)
+}
+
+// RestError423 logs the error with context and write an Error 423 on the response.
+func RestError423(req *restful.Request, resp *restful.Response, err error) {
+	log.Logger(req.Request.Context()).Error("Rest Error 423", zap.Error(err))
+	resp.AddHeader("Content-Type", "application/json")
+	e := &rest.Error{
+		Title:  err.Error(),
+		Detail: err.Error(),
+	}
+	if parsed := errors.Parse(err.Error()); parsed.Code == 423 {
+		e.Title = "This resource is currently locked, please retry later!"
+		e.Detail = "This resource is currently locked, please retry later!"
+	}
+	resp.WriteHeaderAndEntity(423, e)
 }
 
 // RestError401 logs the error with context and write an Error 401 on the response.
@@ -113,6 +128,7 @@ func RestErrorDetect(req *restful.Request, resp *restful.Response, err error, de
 		404: RestError404,
 		403: RestError403,
 		401: RestError401,
+		423: RestError423,
 		503: RestError503,
 	}
 	parsed := errors.Parse(err.Error())

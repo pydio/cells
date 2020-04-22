@@ -72,7 +72,7 @@ var Callbacks = (function () {
                 next();
             };
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: MessageHash[deleteMessageId],
                 validCallback: callback
             });

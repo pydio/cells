@@ -146,6 +146,26 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 
 }
 
+// CreatePeerFolder forwards folder creation call to specific peer
+func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response) {
+
+	var createReq rest.CreatePeerFolderRequest
+	if e := req.ReadEntity(&createReq); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
+	cl := tree.NewNodeReceiverClient(srvName, defaults.NewClient())
+	selector := client.WithSelectOption(registry.PeerClientSelector(srvName, createReq.PeerAddress))
+	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}}, selector)
+	if e != nil {
+		service.RestErrorDetect(req, resp, e)
+		return
+	}
+	resp.WriteEntity(&rest.CreatePeerFolderResponse{Success: true, Node: cr.Node})
+
+}
+
 // ListProcesses lists running Processes from registry, with option PeerId or ServiceName filter.
 func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 

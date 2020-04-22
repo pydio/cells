@@ -269,5 +269,14 @@ export default class Builder{
 
     }
 
+    openConfirmDialog(props) {
+        const {validCallback, skipNext} = props;
+        if(validCallback && skipNext && localStorage.getItem('confirm.skip.' + skipNext)) {
+            validCallback();
+            return;
+        }
+        this.openComponentInModal('PydioReactUI', 'ConfirmDialog', props);
+    }
+
 
 }

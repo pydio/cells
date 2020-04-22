@@ -44,6 +44,18 @@ message ListPeerFoldersRequest{
     string Path = 2;
 }
 
+message CreatePeerFolderRequest{
+    // Restrict listing to a given peer
+    string PeerAddress = 1;
+    // Path to the folder to be created
+    string Path = 2;
+}
+
+message CreatePeerFolderResponse {
+    bool Success = 1;
+    tree.Node Node = 2;
+}
+
 message ListStorageBucketsRequest {
     object.DataSource DataSource = 1;
     string BucketsRegexp = 2;

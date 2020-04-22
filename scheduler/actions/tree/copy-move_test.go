@@ -141,7 +141,11 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 			MetaStore: map[string]string{"name": `"original"`},
 		}
 		mock := &views.HandlerMock{
-			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
+			Nodes: map[string]*tree.Node{
+				"path":             {Path: "path", Type: tree.NodeType_COLLECTION},
+				"path/to":          {Path: "path/to", Type: tree.NodeType_COLLECTION},
+				"path/to/original": originalNode,
+			},
 		}
 		action.Client = mock
 
@@ -170,7 +174,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 		close(progress)
 
 		So(err, ShouldBeNil)
-		So(mock.Nodes, ShouldHaveLength, 4)
+		So(mock.Nodes, ShouldHaveLength, 6)
 		So(mock.Nodes["from"].Path, ShouldEqual, "path/to/original")
 		So(mock.Nodes["to"].Path, ShouldEqual, "path/to/original-1")
 

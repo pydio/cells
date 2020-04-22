@@ -32,6 +32,8 @@ It has these top-level messages:
 	ListPeersAddressesRequest
 	ListPeersAddressesResponse
 	ListPeerFoldersRequest
+	CreatePeerFolderRequest
+	CreatePeerFolderResponse
 	ListStorageBucketsRequest
 	Process
 	ListProcessesRequest

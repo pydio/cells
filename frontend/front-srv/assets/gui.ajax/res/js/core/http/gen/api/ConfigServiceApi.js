@@ -27,6 +27,8 @@ import EncryptionAdminListKeysResponse from '../model/EncryptionAdminListKeysRes
 import ObjectDataSource from '../model/ObjectDataSource';
 import RestConfiguration from '../model/RestConfiguration';
 import RestControlServiceRequest from '../model/RestControlServiceRequest';
+import RestCreatePeerFolderRequest from '../model/RestCreatePeerFolderRequest';
+import RestCreatePeerFolderResponse from '../model/RestCreatePeerFolderResponse';
 import RestDataSourceCollection from '../model/RestDataSourceCollection';
 import RestDeleteDataSourceResponse from '../model/RestDeleteDataSourceResponse';
 import RestDiscoveryResponse from '../model/RestDiscoveryResponse';
@@ -202,6 +204,62 @@ export default class ConfigServiceApi {
      */
     createEncryptionKey(body) {
       return this.createEncryptionKeyWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Create a folder on a given path for a given peer (filesystem)
+     * @param {String} peerAddress 
+     * @param {module:model/RestCreatePeerFolderRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreatePeerFolderResponse} and HTTP response
+     */
+    createPeerFolderWithHttpInfo(peerAddress, body) {
+      let postBody = body;
+
+      // verify the required parameter 'peerAddress' is set
+      if (peerAddress === undefined || peerAddress === null) {
+        throw new Error("Missing the required parameter 'peerAddress' when calling createPeerFolder");
+      }
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling createPeerFolder");
+      }
+
+
+      let pathParams = {
+        'PeerAddress': peerAddress
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestCreatePeerFolderResponse;
+
+      return this.apiClient.callApi(
+        '/config/peers/{PeerAddress}', 'PUT',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Create a folder on a given path for a given peer (filesystem)
+     * @param {String} peerAddress 
+     * @param {module:model/RestCreatePeerFolderRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreatePeerFolderResponse}
+     */
+    createPeerFolder(peerAddress, body) {
+      return this.createPeerFolderWithHttpInfo(peerAddress, body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

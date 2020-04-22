@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -27,10 +27,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _PydioApi = require('./PydioApi');
-
-var _PydioApi2 = _interopRequireDefault(_PydioApi);
 
 var _pydio = require('pydio');
 
@@ -107,8 +103,7 @@ var RestClient = (function (_ApiClient) {
     };
 
     /**
-     *
-     * @param frontJwtResponse {RestFrontSessionResponse}
+     * Get current JWT Token
      */
 
     RestClient.get = function get() {
@@ -274,6 +269,11 @@ var RestClient = (function (_ApiClient) {
         if (reason.response && reason.response.status === 503) {
             // 404 may happen
             console.warn('Service currently unavailable', msg);
+            return msg;
+        }
+        if (reason.response && reason.response.status === 423) {
+            // 423 may happen
+            console.warn('Resource currently locked', msg);
             return msg;
         }
         if (this.pydio && this.pydio.UI) {

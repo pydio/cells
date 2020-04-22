@@ -17,12 +17,15 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _ActionDialogMixin = require('./ActionDialogMixin');
 
@@ -36,6 +39,8 @@ var _SubmitButtonProviderMixin = require('./SubmitButtonProviderMixin');
 
 var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMixin);
 
+var _materialUi = require('material-ui');
+
 exports['default'] = React.createClass({
     displayName: 'ConfirmDialog',
 
@@ -48,19 +53,82 @@ exports['default'] = React.createClass({
 
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: 'Confirm',
+            dialogTitle: _pydio2['default'].getInstance().MessageHash['confirm.dialog.title'],
             dialogIsModal: true
         };
     },
+    getInitialState: function getInitialState() {
+        return {};
+    },
     submit: function submit() {
-        this.props.validCallback();
+        var _props = this.props;
+        var validCallback = _props.validCallback;
+        var skipNext = _props.skipNext;
+        var skipChecked = this.state.skipChecked;
+
+        if (skipNext && skipChecked) {
+            localStorage.setItem('confirm.skip.' + skipNext, 'true');
+        }
+        validCallback();
         this.dismiss();
     },
     render: function render() {
+        var _this = this;
+
+        var _props2 = this.props;
+        var destructive = _props2.destructive;
+        var message = _props2.message;
+        var skipNext = _props2.skipNext;
+        var pydio = _props2.pydio;
+        var skipChecked = this.state.skipChecked;
+
+        var m = function m(id) {
+            return pydio.MessageHash['confirm.dialog.' + id] || id;
+        };
+        var dMess = undefined,
+            sMess = undefined;
+        if (destructive && destructive.join) {
+            dMess = React.createElement(
+                'div',
+                { style: { marginTop: 12 } },
+                m('destructive'),
+                ' : ',
+                React.createElement(
+                    'span',
+                    { style: { color: '#C62828' } },
+                    destructive.join(', ')
+                ),
+                '.'
+            );
+        }
+        if (skipNext) {
+            if (localStorage.getItem('confirm.skip.' + skipNext)) {
+                this.submit();
+                return null;
+            } else {
+                sMess = React.createElement(
+                    'div',
+                    { style: { marginTop: 24, marginBottom: -24 } },
+                    React.createElement(_materialUi.Checkbox, {
+                        checked: skipChecked,
+                        onCheck: function (e, v) {
+                            _this.setState({ skipChecked: v });
+                        },
+                        labelPosition: "right",
+                        label: m('skipNext'),
+                        labelStyle: { color: 'inherit' }
+                    })
+                );
+            }
+        }
         return React.createElement(
             'div',
             null,
-            this.props.message
+            message,
+            dMess && React.createElement('br', null),
+            dMess,
+            sMess && React.createElement('br', null),
+            sMess
         );
     }
 

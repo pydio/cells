@@ -23,6 +23,18 @@
   "ds.board.versioning.title": {
     "other": "Versioning Policies"
   },
+  "ds.board.wsfromds.title":{
+    "other":"Create Workspace"
+  },
+  "ds.board.wsfromds.legend":{
+    "other":"Create a new workspace at the root of datasource %s"
+  },
+  "ds.board.wsfromds.field":{
+    "other":"Label"
+  },
+  "ds.board.wsfromds.defaultPrefix":{
+    "other":"DataSource %s"
+  },
   "ds.editor.delete.warning": {
     "other": "Are you sure you want to delete this datasource? This is undoable, and you may loose all data linked to these nodes!"
   },
@@ -163,6 +175,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
+  },
+  "ds.editor.selector.mkdir": {
+    "other": "Create Folder"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Create a new folder under %s"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Operating System is MacOSX"
@@ -1753,6 +1774,9 @@
   },
   "scheduler.job.delete.confirm":{
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+  },
+  "scheduler.tasks.delete.confirm":{
+    "other": "Are you sure you want to clear all tasks for this job?"
   },
   "scheduler.trigger.create.node":{
     "other": "Create Node"

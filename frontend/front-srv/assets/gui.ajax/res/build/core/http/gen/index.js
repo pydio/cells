@@ -461,6 +461,14 @@ var _modelRestCreateNodesRequest = require('./model/RestCreateNodesRequest');
 
 var _modelRestCreateNodesRequest2 = _interopRequireDefault(_modelRestCreateNodesRequest);
 
+var _modelRestCreatePeerFolderRequest = require('./model/RestCreatePeerFolderRequest');
+
+var _modelRestCreatePeerFolderRequest2 = _interopRequireDefault(_modelRestCreatePeerFolderRequest);
+
+var _modelRestCreatePeerFolderResponse = require('./model/RestCreatePeerFolderResponse');
+
+var _modelRestCreatePeerFolderResponse2 = _interopRequireDefault(_modelRestCreatePeerFolderResponse);
+
 var _modelRestCreateSelectionRequest = require('./model/RestCreateSelectionRequest');
 
 var _modelRestCreateSelectionRequest2 = _interopRequireDefault(_modelRestCreateSelectionRequest);
@@ -1812,6 +1820,20 @@ exports.
  * @property {module:model/RestCreateNodesRequest}
  */
 RestCreateNodesRequest = _modelRestCreateNodesRequest2['default'];
+exports.
+
+/**
+ * The RestCreatePeerFolderRequest model constructor.
+ * @property {module:model/RestCreatePeerFolderRequest}
+ */
+RestCreatePeerFolderRequest = _modelRestCreatePeerFolderRequest2['default'];
+exports.
+
+/**
+ * The RestCreatePeerFolderResponse model constructor.
+ * @property {module:model/RestCreatePeerFolderResponse}
+ */
+RestCreatePeerFolderResponse = _modelRestCreatePeerFolderResponse2['default'];
 exports.
 
 /**

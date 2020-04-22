@@ -123,6 +123,8 @@ import RestCellAcl from './model/RestCellAcl';
 import RestConfiguration from './model/RestConfiguration';
 import RestControlServiceRequest from './model/RestControlServiceRequest';
 import RestCreateNodesRequest from './model/RestCreateNodesRequest';
+import RestCreatePeerFolderRequest from './model/RestCreatePeerFolderRequest';
+import RestCreatePeerFolderResponse from './model/RestCreatePeerFolderResponse';
 import RestCreateSelectionRequest from './model/RestCreateSelectionRequest';
 import RestCreateSelectionResponse from './model/RestCreateSelectionResponse';
 import RestDataSourceCollection from './model/RestDataSourceCollection';
@@ -958,6 +960,18 @@ export {
      * @property {module:model/RestCreateNodesRequest}
      */
     RestCreateNodesRequest,
+
+    /**
+     * The RestCreatePeerFolderRequest model constructor.
+     * @property {module:model/RestCreatePeerFolderRequest}
+     */
+    RestCreatePeerFolderRequest,
+
+    /**
+     * The RestCreatePeerFolderResponse model constructor.
+     * @property {module:model/RestCreatePeerFolderResponse}
+     */
+    RestCreatePeerFolderResponse,
 
     /**
      * The RestCreateSelectionRequest model constructor.

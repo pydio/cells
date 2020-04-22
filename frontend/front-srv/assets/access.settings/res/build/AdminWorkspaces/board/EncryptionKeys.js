@@ -155,8 +155,9 @@ var EncryptionKeys = (function (_React$Component) {
             var pydio = this.props.pydio;
             var m = this.state.m;
 
-            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            pydio.UI.openConfirmDialog({
                 message: m('key.delete.warning'),
+                destructive: [keyId],
                 validCallback: function validCallback() {
                     var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                     var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();

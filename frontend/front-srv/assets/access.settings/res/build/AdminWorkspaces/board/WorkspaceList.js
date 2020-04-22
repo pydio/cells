@@ -109,8 +109,9 @@ exports['default'] = _react2['default'].createClass({
 
         var pydio = this.props.pydio;
 
-        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+        pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['settings.35'],
+            destructive: [workspace.Label],
             validCallback: function validCallback() {
                 var ws = new _modelWs2['default'](workspace);
                 ws.remove().then(function () {
