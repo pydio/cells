@@ -274,7 +274,7 @@ class DataSourcesBoard extends React.Component {
         model.Label = dsName;
         model.Description = "Root of " + dsName;
         model.Slug = dsName;
-        model.Attributes['DEFAULT_RIGHT'] = '';
+        model.Attributes['DEFAULT_RIGHTS'] = '';
         const roots = model.RootNodes;
         const fakeRoot = {Uuid:'DATASOURCE:' +dsName, Path:dsName};
         roots[fakeRoot.Uuid] = fakeRoot;
