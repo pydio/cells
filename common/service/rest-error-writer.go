@@ -100,8 +100,8 @@ func RestError423(req *restful.Request, resp *restful.Response, err error) {
 		Detail: err.Error(),
 	}
 	if parsed := errors.Parse(err.Error()); parsed.Code == 423 {
-		e.Title = "Resource is currently locked"
-		e.Detail = "Resource is currently locked"
+		e.Title = "This resource is currently locked, please retry later!"
+		e.Detail = "This resource is currently locked, please retry later!"
 	}
 	resp.WriteHeaderAndEntity(423, e)
 }

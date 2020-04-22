@@ -220,6 +220,11 @@ class RestClient extends ApiClient{
             console.warn('Service currently unavailable', msg);
             return msg;
         }
+        if (reason.response && reason.response.status === 423) {
+            // 423 may happen
+            console.warn('Resource currently locked', msg);
+            return msg;
+        }
         if(this.pydio && this.pydio.UI) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }
