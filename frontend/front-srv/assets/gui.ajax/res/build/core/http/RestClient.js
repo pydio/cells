@@ -140,6 +140,7 @@ var RestClient = (function (_ApiClient) {
     };
 
     RestClient.prototype.sessionLogout = function sessionLogout() {
+        console.log("In sessionLogout");
         return this.jwtWithAuthInfo({ type: "logout" });
     };
 
@@ -163,7 +164,9 @@ var RestClient = (function (_ApiClient) {
                 throw "no user found";
             }
         })['catch'](function (e) {
-            _this.pydio.getController().fireAction('logout');
+            if (request.AuthInfo.type !== "logout") {
+                _this.pydio.getController().fireAction('logout');
+            }
             RestClient.remove();
 
             throw e;
