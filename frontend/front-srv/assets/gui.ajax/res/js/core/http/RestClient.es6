@@ -97,6 +97,7 @@ class RestClient extends ApiClient{
     }
 
     sessionLogout(){
+        console.log("In sessionLogout")
         return this.jwtWithAuthInfo({type: "logout"});
     }
 
@@ -117,8 +118,10 @@ class RestClient extends ApiClient{
                     throw "no user found"
                 }
             }).catch(e => {
-                this.pydio.getController().fireAction('logout');
-                RestClient.remove();
+                if (request.AuthInfo.type !== "logout") {
+                    this.pydio.getController().fireAction('logout');
+                }
+                RestClient.remove()
                 
                 throw e
             });

@@ -181,7 +181,7 @@ class Connexion{
 				if(root){
 					pydio.getContextHolder().setContextNode(root);
 					root.clear();
-				}
+                }
 				pydio.getController().fireAction('logout');
 				pydio.getController().fireAction('login');
 			}
