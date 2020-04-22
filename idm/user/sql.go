@@ -386,6 +386,9 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	}
 	object := results[0]
 	user = object.(*idm.User)
+	if user.Login != userName {
+		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+	}
 	hashedPass := user.Password
 	// Check password
 	valid, _ := hasher.CheckDBKDF2PydioPwd(password, hashedPass)
