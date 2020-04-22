@@ -88,7 +88,12 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		Address: claims.Email,
 		Name:    claims.DisplayName,
 	}
-	message.From.Uuid, _ = claims.DecodeUserUuid()
+	user, er := permissions.SearchUniqueUser(ctx, claims.Name, "")
+	if er != nil {
+		service.RestError500(req, rsp, er)
+		return
+	}
+	message.From.Uuid = user.Uuid
 	if message.From.Name == "" {
 		message.From.Name = claims.Name
 	}

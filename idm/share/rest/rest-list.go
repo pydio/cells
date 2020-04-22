@@ -60,7 +60,12 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	var userId string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		admin = claims.Profile == common.PYDIO_PROFILE_ADMIN
-		userId, _ = claims.DecodeUserUuid()
+		if u, er := permissions.SearchUniqueUser(ctx, claims.Name, ""); er == nil {
+			userId = u.Uuid
+		} else{
+			service.RestError500(req, rsp, er)
+			return
+		}
 	}
 	if request.Subject != "" {
 		if !admin {

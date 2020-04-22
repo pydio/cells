@@ -75,15 +75,11 @@ func (h *SharesHandler) Filter() func(string) string {
 	return nil
 }
 
-func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) *idm.User {
+func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) (*idm.User, error) {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
-	userName := claims.Name
-	return &idm.User{
-		Uuid:      userId,
-		Login:     userName,
-		GroupPath: claims.GroupPath,
-	}
+	//userId, _ := claims.DecodeUserUuid()
+	//userName := claims.Name
+	return permissions.SearchUniqueUser(ctx, claims.Name, "")
 }
 
 // PutCell creates or updates a shared room (a.k.a a Cell) via REST API.
@@ -98,7 +94,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	// Init Root Nodes and check permissions
 	err, createdCellNode, readonly := share.ParseRootNodes(ctx, &shareRequest)
@@ -219,7 +215,7 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	workspace, _, err := share.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", false)
 	if err != nil {
@@ -244,7 +240,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	ws, _, e := share.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", false)
 	if e != nil || ws == nil {
@@ -295,7 +291,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	var workspace *idm.Workspace
 	var user *idm.User
@@ -430,7 +426,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	workspace, _, err := share.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", false)
 	if err != nil {
@@ -455,7 +451,7 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, _ := h.IdmUserFromClaims(ctx)
 
 	if ws, _, e := share.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", false); e != nil || ws == nil {
 		service.RestError404(req, rsp, e)

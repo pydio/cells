@@ -287,7 +287,7 @@ func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.
 
 	if ctx.Value(claim.ContextKey) != nil {
 		claims := ctx.Value(claim.ContextKey).(claim.Claims)
-		userId, e := claims.DecodeUserUuid()
+		user, e := permissions.SearchUniqueUser(ctx, claims.Name, "")
 		if e != nil {
 			return e
 		}
@@ -295,13 +295,13 @@ func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.
 			// Create ACLs for user id
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 				WorkspaceID: workspace.UUID,
-				RoleID:      userId,
+				RoleID:      user.Uuid,
 				NodeID:      node.Uuid,
 				Action:      permissions.AclRead,
 			}})
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 				WorkspaceID: workspace.UUID,
-				RoleID:      userId,
+				RoleID:      user.Uuid,
 				NodeID:      node.Uuid,
 				Action:      permissions.AclWrite,
 			}})

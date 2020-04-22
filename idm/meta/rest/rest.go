@@ -193,8 +193,13 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		// Now update policies for input Meta
 		if meta.Namespace == namespace.ReservedNamespaceBookmark {
-			userName, c := permissions.FindUserNameInContext(ctx)
-			userUuid, _ := c.DecodeUserUuid()
+			userName, _ := permissions.FindUserNameInContext(ctx)
+			//userUuid, _ := c.DecodeUserUuid()
+			user, e := permissions.SearchUniqueUser(ctx, userName, "")
+			if e != nil {
+				return
+			}
+			userUuid := user.Uuid
 			meta.Policies = []*serviceproto.ResourcePolicy{
 				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: userUuid, Effect: serviceproto.ResourcePolicy_allow},
 				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
