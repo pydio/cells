@@ -113,7 +113,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	if move && !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
 		log.Logger(ctx).Info("Setting Lock on Node with session " + session)
-		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*5)
+		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*30)
 		// Will be unlocked by sync process
 		if err := locker.Lock(ctx); err != nil {
 			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))
