@@ -152,11 +152,19 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *tree.Node) {
 	compares := make(map[string]struct{})
 	listReq := &tree.ListNodesRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}, Recursive: false}
-	c.Client.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
-		basename := strings.ToLower(path.Base(node.Path))
+	st, er := c.Client.ListNodes(ctx, listReq)
+	if er != nil {
+		return
+	}
+	defer st.Close()
+	for {
+		r, e := st.Recv()
+		if e != nil {
+			break
+		}
+		basename := strings.ToLower(path.Base(r.GetNode().Path))
 		compares[basename] = struct{}{}
-		return nil
-	}, true)
+	}
 	exists := func(node *tree.Node) bool {
 		_, ok := compares[strings.ToLower(path.Base(node.Path))]
 		return ok
