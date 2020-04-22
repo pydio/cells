@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/packr"
@@ -41,16 +42,17 @@ import (
 
 var (
 	queries = map[string]string{
-		"AddACL":          `insert into idm_acls (action_name, action_value, role_id, workspace_id, node_id) values (?, ?, ?, ?, ?)`,
-		"AddACLNode":      `insert into idm_acl_nodes (uuid) values (?)`,
-		"AddACLRole":      `insert into idm_acl_roles (uuid) values (?)`,
-		"AddACLWorkspace": `insert into idm_acl_workspaces (name) values (?)`,
-		"GetACLNode":      `select id from idm_acl_nodes where uuid = ?`,
-		"GetACLRole":      `select id from idm_acl_roles where uuid = ?`,
-		"GetACLWorkspace": `select id from idm_acl_workspaces where name = ?`,
-		"CleanWorkspaces": `DELETE FROM idm_acl_workspaces WHERE id != -1 and id NOT IN (select distinct(workspace_id) from idm_acls)`,
-		"CleanRoles":      `DELETE FROM idm_acl_roles WHERE id != -1 and id NOT IN (select distinct(role_id) from idm_acls)`,
-		"CleanNodes":      `DELETE FROM idm_acl_nodes WHERE id != -1 and id NOT IN (select distinct(node_id) from idm_acls)`,
+		"AddACL":                  `insert into idm_acls (action_name, action_value, role_id, workspace_id, node_id) values (?, ?, ?, ?, ?)`,
+		"AddACLNode":              `insert into idm_acl_nodes (uuid) values (?)`,
+		"AddACLRole":              `insert into idm_acl_roles (uuid) values (?)`,
+		"AddACLWorkspace":         `insert into idm_acl_workspaces (name) values (?)`,
+		"GetACLNode":              `select id from idm_acl_nodes where uuid = ?`,
+		"GetACLRole":              `select id from idm_acl_roles where uuid = ?`,
+		"GetACLWorkspace":         `select id from idm_acl_workspaces where name = ?`,
+		"CleanWorkspaces":         `DELETE FROM idm_acl_workspaces WHERE id != -1 and id NOT IN (select distinct(workspace_id) from idm_acls)`,
+		"CleanRoles":              `DELETE FROM idm_acl_roles WHERE id != -1 and id NOT IN (select distinct(role_id) from idm_acls)`,
+		"CleanNodes":              `DELETE FROM idm_acl_nodes WHERE id != -1 and id NOT IN (select distinct(node_id) from idm_acls)`,
+		"CleanDuplicateIfExpired": `DELETE FROM idm_acls WHERE action_name=? AND role_id=? AND workspace_id=? AND node_id=? AND expires_at IS NOT NULL AND expires_at < ?`,
 	}
 )
 
@@ -88,8 +90,14 @@ func (dao *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// Add to the undelying SQL DB
+// Add inserts an ACL to the underlying SQL DB
 func (dao *sqlimpl) Add(in interface{}) error {
+	return dao.addWithDupCheck(in, true)
+}
+
+// addWithDupCheck insert and override existing value if it's a
+// duplicate key and the ACL is expired
+func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	val, ok := in.(*idm.ACL)
 	if !ok {
@@ -137,6 +145,22 @@ func (dao *sqlimpl) Add(in interface{}) error {
 
 	res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
 	if err != nil {
+		if mErr, ok := err.(*mysql.MySQLError); ok && mErr.Number == 1062 && check {
+			// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
+			// There is a duplicate : if it is expired, we can safely ignore it and replace it
+			deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
+			if dE != nil {
+				return dE
+			}
+			delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
+			if drE != nil {
+				return drE
+			}
+			if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
+				// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
+				return dao.addWithDupCheck(in, false)
+			}
+		}
 		return err
 	}
 
