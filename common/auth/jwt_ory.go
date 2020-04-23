@@ -23,7 +23,6 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"time"
 
@@ -270,8 +269,6 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
 		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
-
-		fmt.Println(identity, valid, err)
 
 		// Error means the user is unknwown to the system, we contine to the next round
 		if err != nil {
