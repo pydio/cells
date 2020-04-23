@@ -21,8 +21,10 @@
 package oauth
 
 import (
+	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/sql"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 type sqlimpl struct {
@@ -34,6 +36,18 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
+
+	// Doing the database migrations
+	migrations := &sql.PackrMigrationSource{
+		Box:         packr.NewBox("../../idm/oauth/migrations"),
+		Dir:         s.Driver(),
+		TablePrefix: s.Prefix(),
+	}
+
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

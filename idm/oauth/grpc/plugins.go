@@ -45,7 +45,7 @@ func init() {
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
-			service.WithStorage(oauth.NewDAO),
+			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
 			service.WithMicro(func(m micro.Service) error {
 				proto.RegisterLoginProviderHandler(m.Options().Server, &Handler{})
 				proto.RegisterConsentProviderHandler(m.Options().Server, &Handler{})

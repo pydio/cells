@@ -135,7 +135,6 @@ var RestClient = (function (_ApiClient) {
     };
 
     RestClient.prototype.sessionLogout = function sessionLogout() {
-        console.log("In sessionLogout");
         return this.jwtWithAuthInfo({ type: "logout" });
     };
 
