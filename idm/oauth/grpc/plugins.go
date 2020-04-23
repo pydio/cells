@@ -107,7 +107,7 @@ func initialize(s service.Service) error {
 		for _, mm := range m {
 			if mm.Type == "pydio" {
 				// Registering the first connector
-				auth.RegisterConnector(m[0].ID, m[0].Name, m[0].Type, nil)
+				auth.RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
 			}
 		}
 	})

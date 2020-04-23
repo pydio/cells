@@ -23,7 +23,9 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
@@ -162,7 +164,9 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 			continue
 		}
 
-		identity, valid, err = cc.Login(ctx, Scopes{}, userName, password)
+		// Creating a timeout for context
+		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
+		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
 		// Error means the user is unknwown to the system, we contine to the next round
 		if err != nil {
 			continue
@@ -254,6 +258,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	var valid bool
 
 	connectors := GetConnectors()
+
 	attempt := 0
 	for _, c := range connectors {
 		cc, ok := c.Conn().(PasswordConnector)
@@ -263,7 +268,11 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 		attempt++
 
-		identity, valid, err = cc.Login(ctx, Scopes{}, userName, password)
+		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
+		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
+
+		fmt.Println(identity, valid, err)
+
 		// Error means the user is unknwown to the system, we contine to the next round
 		if err != nil {
 			continue
