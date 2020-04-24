@@ -309,6 +309,13 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		}
 		toCreate = append(toCreate, bName)
 	}
+	c.DsS3BucketDefault = pref + "pydiods1"
+	c.DsS3BucketPersonal = pref + "personal"
+	c.DsS3BucketCells = pref + "cellsdata"
+	c.DsS3BucketThumbs = pref + "thumbs"
+	c.DsS3BucketBinaries = pref + "binaries"
+	c.DsS3BucketVersions = pref + "versions"
+
 	if len(toCreate) == 0 {
 		return used, []string{}, nil
 	}
@@ -326,12 +333,6 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		if _, e = retry.Run(); e != nil {
 			return setupS3Buckets(c, knownBuckets, canCreate)
 		} else {
-			c.DsS3BucketDefault = pref + "pydiods1"
-			c.DsS3BucketPersonal = pref + "personal"
-			c.DsS3BucketCells = pref + "cellsdata"
-			c.DsS3BucketThumbs = pref + "thumbs"
-			c.DsS3BucketBinaries = pref + "binaries"
-			c.DsS3BucketVersions = pref + "versions"
 			check := lib.PerformCheck(context.Background(), "S3_BUCKETS", c)
 			if !check.Success {
 				return used, []string{}, fmt.Errorf("Error while creating buckets: %s", string(check.JsonResult))
