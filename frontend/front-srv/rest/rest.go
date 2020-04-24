@@ -122,7 +122,7 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	if e := user.Load(req.Request.Context()); e == nil && user.Logged {
 		showVersion = true
 	}
-	bootConf := frontend.ComputeBootConf(pool, req.Request, showVersion)
+	bootConf := frontend.ComputeBootConf(pool, showVersion)
 	rsp.WriteAsJson(bootConf)
 
 }

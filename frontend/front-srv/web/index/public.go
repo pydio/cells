@@ -121,7 +121,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
-	bootConf := frontend.ComputeBootConf(pool, req)
+	bootConf := frontend.ComputeBootConf(pool)
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,
