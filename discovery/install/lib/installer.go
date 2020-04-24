@@ -59,19 +59,6 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DS) != 0 {
-		// TMP
-		/*
-			c.DsType = "S3"
-			c.DsS3ApiKey = "AKIAJBQ5SCYMII3QTFVA"
-			c.DsS3ApiSecret = "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"
-			c.DsS3BucketDefault = "tc1-pydiods1"
-			c.DsS3BucketPersonal = "tc1-personal"
-			c.DsS3BucketCells = "tc1-cellsdata"
-			c.DsS3BucketBinaries = "tc1-binaries"
-			c.DsS3BucketThumbs = "tc1-thumbs"
-			c.DsS3BucketVersion = "tc1-versions"
-		*/
-
 		if err := actionDatasourceAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
 			return err
