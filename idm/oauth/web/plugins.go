@@ -57,7 +57,7 @@ func init() {
 			service.Name(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
-			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
+			service.WithStorage(oauth.NewDAO),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {
 						return nil

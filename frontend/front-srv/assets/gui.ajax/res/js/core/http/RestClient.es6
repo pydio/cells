@@ -97,6 +97,7 @@ class RestClient extends ApiClient{
     }
 
     sessionLogout(){
+        console.log("In sessionLogout")
         return this.jwtWithAuthInfo({type: "logout"});
     }
 
