@@ -49,8 +49,9 @@ export default class Editor extends React.Component {
         Pydio.getInstance().notify('longtask_starting');
 
         const iframeUrl = "/loleaflet/dist/loleaflet.html";
-        const host = pydio.Parameters.get('FRONTEND_URL');
-        const webSocketUrl = host.replace(/^http/gi, 'ws');
+        const frontUrl = Pydio.getInstance().getFrontendUrl();
+        const protocol = frontUrl.protocol === 'https:' ? 'wss' : 'ws';
+        const webSocketUrl = `${protocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
 
         // Check current action state for permission
         const readonly = Pydio.getInstance().getController().getActionByName("move").deny;

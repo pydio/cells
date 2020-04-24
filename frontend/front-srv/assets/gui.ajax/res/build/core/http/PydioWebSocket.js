@@ -108,7 +108,13 @@ var PydioWebSocket = (function () {
     PydioWebSocket.prototype.open = function open() {
         var _this2 = this;
 
-        var url = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET");
+        var wsPath = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET");
+        if (wsPath && wsPath[0] === '/') {
+            wsPath = wsPath.substr(1);
+        }
+        var location = this.pydio.getFrontendUrl();
+        var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        var url = protocol + '://' + location.host + '/' + wsPath;
         this.ws = new ReconnectingWebSocket(url, [], {
             maxReconnectionDelay: 60000,
             reconnectionDelayGrowFactor: 1.6,

@@ -61,9 +61,7 @@ const SplashDialog = React.createClass({
     },
 
     componentDidMount(){
-
-        let url = pydio.Parameters.get('FRONTEND_URL') + '/plug/gui.ajax/credits.md';
-        window.fetch(url, {
+        window.fetch('plug/gui.ajax/credits.md', {
             method:'GET',
             credentials:'same-origin',
         }).then((response) => {
@@ -71,7 +69,6 @@ const SplashDialog = React.createClass({
                 this.setState({aboutContent: data});
             });
         });
-
     },
 
     render(){

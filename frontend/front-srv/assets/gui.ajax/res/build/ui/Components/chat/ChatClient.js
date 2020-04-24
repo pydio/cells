@@ -278,7 +278,13 @@ var ChatClient = (function (_PydioWebSocket) {
         if (!this.currentRepo) {
             return;
         }
-        var url = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET").replace("/event", "/chat");
+        var wsPath = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET").replace('/event', '/chat');
+        if (wsPath && wsPath[0] === '/') {
+            wsPath = wsPath.substr(1);
+        }
+        var location = this.pydio.getFrontendUrl();
+        var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        var url = protocol + '://' + location.host + '/' + wsPath;
         this.ws = new _reconnectingWebsocket2['default'](url, [], {
             maxReconnectionDelay: 60000,
             reconnectionDelayGrowFactor: 1.6,

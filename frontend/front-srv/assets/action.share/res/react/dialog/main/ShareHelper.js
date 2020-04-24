@@ -52,11 +52,12 @@ class ShareHelper {
     }
 
     static buildPublicUrl(pydio, linkHash, shortForm = false){
-        const pluginConfigs = pydio.Parameters;
+        const params = pydio.Parameters;
         if(shortForm) {
-            return '...' + pluginConfigs.get('PUBLIC_BASEURI') + '/' + linkHash;
+            return '...' + params.get('PUBLIC_BASEURI') + '/' + linkHash;
         } else {
-            return pluginConfigs.get('FRONTEND_URL') + pluginConfigs.get('PUBLIC_BASEURI') + '/' + linkHash;
+            const url = pydio.getFrontendUrl();
+            return `${url.protocol}//${url.host}` + params.get('PUBLIC_BASEURI') + '/' + linkHash;
         }
     }
 

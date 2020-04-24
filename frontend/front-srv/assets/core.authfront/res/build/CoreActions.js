@@ -38,20 +38,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _materialUiStyles = require('material-ui/styles');
+var _pydio = require('pydio');
 
-var _materialUi = require('material-ui');
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+<<<<<<< HEAD
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var pydio = window.pydio;
+=======
+var _materialUiStyles = require('material-ui/styles');
+
+var _materialUi = require('material-ui');
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+>>>>>>> a7b6a9331... Prepare front to get rid of the FRONTEND_URL parameter
 
 var LanguagePicker = function LanguagePicker() {
     var items = [];
+    var pydio = _pydio2['default'].getInstance();
 
     pydio.listLanguagesWithCallback(function (key, label, current) {
         return items.push(React.createElement(_materialUi.MenuItem, {
@@ -77,6 +86,8 @@ var LanguagePicker = function LanguagePicker() {
 var LoginDialogMixin = {
 
     getInitialState: function getInitialState() {
+        var pydio = _pydio2['default'].getInstance();
+
         return {
             globalParameters: pydio.Parameters,
             authParameters: pydio.getPluginConfigs('auth'),
@@ -88,6 +99,7 @@ var LoginDialogMixin = {
     postLoginData: function postLoginData(restClient) {
         var _this = this;
 
+        var pydio = _pydio2['default'].getInstance();
         var passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         var login = undefined;
         if (passwordOnly) {
@@ -140,7 +152,7 @@ var LoginPasswordDialog = React.createClass({
 
     fireForgotPassword: function fireForgotPassword(e) {
         e.stopPropagation();
-        pydio.getController().fireAction(this.state.authParameters.get("FORGOT_PASSWORD_ACTION"));
+        _pydio2['default'].getInstance().getController().fireAction(this.state.authParameters.get("FORGOT_PASSWORD_ACTION"));
     },
 
     useBlur: function useBlur() {
@@ -150,6 +162,7 @@ var LoginPasswordDialog = React.createClass({
     getButtons: function getButtons() {
         var _this2 = this;
 
+        var pydio = _pydio2['default'].getInstance();
         var passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         var secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
 
@@ -397,14 +410,18 @@ var Callbacks = (function () {
         key: 'sessionLogout',
         value: function sessionLogout() {
 
-            if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
+            var pydio = _pydio2['default'].getInstance();
+
+            if (pydio.Parameters.get("PRELOG_USER")) {
                 return;
             }
+            var url = pydio.getFrontendUrl();
+            var target = url.protocol + '//' + url.host + '/logout';
 
             _pydioHttpApi2['default'].getRestClient().sessionLogout().then(function () {
                 return pydio.loadXmlRegistry(null, null, null);
             })['catch'](function (e) {
-                return window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout';
+                window.location.href = target;
             });
         }
     }, {
@@ -412,7 +429,8 @@ var Callbacks = (function () {
         value: function loginPassword(manager) {
             var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
-            if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
+            var pydio = _pydio2['default'].getInstance();
+            if (pydio.Parameters.get("PRELOG_USER")) {
                 return;
             }
 
@@ -434,13 +452,13 @@ var ResetPasswordRequire = React.createClass({
 
     statics: {
         open: function open() {
-            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'ResetPasswordRequire', { blur: true });
+            _pydio2['default'].getInstance().UI.openComponentInModal('AuthfrontCoreActions', 'ResetPasswordRequire', { blur: true });
         }
     },
 
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: pydio.MessageHash['gui.user.1'],
+            dialogTitle: _pydio2['default'].getInstance().MessageHash['gui.user.1'],
             dialogIsModal: true,
             dialogSize: 'sm'
         };
@@ -451,7 +469,7 @@ var ResetPasswordRequire = React.createClass({
     },
 
     cancel: function cancel() {
-        pydio.Controller.fireAction('login');
+        _pydio2['default'].getInstance().Controller.fireAction('login');
     },
 
     submit: function submit() {
@@ -510,13 +528,13 @@ var ResetPasswordDialog = React.createClass({
 
     statics: {
         open: function open() {
-            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'ResetPasswordDialog', { blur: true });
+            _pydio2['default'].getInstance().UI.openComponentInModal('AuthfrontCoreActions', 'ResetPasswordDialog', { blur: true });
         }
     },
 
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: pydio.MessageHash['gui.user.1'],
+            dialogTitle: _pydio2['default'].getInstance().MessageHash['gui.user.1'],
             dialogIsModal: true,
             dialogSize: 'sm'
         };
@@ -537,7 +555,8 @@ var ResetPasswordDialog = React.createClass({
 
         if (this.state.valueSubmitted) {
             this.props.onDismiss();
-            window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/login';
+            var url = pydio.getFrontendUrl();
+            window.location.href = url.protocol + '//' + url.host + '/login';
             return;
         }
 
@@ -557,7 +576,7 @@ var ResetPasswordDialog = React.createClass({
     componentDidMount: function componentDidMount() {
         var _this6 = this;
 
-        Promise.resolve(require('pydio').requireLib('form', true)).then(function () {
+        Promise.resolve(_pydio2['default'].requireLib('form', true)).then(function () {
             _this6.setState({ formLoaded: true });
         });
     },

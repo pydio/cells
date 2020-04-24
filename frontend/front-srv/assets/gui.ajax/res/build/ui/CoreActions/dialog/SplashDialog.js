@@ -81,8 +81,7 @@ var SplashDialog = _react2["default"].createClass({
     componentDidMount: function componentDidMount() {
         var _this = this;
 
-        var url = pydio.Parameters.get('FRONTEND_URL') + '/plug/gui.ajax/credits.md';
-        window.fetch(url, {
+        window.fetch('plug/gui.ajax/credits.md', {
             method: 'GET',
             credentials: 'same-origin'
         }).then(function (response) {
