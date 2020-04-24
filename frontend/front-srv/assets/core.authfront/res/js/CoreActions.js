@@ -25,9 +25,12 @@ import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, S
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 let pydio = window.pydio;
 =======
 >>>>>>> a7b6a9331... Prepare front to get rid of the FRONTEND_URL parameter
+=======
+>>>>>>> 5e2193f07... Prepare front to get rid of the FRONTEND_URL parameter
 
 const LanguagePicker = () => {
     const items = [];
