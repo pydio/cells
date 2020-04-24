@@ -40,7 +40,14 @@ import (
 // DATASOURCE Action
 func actionDatasourceAdd(c *install.InstallConfig) error {
 
-	conf, err := addDatasourceLocal(c)
+	var conf *object.DataSource
+	var err error
+	var storageFolder string
+	if c.GetDsType() == "S3" {
+		conf, err = addDatasourceS3(c)
+	} else {
+		conf, err = addDatasourceLocal(c)
+	}
 	if err != nil {
 		return err
 	}
@@ -51,6 +58,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	keyUuid := uuid.New()
 	config.SetSecret(keyUuid, conf.ApiSecret)
 	minioConfig.ApiSecret = keyUuid
+	conf.ApiSecret = keyUuid
 	// Now store in config
 	config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name))
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
@@ -59,7 +67,17 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	sources := []string{conf.Name, "personal", "cellsdata"}
 	config.Set(sources, "services", "pydio.grpc.data.index", "sources")
 	config.Set(sources, "services", "pydio.grpc.data.sync", "sources")
-	storageFolder := filepath.Dir(conf.StorageConfiguration["folder"])
+	s3buckets := make(map[string]string, len(sources))
+	if conf.StorageType == object.StorageType_LOCAL {
+		storageFolder = filepath.Dir(conf.StorageConfiguration["folder"])
+		s3buckets[conf.Name] = conf.Name
+		s3buckets["personal"] = "personal"
+		s3buckets["cellsdata"] = "cellsdata"
+	} else {
+		s3buckets[conf.Name] = c.GetDsS3BucketDefault()
+		s3buckets["personal"] = c.GetDsS3BucketPersonal()
+		s3buckets["cellsdata"] = c.GetDsS3BucketCells()
+	}
 
 	for _, source := range sources {
 		// Store indexes tables
@@ -72,8 +90,10 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
-		sourceConf.ObjectsBucket = source
-		sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
+		sourceConf.ObjectsBucket = s3buckets[source]
+		if storageFolder != "" {
+			sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
+		}
 
 		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
 		config.Set(sourceConf, "services", sync)
@@ -84,9 +104,41 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		config.Set(conf.Name, "defaults", "datasource")
 	}
 
+	// For S3 Case, technical buckets are generally custom ones
+	if conf.StorageType == object.StorageType_S3 {
+		config.Set(c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket")
+		config.Set(c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket")
+		config.Set(c.GetDsS3BucketVersions(), "services", "pydio.versions-stores", "bucket")
+	}
+
 	config.Save("cli", "Install / Setting default DataSources")
 
 	return nil
+}
+
+func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
+	port, _ := strconv.ParseInt(c.GetDsPort(), 10, 32)
+	conf := &object.DataSource{
+		Name:                 c.GetDsName(),
+		StorageType:          object.StorageType_S3,
+		ApiKey:               c.GetDsS3ApiKey(),
+		ApiSecret:            c.GetDsS3ApiSecret(),
+		ObjectsPort:          int32(port),
+		StorageConfiguration: make(map[string]string),
+	}
+	if h, e := os.Hostname(); e == nil {
+		conf.PeerAddress = h
+	} else {
+		ip, _ := net.GetExternalIP()
+		conf.PeerAddress = ip.String()
+	}
+	if c.GetDsS3Custom() != "" {
+		conf.StorageConfiguration["customEndpoint"] = c.GetDsS3Custom()
+		if c.GetDsS3CustomRegion() != "" {
+			conf.StorageConfiguration["customRegion"] = c.GetDsS3CustomRegion()
+		}
+	}
+	return conf, nil
 }
 
 func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {

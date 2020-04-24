@@ -18,6 +18,19 @@ message InstallConfig {
     string dbManualDSN = 11;
     string dsName = 12;
     string dsPort = 13;
+    string dsType = 15;
+
+    string dsS3Custom = 16;
+    string dsS3CustomRegion = 17;
+    string dsS3ApiKey = 18;
+    string dsS3ApiSecret = 19;
+    string dsS3BucketDefault = 20;
+    string dsS3BucketPersonal = 21;
+    string dsS3BucketCells = 22;
+    string dsS3BucketBinaries = 23;
+    string dsS3BucketThumbs = 35;
+    string dsS3BucketVersions = 36;
+
     string dsFolder = 14;
     string frontendHosts = 24;
     string frontendLogin = 25;

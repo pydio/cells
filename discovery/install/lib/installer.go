@@ -25,6 +25,9 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/pborman/uuid"
+	"github.com/pydio/minio-go"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -57,6 +60,19 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DS) != 0 {
+		// TMP
+		/*
+			c.DsType = "S3"
+			c.DsS3ApiKey = "AKIAJBQ5SCYMII3QTFVA"
+			c.DsS3ApiSecret = "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"
+			c.DsS3BucketDefault = "tc1-pydiods1"
+			c.DsS3BucketPersonal = "tc1-personal"
+			c.DsS3BucketCells = "tc1-cellsdata"
+			c.DsS3BucketBinaries = "tc1-binaries"
+			c.DsS3BucketThumbs = "tc1-thumbs"
+			c.DsS3BucketVersion = "tc1-versions"
+		*/
+
 		if err := actionDatasourceAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
 			return err
@@ -86,21 +102,22 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *install.CheckResult {
 
 	result := &install.CheckResult{}
+	wrapError := func(e error) {
+		result.Success = false
+		data, _ := json.Marshal(map[string]string{"error": e.Error()})
+		result.JsonResult = string(data)
+	}
 
 	switch name {
 	case "DB":
 		// Create DSN
 		dsn, e := dsnFromInstallConfig(c)
 		if e != nil {
-			result.Success = false
-			data, _ := json.Marshal(map[string]string{"error": e.Error()})
-			result.JsonResult = string(data)
+			wrapError(e)
 			break
 		}
 		if e := checkConnection(dsn); e != nil {
-			result.Success = false
-			data, _ := json.Marshal(map[string]string{"error": e.Error()})
-			result.JsonResult = string(data)
+			wrapError(e)
 			break
 		}
 		jData := map[string]interface{}{"message": "successfully connected to database"}
@@ -116,6 +133,79 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		data, _ := json.Marshal(jData)
 		result.JsonResult = string(data)
 		break
+
+	case "S3_KEYS":
+		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		if e != nil {
+			wrapError(e)
+			break
+		}
+		// Check if buckets can be created
+		data := make(map[string]interface{})
+		var buckets []string
+		if bb, er := mc.ListBuckets(); er != nil {
+			wrapError(er)
+			break
+		} else {
+			for _, b := range bb {
+				buckets = append(buckets, b.Name)
+			}
+		}
+		data["buckets"] = buckets
+		testBC := uuid.New()
+		if er := mc.MakeBucket(testBC, ""); er == nil {
+			mc.RemoveBucket(testBC)
+			data["canCreate"] = true
+		} else {
+			data["canCreate"] = false
+		}
+		result.Success = true
+		dd, _ := json.Marshal(data)
+		result.JsonResult = string(dd)
+		break
+
+	case "S3_BUCKETS":
+		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		if e != nil {
+			wrapError(e)
+			break
+		}
+		// Check if buckets can be created
+		data := make(map[string]interface{})
+		buckets := make(map[string]struct{})
+		if bb, er := mc.ListBuckets(); er != nil {
+			wrapError(er)
+			break
+		} else {
+			for _, b := range bb {
+				buckets[b.Name] = struct{}{}
+			}
+		}
+		toCheck := []string{
+			c.GetDsS3BucketDefault(),
+			c.GetDsS3BucketPersonal(),
+			c.GetDsS3BucketCells(),
+			c.GetDsS3BucketBinaries(),
+			c.GetDsS3BucketThumbs(),
+			c.GetDsS3BucketVersions(),
+		}
+		var created []string
+		for _, check := range toCheck {
+			if _, ok := buckets[check]; ok { // already exists
+				continue
+			}
+			if e := mc.MakeBucket(check, ""); e != nil {
+				wrapError(e)
+				break
+			} else {
+				created = append(created, check)
+			}
+		}
+		result.Success = true
+		data["bucketsCreated"] = created
+		dd, _ := json.Marshal(data)
+		result.JsonResult = string(dd)
+
 	default:
 		result.Success = false
 		data, _ := json.Marshal(map[string]string{"error": "unsupported check type " + name})

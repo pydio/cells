@@ -199,18 +199,153 @@ func promptAdvanced(c *install.InstallConfig) error {
 	if _, e := confirm.Run(); e != nil {
 		return nil
 	}
-	dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, Validate: notEmpty}
 
-	if folder, e := dsPath.Run(); e == nil {
-		c.DsFolder = folder
-	} else {
+	dsType := p.Select{
+		Label: "Default datasources can be created on the local filesystem or directly inside an s3-compatible storage",
+		Items: []string{"Local Filesystem (select folder path)", "S3 or S3-compatible storage (setup API Keys and Buckets)"},
+	}
+	i, _, e := dsType.Run()
+	if e != nil {
 		return e
 	}
+	if i == 0 {
+		dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, Validate: notEmpty}
 
+		if folder, e := dsPath.Run(); e == nil {
+			c.DsFolder = folder
+		} else {
+			return e
+		}
+	} else {
+		// CHECK S3 CONNECTION
+		c.DsType = "S3"
+		buckets, canCreate, err := setupS3Connection(c)
+		if err != nil {
+			return err
+		}
+		fmt.Println(p.IconGood + fmt.Sprintf(" Successfully connected to S3, listed %d buckets, ability to create : %v", len(buckets), canCreate))
+		// NOW SET UP BUCKETS
+		usedBuckets, created, err := setupS3Buckets(c, buckets, canCreate)
+		if err != nil {
+			return err
+		}
+		if len(created) > 0 {
+			fmt.Println(p.IconGood + fmt.Sprintf(" Successfully created the following buckets %s", strings.Join(created, ", ")))
+		} else {
+			fmt.Println(p.IconGood + fmt.Sprintf(" Buckets used for installing cells were correctly detected (%s)", strings.Join(usedBuckets, ", ")))
+		}
+	}
 	return nil
 }
 
 /* VARIOUS HELPERS */
+func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
+	pr := p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
+	if apiKey, e := pr.Run(); e != nil {
+		return buckets, canCreate, e
+	} else {
+		c.DsS3ApiKey = apiKey
+	}
+	pr = p.Prompt{Label: "Please enter S3 Api Secret", Validate: notEmpty, Mask: '*'}
+	if apiSecret, e := pr.Run(); e != nil {
+		return buckets, canCreate, e
+	} else {
+		c.DsS3ApiSecret = apiSecret
+	}
+	check := lib.PerformCheck(context.Background(), "S3_KEYS", c)
+	var res map[string]interface{}
+	e = json.Unmarshal([]byte(check.JsonResult), &res)
+	if e != nil {
+		return buckets, canCreate, e
+	}
+	if check.Success {
+		if bb, ok := res["buckets"].([]interface{}); ok {
+			for _, b := range bb {
+				buckets = append(buckets, b.(string))
+			}
+		}
+		if create, ok := res["canCreate"].(bool); ok {
+			canCreate = create
+		}
+		fmt.Println(p.IconGood + " Successfully connected to S3 and list buckets")
+		return
+	} else {
+		fmt.Println(p.IconBad+" Could not connect to S3: ", check.JsonResult)
+		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
+		if _, e := retry.Run(); e == nil {
+			return setupS3Connection(c)
+		} else {
+			return buckets, canCreate, e
+		}
+	}
+}
+
+func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate bool) (used []string, created []string, e error) {
+	var pref string
+	prefPrompt := p.Prompt{Label: "Select a unique prefix for this installation buckets.", Default: "cells-"}
+	pref, e = prefPrompt.Run()
+	if e != nil {
+		return
+	}
+	used = []string{
+		pref + "pydiods1",
+		pref + "personal",
+		pref + "cellsdata",
+		pref + "binaries",
+		pref + "thumbs",
+		pref + "versions",
+	}
+	var toCreate []string
+	for _, bName := range used {
+		var exists bool
+		for _, k := range knownBuckets {
+			if k == bName {
+				exists = true
+				break
+			}
+		}
+		if exists {
+			continue
+		}
+		toCreate = append(toCreate, bName)
+	}
+	if len(toCreate) == 0 {
+		return used, []string{}, nil
+	}
+	if !canCreate {
+		fmt.Printf(p.IconBad+" The following buckets do not exists : %s, and you are not allowed to create them with the current credentials. Please create them first or change the prefix.\n", strings.Join(toCreate, ", "))
+		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
+		if _, e := retry.Run(); e == nil {
+			return setupS3Buckets(c, knownBuckets, canCreate)
+		} else {
+			return used, []string{}, e
+		}
+	} else {
+		fmt.Printf(p.IconWarn+" The following buckets will be created : %s\n", strings.Join(toCreate, ", "))
+		retry := p.Prompt{Label: "Do you wish to continue or to use a different prefix", IsConfirm: true, Default: "y"}
+		if _, e = retry.Run(); e != nil {
+			return setupS3Buckets(c, knownBuckets, canCreate)
+		} else {
+			c.DsS3BucketDefault = pref + "pydiods1"
+			c.DsS3BucketPersonal = pref + "personal"
+			c.DsS3BucketCells = pref + "cellsdata"
+			c.DsS3BucketThumbs = pref + "thumbs"
+			c.DsS3BucketBinaries = pref + "binaries"
+			c.DsS3BucketVersions = pref + "versions"
+			check := lib.PerformCheck(context.Background(), "S3_BUCKETS", c)
+			if !check.Success {
+				return used, []string{}, fmt.Errorf("Error while creating buckets: %s", string(check.JsonResult))
+			}
+			var dd map[string][]interface{}
+			if e = json.Unmarshal([]byte(check.JsonResult), &dd); e == nil {
+				for _, b := range dd["bucketsCreated"] {
+					created = append(created, b.(string))
+				}
+			}
+			return
+		}
+	}
+}
 
 func validateMailFormat(input string) error {
 	if !emailRegexp.MatchString(input) {
