@@ -27,7 +27,6 @@ import (
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
