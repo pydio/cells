@@ -4,10 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
-	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/micro/go-config/reader"
 	"github.com/pborman/uuid"
@@ -39,7 +36,6 @@ type BootConf struct {
 	ENDPOINT_REST_API            string
 	ENDPOINT_S3_GATEWAY          string
 	ENDPOINT_WEBSOCKET           string
-	FRONTEND_URL                 string
 	PUBLIC_BASEURI               string
 	ZipEnabled                   bool                   `json:"zipEnabled"`
 	MultipleFilesDownloadEnabled bool                   `json:"multipleFilesDownloadEnabled"`
@@ -93,18 +89,7 @@ func numberFromIntOrString(value reader.Value, def int) int {
 	return intVal
 }
 
-func ComputeBootConf(pool *PluginsPool, req *http.Request, showVersion ...bool) *BootConf {
-
-	var u string
-	if req.URL.Host == "" {
-		h := req.Header.Get("X-Forwarded-For")
-		sc := req.Header.Get("X-Forwarded-Proto")
-		pt := req.Header.Get("X-Forwarded-Port")
-		u = fmt.Sprintf("%s://%s:%s", sc, h, pt)
-	} else {
-		u = fmt.Sprintf("%s://%s:%s", req.URL.Scheme, req.URL.Host, req.URL.Port())
-	}
-	wsUrl := strings.Replace(strings.Replace(u, "https", "wss", -1), "http", "ws", -1)
+func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
 	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
@@ -123,8 +108,7 @@ func ComputeBootConf(pool *PluginsPool, req *http.Request, showVersion ...bool) 
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
 		ENDPOINT_REST_API:            "/a",
 		ENDPOINT_S3_GATEWAY:          "/io",
-		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
-		FRONTEND_URL:                 u,
+		ENDPOINT_WEBSOCKET:           "/ws/event",
 		PUBLIC_BASEURI:               "/public",
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,

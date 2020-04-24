@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/errors"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/gorilla/mux"
+	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -46,12 +45,11 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 
 	tplConf = &TplConf{
 		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").String("Pydio Cells"),
-		//Rebase:           url,
-		ResourcesFolder: "plug/gui.ajax/res",
-		Favicon:         "plug/gui.ajax/res/themes/common/images/favicon.png",
-		Theme:           "material",
-		Version:         common.Version().String(),
-		Debug:           config.Get("frontend", "debug").Bool(false),
+		ResourcesFolder:  "plug/gui.ajax/res",
+		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
+		Theme:            "material",
+		Version:          common.Version().String(),
+		Debug:            config.Get("frontend", "debug").Bool(false),
 	}
 	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
@@ -123,7 +121,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
-	bootConf := frontend.ComputeBootConf(pool, req)
+	bootConf := frontend.ComputeBootConf(pool)
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,
