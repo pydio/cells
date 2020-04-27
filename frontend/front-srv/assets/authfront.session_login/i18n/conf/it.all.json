@@ -1,29 +1,14 @@
 {
-  "Display a standard user/password login screen": {
-    "other": "Visualizza una schermata standard con username/password"
+  "1": {
+    "other": "Commenti"
   },
-  "Enable/disable automatically based on the protocol used": {
-    "other": "Abilita/Disabilita automaticamente in base al protocollo in uso"
+  "2": {
+    "other": "Inserisci il tuo commento quì"
   },
-  "Order": {
-    "other": "Ordine"
+  "3": {
+    "other": "Invia"
   },
-  "Order this plugin with other auth frontends": {
-    "other": "Ordina questo plugin rispetto agli altri frontend di autenticazione"
-  },
-  "Protocol Type": {
-    "other": "Tipo Protocollo"
-  },
-  "REST Only": {
-    "other": "Solo REST"
-  },
-  "Session-based or Rest": {
-    "other": "Basato su sessione o Rest"
-  },
-  "Sessions Only": {
-    "other": "Solo Sessioni"
-  },
-  "Standard login screen": {
-    "other": "Schermata di login standard"
+  "4": {
+    "other": "Vai a %s"
   }
 }

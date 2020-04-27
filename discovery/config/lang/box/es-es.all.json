@@ -1,20 +1,29 @@
 {
-  "30 days max": {
-    "other": "Máximo 30 días"
+  "Minimal length": {
+    "other": "Minimal length"
   },
-  "Remove versions after 30 days": {
-    "other": "Eliminar versiones después de 30 días"
+  "Maximal length": {
+    "other": "Maximal length"
   },
-  "Keep All": {
-    "other": "Mantener todas"
+  "Minimum number of upper case characters": {
+    "other": "Minimum number of upper case characters"
   },
-  "Keep all versions forever": {
-    "other": "Mantener todas las versiones indefinidamente"
+  "Minimum number of lower case characters": {
+    "other": "Minimum number of lower case characters"
   },
-  "Regular Pruning": {
-    "other": "Depuración Periódica"
+  "Minimum number of numeric characters": {
+    "other": "Minimum number of numeric characters"
   },
-  "Prune versions regularly at various intervals": {
-    "other": "Depurar las versiones regularmente a intervalos periódicos"
+  "Minimum number of special characters": {
+    "other": "Minimum number of special characters"
+  },
+  "List of special characters": {
+    "other": "List of special characters"
+  },
+  "Password Policy": {
+    "other": "Password Policy"
+  },
+  "Policy for password complexity": {
+    "other": "Policy for password complexity"
   }
 }
