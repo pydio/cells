@@ -5,6 +5,9 @@
   "dashboard.tab.activity": {
     "other": "Aktivitāte"
   },
+  "loading": {
+    "other": "Loading..."
+  },
   "ds.board.ds.legend": {
     "other": "Datu avoti ir konkrētas uzglabāšanas vietas kuras tiek veidotas Pydio direktoriju kokā. Tās var būtizvietotas uz atsevišķiem datu nesējiem pēc nepieciešamības."
   },
@@ -22,6 +25,18 @@
   },
   "ds.board.versioning.title": {
     "other": "Versiju veidošanas noteikumi"
+  },
+  "ds.board.wsfromds.title": {
+    "other": "Create Workspace"
+  },
+  "ds.board.wsfromds.legend": {
+    "other": "Create a new workspace at the root of datasource %s"
+  },
+  "ds.board.wsfromds.field": {
+    "other": "Label"
+  },
+  "ds.board.wsfromds.defaultPrefix": {
+    "other": "DataSource %s"
   },
   "ds.editor.delete.warning": {
     "other": "Vai vēlaties dzēst šo datu avotu? Tas ir neatgriezenisks process un Jūs varat zaudēt visus datus kas saistīti ar šiem avotiem!"
@@ -122,6 +137,9 @@
   "ds.editor.new": {
     "other": "Jauns Datu avots"
   },
+  "ds.editor.name.inuse": {
+    "other": "This name is already in use, make sure to pick another one!"
+  },
   "ds.editor.options": {
     "other": "Pamata opcijas"
   },
@@ -160,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Avota adrese"
+  },
+  "ds.editor.selector.mkdir": {
+    "other": "Create Folder"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Create a new folder under %s"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
     "other": "MacOSX operētājsistēma"
@@ -370,240 +397,6 @@
   },
   "ds.versioning.periods": {
     "other": "Aiturēšanas stratēģija"
-  },
-  "home.1": {
-    "other": "Ātrā piekļuve"
-  },
-  "home.10": {
-    "other": "IP adrese"
-  },
-  "home.11": {
-    "other": "Failu darbības"
-  },
-  "home.12": {
-    "other": "Leģenda"
-  },
-  "home.13": {
-    "other": "Datumu periods"
-  },
-  "home.14": {
-    "other": "Pēdējā diena"
-  },
-  "home.15": {
-    "other": "Pēdējā nedēļa"
-  },
-  "home.16": {
-    "other": "Pēdējais mēnesis"
-  },
-  "home.17": {
-    "other": "Failu darbības (ja veids ir darbība)"
-  },
-  "home.18": {
-    "other": "Atjaunošanas intervāls (sekundes)"
-  },
-  "home.19": {
-    "other": "Maza izmēra grafiku rīklogs"
-  },
-  "home.2": {
-    "other": "Datumu izvēle"
-  },
-  "home.20": {
-    "other": "Liela grafika panelis"
-  },
-  "home.21": {
-    "other": "Grafiks"
-  },
-  "home.22": {
-    "other": "Augšupielādes"
-  },
-  "home.23": {
-    "other": "Lejupielādes"
-  },
-  "home.24": {
-    "other": "Koplietotie faili"
-  },
-  "home.25": {
-    "other": "Pieslēgumi"
-  },
-  "home.26": {
-    "other": "Katru dienu"
-  },
-  "home.27": {
-    "other": "Katru nedēļu"
-  },
-  "home.28": {
-    "other": "Katru mēnesi"
-  },
-  "home.29": {
-    "other": "Paraugu biežums"
-  },
-  "home.3": {
-    "other": "Lapu kursori"
-  },
-  "home.30": {
-    "other": "Nosaukums"
-  },
-  "home.31": {
-    "other": "Nav atrastas darbības."
-  },
-  "home.32": {
-    "other": "Pādējās darbības"
-  },
-  "home.33": {
-    "other": "Visi"
-  },
-  "home.34": {
-    "other": "Kļūdas"
-  },
-  "home.35": {
-    "other": "Servera statuss"
-  },
-  "home.36": {
-    "other": "Aizņemts"
-  },
-  "home.37": {
-    "other": "Gaida"
-  },
-  "home.38": {
-    "other": "Izlietotais apjoms"
-  },
-  "home.39": {
-    "other": "Brīvais apjoms"
-  },
-  "home.4": {
-    "other": "Sākuma datums"
-  },
-  "home.40": {
-    "other": "Procesora noslodze"
-  },
-  "home.41": {
-    "other": "Sistēmas diska lietojums"
-  },
-  "home.42": {
-    "other": "Servera noslodze"
-  },
-  "home.43": {
-    "other": "Pievienot saīsni ..."
-  },
-  "home.44": {
-    "other": "Sākt"
-  },
-  "home.45": {
-    "other": "Sapratu, vairs nerādīt!"
-  },
-  "home.48": {
-    "other": "Noņemt"
-  },
-  "home.49": {
-    "other": "Pielikt/noņemt rīklogus"
-  },
-  "home.5": {
-    "other": "Beigu datums"
-  },
-  "home.50": {
-    "other": "Pievienot jaunu rīklogu..."
-  },
-  "home.51": {
-    "other": "Esat pārliecināts? Esošais izkārtojums tiks notīrīts."
-  },
-  "home.52": {
-    "other": "Izveidot rīklogu"
-  },
-  "home.53": {
-    "other": "Pārvaldības paneļa veidošana"
-  },
-  "home.54": {
-    "other": "Lai pielāgotu parvaldības paneli, noslēpiet nevajadzīgos rīklogus nospiežot NOŅEMT pogu. "
-  },
-  "home.55": {
-    "other": "Lai pievienotu rīklogu, izvēlieties veidu, iestatiet parametrus un nospiediet Izveidot."
-  },
-  "home.56": {
-    "other": "Atiestatīt izkārtojumu"
-  },
-  "home.57": {
-    "other": "šodienas pieslēgumi"
-  },
-  "home.58": {
-    "other": "šodienas lejupielādes"
-  },
-  "home.59": {
-    "other": "šīs nedēļas augšupielādes"
-  },
-  "home.6": {
-    "other": "Ielādē..."
-  },
-  "home.60": {
-    "other": "šodien koplietotie faili"
-  },
-  "home.61": {
-    "other": "šodienas aktīvākie lietotāji"
-  },
-  "home.62": {
-    "other": "pagājušās nedēļas aktīvākās IP adreses"
-  },
-  "home.63": {
-    "other": "pagājušās nedēļas visvairāk lejupielādētie"
-  },
-  "home.64": {
-    "other": "visvairāk skatītie pagājušajā nedēļā"
-  },
-  "home.65": {
-    "other": "Failu aktivitāte"
-  },
-  "home.66": {
-    "other": "Web pieslēgumi"
-  },
-  "home.67": {
-    "other": "Laipni lūgti administrācijas panelī. Kā grupas administratoram Jums ir tiesības administrēt lietotājus un darbvirsmas tikai Jūsu grupā. Ja vēlaties administrēt aplikācijas globālos iestatījumus Jums ir jāpieslēdzas kā Super Administratoram (Super Administratori nevar būt nevienā grupā)."
-  },
-  "home.68": {
-    "other": "Atpakaļ uz darbvirsmām"
-  },
-  "home.69": {
-    "other": "Filtrēt pēc darbvirsmām"
-  },
-  "home.7": {
-    "other": "Aktīvākie rīklogi"
-  },
-  "home.70": {
-    "other": "Atstāt tukšu lai aprēķinātu datus no visām vai vienas konkrētas darbvirsmas."
-  },
-  "home.71": {
-    "other": "Failu nosaukumu filtrs"
-  },
-  "home.72": {
-    "other": "Lietojiet *.ext lai filtrētu failus pēc paplašinājuma, vai prefix* lai atlasītu failus tikai pēc ši prefiksa."
-  },
-  "home.73": {
-    "other": "Ja veids ir Faila Darbība, izvēlieties darbību kuru varat monitorēt."
-  },
-  "home.74": {
-    "other": "Skatīt visu aktivitāti"
-  },
-  "home.75": {
-    "other": "Darāmo darbu saraksts"
-  },
-  "home.76": {
-    "other": "Pievienot darāmo darbu"
-  },
-  "home.77": {
-    "other": "Darba paraugs"
-  },
-  "home.78": {
-    "other": "pabeigts"
-  },
-  "home.79": {
-    "other": "Rīklogs tika pievienots Jūsu darbvirsmai"
-  },
-  "home.8": {
-    "other": "Veids..."
-  },
-  "home.9": {
-    "other": "Lietotāji"
-  },
-  "home.getting_started": {
-    "other": "Laipni lūgti administrācijas panelī.  Šajā panelī Jūs varat kontrolēt visas Aplikācijas darbības un iespējas. Navigācija\n                        kreisajā pusē lai pārvaldītu lietotājus un aplikācija parametrus. Šo paneli var pielāgot pievienojot\n                        grafisku informāciju vieglākai pārvaldībai. Atveriet Pārvaldības paneļa veidošanu\n                        labajā apkšējā daļā ar oranžo pogu un pievienojiet vai noņemiet rīklogus. Jūs varat pārkārtot\n                        logus tos vienkārši parvietojot nepieciešamajā kārtībā.<br/>\n                        Ja Jums ir nepieciešmaa palīdzība aizpildot parametru formas, Jūs varat pieslēgties <span class='icon-question-sign'></span>,\n                        lai atvērtu Pydio Kompanjonu.\n    "
   },
   "logs.1": {
     "other": "Servera log faili"
@@ -1750,6 +1543,9 @@
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+  },
+  "scheduler.tasks.delete.confirm": {
+    "other": "Are you sure you want to clear all tasks for this job?"
   },
   "scheduler.trigger.create.node": {
     "other": "Izveidot punktu"

@@ -1,35 +1,8 @@
 {
   "1": {
-    "other": "Correo enviado correctamente a %s"
+    "other": "Lector Exif"
   },
   "2": {
-    "other": "¡No se encontró la dirección para enviar el correo!"
-  },
-  "3": {
-    "other": "No se configuró el gestor de correo, contacte con el administrador"
-  },
-  "4": {
-    "other": "De"
-  },
-  "5": {
-    "other": "A"
-  },
-  "6": {
-    "other": "Asunto"
-  },
-  "7": {
-    "other": "Mensaje"
-  },
-  "8": {
-    "other": "Elija un usuario o escriba una dirección"
-  },
-  "9": {
-    "other": "Resumen de Notificaciones"
-  },
-  "sender.error": {
-    "other": "¡No se pudo enviar el correo electrónico!"
-  },
-  "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Visualizar datos Exif"
   }
 }
