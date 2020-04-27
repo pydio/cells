@@ -6,7 +6,7 @@
     "other": "Activity"
   },
   "loading":{
-    other: "Loading..."
+    "other": "Loading..."
   },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
