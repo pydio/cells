@@ -56572,6 +56572,10 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 var moment = _Pydio$requireLib.moment;
 var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib2.MaterialTable;
+
 var UpdaterDashboard = _react2['default'].createClass({
     displayName: 'UpdaterDashboard',
 
@@ -56713,37 +56717,56 @@ var UpdaterDashboard = _react2['default'].createClass({
                 label: this.context.getMessage('start.update', 'updater'),
                 onTouchTap: this.performUpgrade
             }, bProps)));
-            var items = [];
+            var tableData = [];
 
             var _loop = function (index) {
                 var p = packages[index];
-                items.push(_react2['default'].createElement(_materialUi.ListItem, {
-                    leftCheckbox: _react2['default'].createElement(_materialUi.Checkbox, { key: p, onCheck: function (e, v) {
+                tableData.push(_extends({}, p, {
+                    index: index,
+                    Checkbox: _react2['default'].createElement(_materialUi.Checkbox, { key: p, onCheck: function (e, v) {
                             return _this3.onCheckStateChange(index, v, p);
                         }, checked: check >= index, disabled: updateApplied || check > index || !accessByName('Create') }),
-                    primaryText: p.PackageName + ' ' + p.Version,
-                    secondaryText: p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()
+                    Changelog: _react2['default'].createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi mdi-link",
+                        tooltip: _this3.context.getMessage('package.changelog', 'updater'),
+                        tooltipPosition: "bottom-left",
+                        onTouchTap: function () {
+                            window.open(p.ChangeLog, '_blank');
+                        },
+                        onClick: function (e) {
+                            return e.stopPropagation();
+                        },
+                        iconStyle: { color: primary1Color }
+                    })
                 }));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
             };
 
             for (var index = packages.length - 1; index >= 0; index--) {
                 _loop(index);
             }
-            items.pop();
+            var columns = [{ name: 'Checkbox', label: _react2['default'].createElement('span', { className: "mdi mdi-download" }), style: { width: 50, paddingRight: 0 }, headerStyle: { width: 50, paddingRight: 0, fontSize: 24 } }, { name: 'Version', label: this.context.getMessage('package.version', 'updater'), style: { fontSize: 15, width: '9%' }, headerStyle: { width: '9%' } }, { name: 'Label', label: this.context.getMessage('package.label', 'updater'), style: { width: '18%' }, headerStyle: { width: '18%' } }, { name: 'ReleaseDate', label: this.context.getMessage('package.released', 'updater'), useMoment: true, style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'Description', label: this.context.getMessage('package.details', 'updater') }, { name: 'Changelog', label: '', style: { width: 50, paddingLeft: 0, overflow: 'visible' }, headerStyle: { width: 50 } }];
+
             list = _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'div',
-                    { style: subHeaderStyle },
+                    { style: _extends({}, subHeaderStyle, { color: muiTheme.palette.accent1Color, textTransform: 'uppercase' }) },
                     this.context.getMessage('packages.available', 'updater')
                 ),
-                _react2['default'].createElement(
-                    _materialUi.List,
-                    null,
-                    items
-                )
+                _react2['default'].createElement(MaterialTable, {
+                    showCheckboxes: false,
+                    columns: columns,
+                    data: tableData,
+                    masterStyles: adminStyles.body.tableMaster,
+                    onSelectRows: function (rows) {
+                        if (!rows || rows.length !== 1) {
+                            return;
+                        }
+                        var row = rows[0];
+                        _this3.onCheckStateChange(row.index, row.index !== check, row);
+                    }
+                })
             );
         } else if (loading) {
             list = _react2['default'].createElement(

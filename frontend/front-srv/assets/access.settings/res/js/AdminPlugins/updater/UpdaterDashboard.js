@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {Paper, List, ListItem, RaisedButton, FlatButton, Checkbox, Divider, Subheader} from 'material-ui'
+import {Paper, List, ListItem, RaisedButton, FlatButton, IconButton, Checkbox, Divider, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
 import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
@@ -27,6 +27,7 @@ import Pydio from 'pydio'
 import UpgraderWizard from './UpgraderWizard'
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
+const {MaterialTable} = Pydio.requireLib('components');
 
 let UpdaterDashboard = React.createClass({
 
@@ -150,25 +151,53 @@ let UpdaterDashboard = React.createClass({
                     onTouchTap={this.performUpgrade}
                     {...bProps}
                 />);
-            let items = [];
+            const tableData = [];
             for (let index=packages.length - 1; index >= 0; index--) {
                 const p = packages[index];
-                items.push(<ListItem
-                    leftCheckbox={<Checkbox key={p} onCheck={(e,v)=> this.onCheckStateChange(index, v, p)} checked={check >= index} disabled={updateApplied || check > index || !accessByName('Create')} />}
-                    primaryText={p.PackageName + ' ' + p.Version}
-                    secondaryText={p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()}
-                />);
-                items.push(<Divider/>)
+                tableData.push({
+                    ...p,
+                    index,
+                    Checkbox: <Checkbox key={p} onCheck={(e,v)=> this.onCheckStateChange(index, v, p)} checked={check >= index} disabled={updateApplied || check > index || !accessByName('Create')} />,
+                    Changelog:<IconButton
+                        iconClassName={"mdi mdi-link"}
+                        tooltip={this.context.getMessage('package.changelog', 'updater')}
+                        tooltipPosition={"bottom-left"}
+                        onTouchTap={()=>{window.open(p.ChangeLog, '_blank')}}
+                        onClick={(e)=>e.stopPropagation()}
+                        iconStyle={{color:primary1Color}}
+                    />
+                });
             }
-            items.pop();
+            const columns = [
+                {name:'Checkbox', label:<span className={"mdi mdi-download"}/>, style:{width:50, paddingRight:0}, headerStyle:{width:50, paddingRight:0, fontSize:24}},
+                {name:'Version', label:this.context.getMessage('package.version', 'updater'), style:{fontSize: 15, width: '9%'}, headerStyle:{width: '9%'}},
+                {name:'Label', label:this.context.getMessage('package.label', 'updater'), style:{width: '18%'}, headerStyle:{width: '18%'}},
+                {name:'ReleaseDate', label:this.context.getMessage('package.released', 'updater'), useMoment:true, style:{width: '15%'}, headerStyle:{width: '15%'}},
+                {name:'Description', label:this.context.getMessage('package.details', 'updater')},
+                {name:'Changelog', label:'',style:{width:50, paddingLeft:0, overflow:'visible'}, headerStyle:{width:50}},
+            ];
+
             list = (
                 <div>
-                    <div style={subHeaderStyle}>{this.context.getMessage('packages.available', 'updater')}</div>
-                    <List>
-                        {items}
-                    </List>
+                    <div style={{...subHeaderStyle,color:muiTheme.palette.accent1Color, textTransform:'uppercase'}}>
+                        {this.context.getMessage('packages.available', 'updater')}
+                    </div>
+                    <MaterialTable
+                        showCheckboxes={false}
+                        columns={columns}
+                        data={tableData}
+                        masterStyles={adminStyles.body.tableMaster}
+                        onSelectRows={(rows)=>{
+                            if(!rows || rows.length !== 1) {
+                                return;
+                            }
+                            const row = rows[0];
+                            this.onCheckStateChange(row.index, row.index !== check, row);
+                        }}
+                    />
                 </div>
             );
+
         }else if(loading){
             list = (
                 <div>
