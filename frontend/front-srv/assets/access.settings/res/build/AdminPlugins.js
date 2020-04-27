@@ -56593,7 +56593,9 @@ var UpdaterDashboard = _react2['default'].createClass({
     checkForUpgrade: function checkForUpgrade() {
         var _this = this;
 
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var rootNode = _props.rootNode;
 
         this.setState({ loading: true });
 
@@ -56620,8 +56622,7 @@ var UpdaterDashboard = _react2['default'].createClass({
             } else {
                 _this.setState({ no_upgrade: true });
             }
-            var node = pydio.getContextNode();
-            node.getMetadata().set('flag', hasBinary);
+            rootNode.getMetadata().set('flag', hasBinary);
             AdminComponents.MenuItemListener.getInstance().notify("item_changed");
             _this.setState({ loading: false });
         })['catch'](function () {
@@ -56631,11 +56632,12 @@ var UpdaterDashboard = _react2['default'].createClass({
     },
 
     upgradeFinished: function upgradeFinished() {
-        var pydio = this.props.pydio;
+        var _props2 = this.props;
+        var pydio = _props2.pydio;
+        var rootNode = _props2.rootNode;
 
         this.setState({ updateApplied: this.state.selectedPackage.Version });
-        var node = pydio.getContextNode();
-        node.getMetadata().set('flag', 0);
+        rootNode.getMetadata().set('flag', 0);
         AdminComponents.MenuItemListener.getInstance().notify("item_changed");
     },
 
@@ -56681,9 +56683,9 @@ var UpdaterDashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var list = null;
-        var _props = this.props;
-        var accessByName = _props.accessByName;
-        var muiTheme = _props.muiTheme;
+        var _props3 = this.props;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
         var _state2 = this.state;
         var packages = _state2.packages;
         var check = _state2.check;
@@ -56882,7 +56884,8 @@ var UpdaterDashboard = _react2['default'].createClass({
                         return _this3.setState({ dirty: d });
                     }
                 }),
-                adminStyles.formCss()
+                adminStyles.formCss(),
+                adminStyles.formCssForceGroup()
             )
         );
     }

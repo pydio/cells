@@ -46,7 +46,7 @@ let UpdaterDashboard = React.createClass({
     },
 
     checkForUpgrade: function(){
-        const {pydio} = this.props;
+        const {pydio, rootNode} = this.props;
         this.setState({loading:true});
 
         let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
@@ -72,8 +72,7 @@ let UpdaterDashboard = React.createClass({
             } else {
                 this.setState({no_upgrade: true});
             }
-            const node = pydio.getContextNode();
-            node.getMetadata().set('flag', hasBinary);
+            rootNode.getMetadata().set('flag', hasBinary);
             AdminComponents.MenuItemListener.getInstance().notify("item_changed");
             this.setState({loading: false});
         }).catch(() => {
@@ -84,10 +83,9 @@ let UpdaterDashboard = React.createClass({
     },
 
     upgradeFinished(){
-        const {pydio} = this.props;
+        const {pydio, rootNode} = this.props;
         this.setState({updateApplied: this.state.selectedPackage.Version});
-        const node = pydio.getContextNode();
-        node.getMetadata().set('flag', 0);
+        rootNode.getMetadata().set('flag', 0);
         AdminComponents.MenuItemListener.getInstance().notify("item_changed");
     },
 
@@ -253,6 +251,7 @@ let UpdaterDashboard = React.createClass({
                         />
                     }
                     {adminStyles.formCss()}
+                    {adminStyles.formCssForceGroup()}
                 </div>
             </div>
 

@@ -48,6 +48,18 @@ function cssFormStyle() {
     return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssStyle}}/>;
 }
 
+const cssGroup = `
+.pydio-form-group {
+    width: 100% !important;
+    margin: 16px !important;
+    margin-top: 0 !important;
+}
+`;
+
+function cssFormGroupFullStyle() {
+    return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssGroup}}/>;
+}
+
 export default function(palette = {}) {
     return {
         props: {
@@ -228,6 +240,7 @@ export default function(palette = {}) {
                 }
             }
         },
-        formCss:cssFormStyle
+        formCss:cssFormStyle,
+        formCssForceGroup:cssFormGroupFullStyle
     }
 }

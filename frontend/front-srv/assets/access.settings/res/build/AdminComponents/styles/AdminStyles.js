@@ -43,6 +43,12 @@ function cssFormStyle() {
     return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle } });
 }
 
+var cssGroup = '\n.pydio-form-group {\n    width: 100% !important;\n    margin: 16px !important;\n    margin-top: 0 !important;\n}\n';
+
+function cssFormGroupFullStyle() {
+    return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssGroup } });
+}
+
 exports['default'] = function () {
     var palette = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -224,7 +230,8 @@ exports['default'] = function () {
                 }
             }
         },
-        formCss: cssFormStyle
+        formCss: cssFormStyle,
+        formCssForceGroup: cssFormGroupFullStyle
     };
 };
 
