@@ -226,7 +226,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PaperEditorLayout,
                 {
-                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
+                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading'],
                     titleActionBar: titleActionBarButtons,
                     closeAction: this.props.closeEditor,
                     className: 'workspace-editor',

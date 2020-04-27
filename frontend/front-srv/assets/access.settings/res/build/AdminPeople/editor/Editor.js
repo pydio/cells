@@ -165,7 +165,7 @@ var Editor = (function (_React$Component) {
             var _this4 = this;
 
             if (showLoader) {
-                this.setState({ loadingMessage: this.getMessage('home.6', 'ajxp_admin') });
+                this.setState({ loadingMessage: this.getMessage('loading', 'ajxp_admin') });
             }
             var idmRole = this.state.idmRole;
 

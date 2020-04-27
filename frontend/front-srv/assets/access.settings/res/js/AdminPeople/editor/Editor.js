@@ -98,7 +98,7 @@ class Editor extends React.Component{
 
     loadRoleData(showLoader){
         if(showLoader) {
-            this.setState({loadingMessage:this.getMessage('home.6', 'ajxp_admin')});
+            this.setState({loadingMessage:this.getMessage('loading', 'ajxp_admin')});
         }
         const {idmRole} = this.state;
         const role = new Role(idmRole);

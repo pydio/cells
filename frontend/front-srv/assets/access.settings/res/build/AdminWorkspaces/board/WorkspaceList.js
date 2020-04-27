@@ -239,7 +239,7 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            emptyStateString: loading ? m('loading') : m('ws.board.empty'),
             masterStyles: tableStyles,
             paginate: [10, 25, 50, 100],
             defaultPageSize: 25

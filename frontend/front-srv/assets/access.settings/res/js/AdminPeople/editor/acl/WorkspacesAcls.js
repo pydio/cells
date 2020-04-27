@@ -75,7 +75,7 @@ class WorkspacesAcls extends React.Component{
                 paginate={[10, 25, 50, 100]}
                 defaultPageSize={25}
                 showCheckboxes={false}
-                emptyStateString={loading?Pydio.getInstance().MessageHash['ajxp_admin.home.6']:''}
+                emptyStateString={loading?Pydio.getInstance().MessageHash['ajxp_admin.loading']:''}
             />
             </div>
         );

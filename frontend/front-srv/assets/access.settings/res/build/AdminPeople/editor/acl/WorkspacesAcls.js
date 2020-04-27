@@ -118,7 +118,7 @@ var WorkspacesAcls = (function (_React$Component) {
                     paginate: [10, 25, 50, 100],
                     defaultPageSize: 25,
                     showCheckboxes: false,
-                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.6'] : ''
+                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.loading'] : ''
                 })
             );
         }

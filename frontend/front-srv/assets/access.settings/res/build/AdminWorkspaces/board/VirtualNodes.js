@@ -280,7 +280,7 @@ var VirtualNodes = (function (_React$Component) {
                     (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
                         'div',
                         { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                        pydio.MessageHash['ajxp_admin.home.6']
+                        pydio.MessageHash['ajxp_admin.loading']
                     ),
                     !readonly && accessByName('Create') && _react2['default'].createElement(
                         'div',

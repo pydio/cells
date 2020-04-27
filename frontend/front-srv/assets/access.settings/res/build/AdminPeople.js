@@ -2845,7 +2845,7 @@ var WorkspacesAcls = (function (_React$Component) {
                     paginate: [10, 25, 50, 100],
                     defaultPageSize: 25,
                     showCheckboxes: false,
-                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.6'] : ''
+                    emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash['ajxp_admin.loading'] : ''
                 })
             );
         }
@@ -3060,7 +3060,7 @@ var Editor = (function (_React$Component) {
             var _this4 = this;
 
             if (showLoader) {
-                this.setState({ loadingMessage: this.getMessage('home.6', 'ajxp_admin') });
+                this.setState({ loadingMessage: this.getMessage('loading', 'ajxp_admin') });
             }
             var idmRole = this.state.idmRole;
 

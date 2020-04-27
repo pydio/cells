@@ -186,7 +186,7 @@ class VirtualNodes extends React.Component{
                         </Paper>
                     }
                     {(!nodesLoaded || !dataSourcesLoaded) &&
-                        <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.home.6']}</div>
+                        <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.loading']}</div>
                     }
                     {!readonly && accessByName('Create') &&
                         <div style={{padding:'0 24px', opacity:'.5'}}>{m('legend.2')}</div>

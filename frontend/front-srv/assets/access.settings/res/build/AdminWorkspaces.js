@@ -19343,7 +19343,7 @@ var VirtualNodes = (function (_React$Component) {
                     (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
                         'div',
                         { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                        pydio.MessageHash['ajxp_admin.home.6']
+                        pydio.MessageHash['ajxp_admin.loading']
                     ),
                     !readonly && accessByName('Create') && _react2['default'].createElement(
                         'div',
@@ -19605,7 +19605,7 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: editable ? this.openTableRows.bind(this) : null,
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? m('home.6') : m('ws.board.empty'),
+            emptyStateString: loading ? m('loading') : m('ws.board.empty'),
             masterStyles: tableStyles,
             paginate: [10, 25, 50, 100],
             defaultPageSize: 25
@@ -22261,7 +22261,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PaperEditorLayout,
                 {
-                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
+                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading'],
                     titleActionBar: titleActionBarButtons,
                     closeAction: this.props.closeEditor,
                     className: 'workspace-editor',
