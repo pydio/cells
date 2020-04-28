@@ -56,9 +56,6 @@
   "advanced.default.datasource": {
     "other": "Une DataSource par défaut est créée au démarrage pour stocker les données personnelles des utilisateurs et les données des Cells. Vous pourrez créer d'autres DataSource plus tard."
   },
-  "advanced.default.oidc": {
-    "other": "Les services s'authentifient en utilisant le protocole OpenIDConnect. Ces clés ne sont pas utilisé en dehors de l'application, laissez la valeur par défaut à moins que vous ne réinstalliez sur une installation existante."
-  },
   "license.stepLabel": {
     "other": "Licence Entreprise"
   },
@@ -187,18 +184,6 @@
   },
   "form.dsFolder.legend": {
     "other": "Utiliser un chemin absolu sur le serveur"
-  },
-  "form.externalDexID.label": {
-    "other": "ID du client OIDC"
-  },
-  "form.externalDexID.legend": {
-    "other": "Utiliser la valeur par défaut si vous n'êtes pas certain"
-  },
-  "form.externalDexSecret.label": {
-    "other": "Code secret du client OIDC"
-  },
-  "form.externalDexSecret.legend": {
-    "other": "Laissez vide si non requis"
   },
   "stepper.button.next": {
     "other": "Suivant"
