@@ -2249,6 +2249,9 @@
   "bookmark.button.tip.saving": {
     "other": "Enregistrement du statut"
   },
+  "bookmark.secondary.inside": {
+    "other": "Inside"
+  },
   "mkfile.empty.template.label": {
     "other": "Fichier vide"
   },
@@ -2320,5 +2323,11 @@
   },
   "confirm.dialog.skipNext": {
     "other": "Ne pas me prévenir la prochaine fois"
+  },
+  "material.paginator.rows": {
+    "other": "Rows per page"
+  },
+  "material.paginator.of": {
+    "other": "of"
   }
 }
