@@ -2250,7 +2250,7 @@
     "other": "Lesezeichenstatus speichern"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Innerhalb"
   },
   "mkfile.empty.template.label": {
     "other": "Leere Datei"
@@ -2325,9 +2325,9 @@
     "other": "Warnen Sie mich das nächste Mal nicht"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Zeilen pro Seite"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "von"
   }
 }
