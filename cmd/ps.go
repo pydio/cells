@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 )
@@ -98,6 +99,9 @@ $ ` + os.Args[0] + ` ps -t=broker
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
+
+		plugins.Init()
+
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()
 		for _, r := range services {
