@@ -2250,7 +2250,7 @@
     "other": "Enregistrement du statut"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Dans"
   },
   "mkfile.empty.template.label": {
     "other": "Fichier vide"
@@ -2325,9 +2325,9 @@
     "other": "Ne pas me prévenir la prochaine fois"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Lignes par page"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "sur"
   }
 }
