@@ -35,6 +35,18 @@
   "check.button": {
     "other": "Busca ahora"
   },
+  "package.version": {
+    "other": "Version"
+  },
+  "package.label": {
+    "other": "Label"
+  },
+  "package.details": {
+    "other": "Details"
+  },
+  "package.changelog": {
+    "other": "Show Changelog"
+  },
   "start.update": {
     "other": "Iniciar Upgrade"
   },

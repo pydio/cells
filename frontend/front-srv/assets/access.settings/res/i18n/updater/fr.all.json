@@ -35,6 +35,18 @@
   "check.button": {
     "other": "Vérifier maintenant"
   },
+  "package.version": {
+    "other": "Version"
+  },
+  "package.label": {
+    "other": "Libellé"
+  },
+  "package.details": {
+    "other": "Détails"
+  },
+  "package.changelog": {
+    "other": "Voir les changements"
+  },
   "start.update": {
     "other": "Démarrer"
   },
