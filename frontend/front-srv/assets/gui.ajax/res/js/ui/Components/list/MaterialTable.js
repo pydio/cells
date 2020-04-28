@@ -197,7 +197,7 @@ class MaterialTable extends React.Component{
         return (
             <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', color:'#757575'}}>
                 {pageSizes.length > 1 &&
-                    <div style={{paddingRight: 10}}>Rows per page :</div>
+                    <div style={{paddingRight: 10}}>{Pydio.getMessages()['material.paginator.rows']} :</div>
                 }
                 {pageSizes.length > 1 &&
                     <div style={{width: 90}}>
@@ -218,7 +218,7 @@ class MaterialTable extends React.Component{
                 {!onPagePrev &&
                     <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
                 }
-                {(sliceStart || sliceEnd) && <div>{sliceStart+1}-{sliceEnd} of {data.length}</div>}
+                {(sliceStart || sliceEnd) && <div>{sliceStart+1}-{sliceEnd} {Pydio.getMessages()['material.paginator.of']} {data.length}</div>}
                 {onPageNext &&
                     <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onTouchTap={() => onPageNext()}/>
                 }

@@ -304,7 +304,8 @@ var MaterialTable = (function (_React$Component) {
             pageSizes.length > 1 && _react2['default'].createElement(
                 'div',
                 { style: { paddingRight: 10 } },
-                'Rows per page :'
+                _pydio2['default'].getMessages()['material.paginator.rows'],
+                ' :'
             ),
             pageSizes.length > 1 && _react2['default'].createElement(
                 'div',
@@ -335,7 +336,9 @@ var MaterialTable = (function (_React$Component) {
                 sliceStart + 1,
                 '-',
                 sliceEnd,
-                ' of ',
+                ' ',
+                _pydio2['default'].getMessages()['material.paginator.of'],
+                ' ',
                 data.length
             ),
             onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: nextDisabled, onTouchTap: function () {
