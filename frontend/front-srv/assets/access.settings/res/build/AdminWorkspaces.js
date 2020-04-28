@@ -20147,6 +20147,10 @@ var DataSourceBucketSelector = (function (_React$Component) {
                             chipToucher.onTouchTap = function () {
                                 _this4.togglePicker(b);
                             };
+                        } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
+                            chipToucher.onTouchTap = function () {
+                                _this4.toggleMode();_this4.togglePicker(b);
+                            };
                         }
                         return _react2['default'].createElement(
                             'div',
@@ -20717,7 +20721,7 @@ var DataSourceEditor = (function (_React$Component) {
                                 { style: { flex: 1, marginRight: 5 } },
                                 _react2['default'].createElement(ModernTextField, {
                                     fullWidth: true,
-                                    disabled: !!model.StorageConfiguration.ObjectsBucket,
+                                    disabled: !!model.ObjectsBucket,
                                     hintText: m('storage.s3.bucketsTags'),
                                     value: model.StorageConfiguration.bucketsTags || '',
                                     onChange: function (e, v) {

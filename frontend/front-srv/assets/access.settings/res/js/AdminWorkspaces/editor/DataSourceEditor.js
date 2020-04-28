@@ -326,7 +326,7 @@ class DataSourceEditor extends React.Component{
                                 <div style={{flex:1, marginRight: 5}}>
                                     <ModernTextField
                                         fullWidth={true}
-                                        disabled={!!model.StorageConfiguration.ObjectsBucket}
+                                        disabled={!!model.ObjectsBucket}
                                         hintText={m('storage.s3.bucketsTags')}
                                         value={model.StorageConfiguration.bucketsTags || ''}
                                         onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>

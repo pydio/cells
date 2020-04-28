@@ -288,6 +288,10 @@ var DataSourceBucketSelector = (function (_React$Component) {
                             chipToucher.onTouchTap = function () {
                                 _this4.togglePicker(b);
                             };
+                        } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
+                            chipToucher.onTouchTap = function () {
+                                _this4.toggleMode();_this4.togglePicker(b);
+                            };
                         }
                         return _react2['default'].createElement(
                             'div',

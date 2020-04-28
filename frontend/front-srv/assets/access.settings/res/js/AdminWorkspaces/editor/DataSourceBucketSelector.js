@@ -196,6 +196,8 @@ export default class DataSourceBucketSelector extends React.Component {
                         let chipToucher = {};
                         if(mode === 'picker'){
                             chipToucher.onTouchTap = () => {this.togglePicker(b)}
+                        } else if(!dataSource.StorageConfiguration.bucketsRegexp) {
+                            chipToucher.onTouchTap = () => {this.toggleMode();this.togglePicker(b);}
                         }
                         return <div style={{margin:5}}><Chip {...chipToucher} backgroundColor={selected?'#03a9f4':null}>{b}</Chip></div>
                     })}
