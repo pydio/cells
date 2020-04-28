@@ -195,12 +195,13 @@ var BookmarksList = (function (_React$Component) {
                         _react2['default'].createElement(
                             'div',
                             { style: { fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
-                            nodes[0].getLabel()
+                            nodes[0].getLabel() || nodes[0].getMetadata().get('WsLabel')
                         ),
                         _react2['default'].createElement(
                             'div',
                             { style: { opacity: .33 } },
-                            'In ',
+                            pydio.MessageHash['bookmark.secondary.inside'],
+                            ' ',
                             nodes.map(function (n, i) {
                                 var click = function click(e) {
                                     e.stopPropagation();
@@ -233,7 +234,7 @@ var BookmarksList = (function (_React$Component) {
                             onTouchTap: function () {
                                 _this3.removeBookmark(nodes[0]);
                             },
-                            tooltip: "Remove this bookmark",
+                            tooltip: pydio.MessageHash['bookmark.button.tip.remove'],
                             tooltipPosition: "bottom-left"
                         })
                     )

@@ -2249,6 +2249,9 @@
   "bookmark.button.tip.saving" : {
     "other": "Saving bookmark status"
   },
+  "bookmark.secondary.inside": {
+    "other": "Inside"
+  },
   "mkfile.empty.template.label": {
     "other": "Empty File"
   },

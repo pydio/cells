@@ -145,8 +145,8 @@ class BookmarksList extends React.Component {
                             <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
                         </div>
                         <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={()=>{this.entryClicked(nodes[0])}}>
-                            <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{nodes[0].getLabel()}</div>
-                            <div style={{opacity:.33}}>In {nodes.map((n,i) => {
+                            <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{nodes[0].getLabel()||nodes[0].getMetadata().get('WsLabel')}</div>
+                            <div style={{opacity:.33}}>{pydio.MessageHash['bookmark.secondary.inside']} {nodes.map((n,i) => {
                                 const click = (e) => {
                                     e.stopPropagation();
                                     this.entryClicked(n);
@@ -164,7 +164,7 @@ class BookmarksList extends React.Component {
                                 iconClassName={"mdi mdi-delete"}
                                 iconStyle={{opacity:.33, fontSize:18}}
                                 onTouchTap={() => {this.removeBookmark(nodes[0])}}
-                                tooltip={"Remove this bookmark"}
+                                tooltip={pydio.MessageHash['bookmark.button.tip.remove']}
                                 tooltipPosition={"bottom-left"}
                             />
                         </div>
