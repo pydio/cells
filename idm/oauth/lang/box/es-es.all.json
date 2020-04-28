@@ -1,170 +1,37 @@
 {
-  "title": {
-    "other": "Auditoría"
+  "Auth.PruneJob.Title": {
+    "other": "Depurar los tokens revocados y las claves de contraseñas de reseteo caducadas"
   },
-  "audits.legend": {
-    "other": "Explore todos los recursos compartidos en todas las fuentes de datos. Filtre los recursos por tipo (espacio de trabajo, celdas o enlace público), por ruta de datos y tipo, o por propietario y visibilidad. Los resultados finalmente muestran al propietario de la Celda y el número de usuarios que han tenido acceso de lectura o escritura a ese recurso. Haga click en un resultado para más información."
+  "Auth.PruneJob.Revoked": {
+    "one": "{{.Count}} token revocado y caducado ha sido eliminado",
+    "other": "Los {{.Count}} tokens revocados y caducados han sido eliminados"
   },
-  "reports.title": {
-    "other": "Reports"
+  "Auth.PruneJob.ResetToken": {
+    "one": "{{.DeletionCount}} token de contraseña de reseteo caducado ha sido eliminado",
+    "other": "{{.DeletionCount}} tokens de contraseña de reseteo caducados han sido eliminados"
   },
-  "audits.share.type.all": {
-    "other": "Todos los Recursos"
+  "ResetPassword.Err.EmailNotFound": {
+    "other": "Cannot find corresponding email address"
   },
-  "audits.share.type.workspace": {
-    "other": "Espacio de Trabajo"
+  "ResetPassword.Success.EmailSent": {
+    "other": "An email has been sent to you with further instructions"
   },
-  "audits.share.type.cell": {
-    "other": "Celda"
+  "ResetPassword.Err.Unknown": {
+    "other": "Oops, something wrong happened - Please relaunch reset password process"
   },
-  "audits.share.type.link": {
-    "other": "Enlace Público"
+  "ResetPassword.Err.TokenExpired": {
+    "other": "Token is expired, please follow again the reset password process!"
   },
-  "audits.share.type.workspaces": {
-    "other": "Espacios de Trabajo"
+  "ResetPassword.Err.TokenNotCorresponding": {
+    "other": "Token does not correspond to this user identifier!"
   },
-  "audits.share.type.cells": {
-    "other": "Celdas"
+  "ResetPassword.Err.UserNotFound": {
+    "other": "Cannot find corresponding user!"
   },
-  "audits.share.type.links": {
-    "other": "Enlaces Públicos"
+  "ResetPassword.Err.ResetFailed": {
+    "other": "There was an error while trying to set new password!"
   },
-  "audits.user.as.filter": {
-    "other": "Filtrar todos los recursos compartidos propiedad de este usuario"
-  },
-  "audits.open.cell": {
-    "other": "Abrir los detalles de la Celda"
-  },
-  "audits.open.workspace": {
-    "other": "Abrir Espacios de Trabajo"
-  },
-  "audits.open.link": {
-    "other": "Abrir los Detalles del Enlace"
-  },
-  "audits.delete.link": {
-    "other": "Eliminar este enlace"
-  },
-  "audits.delete.brokens": {
-    "other": "Limpiar los enlaces defectuosos"
-  },
-  "audits.delete.brokens.confirm": {
-    "other": "Esta acción eliminará los enlaces defectuosos para la selección de filtrado actual. ¿Está seguro?"
-  },
-  "audits.delete.brokens.success": {
-    "other": "Los enlaces se limpiaron con éxito. Reprocesando el informe"
-  },
-  "audits.delete.broken.confirm": {
-    "other": "¿Está seguro que desea eliminar este enlace?"
-  },
-  "audits.delete.broken.success": {
-    "other": "El enlace ha sido eliminado. Si lo desea, puede reprocesar el informe ahora."
-  },
-  "audits.delete.broken.error": {
-    "other": "Ha ocurrido un error mientras se eliminaba el enlace defectuoso."
-  },
-  "audits.open.stats": {
-    "other": "Mostrar Estadísticas"
-  },
-  "audits.logs.user": {
-    "other": "Usuario"
-  },
-  "audits.logs.date": {
-    "other": "Fecha"
-  },
-  "audits.logs.activity": {
-    "other": "Actividad"
-  },
-  "audits.logs.activity.legend": {
-    "other": "Actividad Reciente"
-  },
-  "audits.logs.empty": {
-    "other": "No se ha encontrado ninguna actividad"
-  },
-  "audits.logs.loading": {
-    "other": "Cargando actividad..."
-  },
-  "audits.roles.label": {
-    "other": "Etiqueta"
-  },
-  "audits.roles.type": {
-    "other": "Tipo"
-  },
-  "audits.roles.type.user": {
-    "other": "usuario"
-  },
-  "audits.roles.type.team": {
-    "other": "equipo"
-  },
-  "audits.roles.type.group": {
-    "other": "grupo"
-  },
-  "audits.roles.type.role": {
-    "other": "rol"
-  },
-  "audits.visibility.read": {
-    "other": "Visible por %s usuario(s)"
-  },
-  "audits.visibility.write": {
-    "other": "Modificable por %s usuario(s)"
-  },
-  "audits.visibility.details": {
-    "other": "Mostrar usuarios y roles"
-  },
-  "audits.stat.lastupdated": {
-    "other": "Actualizado por Última Vez"
-  },
-  "audits.list.parent.folder": {
-    "other": "Carpeta Raíz"
-  },
-  "audits.list.header.data": {
-    "other": "Datos (haga click en la ruta para usarla como prefijo)"
-  },
-  "audits.list.header.resources": {
-    "other": "Recursos Compartidos"
-  },
-  "audits.report.generate": {
-    "other": "Generar Informe"
-  },
-  "audits.filters.title": {
-    "other": "Filtros"
-  },
-  "audits.filters.path": {
-    "other": "Prefijo de Ruta (utilice * para todas las subcarpetas)"
-  },
-  "audits.node.type.all": {
-    "other": "Todos los datos"
-  },
-  "audits.node.type.folder": {
-    "other": "Solo carpetas"
-  },
-  "audits.node.type.file": {
-    "other": "Solo archivos"
-  },
-  "audits.filter.owner": {
-    "other": "Propietario"
-  },
-  "audits.filter.visibleby": {
-    "other": "Visible por"
-  },
-  "audits.filter.date": {
-    "other": "Actualizado"
-  },
-  "audits.filter.date.clear": {
-    "other": "Borrar la fecha"
-  },
-  "audits.list.empty": {
-    "other": "No hay resultados"
-  },
-  "audits.list.page": {
-    "other": "Mostrando %1 resultados de %2"
-  },
-  "audits.stat.read.access": {
-    "other": "acceso de lectura"
-  },
-  "audits.stat.write.access": {
-    "other": "acceso de escritura"
-  },
-  "audits.stat.node": {
-    "other": "Nodo"
+  "ResetPassword.Success.ResetFinished": {
+    "other": "Your password has successfully been reset, you can now return to the login page!"
   }
 }

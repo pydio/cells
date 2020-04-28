@@ -56,6 +56,9 @@
   "advanced.default.datasource": {
     "other": "Beim Start wird eine Standarddatenquelle zum Speichern persönlicher Daten und Zellendaten des Benutzers erstellt. Sie können später weitere Datenquellen erstellen."
   },
+  "advanced.default.oidc": {
+    "other": "Dienste authentifizieren sich mithilfe des OpenIDConnect-Protokolls. Dieses Schlüsselpaar wird dem Frontend hinzugefügt und nicht außerhalb der Anwendung verwendet. Sie sollten den Standardwert beibehalten, es sei denn, Sie installieren über einem laufenden Frontend neu."
+  },
   "license.stepLabel": {
     "other": "Enterprise-Lizenz"
   },
@@ -184,6 +187,18 @@
   },
   "form.dsFolder.legend": {
     "other": "Verwenden Sie einen absoluten Pfad auf dem Server"
+  },
+  "form.externalDexID.label": {
+    "other": "OIDC-Client-ID"
+  },
+  "form.externalDexID.legend": {
+    "other": "Verwenden Sie die Standardeinstellung, wenn Sie sich nicht sicher sind"
+  },
+  "form.externalDexSecret.label": {
+    "other": "OIDC-Client-Secret"
+  },
+  "form.externalDexSecret.legend": {
+    "other": "Leer lassen, falls nicht benötigt"
   },
   "stepper.button.next": {
     "other": "Weiter"

@@ -1,11 +1,8 @@
 {
-  "1": {
-    "other": "Ģeolokācija"
+  "Manual Locking mechanism to avoid concurrent edition": {
+    "other": "Manuāls Bloķēšanas mehānisms lai neveidotu konkurējošas versijas"
   },
-  "2": {
-    "other": "Lokalizēt"
-  },
-  "3": {
-    "other": "EXIF Dati"
+  "Simple Lock": {
+    "other": "Vienkārša bloķēšana"
   }
 }

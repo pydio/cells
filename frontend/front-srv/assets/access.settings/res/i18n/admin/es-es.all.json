@@ -5,9 +5,6 @@
   "dashboard.tab.activity": {
     "other": "Actividad"
   },
-  "loading": {
-    "other": "Loading..."
-  },
   "ds.board.ds.legend": {
     "other": "Las fuentes de datos son ubicaciones de almacenamiento específicas que Pydio agrega a un árbol global. Pueden ser distribuidas en tantos nodos de almacenamiento como sea necesario."
   },
@@ -25,18 +22,6 @@
   },
   "ds.board.versioning.title": {
     "other": "Políticas de Realización de Versiones"
-  },
-  "ds.board.wsfromds.title": {
-    "other": "Create Workspace"
-  },
-  "ds.board.wsfromds.legend": {
-    "other": "Create a new workspace at the root of datasource %s"
-  },
-  "ds.board.wsfromds.field": {
-    "other": "Label"
-  },
-  "ds.board.wsfromds.defaultPrefix": {
-    "other": "DataSource %s"
   },
   "ds.editor.delete.warning": {
     "other": "¿Está seguro de que desea eliminar esta fuente de datos? ¡Este procedimiento es irreversible, y pueden perderse todos los datos vinculados a estos nodos!"
@@ -137,9 +122,6 @@
   "ds.editor.new": {
     "other": "Nueva Fuente de Datos"
   },
-  "ds.editor.name.inuse": {
-    "other": "This name is already in use, make sure to pick another one!"
-  },
   "ds.editor.options": {
     "other": "Opciones Principales"
   },
@@ -178,15 +160,6 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
-  },
-  "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
-  },
-  "ds.editor.selector.mkdir.legend": {
-    "other": "Create a new folder under %s"
-  },
-  "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
     "other": "El sistema operativo es MacOSX"
@@ -397,6 +370,240 @@
   },
   "ds.versioning.periods": {
     "other": "Estrategia de Retención"
+  },
+  "home.1": {
+    "other": "Acceso Rápido"
+  },
+  "home.10": {
+    "other": "Dirección IP"
+  },
+  "home.11": {
+    "other": "Acción en Archivo"
+  },
+  "home.12": {
+    "other": "Leyenda"
+  },
+  "home.13": {
+    "other": "Rango de Fechas"
+  },
+  "home.14": {
+    "other": "Último Día"
+  },
+  "home.15": {
+    "other": "Última Semana"
+  },
+  "home.16": {
+    "other": "Último Mes"
+  },
+  "home.17": {
+    "other": "Acción en Archivo (si el tipo es acción)"
+  },
+  "home.18": {
+    "other": "Intervalo de Actualización (segundos)"
+  },
+  "home.19": {
+    "other": "Widget Gráfico Pequeño"
+  },
+  "home.2": {
+    "other": "Selector de Fecha"
+  },
+  "home.20": {
+    "other": "Tarjeta de Grafico Grande"
+  },
+  "home.21": {
+    "other": "Gráfico"
+  },
+  "home.22": {
+    "other": "Subidas"
+  },
+  "home.23": {
+    "other": "Descargas"
+  },
+  "home.24": {
+    "other": "Archivos Compartidos"
+  },
+  "home.25": {
+    "other": "Conexiones"
+  },
+  "home.26": {
+    "other": "Diario"
+  },
+  "home.27": {
+    "other": "Semanal"
+  },
+  "home.28": {
+    "other": "Mensual"
+  },
+  "home.29": {
+    "other": "Frecuencia de Muestreo"
+  },
+  "home.3": {
+    "other": "Cursores de Páginas"
+  },
+  "home.30": {
+    "other": "Título"
+  },
+  "home.31": {
+    "other": "No se encontraron eventos."
+  },
+  "home.32": {
+    "other": "Eventos Recientes"
+  },
+  "home.33": {
+    "other": "Todo"
+  },
+  "home.34": {
+    "other": "Errores"
+  },
+  "home.35": {
+    "other": "Estado del Servidor"
+  },
+  "home.36": {
+    "other": "Ocupado"
+  },
+  "home.37": {
+    "other": "Inactivo"
+  },
+  "home.38": {
+    "other": "Espacio Usado"
+  },
+  "home.39": {
+    "other": "Espacio Libre"
+  },
+  "home.4": {
+    "other": "Fecha de Inicio"
+  },
+  "home.40": {
+    "other": "Uso de CPU"
+  },
+  "home.41": {
+    "other": "Uso de Disco"
+  },
+  "home.42": {
+    "other": "Carga del Servidor"
+  },
+  "home.43": {
+    "other": "Añadir acceso directo..."
+  },
+  "home.44": {
+    "other": "Comenzando"
+  },
+  "home.45": {
+    "other": "Lo tengo, ¡no mostrar otra vez!"
+  },
+  "home.48": {
+    "other": "Eliminar"
+  },
+  "home.49": {
+    "other": "Añadir/eliminar Widgets"
+  },
+  "home.5": {
+    "other": "Fecha de finalización"
+  },
+  "home.50": {
+    "other": "Añadir un nuevo widget..."
+  },
+  "home.51": {
+    "other": "¿Está seguro? Se perderá la distribución actual."
+  },
+  "home.52": {
+    "other": "Crear Widget"
+  },
+  "home.53": {
+    "other": "Constructor de Panel de Control"
+  },
+  "home.54": {
+    "other": "Para personalizar el panel de control, oculte los widgets no deseados haciendo click en los botones de ELIMINAR. "
+  },
+  "home.55": {
+    "other": "Para añadir su propio widget, seleccione un tipo a continuación, establezca sus parámetros y haga click en Crear."
+  },
+  "home.56": {
+    "other": "Restablecer Diseño"
+  },
+  "home.57": {
+    "other": "conexiones hoy"
+  },
+  "home.58": {
+    "other": "descargas hoy"
+  },
+  "home.59": {
+    "other": "subidas esta semana"
+  },
+  "home.6": {
+    "other": "Cargando..."
+  },
+  "home.60": {
+    "other": "archivos compartidos hoy"
+  },
+  "home.61": {
+    "other": "usuarios más activos hoy"
+  },
+  "home.62": {
+    "other": "IP más activa la última semana"
+  },
+  "home.63": {
+    "other": "más descargado la última semana"
+  },
+  "home.64": {
+    "other": "más visto la última semana"
+  },
+  "home.65": {
+    "other": "Actividad de Archivos"
+  },
+  "home.66": {
+    "other": "Conexiones Web"
+  },
+  "home.67": {
+    "other": "Bienvenido al panel de control. Como administrador del grupo, sólo está autorizado a gestionar los usuarios y workspaces de su grupo. Si quiere gestionar la configuración global de la aplicación entre como super administrador (el super administrador tiene que estar fuera de cualquier grupo)."
+  },
+  "home.68": {
+    "other": "Volver a Workspaces"
+  },
+  "home.69": {
+    "other": "Filtrar por Workspace"
+  },
+  "home.7": {
+    "other": "Widget más Activo"
+  },
+  "home.70": {
+    "other": "Dejar en blanco para todos los workspaces o seleccionar un workspace."
+  },
+  "home.71": {
+    "other": "Filtro Nombre de Archivo"
+  },
+  "home.72": {
+    "other": "Use *.ext para filtrar por extension, o prefix* para seleccionar sólo archivos con dicho prefijo."
+  },
+  "home.73": {
+    "other": "Si el tipo es una Acción en Archivo, seleccione la acción que desea monitorizar."
+  },
+  "home.74": {
+    "other": "Seleccionar toda actividad"
+  },
+  "home.75": {
+    "other": "Tareas Pendientes"
+  },
+  "home.76": {
+    "other": "Añada sus propias tareas"
+  },
+  "home.77": {
+    "other": "Tarea Ejemplo"
+  },
+  "home.78": {
+    "other": "hecho"
+  },
+  "home.79": {
+    "other": "El widget se ha añadido al panel de control"
+  },
+  "home.8": {
+    "other": "Tipo..."
+  },
+  "home.9": {
+    "other": "Usuarios"
+  },
+  "home.getting_started": {
+    "other": "Bienvenido al Panel de Administración. Este es tu centro de mandos para controlar todos los aspectos de la aplicación. Explora el navegador\n                        a la izquierda para gestionar usuarios, workspaces y parámetros de la aplicación. Puede personalizar este panel\n                        con gráficos para hacer más eficiente la gestión. Abra el Constructor del Panel pulsando\n                        en el botón naranja de abajo a la derecha y adaña o elimine sus widgets. Puede reorganizar\n                        las insignias simplemente pulsando y arrastrándolas.<br/>\n                        Si necesita ayuda para rellenar los formularios, cuando vea el símbolo <span class='icon-question-sign'></span>,\n                        púlselo para abrir Pydio Companion.\n    "
   },
   "logs.1": {
     "other": "Registro del Servidor"
@@ -1543,9 +1750,6 @@
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
-  },
-  "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this job?"
   },
   "scheduler.trigger.create.node": {
     "other": "Crear Nodo"

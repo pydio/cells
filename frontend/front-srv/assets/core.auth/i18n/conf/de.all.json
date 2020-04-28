@@ -145,11 +145,5 @@
   },
   "Delegation": {
     "other": "Delegation"
-  },
-  "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "Die Verzeichnissuche sucht nach Beschriftungen, die mit der Suchzeichenfolge *beginnen*. Wenn Sie diese Option aktivieren, wird ein Platzhalter vorangestellt, um nach Beschriftungen zu suchen, die die Zeichenfolge *enthalten*."
-  },
-  "Auto-wildcard search": {
-    "other": "Auto-Wildcard-Suche"
   }
 }

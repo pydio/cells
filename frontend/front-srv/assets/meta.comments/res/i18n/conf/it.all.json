@@ -1,14 +1,14 @@
 {
-  "1": {
-    "other": "Commenti"
+  "Comment limit": {
+    "other": "Limite dei commenti"
   },
-  "2": {
-    "other": "Inserisci il tuo commento quì"
+  "Comments Feed": {
+    "other": "Feed Commenti"
   },
-  "3": {
-    "other": "Invia"
+  "Display a chat-like feed on every nodes": {
+    "other": "Display a chat-like feed on every nodes"
   },
-  "4": {
-    "other": "Vai a %s"
+  "Maximum number of characters for each comment": {
+    "other": "Numero massimo dei caratteri per ciascun commento"
   }
 }

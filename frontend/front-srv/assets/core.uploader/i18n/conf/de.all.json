@@ -1,8 +1,59 @@
 {
-  "Migration": {
-    "other": "Migration"
+  "Allowed Extensions": {
+    "other": "Erlaubte Erweiterungen"
   },
-  "Tools for migrating data from other platforms to Pydio Cells": {
-    "other": "Tools zum Migrieren von Daten von anderen Plattformen zu Pydio Cells"
+  "Ext. Label": {
+    "other": "Name"
+  },
+  "Extensions List": {
+    "other": "Erweiterungen"
+  },
+  "File Size": {
+    "other": "Dateigröße"
+  },
+  "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
+    "other": "Kommagetrennte Liste mit Datei-Erweiterungen, die beim Hochladen erlaubt sind."
+  },
+  "Limitations": {
+    "other": "Limitierungen"
+  },
+  "Maximum size per file allowed to upload.": {
+    "other": "Maximale Größe pro Datei, die hochgeladen werden darf."
+  },
+  "Options shared by all uploaders plugins": {
+    "other": "Einstellungen die für alle Uploader-Erweiterungen gelten"
+  },
+  "Uploaders Options": {
+    "other": "Uploader-Einstellungen"
+  },
+  "User readable label for the list of allowed extensions (images, all files, etc).": {
+    "other": "Jede oben stehende Erweiterung muss hier mit einem Namen betitelt werden."
+  },
+  "Multipart Uploads": {
+    "other": "Mehrteilige Uploads"
+  },
+  "Multipart Parts Size": {
+    "other": "Mehrteilige Teilegröße"
+  },
+  "Multipart Threshold": {
+    "other": "Mehrteilige Schwelle"
+  },
+  "Switch to Multipart Upload for files bigger than this value (in bytes)": {
+    "other": "Wechseln Sie zum Multipart Upload für Dateien, die größer sind als dieser Wert (in Bytes)"
+  },
+  "Chunk Size used for multipart uploads": {
+    "other": "Chunk-Größe für mehrteilige Uploads"
+  },
+  "Queue Size": {
+    "other": "Warteschlangengröße"
+  },
+  "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
+    "other": "Anzahl gleichzeitiger Uploads (maximal 6, aufgrund von Einschränkungen des Browsers)"
+  },
+  "Timeout": {
+    "other": "Timeout"
+  },
+  "Request Timeout (in minutes) for each concurrent part upload": {
+    "other": "Anforderungs-Timeout (in Minuten) für jeden gleichzeitigen Teil-Upload"
   }
 }

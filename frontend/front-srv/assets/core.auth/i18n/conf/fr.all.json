@@ -145,11 +145,5 @@
   },
   "Delegation": {
     "other": "Délégation"
-  },
-  "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "La recherche dans l'annuaire recherche des libellés 'commençant par' le terme entré. Si cette option est activée, un caractère générique sera ajouté pour rechercher des libellés 'contenant' le terme."
-  },
-  "Auto-wildcard search": {
-    "other": "Ajout d'un wildcard (*) sur les recherches"
   }
 }

@@ -1,8 +1,47 @@
 {
-  "Files Versioning": {
-    "other": "Files Versioning"
+  "1": {
+    "other": "Metadatos"
   },
-  "Keep tracks of all files modifications": {
-    "other": "Keep tracks of all files modifications"
+  "10": {
+    "other": "Etiqueta nueva o existente"
+  },
+  "11": {
+    "other": "No hay metadatos, pulse para añadir"
+  },
+  "12": {
+    "other": "Selección Múltiple:"
+  },
+  "13": {
+    "other": "marque los campos que quiere actualizar, se aplicará en todos los archivos seleccionados"
+  },
+  "14": {
+    "other": "Editar meta"
+  },
+  "15": {
+    "other": "Guardar meta"
+  },
+  "2": {
+    "other": "Sin etiqueta"
+  },
+  "3": {
+    "other": "Eliminar calificación"
+  },
+  "4": {
+    "other": "Bajo"
+  },
+  "5": {
+    "other": "Pendiente"
+  },
+  "6": {
+    "other": "Personal"
+  },
+  "7": {
+    "other": "Trabajo"
+  },
+  "8": {
+    "other": "Importante"
+  },
+  "9": {
+    "other": "Sin valor"
   }
 }

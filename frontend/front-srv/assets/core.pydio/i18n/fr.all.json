@@ -2311,14 +2311,5 @@
   },
   "addressbook.pick.group": {
     "other": "Sélectionner"
-  },
-  "confirm.dialog.title": {
-    "other": "Confirm"
-  },
-  "confirm.dialog.destructive": {
-    "other": "You are about to delete"
-  },
-  "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
   }
 }
