@@ -5,6 +5,9 @@
   "dashboard.tab.activity": {
     "other": "Activité"
   },
+  "loading": {
+    "other": "Chargement..."
+  },
   "ds.board.ds.legend": {
     "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont agrégées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents nœuds."
   },
@@ -22,6 +25,18 @@
   },
   "ds.board.versioning.title": {
     "other": "Stratégies de versioning"
+  },
+  "ds.board.wsfromds.title": {
+    "other": "Créer un workspace"
+  },
+  "ds.board.wsfromds.legend": {
+    "other": "Créer un nouveau workspace à la racine de la datasource %s"
+  },
+  "ds.board.wsfromds.field": {
+    "other": "Libellé"
+  },
+  "ds.board.wsfromds.defaultPrefix": {
+    "other": "Datasource %s"
   },
   "ds.editor.delete.warning": {
     "other": "Etes-vous sûr de vouloir supprimer cette datasource? C'est irréversible, et vous perdrez les données associées aux fichiers!"
@@ -122,6 +137,9 @@
   "ds.editor.new": {
     "other": "Nouvelle Datasource"
   },
+  "ds.editor.name.inuse": {
+    "other": "Ce nom est déjà utilisé, assurez-vous d'en choisir un autre !"
+  },
   "ds.editor.options": {
     "other": "Options principales"
   },
@@ -160,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Adresse du Nœud"
+  },
+  "ds.editor.selector.mkdir": {
+    "other": "Créer un dossier"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Créer un nouveau dossier sous %s"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Nom du dossier"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Le système d'exploitation est Mac OSX"
@@ -370,240 +397,6 @@
   },
   "ds.versioning.periods": {
     "other": "Rétention des fichiers"
-  },
-  "home.1": {
-    "other": "Raccourcis"
-  },
-  "home.10": {
-    "other": "Adresse IP"
-  },
-  "home.11": {
-    "other": "Action de fichier"
-  },
-  "home.12": {
-    "other": "Légende"
-  },
-  "home.13": {
-    "other": "Plage de date"
-  },
-  "home.14": {
-    "other": "Dernier jour"
-  },
-  "home.15": {
-    "other": "Dernière semaine"
-  },
-  "home.16": {
-    "other": "Dernier mois"
-  },
-  "home.17": {
-    "other": "Action de fichier (si le type est Action)"
-  },
-  "home.18": {
-    "other": "Rafraichissement (secondes)"
-  },
-  "home.19": {
-    "other": "Petit graphique"
-  },
-  "home.2": {
-    "other": "Calendriers"
-  },
-  "home.20": {
-    "other": "Graphique détaillé"
-  },
-  "home.21": {
-    "other": "Courbe"
-  },
-  "home.22": {
-    "other": "Uploads"
-  },
-  "home.23": {
-    "other": "Téléchargements"
-  },
-  "home.24": {
-    "other": "Partages de fichiers"
-  },
-  "home.25": {
-    "other": "Connexions"
-  },
-  "home.26": {
-    "other": "Par jour"
-  },
-  "home.27": {
-    "other": "Par semaine"
-  },
-  "home.28": {
-    "other": "Par mois"
-  },
-  "home.29": {
-    "other": "Echantillonage"
-  },
-  "home.3": {
-    "other": "Curseurs par pages"
-  },
-  "home.30": {
-    "other": "Titre"
-  },
-  "home.31": {
-    "other": "Aucun événements."
-  },
-  "home.32": {
-    "other": "Evénements Récents"
-  },
-  "home.33": {
-    "other": "Tous"
-  },
-  "home.34": {
-    "other": "Erreurs"
-  },
-  "home.35": {
-    "other": "Statuts du Serveur"
-  },
-  "home.36": {
-    "other": "Occupé"
-  },
-  "home.37": {
-    "other": "Au Repos"
-  },
-  "home.38": {
-    "other": "Espace utilisé"
-  },
-  "home.39": {
-    "other": "Espace libre"
-  },
-  "home.4": {
-    "other": "Date de départ"
-  },
-  "home.40": {
-    "other": "Utilisation du CPU"
-  },
-  "home.41": {
-    "other": "Utilisation du stockage système"
-  },
-  "home.42": {
-    "other": "Charge moyenne du serveur"
-  },
-  "home.43": {
-    "other": "Ajouter un raccourci..."
-  },
-  "home.44": {
-    "other": "Démarrer"
-  },
-  "home.45": {
-    "other": "J'ai compris, cacher ce panneau!"
-  },
-  "home.48": {
-    "other": "Supprimer"
-  },
-  "home.49": {
-    "other": "Ajouter/Supprimer des widgets"
-  },
-  "home.5": {
-    "other": "Date de fin"
-  },
-  "home.50": {
-    "other": "Ajouter un widget..."
-  },
-  "home.51": {
-    "other": "Êtes-vous sûr? La mise en page actuelle sera perdue."
-  },
-  "home.52": {
-    "other": "Créer le widget"
-  },
-  "home.53": {
-    "other": "Editeur du Dashboard"
-  },
-  "home.54": {
-    "other": "Pour personnaliser votre dashboard, vous pouvez supprimer des widget en cliquant sur le bouton."
-  },
-  "home.55": {
-    "other": "Pour ajouter votre widget, sélectionner un type, les paramètres associés et cliquez sur Créer le widget."
-  },
-  "home.56": {
-    "other": "Remise à zéro"
-  },
-  "home.57": {
-    "other": "connexions aujourd'hui"
-  },
-  "home.58": {
-    "other": "téléchargement aujourd'hui"
-  },
-  "home.59": {
-    "other": "uploads cette semaine"
-  },
-  "home.6": {
-    "other": "Chargement..."
-  },
-  "home.60": {
-    "other": "partages cette semaine"
-  },
-  "home.61": {
-    "other": "utilisateur le + actif aujourd'hui"
-  },
-  "home.62": {
-    "other": "IP la + active aujourd'hui"
-  },
-  "home.63": {
-    "other": "le + téléchargé cette semaine"
-  },
-  "home.64": {
-    "other": "le + prévisualisé cette semaine"
-  },
-  "home.65": {
-    "other": "Activité sur les Fichiers"
-  },
-  "home.66": {
-    "other": "Connexions Web"
-  },
-  "home.67": {
-    "other": "Bienvenue sur votre interface d'administration. En tant qu'administrateur de groupe, vous n'êtes autorisé qu'à gérer les utilisateurs et les workspaces de ce groupe. Si vous voulez administrer les paramètres globaux de l'application, vous devez vous logger en super administrateur (administrateurs ne faisant partie d'aucuns groupes)."
-  },
-  "home.68": {
-    "other": "Retour aux workspaces"
-  },
-  "home.69": {
-    "other": "Filtrer par Workspace"
-  },
-  "home.7": {
-    "other": "Le plus actif"
-  },
-  "home.70": {
-    "other": "Laisser vide pour calculer sur tous les workspaces, ou sélectionner un workspace"
-  },
-  "home.71": {
-    "other": "Filtrer par fichier"
-  },
-  "home.72": {
-    "other": "Utiliser *.ext pour filtrer par extension, ou préfixe* pour ne sélectionner que les fichiers commençant par préfixe."
-  },
-  "home.73": {
-    "other": "Si le type est Action de Fichier, sélectionner l'action."
-  },
-  "home.74": {
-    "other": "Voir toute l'activité"
-  },
-  "home.75": {
-    "other": "Liste de tâches"
-  },
-  "home.76": {
-    "other": "Ajouter votre tâche ici"
-  },
-  "home.77": {
-    "other": "Exemple de tâche"
-  },
-  "home.78": {
-    "other": "achevée"
-  },
-  "home.79": {
-    "other": "Le widget a été ajouté à votre tableau de bord."
-  },
-  "home.8": {
-    "other": "Type..."
-  },
-  "home.9": {
-    "other": "Utilisateurs"
-  },
-  "home.getting_started": {
-    "other": "Bienvenue dans votre console d'administration! C'est le cockpit depuis lequel vous pouvez controler tous les aspects de l'application.\n                        Passez votre souris sur le panneau de gauche pour ouvrir le menu et accéder à la gestion des utilisateurs, des dépôts et des paramètres généraux.\n                        Vous pouvez personnaliser cette page d'accueil avec les courbes et les informations qui vous intéressent. Pour ceci, ouvrez le panneau de gestion\n                        en cliquant sur le bouton orange en bas à droite et ajouter ou supprimer des widgets. Vous pouvez réorganiser les widgets en les déplacant avec votre souris.\n                        <br/>\n                        Si vous avez besoin d'aide pour des paramètres dans les formulaires et que vous voyez le signe <span class='icon-question-sign'></span>, cliquez dessus pour ouvrir\n                        le Pydio Companion.\n    "
   },
   "logs.1": {
     "other": "Evénements"
@@ -1750,6 +1543,9 @@
   },
   "scheduler.job.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir effacer ce job? Cette opération est irréversible !"
+  },
+  "scheduler.tasks.delete.confirm": {
+    "other": "Êtes-vous sûr de vouloir effacer toutes les tâches pour ce job ?"
   },
   "scheduler.trigger.create.node": {
     "other": "Création"

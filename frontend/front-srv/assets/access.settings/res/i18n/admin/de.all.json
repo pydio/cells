@@ -5,6 +5,9 @@
   "dashboard.tab.activity": {
     "other": "Ereignisse"
   },
+  "loading": {
+    "other": "Wird geladen..."
+  },
   "ds.board.ds.legend": {
     "other": "Datenquellen sind konkrete Speicherorte, die von Pydio zu einem globalen Baum zusammengefasst werden. Sie können bei Bedarf auf viele Speicherknoten verteilt werden."
   },
@@ -22,6 +25,18 @@
   },
   "ds.board.versioning.title": {
     "other": "Versionierungsrichtlinien"
+  },
+  "ds.board.wsfromds.title": {
+    "other": "Workspace erstellen"
+  },
+  "ds.board.wsfromds.legend": {
+    "other": "Erstellen Sie einen neuen Workspace im Stammverzeichnis der Datasource %s"
+  },
+  "ds.board.wsfromds.field": {
+    "other": "Titel"
+  },
+  "ds.board.wsfromds.defaultPrefix": {
+    "other": "Datasource %s"
   },
   "ds.editor.delete.warning": {
     "other": "Sind Sie sicher, dass Sie diese Datenquelle löschen möchten? Das ist irreversible und Sie können alle Daten verlieren, die mit diesem Knoten verbunden sind!"
@@ -122,6 +137,9 @@
   "ds.editor.new": {
     "other": "Neue Datenquelle"
   },
+  "ds.editor.name.inuse": {
+    "other": "Dieser Name wird bereits verwendet. Achten Sie darauf, einen anderen auszuwählen!"
+  },
   "ds.editor.options": {
     "other": "Hauptoptionen"
   },
@@ -160,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer-Adresse"
+  },
+  "ds.editor.selector.mkdir": {
+    "other": "Ordner erstellen"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Neuen Ordner unter %s erstellen"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Ordnername"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Betriebssystem ist MacOSX"
@@ -370,240 +397,6 @@
   },
   "ds.versioning.periods": {
     "other": "Aufbewahrungsstrategie"
-  },
-  "home.1": {
-    "other": "Schnellzugriff"
-  },
-  "home.10": {
-    "other": "IP-Adresse"
-  },
-  "home.11": {
-    "other": "Datei-Aktion"
-  },
-  "home.12": {
-    "other": "Legende"
-  },
-  "home.13": {
-    "other": "Zeitspanne"
-  },
-  "home.14": {
-    "other": "Letzter Tag"
-  },
-  "home.15": {
-    "other": "Letzte Woche"
-  },
-  "home.16": {
-    "other": "Letzter Monat"
-  },
-  "home.17": {
-    "other": "Datei-Aktion (nur bei Typ Datei-Aktion)"
-  },
-  "home.18": {
-    "other": "Aktualisierungsintervall (Sekunden)"
-  },
-  "home.19": {
-    "other": "Kleines Diagramm"
-  },
-  "home.2": {
-    "other": "Datumsauswahl"
-  },
-  "home.20": {
-    "other": "Großes Diagramm"
-  },
-  "home.21": {
-    "other": "Kennzahl"
-  },
-  "home.22": {
-    "other": "Hochgeladene Dateien"
-  },
-  "home.23": {
-    "other": "Heruntergeladene Dateien"
-  },
-  "home.24": {
-    "other": "Freigegebene Dateien"
-  },
-  "home.25": {
-    "other": "Verbindungen"
-  },
-  "home.26": {
-    "other": "Täglich"
-  },
-  "home.27": {
-    "other": "Wöchentlich"
-  },
-  "home.28": {
-    "other": "Monatlich"
-  },
-  "home.29": {
-    "other": "Abtastfrequenz"
-  },
-  "home.3": {
-    "other": "Durch­blät­tern"
-  },
-  "home.30": {
-    "other": "Titel"
-  },
-  "home.31": {
-    "other": "Keine Ereignisse gefunden."
-  },
-  "home.32": {
-    "other": "Letzte Ereignisse"
-  },
-  "home.33": {
-    "other": "Alle"
-  },
-  "home.34": {
-    "other": "Fehler"
-  },
-  "home.35": {
-    "other": "Server-Status"
-  },
-  "home.36": {
-    "other": "Ausgelastet"
-  },
-  "home.37": {
-    "other": "Im Leerlauf"
-  },
-  "home.38": {
-    "other": "Belegt"
-  },
-  "home.39": {
-    "other": "Verfügbar"
-  },
-  "home.4": {
-    "other": "Start"
-  },
-  "home.40": {
-    "other": "CPU-Last"
-  },
-  "home.41": {
-    "other": "Speicherverbrauch"
-  },
-  "home.42": {
-    "other": "Last"
-  },
-  "home.43": {
-    "other": "Verknüpfung hinzufügen..."
-  },
-  "home.44": {
-    "other": "Erste Schritte"
-  },
-  "home.45": {
-    "other": "Alles klar, nicht mehr anzeigen!"
-  },
-  "home.48": {
-    "other": "Entfernen"
-  },
-  "home.49": {
-    "other": "Widgets hinzufügen/entfernen"
-  },
-  "home.5": {
-    "other": "Ende"
-  },
-  "home.50": {
-    "other": "Widget hinzufügen..."
-  },
-  "home.51": {
-    "other": "Dadurch wird Ihr Layout verloren gehen. Möchten Sie fortfahren?"
-  },
-  "home.52": {
-    "other": "Widget hinzufügen"
-  },
-  "home.53": {
-    "other": "Dashboard konfigurieren"
-  },
-  "home.54": {
-    "other": "Bestehende Widgets können durch einen Klick auf ENTFERNEN ausgeblendet werden. "
-  },
-  "home.55": {
-    "other": "Wählen Sie unterhalb einen Typ aus, um ein neues Widget hinzuzufügen."
-  },
-  "home.56": {
-    "other": "Layout zurücksetzen"
-  },
-  "home.57": {
-    "other": "Verbindungen heute"
-  },
-  "home.58": {
-    "other": "Downloads heute"
-  },
-  "home.59": {
-    "other": "Uploads diese Woche"
-  },
-  "home.6": {
-    "other": "Wird geladen..."
-  },
-  "home.60": {
-    "other": "Freigegebene Dateien heute"
-  },
-  "home.61": {
-    "other": "Aktivster Benutzer heute"
-  },
-  "home.62": {
-    "other": "Aktivste IP letzte Woche"
-  },
-  "home.63": {
-    "other": "Meist heruntergeladen letzte Woche"
-  },
-  "home.64": {
-    "other": "Meist angesehen letzte Woche"
-  },
-  "home.65": {
-    "other": "Datei-Aktivitäten"
-  },
-  "home.66": {
-    "other": "Web-Verbindungen"
-  },
-  "home.67": {
-    "other": "Willkommen auf dem Administrations-Dashboard. Als Gruppen-Administrator können Sie nur Benutzer und Arbeitsumgebungen Ihrer Gruppe verwalten. Bitte melden Sie sich als Super-Administrator an, um alle Einstellungen zu sehen (Super-Administratoren können aus einer beliebigen Gruppe sein)."
-  },
-  "home.68": {
-    "other": "Zu den Arbeitsumgebungen"
-  },
-  "home.69": {
-    "other": "Auf Arbeitsumgebung einschränken"
-  },
-  "home.7": {
-    "other": "Am aktivsten"
-  },
-  "home.70": {
-    "other": "Leer lassen für alle Arbeitsumgebungen oder auf eine bestimmte einschränken."
-  },
-  "home.71": {
-    "other": "Datei-Filter"
-  },
-  "home.72": {
-    "other": "Verwenden Sie z.B. *.ext um nach der Dateiendung ext zu filtern oder prefix* für alle Dateinamen, die mit prefix beginnen."
-  },
-  "home.73": {
-    "other": "Wählen Sie hier die zu überwachende Funktion aus, wenn bei Typ 'Datei-Aktion' konfiguriert ist."
-  },
-  "home.74": {
-    "other": "Alle Ereignisse anzeigen"
-  },
-  "home.75": {
-    "other": "To-do-Liste"
-  },
-  "home.76": {
-    "other": "Aufgabe hinzufügen"
-  },
-  "home.77": {
-    "other": "Beispiel-Aufgabe"
-  },
-  "home.78": {
-    "other": "erledigt"
-  },
-  "home.79": {
-    "other": "Das Widget wurde zum Dashboard hinzugefügt"
-  },
-  "home.8": {
-    "other": "Typ"
-  },
-  "home.9": {
-    "other": "Benutzer"
-  },
-  "home.getting_started": {
-    "other": "Willkommen auf dem Administrations-Dashboard. Über das Menü auf der linken Seite können Sie alle Einstellungen sowie Benutzer und Arbeitsumgebungen verwalten.\n                        Personalisieren Sie dieses Dashboard um Pydio noch effizienter zu verwalten.\n                        Klicken Sie dafür auf den orangen Button rechts unten um Widgets hinzuzufügen oder zu entfernen.\n                        Die Widgets können anschließend mit gedrückter linker Maustaste verschoben werden.<br/>\n                        In Konfigurations-Masken erhalten Sie weitere Hilfe, indem Sie auf das <span class='icon-question-sign'></span>-Symbol klicken.\n    "
   },
   "logs.1": {
     "other": "Protokolle"
@@ -1750,6 +1543,9 @@
   },
   "scheduler.job.delete.confirm": {
     "other": "Soll der Aufgabe wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
+  },
+  "scheduler.tasks.delete.confirm": {
+    "other": "Möchten Sie wirklich alle Aufgaben für diesen Job löschen?"
   },
   "scheduler.trigger.create.node": {
     "other": "Node erstellen"

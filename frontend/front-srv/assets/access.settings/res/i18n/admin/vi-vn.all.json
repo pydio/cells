@@ -5,6 +5,9 @@
   "dashboard.tab.activity": {
     "other": "Hoạt động"
   },
+  "loading": {
+    "other": "Loading..."
+  },
   "ds.board.ds.legend": {
     "other": "Datasources là các đường dẫn tới dữ liệu và được Pydio tập hợp vào một cây thư mục duy nhất. Nó có thể nằm ở nhiều nơi khác nhau trong hệ thống lưu trữ của bạn."
   },
@@ -22,6 +25,18 @@
   },
   "ds.board.versioning.title": {
     "other": "Versioning Policies"
+  },
+  "ds.board.wsfromds.title": {
+    "other": "Create Workspace"
+  },
+  "ds.board.wsfromds.legend": {
+    "other": "Create a new workspace at the root of datasource %s"
+  },
+  "ds.board.wsfromds.field": {
+    "other": "Label"
+  },
+  "ds.board.wsfromds.defaultPrefix": {
+    "other": "DataSource %s"
   },
   "ds.editor.delete.warning": {
     "other": "Bạn có chắc chắn muốn xóa datasource này? Bạn sẽ không quay lại được và sẽ mất các link được tạo ra trên dữ liệu!"
@@ -122,6 +137,9 @@
   "ds.editor.new": {
     "other": "Tạo mới DataSource"
   },
+  "ds.editor.name.inuse": {
+    "other": "This name is already in use, make sure to pick another one!"
+  },
   "ds.editor.options": {
     "other": "Tùy chọn chính"
   },
@@ -160,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
+  },
+  "ds.editor.selector.mkdir": {
+    "other": "Create Folder"
+  },
+  "ds.editor.selector.mkdir.legend": {
+    "other": "Create a new folder under %s"
+  },
+  "ds.editor.selector.mkdir.field": {
+    "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Hệ điều hành là MacOSX"
@@ -370,240 +397,6 @@
   },
   "ds.versioning.periods": {
     "other": "Quy tắc giữ lại các phiên bản"
-  },
-  "home.1": {
-    "other": "Truy cập nhanh"
-  },
-  "home.10": {
-    "other": "Địa chỉ IP"
-  },
-  "home.11": {
-    "other": "File Action"
-  },
-  "home.12": {
-    "other": "Chú thích"
-  },
-  "home.13": {
-    "other": "Phạm vi ngày"
-  },
-  "home.14": {
-    "other": "Hôm qua"
-  },
-  "home.15": {
-    "other": "Tuần trước"
-  },
-  "home.16": {
-    "other": "Tháng trước"
-  },
-  "home.17": {
-    "other": "File Action (nếu loại là Action)"
-  },
-  "home.18": {
-    "other": "Thời gian cập nhật (giây)"
-  },
-  "home.19": {
-    "other": "Widget nhỏ đồ thị"
-  },
-  "home.2": {
-    "other": "Bảng chọn ngày"
-  },
-  "home.20": {
-    "other": "Thẻ đồ thị lớn"
-  },
-  "home.21": {
-    "other": "Biểu đồ"
-  },
-  "home.22": {
-    "other": "Tải lên"
-  },
-  "home.23": {
-    "other": "Tải xuống"
-  },
-  "home.24": {
-    "other": "Các tập tin chia sẻ"
-  },
-  "home.25": {
-    "other": "Kết nối"
-  },
-  "home.26": {
-    "other": "Hàng ngày"
-  },
-  "home.27": {
-    "other": "Hàng tuần"
-  },
-  "home.28": {
-    "other": "Hàng tháng"
-  },
-  "home.29": {
-    "other": "Tần số lấy mẫu"
-  },
-  "home.3": {
-    "other": "Con trỏ trang"
-  },
-  "home.30": {
-    "other": "Tiêu đề"
-  },
-  "home.31": {
-    "other": "Không có event."
-  },
-  "home.32": {
-    "other": "Các Events gần đây"
-  },
-  "home.33": {
-    "other": "Tất cả"
-  },
-  "home.34": {
-    "other": "Lỗi"
-  },
-  "home.35": {
-    "other": "Tình trạng máy chủ"
-  },
-  "home.36": {
-    "other": "Bận"
-  },
-  "home.37": {
-    "other": "Rảnh"
-  },
-  "home.38": {
-    "other": "Dung lượng được sử dụng"
-  },
-  "home.39": {
-    "other": "Dung lượng Trống"
-  },
-  "home.4": {
-    "other": "Ngày Bắt đầu"
-  },
-  "home.40": {
-    "other": "Tình trạng CPU"
-  },
-  "home.41": {
-    "other": "Tình trạng ổ cứng"
-  },
-  "home.42": {
-    "other": "Tình trạng server"
-  },
-  "home.43": {
-    "other": "Thêm một shortcut ..."
-  },
-  "home.44": {
-    "other": "Bắt đầu làm quen"
-  },
-  "home.45": {
-    "other": "Hiểu rồi, không hiển thị một lần nữa!"
-  },
-  "home.48": {
-    "other": "Loại bỏ"
-  },
-  "home.49": {
-    "other": "Thêm / xóa widget"
-  },
-  "home.5": {
-    "other": "Ngày Kết thúc"
-  },
-  "home.50": {
-    "other": "Thêm widget mới..."
-  },
-  "home.51": {
-    "other": "Bạn có chắc không? Bố cục hiện tại của bạn sẽ bị mất."
-  },
-  "home.52": {
-    "other": "Tạo widget"
-  },
-  "home.53": {
-    "other": "Sắp xếp dashboard"
-  },
-  "home.54": {
-    "other": "Để sắp xếp dashboard, bạn có thể ẩn đi những widget không cần thiết bằng cách ấn vào nút XÓA. "
-  },
-  "home.55": {
-    "other": "Để thêm widget của riêng bạn, chọn một loại bên dưới, đặt tham số của nó và nhấp vào Tạo."
-  },
-  "home.56": {
-    "other": "Đặt lại bố cục"
-  },
-  "home.57": {
-    "other": "kết nối ngày hôm nay"
-  },
-  "home.58": {
-    "other": "downloads hôm nay"
-  },
-  "home.59": {
-    "other": "uploads trong tuần này"
-  },
-  "home.6": {
-    "other": "Đang tải..."
-  },
-  "home.60": {
-    "other": "chia sẻ tập tin ngày hôm nay"
-  },
-  "home.61": {
-    "other": "người dùng tích cực nhất hôm nay"
-  },
-  "home.62": {
-    "other": "địa chỉ IP có nhiều hoạt động nhất tuần trước"
-  },
-  "home.63": {
-    "other": "được tải xuống nhiều nhất tuần trước"
-  },
-  "home.64": {
-    "other": "được xem trước nhiều nhất tuần trước"
-  },
-  "home.65": {
-    "other": "Hoạt động trên tập tin"
-  },
-  "home.66": {
-    "other": "Kết nối web"
-  },
-  "home.67": {
-    "other": "Chào mừng bạn đến với admin dashboard. Nếu là admin của một nhóm, bạn có thể quản lý users và workspaces của nhóm đó. Nếu bạn muốn nhiều quyền hơn thì xin vui lòng đăng nhập với tài khoản của admin cao nhất."
-  },
-  "home.68": {
-    "other": "Quay lại Workspaces"
-  },
-  "home.69": {
-    "other": "Lọc theo Workspace"
-  },
-  "home.7": {
-    "other": "Widget hoạt động nhiều nhất"
-  },
-  "home.70": {
-    "other": "Để trống để lọc từ tất cả các workspaces hoặc chọn một workspaces nhất định."
-  },
-  "home.71": {
-    "other": "Lọc theo tên tệp"
-  },
-  "home.72": {
-    "other": "Ví dụ, sử dụng *.ext để lọc theo phần mở rộng hoặc prefix* để chỉ chọn các tệp bắt đầu bằng prefix."
-  },
-  "home.73": {
-    "other": "Nếu loại là File Action, chọn hành động bạn muốn theo dõi."
-  },
-  "home.74": {
-    "other": "Xem tất cả hoạt động"
-  },
-  "home.75": {
-    "other": "Những việc cần làm"
-  },
-  "home.76": {
-    "other": "Thêm nhiệm vụ của riêng bạn"
-  },
-  "home.77": {
-    "other": "Nhiệm vụ mẫu"
-  },
-  "home.78": {
-    "other": "xong"
-  },
-  "home.79": {
-    "other": "Các widget đã được thêm vào bảng điều khiển của bạn"
-  },
-  "home.8": {
-    "other": "Loại..."
-  },
-  "home.9": {
-    "other": "Người dùng"
-  },
-  "home.getting_started": {
-    "other": "Chào mừng bạn trên Administration Dashboard. Đây là nơi bạn có thể tùy chỉnh toàn bộ hệ thống. Duyệt qua menu trái  \n                         để quản lý  người dùng, workspaces và các tham số ứng dụng. Bạn có thể tùy chỉnh bảng điều khiển này\n                         với dữ liệu đồ họa để quản lý hiệu quả hơn. Mở Dashboard Builder bằng cách nhấp vào\n                         trên nút màu cam phía dưới bên phải và loại bỏ hoặc thêm các widgets của riêng bạn. Sau đó bạn có thể sắp xếp lại\n                         chỉ bằng cách nhấp và kéo chúng xung quanh. <br/>\n                         Nếu bạn cần giúp đơ khi điền tham số, nếu bạn thấy dấu <span class = 'icon-question-sign'> </span>,\n                         chỉ cần nhấp vào nó để mở Pydio Companion.    "
   },
   "logs.1": {
     "other": "Nhật ký máy chủ"
@@ -1750,6 +1543,9 @@
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+  },
+  "scheduler.tasks.delete.confirm": {
+    "other": "Are you sure you want to clear all tasks for this job?"
   },
   "scheduler.trigger.create.node": {
     "other": "Tạo node"
