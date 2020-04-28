@@ -39,13 +39,13 @@
     "other": "Version"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Titel"
   },
   "package.details": {
     "other": "Details"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Änderungsprotokoll anzeigen"
   },
   "start.update": {
     "other": "Upgrade starten"
