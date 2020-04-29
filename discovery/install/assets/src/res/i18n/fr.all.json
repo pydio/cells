@@ -185,6 +185,45 @@
   "form.dsFolder.legend": {
     "other": "Utiliser un chemin absolu sur le serveur"
   },
+  "form.dsType.FS": {
+    "other": "Fichiers locaux (stocker les données sur ce serveur)"
+  },
+  "form.dsType.S3": {
+    "other": "Amazon S3 (stocker les données dans des buckets S3)"
+  },
+  "form.dsS3ApiKey.label": {
+    "other": "Clé d'API S3"
+  },
+  "form.dsS3ApiKey.legend": {
+    "other": "Clé pour connection à S3"
+  },
+  "form.dsS3ApiSecret.label": {
+    "other": "Clé secrète S3"
+  },
+  "form.dsS3ApiSecret.legend": {
+    "other": "Clé secrète"
+  },
+  "form.dsS3ValidateKeys": {
+    "other": "Connectez-vous à S3 pour définir les buckets à utiliser"
+  },
+  "form.s3BucketsPrefix.label": {
+    "other": "Préfixe des buckets"
+  },
+  "form.s3BucketsPrefix.legend": {
+    "other": "Définir un préfixe unique pour créer les 6 buckets par défaut"
+  },
+  "form.bucketList.found": {
+    "other": "Les buckets suivants existent déjà"
+  },
+  "form.bucketList.toCreate": {
+    "other": "Les buckets suivants seront créés"
+  },
+  "form.bucketList.notFound": {
+    "other": "Les buckets suivants sont introuvables"
+  },
+  "form.bucketList.warnCreate": {
+    "other": "Vous n'êtes pas autorisé à créer des buckets, assurez-vous de les créer manuellement!"
+  },
   "stepper.button.next": {
     "other": "Suivant"
   },
