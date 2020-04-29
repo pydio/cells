@@ -518,6 +518,11 @@
         "description": "",
         "displayName": "cssFormStyle",
         "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "cssFormGroupFullStyle",
+        "methods": []
       }
     ],
     "AdminComponents/styles/Header.js": [
