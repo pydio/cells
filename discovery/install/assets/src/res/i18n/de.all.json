@@ -185,6 +185,45 @@
   "form.dsFolder.legend": {
     "other": "Verwenden Sie einen absoluten Pfad auf dem Server"
   },
+  "form.dsType.FS": {
+    "other": "Local FS (store all data on this server)"
+  },
+  "form.dsType.S3": {
+    "other": "Amazon S3 (store all data inside S3 buckets)"
+  },
+  "form.dsS3ApiKey.label": {
+    "other": "S3 Api Key"
+  },
+  "form.dsS3ApiKey.legend": {
+    "other": "Key to connect to S3"
+  },
+  "form.dsS3ApiSecret.label": {
+    "other": "S3 Api Secret"
+  },
+  "form.dsS3ApiSecret.legend": {
+    "other": "Secret Key"
+  },
+  "form.dsS3ValidateKeys": {
+    "other": "Connect to S3 to define buckets"
+  },
+  "form.s3BucketsPrefix.label": {
+    "other": "Buckets prefix"
+  },
+  "form.s3BucketsPrefix.legend": {
+    "other": "A unique prefix for creating the 6 default buckets"
+  },
+  "form.bucketList.found": {
+    "other": "Following bucket(s) already exist"
+  },
+  "form.bucketList.toCreate": {
+    "other": "Following bucket(s) will be created"
+  },
+  "form.bucketList.notFound": {
+    "other": "Following buckets were not found"
+  },
+  "form.bucketList.warnCreate": {
+    "other": "You are not allowed to create buckets, make sure to create them manually!"
+  },
   "stepper.button.next": {
     "other": "Weiter"
   },
