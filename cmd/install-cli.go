@@ -201,8 +201,8 @@ func promptAdvanced(c *install.InstallConfig) error {
 	}
 
 	dsType := p.Select{
-		Label: "Default datasources can be created on the local filesystem or directly inside an s3-compatible storage",
-		Items: []string{"Local Filesystem (select folder path)", "S3 or S3-compatible storage (setup API Keys and Buckets)"},
+		Label: "Default datasources can be created on the local filesystem or directly inside an Amazon S3 storage",
+		Items: []string{"Local Filesystem (select folder path)", "Amazon S3 storage (setup API Keys and Buckets)"},
 	}
 	i, _, e := dsType.Run()
 	if e != nil {
@@ -223,7 +223,7 @@ func promptAdvanced(c *install.InstallConfig) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(p.IconGood + fmt.Sprintf(" Successfully connected to S3, listed %d buckets, ability to create : %v", len(buckets), canCreate))
+		fmt.Println(p.IconGood + fmt.Sprintf(" Successfully connected to S3, listed %d buckets, ability to create: %v", len(buckets), canCreate))
 		// NOW SET UP BUCKETS
 		usedBuckets, created, err := setupS3Buckets(c, buckets, canCreate)
 		if err != nil {
@@ -244,13 +244,13 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	if apiKey, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
-		c.DsS3ApiKey = apiKey
+		c.DsS3ApiKey = strings.Trim(apiKey, " ")
 	}
 	pr = p.Prompt{Label: "Please enter S3 Api Secret", Validate: notEmpty, Mask: '*'}
 	if apiSecret, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
-		c.DsS3ApiSecret = apiSecret
+		c.DsS3ApiSecret = strings.Trim(apiSecret, " ")
 	}
 	check := lib.PerformCheck(context.Background(), "S3_KEYS", c)
 	var res map[string]interface{}
@@ -320,7 +320,7 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		return used, []string{}, nil
 	}
 	if !canCreate {
-		fmt.Printf(p.IconBad+" The following buckets do not exists : %s, and you are not allowed to create them with the current credentials. Please create them first or change the prefix.\n", strings.Join(toCreate, ", "))
+		fmt.Printf(p.IconBad+" The following buckets do not exists: %s, and you are not allowed to create them with the current credentials. Please create them first or change the prefix.\n", strings.Join(toCreate, ", "))
 		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
 		if _, e := retry.Run(); e == nil {
 			return setupS3Buckets(c, knownBuckets, canCreate)
@@ -328,7 +328,7 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 			return used, []string{}, e
 		}
 	} else {
-		fmt.Printf(p.IconWarn+" The following buckets will be created : %s\n", strings.Join(toCreate, ", "))
+		fmt.Printf(p.IconWarn+" The following buckets will be created: %s\n", strings.Join(toCreate, ", "))
 		retry := p.Prompt{Label: "Do you wish to continue or to use a different prefix", IsConfirm: true, Default: "y"}
 		if _, e = retry.Run(); e != nil {
 			return setupS3Buckets(c, knownBuckets, canCreate)
