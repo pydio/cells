@@ -721,10 +721,12 @@ var InstallForm = function (_React$Component) {
                             this.t('database.title')
                         ),
                         this.t('database.legend'),
+                        ' ',
                         _react2.default.createElement(
-                            'b',
-                            null,
-                            this.t('database.legend.bold')
+                            'span',
+                            { style: { fontWeight: 500 } },
+                            this.t('database.legend.bold'),
+                            '.'
                         ),
                         dbCheckError && _react2.default.createElement(
                             'div',

@@ -464,8 +464,7 @@ class InstallForm extends React.Component {
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
                         <h3>{this.t('database.title')}</h3>
-                        {this.t('database.legend')}
-                        <b>{this.t('database.legend.bold')}</b>
+                        {this.t('database.legend')} <span style={{fontWeight: 500}}>{this.t('database.legend.bold')}.</span>
                         {dbCheckError &&
                             <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
                         }
