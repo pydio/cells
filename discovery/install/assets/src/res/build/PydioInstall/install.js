@@ -304,9 +304,108 @@ var InstallForm = function (_React$Component) {
             });
         }
     }, {
+        key: 'checkS3Config',
+        value: function checkS3Config(callback) {
+            var _this5 = this;
+
+            var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var s3Config = this.props.s3Config;
+
+            var request = new _InstallPerformCheckRequest2.default();
+            request.Name = keys ? "S3_KEYS" : "S3_BUCKETS";
+            request.Config = _InstallInstallConfig2.default.constructFromObject(s3Config);
+            this.setState({ performingCheck: 'S3_KEYS', s3CheckKeysSuccess: null, s3CheckKeysError: null, s3BucketsPrefix: '' });
+            api.performInstallCheck(request).then(function (res) {
+                var checkResult = res.Result;
+                callback(checkResult);
+            }).catch(function (reason) {
+                var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: "S3_KEYS", Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
+                callback(checkResult);
+            }).finally(function () {
+                _this5.setState({ performingCheck: null });
+            });
+        }
+    }, {
+        key: 'renderS3BucketsList',
+        value: function renderS3BucketsList() {
+            var s3Config = this.props.s3Config;
+            var s3CheckKeysSuccess = this.state.s3CheckKeysSuccess;
+            var buckets = s3CheckKeysSuccess.buckets,
+                canCreate = s3CheckKeysSuccess.canCreate;
+
+            var keys = ['Default', 'Personal', 'Cells', 'Binaries', 'Thumbs', 'Versions'];
+            var newBuckets = keys.map(function (k) {
+                return s3Config['dsS3Bucket' + k];
+            });
+            var notExist = newBuckets.filter(function (b) {
+                return buckets.indexOf(b) === -1;
+            });
+            var exist = newBuckets.filter(function (b) {
+                return buckets.indexOf(b) > -1;
+            });
+            var result = {};
+            if (canCreate) {
+                result.Valid = true;
+                result.NeedsCreates = notExist.length > 0;
+                result.Component = _react2.default.createElement(
+                    'span',
+                    null,
+                    _react2.default.createElement(_materialUi.FontIcon, { className: "mdi mdi-check", color: "#2e7d32", style: { fontSize: 'inherit' } }),
+                    exist.length > 0 && _react2.default.createElement(
+                        'span',
+                        null,
+                        this.t('form.bucketList.found'),
+                        ' : ',
+                        exist.join(', '),
+                        '. '
+                    ),
+                    notExist.length > 0 && _react2.default.createElement(
+                        'span',
+                        null,
+                        this.t('form.bucketList.toCreate'),
+                        ' : ',
+                        notExist.join(', '),
+                        '. '
+                    )
+                );
+            } else {
+                if (notExist.length) {
+                    result.Valid = false;
+                    result.Component = _react2.default.createElement(
+                        'div',
+                        null,
+                        _react2.default.createElement(_materialUi.FontIcon, { className: "mdi mdi-alert", color: "#c62828", style: { fontSize: 'inherit' } }),
+                        ' ',
+                        this.t('form.bucketList.notFound'),
+                        ' : ',
+                        notExist.join(', '),
+                        '. ',
+                        _react2.default.createElement(
+                            'span',
+                            { style: { color: '"#c62828"' } },
+                            this.t('form.bucketList.warnCreate')
+                        )
+                    );
+                } else {
+                    result.Valid = true;
+                    result.Component = _react2.default.createElement(
+                        'div',
+                        null,
+                        _react2.default.createElement(_materialUi.FontIcon, { className: "mdi mdi-check", color: "#2e7d32", style: { fontSize: 'inherit' } }),
+                        ' ',
+                        this.t('form.bucketList.found'),
+                        ' : ',
+                        newBuckets.join(', '),
+                        '.'
+                    );
+                }
+            }
+            return result;
+        }
+    }, {
         key: 'renderStepActions',
         value: function renderStepActions(step) {
-            var _this5 = this;
+            var _this6 = this;
 
             var nextDisabled = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var leftAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -317,7 +416,8 @@ var InstallForm = function (_React$Component) {
             var _props = this.props,
                 handleSubmit = _props.handleSubmit,
                 licenseRequired = _props.licenseRequired,
-                invalid = _props.invalid;
+                invalid = _props.invalid,
+                dsType = _props.dsType;
 
             var stepOffset = licenseRequired ? 1 : 0;
 
@@ -326,15 +426,15 @@ var InstallForm = function (_React$Component) {
             switch (stepIndex) {
                 case 1 + stepOffset:
                     nextAction = function nextAction() {
-                        _this5.checkDbConfig(function (checkResult) {
+                        _this6.checkDbConfig(function (checkResult) {
                             if (checkResult.Success) {
                                 var successData = JSON.parse(checkResult.JsonResult);
                                 if (!successData || !successData.tablesFound || tablesFoundConfirm) {
-                                    _this5.handleNext();
+                                    _this6.handleNext();
                                 }
-                                _this5.setState({ dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult) });
+                                _this6.setState({ dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult) });
                             } else {
-                                _this5.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null });
+                                _this6.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null });
                             }
                         });
                     };
@@ -344,8 +444,29 @@ var InstallForm = function (_React$Component) {
                     break;
                 case 3 + stepOffset:
                     nextAction = function nextAction() {
-                        _this5.handleNext();handleSubmit();
+                        _this6.handleNext();handleSubmit();
                     };
+                    if (dsType === 'S3') {
+                        var _state2 = this.state,
+                            s3CheckKeysSuccess = _state2.s3CheckKeysSuccess,
+                            s3BucketsPrefix = _state2.s3BucketsPrefix;
+
+                        nextInvalid = !s3CheckKeysSuccess || !s3BucketsPrefix || !this.renderS3BucketsList().Valid;
+                        if (!nextInvalid && this.renderS3BucketsList().NeedsCreates) {
+                            nextAction = function nextAction() {
+                                // First create buckets if necessary
+                                _this6.checkS3Config(function (result) {
+                                    var data = JSON.parse(result.JsonResult);
+                                    if (result.Success) {
+                                        _this6.handleNext();
+                                        handleSubmit();
+                                    } else {
+                                        _this6.setState({ s3CheckBucketsError: data.error });
+                                    }
+                                });
+                            };
+                        }
+                    }
                     break;
                 default:
                     nextAction = this.handleNext;
@@ -378,7 +499,7 @@ var InstallForm = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var _props2 = this.props,
                 dbConnectionType = _props2.dbConnectionType,
@@ -390,22 +511,28 @@ var InstallForm = function (_React$Component) {
                 licenseString = _props2.licenseString,
                 frontendPassword = _props2.frontendPassword,
                 frontendLogin = _props2.frontendLogin,
-                frontendRepeatPassword = _props2.frontendRepeatPassword;
-            var _state2 = this.state,
-                stepIndex = _state2.stepIndex,
-                licenseAgreed = _state2.licenseAgreed,
-                showAdvanced = _state2.showAdvanced,
-                installEvents = _state2.installEvents,
-                installProgress = _state2.installProgress,
-                serverRestarted = _state2.serverRestarted,
-                willReloadIn = _state2.willReloadIn,
-                agreementText = _state2.agreementText,
-                dbCheckError = _state2.dbCheckError,
-                dbCheckSuccess = _state2.dbCheckSuccess,
-                licCheckFailed = _state2.licCheckFailed,
-                tablesFoundConfirm = _state2.tablesFoundConfirm,
-                adminFoundOverride = _state2.adminFoundOverride,
-                lang = _state2.lang;
+                frontendRepeatPassword = _props2.frontendRepeatPassword,
+                change = _props2.change;
+            var _state3 = this.state,
+                stepIndex = _state3.stepIndex,
+                licenseAgreed = _state3.licenseAgreed,
+                showAdvanced = _state3.showAdvanced,
+                installEvents = _state3.installEvents,
+                installProgress = _state3.installProgress,
+                serverRestarted = _state3.serverRestarted,
+                willReloadIn = _state3.willReloadIn,
+                agreementText = _state3.agreementText,
+                dbCheckError = _state3.dbCheckError,
+                dbCheckSuccess = _state3.dbCheckSuccess,
+                s3CheckKeysSuccess = _state3.s3CheckKeysSuccess,
+                s3CheckKeysError = _state3.s3CheckKeysError,
+                s3BucketsPrefix = _state3.s3BucketsPrefix,
+                s3CheckBucketsError = _state3.s3CheckBucketsError,
+                licCheckFailed = _state3.licCheckFailed,
+                performingCheck = _state3.performingCheck,
+                tablesFoundConfirm = _state3.tablesFoundConfirm,
+                adminFoundOverride = _state3.adminFoundOverride,
+                lang = _state3.lang;
 
 
             var flexContainer = {
@@ -446,7 +573,7 @@ var InstallForm = function (_React$Component) {
                     'div',
                     null,
                     _react2.default.createElement(_materialUi.Checkbox, { checked: licenseAgreed, label: this.t('welcome.agreed'), style: { width: 300 }, onCheck: function onCheck() {
-                            _this6.setState({ licenseAgreed: !licenseAgreed });
+                            _this7.setState({ licenseAgreed: !licenseAgreed });
                         } })
                 );
             }
@@ -458,18 +585,18 @@ var InstallForm = function (_React$Component) {
                     initialChecks.map(function (c) {
                         if (c.Name === "LICENSE" && c.Success) {
                             licCheckPassed = JSON.parse(c.JsonResult);
-                            nextAction = _this6.handleNext.bind(_this6);
+                            nextAction = _this7.handleNext.bind(_this7);
                         }
                     });
                 }
                 if (!nextAction) {
                     nextAction = function nextAction() {
-                        _this6.checkLicenseConfig(function (result) {
+                        _this7.checkLicenseConfig(function (result) {
                             if (result.Success) {
-                                _this6.setState({ licCheckFailed: false });
-                                _this6.handleNext();
+                                _this7.setState({ licCheckFailed: false });
+                                _this7.handleNext();
                             } else {
-                                _this6.setState({ licCheckFailed: true });
+                                _this7.setState({ licCheckFailed: true });
                             }
                         });
                     };
@@ -622,7 +749,7 @@ var InstallForm = function (_React$Component) {
                                     { style: { display: 'flex' } },
                                     _react2.default.createElement(
                                         'div',
-                                        { style: { flex: 1, marginRight: 2 } },
+                                        { style: { flex: 4, marginRight: 2 } },
                                         _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPHostname', component: renderTextField, floatingLabel: this.t('form.dbTCPHostname.label'), label: this.t('form.dbTCPHostname.legend') })
                                     ),
                                     _react2.default.createElement(
@@ -680,7 +807,7 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 null,
                                 _react2.default.createElement(_materialUi.Checkbox, { checked: tablesFoundConfirm, onCheck: function onCheck(e, v) {
-                                        _this6.setState({ tablesFoundConfirm: v });
+                                        _this7.setState({ tablesFoundConfirm: v });
                                     } })
                             ),
                             _react2.default.createElement(
@@ -690,7 +817,7 @@ var InstallForm = function (_React$Component) {
                                 _react2.default.createElement(
                                     'a',
                                     { style: { fontWeight: 500, cursor: 'pointer' }, onClick: function onClick(e) {
-                                            e.preventDefault();e.stopPropagation();_this6.setState({ dbCheckSuccess: null, tablesFoundConfirm: null });
+                                            e.preventDefault();e.stopPropagation();_this7.setState({ dbCheckSuccess: null, tablesFoundConfirm: null });
                                         } },
                                     this.t('database.installDetected.retry')
                                 ),
@@ -741,7 +868,7 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 { style: { marginTop: 10 } },
                                 _react2.default.createElement(_materialUi.Checkbox, { checked: adminFoundOverride, onCheck: function onCheck(e, v) {
-                                        _this6.setState({ adminFoundOverride: v });
+                                        _this7.setState({ adminFoundOverride: v });
                                     }, label: this.t('admin.adminFound') })
                             ),
                             (!adminFound || adminFoundOverride) && _react2.default.createElement(
@@ -769,6 +896,10 @@ var InstallForm = function (_React$Component) {
                 )
             ));
 
+            var _props3 = this.props,
+                dsType = _props3.dsType,
+                s3Config = _props3.s3Config;
+
             steps.push(_react2.default.createElement(
                 _materialUi.Step,
                 { key: steps.length - 1, style: stepperStyles.step },
@@ -792,7 +923,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer' }, onClick: function onClick() {
-                                    _this6.setState({ showAdvanced: !showAdvanced });
+                                    _this7.setState({ showAdvanced: !showAdvanced });
                                 } },
                             _react2.default.createElement(
                                 'div',
@@ -812,7 +943,91 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 'div',
                                 null,
+                                _react2.default.createElement(
+                                    _reduxForm.Field,
+                                    { name: 'dsType', component: renderSelectField },
+                                    _react2.default.createElement(_materialUi.MenuItem, { value: '', primaryText: this.t('form.dsType.FS') }),
+                                    _react2.default.createElement(_materialUi.MenuItem, { value: 'S3', primaryText: this.t('form.dsType.S3') })
+                                )
+                            ),
+                            dsType !== 'S3' && _react2.default.createElement(
+                                'div',
+                                null,
                                 _react2.default.createElement(_reduxForm.Field, { name: 'dsFolder', component: renderTextField, floatingLabel: this.t('form.dsFolder.label'), label: this.t('form.dsFolder.legend') })
+                            ),
+                            dsType === 'S3' && _react2.default.createElement(
+                                'div',
+                                null,
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { display: 'flex', alignItems: 'flex-end' } },
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginRight: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dsS3ApiKey', component: renderTextField,
+                                            floatingLabel: this.t('form.dsS3ApiKey.label'),
+                                            label: this.t('form.dsS3ApiKey.legend'),
+                                            errorText: s3CheckKeysError && s3CheckKeysError.error || s3CheckBucketsError
+                                        })
+                                    ),
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginLeft: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dsS3ApiSecret', component: renderPassField,
+                                            floatingLabel: this.t('form.dsS3ApiSecret.label'),
+                                            label: this.t('form.dsS3ApiSecret.legend') })
+                                    ),
+                                    performingCheck === 'S3_KEYS' && _react2.default.createElement(
+                                        'div',
+                                        { style: { width: 48, height: 48, padding: 12, boxSizing: 'border-box' } },
+                                        _react2.default.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2.5 })
+                                    ),
+                                    _react2.default.createElement(
+                                        'div',
+                                        null,
+                                        performingCheck !== 'S3_KEYS' && _react2.default.createElement(_materialUi.IconButton, {
+                                            disabled: !s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret,
+                                            iconClassName: "mdi mdi-login-variant",
+                                            tooltip: this.t('form.dsS3ValidateKeys'),
+                                            tooltipPosition: "bottom-left",
+                                            onClick: function onClick() {
+                                                _this7.checkS3Config(function (result) {
+                                                    var data = JSON.parse(result.JsonResult);
+                                                    if (result.Success) {
+                                                        _this7.setState({ s3CheckKeysSuccess: data });
+                                                    } else {
+                                                        _this7.setState({ s3CheckKeysError: data });
+                                                    }
+                                                }, true);
+                                            }
+                                        })
+                                    )
+                                ),
+                                s3CheckKeysSuccess && _react2.default.createElement(
+                                    'div',
+                                    null,
+                                    _react2.default.createElement(_materialUi.TextField, {
+                                        value: s3BucketsPrefix || '',
+                                        onChange: function onChange(e, v) {
+                                            _this7.setState({ s3BucketsPrefix: v });
+                                            change('dsS3BucketDefault', v + 'pydiods1');
+                                            change('dsS3BucketPersonal', v + 'personal');
+                                            change('dsS3BucketCells', v + 'cellsdata');
+                                            change('dsS3BucketBinaries', v + 'binaries');
+                                            change('dsS3BucketVersions', v + 'versions');
+                                            change('dsS3BucketThumbs', v + 'thumbs');
+                                        },
+                                        floatingLabelText: this.t('form.s3BucketsPrefix.label'),
+                                        floatingLabelFixed: true,
+                                        hintText: this.t('form.s3BucketsPrefix.legend'),
+                                        fullWidth: true
+                                    }),
+                                    _react2.default.createElement(
+                                        'div',
+                                        null,
+                                        s3BucketsPrefix && this.renderS3BucketsList().Component
+                                    )
+                                )
                             )
                         )
                     ),
@@ -874,7 +1089,7 @@ var InstallForm = function (_React$Component) {
                         installPerformed && serverRestarted && _react2.default.createElement(
                             'div',
                             null,
-                            this.t('apply.success.restarted')
+                            this.t('apply.success.restarted').replace('%1', willReloadIn)
                         ),
                         installError && _react2.default.createElement(
                             'div',
@@ -928,7 +1143,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             _materialUi.SelectField,
                             { value: lang, onChange: function onChange(e, i, v) {
-                                    _this6.setState({ lang: v });
+                                    _this7.setState({ lang: v });
                                 }, fullWidth: true, labelStyle: { color: 'rgba(255,255,255,.87)' }, underlineStyle: { display: 'none' } },
                             _react2.default.createElement(_materialUi.MenuItem, { value: "en-us", primaryText: "English" }),
                             _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
@@ -981,15 +1196,22 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
     var frontendLogin = selector(state, 'frontendLogin');
     var frontendPassword = selector(state, 'frontendPassword');
     var frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
+    var dsType = selector(state, 'dsType');
+    var s3Config = selector(state, 'dsS3Custom', 'dsS3CustomRegion', 'dsS3ApiKey', 'dsS3ApiSecret', 'dsS3BucketDefault', 'dsS3BucketPersonal', 'dsS3BucketCells', 'dsS3BucketBinaries', 'dsS3BucketThumbs', 'dsS3BucketVersions');
 
     // Make a request to retrieve those values
     return {
         initialValues: state.config.data,
         dbConnectionType: dbConnectionType,
         dbConfig: dbConfig,
+        s3Config: s3Config,
+        dsType: dsType,
         initialChecks: initialChecks,
         licenseRequired: licenseRequired,
-        licenseString: licenseString, frontendPassword: frontendPassword, frontendLogin: frontendLogin, frontendRepeatPassword: frontendRepeatPassword
+        licenseString: licenseString,
+        frontendPassword: frontendPassword,
+        frontendLogin: frontendLogin,
+        frontendRepeatPassword: frontendRepeatPassword
     };
 }, { load: _config.load })(InstallForm);
 

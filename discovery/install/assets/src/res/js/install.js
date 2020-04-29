@@ -1,8 +1,8 @@
 import React from 'react';
-import {Paper, TextField, FontIcon, RadioButtonGroup, Checkbox, SelectField, MenuItem,
+import {Paper, TextField, FontIcon, IconButton, RadioButtonGroup, Checkbox, SelectField, MenuItem,
     RaisedButton, FlatButton, Step, Stepper, StepLabel, StepContent, LinearProgress, CircularProgress} from 'material-ui'
 import {connect} from 'react-redux';
-import {Field, reduxForm, formValueSelector} from 'redux-form';
+import {Field, reduxForm, formValueSelector, change} from 'redux-form';
 import Client from './client';
 import validator from 'validator';
 import InstallInstallConfig from './gen/model/InstallInstallConfig';
@@ -185,6 +185,54 @@ class InstallForm extends React.Component {
         })
     }
 
+    checkS3Config(callback, keys = false){
+        const {s3Config} = this.props;
+        const request = new InstallPerformCheckRequest();
+        request.Name = keys ? "S3_KEYS" : "S3_BUCKETS";
+        request.Config = InstallInstallConfig.constructFromObject(s3Config);
+        this.setState({performingCheck: 'S3_KEYS', s3CheckKeysSuccess: null, s3CheckKeysError: null, s3BucketsPrefix: ''});
+        api.performInstallCheck(request).then(res => {
+            const checkResult = res.Result;
+            callback(checkResult);
+        }).catch(reason => {
+            const checkResult = InstallCheckResult.constructFromObject({Name: "S3_KEYS", Success:false, JsonResult: JSON.stringify({error: reason.message})});
+            callback(checkResult);
+        }).finally(() => {
+            this.setState({performingCheck: null});
+        })
+    }
+
+    renderS3BucketsList(){
+        const {s3Config} = this.props;
+        const {s3CheckKeysSuccess} = this.state;
+        const {buckets, canCreate} = s3CheckKeysSuccess;
+        const keys = ['Default', 'Personal', 'Cells', 'Binaries', 'Thumbs', 'Versions'];
+        const newBuckets = keys.map(k => s3Config['dsS3Bucket'+k]);
+        const notExist = newBuckets.filter(b => buckets.indexOf(b) === -1);
+        const exist = newBuckets.filter(b => buckets.indexOf(b) > -1);
+        const result = {};
+        if(canCreate) {
+            result.Valid = true;
+            result.NeedsCreates = notExist.length > 0;
+            result.Component = (
+                <span>
+                    <FontIcon className={"mdi mdi-check"} color={"#2e7d32"} style={{fontSize:'inherit'}}/>
+                    {exist.length>0 && <span>{this.t('form.bucketList.found')} : {exist.join(', ')}. </span>}
+                    {notExist.length>0 && <span>{this.t('form.bucketList.toCreate')} : {notExist.join(', ')}. </span>}
+                </span>
+            );
+        } else {
+            if(notExist.length) {
+                result.Valid = false;
+                result.Component = <div><FontIcon className={"mdi mdi-alert"} color={"#c62828"} style={{fontSize:'inherit'}}/> {this.t('form.bucketList.notFound')} : {notExist.join(', ')}. <span style={{color:'"#c62828"'}}>{this.t('form.bucketList.warnCreate')}</span></div>
+            } else {
+                result.Valid = true;
+                result.Component = <div><FontIcon className={"mdi mdi-check"} color={"#2e7d32"} style={{fontSize:'inherit'}}/> {this.t('form.bucketList.found')} : {newBuckets.join(', ')}.</div>
+            }
+        }
+        return result;
+    }
+
     reset = () => {
         this.setState({
             stepIndex: 0,
@@ -209,7 +257,7 @@ class InstallForm extends React.Component {
 
     renderStepActions(step, nextDisabled = false, leftAction = null) {
         const {stepIndex, tablesFoundConfirm, dbCheckSuccess} = this.state;
-        const {handleSubmit, licenseRequired, invalid} = this.props;
+        const {handleSubmit, licenseRequired, invalid, dsType} = this.props;
         const stepOffset = licenseRequired ? 1 : 0;
 
         let nextAction;
@@ -235,6 +283,24 @@ class InstallForm extends React.Component {
                 break;
             case 3 + stepOffset :
                 nextAction = () => {this.handleNext(); handleSubmit()};
+                if(dsType === 'S3'){
+                    const {s3CheckKeysSuccess, s3BucketsPrefix} = this.state;
+                    nextInvalid = !s3CheckKeysSuccess || !s3BucketsPrefix || !this.renderS3BucketsList().Valid;
+                    if(!nextInvalid && this.renderS3BucketsList().NeedsCreates) {
+                        nextAction = () => {
+                            // First create buckets if necessary
+                            this.checkS3Config((result) => {
+                                const data = JSON.parse(result.JsonResult);
+                                if (result.Success) {
+                                    this.handleNext();
+                                    handleSubmit();
+                                } else {
+                                    this.setState({s3CheckBucketsError: data.error})
+                                }
+                            });
+                        };
+                    }
+                }
                 break;
             default:
                 nextAction = this.handleNext;
@@ -268,10 +334,11 @@ class InstallForm extends React.Component {
     render() {
 
         const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString,
-            frontendPassword, frontendLogin, frontendRepeatPassword} = this.props;
+            frontendPassword, frontendLogin, frontendRepeatPassword, change} = this.props;
 
         const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn,
-            agreementText, dbCheckError, dbCheckSuccess, licCheckFailed, tablesFoundConfirm, adminFoundOverride, lang} = this.state;
+            agreementText, dbCheckError, dbCheckSuccess, s3CheckKeysSuccess, s3CheckKeysError, s3BucketsPrefix, s3CheckBucketsError, licCheckFailed,
+            performingCheck, tablesFoundConfirm, adminFoundOverride, lang} = this.state;
 
         const flexContainer = {
             display: 'flex',
@@ -412,7 +479,7 @@ class InstallForm extends React.Component {
                             {dbConnectionType === "tcp" && (
                                 <div style={flexContainer}>
                                     <div style={{display:'flex'}}>
-                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel={this.t('form.dbTCPHostname.label')} label={this.t('form.dbTCPHostname.legend')} /></div>
+                                        <div style={{flex: 4, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel={this.t('form.dbTCPHostname.label')} label={this.t('form.dbTCPHostname.legend')} /></div>
                                         <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPort" component={renderTextField} floatingLabel={this.t('form.dbTCPPort.label')} label={this.t('form.dbTCPPort.legend')} /></div>
                                     </div>
                                     <Field name="dbTCPName" component={renderTextField} floatingLabel={this.t('form.dbName.label')} label={this.t('form.dbName.legend')} />
@@ -501,6 +568,7 @@ class InstallForm extends React.Component {
             </Step>
         );
 
+        const {dsType, s3Config} = this.props;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
                 <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>{this.t('advanced.stepLabel')}</StepLabel>
@@ -519,8 +587,76 @@ class InstallForm extends React.Component {
                                 {this.t('advanced.default.datasource')}
                             </div>
                             <div>
-                                <Field name="dsFolder" component={renderTextField} floatingLabel={this.t('form.dsFolder.label')} label={this.t('form.dsFolder.legend')} />
+                                <Field name="dsType" component={renderSelectField}>
+                                    <MenuItem value="" primaryText={this.t('form.dsType.FS')} />
+                                    <MenuItem value="S3" primaryText={this.t('form.dsType.S3')} />
+                                </Field>
                             </div>
+                            {dsType !== 'S3' &&
+                                <div>
+                                    <Field name="dsFolder" component={renderTextField} floatingLabel={this.t('form.dsFolder.label')} label={this.t('form.dsFolder.legend')}/>
+                                </div>
+                            }
+                            {dsType === 'S3' &&
+                            <div>
+                                <div style={{display: 'flex', alignItems: 'flex-end'}}>
+                                    <div style={{flex: 1, marginRight: 5}}>
+                                        <Field name="dsS3ApiKey" component={renderTextField}
+                                               floatingLabel={this.t('form.dsS3ApiKey.label')}
+                                               label={this.t('form.dsS3ApiKey.legend')}
+                                               errorText={(s3CheckKeysError && s3CheckKeysError.error) || s3CheckBucketsError}
+                                        />
+                                    </div>
+                                    <div style={{flex: 1, marginLeft: 5}}>
+                                        <Field name="dsS3ApiSecret" component={renderPassField}
+                                               floatingLabel={this.t('form.dsS3ApiSecret.label')}
+                                               label={this.t('form.dsS3ApiSecret.legend')}/>
+                                    </div>
+                                    {performingCheck === 'S3_KEYS' && <div style={{width:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
+                                    <div>
+                                        {performingCheck !== 'S3_KEYS' &&
+                                            <IconButton
+                                                disabled={!s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret}
+                                                iconClassName={"mdi mdi-login-variant"}
+                                                tooltip={this.t('form.dsS3ValidateKeys')}
+                                                tooltipPosition={"bottom-left"}
+                                                onClick={() => {
+                                                    this.checkS3Config((result) => {
+                                                        const data = JSON.parse(result.JsonResult);
+                                                        if (result.Success) {
+                                                            this.setState({s3CheckKeysSuccess: data});
+                                                        } else {
+                                                            this.setState({s3CheckKeysError: data})
+                                                        }
+                                                    }, true);
+                                                }}
+                                            />
+                                        }
+                                    </div>
+                                </div>
+                                {s3CheckKeysSuccess &&
+                                <div>
+                                    <TextField
+                                        value={s3BucketsPrefix || ''}
+                                        onChange={(e,v)=>{
+                                            this.setState({s3BucketsPrefix: v});
+                                            change('dsS3BucketDefault', v + 'pydiods1');
+                                            change('dsS3BucketPersonal', v + 'personal');
+                                            change('dsS3BucketCells', v + 'cellsdata');
+                                            change('dsS3BucketBinaries', v + 'binaries');
+                                            change('dsS3BucketVersions', v + 'versions');
+                                            change('dsS3BucketThumbs', v + 'thumbs');
+                                        }}
+                                        floatingLabelText={this.t('form.s3BucketsPrefix.label')}
+                                        floatingLabelFixed={true}
+                                        hintText={this.t('form.s3BucketsPrefix.legend')}
+                                        fullWidth={true}
+                                    />
+                                    <div>{s3BucketsPrefix && this.renderS3BucketsList().Component}</div>
+                                </div>
+                                }
+                            </div>
+                            }
                         </div>
                         }
                     </div>
@@ -556,7 +692,7 @@ class InstallForm extends React.Component {
                         }
                         {installPerformed && serverRestarted &&
                         <div>
-                            {this.t('apply.success.restarted')}
+                            {this.t('apply.success.restarted').replace('%1', willReloadIn)}
                         </div>
                         }
                         {installError &&
@@ -642,16 +778,22 @@ InstallForm = connect(state => {
     const frontendLogin = selector(state, 'frontendLogin');
     const frontendPassword = selector(state, 'frontendPassword');
     const frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
-
+    const dsType = selector(state, 'dsType');
+    const s3Config = selector(state, 'dsS3Custom', 'dsS3CustomRegion', 'dsS3ApiKey', 'dsS3ApiSecret', 'dsS3BucketDefault', 'dsS3BucketPersonal', 'dsS3BucketCells', 'dsS3BucketBinaries', 'dsS3BucketThumbs', 'dsS3BucketVersions');
 
     // Make a request to retrieve those values
     return {
         initialValues: state.config.data,
-        dbConnectionType: dbConnectionType,
-        dbConfig: dbConfig,
-        initialChecks: initialChecks,
+        dbConnectionType,
+        dbConfig,
+        s3Config,
+        dsType,
+        initialChecks,
         licenseRequired,
-        licenseString, frontendPassword, frontendLogin, frontendRepeatPassword
+        licenseString,
+        frontendPassword,
+        frontendLogin,
+        frontendRepeatPassword
     }
 }, { load: loadConfig } )(InstallForm);
 
