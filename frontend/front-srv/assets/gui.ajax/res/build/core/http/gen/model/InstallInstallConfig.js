@@ -61,6 +61,17 @@ var InstallInstallConfig = (function () {
         this.dbManualDSN = undefined;
         this.dsName = undefined;
         this.dsPort = undefined;
+        this.dsType = undefined;
+        this.dsS3Custom = undefined;
+        this.dsS3CustomRegion = undefined;
+        this.dsS3ApiKey = undefined;
+        this.dsS3ApiSecret = undefined;
+        this.dsS3BucketDefault = undefined;
+        this.dsS3BucketPersonal = undefined;
+        this.dsS3BucketCells = undefined;
+        this.dsS3BucketBinaries = undefined;
+        this.dsS3BucketThumbs = undefined;
+        this.dsS3BucketVersions = undefined;
         this.dsFolder = undefined;
         this.frontendHosts = undefined;
         this.frontendLogin = undefined;
@@ -127,6 +138,39 @@ var InstallInstallConfig = (function () {
             }
             if (data.hasOwnProperty('dsPort')) {
                 obj['dsPort'] = _ApiClient2['default'].convertToType(data['dsPort'], 'String');
+            }
+            if (data.hasOwnProperty('dsType')) {
+                obj['dsType'] = _ApiClient2['default'].convertToType(data['dsType'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3Custom')) {
+                obj['dsS3Custom'] = _ApiClient2['default'].convertToType(data['dsS3Custom'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3CustomRegion')) {
+                obj['dsS3CustomRegion'] = _ApiClient2['default'].convertToType(data['dsS3CustomRegion'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3ApiKey')) {
+                obj['dsS3ApiKey'] = _ApiClient2['default'].convertToType(data['dsS3ApiKey'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3ApiSecret')) {
+                obj['dsS3ApiSecret'] = _ApiClient2['default'].convertToType(data['dsS3ApiSecret'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketDefault')) {
+                obj['dsS3BucketDefault'] = _ApiClient2['default'].convertToType(data['dsS3BucketDefault'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketPersonal')) {
+                obj['dsS3BucketPersonal'] = _ApiClient2['default'].convertToType(data['dsS3BucketPersonal'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketCells')) {
+                obj['dsS3BucketCells'] = _ApiClient2['default'].convertToType(data['dsS3BucketCells'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketBinaries')) {
+                obj['dsS3BucketBinaries'] = _ApiClient2['default'].convertToType(data['dsS3BucketBinaries'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketThumbs')) {
+                obj['dsS3BucketThumbs'] = _ApiClient2['default'].convertToType(data['dsS3BucketThumbs'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketVersions')) {
+                obj['dsS3BucketVersions'] = _ApiClient2['default'].convertToType(data['dsS3BucketVersions'], 'String');
             }
             if (data.hasOwnProperty('dsFolder')) {
                 obj['dsFolder'] = _ApiClient2['default'].convertToType(data['dsFolder'], 'String');
@@ -224,6 +268,50 @@ module.exports = exports['default'];
 
 /**
 * @member {String} dsPort
+*/
+
+/**
+* @member {String} dsType
+*/
+
+/**
+* @member {String} dsS3Custom
+*/
+
+/**
+* @member {String} dsS3CustomRegion
+*/
+
+/**
+* @member {String} dsS3ApiKey
+*/
+
+/**
+* @member {String} dsS3ApiSecret
+*/
+
+/**
+* @member {String} dsS3BucketDefault
+*/
+
+/**
+* @member {String} dsS3BucketPersonal
+*/
+
+/**
+* @member {String} dsS3BucketCells
+*/
+
+/**
+* @member {String} dsS3BucketBinaries
+*/
+
+/**
+* @member {String} dsS3BucketThumbs
+*/
+
+/**
+* @member {String} dsS3BucketVersions
 */
 
 /**

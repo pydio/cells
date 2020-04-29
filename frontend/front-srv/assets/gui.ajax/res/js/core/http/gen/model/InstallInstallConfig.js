@@ -100,6 +100,39 @@ export default class InstallInstallConfig {
             if (data.hasOwnProperty('dsPort')) {
                 obj['dsPort'] = ApiClient.convertToType(data['dsPort'], 'String');
             }
+            if (data.hasOwnProperty('dsType')) {
+                obj['dsType'] = ApiClient.convertToType(data['dsType'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3Custom')) {
+                obj['dsS3Custom'] = ApiClient.convertToType(data['dsS3Custom'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3CustomRegion')) {
+                obj['dsS3CustomRegion'] = ApiClient.convertToType(data['dsS3CustomRegion'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3ApiKey')) {
+                obj['dsS3ApiKey'] = ApiClient.convertToType(data['dsS3ApiKey'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3ApiSecret')) {
+                obj['dsS3ApiSecret'] = ApiClient.convertToType(data['dsS3ApiSecret'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketDefault')) {
+                obj['dsS3BucketDefault'] = ApiClient.convertToType(data['dsS3BucketDefault'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketPersonal')) {
+                obj['dsS3BucketPersonal'] = ApiClient.convertToType(data['dsS3BucketPersonal'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketCells')) {
+                obj['dsS3BucketCells'] = ApiClient.convertToType(data['dsS3BucketCells'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketBinaries')) {
+                obj['dsS3BucketBinaries'] = ApiClient.convertToType(data['dsS3BucketBinaries'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketThumbs')) {
+                obj['dsS3BucketThumbs'] = ApiClient.convertToType(data['dsS3BucketThumbs'], 'String');
+            }
+            if (data.hasOwnProperty('dsS3BucketVersions')) {
+                obj['dsS3BucketVersions'] = ApiClient.convertToType(data['dsS3BucketVersions'], 'String');
+            }
             if (data.hasOwnProperty('dsFolder')) {
                 obj['dsFolder'] = ApiClient.convertToType(data['dsFolder'], 'String');
             }
@@ -193,6 +226,50 @@ export default class InstallInstallConfig {
     * @member {String} dsPort
     */
     dsPort = undefined;
+    /**
+    * @member {String} dsType
+    */
+    dsType = undefined;
+    /**
+    * @member {String} dsS3Custom
+    */
+    dsS3Custom = undefined;
+    /**
+    * @member {String} dsS3CustomRegion
+    */
+    dsS3CustomRegion = undefined;
+    /**
+    * @member {String} dsS3ApiKey
+    */
+    dsS3ApiKey = undefined;
+    /**
+    * @member {String} dsS3ApiSecret
+    */
+    dsS3ApiSecret = undefined;
+    /**
+    * @member {String} dsS3BucketDefault
+    */
+    dsS3BucketDefault = undefined;
+    /**
+    * @member {String} dsS3BucketPersonal
+    */
+    dsS3BucketPersonal = undefined;
+    /**
+    * @member {String} dsS3BucketCells
+    */
+    dsS3BucketCells = undefined;
+    /**
+    * @member {String} dsS3BucketBinaries
+    */
+    dsS3BucketBinaries = undefined;
+    /**
+    * @member {String} dsS3BucketThumbs
+    */
+    dsS3BucketThumbs = undefined;
+    /**
+    * @member {String} dsS3BucketVersions
+    */
+    dsS3BucketVersions = undefined;
     /**
     * @member {String} dsFolder
     */
