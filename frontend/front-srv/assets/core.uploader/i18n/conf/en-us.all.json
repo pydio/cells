@@ -41,8 +41,8 @@
   "Switch to Multipart Upload for files bigger than this value (in bytes)":{
     "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
   },
-  "Chunk Size used for multipart uploads":{
-    "other": "Chunk Size used for multipart uploads"
+  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)":{
+    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
   },
   "Queue Size":{
     "other": "Queue Size"
