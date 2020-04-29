@@ -4526,6 +4526,39 @@ var SwaggerJson = `{
         "dsPort": {
           "type": "string"
         },
+        "dsType": {
+          "type": "string"
+        },
+        "dsS3Custom": {
+          "type": "string"
+        },
+        "dsS3CustomRegion": {
+          "type": "string"
+        },
+        "dsS3ApiKey": {
+          "type": "string"
+        },
+        "dsS3ApiSecret": {
+          "type": "string"
+        },
+        "dsS3BucketDefault": {
+          "type": "string"
+        },
+        "dsS3BucketPersonal": {
+          "type": "string"
+        },
+        "dsS3BucketCells": {
+          "type": "string"
+        },
+        "dsS3BucketBinaries": {
+          "type": "string"
+        },
+        "dsS3BucketThumbs": {
+          "type": "string"
+        },
+        "dsS3BucketVersions": {
+          "type": "string"
+        },
         "dsFolder": {
           "type": "string"
         },
