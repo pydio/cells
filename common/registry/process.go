@@ -62,6 +62,8 @@ func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName st
 	if !ok {
 		return
 	}
+	p.processeslock.RLock()
+	defer p.processeslock.RUnlock()
 	if proc, e := p.processes[pid]; e {
 		proc.sLock.Lock()
 		defer proc.sLock.Unlock()
@@ -87,6 +89,10 @@ func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName st
 }
 
 func (p *pydioregistry) deregisterProcessFromNode(n *registry.Node, serviceName string) {
+
+	p.processeslock.Lock()
+	defer p.processeslock.Unlock()
+
 	pid, hasP := n.Metadata[serviceMetaPID]
 	if !hasP {
 		// A full peer was deleted
@@ -110,8 +116,16 @@ func (p *pydioregistry) deregisterProcessFromNode(n *registry.Node, serviceName 
 	}
 }
 
+// GetProcesses implements registry GetProcesses method, by creating a copy of the
+// internal processes list
 func (p *pydioregistry) GetProcesses() map[string]*Process {
-	return p.processes
+	p.processeslock.RLock()
+	defer p.processeslock.RUnlock()
+	pp := make(map[string]*Process, len(p.processes))
+	for k, v := range p.processes {
+		pp[k] = v
+	}
+	return pp
 }
 
 func GetProcesses() map[string]*Process {

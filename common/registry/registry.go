@@ -72,9 +72,10 @@ type pydioregistry struct {
 	graph        goraph.Graph
 
 	// List of peer addresses that have a service associated with the micro registry
-	peerlock  *sync.RWMutex
-	peers     map[string]*Peer
-	processes map[string]*Process
+	peerlock      *sync.RWMutex
+	peers         map[string]*Peer
+	processeslock *sync.RWMutex
+	processes     map[string]*Process
 
 	runninglock *sync.RWMutex
 
@@ -110,14 +111,15 @@ func Watch() (Watcher, error) {
 // NewRegistry provides a new registry object
 func NewRegistry(opts ...Option) Registry {
 	r := &pydioregistry{
-		graph:        goraph.NewGraph(),
-		registerlock: new(sync.RWMutex),
-		register:     make(map[string]Service),
-		opts:         newOptions(opts...),
-		peerlock:     new(sync.RWMutex),
-		peers:        make(map[string]*Peer),
-		processes:    make(map[string]*Process),
-		runninglock:  new(sync.RWMutex),
+		graph:         goraph.NewGraph(),
+		registerlock:  new(sync.RWMutex),
+		register:      make(map[string]Service),
+		opts:          newOptions(opts...),
+		peerlock:      new(sync.RWMutex),
+		peers:         make(map[string]*Peer),
+		processeslock: new(sync.RWMutex),
+		processes:     make(map[string]*Process),
+		runninglock:   new(sync.RWMutex),
 	}
 
 	return r
