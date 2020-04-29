@@ -163,7 +163,12 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 
 func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
-	login := p.Prompt{Label: "Admin Login (leave empty if you want to use existing admin)", Default: ""}
+	login := p.Prompt{Label: "Admin Login (leave empty if you want to use existing admin)", Default: "", Validate: func(s string) error {
+		if s != "" && strings.ToLower(s) != s {
+			return fmt.Errorf("Use lowercase characters only for login")
+		}
+		return nil
+	}}
 	pwd := p.Prompt{Label: "Admin Password", Mask: '*'}
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
