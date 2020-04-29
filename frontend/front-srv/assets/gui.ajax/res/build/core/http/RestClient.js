@@ -80,12 +80,15 @@ var RestClient = (function (_ApiClient) {
      */
 
     function RestClient(pydioObject) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
         _classCallCheck(this, RestClient);
 
         _ApiClient.call(this);
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
+        this.options = options;
     }
 
     /**
@@ -276,7 +279,7 @@ var RestClient = (function (_ApiClient) {
             console.warn('Resource currently locked', msg);
             return msg;
         }
-        if (this.pydio && this.pydio.UI) {
+        if (this.pydio && this.pydio.UI && !(this.options && this.options.silent)) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }
         if (console) {

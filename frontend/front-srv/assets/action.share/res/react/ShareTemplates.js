@@ -620,8 +620,8 @@ class FilmStripMinisite extends React.Component{
                 <div className="vertical_layout" style={{flex:1, backgroundColor:'#424242', position:'relative'}}>
                     {editor}
                 </div>
-                <div style={{height: 20, background: '#424242', zIndex: 1}}/>
-                <div className="vertical_layout" style={{height: 160, backgroundColor:'#424242', zIndex:1}}>
+                <div style={{height: 10, background: '#424242', zIndex: 1}}/>
+                <div className="vertical_layout" style={{height: 176, backgroundColor:'#424242', zIndex:1}}>
                     <MainFilesList ref="list" {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>

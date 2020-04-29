@@ -40,11 +40,12 @@ class RestClient extends ApiClient{
      *
      * @param pydioObject {Pydio}
      */
-    constructor(pydioObject){
+    constructor(pydioObject, options = {}){
         super();
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
+        this.options = options;
     }
 
     /**
@@ -226,7 +227,7 @@ class RestClient extends ApiClient{
             console.warn('Resource currently locked', msg);
             return msg;
         }
-        if(this.pydio && this.pydio.UI) {
+        if(this.pydio && this.pydio.UI && !(this.options && this.options.silent)) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }
         if (console) {

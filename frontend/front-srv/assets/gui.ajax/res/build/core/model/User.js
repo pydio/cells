@@ -336,7 +336,8 @@ var User = (function () {
     var stringPref = _utilHasherUtils2['default'].base64_encode(guiPrefs);
     this.getIdmUser().then(function (idmUser) {
       idmUser.Attributes['preferences'] = JSON.stringify({ gui_preferences: stringPref });
-      var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient());
+      // Use a silent client to avoid displaying errors
+      var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient({ silent: true }));
       api.putUser(idmUser.Login, idmUser).then(function (ok) {
         _this2.idmUser = idmUser;
       });
