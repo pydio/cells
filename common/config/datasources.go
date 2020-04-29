@@ -255,7 +255,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 		dsDir, bucket := filepath.Split(newSource.StorageConfiguration["folder"])
 		peerAddress := newSource.PeerAddress
 		dsDir = strings.TrimRight(dsDir, "/")
-		if minioConfig, e := filterMiniosWithBaseFolder(existingConfigs, peerAddress, dsDir); e != nil {
+		if minioConfig, e := filterMiniosWithBaseFolder(existingConfigs, peerAddress, dsDir, bucket); e != nil {
 			return nil, e
 		} else if minioConfig != nil {
 			config = minioConfig
@@ -354,14 +354,14 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 }
 
 // filterGatewaysWithKeys finds local folder configs that share the same base folder
-func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) (*object.MinioConfig, error) {
+func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string, bucket string) (*object.MinioConfig, error) {
 
 	for _, source := range configs {
 		if source.StorageType == object.StorageType_LOCAL && net.PeerAddressesAreSameNode(source.PeerAddress, peerAddress) {
 			sep := string(os.PathSeparator)
 			if source.LocalFolder == folder {
 				return source, nil
-			} else if strings.HasPrefix(source.LocalFolder, strings.TrimRight(folder, sep)+sep) || strings.HasPrefix(folder, strings.TrimRight(source.LocalFolder, sep)+sep) {
+			} else if strings.HasPrefix(source.LocalFolder, strings.TrimRight(folder, sep)+sep) && strings.HasSuffix(source.LocalFolder, bucket) || strings.HasPrefix(folder, strings.TrimRight(source.LocalFolder, sep)+sep) {
 				return nil, errors.Conflict("datasource.nested.path", "object service %s is already pointing to %s, make sure to avoid using nested paths for different datasources", source.Name, source.LocalFolder)
 			}
 		}
