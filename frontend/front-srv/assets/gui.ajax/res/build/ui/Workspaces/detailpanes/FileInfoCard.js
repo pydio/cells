@@ -91,11 +91,12 @@ var FileInfoCard = (function (_React$Component) {
 
         var size = meta.get('bytesize');
         var hSize = _pydioUtilPath2['default'].roundFileSize(parseInt(size));
+        var unit = _pydio2['default'].getMessages()['byte_unit_symbol'] || 'B';
         var date = new Date();
         date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
         var formattedDate = _pydioUtilPath2['default'].formatModifDate(date);
 
-        var data = [{ key: 'size', label: getMessage('2'), value: hSize }, { key: 'date', label: getMessage('4'), value: formattedDate }];
+        var data = [{ key: 'size', label: getMessage('2'), value: hSize, hoverValue: size + ' ' + unit }, { key: 'date', label: getMessage('4'), value: formattedDate }];
 
         var w = meta.get('image_width');
         var h = meta.get('image_height');

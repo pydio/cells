@@ -58,12 +58,13 @@ class FileInfoCard extends React.Component {
 
         let size = meta.get('bytesize');
         let hSize = PathUtils.roundFileSize(parseInt(size));
+        const unit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
         const date = new Date();
         date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
         let formattedDate = PathUtils.formatModifDate(date);
 
         let data = [
-            {key:'size',label:getMessage('2'),value:hSize},
+            {key:'size',label:getMessage('2'),value:hSize, hoverValue: size + ' ' + unit},
             {key:'date',label:getMessage('4'),value:formattedDate}
         ];
 

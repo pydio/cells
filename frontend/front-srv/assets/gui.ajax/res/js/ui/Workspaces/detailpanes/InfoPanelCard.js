@@ -53,7 +53,7 @@ class InfoPanelCard extends React.Component{
     }
 
     render(){
-        const {open} = this.state;
+        const {open, hoverRow} = this.state;
         const {primaryToolbars} = this.props;
         const icon = <div className="panelIcon" style={{position: 'absolute', right: 2, top: open?8:2}}><IconButton onClick={()=>{this.toggle()}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/></div>;
 
@@ -65,16 +65,19 @@ class InfoPanelCard extends React.Component{
         let actions = this.props.actions ? <div className="panelActions">{this.props.actions}</div> : null;
         let rows, toolBar;
         if(this.props.standardData){
-            rows = this.props.standardData.map(function(object){
+            rows = this.props.standardData.map((object)=>{
+                const {key, label, value, hoverValue} = object;
                 return (
-                    <div className="infoPanelRow" key={object.key}>
-                        <div className="infoPanelLabel">{object.label}</div>
-                        <div className="infoPanelValue">{object.value}</div>
+                    <div className="infoPanelRow" key={key}>
+                        <div className="infoPanelLabel">{label}</div>
+                        <div className="infoPanelValue" onMouseOver={()=>this.setState({hoverRow:key})} onMouseOut={()=>this.setState({hoverRow:null})}>
+                            {hoverValue && hoverRow === key?hoverValue:value}
+                        </div>
                     </div>
                 );
             });
         }
-        if(this.props.primaryToolbars){
+        if(primaryToolbars){
             const themePalette = this.props.muiTheme.palette;
             const tBarStyle = {
                 backgroundColor: themePalette.accent2Color,
@@ -88,7 +91,7 @@ class InfoPanelCard extends React.Component{
                     buttonStyle={{color:'white', paddingRight: 8, paddingLeft: 8}}
                     className="primaryToolbar"
                     renderingType="button"
-                    toolbars={this.props.primaryToolbars}
+                    toolbars={primaryToolbars}
                     controller={this.props.pydio.getController()}
                     fabAction={"share"}
                     buttonMenuNoLabel={true}

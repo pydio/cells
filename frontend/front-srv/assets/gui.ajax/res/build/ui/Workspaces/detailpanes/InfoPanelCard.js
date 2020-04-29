@@ -75,7 +75,9 @@ var InfoPanelCard = (function (_React$Component) {
     InfoPanelCard.prototype.render = function render() {
         var _this = this;
 
-        var open = this.state.open;
+        var _state = this.state;
+        var open = _state.open;
+        var hoverRow = _state.hoverRow;
         var primaryToolbars = this.props.primaryToolbars;
 
         var icon = _react2['default'].createElement(
@@ -105,23 +107,32 @@ var InfoPanelCard = (function (_React$Component) {
             toolBar = undefined;
         if (this.props.standardData) {
             rows = this.props.standardData.map(function (object) {
+                var key = object.key;
+                var label = object.label;
+                var value = object.value;
+                var hoverValue = object.hoverValue;
+
                 return _react2['default'].createElement(
                     'div',
-                    { className: 'infoPanelRow', key: object.key },
+                    { className: 'infoPanelRow', key: key },
                     _react2['default'].createElement(
                         'div',
                         { className: 'infoPanelLabel' },
-                        object.label
+                        label
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { className: 'infoPanelValue' },
-                        object.value
+                        { className: 'infoPanelValue', onMouseOver: function () {
+                                return _this.setState({ hoverRow: key });
+                            }, onMouseOut: function () {
+                                return _this.setState({ hoverRow: null });
+                            } },
+                        hoverValue && hoverRow === key ? hoverValue : value
                     )
                 );
             });
         }
-        if (this.props.primaryToolbars) {
+        if (primaryToolbars) {
             var themePalette = this.props.muiTheme.palette;
             var tBarStyle = {
                 backgroundColor: themePalette.accent2Color,
@@ -134,7 +145,7 @@ var InfoPanelCard = (function (_React$Component) {
                 buttonStyle: { color: 'white', paddingRight: 8, paddingLeft: 8 },
                 className: 'primaryToolbar',
                 renderingType: 'button',
-                toolbars: this.props.primaryToolbars,
+                toolbars: primaryToolbars,
                 controller: this.props.pydio.getController(),
                 fabAction: "share",
                 buttonMenuNoLabel: true,
