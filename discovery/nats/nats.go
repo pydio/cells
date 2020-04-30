@@ -98,6 +98,10 @@ func run() {
 			opts.Routes = server.RoutesFromStr(regClusterRoutes)
 		}
 
+		if httpPort := viper.GetInt("nats_monitor_port"); httpPort != 0 {
+			opts.HTTPPort = httpPort
+		}
+
 		// Create the server with appropriate options.
 		hd = server.New(opts)
 

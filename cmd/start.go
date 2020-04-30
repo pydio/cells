@@ -213,8 +213,10 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Filter by tags")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Filter")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
+	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
 
 	viper.BindPFlag("healthcheck", StartCmd.Flags().Lookup("healthcheck"))
+	viper.BindPFlag("nats_monitor_port", StartCmd.Flags().Lookup("nats_monitor_port"))
 
 	RootCmd.AddCommand(StartCmd)
 }
