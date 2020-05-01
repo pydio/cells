@@ -81,14 +81,16 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 		}
 		//log.Logger(r.Context()).Info("Loading session name", zap.String("s", sessionName), zap.Any("jwt", session.Values["jwt"]))
 
-		if value, ok := session.Values["jwt"]; ok {
+		if value, ok := session.Values["access_token"]; ok {
 			ctx := r.Context()
 			ctx, _, err = jwtVerifier.Verify(ctx, value.(string))
 			if err != nil {
 				// If it is expired, may be it will be refreshed after so do not remove it from session
 				if !strings.Contains(err.Error(), "token is expired") {
 					// There is something wrong. Silently remove it from session
-					delete(session.Values, "jwt")
+					delete(session.Values, "access_token")
+					delete(session.Values, "refresh_token")
+					delete(session.Values, "expires_at")
 					session.Save(r, w)
 				}
 			} else {
