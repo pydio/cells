@@ -31,6 +31,10 @@ var _Configs = require('./Configs');
 
 var _Configs2 = _interopRequireDefault(_Configs);
 
+var _StatusItem = require('./StatusItem');
+
+var _StatusItem2 = _interopRequireDefault(_StatusItem);
+
 var _UploadItem = require('./UploadItem');
 
 var _UploadItem2 = _interopRequireDefault(_UploadItem);
@@ -68,12 +72,9 @@ var Store = function (_Observable) {
         var _this = _possibleConstructorReturn(this, (Store.__proto__ || Object.getPrototypeOf(Store)).call(this));
 
         _this._processing = [];
-        _this._processed = [];
-        _this._errors = [];
         _this._sessions = [];
         _this._blacklist = [".ds_store", ".pydio"];
 
-        _this._running = false;
         _this._pauseRequired = false;
         return _this;
     }
@@ -94,19 +95,22 @@ var Store = function (_Observable) {
                 _this2.notify('update');
             });
             session.observe('children', function () {
+                if (session.getChildren().length === 0) {
+                    _this2.removeSession(session);
+                }
                 _this2.notify('update');
             });
             this.notify('update');
             session.observe('status', function (s) {
                 if (s === 'ready') {
-                    var autoStart = _Configs2.default.getInstance().getAutoStart();
+                    var autoStart = _this2.getAutoStart();
                     if (autoStart && !_this2._processing.length && !_this2._pauseRequired) {
                         _this2.processNext();
                     } else if (!autoStart) {
-                        _pydio2.default.getInstance().getController().fireAction("upload");
+                        Store.openUploadDialog();
                     }
                 } else if (s === 'confirm') {
-                    _pydio2.default.getInstance().getController().fireAction("upload", { confirmDialog: true });
+                    Store.openUploadDialog(true);
                 }
             });
             this.notify('session_added', session);
@@ -125,7 +129,32 @@ var Store = function (_Observable) {
     }, {
         key: 'hasQueue',
         value: function hasQueue() {
-            return this.getNexts(1).length;
+            var items = 0;
+            this._sessions.forEach(function (session) {
+                session.walk(function () {
+                    items++;
+                }, function (item) {
+                    return item.getStatus() === 'new' || item.getStatus() === 'pause';
+                }, 'both', function () {
+                    return items >= 1;
+                });
+            });
+            return items > 0;
+        }
+    }, {
+        key: 'hasErrors',
+        value: function hasErrors() {
+            var items = 0;
+            this._sessions.forEach(function (session) {
+                session.walk(function () {
+                    items++;
+                }, function (item) {
+                    return item.getStatus() === 'error';
+                }, 'both', function () {
+                    return items >= 1;
+                });
+            });
+            return items > 0;
         }
     }, {
         key: 'clearAll',
@@ -137,18 +166,50 @@ var Store = function (_Observable) {
             this._pauseRequired = false;
 
             this._processing = [];
-            this._processed = [];
-            this._errors = [];
             this.notify('update');
+        }
+    }, {
+        key: 'clearStatus',
+        value: function clearStatus(status) {
+            this._sessions.forEach(function (session) {
+                session.walk(function (item) {
+                    item.getParent().removeChild(item);
+                }, function (item) {
+                    return item.getStatus() === status;
+                });
+            });
+        }
+    }, {
+        key: 'monitorProcessing',
+        value: function monitorProcessing(item) {
+            var _this3 = this;
+
+            if (!this._processingMonitor) {
+                this._processingMonitor = function () {
+                    _this3.notify('update');
+                };
+            }
+            item.observe('status', this._processingMonitor);
+            this._processing.push(item);
+        }
+    }, {
+        key: 'unmonitorProcessing',
+        value: function unmonitorProcessing(item) {
+            var index = this._processing.indexOf(item);
+            if (index > -1) {
+                if (this._processingMonitor) {
+                    item.stopObserving('status', this._processingMonitor);
+                }
+                this._processing = _lang2.default.arrayWithout(this._processing, index);
+            }
         }
     }, {
         key: 'processNext',
         value: function processNext() {
-            var _this3 = this;
+            var _this4 = this;
 
             var folders = this.getFolders();
             if (folders.length && !this._pauseRequired) {
-                this._running = true;
                 var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
                 var request = new _restApi.RestCreateNodesRequest();
                 request.Nodes = [];
@@ -157,54 +218,43 @@ var Store = function (_Observable) {
                     node.Path = folderItem.getFullPath();
                     node.Type = _restApi.TreeNodeType.constructFromObject('COLLECTION');
                     request.Nodes.push(node);
-                    _this3._processing.push(folderItem);
-                    folderItem.setStatus('processing');
+                    folderItem.setStatus(_StatusItem2.default.StatusLoading);
+                    _this4.monitorProcessing(folderItem);
                 });
+                this.notify('update');
                 api.createNodes(request).then(function () {
                     folders.forEach(function (folderItem) {
-                        folderItem.setStatus('loaded');
+                        folderItem.setStatus(_StatusItem2.default.StatusLoaded);
                         folderItem.children.pg[folderItem.getId()] = 100;
                         folderItem.recomputeProgress();
-                        _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(folderItem));
-                        if (folderItem.getStatus() === 'error') {
-                            _this3._errors.push(folderItem);
-                        } else {
-                            _this3._processed.push(folderItem);
-                        }
+                        _this4.unmonitorProcessing(folderItem);
                     });
-                    _this3.processNext();
-                    _this3.notify("update");
+                    _this4.processNext();
+                    _this4.notify("update");
                 }).catch(function (e) {
-                    _this3.processNext();
-                    _this3.notify("update");
+                    _this4.processNext();
+                    _this4.notify("update");
                 });
                 return;
             }
             var processables = this.getNexts();
             if (processables.length && !this._pauseRequired) {
-                this._running = true;
                 processables.forEach(function (processable) {
-                    _this3._processing.push(processable);
+                    _this4.monitorProcessing(processable);
                     processable.process(function () {
-                        _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(processable));
-                        if (processable.getStatus() === 'error') {
-                            _this3._errors.push(processable);
-                        } else {
-                            _this3._processed.push(processable);
-                        }
-                        _this3.processNext();
-                        _this3.notify("update");
+                        _this4.unmonitorProcessing(processable);
+                        _this4.processNext();
+                        _this4.notify("update");
                     });
                 });
+                this.notify('update');
             } else {
-                this._running = false;
                 if (this.hasErrors()) {
-                    if (!pydio.getController().react_selector) {
-                        _pydio2.default.getInstance().getController().fireAction("upload");
-                    }
+                    Store.openUploadDialog();
                 } else if (_Configs2.default.getInstance().getAutoClose() && !this._pauseRequired) {
                     this.notify("auto_close");
                 }
+                this.notify('update');
             }
         }
     }, {
@@ -250,7 +300,7 @@ var Store = function (_Observable) {
                     items.push(item);
                     sessItems++;
                 }, function (item) {
-                    return item.getStatus() === 'new';
+                    return item.getStatus() === 'new' || item.getStatus() === 'pause';
                 }, 'file', function () {
                     return items.length >= max - processing;
                 });
@@ -264,41 +314,27 @@ var Store = function (_Observable) {
         key: 'stopOrRemoveItem',
         value: function stopOrRemoveItem(item) {
             item.abort();
-            ['_uploads', '_folders', '_processing', '_processed', '_errors'].forEach(function (key) {
-                var arr = this[key];
-                if (arr.indexOf(item) !== -1) {
-                    this[key] = _lang2.default.arrayWithout(arr, arr.indexOf(item));
-                }
-            }.bind(this));
+            this.unmonitorProcessing(item);
             this.notify("update");
         }
     }, {
-        key: 'getItems',
-        value: function getItems() {
-            return {
-                sessions: this._sessions,
-
-                processing: this._processing,
-                processed: this._processed,
-                errors: this._errors
-            };
-        }
-    }, {
-        key: 'hasErrors',
-        value: function hasErrors() {
-            return this._errors.length ? this._errors : false;
+        key: 'getSessions',
+        value: function getSessions() {
+            return this._sessions;
         }
     }, {
         key: 'isRunning',
         value: function isRunning() {
-            return this._running && !this._pauseRequired;
+            return this._processing.filter(function (u) {
+                return u.getStatus() === _StatusItem2.default.StatusLoading;
+            }).length > 0;
         }
     }, {
         key: 'pause',
         value: function pause() {
             this._pauseRequired = true;
-            this._sessions.forEach(function (s) {
-                return s.setStatus('paused');
+            this._processing.forEach(function (u) {
+                return u.pause();
             });
             this.notify('update');
         }
@@ -309,13 +345,16 @@ var Store = function (_Observable) {
             this._sessions.forEach(function (s) {
                 return s.setStatus('ready');
             });
+            this._processing.forEach(function (u) {
+                return u.resume();
+            });
             this.notify('update');
             this.processNext();
         }
     }, {
         key: 'handleFolderPickerResult',
         value: function handleFolderPickerResult(files, targetNode) {
-            var _this4 = this;
+            var _this5 = this;
 
             var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
             var session = new _Session2.default(_pydio2.default.getInstance().user.activeRepository, targetNode);
@@ -343,7 +382,7 @@ var Store = function (_Observable) {
                         var f = new _FolderItem2.default(child.path, targetNode, parentItem);
                         recurse(child.children, f);
                     } else {
-                        if (_this4._blacklist.indexOf(_path2.default.getBasename(child.path).toLowerCase()) === -1) {
+                        if (_this5._blacklist.indexOf(_path2.default.getBasename(child.path).toLowerCase()) === -1) {
                             var u = new _UploadItem2.default(child.item, targetNode, child.path, parentItem);
                         }
                     }
@@ -357,7 +396,7 @@ var Store = function (_Observable) {
         value: function handleDropEventResults(items, files, targetNode) {
             var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-            var _this5 = this;
+            var _this6 = this;
 
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
             var targetRepositoryId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
@@ -370,7 +409,7 @@ var Store = function (_Observable) {
                 if (filterFunction && !filterFunction(refPath)) {
                     return false;
                 }
-                return _this5._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
+                return _this6._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
             };
 
             var enqueue = function enqueue(item) {
@@ -424,7 +463,7 @@ var Store = function (_Observable) {
 
                             entry.folderItem = new _FolderItem2.default(entry.fullPath, targetNode, session);
 
-                            promises.push(_this5.recurseDirectory(entry, function (fileEntry) {
+                            promises.push(_this6.recurseDirectory(entry, function (fileEntry) {
                                 var relativePath = fileEntry.fullPath;
                                 return new Promise(function (resolve, reject) {
                                     fileEntry.file(function (File) {
@@ -453,8 +492,12 @@ var Store = function (_Observable) {
                     }
 
                     Promise.all(promises).then(function () {
-                        return session.prepare(overwriteStatus);
-                    }).catch(function (e) {});
+                        return session.prepare(overwriteStatus).then(function () {
+                            _this6.notify('update');
+                        });
+                    }).catch(function (e) {
+                        _this6.notify('update');
+                    });
                 })();
             } else {
                 for (var j = 0; j < files.length; j++) {
@@ -467,16 +510,20 @@ var Store = function (_Observable) {
                     }
                     new _UploadItem2.default(files[j], targetNode, null, session);
                 }
-                session.prepare(overwriteStatus).catch(function (e) {});
+                session.prepare(overwriteStatus).then(function () {
+                    _this6.notify('update');
+                }).catch(function (e) {
+                    _this6.notify('update');
+                });
             }
         }
     }, {
         key: 'recurseDirectory',
         value: function recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
-            var _this6 = this;
+            var _this7 = this;
 
             return new Promise(function (resolve) {
-                _this6.dirEntries(item).then(function (entries) {
+                _this7.dirEntries(item).then(function (entries) {
                     var promises = [];
                     entries.forEach(function (entry) {
                         if (entry.parent && entry.parent.folderItem) {
@@ -497,7 +544,7 @@ var Store = function (_Observable) {
     }, {
         key: 'dirEntries',
         value: function dirEntries(item) {
-            var _this7 = this;
+            var _this8 = this;
 
             var reader = item.createReader();
             var entries = [];
@@ -515,7 +562,7 @@ var Store = function (_Observable) {
                             entries.forEach(function (entry) {
                                 entry.parent = item;
                                 if (entry.isDirectory) {
-                                    promises.push(_this7.dirEntries(entry).then(function (children) {
+                                    promises.push(_this8.dirEntries(entry).then(function (children) {
                                         entries = entries.concat(children);
                                     }));
                                 }
@@ -536,6 +583,17 @@ var Store = function (_Observable) {
             });
         }
     }], [{
+        key: 'openUploadDialog',
+        value: function openUploadDialog() {
+            var confirm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            if (confirm) {
+                _pydio2.default.getInstance().getController().fireAction("upload", { confirmDialog: true });
+            } else {
+                _pydio2.default.getInstance().getController().fireAction("upload");
+            }
+        }
+    }, {
         key: 'getInstance',
         value: function getInstance() {
             if (!Store.__INSTANCE) {

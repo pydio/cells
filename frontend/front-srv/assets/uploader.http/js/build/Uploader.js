@@ -137,9 +137,13 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
-
-        var messages = this.props.pydio.MessageHash;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var showDismiss = _props.showDismiss;
+        var onDismiss = _props.onDismiss;
         var urls = this.state.urls;
+
+        var messages = pydio.MessageHash;
 
         var items = urls.map((function (item, id) {
             return _react2['default'].createElement(
@@ -158,6 +162,18 @@ exports['default'] = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { style: { position: 'relative', padding: 10 } },
+            showDismiss && _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center' } },
+                _react2['default'].createElement(
+                    'h4',
+                    { style: { flex: 1, paddingTop: 16, paddingLeft: 8 } },
+                    messages['httpdownloader.10'].replace('APPLICATION_TITLE', pydio.Parameters.get('APPLICATION_TITLE'))
+                ),
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: function () {
+                        onDismiss();
+                    } })
+            ),
             _react2['default'].createElement(
                 'div',
                 { style: { position: 'relative', margin: 10, fontSize: 13 }, className: 'dialoglegend' },

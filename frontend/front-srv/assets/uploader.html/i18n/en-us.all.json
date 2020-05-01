@@ -5,11 +5,14 @@
   "10": {
     "other": ""
   },
-  "11": {
+  "start": {
     "other": "Start"
   },
-  "12": {
-    "other": "Clear list"
+  "pause": {
+    "other": "Pause"
+  },
+  "clear": {
+    "other": "Clear"
   },
   "13": {
     "other": "Folder created"
@@ -56,8 +59,8 @@
   "confirm.save.choice":{
     "other": "Save choice for next uploads"
   },
-  "22": {
-    "other": "Options"
+  "options": {
+    "other": "Upload options"
   },
   "23": {
     "other": "Errors"
@@ -88,5 +91,8 @@
   },
   "drophere":{
     "other": "Drop Files Here"
+  },
+  "dialog.title":{
+    "other": "Transfers"
   }
 }

@@ -7,6 +7,10 @@ exports.default = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _StatusItem2 = require('./StatusItem');
 
 var _StatusItem3 = _interopRequireDefault(_StatusItem2);
@@ -62,7 +66,7 @@ var FolderItem = function (_StatusItem) {
             try {
                 fullPath = this.getFullPath();
             } catch (e) {
-                this.setStatus('error');
+                this.setStatus(_StatusItem3.default.StatusError);
                 return;
             }
 
@@ -75,7 +79,7 @@ var FolderItem = function (_StatusItem) {
             request.Nodes = [node];
 
             api.createNodes(request).then(function (collection) {
-                _this2.setStatus('loaded');
+                _this2.setStatus(_StatusItem3.default.StatusLoaded);
                 _this2.children.pg[_this2.getId()] = 100;
                 _this2.recomputeProgress();
                 completeCallback();
@@ -85,7 +89,7 @@ var FolderItem = function (_StatusItem) {
         key: '_doAbort',
         value: function _doAbort(completeCallback) {
             if (console) {
-                console.log(pydio.MessageHash['html_uploader.6']);
+                console.log(_pydio2.default.getMessages()['html_uploader.6']);
             }
         }
     }]);

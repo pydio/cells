@@ -24,6 +24,7 @@ import PathUtils from 'pydio/util/path'
 import Observable from 'pydio/lang/observable'
 import Task from './Task'
 import Configs from './Configs'
+import StatusItem from './StatusItem'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
 import Session from './Session'
@@ -38,18 +39,23 @@ class Store extends Observable{
     constructor(){
         super();
         this._processing = [];
-        this._processed = [];
-        this._errors = [];
         this._sessions = [];
         this._blacklist = [".ds_store", ".pydio"];
 
-        this._running = false;
         this._pauseRequired = false;
     }
 
     // Required for backward compat
     getAutoStart(){
         return Configs.getInstance().getAutoStart();
+    }
+
+    static openUploadDialog(confirm = false){
+        if(confirm){
+            Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
+        }else{
+            Pydio.getInstance().getController().fireAction("upload");
+        }
     }
 
     pushSession(session) {
@@ -59,19 +65,22 @@ class Store extends Observable{
             this.notify('update');
         });
         session.observe('children', ()=> {
+            if(session.getChildren().length === 0) {
+                this.removeSession(session);
+            }
             this.notify('update');
         });
         this.notify('update');
         session.observe('status', (s) => {
             if(s === 'ready'){
-                const autoStart = Configs.getInstance().getAutoStart();
+                const autoStart = this.getAutoStart();
                 if(autoStart && !this._processing.length && !this._pauseRequired) {
                     this.processNext();
                 } else if(!autoStart){
-                    Pydio.getInstance().getController().fireAction("upload");
+                    Store.openUploadDialog();
                 }
             } else if(s === 'confirm') {
-                Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
+                Store.openUploadDialog(true);
             }
         });
         this.notify('session_added', session);
@@ -87,7 +96,31 @@ class Store extends Observable{
     log(){}
 
     hasQueue(){
-        return this.getNexts(1).length;
+        let items = 0;
+        this._sessions.forEach(session => {
+            session.walk(()=>{
+                items ++;
+            }, (item)=>{
+                return item.getStatus() === 'new' || item.getStatus() === 'pause'
+            }, 'both', ()=>{
+                return items >= 1
+            });
+        });
+        return items > 0;
+    }
+
+    hasErrors(){
+        let items = 0;
+        this._sessions.forEach(session => {
+            session.walk(()=>{
+                items ++;
+            }, (item)=>{
+                return item.getStatus() === 'error'
+            }, 'both', ()=>{
+                return items >= 1
+            });
+        });
+        return items > 0;
     }
 
     clearAll(){
@@ -98,17 +131,44 @@ class Store extends Observable{
         this._pauseRequired = false;
 
         this._processing = [];
-        this._processed = [];
-        this._errors = [];
         this.notify('update');
 
+    }
+
+    clearStatus(status){
+        this._sessions.forEach(session => {
+            session.walk((item)=> {
+                item.getParent().removeChild(item);
+            }, (item) => {
+                return item.getStatus() === status;
+            })
+        })
+
+
+    }
+
+    monitorProcessing(item){
+        if(!this._processingMonitor){
+            this._processingMonitor = () => {this.notify('update')}
+        }
+        item.observe('status', this._processingMonitor);
+        this._processing.push(item);
+    }
+
+    unmonitorProcessing(item){
+        const index = this._processing.indexOf(item);
+        if(index > -1){
+            if(this._processingMonitor){
+                item.stopObserving('status', this._processingMonitor);
+            }
+            this._processing = LangUtils.arrayWithout(this._processing, index);
+        }
     }
 
     processNext(){
         // Start with folders: this will block until all folders are properly created AND indexed.
         const folders = this.getFolders();
         if (folders.length && !this._pauseRequired) {
-            this._running = true;
             const api = new TreeServiceApi(PydioApi.getRestClient());
             const request = new RestCreateNodesRequest();
             request.Nodes = [];
@@ -117,20 +177,16 @@ class Store extends Observable{
                 node.Path = folderItem.getFullPath();
                 node.Type = TreeNodeType.constructFromObject('COLLECTION');
                 request.Nodes.push(node);
-                this._processing.push(folderItem);
-                folderItem.setStatus('processing');
+                folderItem.setStatus(StatusItem.StatusLoading);
+                this.monitorProcessing(folderItem);
             });
+            this.notify('update');
             api.createNodes(request).then(() => {
                 folders.forEach(folderItem => {
-                    folderItem.setStatus('loaded');
+                    folderItem.setStatus(StatusItem.StatusLoaded);
                     folderItem.children.pg[folderItem.getId()] = 100;
                     folderItem.recomputeProgress();
-                    this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(folderItem));
-                    if(folderItem.getStatus() === 'error') {
-                        this._errors.push(folderItem)
-                    } else {
-                        this._processed.push(folderItem);
-                    }
+                    this.unmonitorProcessing(folderItem);
                 });
                 this.processNext();
                 this.notify("update");
@@ -142,29 +198,23 @@ class Store extends Observable{
         }
         let processables = this.getNexts();
         if(processables.length && !this._pauseRequired){
-            this._running = true;
             processables.forEach(processable => {
-                this._processing.push(processable);
+                //this._processing.push(processable);
+                this.monitorProcessing(processable);
                 processable.process(()=>{
-                    this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
-                    if(processable.getStatus() === 'error') {
-                        this._errors.push(processable)
-                    } else {
-                        this._processed.push(processable);
-                    }
+                    this.unmonitorProcessing(processable);
                     this.processNext();
                     this.notify("update");
                 });
             });
+            this.notify('update')
         }else{
-            this._running = false;
             if(this.hasErrors()){
-                if(!pydio.getController().react_selector){
-                    Pydio.getInstance().getController().fireAction("upload");
-                }
+                Store.openUploadDialog();
             }else if(Configs.getInstance().getAutoClose() && !this._pauseRequired){
                 this.notify("auto_close");
             }
+            this.notify('update')
         }
     }
 
@@ -204,7 +254,7 @@ class Store extends Observable{
                 items.push(item);
                 sessItems ++;
             }, (item)=>{
-                return item.getStatus() === 'new'
+                return item.getStatus() === 'new' || item.getStatus() === 'pause'
             }, 'file', ()=>{
                 return items.length >= max - processing;
             });
@@ -218,42 +268,28 @@ class Store extends Observable{
 
     stopOrRemoveItem(item){
         item.abort();
-        ['_uploads', '_folders', '_processing', '_processed', '_errors'].forEach(function(key){
-            let arr = this[key];
-            if(arr.indexOf(item) !== -1) {
-                this[key] = LangUtils.arrayWithout(arr, arr.indexOf(item));
-            }
-        }.bind(this));
+        this.unmonitorProcessing(item);
         this.notify("update");
     }
 
-    getItems(){
-        return {
-            sessions: this._sessions,
-
-            processing: this._processing,
-            processed: this._processed,
-            errors: this._errors,
-        };
-    }
-
-    hasErrors(){
-        return this._errors.length ? this._errors : false;
+    getSessions(){
+        return this._sessions;
     }
 
     isRunning(){
-        return this._running && !this._pauseRequired;
+        return this._processing.filter(u => u.getStatus() === StatusItem.StatusLoading).length > 0
     }
 
     pause(){
         this._pauseRequired = true;
-        this._sessions.forEach(s => s.setStatus('paused'));
+        this._processing.forEach(u => u.pause());
         this.notify('update');
     }
 
     resume(){
         this._pauseRequired = false;
         this._sessions.forEach(s => s.setStatus('ready'));
+        this._processing.forEach(u => u.resume());
         this.notify('update');
         this.processNext();
     }
@@ -384,9 +420,11 @@ class Store extends Observable{
             }
 
             Promise.all(promises).then(() => {
-                return session.prepare(overwriteStatus);
+                return session.prepare(overwriteStatus).then(()=>{
+                    this.notify('update')
+                });
             }).catch((e) => {
-
+                this.notify('update')
             }) ;
 
         }else{
@@ -400,8 +438,10 @@ class Store extends Observable{
                 }
                 new UploadItem(files[j], targetNode, null, session);
             }
-            session.prepare(overwriteStatus).catch((e) => {
-
+            session.prepare(overwriteStatus).then(()=>{
+                this.notify('update')
+            }).catch((e) => {
+                this.notify('update')
             }) ;
         }
 

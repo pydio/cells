@@ -21,6 +21,8 @@
 import React from 'react'
 import Pydio from 'pydio'
 import Transfer from './Transfer'
+import {muiThemeable} from 'material-ui/styles';
+import DOMUtils from 'pydio/util/dom';
 
 class TransfersList extends React.Component{
 
@@ -29,40 +31,64 @@ class TransfersList extends React.Component{
     }
 
     render(){
-        let components = [];
-        const {items} = this.props;
-        let isEmpty = true;
-        if(items){
+
+        const {sessions, store, muiTheme, onPickFile, onPickFolder} = this.props;
+        const transition = DOMUtils.getBeziersTransition().replace('all ', 'color ');
+        const messages = Pydio.getMessages();
+        const css = `
+            .drop-transfer-list{
+                color:rgba(3, 169, 244, 0.5);
+            }
+            .transparent-dropzone.active .drop-transfer-list{
+                color:rgba(3, 169, 244, 0.8);
+            }
+            .drop-transfer-list a,.drop-transfer-list a:hover {
+                color:rgba(3, 169, 244, 1);
+                cursor: pointer;
+            }
+        `;
+
+        let sessionsList;
+        if(sessions){
+            let isEmpty = true;
             const ext = Pydio.getInstance().Registry.getFilesExtensions();
-            components = items.sessions.map(session => {
+            const components = sessions.map(session => {
                 if(session.getChildren().length) {
                     isEmpty = false;
                 }
-                return <Transfer item={session} style={{}} limit={10} level={0} extensions={ext}/>
+                return <Transfer item={session} store={store} style={{}} limit={10} level={0} extensions={ext}/>
             });
+            if(!isEmpty){
+                sessionsList = (
+                    <div style={{height: '100%',overflowY: 'auto', padding: 10, paddingBottom: 20}}>
+                        {components}
+                    </div>
+                );
+            }
         }
-        if(isEmpty){
-            return (
-                <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%'}}>
-                    <div style={{textAlign: 'center',width: '100%',fontWeight: 500, textTransform: 'uppercase', color: 'rgba(0,0,0,0.1)', fontSize: 24}}>
-                        {Pydio.getMessages()["html_uploader.drophere"]}
+
+        const dropper = (
+            <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%', backgroundColor:'#F5F5F5', transition}} className={"drop-transfer-list"}>
+                <div style={{textAlign: 'center',width: '100%',fontWeight: 500, fontSize: 18, padding: 24, lineHeight:'28px'}}>
+                    <div className="mdi mdi-cloud-upload" style={{fontSize: 110}}/>
+                    <div style={{textTransform:'lowercase'}}>
+                        {messages["html_uploader.drophere"]} or <a onClick={onPickFile}>{messages["html_uploader.4"]}</a>
+                        {onPickFolder && <span> or <a onClick={onPickFolder}>{messages["html_uploader.5"]}</a></span>}
                     </div>
                 </div>
-            );
-        }
-
-        const container = {
-            height: '100%',
-            overflowY: 'auto',
-            borderBottom: '1px solid #eeeeee'
-        };
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
+            </div>
+        );
 
         return (
-            <div style={container}>
-                {components}
+            <div style={{display:'flex', height:'100%', overflow:'hidden'}}>
+                <div style={{display:'flex', alignItems:'center', justifyContent: 'center', width: '100%'}}>{dropper}</div>
+                {sessionsList && <div style={{width: 420, minWidth:420, maxWidth: 420}}>{sessionsList}</div>}
             </div>
-        )
+        );
+
     }
 }
 
+TransfersList = muiThemeable()(TransfersList);
 export {TransfersList as default}

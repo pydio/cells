@@ -84,8 +84,8 @@ var UploadOptionsPane = function (_React$Component) {
                 {
                     open: this.props.open,
                     anchorEl: this.props.anchorEl,
-                    anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
-                    targetOrigin: { horizontal: 'right', vertical: 'top' },
+                    anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
+                    targetOrigin: { horizontal: 'left', vertical: 'top' },
                     onRequestClose: function onRequestClose(e) {
                         _this2.props.onDismiss(e);
                     }

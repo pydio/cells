@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import StatusItem from './StatusItem'
 import PathUtils from 'pydio/util/path'
 import PydioApi from 'pydio/http/api'
@@ -44,7 +45,7 @@ class FolderItem extends StatusItem{
         try{
             fullPath = this.getFullPath()
         } catch (e) {
-            this.setStatus('error');
+            this.setStatus(StatusItem.StatusError);
             return;
         }
 
@@ -57,7 +58,7 @@ class FolderItem extends StatusItem{
         request.Nodes = [node];
 
         api.createNodes(request).then(collection => {
-            this.setStatus('loaded');
+            this.setStatus(StatusItem.StatusLoaded);
             this.children.pg[this.getId()] = 100;
             this.recomputeProgress();
             completeCallback();
@@ -66,7 +67,7 @@ class FolderItem extends StatusItem{
 
     _doAbort(completeCallback){
         if(console) {
-            console.log(pydio.MessageHash['html_uploader.6']);
+            console.log(Pydio.getMessages()['html_uploader.6']);
         }
     }
 }

@@ -23,6 +23,10 @@ var _path2 = _interopRequireDefault(_path);
 
 var _materialUi = require('material-ui');
 
+var _StatusItem = require('../model/StatusItem');
+
+var _StatusItem2 = _interopRequireDefault(_StatusItem);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -112,17 +116,28 @@ var Transfer = function (_React$Component) {
             item.abort();
         }
     }, {
+        key: 'retry',
+        value: function retry() {
+            var _props = this.props,
+                item = _props.item,
+                store = _props.store;
+
+            item.setStatus(_StatusItem2.default.StatusNew);
+            store.processNext();
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this3 = this;
 
-            var _props = this.props,
-                item = _props.item,
-                className = _props.className,
-                style = _props.style,
-                limit = _props.limit,
-                level = _props.level,
-                extensions = _props.extensions;
+            var _props2 = this.props,
+                item = _props2.item,
+                className = _props2.className,
+                style = _props2.style,
+                limit = _props2.limit,
+                level = _props2.level,
+                extensions = _props2.extensions,
+                store = _props2.store;
             var _state = this.state,
                 open = _state.open,
                 showAll = _state.showAll,
@@ -141,32 +156,37 @@ var Transfer = function (_React$Component) {
                     color: '#424242'
                 }),
                 line: {
-                    paddingLeft: (level - 1) * 20,
+                    paddingLeft: (level - 1) * 24,
                     display: 'flex',
                     alignItems: 'center',
-                    paddingTop: 12,
-                    paddingBottom: 12,
-                    borderBottom: "1px solid #eeeeee",
-                    backgroundColor: 'white',
+                    paddingTop: level > 1 ? 10 : 16,
+                    paddingBottom: 6,
                     cursor: children.length ? 'pointer' : 'default',
                     borderLeft: level === 1 ? '3px solid transparent' : ''
                 },
+                secondaryLine: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    opacity: .3,
+                    fontSize: 11
+                },
                 leftIcon: {
                     display: 'inline-block',
-                    width: 36,
+                    width: 50,
                     textAlign: 'center',
                     color: isPart ? '#9e9e9e' : '#616161',
-                    fontSize: 16
+                    fontSize: 18
                 },
                 previewImage: {
                     display: 'inline-block',
                     backgroundColor: '#eee',
                     backgroundSize: 'cover',
-                    height: 24,
-                    width: 24,
+                    height: 32,
+                    width: 32,
                     borderRadius: '50%'
                 },
                 label: {
+                    fontSize: 15,
                     fontWeight: isDir ? 500 : 400,
                     color: isPart ? '#9e9e9e' : null,
                     fontStyle: isPart ? 'italic' : null,
@@ -184,7 +204,6 @@ var Transfer = function (_React$Component) {
                     textOverflow: 'ellipsis'
                 },
                 pgBar: {
-                    width: 80,
                     position: 'relative'
                 },
                 rightButton: {
@@ -219,7 +238,8 @@ var Transfer = function (_React$Component) {
                             item: child,
                             limit: limit,
                             level: level + 1,
-                            extensions: extensions
+                            extensions: extensions,
+                            store: store
                         });
                     });
                     if (children.length > sliced.length) {
@@ -246,7 +266,7 @@ var Transfer = function (_React$Component) {
 
             if (isDir) {
                 iconClass = "mdi mdi-folder";
-                rightButton = _react2.default.createElement('span', { className: 'mdi mdi-delete', onClick: function onClick() {
+                rightButton = _react2.default.createElement('span', { className: 'mdi mdi-close-circle-outline', onClick: function onClick() {
                         _this3.remove();
                     } });
                 if (progress === 100) {
@@ -274,18 +294,18 @@ var Transfer = function (_React$Component) {
                 } else if (status === 'error') {
                     pgColor = '#e53935';
                     rightButton = _react2.default.createElement('span', { className: "mdi mdi-restart", style: { color: '#e53935' }, onClick: function onClick() {
-                            item.process(function () {});
+                            _this3.retry();
                         } });
                 } else {
                     pgColor = '#4caf50';
-                    rightButton = _react2.default.createElement('span', { className: 'mdi mdi-delete', onClick: function onClick() {
+                    rightButton = _react2.default.createElement('span', { className: 'mdi mdi-close-circle-outline', onClick: function onClick() {
                             _this3.remove();
                         } });
                 }
             }
 
             var label = _path2.default.getBasename(item.getFullPath());
-            var progressBar = _react2.default.createElement(_materialUi.LinearProgress, { style: { backgroundColor: '#eeeeee' }, color: pgColor, min: 0, max: 100, value: progress, mode: "determinate" });
+            var progressBar = _react2.default.createElement(_materialUi.LinearProgress, { style: { backgroundColor: '#eeeeee', height: 3 }, color: pgColor, min: 0, max: 100, value: progress, mode: "determinate" });
 
             if (isSession) {
                 if (status === 'analyse') {
@@ -310,7 +330,19 @@ var Transfer = function (_React$Component) {
                     _react2.default.createElement('div', { style: _extends({ background: 'url(' + previewUrl + ')' }, styles.previewImage) })
                 );
             } else {
-                leftIcon = _react2.default.createElement('span', { className: iconClass, style: styles.leftIcon });
+                leftIcon = _react2.default.createElement(
+                    'span',
+                    { style: styles.leftIcon },
+                    _react2.default.createElement('span', { className: iconClass, style: {
+                            display: 'block',
+                            width: styles.previewImage.width,
+                            height: styles.previewImage.height,
+                            lineHeight: styles.previewImage.width + 'px',
+                            backgroundColor: '#ECEFF1',
+                            borderRadius: '50%',
+                            marginLeft: 6
+                        } })
+                );
             }
 
             if (status === 'error' && item.getErrorMessage()) {
@@ -329,17 +361,27 @@ var Transfer = function (_React$Component) {
                     { style: styles.line },
                     leftIcon,
                     _react2.default.createElement(
-                        'span',
-                        { onClick: toggleCallback, style: styles.label },
-                        label,
-                        ' ',
-                        toggleOpen
-                    ),
-                    errMessage,
-                    _react2.default.createElement(
                         'div',
-                        { style: styles.pgBar },
-                        progressBar
+                        { style: { flex: 1, overflow: 'hidden', paddingLeft: 4 } },
+                        _react2.default.createElement(
+                            'div',
+                            { onClick: toggleCallback, style: styles.label },
+                            label,
+                            ' ',
+                            toggleOpen
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { style: styles.secondaryLine },
+                            errMessage,
+                            item.getSize && item.getSize() + 'B' + ' - ',
+                            status
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { style: styles.pgBar },
+                            progressBar
+                        )
                     ),
                     _react2.default.createElement(
                         'span',

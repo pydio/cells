@@ -35,7 +35,7 @@ var StatusItem = function (_Observable) {
 
         var _this = _possibleConstructorReturn(this, (StatusItem.__proto__ || Object.getPrototypeOf(StatusItem)).call(this));
 
-        _this._status = 'new';
+        _this._status = StatusItem.StatusNew;
         _this._type = type;
         _this._id = Math.random();
         _this._errorMessage = null;
@@ -47,7 +47,7 @@ var StatusItem = function (_Observable) {
         _this._targetNode = targetNode;
         if (parent) {
             _this._parent = parent;
-            if (type === 'folder') {
+            if (type === StatusItem.TypeFolder) {
                 parent.children.folders.push(_this);
             } else {
                 parent.children.files.push(_this);
@@ -135,7 +135,7 @@ var StatusItem = function (_Observable) {
         key: 'onError',
         value: function onError(errorMessage) {
             this._errorMessage = errorMessage;
-            this.setStatus('error');
+            this.setStatus(StatusItem.StatusError);
         }
     }, {
         key: 'process',
@@ -145,10 +145,25 @@ var StatusItem = function (_Observable) {
     }, {
         key: 'abort',
         value: function abort(completeCallback) {
-            if (this._status !== 'loading') {
-                return;
+            if (this._doAbort) {
+                this._doAbort(completeCallback);
             }
-            this._doAbort(completeCallback);
+        }
+    }, {
+        key: 'pause',
+        value: function pause() {
+            if (this._doPause) {
+                var status = this._doPause();
+                this.setStatus(status);
+            }
+        }
+    }, {
+        key: 'resume',
+        value: function resume() {
+            if (this._doResume) {
+                this._doResume();
+                this.setStatus(StatusItem.StatusLoading);
+            }
         }
     }, {
         key: 'addChild',
@@ -180,28 +195,29 @@ var StatusItem = function (_Observable) {
     }, {
         key: 'removeChild',
         value: function removeChild(child) {
+
+            child.abort();
+            child.walk(function (c) {
+                c.abort();
+            }, function () {
+                return true;
+            }, StatusItem.TypeFile);
+
             var id = child.getId();
             var folderIndex = this.children.folders.indexOf(child);
+            var fileIndex = this.children.files.indexOf(child);
+
             var removed = false;
             if (folderIndex > -1) {
                 this.children.folders = LangUtils.arrayWithout(this.children.folders, folderIndex);
                 removed = true;
-            } else {
-                var fileIndex = this.children.files.indexOf(child);
-                if (fileIndex > -1) {
-                    this.children.files = LangUtils.arrayWithout(this.children.files, fileIndex);
-                    removed = true;
-                }
+            } else if (fileIndex > -1) {
+                this.children.files = LangUtils.arrayWithout(this.children.files, fileIndex);
+                removed = true;
             }
             if (removed) {
                 child.stopObserving('progress');
 
-                child.abort();
-                child.walk(function (c) {
-                    c.abort();
-                }, function () {
-                    return true;
-                }, 'file');
                 delete this.children.pg[id];
                 this.recomputeProgress();
                 this.notify('children');
@@ -218,13 +234,13 @@ var StatusItem = function (_Observable) {
             var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
                 return true;
             };
-            var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'both';
+            var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : StatusItem.TypeBoth;
             var stop = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function (item) {
                 return false;
             };
 
             var stopped = false;
-            if (type === 'both' || type === 'file') {
+            if (type === StatusItem.TypeBoth || type === StatusItem.TypeFile) {
                 var files = this.children.files;
                 for (var i = 0; i < files.length; i++) {
                     if (stop(files[i])) {
@@ -240,7 +256,7 @@ var StatusItem = function (_Observable) {
                 return;
             }
             this.children.folders.forEach(function (child) {
-                if ((type === 'both' || type === 'folder') && filter(child)) {
+                if ((type === StatusItem.TypeFolder || type === StatusItem.TypeBoth) && filter(child)) {
                     callback(child);
                 }
                 if (!stop(child)) {
@@ -270,5 +286,17 @@ var StatusItem = function (_Observable) {
 
     return StatusItem;
 }(_observable2.default);
+
+StatusItem.StatusNew = 'new';
+StatusItem.StatusLoading = 'loading';
+StatusItem.StatusLoaded = 'loaded';
+StatusItem.StatusError = 'error';
+StatusItem.StatusPausing = 'pausing';
+StatusItem.StatusCannotPause = 'cannot-pause';
+StatusItem.StatusPaused = 'pause';
+
+StatusItem.TypeFolder = 'folder';
+StatusItem.TypeFile = 'file';
+StatusItem.TypeBoth = 'both';
 
 exports.default = StatusItem;

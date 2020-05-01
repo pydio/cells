@@ -19,6 +19,10 @@ var _UploadOptionsPane = require('./UploadOptionsPane');
 
 var _UploadOptionsPane2 = _interopRequireDefault(_UploadOptionsPane);
 
+var _ClearOptionsPane = require('./ClearOptionsPane');
+
+var _ClearOptionsPane2 = _interopRequireDefault(_ClearOptionsPane);
+
 var _TransfersList = require('./TransfersList');
 
 var _TransfersList2 = _interopRequireDefault(_TransfersList);
@@ -54,7 +58,7 @@ var DropUploader = function (_React$Component) {
         var store = UploaderModel.Store.getInstance();
         _this._storeObserver = function () {
             _this.setState({
-                items: store.getItems(),
+                sessions: store.getSessions(),
                 storeRunning: store.isRunning()
             });
         };
@@ -68,7 +72,7 @@ var DropUploader = function (_React$Component) {
         _this.state = {
             showOptions: false,
             configs: UploaderModel.Configs.getInstance(),
-            items: store.getItems(),
+            sessions: store.getSessions(),
             storeRunning: store.isRunning(),
             confirmDialog: props.confirmDialog
         };
@@ -114,10 +118,13 @@ var DropUploader = function (_React$Component) {
             UploaderModel.Store.getInstance().pause();
         }
     }, {
-        key: 'clear',
-        value: function clear(e) {
+        key: 'openClear',
+        value: function openClear(e) {
             e.preventDefault();
-            UploaderModel.Store.getInstance().clearAll();
+            this.setState({
+                showClear: true,
+                clearAnchorEl: e.currentTarget
+            });
         }
     }, {
         key: 'toggleOptions',
@@ -152,7 +159,7 @@ var DropUploader = function (_React$Component) {
         value: function dialogSubmit(newValue, saveValue) {
             var configs = this.state.configs;
 
-            UploaderModel.Store.getInstance().getItems().sessions.forEach(function (session) {
+            UploaderModel.Store.getInstance().getSessions().forEach(function (session) {
                 if (session.getStatus() === 'confirm') {
                     session.prepare(newValue);
                 }
@@ -167,7 +174,7 @@ var DropUploader = function (_React$Component) {
         key: 'dialogCancel',
         value: function dialogCancel() {
             var store = UploaderModel.Store.getInstance();
-            store.getItems().sessions.forEach(function (session) {
+            store.getSessions().forEach(function (session) {
                 if (session.getStatus() === 'confirm') {
                     store.removeSession(session);
                 }
@@ -181,49 +188,65 @@ var DropUploader = function (_React$Component) {
             var _this2 = this;
 
             var messages = _pydio2.default.getInstance().MessageHash;
+            var _props = this.props,
+                showDismiss = _props.showDismiss,
+                onDismiss = _props.onDismiss;
+
             var connectDropTarget = this.props.connectDropTarget || function (c) {
                 return c;
             };
             var _state2 = this.state,
                 configs = _state2.configs,
                 showOptions = _state2.showOptions,
-                items = _state2.items,
+                optionsAnchorEl = _state2.optionsAnchorEl,
+                showClear = _state2.showClear,
+                clearAnchorEl = _state2.clearAnchorEl,
+                sessions = _state2.sessions,
                 storeRunning = _state2.storeRunning,
                 confirmDialog = _state2.confirmDialog;
 
             var store = UploaderModel.Store.getInstance();
             var listEmpty = true;
-            items.sessions.forEach(function (s) {
+            sessions.forEach(function (s) {
                 if (s.getChildren().length) {
                     listEmpty = false;
                 }
             });
-            var folderButton = void 0,
-                startButton = void 0;
+
+            var onPickFolder = void 0;
             var e = global.document.createElement('input');
             e.setAttribute('type', 'file');
             if ('webkitdirectory' in e) {
-                folderButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-folder-plus' }), primary: true, style: { marginRight: 10 }, label: messages['html_uploader.5'], onTouchTap: this.openFolderPicker.bind(this) });
+                onPickFolder = function onPickFolder(ev) {
+                    _this2.openFilePicker(ev);
+                };
             }
             e = null;
 
-            if (storeRunning) {
-                startButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-pause' }), label: "Pause", onTouchTap: this.pause.bind(this), secondary: true });
-            } else if (store.hasQueue()) {
-                startButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-play' }), label: messages['html_uploader.11'], onTouchTap: this.start.bind(this), secondary: true });
-            }
             return connectDropTarget(_react2.default.createElement(
                 'div',
                 { style: { position: 'relative', backgroundColor: '#FAFAFA' } },
                 _react2.default.createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { position: 'relative', display: 'flex', alignItems: 'center', paddingLeft: 6, width: '100%', height: '100%' } },
-                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-file-plus' }), primary: true, style: { marginRight: 6 }, label: messages['html_uploader.4'], onTouchTap: this.openFilePicker.bind(this) }),
-                    folderButton,
-                    startButton,
+                    'div',
+                    { style: { position: 'relative', display: 'flex', alignItems: 'center', paddingLeft: 16, paddingRight: 16, width: '100%' } },
+                    _react2.default.createElement(
+                        'h3',
+                        { style: { marginBottom: 16 } },
+                        messages['html_uploader.dialog.title']
+                    ),
+                    _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-dots-vertical", primary: true, iconStyle: { fontSize: 18 }, style: { padding: 14 }, tooltip: messages['html_uploader.options'], onTouchTap: this.toggleOptions.bind(this) }),
                     _react2.default.createElement('span', { style: { flex: 1 } }),
-                    !listEmpty && _react2.default.createElement(_materialUi.FlatButton, { label: messages['html_uploader.12'], style: { marginRight: 0 }, primary: true, onTouchTap: this.clear.bind(this) }),
-                    _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-dots-vertical", iconStyle: { color: '#9e9e9e', fontSize: 18 }, style: { padding: 14 }, tooltip: messages['html_uploader.22'], onTouchTap: this.toggleOptions.bind(this) })
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-play' }), label: messages['html_uploader.start'], onTouchTap: this.start.bind(this), primary: true, disabled: !store.hasQueue() }),
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-pause' }), label: messages['html_uploader.pause'], onTouchTap: this.pause.bind(this), primary: true, disabled: !store.isRunning() }),
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-delete' }), label: _react2.default.createElement(
+                            'span',
+                            null,
+                            messages['html_uploader.clear'],
+                            _react2.default.createElement('span', { className: "mdi mdi-menu-down" })
+                        ), onTouchTap: this.openClear.bind(this), primary: true, disabled: listEmpty }),
+                    showDismiss && _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", style: { padding: 14 }, onTouchTap: function onTouchTap() {
+                            return onDismiss();
+                        } })
                 ),
                 _react2.default.createElement(
                     FileDropZone,
@@ -239,13 +262,21 @@ var DropUploader = function (_React$Component) {
                         style: { width: '100%', height: 420 }
                     },
                     _react2.default.createElement(_TransfersList2.default, {
-                        items: items,
+                        sessions: sessions,
                         autoStart: configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send'),
-                        onDismiss: this.props.onDismiss
+                        onDismiss: this.props.onDismiss,
+                        store: store,
+                        onPickFile: function onPickFile(ev) {
+                            _this2.openFilePicker(ev);
+                        },
+                        onPickFolder: onPickFolder
                     })
                 ),
-                _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: function onDismiss(e) {
+                _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: optionsAnchorEl, onDismiss: function onDismiss(e) {
                         _this2.toggleOptions(e);
+                    } }),
+                _react2.default.createElement(_ClearOptionsPane2.default, { configs: configs, open: showClear, anchorEl: clearAnchorEl, onDismiss: function onDismiss() {
+                        _this2.setState({ showClear: false, clearAnchorEl: null });
                     } }),
                 confirmDialog && _react2.default.createElement(_ConfirmExists2.default, { onConfirm: this.dialogSubmit.bind(this), onCancel: this.dialogCancel.bind(this) })
             ));

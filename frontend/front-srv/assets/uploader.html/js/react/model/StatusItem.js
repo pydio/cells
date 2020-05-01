@@ -31,7 +31,7 @@ class StatusItem extends Observable {
      */
     constructor(type, targetNode, parent = null){
         super();
-        this._status = 'new';
+        this._status = StatusItem.StatusNew;
         this._type = type;
         this._id = Math.random();
         this._errorMessage = null;
@@ -43,7 +43,7 @@ class StatusItem extends Observable {
         this._targetNode = targetNode;
         if(parent){
             this._parent = parent;
-            if(type === 'folder') {
+            if(type === StatusItem.TypeFolder) {
                 parent.children.folders.push(this);
             } else {
                 parent.children.files.push(this);
@@ -99,16 +99,27 @@ class StatusItem extends Observable {
     }
     onError(errorMessage){
         this._errorMessage = errorMessage;
-        this.setStatus('error');
+        this.setStatus(StatusItem.StatusError);
     }
     process(completeCallback){
         this._doProcess(completeCallback);
     }
     abort(completeCallback){
-        if(this._status !== 'loading') {
-            return;
+        if(this._doAbort){
+            this._doAbort(completeCallback);
         }
-        this._doAbort(completeCallback);
+    }
+    pause(){
+        if(this._doPause){
+            const status = this._doPause();
+            this.setStatus(status);
+        }
+    }
+    resume(){
+        if(this._doResume){
+            this._doResume();
+            this.setStatus(StatusItem.StatusLoading)
+        }
     }
 
     addChild(child){
@@ -129,24 +140,25 @@ class StatusItem extends Observable {
     }
 
     removeChild(child){
+
+        child.abort();
+        child.walk((c)=>{c.abort()}, ()=>true, StatusItem.TypeFile);
+
         const id = child.getId();
         const folderIndex = this.children.folders.indexOf(child);
+        const fileIndex = this.children.files.indexOf(child);
+
         let removed = false;
         if(folderIndex > -1){
             this.children.folders = LangUtils.arrayWithout(this.children.folders, folderIndex);
             removed = true;
-        } else {
-            const fileIndex = this.children.files.indexOf(child);
-            if(fileIndex > -1){
-                this.children.files = LangUtils.arrayWithout(this.children.files, fileIndex);
-                removed = true;
-            }
+        } else if(fileIndex > -1){
+            this.children.files = LangUtils.arrayWithout(this.children.files, fileIndex);
+            removed = true;
         }
         if(removed){
             child.stopObserving('progress');
             // Abort all processes
-            child.abort();
-            child.walk((c)=>{c.abort()}, ()=>true, 'file');
             delete this.children.pg[id];
             this.recomputeProgress();
             this.notify('children');
@@ -164,9 +176,9 @@ class StatusItem extends Observable {
      * @param type String both|file|folder
      * @param stop Function stopper callback before going to next level
      */
-    walk(callback, filter=()=>true, type = 'both', stop=(item)=>false){
+    walk(callback, filter=()=>true, type = StatusItem.TypeBoth, stop=(item)=>false){
         let stopped = false;
-        if(type === 'both' || type === 'file'){
+        if(type === StatusItem.TypeBoth || type === StatusItem.TypeFile){
             const files = this.children.files;
             for(let i = 0; i < files.length; i++){
                 if(stop(files[i])){
@@ -182,7 +194,7 @@ class StatusItem extends Observable {
             return;
         }
         this.children.folders.forEach(child => {
-            if((type === 'both' || type === 'folder') && filter(child)) {
+            if((type === StatusItem.TypeFolder || type === StatusItem.TypeBoth) && filter(child)) {
                 callback(child);
             }
             if (!stop(child)) {
@@ -211,5 +223,17 @@ class StatusItem extends Observable {
     }
 
 }
+
+StatusItem.StatusNew = 'new';
+StatusItem.StatusLoading = 'loading';
+StatusItem.StatusLoaded = 'loaded';
+StatusItem.StatusError = 'error';
+StatusItem.StatusPausing = 'pausing';
+StatusItem.StatusCannotPause = 'cannot-pause';
+StatusItem.StatusPaused = 'pause';
+
+StatusItem.TypeFolder = 'folder';
+StatusItem.TypeFile = 'file';
+StatusItem.TypeBoth = 'both';
 
 export {StatusItem as default}

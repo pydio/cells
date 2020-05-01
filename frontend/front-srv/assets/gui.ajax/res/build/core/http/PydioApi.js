@@ -105,9 +105,25 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
         upload.emit('httpUploadProgress', [info]);
     };
 
+    ManagedMultipart.prototype.pause = function pause() {
+        this._pause = true;
+    };
+
+    ManagedMultipart.prototype.resume = function resume() {
+        this._pause = false;
+    };
+
     ManagedMultipart.prototype.uploadPart = function uploadPart(chunk, partNumber) {
         var _this = this;
 
+        if (this._pause) {
+            setTimeout(function () {
+                if (!_this._aborted) {
+                    _this.uploadPart(chunk, partNumber);
+                }
+            }, 1000);
+            return;
+        }
         // Make sure to reupdate JWT after long uploads
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
             // Update accessKeyId
@@ -133,6 +149,7 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
             // Update accessKeyId
             _this3.service.config.credentials.accessKeyId = jwt;
             _AWS$S3$ManagedUpload.prototype.abort.call(_this3);
+            _this3._aborted = true;
         });
     };
 

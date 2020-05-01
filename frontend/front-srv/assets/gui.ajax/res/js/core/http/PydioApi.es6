@@ -52,7 +52,23 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
         upload.emit('httpUploadProgress', [info]);
     }
 
+    pause() {
+        this._pause = true;
+    }
+
+    resume(){
+        this._pause = false;
+    }
+
     uploadPart(chunk, partNumber) {
+        if(this._pause){
+            setTimeout(()=>{
+                if(!this._aborted){
+                    this.uploadPart(chunk, partNumber);
+                }
+            }, 1000);
+            return;
+        }
         // Make sure to reupdate JWT after long uploads
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             // Update accessKeyId
@@ -74,6 +90,7 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
             // Update accessKeyId
             this.service.config.credentials.accessKeyId = jwt;
             super.abort();
+            this._aborted = true;
         });
     }
 

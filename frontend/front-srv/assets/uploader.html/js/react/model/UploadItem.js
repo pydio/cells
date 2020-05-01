@@ -74,7 +74,7 @@ class UploadItem extends StatusItem {
         this._userAborted = false;
 
         const complete = ()=>{
-            this.setStatus('loaded');
+            this.setStatus(StatusItem.StatusLoaded);
             this._parseXHRResponse();
             completeCallback();
         };
@@ -126,7 +126,7 @@ class UploadItem extends StatusItem {
             };
         };
 
-        this.setStatus('loading');
+        this.setStatus(StatusItem.StatusLoading);
 
         try{
             Configs.getInstance().extensionAllowed(this);
@@ -148,6 +148,24 @@ class UploadItem extends StatusItem {
             }catch(e){}
         }
         this.setStatus('error');
+    }
+
+    _doPause(){
+        if(this.xhr){
+            if(this.xhr.pause){
+                this.xhr.pause();
+                return StatusItem.StatusPaused;
+            } else {
+                return StatusItem.StatusCannotPause;
+            }
+        }
+        return StatusItem.StatusNew;
+    }
+
+    _doResume(){
+        if(this.xhr && this.xhr.resume){
+            this.xhr.resume();
+        }
     }
 
     uploadPresigned(completeCallback, progressCallback, errorCallback){

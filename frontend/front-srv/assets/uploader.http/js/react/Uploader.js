@@ -19,7 +19,7 @@
  */
 import React from 'react'
 import PydioApi from 'pydio/http/api'
-import {TextField, FontIcon, Divider, Paper, Toolbar, RaisedButton} from 'material-ui'
+import {TextField, FontIcon, Divider, Paper, Toolbar, RaisedButton, IconButton} from 'material-ui'
 
 export default React.createClass({
 
@@ -117,8 +117,9 @@ export default React.createClass({
 
     render(){
 
-        let messages = this.props.pydio.MessageHash;
-        let urls = this.state.urls;
+        const {pydio, showDismiss, onDismiss} = this.props;
+        let {urls} = this.state;
+        let messages = pydio.MessageHash;
 
         let items = urls.map(function(item, id) {
             return (
@@ -134,6 +135,12 @@ export default React.createClass({
 
         return (
             <div style={{position:'relative', padding: 10}}>
+                {showDismiss &&
+                    <div style={{display:'flex', alignItems:'center'}}>
+                        <h4 style={{flex: 1, paddingTop:16, paddingLeft: 8}}>{messages['httpdownloader.10'].replace('APPLICATION_TITLE', pydio.Parameters.get('APPLICATION_TITLE'))}</h4>
+                        <IconButton iconClassName={"mdi mdi-close"} onTouchTap={()=>{onDismiss()}}/>
+                    </div>
+                }
                 <div style={{position:'relative', margin: 10, fontSize:13}} className="dialoglegend">{messages['httpdownloader.4']}</div>
                 <div style={{minHeight: 160}}>
                     <Paper zDepth={1} style={{marginBottom: 10, maxHeight: 300, overflowY: 'auto'}}>

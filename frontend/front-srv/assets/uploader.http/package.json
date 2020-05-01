@@ -1,7 +1,7 @@
 {
   "name": "uploader.http",
   "description": "Remote Upload",
-  "source_path":"js/react",
+  "source_path": "js/react",
   "main": "index.js",
   "author": "Abstrium SAS",
   "license": "agpl",

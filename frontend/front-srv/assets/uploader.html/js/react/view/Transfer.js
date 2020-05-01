@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import React from 'react'
 import PathUtils from 'pydio/util/path'
 import {LinearProgress, CircularProgress} from 'material-ui'
+import StatusItem from '../model/StatusItem'
 
 const uploadStatusMessages = {
     "new" : 433,
@@ -84,8 +85,14 @@ class Transfer extends React.Component{
         item.abort();
     }
 
+    retry(){
+        const {item, store} = this.props;
+        item.setStatus(StatusItem.StatusNew);
+        store.processNext();
+    }
+
     render(){
-        const {item, className, style, limit, level, extensions} = this.props;
+        const {item, className, style, limit, level, extensions, store} = this.props;
         const {open, showAll, progress, status, previewUrl} = this.state;
         const children = item.getChildren();
         let isDir = item instanceof UploaderModel.FolderItem;
@@ -99,32 +106,37 @@ class Transfer extends React.Component{
                 color:'#424242'
             },
             line: {
-                paddingLeft: (level-1)*20,
+                paddingLeft: (level-1)*24,
                 display:'flex',
                 alignItems: 'center',
-                paddingTop:12,
-                paddingBottom:12,
-                borderBottom: "1px solid #eeeeee",
-                backgroundColor: 'white',
+                paddingTop:level > 1 ? 10  : 16,
+                paddingBottom:6,
                 cursor: children.length ? 'pointer' : 'default',
                 borderLeft: (level === 1?'3px solid transparent':'')
             },
+            secondaryLine: {
+                display:'flex',
+                alignItems: 'center',
+                opacity:.3,
+                fontSize: 11
+            },
             leftIcon: {
                 display: 'inline-block',
-                width: 36,
+                width: 50,
                 textAlign: 'center',
                 color: isPart ? '#9e9e9e' : '#616161',
-                fontSize: 16
+                fontSize: 18
             },
             previewImage: {
                 display:'inline-block',
                 backgroundColor:'#eee',
                 backgroundSize:'cover',
-                height: 24,
-                width: 24,
+                height: 32,
+                width: 32,
                 borderRadius: '50%'
             },
             label: {
+                fontSize: 15,
                 fontWeight: isDir ? 500: 400,
                 color: isPart ? '#9e9e9e' : null,
                 fontStyle: isPart ? 'italic' : null,
@@ -142,7 +154,7 @@ class Transfer extends React.Component{
                 textOverflow: 'ellipsis',
             },
             pgBar: {
-                width: 80,
+                /*width: 80,*/
                 position:'relative'
             },
             rightButton: {
@@ -171,6 +183,7 @@ class Transfer extends React.Component{
                     limit={limit}
                     level={level + 1}
                     extensions={extensions}
+                    store={store}
                 />);
                 if(children.length > sliced.length){
                     childComps.push(
@@ -187,7 +200,7 @@ class Transfer extends React.Component{
 
         if(isDir) {
             iconClass = "mdi mdi-folder";
-            rightButton = <span className="mdi mdi-delete" onClick={() => {
+            rightButton = <span className="mdi mdi-close-circle-outline" onClick={() => {
                 this.remove()
             }}/>;
             if (progress === 100) {
@@ -210,15 +223,15 @@ class Transfer extends React.Component{
                 rightButton = <span className="mdi mdi-stop" onClick={() => this.abort()}/>;
             } else if (status === 'error'){
                 pgColor = '#e53935';
-                rightButton = <span className={"mdi mdi-restart"} style={{color:'#e53935'}} onClick={() => {item.process(()=>{})}}/>;
+                rightButton = <span className={"mdi mdi-restart"} style={{color:'#e53935'}} onClick={() => {this.retry()}}/>;
             }else{
                 pgColor = '#4caf50';
-                rightButton = <span className="mdi mdi-delete" onClick={()=>{this.remove()}}/>;
+                rightButton = <span className="mdi mdi-close-circle-outline" onClick={()=>{this.remove()}}/>;
             }
         }
 
         let label = PathUtils.getBasename(item.getFullPath());
-        let progressBar = (<LinearProgress style={{backgroundColor:'#eeeeee'}} color={pgColor} min={0} max={100} value={progress} mode={"determinate"}/>);
+        let progressBar = (<LinearProgress style={{backgroundColor:'#eeeeee', height: 3}} color={pgColor} min={0} max={100} value={progress} mode={"determinate"}/>);
 
         if(isSession){
             // Do not display level 0
@@ -240,7 +253,18 @@ class Transfer extends React.Component{
                 </span>
             )
         } else {
-            leftIcon = <span className={iconClass} style={styles.leftIcon}/>
+            leftIcon = (
+                <span style={styles.leftIcon}>
+                    <span className={iconClass} style={{
+                        display: 'block',
+                        width: styles.previewImage.width,
+                        height: styles.previewImage.height,
+                        lineHeight: styles.previewImage.width + 'px',
+                        backgroundColor: '#ECEFF1',
+                        borderRadius: '50%',
+                        marginLeft: 6
+                    }}/>
+                </span>);
         }
 
         if(status === 'error' && item.getErrorMessage()){
@@ -251,9 +275,15 @@ class Transfer extends React.Component{
             <div style={styles.main} className={"upload-" + status + " " + (className?className:"")}>
                 <div style={styles.line}>
                     {leftIcon}
-                    <span onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</span>
-                    {errMessage}
-                    <div style={styles.pgBar}>{progressBar}</div>
+                    <div style={{flex: 1, overflow:'hidden', paddingLeft: 4}}>
+                        <div onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</div>
+                        <div style={styles.secondaryLine}>
+                            {errMessage}
+                            {item.getSize && item.getSize() + 'B' + ' - '}
+                            {status}
+                        </div>
+                        <div style={styles.pgBar}>{progressBar}</div>
+                    </div>
                     <span style={styles.rightButton}>{rightButton}</span>
                 </div>
                 {childComps}

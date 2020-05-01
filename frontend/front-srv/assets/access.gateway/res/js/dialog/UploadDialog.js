@@ -18,8 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const {ActionDialogMixin, AsyncComponent} = require('pydio').requireLib('boot');
+import React from 'react'
+import Pydio from 'pydio'
+const {ActionDialogMixin, AsyncComponent} = Pydio.requireLib('boot');
 import {Tabs, Tab, IconButton, FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
@@ -48,7 +49,7 @@ let UploadDialog = React.createClass({
     ],
 
     getDefaultProps: function(){
-        const mobile = pydio.UI.MOBILE_EXTENSIONS;
+        const mobile = Pydio.getInstance().UI.MOBILE_EXTENSIONS;
         return {
             dialogTitle: '',
             dialogSize: mobile ? 'md' : 'lg',
@@ -89,6 +90,7 @@ let UploadDialog = React.createClass({
                     namespace={parts[0]}
                     componentName={parts[1]}
                     onDismiss={dismiss}
+                    showDismiss={tabs.length === 1}
                     onLoad={()=>{this.setState({loaded: true})}}
                     {...this.props.uploaderProps}
                 />
@@ -97,9 +99,9 @@ let UploadDialog = React.createClass({
 
         return (
             <div style={{width: '100%'}}>
-                <TopBar tabs={tabs} dismiss={dismiss}/>
+                {tabs.length > 1 && <TopBar tabs={tabs} dismiss={dismiss}/>}
                 {component}
-                {!loaded && <div style={{padding: 40, textAlign:'center', color: 'rgba(0,0,0,.5)'}}>{this.props.pydio.MessageHash['466']}</div>}
+                {!loaded && <div style={{padding: '100px 40px', textAlign:'center', color: 'rgba(0,0,0,.5)'}}>{this.props.pydio.MessageHash['466']}</div>}
             </div>
         );
     }

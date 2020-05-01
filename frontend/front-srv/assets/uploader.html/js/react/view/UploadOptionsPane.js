@@ -65,8 +65,8 @@ class UploadOptionsPane extends React.Component {
             <Popover
                 open={this.props.open}
                 anchorEl={this.props.anchorEl}
-                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                targetOrigin={{horizontal: 'left', vertical: 'top'}}
                 onRequestClose={(e) => {
                     this.props.onDismiss(e)
                 }}

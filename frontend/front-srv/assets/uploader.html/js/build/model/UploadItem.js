@@ -113,7 +113,7 @@ var UploadItem = function (_StatusItem) {
             this._userAborted = false;
 
             var complete = function complete() {
-                _this2.setStatus('loaded');
+                _this2.setStatus(_StatusItem3.default.StatusLoaded);
                 _this2._parseXHRResponse();
                 completeCallback();
             };
@@ -165,7 +165,7 @@ var UploadItem = function (_StatusItem) {
                 };
             };
 
-            this.setStatus('loading');
+            this.setStatus(_StatusItem3.default.StatusLoading);
 
             try {
                 _Configs2.default.getInstance().extensionAllowed(this);
@@ -188,6 +188,26 @@ var UploadItem = function (_StatusItem) {
                 } catch (e) {}
             }
             this.setStatus('error');
+        }
+    }, {
+        key: '_doPause',
+        value: function _doPause() {
+            if (this.xhr) {
+                if (this.xhr.pause) {
+                    this.xhr.pause();
+                    return _StatusItem3.default.StatusPaused;
+                } else {
+                    return _StatusItem3.default.StatusCannotPause;
+                }
+            }
+            return _StatusItem3.default.StatusNew;
+        }
+    }, {
+        key: '_doResume',
+        value: function _doResume() {
+            if (this.xhr && this.xhr.resume) {
+                this.xhr.resume();
+            }
         }
     }, {
         key: 'uploadPresigned',

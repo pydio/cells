@@ -19,6 +19,12 @@ var _Transfer = require('./Transfer');
 
 var _Transfer2 = _interopRequireDefault(_Transfer);
 
+var _styles = require('material-ui/styles');
+
+var _dom = require('pydio/util/dom');
+
+var _dom2 = _interopRequireDefault(_dom);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39,41 +45,81 @@ var TransfersList = function (_React$Component) {
     _createClass(TransfersList, [{
         key: 'render',
         value: function render() {
-            var components = [];
-            var items = this.props.items;
+            var _props = this.props,
+                sessions = _props.sessions,
+                store = _props.store,
+                muiTheme = _props.muiTheme,
+                onPickFile = _props.onPickFile,
+                onPickFolder = _props.onPickFolder;
 
-            var isEmpty = true;
-            if (items) {
+            var transition = _dom2.default.getBeziersTransition().replace('all ', 'color ');
+            var messages = _pydio2.default.getMessages();
+            var css = '\n            .drop-transfer-list{\n                color:rgba(3, 169, 244, 0.5);\n            }\n            .transparent-dropzone.active .drop-transfer-list{\n                color:rgba(3, 169, 244, 0.8);\n            }\n            .drop-transfer-list a,.drop-transfer-list a:hover {\n                color:rgba(3, 169, 244, 1);\n                cursor: pointer;\n            }\n        ';
+
+            var sessionsList = void 0;
+            if (sessions) {
+                var isEmpty = true;
                 var ext = _pydio2.default.getInstance().Registry.getFilesExtensions();
-                components = items.sessions.map(function (session) {
+                var components = sessions.map(function (session) {
                     if (session.getChildren().length) {
                         isEmpty = false;
                     }
-                    return _react2.default.createElement(_Transfer2.default, { item: session, style: {}, limit: 10, level: 0, extensions: ext });
+                    return _react2.default.createElement(_Transfer2.default, { item: session, store: store, style: {}, limit: 10, level: 0, extensions: ext });
                 });
-            }
-            if (isEmpty) {
-                return _react2.default.createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'center', height: '100%', width: '100%' } },
-                    _react2.default.createElement(
+                if (!isEmpty) {
+                    sessionsList = _react2.default.createElement(
                         'div',
-                        { style: { textAlign: 'center', width: '100%', fontWeight: 500, textTransform: 'uppercase', color: 'rgba(0,0,0,0.1)', fontSize: 24 } },
-                        _pydio2.default.getMessages()["html_uploader.drophere"]
-                    )
-                );
+                        { style: { height: '100%', overflowY: 'auto', padding: 10, paddingBottom: 20 } },
+                        components
+                    );
+                }
             }
 
-            var container = {
-                height: '100%',
-                overflowY: 'auto',
-                borderBottom: '1px solid #eeeeee'
-            };
+            var dropper = _react2.default.createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', height: '100%', width: '100%', backgroundColor: '#F5F5F5', transition: transition }, className: "drop-transfer-list" },
+                _react2.default.createElement(
+                    'div',
+                    { style: { textAlign: 'center', width: '100%', fontWeight: 500, fontSize: 18, padding: 24, lineHeight: '28px' } },
+                    _react2.default.createElement('div', { className: 'mdi mdi-cloud-upload', style: { fontSize: 110 } }),
+                    _react2.default.createElement(
+                        'div',
+                        { style: { textTransform: 'lowercase' } },
+                        messages["html_uploader.drophere"],
+                        ' or ',
+                        _react2.default.createElement(
+                            'a',
+                            { onClick: onPickFile },
+                            messages["html_uploader.4"]
+                        ),
+                        onPickFolder && _react2.default.createElement(
+                            'span',
+                            null,
+                            ' or ',
+                            _react2.default.createElement(
+                                'a',
+                                { onClick: onPickFolder },
+                                messages["html_uploader.5"]
+                            )
+                        )
+                    )
+                ),
+                _react2.default.createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: css } })
+            );
 
             return _react2.default.createElement(
                 'div',
-                { style: container },
-                components
+                { style: { display: 'flex', height: '100%', overflow: 'hidden' } },
+                _react2.default.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' } },
+                    dropper
+                ),
+                sessionsList && _react2.default.createElement(
+                    'div',
+                    { style: { width: 420, minWidth: 420, maxWidth: 420 } },
+                    sessionsList
+                )
             );
         }
     }]);
@@ -81,4 +127,5 @@ var TransfersList = function (_React$Component) {
     return TransfersList;
 }(_react2.default.Component);
 
+exports.default = TransfersList = (0, _styles.muiThemeable)()(TransfersList);
 exports.default = TransfersList;

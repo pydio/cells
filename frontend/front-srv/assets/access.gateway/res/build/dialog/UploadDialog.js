@@ -30,20 +30,28 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
 
-var React = require('react');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
-var AsyncComponent = _require$requireLib.AsyncComponent;
+var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
+var AsyncComponent = _Pydio$requireLib.AsyncComponent;
 
 var TopBar = (function (_React$Component) {
     _inherits(TopBar, _React$Component);
@@ -62,31 +70,31 @@ var TopBar = (function (_React$Component) {
             var dismiss = _props.dismiss;
             var muiTheme = _props.muiTheme;
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', backgroundColor: muiTheme.tabs.backgroundColor } },
-                React.createElement(
+                _react2['default'].createElement(
                     _materialUi.Tabs,
                     { style: { flex: 1 } },
                     tabs
                 ),
-                React.createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onTouchTap: dismiss, tooltip: "Close" })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onTouchTap: dismiss, tooltip: "Close" })
             );
         }
     }]);
 
     return TopBar;
-})(React.Component);
+})(_react2['default'].Component);
 
 TopBar = (0, _materialUiStyles.muiThemeable)()(TopBar);
 
-var UploadDialog = React.createClass({
+var UploadDialog = _react2['default'].createClass({
     displayName: 'UploadDialog',
 
     mixins: [ActionDialogMixin],
 
     getDefaultProps: function getDefaultProps() {
-        var mobile = pydio.UI.MOBILE_EXTENSIONS;
+        var mobile = _pydio2['default'].getInstance().UI.MOBILE_EXTENSIONS;
         return {
             dialogTitle: '',
             dialogSize: mobile ? 'md' : 'lg',
@@ -117,7 +125,7 @@ var UploadDialog = React.createClass({
         var _this = this;
 
         var tabs = [];
-        var component = React.createElement('div', { style: { height: 360 } });
+        var component = _react2['default'].createElement('div', { style: { height: 360 } });
         var dismiss = function dismiss() {
             _this.dismiss();
         };
@@ -127,31 +135,32 @@ var UploadDialog = React.createClass({
         var loaded = _state.loaded;
 
         uploaders.map(function (uploader) {
-            tabs.push(React.createElement(_materialUi.Tab, { label: uploader.xmlNode.getAttribute('label'), key: uploader.id, onActive: function () {
+            tabs.push(_react2['default'].createElement(_materialUi.Tab, { label: uploader.xmlNode.getAttribute('label'), key: uploader.id, onActive: function () {
                     _this.setState({ current: uploader });
                 } }));
         });
         if (current) {
             var parts = current.moduleName.split('.');
-            component = React.createElement(AsyncComponent, _extends({
+            component = _react2['default'].createElement(AsyncComponent, _extends({
                 pydio: this.props.pydio,
                 namespace: parts[0],
                 componentName: parts[1],
                 onDismiss: dismiss,
+                showDismiss: tabs.length === 1,
                 onLoad: function () {
                     _this.setState({ loaded: true });
                 }
             }, this.props.uploaderProps));
         }
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             { style: { width: '100%' } },
-            React.createElement(TopBar, { tabs: tabs, dismiss: dismiss }),
+            tabs.length > 1 && _react2['default'].createElement(TopBar, { tabs: tabs, dismiss: dismiss }),
             component,
-            !loaded && React.createElement(
+            !loaded && _react2['default'].createElement(
                 'div',
-                { style: { padding: 40, textAlign: 'center', color: 'rgba(0,0,0,.5)' } },
+                { style: { padding: '100px 40px', textAlign: 'center', color: 'rgba(0,0,0,.5)' } },
                 this.props.pydio.MessageHash['466']
             )
         );
