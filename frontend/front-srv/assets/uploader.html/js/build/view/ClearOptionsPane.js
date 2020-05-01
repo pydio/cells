@@ -72,7 +72,7 @@ var ClearOptionsPane = function (_React$Component) {
                 },
                 _react2.default.createElement(
                     _materialUi.Menu,
-                    { style: { width: 126 }, desktop: true },
+                    { style: { width: 146 }, desktop: true },
                     _react2.default.createElement(
                         _materialUi.Subheader,
                         { style: { lineHeight: '26px' } },

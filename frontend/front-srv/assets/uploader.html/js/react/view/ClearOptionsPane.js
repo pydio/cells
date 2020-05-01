@@ -54,7 +54,7 @@ class ClearOptionsPane extends React.Component {
                     this.props.onDismiss(e)
                 }}
             >
-                <Menu style={{width: 126}} desktop={true}>
+                <Menu style={{width: 146}} desktop={true}>
                     <Subheader style={{lineHeight:'26px'}}>{msg['html_uploader.clear-header']}</Subheader>
                     <MenuItem primaryText={msg['html_uploader.clear-finished']} onTouchTap={()=>{this.clear('loaded')}}/>
                     <MenuItem primaryText={msg['html_uploader.clear-failed']} onTouchTap={()=>{this.clear('error')}}/>

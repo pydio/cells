@@ -145,7 +145,6 @@ class Store extends Observable{
                 return item.getStatus() === status;
             }, 'file')
         })
-
     }
 
     monitorProcessing(item){

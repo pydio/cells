@@ -12,10 +12,10 @@
     "other": "Clear list..."
   },
   "clear-finished":{
-    "other": "Finished"
+    "other": "Finished Uploads"
   },
   "clear-failed":{
-    "other": "Failed"
+    "other": "Failed Uploads"
   },
   "clear-all":{
     "other": "All Transfers"
