@@ -119,7 +119,7 @@ var UploadItem = function (_StatusItem) {
             };
 
             var progress = function progress(computableEvent) {
-                if (_this2._status === 'error') {
+                if (_this2._status === _StatusItem3.default.StatusError) {
                     return;
                 }
                 if (!computableEvent.total) {
@@ -130,7 +130,24 @@ var UploadItem = function (_StatusItem) {
                 _this2.setProgress(percentage, bytesLoaded);
 
                 if (_this2._parts && computableEvent.part && _this2._parts[computableEvent.part - 1] && computableEvent.partLoaded && computableEvent.partTotal) {
-                    _this2._parts[computableEvent.part - 1].setProgress(Math.round(computableEvent.partLoaded * 100 / computableEvent.partTotal), computableEvent.partLoaded);
+                    var part = _this2._parts[computableEvent.part - 1];
+                    var _progress = Math.round(computableEvent.partLoaded * 100 / computableEvent.partTotal);
+                    if (_progress < 100) {
+                        if (part.getStatus() !== _StatusItem3.default.StatusCannotPause) {
+                            part.setStatus(_StatusItem3.default.StatusLoading);
+                        }
+                    } else {
+                        var checkPause = part.getStatus() === _StatusItem3.default.StatusCannotPause;
+                        part.setStatus(_StatusItem3.default.StatusLoaded);
+                        if (checkPause) {
+                            if (_this2._parts.filter(function (p) {
+                                return part.getStatus() === _StatusItem3.default.StatusCannotPause;
+                            }).length === 0) {
+                                _this2.setStatus(_StatusItem3.default.StatusPause);
+                            }
+                        }
+                    }
+                    part.setProgress(_progress, computableEvent.partLoaded);
                 }
             };
 
@@ -187,7 +204,8 @@ var UploadItem = function (_StatusItem) {
                     this.xhr.abort();
                 } catch (e) {}
             }
-            this.setStatus('error');
+            this.setStatus(_StatusItem3.default.StatusError);
+            this.setProgress(0);
         }
     }, {
         key: '_doPause',
@@ -195,7 +213,14 @@ var UploadItem = function (_StatusItem) {
             if (this.xhr) {
                 if (this.xhr.pause) {
                     this.xhr.pause();
-                    return _StatusItem3.default.StatusPaused;
+                    if (this._parts && this._parts.length) {
+                        this._parts.filter(function (p) {
+                            return p.getStatus() === _StatusItem3.default.StatusLoading;
+                        }).forEach(function (p) {
+                            return p.setStatus(_StatusItem3.default.StatusCannotPause);
+                        });
+                    }
+                    return _StatusItem3.default.StatusMultiPause;
                 } else {
                     return _StatusItem3.default.StatusCannotPause;
                 }
@@ -218,7 +243,8 @@ var UploadItem = function (_StatusItem) {
             try {
                 fullPath = this.getFullPath();
             } catch (e) {
-                this.setStatus('error');
+                this.setStatus(_StatusItem3.default.StatusError);
+                this.setProgress(0);
                 return;
             }
 

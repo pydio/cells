@@ -11,6 +11,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _StatusItem = require('./StatusItem');
+
+var _StatusItem2 = _interopRequireDefault(_StatusItem);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -33,7 +37,7 @@ var Task = function () {
         this.job = new JobsJob();
         this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
-        this.job.Label = pydio.MessageHash['html_uploader.7'];
+        this.job.Label = pydio.MessageHash['html_uploader.task.label'];
         this.job.Stoppable = true;
         var task = new JobsTask();
         this.task = task;
@@ -46,7 +50,7 @@ var Task = function () {
         };
 
         task._statusObserver = function (s) {
-            if (s === 'analyse') {
+            if (s === _StatusItem2.default.StatusAnalyze) {
                 _this.job.Label = 'Preparing files for upload';
                 if (session.getChildren().length) {
                     task.StatusMessage = 'Analyzing (' + session.getChildren().length + ') items';

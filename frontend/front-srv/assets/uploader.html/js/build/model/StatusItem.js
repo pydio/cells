@@ -288,12 +288,13 @@ var StatusItem = function (_Observable) {
 }(_observable2.default);
 
 StatusItem.StatusNew = 'new';
+StatusItem.StatusAnalyze = 'analyse';
 StatusItem.StatusLoading = 'loading';
 StatusItem.StatusLoaded = 'loaded';
 StatusItem.StatusError = 'error';
-StatusItem.StatusPausing = 'pausing';
+StatusItem.StatusPause = 'pause';
 StatusItem.StatusCannotPause = 'cannot-pause';
-StatusItem.StatusPaused = 'pause';
+StatusItem.StatusMultiPause = 'multi-pause';
 
 StatusItem.TypeFolder = 'folder';
 StatusItem.TypeFile = 'file';

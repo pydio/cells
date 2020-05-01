@@ -141,6 +141,17 @@ class DropUploader extends React.Component {
         Pydio.getInstance().getController().fireAction('upload'); // Clear
     }
 
+    supportsFolder(){
+        let supports = false;
+        let e = global.document.createElement('input');
+        e.setAttribute('type', 'file');
+        if('webkitdirectory' in e){
+            supports = true;
+        }
+        e = null
+        return supports;
+    }
+
     render(){
 
         let messages = Pydio.getInstance().MessageHash;
@@ -148,20 +159,13 @@ class DropUploader extends React.Component {
         const connectDropTarget = this.props.connectDropTarget || (c => {return c});
         const {configs, showOptions, optionsAnchorEl, showClear, clearAnchorEl, sessions, storeRunning, confirmDialog} = this.state;
         const store = UploaderModel.Store.getInstance();
+
         let listEmpty = true;
         sessions.forEach(s => {
             if(s.getChildren().length){
                 listEmpty = false;
             }
         });
-
-        let onPickFolder;
-        let e = global.document.createElement('input');
-        e.setAttribute('type', 'file');
-        if('webkitdirectory' in e){
-            onPickFolder = (ev)=>{this.openFilePicker(ev)}
-        }
-        e = null;
 
         return connectDropTarget(
             <div style={{position:'relative', backgroundColor: '#FAFAFA'}}>
@@ -170,7 +174,7 @@ class DropUploader extends React.Component {
                     <IconButton iconClassName={"mdi mdi-dots-vertical"} primary={true} iconStyle={{fontSize: 18}} style={{padding:14}} tooltip={messages['html_uploader.options']} onTouchTap={this.toggleOptions.bind(this)}/>
                     <span style={{flex: 1}}/>
 
-                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-play"/>} label={messages['html_uploader.start']} onTouchTap={this.start.bind(this)} primary={true} disabled={!store.hasQueue()}/>
+                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-play"/>} label={messages['html_uploader.start']} onTouchTap={this.start.bind(this)} primary={true} disabled={store.isRunning() || !store.hasQueue()}/>
                     <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-pause"/>} label={messages['html_uploader.pause']} onTouchTap={this.pause.bind(this)} primary={true} disabled={!store.isRunning()}/>
                     <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-delete"/>} label={<span>{messages['html_uploader.clear']}<span className={"mdi mdi-menu-down"}/></span>} onTouchTap={this.openClear.bind(this)} primary={true} disabled={listEmpty}/>
 
@@ -193,7 +197,7 @@ class DropUploader extends React.Component {
                         onDismiss={this.props.onDismiss}
                         store={store}
                         onPickFile={(ev)=>{this.openFilePicker(ev)}}
-                        onPickFolder={onPickFolder}
+                        onPickFolder={this.supportsFolder() ? (ev) => {this.openFolderPicker(ev)} : null}
                     />
                 </FileDropZone>
                 <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>

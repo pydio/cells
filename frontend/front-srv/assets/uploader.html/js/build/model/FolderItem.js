@@ -85,13 +85,6 @@ var FolderItem = function (_StatusItem) {
                 completeCallback();
             });
         }
-    }, {
-        key: '_doAbort',
-        value: function _doAbort(completeCallback) {
-            if (console) {
-                console.log(_pydio2.default.getMessages()['html_uploader.6']);
-            }
-        }
     }]);
 
     return FolderItem;

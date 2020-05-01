@@ -51,16 +51,14 @@ var ClearOptionsPane = function (_React$Component) {
                 default:
                     break;
             }
+            this.props.onDismiss();
         }
     }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
 
-            var configs = this.props.configs;
-
-            var pydio = _pydio2.default.getInstance();
-
+            var msg = _pydio2.default.getMessages();
             return _react2.default.createElement(
                 _materialUi.Popover,
                 {
@@ -78,15 +76,15 @@ var ClearOptionsPane = function (_React$Component) {
                     _react2.default.createElement(
                         _materialUi.Subheader,
                         { style: { lineHeight: '26px' } },
-                        pydio.MessageHash['html_uploader.12']
+                        msg['html_uploader.clear-header']
                     ),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: "Finished", onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-finished'], onTouchTap: function onTouchTap() {
                             _this2.clear('loaded');
                         } }),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: "Failed", onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-failed'], onTouchTap: function onTouchTap() {
                             _this2.clear('error');
                         } }),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: "All Transfers", onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-all'], onTouchTap: function onTouchTap() {
                             _this2.clear('all');
                         } })
                 )

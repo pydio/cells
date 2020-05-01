@@ -80,7 +80,7 @@ class UploadItem extends StatusItem {
         };
 
         const progress = (computableEvent)=>{
-            if (this._status === 'error') {
+            if (this._status === StatusItem.StatusError) {
                 return;
             }
             if(!computableEvent.total){
@@ -91,7 +91,22 @@ class UploadItem extends StatusItem {
             this.setProgress(percentage, bytesLoaded);
             // Update multipart child if any
             if(this._parts && computableEvent.part && this._parts[computableEvent.part-1] && computableEvent.partLoaded && computableEvent.partTotal){
-                this._parts[computableEvent.part-1].setProgress(Math.round((computableEvent.partLoaded * 100) / computableEvent.partTotal), computableEvent.partLoaded);
+                const part = this._parts[computableEvent.part-1];
+                const progress = Math.round((computableEvent.partLoaded * 100) / computableEvent.partTotal);
+                if(progress < 100) {
+                    if(part.getStatus() !== StatusItem.StatusCannotPause){
+                        part.setStatus(StatusItem.StatusLoading);
+                    }
+                } else {
+                    const checkPause = part.getStatus() === StatusItem.StatusCannotPause;
+                    part.setStatus(StatusItem.StatusLoaded);
+                    if(checkPause){
+                        if(this._parts.filter(p => part.getStatus() === StatusItem.StatusCannotPause).length === 0){
+                            this.setStatus(StatusItem.StatusPause);
+                        }
+                    }
+                }
+                part.setProgress(progress, computableEvent.partLoaded);
             }
         };
 
@@ -147,14 +162,18 @@ class UploadItem extends StatusItem {
                 this.xhr.abort();
             }catch(e){}
         }
-        this.setStatus('error');
+        this.setStatus(StatusItem.StatusError);
+        this.setProgress(0)
     }
 
     _doPause(){
         if(this.xhr){
             if(this.xhr.pause){
                 this.xhr.pause();
-                return StatusItem.StatusPaused;
+                if(this._parts && this._parts.length){
+                    this._parts.filter(p => p.getStatus() === StatusItem.StatusLoading).forEach(p => p.setStatus(StatusItem.StatusCannotPause));
+                }
+                return StatusItem.StatusMultiPause;
             } else {
                 return StatusItem.StatusCannotPause;
             }
@@ -174,7 +193,8 @@ class UploadItem extends StatusItem {
         try{
             fullPath = this.getFullPath();
         }catch (e) {
-            this.setStatus('error');
+            this.setStatus(StatusItem.StatusError);
+            this.setProgress(0)
             return;
         }
         // For encrypted datasource, do not use multipart!

@@ -39,13 +39,11 @@ class ClearOptionsPane extends React.Component {
             default:
                 break;
         }
+        this.props.onDismiss();
     }
 
     render() {
-        const {configs} = this.props;
-        const pydio = Pydio.getInstance();
-
-
+        const msg = Pydio.getMessages();
         return (
             <Popover
                 open={this.props.open}
@@ -57,10 +55,10 @@ class ClearOptionsPane extends React.Component {
                 }}
             >
                 <Menu style={{width: 126}} desktop={true}>
-                    <Subheader style={{lineHeight:'26px'}}>{pydio.MessageHash['html_uploader.12']}</Subheader>
-                    <MenuItem primaryText={"Finished"} onTouchTap={()=>{this.clear('loaded')}}/>
-                    <MenuItem primaryText={"Failed"} onTouchTap={()=>{this.clear('error')}}/>
-                    <MenuItem primaryText={"All Transfers"} onTouchTap={()=>{this.clear('all')}}/>
+                    <Subheader style={{lineHeight:'26px'}}>{msg['html_uploader.clear-header']}</Subheader>
+                    <MenuItem primaryText={msg['html_uploader.clear-finished']} onTouchTap={()=>{this.clear('loaded')}}/>
+                    <MenuItem primaryText={msg['html_uploader.clear-failed']} onTouchTap={()=>{this.clear('error')}}/>
+                    <MenuItem primaryText={msg['html_uploader.clear-all']} onTouchTap={()=>{this.clear('all')}}/>
                 </Menu>
             </Popover>
         );

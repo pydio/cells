@@ -21,6 +21,7 @@ import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import PathUtils from 'pydio/util/path'
 import FolderItem from './FolderItem'
+import StatusItem from './StatusItem'
 import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
 class Session extends FolderItem {
@@ -28,7 +29,7 @@ class Session extends FolderItem {
     constructor(repositoryId, targetNode) {
         super('/', targetNode);
         this._repositoryId = repositoryId;
-        this._status = 'analyse';
+        this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
     }
 
@@ -108,7 +109,7 @@ class Session extends FolderItem {
             return Promise.resolve()
         }
 
-        this.setStatus('analyse');
+        this.setStatus(StatusItem.StatusAnalyze);
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestGetBulkMetaRequest();
         request.NodePaths = [];

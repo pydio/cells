@@ -65,11 +65,6 @@ class FolderItem extends StatusItem{
         });
     }
 
-    _doAbort(completeCallback){
-        if(console) {
-            console.log(Pydio.getMessages()['html_uploader.6']);
-        }
-    }
 }
 
 export {FolderItem as default}

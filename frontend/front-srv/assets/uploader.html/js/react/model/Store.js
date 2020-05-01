@@ -101,7 +101,7 @@ class Store extends Observable{
             session.walk(()=>{
                 items ++;
             }, (item)=>{
-                return item.getStatus() === 'new' || item.getStatus() === 'pause'
+                return item.getStatus() === StatusItem.StatusNew || item.getStatus() === StatusItem.StatusPause || item.getStatus() === StatusItem.StatusMultiPause
             }, 'both', ()=>{
                 return items >= 1
             });
@@ -124,13 +124,15 @@ class Store extends Observable{
     }
 
     clearAll(){
+        this.clearStatus('new');
         this._sessions.forEach(session => {
+            session.walk((item)=> {
+                item.getParent().removeChild(item);
+            });
             session.Task.setIdle();
+            this.removeSession(session);
         });
-        this._sessions = [];
         this._pauseRequired = false;
-
-        this._processing = [];
         this.notify('update');
 
     }
@@ -141,9 +143,8 @@ class Store extends Observable{
                 item.getParent().removeChild(item);
             }, (item) => {
                 return item.getStatus() === status;
-            })
+            }, 'file')
         })
-
 
     }
 
@@ -153,6 +154,7 @@ class Store extends Observable{
         }
         item.observe('status', this._processingMonitor);
         this._processing.push(item);
+        //this.notify('update');
     }
 
     unmonitorProcessing(item){
@@ -162,6 +164,7 @@ class Store extends Observable{
                 item.stopObserving('status', this._processingMonitor);
             }
             this._processing = LangUtils.arrayWithout(this._processing, index);
+            //this.notify('update');
         }
     }
 
@@ -199,7 +202,6 @@ class Store extends Observable{
         let processables = this.getNexts();
         if(processables.length && !this._pauseRequired){
             processables.forEach(processable => {
-                //this._processing.push(processable);
                 this.monitorProcessing(processable);
                 processable.process(()=>{
                     this.unmonitorProcessing(processable);
@@ -277,7 +279,9 @@ class Store extends Observable{
     }
 
     isRunning(){
-        return this._processing.filter(u => u.getStatus() === StatusItem.StatusLoading).length > 0
+        const runningStatus =  this._processing.filter(u => u.getStatus() === StatusItem.StatusLoading).length > 0;
+        console.log('isRunning?', runningStatus);
+        return runningStatus;
     }
 
     pause(){
@@ -430,7 +434,7 @@ class Store extends Observable{
         }else{
             for(let j=0;j<files.length;j++){
                 if(files[j].size === 0){
-                    alert(Pydio.getInstance().MessageHash['html_uploader.8']);
+                    alert(Pydio.getInstance().MessageHash['html_uploader.no-folders-support']);
                     return;
                 }
                 if(!filter(files[j].name)){

@@ -134,7 +134,7 @@ var Store = function (_Observable) {
                 session.walk(function () {
                     items++;
                 }, function (item) {
-                    return item.getStatus() === 'new' || item.getStatus() === 'pause';
+                    return item.getStatus() === _StatusItem2.default.StatusNew || item.getStatus() === _StatusItem2.default.StatusPause || item.getStatus() === _StatusItem2.default.StatusMultiPause;
                 }, 'both', function () {
                     return items >= 1;
                 });
@@ -159,13 +159,17 @@ var Store = function (_Observable) {
     }, {
         key: 'clearAll',
         value: function clearAll() {
-            this._sessions.forEach(function (session) {
-                session.Task.setIdle();
-            });
-            this._sessions = [];
-            this._pauseRequired = false;
+            var _this3 = this;
 
-            this._processing = [];
+            this.clearStatus('new');
+            this._sessions.forEach(function (session) {
+                session.walk(function (item) {
+                    item.getParent().removeChild(item);
+                });
+                session.Task.setIdle();
+                _this3.removeSession(session);
+            });
+            this._pauseRequired = false;
             this.notify('update');
         }
     }, {
@@ -176,17 +180,17 @@ var Store = function (_Observable) {
                     item.getParent().removeChild(item);
                 }, function (item) {
                     return item.getStatus() === status;
-                });
+                }, 'file');
             });
         }
     }, {
         key: 'monitorProcessing',
         value: function monitorProcessing(item) {
-            var _this3 = this;
+            var _this4 = this;
 
             if (!this._processingMonitor) {
                 this._processingMonitor = function () {
-                    _this3.notify('update');
+                    _this4.notify('update');
                 };
             }
             item.observe('status', this._processingMonitor);
@@ -206,7 +210,7 @@ var Store = function (_Observable) {
     }, {
         key: 'processNext',
         value: function processNext() {
-            var _this4 = this;
+            var _this5 = this;
 
             var folders = this.getFolders();
             if (folders.length && !this._pauseRequired) {
@@ -219,7 +223,7 @@ var Store = function (_Observable) {
                     node.Type = _restApi.TreeNodeType.constructFromObject('COLLECTION');
                     request.Nodes.push(node);
                     folderItem.setStatus(_StatusItem2.default.StatusLoading);
-                    _this4.monitorProcessing(folderItem);
+                    _this5.monitorProcessing(folderItem);
                 });
                 this.notify('update');
                 api.createNodes(request).then(function () {
@@ -227,24 +231,24 @@ var Store = function (_Observable) {
                         folderItem.setStatus(_StatusItem2.default.StatusLoaded);
                         folderItem.children.pg[folderItem.getId()] = 100;
                         folderItem.recomputeProgress();
-                        _this4.unmonitorProcessing(folderItem);
+                        _this5.unmonitorProcessing(folderItem);
                     });
-                    _this4.processNext();
-                    _this4.notify("update");
+                    _this5.processNext();
+                    _this5.notify("update");
                 }).catch(function (e) {
-                    _this4.processNext();
-                    _this4.notify("update");
+                    _this5.processNext();
+                    _this5.notify("update");
                 });
                 return;
             }
             var processables = this.getNexts();
             if (processables.length && !this._pauseRequired) {
                 processables.forEach(function (processable) {
-                    _this4.monitorProcessing(processable);
+                    _this5.monitorProcessing(processable);
                     processable.process(function () {
-                        _this4.unmonitorProcessing(processable);
-                        _this4.processNext();
-                        _this4.notify("update");
+                        _this5.unmonitorProcessing(processable);
+                        _this5.processNext();
+                        _this5.notify("update");
                     });
                 });
                 this.notify('update');
@@ -325,9 +329,11 @@ var Store = function (_Observable) {
     }, {
         key: 'isRunning',
         value: function isRunning() {
-            return this._processing.filter(function (u) {
+            var runningStatus = this._processing.filter(function (u) {
                 return u.getStatus() === _StatusItem2.default.StatusLoading;
             }).length > 0;
+            console.log('isRunning?', runningStatus);
+            return runningStatus;
         }
     }, {
         key: 'pause',
@@ -354,7 +360,7 @@ var Store = function (_Observable) {
     }, {
         key: 'handleFolderPickerResult',
         value: function handleFolderPickerResult(files, targetNode) {
-            var _this5 = this;
+            var _this6 = this;
 
             var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
             var session = new _Session2.default(_pydio2.default.getInstance().user.activeRepository, targetNode);
@@ -382,7 +388,7 @@ var Store = function (_Observable) {
                         var f = new _FolderItem2.default(child.path, targetNode, parentItem);
                         recurse(child.children, f);
                     } else {
-                        if (_this5._blacklist.indexOf(_path2.default.getBasename(child.path).toLowerCase()) === -1) {
+                        if (_this6._blacklist.indexOf(_path2.default.getBasename(child.path).toLowerCase()) === -1) {
                             var u = new _UploadItem2.default(child.item, targetNode, child.path, parentItem);
                         }
                     }
@@ -396,7 +402,7 @@ var Store = function (_Observable) {
         value: function handleDropEventResults(items, files, targetNode) {
             var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-            var _this6 = this;
+            var _this7 = this;
 
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
             var targetRepositoryId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
@@ -409,7 +415,7 @@ var Store = function (_Observable) {
                 if (filterFunction && !filterFunction(refPath)) {
                     return false;
                 }
-                return _this6._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
+                return _this7._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
             };
 
             var enqueue = function enqueue(item) {
@@ -463,7 +469,7 @@ var Store = function (_Observable) {
 
                             entry.folderItem = new _FolderItem2.default(entry.fullPath, targetNode, session);
 
-                            promises.push(_this6.recurseDirectory(entry, function (fileEntry) {
+                            promises.push(_this7.recurseDirectory(entry, function (fileEntry) {
                                 var relativePath = fileEntry.fullPath;
                                 return new Promise(function (resolve, reject) {
                                     fileEntry.file(function (File) {
@@ -493,16 +499,16 @@ var Store = function (_Observable) {
 
                     Promise.all(promises).then(function () {
                         return session.prepare(overwriteStatus).then(function () {
-                            _this6.notify('update');
+                            _this7.notify('update');
                         });
                     }).catch(function (e) {
-                        _this6.notify('update');
+                        _this7.notify('update');
                     });
                 })();
             } else {
                 for (var j = 0; j < files.length; j++) {
                     if (files[j].size === 0) {
-                        alert(_pydio2.default.getInstance().MessageHash['html_uploader.8']);
+                        alert(_pydio2.default.getInstance().MessageHash['html_uploader.no-folders-support']);
                         return;
                     }
                     if (!filter(files[j].name)) {
@@ -511,19 +517,19 @@ var Store = function (_Observable) {
                     new _UploadItem2.default(files[j], targetNode, null, session);
                 }
                 session.prepare(overwriteStatus).then(function () {
-                    _this6.notify('update');
+                    _this7.notify('update');
                 }).catch(function (e) {
-                    _this6.notify('update');
+                    _this7.notify('update');
                 });
             }
         }
     }, {
         key: 'recurseDirectory',
         value: function recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
-            var _this7 = this;
+            var _this8 = this;
 
             return new Promise(function (resolve) {
-                _this7.dirEntries(item).then(function (entries) {
+                _this8.dirEntries(item).then(function (entries) {
                     var promises = [];
                     entries.forEach(function (entry) {
                         if (entry.parent && entry.parent.folderItem) {
@@ -544,7 +550,7 @@ var Store = function (_Observable) {
     }, {
         key: 'dirEntries',
         value: function dirEntries(item) {
-            var _this8 = this;
+            var _this9 = this;
 
             var reader = item.createReader();
             var entries = [];
@@ -562,7 +568,7 @@ var Store = function (_Observable) {
                             entries.forEach(function (entry) {
                                 entry.parent = item;
                                 if (entry.isDirectory) {
-                                    promises.push(_this8.dirEntries(entry).then(function (children) {
+                                    promises.push(_this9.dirEntries(entry).then(function (children) {
                                         entries = entries.concat(children);
                                     }));
                                 }

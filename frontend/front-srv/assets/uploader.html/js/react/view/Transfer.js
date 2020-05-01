@@ -98,6 +98,7 @@ class Transfer extends React.Component{
         let isDir = item instanceof UploaderModel.FolderItem;
         const isPart = item instanceof UploaderModel.PartItem;
         let isSession = item instanceof UploaderModel.Session;
+        const messages = Pydio.getMessages();
 
         const styles = {
             main: {
@@ -175,7 +176,7 @@ class Transfer extends React.Component{
         let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor, errMessage;
 
         if (children.length){
-            if(open || (isSession && status !== 'analyse')){
+            if(open || (isSession && status !== StatusItem.StatusAnalyze)){
                 const sliced = showAll ? children : children.slice(0, limit);
                 childComps = sliced.map(child => <Transfer
                     key={child.getId()}
@@ -189,7 +190,7 @@ class Transfer extends React.Component{
                     childComps.push(
                         <div style={{...styles.line, cursor:'pointer', borderLeft:'', paddingLeft: level * 20}} onClick={() => {this.setState({showAll: true})}}>
                             <span style={styles.leftIcon} className={"mdi mdi-plus-box-outline"}/>
-                            <span style={{flex:1, fontStyle:'italic'}}>{children.length-sliced.length} more - show all</span>
+                            <span style={{flex:1, fontStyle:'italic'}}>{messages['html_uploader.list.show-more'].replace('%d', children.length-sliced.length)}</span>
                         </div>
                     );
                 }
@@ -219,9 +220,9 @@ class Transfer extends React.Component{
                 iconClass = 'mimefont mdi mdi-' + fontIcon;
             }
 
-            if(status === 'loading') {
+            if(status === StatusItem.StatusLoading || status === StatusItem.StatusCannotPause || status === StatusItem.StatusMultiPause) {
                 rightButton = <span className="mdi mdi-stop" onClick={() => this.abort()}/>;
-            } else if (status === 'error'){
+            } else if (status === StatusItem.StatusError){
                 pgColor = '#e53935';
                 rightButton = <span className={"mdi mdi-restart"} style={{color:'#e53935'}} onClick={() => {this.retry()}}/>;
             }else{
@@ -234,14 +235,14 @@ class Transfer extends React.Component{
         let progressBar = (<LinearProgress style={{backgroundColor:'#eeeeee', height: 3}} color={pgColor} min={0} max={100} value={progress} mode={"determinate"}/>);
 
         if(isSession){
-            // Do not display level 0
-            if (status === 'analyse') {
+            if (status === StatusItem.StatusAnalyze) {
                 label = Pydio.getMessages()["html_uploader.analyze.step"];
                 progressBar = null;
                 toggleCallback = null;
                 toggleOpen = null;
                 rightButton = <CircularProgress size={16} thickness={2} style={{marginTop: 1}}/>
             } else {
+                // Do not display level 0
                 return <div>{childComps}</div>
             }
         }
@@ -270,6 +271,16 @@ class Transfer extends React.Component{
         if(status === 'error' && item.getErrorMessage()){
             errMessage = <span style={styles.errMessage} title={item.getErrorMessage()}>{item.getErrorMessage()}</span>
         }
+        let statusLabel;
+        const itemType = isDir?"dir":(isPart?"part":"file");
+        if(status === 'error'){
+            statusLabel = <span style={styles.errMessage} title={item.getErrorMessage()}>{item.getErrorMessage()}</span>;
+        } else {
+            statusLabel = messages['html_uploader.status.' + itemType + '.' + status] || messages['html_uploader.status.' + status] || status;
+            if(item.getSize){
+                statusLabel = item.getSize() + 'B' + ' - ' + statusLabel;
+            }
+        }
 
         return (
             <div style={styles.main} className={"upload-" + status + " " + (className?className:"")}>
@@ -277,11 +288,7 @@ class Transfer extends React.Component{
                     {leftIcon}
                     <div style={{flex: 1, overflow:'hidden', paddingLeft: 4}}>
                         <div onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</div>
-                        <div style={styles.secondaryLine}>
-                            {errMessage}
-                            {item.getSize && item.getSize() + 'B' + ' - '}
-                            {status}
-                        </div>
+                        <div style={styles.secondaryLine}>{statusLabel}</div>
                         <div style={styles.pgBar}>{progressBar}</div>
                     </div>
                     <span style={styles.rightButton}>{rightButton}</span>

@@ -21,6 +21,7 @@
 import Pydio from 'pydio'
 const {JobsJob, JobsTask, JobsTaskStatus} = require('pydio/http/rest-api');
 const {JobsStore} = Pydio.requireLib("boot");
+import StatusItem from './StatusItem'
 
 class Task {
 
@@ -32,7 +33,7 @@ class Task {
         this.job = new JobsJob();
         this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
-        this.job.Label = pydio.MessageHash['html_uploader.7'];
+        this.job.Label = pydio.MessageHash['html_uploader.task.label'];
         this.job.Stoppable = true;
         const task = new JobsTask();
         this.task = task;
@@ -45,7 +46,7 @@ class Task {
         };
 
         task._statusObserver = (s)=>{
-            if(s === 'analyse'){
+            if(s === StatusItem.StatusAnalyze){
                 this.job.Label = 'Preparing files for upload';
                 if(session.getChildren().length){
                     task.StatusMessage = 'Analyzing (' + session.getChildren().length + ') items';

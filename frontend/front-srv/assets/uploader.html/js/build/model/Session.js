@@ -23,6 +23,10 @@ var _FolderItem2 = require('./FolderItem');
 
 var _FolderItem3 = _interopRequireDefault(_FolderItem2);
 
+var _StatusItem = require('./StatusItem');
+
+var _StatusItem2 = _interopRequireDefault(_StatusItem);
+
 var _restApi = require('pydio/http/rest-api');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -44,7 +48,7 @@ var Session = function (_FolderItem) {
         var _this = _possibleConstructorReturn(this, (Session.__proto__ || Object.getPrototypeOf(Session)).call(this, '/', targetNode));
 
         _this._repositoryId = repositoryId;
-        _this._status = 'analyse';
+        _this._status = _StatusItem2.default.StatusAnalyze;
         delete _this.children.pg[_this.getId()];
         return _this;
     }
@@ -128,7 +132,7 @@ var Session = function (_FolderItem) {
                 return Promise.resolve();
             }
 
-            this.setStatus('analyse');
+            this.setStatus(_StatusItem2.default.StatusAnalyze);
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
             var request = new _restApi.RestGetBulkMetaRequest();
             request.NodePaths = [];

@@ -40,7 +40,7 @@ exports['default'] = function (PydioComponent) {
         var UploaderModel = global.UploaderModel;
 
         if (!pydio.user || !UploaderModel) {
-            pydio.UI.displayMessage('ERROR', 'You are not allowed to upload files here');
+            pydio.UI.displayMessage('ERROR', pydio.MessageHash['html_uploader.upload.forbidden']);
             return;
         }
 

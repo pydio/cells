@@ -71,9 +71,9 @@ class TransfersList extends React.Component{
             <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%', backgroundColor:'#F5F5F5', transition}} className={"drop-transfer-list"}>
                 <div style={{textAlign: 'center',width: '100%',fontWeight: 500, fontSize: 18, padding: 24, lineHeight:'28px'}}>
                     <div className="mdi mdi-cloud-upload" style={{fontSize: 110}}/>
-                    <div style={{textTransform:'lowercase'}}>
-                        {messages["html_uploader.drophere"]} or <a onClick={onPickFile}>{messages["html_uploader.4"]}</a>
-                        {onPickFolder && <span> or <a onClick={onPickFolder}>{messages["html_uploader.5"]}</a></span>}
+                    <div>
+                        {messages["html_uploader.drophere"]} {messages["html_uploader.drop-or"]} <a onClick={onPickFile}>{messages["html_uploader.drop-pick-file"]}</a>
+                        {onPickFolder && <span> {messages["html_uploader.drop-or"]} <a onClick={onPickFolder}>{messages["html_uploader.drop-pick-folder"]}</a></span>}
                     </div>
                 </div>
                 <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>

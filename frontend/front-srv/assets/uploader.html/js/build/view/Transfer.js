@@ -149,6 +149,7 @@ var Transfer = function (_React$Component) {
             var isDir = item instanceof UploaderModel.FolderItem;
             var isPart = item instanceof UploaderModel.PartItem;
             var isSession = item instanceof UploaderModel.Session;
+            var messages = _pydio2.default.getMessages();
 
             var styles = {
                 main: _extends({}, style, {
@@ -230,7 +231,7 @@ var Transfer = function (_React$Component) {
                 errMessage = void 0;
 
             if (children.length) {
-                if (open || isSession && status !== 'analyse') {
+                if (open || isSession && status !== _StatusItem2.default.StatusAnalyze) {
                     var sliced = showAll ? children : children.slice(0, limit);
                     childComps = sliced.map(function (child) {
                         return _react2.default.createElement(Transfer, {
@@ -252,8 +253,7 @@ var Transfer = function (_React$Component) {
                             _react2.default.createElement(
                                 'span',
                                 { style: { flex: 1, fontStyle: 'italic' } },
-                                children.length - sliced.length,
-                                ' more - show all'
+                                messages['html_uploader.list.show-more'].replace('%d', children.length - sliced.length)
                             )
                         ));
                     }
@@ -287,11 +287,11 @@ var Transfer = function (_React$Component) {
                     iconClass = 'mimefont mdi mdi-' + fontIcon;
                 }
 
-                if (status === 'loading') {
+                if (status === _StatusItem2.default.StatusLoading || status === _StatusItem2.default.StatusCannotPause || status === _StatusItem2.default.StatusMultiPause) {
                     rightButton = _react2.default.createElement('span', { className: 'mdi mdi-stop', onClick: function onClick() {
                             return _this3.abort();
                         } });
-                } else if (status === 'error') {
+                } else if (status === _StatusItem2.default.StatusError) {
                     pgColor = '#e53935';
                     rightButton = _react2.default.createElement('span', { className: "mdi mdi-restart", style: { color: '#e53935' }, onClick: function onClick() {
                             _this3.retry();
@@ -308,7 +308,7 @@ var Transfer = function (_React$Component) {
             var progressBar = _react2.default.createElement(_materialUi.LinearProgress, { style: { backgroundColor: '#eeeeee', height: 3 }, color: pgColor, min: 0, max: 100, value: progress, mode: "determinate" });
 
             if (isSession) {
-                if (status === 'analyse') {
+                if (status === _StatusItem2.default.StatusAnalyze) {
                     label = _pydio2.default.getMessages()["html_uploader.analyze.step"];
                     progressBar = null;
                     toggleCallback = null;
@@ -352,6 +352,20 @@ var Transfer = function (_React$Component) {
                     item.getErrorMessage()
                 );
             }
+            var statusLabel = void 0;
+            var itemType = isDir ? "dir" : isPart ? "part" : "file";
+            if (status === 'error') {
+                statusLabel = _react2.default.createElement(
+                    'span',
+                    { style: styles.errMessage, title: item.getErrorMessage() },
+                    item.getErrorMessage()
+                );
+            } else {
+                statusLabel = messages['html_uploader.status.' + itemType + '.' + status] || messages['html_uploader.status.' + status] || status;
+                if (item.getSize) {
+                    statusLabel = item.getSize() + 'B' + ' - ' + statusLabel;
+                }
+            }
 
             return _react2.default.createElement(
                 'div',
@@ -373,9 +387,7 @@ var Transfer = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: styles.secondaryLine },
-                            errMessage,
-                            item.getSize && item.getSize() + 'B' + ' - ',
-                            status
+                            statusLabel
                         ),
                         _react2.default.createElement(
                             'div',

@@ -84,22 +84,26 @@ var TransfersList = function (_React$Component) {
                     _react2.default.createElement('div', { className: 'mdi mdi-cloud-upload', style: { fontSize: 110 } }),
                     _react2.default.createElement(
                         'div',
-                        { style: { textTransform: 'lowercase' } },
+                        null,
                         messages["html_uploader.drophere"],
-                        ' or ',
+                        ' ',
+                        messages["html_uploader.drop-or"],
+                        ' ',
                         _react2.default.createElement(
                             'a',
                             { onClick: onPickFile },
-                            messages["html_uploader.4"]
+                            messages["html_uploader.drop-pick-file"]
                         ),
                         onPickFolder && _react2.default.createElement(
                             'span',
                             null,
-                            ' or ',
+                            ' ',
+                            messages["html_uploader.drop-or"],
+                            ' ',
                             _react2.default.createElement(
                                 'a',
                                 { onClick: onPickFolder },
-                                messages["html_uploader.5"]
+                                messages["html_uploader.drop-pick-folder"]
                             )
                         )
                     )
