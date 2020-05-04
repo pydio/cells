@@ -15,23 +15,28 @@ var data = map[string]map[string][]byte{}
 var gil2 = &sync.Mutex{}
 var loaders = map[string]func(){}
 
+var boxLockers = map[string]*sync.Mutex{}
+
 // PackBytes packs bytes for a file into a box.
 func PackBytes(box string, name string, bb []byte) {
 	gil.Lock()
 	defer gil.Unlock()
 	if _, ok := data[box]; !ok {
 		data[box] = map[string][]byte{}
+		boxLockers[box] = &sync.Mutex{}
 	}
+	boxLockers[box].Lock()
+	defer boxLockers[box].Unlock()
 	data[box][name] = bb
 }
 
-func GetBox(box string) (map[string][]byte, bool) {
+func GetBox(box string) (map[string][]byte, bool, *sync.Mutex) {
 	gil.Lock()
 	defer gil.Unlock()
 	if dd, ok := data[box]; ok {
-		return dd, ok
+		return dd, ok, boxLockers[box]
 	}
-	return nil, false
+	return nil, false, nil
 }
 
 // PackBytesGzip packets the gzipped compressed bytes into a box.

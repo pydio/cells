@@ -154,13 +154,15 @@ func (b Box) find(name string) (File, error) {
 	// Absolute name is considered as relative to the box root
 	cleanName = strings.TrimPrefix(cleanName, "/")
 
-	if _, o1 := GetBox(b.Path); !o1 {
+	if _, o1, _ := GetBox(b.Path); !o1 {
 		if l, o2 := loaders[b.Path]; o2 {
 			l()
 		}
 	}
 
-	if box, ok := GetBox(b.Path); ok {
+	if box, ok, lock := GetBox(b.Path); ok {
+		lock.Lock()
+		defer lock.Unlock()
 		if bb, ok := box[cleanName]; ok {
 			bb = b.decompress(bb)
 			return packd.NewFile(cleanName, bytes.NewReader(bb))
@@ -209,7 +211,9 @@ func (b Box) List() []string {
 
 func (b *Box) indexDirectories() {
 	b.directories = map[string]bool{}
-	if box, ok := GetBox(b.Path); ok {
+	if box, ok, lock := GetBox(b.Path); ok {
+		lock.Lock()
+		defer lock.Unlock()
 		for name := range box {
 			prefix, _ := path.Split(name)
 			// Even on Windows the suffix appears to be a /

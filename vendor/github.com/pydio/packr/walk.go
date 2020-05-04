@@ -13,13 +13,13 @@ type WalkFunc = packd.WalkFunc
 // Walk will traverse the box and call the WalkFunc for each file in the box/folder.
 func (b Box) Walk(wf WalkFunc) error {
 
-	if _, o1 := GetBox(b.Path); !o1 {
+	if _, o1, _ := GetBox(b.Path); !o1 {
 		if l, o2 := loaders[b.Path]; o2 {
 			l()
 		}
 	}
 
-	box, o := GetBox(b.Path)
+	box, o, lock := GetBox(b.Path)
 	if !o {
 		base, err := filepath.EvalSymlinks(filepath.Join(b.callingDir, b.Path))
 		if err != nil {
@@ -44,6 +44,8 @@ func (b Box) Walk(wf WalkFunc) error {
 			return wf(cleanName, file)
 		})
 	}
+	lock.Lock()
+	defer lock.Unlock()
 	for n := range box {
 		f, err := b.find(n)
 		if err != nil {
