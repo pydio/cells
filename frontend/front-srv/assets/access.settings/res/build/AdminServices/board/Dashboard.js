@@ -112,7 +112,7 @@ exports['default'] = _react2['default'].createClass({
                 { style: { width: 150, marginRight: 8 } },
                 _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: _extends({ width: 150 }, ModernStyles.toggleField.style) })
             ),
-            peers.length && _react2['default'].createElement(
+            peers.length > 0 && _react2['default'].createElement(
                 'div',
                 { style: { width: 150, height: 14, marginRight: 8 } },
                 _react2['default'].createElement(

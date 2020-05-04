@@ -73,7 +73,7 @@ export default React.createClass({
                 <div style={{width: 150, marginRight: 8}}>
                     <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150, ...ModernStyles.toggleField.style}}/>
                 </div>
-                {peers.length &&
+                {peers.length > 0 &&
                     <div style={{width: 150, height:14, marginRight: 8}}>
                         <ModernSelectField fullWidth={true} className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
                             <MenuItem value={''} primaryText={m('peerfilter.title')} />
