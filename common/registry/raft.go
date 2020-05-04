@@ -63,6 +63,15 @@ type pingResponse struct {
 	OK bool `json:"ok"`
 }
 
+const (
+	defaultJoinRaftGroupTimeout = time.Second
+	defaultRaftHBTimeout        = 2 * time.Second
+	defaultRaftElectionTimeout  = 2 * time.Second
+	defaultRaftLeaseTimeout     = time.Second
+	defaultRaftCommitTimeout    = 100 * time.Millisecond
+	timeoutForDialAndFlush      = 2 * time.Second
+)
+
 type raftNatsCluster struct {
 	ctx         context.Context
 	serviceName string
@@ -80,9 +89,10 @@ type raftNatsCluster struct {
 
 func GetCluster(ctx context.Context, serviceName string, fsm raft.FSM) Cluster {
 	c := raft.DefaultConfig()
-	c.ElectionTimeout = 5 * time.Second
-	c.HeartbeatTimeout = 5 * time.Second
-	c.LeaderLeaseTimeout = 2 * time.Second
+	c.ElectionTimeout = defaultRaftElectionTimeout
+	c.HeartbeatTimeout = defaultRaftHBTimeout
+	c.LeaderLeaseTimeout = defaultRaftLeaseTimeout
+	c.CommitTimeout = defaultRaftCommitTimeout
 	return &raftNatsCluster{
 		ctx:         ctx,
 		serviceName: serviceName,
@@ -127,7 +137,9 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	r.config.Logger = stdlog.New(r.logger(), "", 0)
 
 	natsOpts := nats.GetDefaultOptions()
-	natsOpts.Timeout = 4 * time.Second
+	natsOpts.Timeout = defaultJoinRaftGroupTimeout
+	natsOpts.FlusherTimeout = timeoutForDialAndFlush
+
 	addr := viper.GetString("registry_address")
 	natsOpts.Url = addr
 	var err error
@@ -135,7 +147,7 @@ func (r *raftNatsCluster) Join(nodeId string) error {
 	if err != nil {
 		return err
 	}
-	transport, err := natslog.NewNATSTransportWithLogger(r.localId, r.conn, 4*time.Second, r.config.Logger)
+	transport, err := natslog.NewNATSTransportWithLogger(r.localId, r.conn, defaultJoinRaftGroupTimeout, r.config.Logger)
 	if err != nil {
 		return err
 	}
