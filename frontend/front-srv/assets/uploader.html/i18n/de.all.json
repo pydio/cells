@@ -1,30 +1,27 @@
 {
-  "1": {
-    "other": "%s Datei(en) in die Warteschlange gestellt"
+  "start": {
+    "other": "Starten"
   },
-  "10": {
-    "other": ""
+  "pause": {
+    "other": "Pausieren"
   },
-  "11": {
-    "other": "Hochladen"
+  "clear": {
+    "other": "Leeren"
   },
-  "12": {
-    "other": "Liste leeren"
+  "clear-header": {
+    "other": "Liste leeren..."
   },
-  "13": {
-    "other": "Ordner erstellt"
+  "clear-finished": {
+    "other": "Uploads abgeschlossen"
   },
-  "14": {
-    "other": "In Bearbeitung"
+  "clear-failed": {
+    "other": "Gescheiterte Uploads"
   },
-  "15": {
-    "other": "Ausstehend"
+  "clear-all": {
+    "other": "Alle Transfers"
   },
-  "16": {
-    "other": "Zuletzt hochgeladen"
-  },
-  "17": {
-    "other": "Zuletzt hochgeladene ausblenden"
+  "list.show-more": {
+    "other": "%d mehr - alle anzeigen"
   },
   "options.existing": {
     "other": "Bei Dateien mit gleichem Namen:"
@@ -37,9 +34,6 @@
   },
   "options.existing.merge": {
     "other": "Nur Dateien umbenennen (Ordner zusammenführen)"
-  },
-  "2": {
-    "other": "Lade %s Datei(en) hoch"
   },
   "options.existing.overwrite": {
     "other": "Bestehende Datei still überschreiben"
@@ -56,37 +50,73 @@
   "confirm.save.choice": {
     "other": "Auswahl für die nächsten Uploads speichern"
   },
-  "22": {
-    "other": "Optionen"
+  "options": {
+    "other": "Upload-Optionen"
   },
-  "23": {
-    "other": "Fehler"
-  },
-  "3": {
+  "upload.forbidden": {
     "other": "Sie dürfen hier keine Dateien hochladen"
   },
-  "4": {
-    "other": "Dateien auswählen"
-  },
-  "5": {
-    "other": "Ordner auswählen"
-  },
-  "6": {
-    "other": "Erstellung des Ordners kann nicht abgebrochen werden"
-  },
-  "7": {
+  "task.label": {
     "other": "Hochladen von Dateien..."
   },
-  "8": {
+  "no-folders-support": {
     "other": "Ihr Browser unterstützt das Hochladen von Ordnern nicht"
-  },
-  "9": {
-    "other": ""
   },
   "analyze.step": {
     "other": "Dateien und Ordner werden für den Upload vorbereitet..."
   },
   "drophere": {
     "other": "Dateien hier ablegen"
+  },
+  "drop-or": {
+    "other": "oder"
+  },
+  "drop-pick-file": {
+    "other": "Dateien durchsuchen"
+  },
+  "drop-pick-folder": {
+    "other": "Ordner durchsuchen"
+  },
+  "dialog.title": {
+    "other": "Transfers"
+  },
+  "status.new": {
+    "other": "Steht aus"
+  },
+  "status.error": {
+    "other": "Fehler aufgetreten"
+  },
+  "status.pause": {
+    "other": "Pausiert"
+  },
+  "status.analyse": {
+    "other": "Analyzing..."
+  },
+  "status.dir.loading": {
+    "other": "Ordner wird erstellt"
+  },
+  "status.file.loading": {
+    "other": "Datei wird hochgeladen"
+  },
+  "status.dir.loaded": {
+    "other": "Ordner erstellt"
+  },
+  "status.file.loaded": {
+    "other": "Datei hochgeladen"
+  },
+  "status.part.loaded": {
+    "other": "Chunk hochgeladen"
+  },
+  "status.part.loading": {
+    "other": "Chunk wird hochgeladen"
+  },
+  "status.multi-pause": {
+    "other": "Aktuellen Chunk vor dem Pausieren beenden"
+  },
+  "status.file.cannot-pause": {
+    "other": "Dieser Upload kann nicht angehalten werden"
+  },
+  "status.part.cannot-pause": {
+    "other": "Die Chunk-Upload kann nicht angehalten werden"
   }
 }

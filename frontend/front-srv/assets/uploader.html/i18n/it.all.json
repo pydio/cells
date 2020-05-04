@@ -1,30 +1,27 @@
 {
-  "1": {
-    "other": "%s file in coda per l'upload"
+  "start": {
+    "other": "Start"
   },
-  "10": {
-    "other": ""
+  "pause": {
+    "other": "Pause"
   },
-  "11": {
-    "other": "Avvia"
+  "clear": {
+    "other": "Clear"
   },
-  "12": {
-    "other": "Svuota lista"
+  "clear-header": {
+    "other": "Clear list..."
   },
-  "13": {
-    "other": "Cartella creata"
+  "clear-finished": {
+    "other": "Finished Uploads"
   },
-  "14": {
-    "other": "In elaborazione"
+  "clear-failed": {
+    "other": "Failed Uploads"
   },
-  "15": {
-    "other": "In sospeso"
+  "clear-all": {
+    "other": "All Transfers"
   },
-  "16": {
-    "other": "Elaborato"
-  },
-  "17": {
-    "other": "Mostra/Nascondi file elaborati"
+  "list.show-more": {
+    "other": "%d more - show all"
   },
   "options.existing": {
     "other": "Se esiste un file con lo stesso nome:"
@@ -37,9 +34,6 @@
   },
   "options.existing.merge": {
     "other": "Rinominare solo i file (unisci le cartelle)"
-  },
-  "2": {
-    "other": "Caricamento di %s file"
   },
   "options.existing.overwrite": {
     "other": "Sovrascrivere il file esistente senza avvertire"
@@ -56,37 +50,73 @@
   "confirm.save.choice": {
     "other": "Save choice for next uploads"
   },
-  "22": {
-    "other": "Opzioni"
+  "options": {
+    "other": "Upload options"
   },
-  "23": {
-    "other": "Errori"
+  "upload.forbidden": {
+    "other": "You are not allowed to upload this file here"
   },
-  "3": {
-    "other": "Non hai le autorizzazioni necessarie per caricare questo file qui"
+  "task.label": {
+    "other": "Uploading files to server..."
   },
-  "4": {
-    "other": "Scegli un file"
-  },
-  "5": {
-    "other": "Scegli una cartella"
-  },
-  "6": {
-    "other": "Non posso interrompere la creazione della cartella"
-  },
-  "7": {
-    "other": "Caricamento dei file sul server..."
-  },
-  "8": {
-    "other": "Sembra che il tuo browser non supporti l'eliminazione delle cartelle"
-  },
-  "9": {
-    "other": ""
+  "no-folders-support": {
+    "other": "It seems that your browser does not support dropping folders"
   },
   "analyze.step": {
     "other": "Preparazione di file e cartelle per il caricamento..."
   },
   "drophere": {
-    "other": "Trascina i file qui"
+    "other": "Drop files here"
+  },
+  "drop-or": {
+    "other": "or"
+  },
+  "drop-pick-file": {
+    "other": "browse files"
+  },
+  "drop-pick-folder": {
+    "other": "browse folders"
+  },
+  "dialog.title": {
+    "other": "Transfers"
+  },
+  "status.new": {
+    "other": "Pending"
+  },
+  "status.error": {
+    "other": "An error occured"
+  },
+  "status.pause": {
+    "other": "Paused"
+  },
+  "status.analyse": {
+    "other": "Analyzing..."
+  },
+  "status.dir.loading": {
+    "other": "Creating folder"
+  },
+  "status.file.loading": {
+    "other": "Uploading file"
+  },
+  "status.dir.loaded": {
+    "other": "Folder created"
+  },
+  "status.file.loaded": {
+    "other": "File uploaded"
+  },
+  "status.part.loaded": {
+    "other": "Chunk uploaded"
+  },
+  "status.part.loading": {
+    "other": "Uploading chunk"
+  },
+  "status.multi-pause": {
+    "other": "Finishing current chunk before pausing"
+  },
+  "status.file.cannot-pause": {
+    "other": "Cannot pause this transfer"
+  },
+  "status.part.cannot-pause": {
+    "other": "Cannot pause chunk transfer"
   }
 }

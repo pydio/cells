@@ -41,8 +41,8 @@
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
     "other": "Basculer vers l'envoi en plusieurs parties pour les fichiers plus gros que cette taille (en octets)"
   },
-  "Chunk Size used for multipart uploads": {
-    "other": "Taille de chaque partie pour l'envoi en plusieurs parties"
+  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
+    "other": "Taille du chunk utilisée pour les uploads en multipart, doit être supérieure à 5 Mo (5242800B)"
   },
   "Queue Size": {
     "other": "Taille de la queue"

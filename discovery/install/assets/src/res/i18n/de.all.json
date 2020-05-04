@@ -186,43 +186,43 @@
     "other": "Verwenden Sie einen absoluten Pfad auf dem Server"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "Lokaler FS (alle Daten auf diesem Server speichern)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 (store all data inside S3 buckets)"
+    "other": "Amazon S3 (alle Daten in S3-Buckets speichern)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 API-Schlüssel"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "Schlüssel zum Verbinden mit S3"
   },
   "form.dsS3ApiSecret.label": {
     "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "Geheimschlüssel"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "Mit S3 verbinden, um Buckets zu definieren"
   },
   "form.s3BucketsPrefix.label": {
-    "other": "Buckets prefix"
+    "other": "Buckets-Präfix"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "Ein eindeutiges Präfix zum Erstellen der 6 Standard-Buckets"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "Folgende Bucket(s) sind bereits vorhanden"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "Folgende Bucket(s) werden erstellt"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "Die folgenden Buckets wurden nicht gefunden"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "Sie dürfen keine Buckets erstellen, stellen Sie sicher, dass Sie diese manuell erstellen!"
   },
   "stepper.button.next": {
     "other": "Weiter"

@@ -1,30 +1,27 @@
 {
-  "1": {
-    "other": "%s fichiers en attente"
-  },
-  "10": {
-    "other": ""
-  },
-  "11": {
+  "start": {
     "other": "Démarrer"
   },
-  "12": {
-    "other": "Vider"
+  "pause": {
+    "other": "Suspendre"
   },
-  "13": {
-    "other": "Répertoire créé"
+  "clear": {
+    "other": "Supprimer"
   },
-  "14": {
-    "other": "En cours"
+  "clear-header": {
+    "other": "Vider la liste..."
   },
-  "15": {
-    "other": "En attente"
+  "clear-finished": {
+    "other": "Transferts terminés"
   },
-  "16": {
-    "other": "Terminés"
+  "clear-failed": {
+    "other": "Transferts échoués"
   },
-  "17": {
-    "other": "Montrer/cacher les fichiers transférés"
+  "clear-all": {
+    "other": "Tous les transferts"
+  },
+  "list.show-more": {
+    "other": "%d de plus - voir tout"
   },
   "options.existing": {
     "other": "Si un fichier existe avec le même nom:"
@@ -37,9 +34,6 @@
   },
   "options.existing.merge": {
     "other": "Renommer les fichiers (fusionner les dossiers)"
-  },
-  "2": {
-    "other": "Chargement de %s fichiers"
   },
   "options.existing.overwrite": {
     "other": "Ecraser les fichiers en silence"
@@ -56,37 +50,73 @@
   "confirm.save.choice": {
     "other": "Sauver ce choix"
   },
-  "22": {
-    "other": "Options"
+  "options": {
+    "other": "Options d'envoi"
   },
-  "23": {
-    "other": "Erreurs"
+  "upload.forbidden": {
+    "other": "Vous n'êtes pas autorisé à ajouter des fichiers ici"
   },
-  "3": {
-    "other": "Vous n'êtes pas autorisé à transférer ce fichier ici"
-  },
-  "4": {
-    "other": "Fichier"
-  },
-  "5": {
-    "other": "Répertoire"
-  },
-  "6": {
-    "other": "Impossible d'annuler la création d'un dossier"
-  },
-  "7": {
+  "task.label": {
     "other": "Transfert des fichiers vers le serveur..."
   },
-  "8": {
-    "other": "Il semble que votre navigateur ne supporte pas le chargement de dossiers. Vous devriez utiliser l'application de synchronisation."
-  },
-  "9": {
-    "other": ""
+  "no-folders-support": {
+    "other": "Il semble que votre navigateur ne supporte pas le dépôt de dossiers"
   },
   "analyze.step": {
     "other": "Préparation des fichiers et répertoires pour l'upload..."
   },
   "drophere": {
-    "other": "Déposez des fichiers ici"
+    "other": "Déposez vos fichiers ici"
+  },
+  "drop-or": {
+    "other": "ou"
+  },
+  "drop-pick-file": {
+    "other": "choisir des fichiers"
+  },
+  "drop-pick-folder": {
+    "other": "choisir un dossier"
+  },
+  "dialog.title": {
+    "other": "Transferts"
+  },
+  "status.new": {
+    "other": "En attente"
+  },
+  "status.error": {
+    "other": "Une erreur s'est produite"
+  },
+  "status.pause": {
+    "other": "En pause"
+  },
+  "status.analyse": {
+    "other": "Analyse ..."
+  },
+  "status.dir.loading": {
+    "other": "Création du dossier"
+  },
+  "status.file.loading": {
+    "other": "Chargement du fichier"
+  },
+  "status.dir.loaded": {
+    "other": "Dossier créé"
+  },
+  "status.file.loaded": {
+    "other": "Fichier transféré"
+  },
+  "status.part.loaded": {
+    "other": "Sous-partie transferée"
+  },
+  "status.part.loading": {
+    "other": "Transfert de la sous-partie en cours"
+  },
+  "status.multi-pause": {
+    "other": "Transfert de la sous-partie avant mise en pause"
+  },
+  "status.file.cannot-pause": {
+    "other": "Ce transfert ne peut être mis en pause"
+  },
+  "status.part.cannot-pause": {
+    "other": "Le transfert d'une sous-partie ne peut-être mis en pause"
   }
 }
