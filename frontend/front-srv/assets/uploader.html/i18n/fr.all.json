@@ -1,30 +1,27 @@
 {
-  "1": {
-    "other": "%s fichiers en attente"
+  "start": {
+    "other": "Start"
   },
-  "10": {
-    "other": ""
+  "pause": {
+    "other": "Pause"
   },
-  "11": {
-    "other": "Démarrer"
+  "clear": {
+    "other": "Clear"
   },
-  "12": {
-    "other": "Vider"
+  "clear-header": {
+    "other": "Clear list..."
   },
-  "13": {
-    "other": "Répertoire créé"
+  "clear-finished": {
+    "other": "Finished Uploads"
   },
-  "14": {
-    "other": "En cours"
+  "clear-failed": {
+    "other": "Failed Uploads"
   },
-  "15": {
-    "other": "En attente"
+  "clear-all": {
+    "other": "All Transfers"
   },
-  "16": {
-    "other": "Terminés"
-  },
-  "17": {
-    "other": "Montrer/cacher les fichiers transférés"
+  "list.show-more": {
+    "other": "%d more - show all"
   },
   "options.existing": {
     "other": "Si un fichier existe avec le même nom:"
@@ -37,9 +34,6 @@
   },
   "options.existing.merge": {
     "other": "Renommer les fichiers (fusionner les dossiers)"
-  },
-  "2": {
-    "other": "Chargement de %s fichiers"
   },
   "options.existing.overwrite": {
     "other": "Ecraser les fichiers en silence"
@@ -56,37 +50,73 @@
   "confirm.save.choice": {
     "other": "Sauver ce choix"
   },
-  "22": {
-    "other": "Options"
+  "options": {
+    "other": "Upload options"
   },
-  "23": {
-    "other": "Erreurs"
+  "upload.forbidden": {
+    "other": "You are not allowed to upload this file here"
   },
-  "3": {
-    "other": "Vous n'êtes pas autorisé à transférer ce fichier ici"
+  "task.label": {
+    "other": "Uploading files to server..."
   },
-  "4": {
-    "other": "Fichier"
-  },
-  "5": {
-    "other": "Répertoire"
-  },
-  "6": {
-    "other": "Impossible d'annuler la création d'un dossier"
-  },
-  "7": {
-    "other": "Transfert des fichiers vers le serveur..."
-  },
-  "8": {
-    "other": "Il semble que votre navigateur ne supporte pas le chargement de dossiers. Vous devriez utiliser l'application de synchronisation."
-  },
-  "9": {
-    "other": ""
+  "no-folders-support": {
+    "other": "It seems that your browser does not support dropping folders"
   },
   "analyze.step": {
     "other": "Préparation des fichiers et répertoires pour l'upload..."
   },
   "drophere": {
-    "other": "Déposez des fichiers ici"
+    "other": "Drop files here"
+  },
+  "drop-or": {
+    "other": "or"
+  },
+  "drop-pick-file": {
+    "other": "browse files"
+  },
+  "drop-pick-folder": {
+    "other": "browse folders"
+  },
+  "dialog.title": {
+    "other": "Transfers"
+  },
+  "status.new": {
+    "other": "Pending"
+  },
+  "status.error": {
+    "other": "An error occured"
+  },
+  "status.pause": {
+    "other": "Paused"
+  },
+  "status.analyse": {
+    "other": "Analyzing..."
+  },
+  "status.dir.loading": {
+    "other": "Creating folder"
+  },
+  "status.file.loading": {
+    "other": "Uploading file"
+  },
+  "status.dir.loaded": {
+    "other": "Folder created"
+  },
+  "status.file.loaded": {
+    "other": "File uploaded"
+  },
+  "status.part.loaded": {
+    "other": "Chunk uploaded"
+  },
+  "status.part.loading": {
+    "other": "Uploading chunk"
+  },
+  "status.multi-pause": {
+    "other": "Finishing current chunk before pausing"
+  },
+  "status.file.cannot-pause": {
+    "other": "Cannot pause this transfer"
+  },
+  "status.part.cannot-pause": {
+    "other": "Cannot pause chunk transfer"
   }
 }

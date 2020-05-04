@@ -1,30 +1,27 @@
 {
-  "1": {
-    "other": "%s están en cola para subir"
+  "start": {
+    "other": "Start"
   },
-  "10": {
-    "other": ""
+  "pause": {
+    "other": "Pause"
   },
-  "11": {
-    "other": "Empezar"
+  "clear": {
+    "other": "Clear"
   },
-  "12": {
-    "other": "Limpiar"
+  "clear-header": {
+    "other": "Clear list..."
   },
-  "13": {
-    "other": "Carpeta creada"
+  "clear-finished": {
+    "other": "Finished Uploads"
   },
-  "14": {
-    "other": "Procesando"
+  "clear-failed": {
+    "other": "Failed Uploads"
   },
-  "15": {
-    "other": "Pendiente"
+  "clear-all": {
+    "other": "All Transfers"
   },
-  "16": {
-    "other": "Procesado"
-  },
-  "17": {
-    "other": "Mostrar archivos procesados"
+  "list.show-more": {
+    "other": "%d more - show all"
   },
   "options.existing": {
     "other": "Si existe un archivo con el mismo nombre:"
@@ -37,9 +34,6 @@
   },
   "options.existing.merge": {
     "other": "Renombrar sólo archivos (fusionar carpetas)"
-  },
-  "2": {
-    "other": "Subiendo %s archivos"
   },
   "options.existing.overwrite": {
     "other": "Sobrescribir el archivo existente sin notificarlo"
@@ -56,37 +50,73 @@
   "confirm.save.choice": {
     "other": "Save choice for next uploads"
   },
-  "22": {
-    "other": "Opciones"
+  "options": {
+    "other": "Upload options"
   },
-  "23": {
-    "other": "Errores"
+  "upload.forbidden": {
+    "other": "You are not allowed to upload this file here"
   },
-  "3": {
-    "other": "No tiene permisos para subir este archivo aquí"
+  "task.label": {
+    "other": "Uploading files to server..."
   },
-  "4": {
-    "other": "Seleccionar Archivo"
-  },
-  "5": {
-    "other": "Seleccionar Carpeta"
-  },
-  "6": {
-    "other": "No se puede cancelar la creación de la carpeta"
-  },
-  "7": {
-    "other": "Subiendo archivos al servidor..."
-  },
-  "8": {
-    "other": "Parece que su navegador no permite soltar carpetas"
-  },
-  "9": {
-    "other": ""
+  "no-folders-support": {
+    "other": "It seems that your browser does not support dropping folders"
   },
   "analyze.step": {
     "other": "Preparando archivos y carpetas para subir..."
   },
   "drophere": {
-    "other": "Soltar archivos aquí"
+    "other": "Drop files here"
+  },
+  "drop-or": {
+    "other": "or"
+  },
+  "drop-pick-file": {
+    "other": "browse files"
+  },
+  "drop-pick-folder": {
+    "other": "browse folders"
+  },
+  "dialog.title": {
+    "other": "Transfers"
+  },
+  "status.new": {
+    "other": "Pending"
+  },
+  "status.error": {
+    "other": "An error occured"
+  },
+  "status.pause": {
+    "other": "Paused"
+  },
+  "status.analyse": {
+    "other": "Analyzing..."
+  },
+  "status.dir.loading": {
+    "other": "Creating folder"
+  },
+  "status.file.loading": {
+    "other": "Uploading file"
+  },
+  "status.dir.loaded": {
+    "other": "Folder created"
+  },
+  "status.file.loaded": {
+    "other": "File uploaded"
+  },
+  "status.part.loaded": {
+    "other": "Chunk uploaded"
+  },
+  "status.part.loading": {
+    "other": "Uploading chunk"
+  },
+  "status.multi-pause": {
+    "other": "Finishing current chunk before pausing"
+  },
+  "status.file.cannot-pause": {
+    "other": "Cannot pause this transfer"
+  },
+  "status.part.cannot-pause": {
+    "other": "Cannot pause chunk transfer"
   }
 }
