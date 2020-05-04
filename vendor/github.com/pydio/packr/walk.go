@@ -47,7 +47,7 @@ func (b Box) Walk(wf WalkFunc) error {
 	lock.Lock()
 	defer lock.Unlock()
 	for n := range box {
-		f, err := b.find(n)
+		f, err := b.find(n, true)
 		if err != nil {
 			return err
 		}

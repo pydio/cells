@@ -26,8 +26,8 @@ func PackBytes(box string, name string, bb []byte) {
 		boxLockers[box] = &sync.Mutex{}
 	}
 	boxLockers[box].Lock()
-	defer boxLockers[box].Unlock()
 	data[box][name] = bb
+	boxLockers[box].Unlock()
 }
 
 func GetBox(box string) (map[string][]byte, bool, *sync.Mutex) {
