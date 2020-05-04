@@ -1,27 +1,27 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Starten"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Pausieren"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Leeren"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Liste leeren..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Uploads abgeschlossen"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Gescheiterte Uploads"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Alle Transfers"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d mehr - alle anzeigen"
   },
   "options.existing": {
     "other": "Bei Dateien mit gleichem Namen:"
@@ -51,72 +51,72 @@
     "other": "Auswahl für die nächsten Uploads speichern"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Upload-Optionen"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Sie dürfen hier keine Dateien hochladen"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Hochladen von Dateien..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Ihr Browser unterstützt das Hochladen von Ordnern nicht"
   },
   "analyze.step": {
     "other": "Dateien und Ordner werden für den Upload vorbereitet..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Dateien hier ablegen"
   },
   "drop-or": {
-    "other": "or"
+    "other": "oder"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "Dateien durchsuchen"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "Ordner durchsuchen"
   },
   "dialog.title": {
     "other": "Transfers"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "Steht aus"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Fehler aufgetreten"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "Pausiert"
   },
   "status.analyse": {
     "other": "Analyzing..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Ordner wird erstellt"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Datei wird hochgeladen"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Ordner erstellt"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Datei hochgeladen"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Chunk hochgeladen"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Chunk wird hochgeladen"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Aktuellen Chunk vor dem Pausieren beenden"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Dieser Upload kann nicht angehalten werden"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Die Chunk-Upload kann nicht angehalten werden"
   }
 }
