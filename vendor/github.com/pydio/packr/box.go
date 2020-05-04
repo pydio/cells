@@ -143,7 +143,7 @@ func (b Box) find(name string, lockSet bool) (File, error) {
 	}
 
 	if b.directories == nil {
-		b.indexDirectories()
+		b.indexDirectories(lockSet)
 	}
 
 	cleanName := filepath.ToSlash(filepath.Clean(name))
@@ -211,17 +211,19 @@ func (b Box) List() []string {
 	return keys
 }
 
-func (b *Box) indexDirectories() {
+func (b *Box) indexDirectories(lockSet bool) {
 	b.directories = map[string]bool{}
 	if box, ok, lock := GetBox(b.Path); ok {
-		lock.Lock()
+		if !lockSet{
+			lock.Lock()
+			lock.Unlock()
+		}
 		for name := range box {
 			prefix, _ := path.Split(name)
 			// Even on Windows the suffix appears to be a /
 			prefix = strings.TrimSuffix(prefix, "/")
 			b.directories[prefix] = true
 		}
-		lock.Unlock()
 	}
 }
 
