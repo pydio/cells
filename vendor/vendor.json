@@ -3987,10 +3987,10 @@
 			"tree": true
 		},
 		{
-			"checksumSHA1": "6k5WOrjYcKugmaBH6AlDKw6gGVk=",
+			"checksumSHA1": "m8cPU3Xj5qebn0vVI06DyVmJn3I=",
 			"path": "github.com/pydio/nats-on-a-log",
-			"revision": "9db47696d02e5af33ccc7804d4fcc439a2317197",
-			"revisionTime": "2020-02-26T18:22:08Z"
+			"revision": "5cacfa523576f0e4290244d3e7b31ac65131c720",
+			"revisionTime": "2020-05-04T12:46:35Z"
 		},
 		{
 			"checksumSHA1": "1nhHAedLoZtrtPoroK3i13atfE4=",
