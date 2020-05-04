@@ -97,6 +97,8 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	rsp.WriteAsXml(registry)
 }
 
+// FrontBootConf loads an open JSON struct for start configuration. As it can be called
+// directly as a simple GET /a/frontend/bootconf, this endpoint can rely on Cookie for authentication
 func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
 
 	pool, e := frontend.GetPluginsPool()
@@ -114,6 +116,7 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 
 }
 
+// FrontPlugins dumps a full list of available frontend plugins
 func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) {
 
 	pool, e := frontend.GetPluginsPool()
@@ -138,6 +141,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	rsp.WriteAsXml(plugins)
 }
 
+// FrontSessionGet loads a cookie-based session to get info about an access token
 func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
 	sessionName := "pydio"
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
@@ -162,6 +166,7 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 	rsp.WriteEntity(response)
 }
 
+// FrontSession initiate a cookie-based session based on a LoginRequest
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 
 	var loginRequest rest.FrontSessionRequest
@@ -218,6 +223,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	rsp.WriteEntity(response)
 }
 
+// FrontendSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
 	sessionName := "pydio"
@@ -243,6 +249,7 @@ func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Res
 	frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
 }
 
+// FrontMessages loads all i18n messages for a given language
 func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
@@ -270,6 +277,8 @@ func ctxWithoutCookies(ctx context.Context) context.Context {
 }
 
 // FrontServeBinary triggers the download of a stored binary.
+// As it can be used directly in <img url="/a/frontend/binary">, this endpoint can rely
+// on the cookie to authenticate user
 func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
 
 	binaryType := req.PathParameter("BinaryType")
@@ -431,6 +440,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 
 }
 
+// SettingsMenu builds the list of available page for the Cells Console left menu
 func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) {
 
 	rsp.WriteEntity(settingsNode)
