@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	"github.com/gin-gonic/gin/json"
 	"github.com/pydio/packr"
 )
@@ -35,6 +37,42 @@ import (
 type UnionHttpFs struct {
 	boxes     []packr.Box
 	indexFile http.File
+
+	useTime bool
+	time    time.Time
+}
+
+type timedFile struct {
+	http.File
+	t time.Time
+}
+
+func newTimedFile(f http.File, t time.Time) *timedFile {
+	return &timedFile{
+		File: f,
+		t:    t,
+	}
+}
+
+func (tf *timedFile) Stat() (os.FileInfo, error) {
+	s, e := tf.File.Stat()
+	if e != nil {
+		return nil, e
+	}
+	ti := &timedInfo{
+		FileInfo: s,
+		t:        tf.t,
+	}
+	return ti, nil
+}
+
+type timedInfo struct {
+	os.FileInfo
+	t time.Time
+}
+
+func (ti *timedInfo) ModTime() time.Time {
+	return ti.t
 }
 
 func NewUnionHttpFs(boxes ...PluginBox) *UnionHttpFs {
@@ -46,10 +84,24 @@ func NewUnionHttpFs(boxes ...PluginBox) *UnionHttpFs {
 		packrs = append(packrs, b.Box)
 		allRoots = append(allRoots, b.Exposes...)
 	}
-	return &UnionHttpFs{
+	ufs := &UnionHttpFs{
 		boxes:     packrs,
 		indexFile: NewIndexFile(allRoots),
 	}
+
+	if common.BuildRevision != "dev" && common.BuildStamp != "" {
+		if t, e := time.Parse("2006-01-02T15:04:05", common.BuildStamp); e == nil {
+			ufs.useTime = true
+			ufs.time = t
+		}
+	}
+	if ufs.useTime {
+		ufs.indexFile = NewIndexFile(allRoots, ufs.time)
+	} else {
+		ufs.indexFile = NewIndexFile(allRoots)
+	}
+
+	return ufs
 }
 
 func (p *UnionHttpFs) Open(name string) (http.File, error) {
@@ -60,22 +112,30 @@ func (p *UnionHttpFs) Open(name string) (http.File, error) {
 	}
 	for _, b := range p.boxes {
 		if o, e := b.Open(safeName); e == nil {
-			return o, e
+			if p.useTime {
+				return newTimedFile(o, p.time), nil
+			} else {
+				return o, nil
+			}
 		}
 	}
 	return nil, os.ErrNotExist
 
 }
 
-func NewIndexFile(rootList []string) http.File {
+func NewIndexFile(rootList []string, times ...time.Time) http.File {
 	jsonData, _ := json.Marshal(rootList)
+	t := time.Now()
+	if len(times) > 0 {
+		t = times[0]
+	}
 	return &IndexFile{
 		data: string(jsonData),
 		info: fileInfo{
 			Path:     "index.json",
 			Contents: jsonData,
 			isDir:    false,
-			modTime:  time.Now(),
+			modTime:  t,
 			size:     int64(len(string(jsonData))),
 		},
 	}
