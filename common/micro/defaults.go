@@ -66,6 +66,7 @@ func newClient(new ...client.Option) client.Client {
 
 	opts = append(opts, client.PoolSize(1))
 	opts = append(opts, client.RequestTimeout(10*time.Minute))
+	opts = append(opts, client.Wrap(NetworkClientWrapper))
 	opts = append(opts, client.Wrap(servicecontext.SpanClientWrapper))
 
 	for _, o := range clientOpts {
