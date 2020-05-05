@@ -30,6 +30,8 @@ import (
 	sync2 "sync"
 	"time"
 
+	"github.com/golang/protobuf/proto"
+
 	"github.com/pydio/cells/data/source/sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -453,30 +455,31 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 				close(doneChan)
 				<-time.After(2 * time.Second)
 				close(statusChan)
+				autoClient.Stop()
 			}()
 			for {
 				select {
 				case status := <-statusChan:
-					theTask.StatusMessage = status.String()
-					theTask.HasProgress = true
-					theTask.Progress = status.Progress()
-					theTask.Status = jobs.TaskStatus_Running
+					ta := proto.Clone(theTask).(*jobs.Task)
+					ta.StatusMessage = status.String()
+					ta.HasProgress = true
+					ta.Progress = status.Progress()
+					ta.Status = jobs.TaskStatus_Running
 					if status.IsError() && status.Error() != nil {
 						log.TasksLogger(c).Error(status.String(), zap.Error(status.Error()))
 					} else if status.String() != "" {
 						log.TasksLogger(c).Info(status.String())
 					}
-					taskChan <- theTask
+					taskChan <- ta
 				case <-doneChan:
-					theTask := req.Task
-					theTask.HasProgress = true
-					theTask.StatusMessage = "Complete"
-					theTask.Progress = 1
-					theTask.EndTime = int32(time.Now().Unix())
-					theTask.Status = jobs.TaskStatus_Finished
+					ta := proto.Clone(theTask).(*jobs.Task)
+					ta.HasProgress = true
+					ta.Progress = 1
+					ta.StatusMessage = "Complete"
+					ta.EndTime = int32(time.Now().Unix())
+					ta.Status = jobs.TaskStatus_Finished
 					log.TasksLogger(c).Info("Sync completed")
-					taskChan <- theTask
-					autoClient.Stop()
+					taskChan <- ta
 					return
 				}
 			}
