@@ -26,6 +26,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/common/service/resources"
+
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
@@ -45,7 +47,9 @@ import (
 	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
 )
 
-type FrontendHandler struct{}
+type FrontendHandler struct {
+	resources.ResourceProviderHandler
+}
 
 func NewFrontendHandler() *FrontendHandler {
 	f := &FrontendHandler{}
@@ -337,6 +341,10 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
 			service.RestError404(req, rsp, e)
+			return
+		}
+		if !a.IsContextEditable(ctx, user.Uuid, user.Policies) {
+			service.RestError403(req, rsp, e)
 			return
 		}
 
