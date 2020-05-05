@@ -353,7 +353,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 
 		if user.Attributes != nil {
-			if av, ok := user.Attributes["avatar"]; ok {
+			if av, ok := user.Attributes["avatar"]; ok && av != "" {
 				// There is an existing avatar, remove it
 				oldNode := &tree.Node{
 					Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + av,
