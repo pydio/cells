@@ -228,7 +228,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 	}
 
 	for _, file := range reader.File {
-		pa := path.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
+		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(file.Name, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {
@@ -451,7 +451,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 		if file == nil {
 			return err
 		}
-		pa := path.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
+		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(file.Name, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {

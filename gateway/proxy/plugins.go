@@ -69,11 +69,15 @@ var (
 		header_upstream Host {{.ExternalHost}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	proxy /data {{.Gateway | serviceAddress}} {
 		header_upstream Host {{.ExternalHost}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	proxy /ws   {{.WebSocket | urls}} {
 		websocket
@@ -89,6 +93,8 @@ var (
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	
 	proxy /public/ {{.FrontPlugins | urls}} {

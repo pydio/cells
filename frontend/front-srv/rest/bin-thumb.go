@@ -20,6 +20,8 @@ import (
 
 func readBinary(ctx context.Context, router *views.Router, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {
 
+	headers.Add("Content-Security-Policy", "script-src 'none'")
+	headers.Add("X-Content-Security-Policy", "sandbox")
 	info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 	if e != nil {
 		return e
