@@ -1,7 +1,6 @@
 package s3
 
 import (
-	"context"
 	"sync"
 	"time"
 
@@ -18,7 +17,6 @@ type input struct {
 
 type statBatcher struct {
 	c       *Client
-	ctx     context.Context
 	pending []*input
 	size    int
 	walker  func(path string, info *S3FileInfo, node *tree.Node)
@@ -44,11 +42,11 @@ func (b *statBatcher) flush() {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(process))
 	t := time.Now()
-	log.Logger(b.ctx).Debug("Sending Loadnodes in parallel", zap.Int("n", b.size))
+	log.Logger(b.c.globalContext).Debug("Sending Loadnodes in parallel", zap.Int("n", b.size))
 	for i, in := range process {
 		go func(idx int, input *input) {
 			defer wg.Done()
-			if tN, e := b.c.loadNode(b.ctx, input.path, !input.info.isDir); e == nil {
+			if tN, e := b.c.loadNode(b.c.globalContext, input.path, !input.info.isDir); e == nil {
 				results[idx] = tN
 			} else {
 				results[idx] = nil
@@ -56,7 +54,7 @@ func (b *statBatcher) flush() {
 		}(i, in)
 	}
 	wg.Wait()
-	log.Logger(b.ctx).Debug("Finished sending Loadnodes in parallel", zap.Duration("d", time.Now().Sub(t)))
+	log.Logger(b.c.globalContext).Debug("Finished sending Loadnodes in parallel", zap.Duration("d", time.Now().Sub(t)))
 	for i, n := range results {
 		if n == nil {
 			continue

@@ -21,6 +21,7 @@
 package registry
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -97,7 +98,9 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	wg.Add(len(initialServices))
 	var ss []*registry.Service
 
-	fmt.Printf("Discovering running nodes for all services (%d)... Please wait\n", len(initialServices))
+	if defaults.RuntimeIsCluster() {
+		log.Logger(context.Background()).Info(fmt.Sprintf("Discovering %d services running on all peers... This can take some time.", len(initialServices)))
+	}
 
 	for _, s := range initialServices {
 		queue <- struct{}{}

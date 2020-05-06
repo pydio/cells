@@ -279,10 +279,9 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 
 func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
-	ctx := context.Background()
 	t := time.Now()
 	defer func() {
-		log.Logger(ctx).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Now().Sub(t)))
+		log.Logger(c.globalContext).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Now().Sub(t)))
 	}()
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
@@ -301,7 +300,11 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		}
 		walknFc(path, node, nil)
 	}
-	batcher := &statBatcher{size: 50, walker: batchWrapper, c: c, ctx: ctx}
+	batcher := &statBatcher{
+		size:   50,
+		walker: batchWrapper,
+		c:      c,
+	}
 
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
 		path = c.getLocalPath(path)

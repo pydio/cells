@@ -68,7 +68,7 @@ func init() {
 					Up:            policy.Upgrade202,
 				},
 				{
-					TargetVersion: service.ValidVersion("2.1.0"),
+					TargetVersion: service.ValidVersion("2.0.99"),
 					Up:            policy.Upgrade210,
 				},
 			}),
