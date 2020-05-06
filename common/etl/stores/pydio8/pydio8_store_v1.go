@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/go-openapi/errors"
@@ -155,7 +156,8 @@ type GetDomainNameResponse struct {
 func (a *ClientV1) GetAdvancedUserInfo(userId string, sdkConfig *config.SdkConfig) (*GetAdvancedUserInfoResponse, error) {
 
 	httpClient := config.GetHttpClient(sdkConfig)
-	getUrl := fmt.Sprintf("%s://%s/api/settings/hashedpassword/%s", sdkConfig.Protocol, sdkConfig.Url, userId)
+	wPath := path.Join(sdkConfig.Url, sdkConfig.Path, "api/settings/hashedpassword")
+	getUrl := fmt.Sprintf("%s://%s/%s", sdkConfig.Protocol, wPath, userId)
 
 	req, _ := http.NewRequest("GET", getUrl, nil)
 	req.SetBasicAuth(sdkConfig.User, sdkConfig.Password)
@@ -178,7 +180,8 @@ func (a *ClientV1) GetAdvancedUserInfo(userId string, sdkConfig *config.SdkConfi
 
 func (a *ClientV1) GetDomainName(sdkConfig *config.SdkConfig) (*GetDomainNameResponse, error) {
 	httpClient := config.GetHttpClient(sdkConfig)
-	getUrl := fmt.Sprintf("%s://%s/api/settings/ldapdomainname", sdkConfig.Protocol, sdkConfig.Url)
+	wPath := path.Join(sdkConfig.Url, sdkConfig.Path, "api/settings/ldapdomainname")
+	getUrl := fmt.Sprintf("%s://%s", sdkConfig.Protocol, wPath)
 	req, _ := http.NewRequest("GET", getUrl, nil)
 	req.SetBasicAuth(sdkConfig.User, sdkConfig.Password)
 
@@ -213,7 +216,8 @@ func (a *ClientV1) ListNonTechnicalRoles(teams bool, sdkConfig *config.SdkConfig
 	if teams {
 		param = "?teams=true"
 	}
-	getUrl := fmt.Sprintf("%s://%s/api/settings/listroles%s", sdkConfig.Protocol, sdkConfig.Url, param)
+	wPath := path.Join(sdkConfig.Url, sdkConfig.Path, "api/settings/listroles"+param)
+	getUrl := fmt.Sprintf("%s://%s", sdkConfig.Protocol, wPath)
 	req, _ := http.NewRequest("GET", getUrl, nil)
 	req.SetBasicAuth(sdkConfig.User, sdkConfig.Password)
 
@@ -251,7 +255,8 @@ type P8GlobalMeta map[string]P8GlobalMetaUsers
 func (a *ClientV1) ListP8GlobalMeta(sdkConfig *config.SdkConfig) (P8GlobalMeta, error) {
 
 	httpClient := config.GetHttpClient(sdkConfig)
-	getUrl := fmt.Sprintf("%s://%s/api/settings/getmetadata", sdkConfig.Protocol, sdkConfig.Url)
+	wPath := path.Join(sdkConfig.Url, sdkConfig.Path, "api/settings/getmetadata")
+	getUrl := fmt.Sprintf("%s://%s", sdkConfig.Protocol, wPath)
 	req, _ := http.NewRequest("GET", getUrl, nil)
 	req.SetBasicAuth(sdkConfig.User, sdkConfig.Password)
 
