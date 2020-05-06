@@ -32,7 +32,7 @@ func (c *networkClientWrapper) Call(ctx context.Context, req client.Request, rsp
 			var nodes []string
 			for _, s := range ss {
 				for _, n := range s.Nodes {
-					nodes = append(nodes, fmt.Sprintf("%s:%p", n.Address, n.Port))
+					nodes = append(nodes, fmt.Sprintf("%s:%d", n.Address, n.Port))
 				}
 			}
 			er.Detail += fmt.Sprintf(" - Micro-registry had node(s) : [%s]", strings.Join(nodes, ","))
