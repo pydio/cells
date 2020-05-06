@@ -55,7 +55,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		service.RestError401(req, resp, errors.New("no path given"))
 		return
 	}
-	if path[0] == "defaults" || path[0] == "cert" {
+	if path[0] != "frontend" && path[0] != "services" {
 		service.RestError401(req, resp, errors.New("wrong path"))
 		return
 	}
