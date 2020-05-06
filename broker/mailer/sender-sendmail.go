@@ -36,11 +36,8 @@ type Sendmail struct {
 	BinPath string
 }
 
-func (s *Sendmail) Configure(ctx context.Context, config config.Map) error {
-	s.BinPath = "/usr/bin/mail"
-	if str, ok := config.Get("executable").(string); ok && str != "" {
-		s.BinPath = str
-	}
+func (s *Sendmail) Configure(ctx context.Context, conf config.Map) error {
+	s.BinPath = config.Get("defaults", "sendmail").String("/usr/bin/mail")
 	return nil
 }
 

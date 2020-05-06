@@ -20,18 +20,24 @@ type (
 var (
 	configsMigrations []configMigration
 	configKeysRenames = map[string]string{
-		"services/pydio.api.websocket":            "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
-		"services/pydio.grpc.gateway.data":        "services/" + common.SERVICE_GATEWAY_DATA,
-		"services/pydio.grpc.gateway.proxy":       "services/" + common.SERVICE_GATEWAY_PROXY,
-		"services/pydio.rest.gateway.dav":         "services/" + common.SERVICE_GATEWAY_DAV,
-		"services/pydio.rest.gateway.wopi":        "services/" + common.SERVICE_GATEWAY_WOPI,
-		"ports/micro.api":                         "ports/" + common.SERVICE_MICRO_API,
-		"services/micro.api":                      "services/" + common.SERVICE_MICRO_API,
-		"services/pydio.api.front-plugins":        "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
-		"services/pydio.grpc.auth/dex/connectors": "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors",
+		"services/pydio.api.websocket":                 "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
+		"services/pydio.grpc.gateway.data":             "services/" + common.SERVICE_GATEWAY_DATA,
+		"services/pydio.grpc.gateway.proxy":            "services/" + common.SERVICE_GATEWAY_PROXY,
+		"services/pydio.rest.gateway.dav":              "services/" + common.SERVICE_GATEWAY_DAV,
+		"services/pydio.rest.gateway.wopi":             "services/" + common.SERVICE_GATEWAY_WOPI,
+		"ports/micro.api":                              "ports/" + common.SERVICE_MICRO_API,
+		"services/micro.api":                           "services/" + common.SERVICE_MICRO_API,
+		"services/pydio.api.front-plugins":             "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
+		"services/pydio.grpc.auth/dex/connectors":      "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors",
+		"services/pydio.grpc.mailer/sender/executable": "defaults/sendmail",
+		"services/pydio.grpc.update/publicKey":         "defaults/update/publicKey",
+		"services/pydio.grpc.update/updateUrl":         "defaults/update/updateUrl",
 	}
 	configKeysDeletes = []string{
 		"services/pydio.grpc.auth/dex",
+		"services/pydio.grpc.mailer/sender/executable",
+		"services/pydio.grpc.update/publicKey",
+		"services/pydio.grpc.update/updateUrl",
 	}
 )
 

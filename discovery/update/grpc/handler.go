@@ -54,6 +54,13 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 		log.Logger(ctx).Error("Cannot load last configs for update service, using context configs", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
 	}
+
+	url := config.Default().Get("defaults", "update", "updateUrl").String("")
+	pKey := config.Default().Get("defaults", "update", "publicKey").String("")
+
+	configs.Set("updateUrl", url)
+	configs.Set("publicKey", pKey)
+
 	binaries, e := update2.LoadUpdates(ctx, configs, request)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))

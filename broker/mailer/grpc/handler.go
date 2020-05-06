@@ -222,10 +222,6 @@ func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueCo
 			if k == forms.SwitchFieldValueKey {
 				name = v.(string)
 			} else {
-				// Special case for sendmail executable path
-				if k == "executable" && v == "other" {
-					v = config.Get("services", Name, "sendmail").String("sendmail")
-				}
 				senderConfig.Set(k, v)
 			}
 		}

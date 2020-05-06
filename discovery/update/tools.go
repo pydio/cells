@@ -219,7 +219,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			return
 		}
 
-		pKey := conf.Get("publicKey").(string)
+		pKey := config.Default().Get("publicKey").String("")
 		block, _ := pem.Decode([]byte(pKey))
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
