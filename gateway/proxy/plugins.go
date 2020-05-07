@@ -87,35 +87,32 @@ var (
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	
 	proxy /plug/ {{.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	proxy /public/ {{.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_downstream Content-Security-Policy "script-src 'none'"
-		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	proxy /public/plug/ {{.FrontPlugins | urls}} {
 		without /public
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	proxy /user/reset-password/ {{.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 	}
 	
 	proxy /robots.txt {{.FrontPlugins | urls}} {
@@ -129,7 +126,6 @@ var (
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 	}
 {{if .ProxyGRPC}}
 	proxy /grpc https://{{.ProxyGRPC | urls}} {
@@ -412,7 +408,10 @@ func LoadCaddyConf() error {
 	}
 
 	_ = protocol
-	caddyconf.Bind = ":" + u.Port() //protocol + u.Host
+	// Test multiple hots
+	// caddyconf.Bind = "local.pydio:" + u.Port() + " localhost:" + u.Port() //protocol + u.Host
+	// Test ALL hosts
+	caddyconf.Bind = ":" + u.Port()
 
 	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && (caddyconf.TLS != "" || caddyconf.TLSCert != "" && caddyconf.TLSKey != "") {
 		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
