@@ -26,10 +26,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jaytaylor/go-hostsfile"
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils/net"
-	"github.com/spf13/cobra"
 )
 
 var proxyCmd = &cobra.Command{
@@ -142,6 +144,9 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 					}
 					if u2, e := url.Parse(pconf.GetExternalURL()); e == nil {
 						hns = append(hns, u2.Hostname())
+					}
+					if other, e := hostsfile.ReverseLookup("127.0.0.1"); e == nil && len(other) > 0 {
+						hns = append(hns, other...)
 					}
 				}
 			}
