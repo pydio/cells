@@ -87,7 +87,7 @@ var DsStorageType = (function (_React$Component) {
                 { zDepth: 0, style: styles.cont, onClick: function (e) {
                         onSelect(value);
                     }, rounded: false },
-                image && _react2['default'].createElement('img', { style: styles.image, src: _pydio2['default'].getInstance().Parameters.get('REBASE') + '/plug/access.settings/res/images/' + image }),
+                image && _react2['default'].createElement('img', { style: styles.image, src: "plug/access.settings/res/images/" + image }),
                 _react2['default'].createElement(
                     'div',
                     { style: styles.label },
