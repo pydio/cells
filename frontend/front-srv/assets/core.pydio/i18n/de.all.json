@@ -2284,5 +2284,17 @@
   },
   "addressbook.pick.group": {
     "other": "Gruppe auswählen"
+  },
+  "form.input-image.fileTypes": {
+    "other": "Bitte verwenden Sie nur Bilder (jpeg,png,bmp,webp)"
+  },
+  "form.input-image.clearButton": {
+    "other": "Zurücksetzen"
+  },
+  "form.input-image.clearConfirm": {
+    "other": "Möchten Sie das aktuelle Bild entfernen?"
+  },
+  "form.input-image.avatarMax": {
+    "other": "Bitte verwenden Sie Bilder, die kleiner als 5 MB sind"
   }
 }
