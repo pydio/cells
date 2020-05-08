@@ -21,17 +21,19 @@
 package rest
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"strconv"
 	"strings"
-
-	"github.com/pydio/cells/common/service/resources"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
+	"github.com/scottleedavis/go-exif-remove"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -44,8 +46,13 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+)
+
+const (
+	avatarDefaultMaxSize = 5 * 1024 * 1024
 )
 
 type FrontendHandler struct {
@@ -346,11 +353,16 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		service.RestError500(req, rsp, e)
 		return
 	}
+	var fileInput io.Reader
+	var fileSize int64
 	f1, f2, e1 := req.Request.FormFile("userfile")
 	if e1 != nil {
 		service.RestError500(req, rsp, e1)
 		return
 	}
+	fileInput = f1
+	fileSize = f2.Size
+
 	cType := strings.Split(f2.Header.Get("Content-Type"), "/")
 	extension := cType[1]
 	binaryId := uuid.New()[0:12] + "." + extension
@@ -363,6 +375,25 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	defer f1.Close()
 
 	if binaryType == "USER" {
+
+		if f2.Size > avatarDefaultMaxSize {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %d B for avatars", avatarDefaultMaxSize))
+			return
+		}
+		// Load data in-memory to check and remove EXIF data if there are any
+		data, er := ioutil.ReadAll(fileInput)
+		if er != nil {
+			service.RestError500(req, rsp, er)
+			return
+		}
+		filtered, er := exifremove.Remove(data)
+		if er != nil {
+			service.RestError500(req, rsp, er)
+			return
+		}
+		// Use filtered data instead of original
+		fileInput = bytes.NewBuffer(filtered)
+		fileSize = int64(len(filtered))
 		// USER binaries can only be edited by context user or by admin
 		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && ctxUser != binaryUuid {
 			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
@@ -395,8 +426,8 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			}
 		}
 
-		_, e = router.PutObject(ctx, node, f1, &views.PutRequestData{
-			Size: f2.Size,
+		_, e = router.PutObject(ctx, node, fileInput, &views.PutRequestData{
+			Size: fileSize,
 		})
 		if e != nil {
 			service.RestError500(req, rsp, e)
@@ -429,8 +460,8 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
 		}
 
-		_, e := router.PutObject(ctx, node, f1, &views.PutRequestData{
-			Size: f2.Size,
+		_, e := router.PutObject(ctx, node, fileInput, &views.PutRequestData{
+			Size: fileSize,
 		})
 		if e != nil {
 			service.RestError500(req, rsp, e)

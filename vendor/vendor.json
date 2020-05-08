@@ -845,6 +845,54 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
+			"checksumSHA1": "19591gktag6SAw20fZ0sPEEssVQ=",
+			"path": "github.com/dsoprea/go-exif",
+			"revision": "e7aea1340ccbfff98d75e2c356012ceca2c87eb6",
+			"revisionTime": "2020-05-06T08:59:28Z"
+		},
+		{
+			"checksumSHA1": "WUcxVy4tsXMmeLAikKKHInzq3UE=",
+			"path": "github.com/dsoprea/go-exif/v2",
+			"revision": "e7aea1340ccbfff98d75e2c356012ceca2c87eb6",
+			"revisionTime": "2020-05-06T08:59:28Z"
+		},
+		{
+			"checksumSHA1": "qC0s382ikt0QmK+raeIsrB9koko=",
+			"path": "github.com/dsoprea/go-exif/v2/common",
+			"revision": "e7aea1340ccbfff98d75e2c356012ceca2c87eb6",
+			"revisionTime": "2020-05-06T08:59:28Z"
+		},
+		{
+			"checksumSHA1": "5jDPAOYiGfwfXMQp5rFR9qVJjuU=",
+			"path": "github.com/dsoprea/go-exif/v2/undefined",
+			"revision": "e7aea1340ccbfff98d75e2c356012ceca2c87eb6",
+			"revisionTime": "2020-05-06T08:59:28Z"
+		},
+		{
+			"checksumSHA1": "o60gBvRK9bioo8JWPyzBvwZD6+U=",
+			"path": "github.com/dsoprea/go-jpeg-image-structure",
+			"revision": "288e72e0addfcabfba69b16d767199c18a095a01",
+			"revisionTime": "2020-05-04T08:08:18Z"
+		},
+		{
+			"checksumSHA1": "7gFR/VvtN8OZg4STJR8CJjES81c=",
+			"path": "github.com/dsoprea/go-logging",
+			"revision": "170ff607885f9ce9613f1eeeb40c50697b293bc8",
+			"revisionTime": "2020-05-02T20:13:58Z"
+		},
+		{
+			"checksumSHA1": "DS+ELY5IttHiSOugn4BBOsXQt78=",
+			"path": "github.com/dsoprea/go-png-image-structure",
+			"revision": "95308446cacca27960d3bf985169b660153fa03d",
+			"revisionTime": "2020-05-02T20:45:47Z"
+		},
+		{
+			"checksumSHA1": "uSyeYoZ0GaO/P9ogHav0lxI1278=",
+			"path": "github.com/dsoprea/go-utility/image",
+			"revision": "4a87f88266d7738205970fdb64560b92bd6258e2",
+			"revisionTime": "2020-05-08T06:46:57Z"
+		},
+		{
 			"checksumSHA1": "kQvcgAP03E4wJi0M7d7BBcbaCKY=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/dustin/go-humanize",
 			"path": "github.com/dustin/go-humanize",
@@ -953,6 +1001,12 @@
 			"path": "github.com/glycerine/go-unsnap-stream",
 			"revision": "9f0cb55181dd3a0a4c168d3dbc72d4aca4853126",
 			"revisionTime": "2018-03-23T00:10:48Z"
+		},
+		{
+			"checksumSHA1": "6086a2Dw10+SJw5yiuaX83f8CCw=",
+			"path": "github.com/go-errors/errors",
+			"revision": "f104a1a5b4a1de5bfaa5e014832524601ef20dce",
+			"revisionTime": "2020-04-13T17:02:40Z"
 		},
 		{
 			"checksumSHA1": "/iKii9vqT+2alMukmUZEIzNCO34=",
@@ -1231,6 +1285,36 @@
 			"path": "github.com/golang/gddo/httputil/header",
 			"revision": "a475e0307621ec6832db210443de8f9ff6ff3148",
 			"revisionTime": "2018-07-28T00:54:04Z"
+		},
+		{
+			"checksumSHA1": "WSPH79wsjaqSHLU1tZCNhSnfxkE=",
+			"path": "github.com/golang/geo/r1",
+			"revision": "673a6f80352d38c1ea2f05c915a659938872212f",
+			"revisionTime": "2020-03-11T20:14:00Z"
+		},
+		{
+			"checksumSHA1": "IQvAdnayIiKDyxMYBkMAUtStuPs=",
+			"path": "github.com/golang/geo/r2",
+			"revision": "673a6f80352d38c1ea2f05c915a659938872212f",
+			"revisionTime": "2020-03-11T20:14:00Z"
+		},
+		{
+			"checksumSHA1": "liZlz5iIKah3tuUGB/gkYKkFPiA=",
+			"path": "github.com/golang/geo/r3",
+			"revision": "673a6f80352d38c1ea2f05c915a659938872212f",
+			"revisionTime": "2020-03-11T20:14:00Z"
+		},
+		{
+			"checksumSHA1": "4LgHaQjlQ017+uTkKs195mS34xs=",
+			"path": "github.com/golang/geo/s1",
+			"revision": "673a6f80352d38c1ea2f05c915a659938872212f",
+			"revisionTime": "2020-03-11T20:14:00Z"
+		},
+		{
+			"checksumSHA1": "RirSigmNdUXmKfJ1T1ysnkuLtss=",
+			"path": "github.com/golang/geo/s2",
+			"revision": "673a6f80352d38c1ea2f05c915a659938872212f",
+			"revisionTime": "2020-03-11T20:14:00Z"
 		},
 		{
 			"checksumSHA1": "eG45Hg4ZnB4b1KuqsMknc5eAx4A=",
@@ -4223,6 +4307,12 @@
 			"path": "github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
 			"revisionTime": "2017-03-21T23:07:31Z"
+		},
+		{
+			"checksumSHA1": "gfqJLymwKCXkAU5Me5GUzr20Leo=",
+			"path": "github.com/scottleedavis/go-exif-remove",
+			"revision": "58bdbaac86360fcf26dd85c1ac08af96728c4f75",
+			"revisionTime": "2019-09-08T02:15:17Z"
 		},
 		{
 			"checksumSHA1": "A/YUMbGg1LHIeK2+NLZBt+MIAao=",
