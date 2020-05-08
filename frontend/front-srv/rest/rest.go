@@ -377,7 +377,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	if binaryType == "USER" {
 
 		if f2.Size > avatarDefaultMaxSize {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %d B for avatars", avatarDefaultMaxSize))
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize))
 			return
 		}
 		// Load data in-memory to check and remove EXIF data if there are any
