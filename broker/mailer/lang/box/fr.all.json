@@ -206,6 +206,9 @@
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
+  "Mail.Config.Sendmail.Legend": {
+    "other": "ATTENTION : le chemin par défaut de l'exécutable est /usr/bin/sendmail. Pour le modifier, assurez-vous de définir la clé 'defaults > sendmail' dans le fichier de configuration pydio.json."
+  },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Chemin vers l'exécutable"
   },

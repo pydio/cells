@@ -206,6 +206,9 @@
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
+  "Mail.Config.Sendmail.Legend": {
+    "other": "WARNUNG: Der standardmäßige ausführbare Pfad ist /usr/bin/sendmail. Wenn Sie es ändern müssen, stellen Sie sicher, dass Sie den Schlüssel 'defaults > sendmail' in Ihrer Konfigurationsdatei pydio.json festlegen."
+  },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Ausführbarer Pfad"
   },
