@@ -84,6 +84,13 @@ var ExposedConfigs = &forms.Form{
 						Name:  "name",
 						Label: "Mail.Config.Sendmail.Label",
 						Value: "sendmail",
+						Fields: []forms.Field{
+							&forms.FormField{
+								Name:        "legend",
+								Type:        forms.ParamLegend,
+								Description: "Mail.Config.Sendmail.Legend",
+							},
+						},
 					},
 					{
 						Name:  "name",
