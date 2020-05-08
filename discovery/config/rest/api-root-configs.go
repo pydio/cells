@@ -22,6 +22,7 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/emicklei/go-restful"
@@ -50,6 +51,14 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		u = "rest"
 	}
 	path := strings.Split(strings.Trim(configuration.FullPath, "/"), "/")
+	if len(path) == 0 {
+		service.RestError401(req, resp, errors.New("no path given"))
+		return
+	}
+	if path[0] != "frontend" && path[0] != "services" {
+		service.RestError401(req, resp, errors.New("wrong path"))
+		return
+	}
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
 		config.Set(parsed, path...)

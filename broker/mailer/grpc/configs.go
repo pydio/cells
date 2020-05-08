@@ -84,23 +84,6 @@ var ExposedConfigs = &forms.Form{
 						Name:  "name",
 						Label: "Mail.Config.Sendmail.Label",
 						Value: "sendmail",
-						Fields: []forms.Field{
-							&forms.FormField{
-								Name:        "executable",
-								Label:       "Mail.Config.Sendmail.Executable.Label",
-								Description: "Mail.Config.Sendmail.Executable.Description",
-								Mandatory:   true,
-								Editable:    false,
-								Type:        forms.ParamSelect,
-								ChoicePresetList: []map[string]string{
-									{"sendmail": "sendmail"},
-									{"/usr/bin/sendmail": "/usr/bin/sendmail"},
-									{"/usr/sbin/sendmail": "/usr/sbin/sendmail"},
-									{"other": "Mail.Config.Sendmail.Executable.Other"},
-								},
-								Default: "/usr/sbin/sendmail",
-							},
-						},
 					},
 					{
 						Name:  "name",

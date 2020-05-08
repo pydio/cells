@@ -31,20 +31,20 @@ var ExposedConfigs = &forms.Form{
 	Groups: []*forms.Group{{
 		Label: "Update.Config.Title",
 		Fields: []forms.Field{
-			&forms.FormField{
-				Name:        "updateUrl",
-				Type:        forms.ParamString,
-				Label:       "Update.Config.Url.Label",
-				Description: "Update.Config.Url.Description",
-				Default:     common.UpdateDefaultServerUrl,
-			},
-			&forms.FormField{
-				Name:        "publicKey",
-				Type:        forms.ParamTextarea,
-				Label:       "Update.Config.PublicKey.Label",
-				Description: "Update.Config.PublicKey.Description",
-				Default:     common.UpdateDefaultPublicKey,
-			},
+			// &forms.FormField{
+			// 	Name:        "updateUrl",
+			// 	Type:        forms.ParamString,
+			// 	Label:       "Update.Config.Url.Label",
+			// 	Description: "Update.Config.Url.Description",
+			// 	Default:     common.UpdateDefaultServerUrl,
+			// },
+			// &forms.FormField{
+			// 	Name:        "publicKey",
+			// 	Type:        forms.ParamTextarea,
+			// 	Label:       "Update.Config.PublicKey.Label",
+			// 	Description: "Update.Config.PublicKey.Description",
+			// 	Default:     common.UpdateDefaultPublicKey,
+			// },
 			&forms.FormField{
 				Name:        "channel",
 				Type:        forms.ParamSelect,

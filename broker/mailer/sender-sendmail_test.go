@@ -21,13 +21,11 @@
 package mailer
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
 )
 
@@ -46,9 +44,6 @@ const (
 func TestSendmail_Send(t *testing.T) {
 	Convey("Test Sending w/ sendmail", t, func() {
 
-		conf := config.NewMap()
-		conf.Set("executable", sendmailtest_binaryPath)
-
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
 			Address: sendmailtest_fromAddress,
@@ -65,10 +60,11 @@ func TestSendmail_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		sendmail := &Sendmail{}
-		err := sendmail.Configure(context.Background(), *conf)
-		So(err, ShouldBeNil)
+		//Calling configure wil trigger config loading inside tests
+		//err := sendmail.Configure(context.Background(), nil)
+		//So(err, ShouldBeNil)
 
-		err = sendmail.Send(email)
+		err := sendmail.Send(email)
 		if err != nil {
 			fmt.Println("Send mail return message: " + err.Error())
 		}

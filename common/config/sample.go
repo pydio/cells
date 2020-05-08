@@ -23,6 +23,12 @@ package config
 import "github.com/pydio/cells/common"
 
 var SampleConfig = `{
+	"defaults": {
+		"update": {
+			"publicKey": "` + common.UpdateDefaultPublicKey + `",
+			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
+		}
+	},
     "ports":{
         "nats": 4222
     },
@@ -153,9 +159,7 @@ var SampleConfig = `{
             "dsn": "default"
         },
 		"pydio.grpc.update" : {
-			"channel": "` + common.UpdateDefaultChannel + `",
-			"publicKey": "` + common.UpdateDefaultPublicKey + `",
-			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
+			"channel": "` + common.UpdateDefaultChannel + `"
 		},
 		"pydio.grpc.user-meta": {
 			"dsn": "default"
