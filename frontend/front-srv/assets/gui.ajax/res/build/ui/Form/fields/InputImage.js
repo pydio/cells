@@ -22,7 +22,21 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _mixinsFormMixin = require('../mixins/FormMixin');
 
@@ -32,21 +46,11 @@ var _FileDropzone = require('./FileDropzone');
 
 var _FileDropzone2 = _interopRequireDefault(_FileDropzone);
 
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _materialUi = require('material-ui');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -145,21 +149,36 @@ exports['default'] = _react2['default'].createClass({
     onDrop: function onDrop(files, event, dropzone) {
         var _this = this;
 
+        if (files.length === 0) {
+            return;
+        }
+        var messages = _pydio2['default'].getMessages();
+        var name = this.props.name;
+
+        if (name === 'avatar' && files[0].size > 5 * 1024 * 1024) {
+            this.setState({ error: messages['form.input-image.avatarMax'] });
+            return;
+        }
+        if (['image/jpeg', 'image/png', 'image/bmp', 'image/tiff', 'image/webp'].indexOf(files[0].type) === -1) {
+            this.setState({ error: messages['form.input-image.fileTypes'] });
+            return;
+        }
+        this.setState({ error: null });
         if (_pydioHttpApi2['default'].supportsUpload()) {
             this.setState({ loading: true });
             _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
                 var xhrSettings = { customHeaders: { Authorization: 'Bearer ' + jwt } };
-                _pydioHttpApi2['default'].getClient().uploadFile(files[0], "userfile", '', (function (transport) {
+                _pydioHttpApi2['default'].getClient().uploadFile(files[0], "userfile", '', function (transport) {
                     var result = JSON.parse(transport.responseText);
                     if (result && result.binary) {
-                        this.uploadComplete(result.binary);
+                        _this.uploadComplete(result.binary);
                     }
-                    this.setState({ loading: false });
-                }).bind(_this), (function (transport) {
+                    _this.setState({ loading: false });
+                }, function (error) {
                     // error
-                    this.setState({ loading: false });
-                }).bind(_this), function (computableEvent) {
-                    // progress
+                    _this.setState({ loading: false, error: error });
+                }, function (computableEvent) {
+                    // progress, not really useful for small uploads
                     // console.log(computableEvent);
                 }, _this.getUploadUrl(), xhrSettings);
             });
@@ -171,11 +190,12 @@ exports['default'] = _react2['default'].createClass({
     clearImage: function clearImage() {
         var _this2 = this;
 
-        if (global.confirm('Do you want to remove the current image?')) {
+        if (global.confirm(_pydio2['default'].getMessages()['form.input-image.clearConfirm'])) {
             (function () {
                 var prevValue = _this2.state.value;
                 _this2.setState({
                     value: null,
+                    error: null,
                     reset: true
                 }, (function () {
                     this.props.onChange('', prevValue, { type: 'binary' });
@@ -185,16 +205,36 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _this3 = this;
+
+        var _state = this.state;
+        var loading = _state.loading;
+        var error = _state.error;
+
         var coverImageStyle = {
             backgroundImage: "url(" + this.state.imageSrc + ")",
             backgroundPosition: "50% 50%",
-            backgroundSize: "cover"
+            backgroundSize: "cover",
+            position: 'relative'
         };
-        var icons = [];
-        if (this.state && this.state.loading) {
-            icons.push(_react2['default'].createElement('span', { key: 'spinner', className: 'icon-spinner rotating', style: { opacity: '0' } }));
+        var overlay = undefined,
+            overlayBg = {};
+        if (error) {
+            overlayBg = { backgroundColor: 'rgba(255, 255, 255, 0.77)', borderRadius: '50%' };
+            overlay = _react2['default'].createElement(
+                'div',
+                { style: { color: '#F44336', textAlign: 'center', fontSize: 11, cursor: 'pointer' }, onClick: function () {
+                        _this3.setState({ error: null });
+                    } },
+                _react2['default'].createElement('span', { className: "mdi mdi-alert", style: { fontSize: 40 } }),
+                _react2['default'].createElement('br', null),
+                error
+            );
+        } else if (loading) {
+            overlay = _react2['default'].createElement(_materialUi.CircularProgress, { mode: "indeterminate" });
         } else {
-            icons.push(_react2['default'].createElement('span', { key: 'camera', className: 'icon-camera', style: { opacity: '0' } }));
+            var isDefault = this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc;
+            overlay = _react2['default'].createElement('span', { className: "mdi mdi-camera", style: { fontSize: 40, opacity: .5, color: isDefault ? null : 'white' } });
         }
 
         return _react2['default'].createElement(
@@ -211,14 +251,19 @@ exports['default'] = _react2['default'].createClass({
                 _react2['default'].createElement(
                     BinaryDropZone,
                     { onDrop: this.onDrop, accept: 'image/*', style: coverImageStyle },
-                    icons
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }, overlayBg) },
+                        overlay
+                    )
                 )
             ),
             _react2['default'].createElement(
                 'div',
                 { className: 'binary-remove-button', onClick: this.clearImage },
                 _react2['default'].createElement('span', { key: 'remove', className: 'mdi mdi-close' }),
-                ' RESET'
+                ' ',
+                _pydio2['default'].getMessages()['form.input-image.clearButton']
             ),
             _react2['default'].createElement('iframe', { style: { display: "none" }, id: 'uploader_hidden_iframe', name: 'uploader_hidden_iframe' })
         );

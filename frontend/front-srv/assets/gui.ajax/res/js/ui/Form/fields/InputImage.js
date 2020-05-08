@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
+import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api';
 import FormMixin from '../mixins/FormMixin'
 import FileDropzone from './FileDropzone'
-import React from 'react';
-import PydioApi from 'pydio/http/api';
-import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
+import {CircularProgress} from 'material-ui'
 const {NativeFileDropProvider} = Pydio.requireLib('hoc');
 
 // Just enable the drop mechanism, but do nothing, it is managed by the FileDropzone
@@ -115,22 +116,36 @@ export default React.createClass({
     },
 
     onDrop(files, event, dropzone){
+        if (files.length === 0) {
+            return
+        }
+        const messages = Pydio.getMessages();
+        const {name} = this.props;
+        if (name === 'avatar' && files[0].size > 5 * 1024 * 1024) {
+            this.setState({error: messages['form.input-image.avatarMax']});
+            return
+        }
+        if(['image/jpeg', 'image/png', 'image/bmp', 'image/tiff', 'image/webp'].indexOf(files[0].type) === -1){
+            this.setState({error: messages['form.input-image.fileTypes']});
+            return
+        }
+        this.setState({error: null});
         if(PydioApi.supportsUpload()){
             this.setState({loading:true});
             PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                 const xhrSettings = {customHeaders:{Authorization: 'Bearer ' + jwt}};
                 PydioApi.getClient().uploadFile(files[0], "userfile", '',
-                    function(transport){
+                    (transport) => {
                         const result = JSON.parse(transport.responseText);
                         if(result && result.binary){
                             this.uploadComplete(result.binary);
                         }
                         this.setState({loading:false});
-                    }.bind(this), function(transport){
+                    }, (error) => {
                         // error
-                        this.setState({loading:false});
-                    }.bind(this), function(computableEvent){
-                        // progress
+                        this.setState({loading:false, error: error});
+                    }, (computableEvent)=>{
+                        // progress, not really useful for small uploads
                         // console.log(computableEvent);
                     },
                     this.getUploadUrl(),
@@ -143,10 +158,11 @@ export default React.createClass({
     },
 
     clearImage(){
-        if(global.confirm('Do you want to remove the current image?')){
+        if(global.confirm(Pydio.getMessages()['form.input-image.clearConfirm'])){
             const prevValue = this.state.value;
             this.setState({
                 value:null,
+                error: null,
                 reset:true
             }, function(){
                 this.props.onChange('', prevValue, {type:'binary'});
@@ -156,16 +172,28 @@ export default React.createClass({
     },
 
     render(){
+        const {loading, error} = this.state;
+
         const coverImageStyle = {
             backgroundImage:"url("+this.state.imageSrc+")",
             backgroundPosition:"50% 50%",
-            backgroundSize:"cover"
+            backgroundSize:"cover",
+            position:'relative'
         };
-        let icons = [];
-        if(this.state && this.state.loading){
-            icons.push(<span key="spinner" className="icon-spinner rotating" style={{opacity:'0'}}></span>);
+        let overlay, overlayBg = {};
+        if(error){
+            overlayBg = {backgroundColor: 'rgba(255, 255, 255, 0.77)', borderRadius: '50%'};
+            overlay = (
+                <div style={{color:'#F44336', textAlign:'center', fontSize: 11, cursor:'pointer'}} onClick={()=>{this.setState({error: null})}}>
+                    <span className={"mdi mdi-alert"} style={{fontSize: 40}}/><br/>
+                    {error}
+                </div>
+            );
+        } else if(loading){
+            overlay = <CircularProgress mode={"indeterminate"}/>;
         }else{
-            icons.push(<span key="camera" className="icon-camera" style={{opacity:'0'}}></span>);
+            const isDefault = (this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc);
+            overlay = <span className={"mdi mdi-camera"} style={{fontSize: 40, opacity: .5, color:isDefault?null:'white'}}/>
         }
 
         return(
@@ -173,10 +201,10 @@ export default React.createClass({
                 <div className="image-label">{this.props.attributes.label}</div>
                 <form ref="uploadForm" encType="multipart/form-data" target="uploader_hidden_iframe" method="post" action={this.getUploadUrl()}>
                     <BinaryDropZone onDrop={this.onDrop} accept="image/*" style={coverImageStyle}>
-                        {icons}
+                        <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', ...overlayBg}}>{overlay}</div>
                     </BinaryDropZone>
                 </form>
-                <div className="binary-remove-button" onClick={this.clearImage}><span key="remove" className="mdi mdi-close"></span> RESET</div>
+                <div className="binary-remove-button" onClick={this.clearImage}><span key="remove" className="mdi mdi-close"></span> {Pydio.getMessages()['form.input-image.clearButton']}</div>
                 <iframe style={{display:"none"}} id="uploader_hidden_iframe" name="uploader_hidden_iframe"></iframe>
             </div>
         );

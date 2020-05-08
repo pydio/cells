@@ -182,6 +182,18 @@
   "153": {
     "other": "Add/remove item to MyBookmarks"
   },
+  "152-on": {
+    "other": "Bookmark"
+  },
+  "153-on": {
+    "other": "Add item to MyBookmarks"
+  },
+  "152-off": {
+    "other": "Remove Bookmark"
+  },
+  "153-off": {
+    "other": "Remove item from MyBookmarks"
+  },
   "154": {
     "other": "New Folder"
   },
@@ -2225,6 +2237,21 @@
   "overlay.bookmark.folder" : {
     "other": "Folder is bookmarked"
   },
+  "bookmark.button.tip.add" : {
+    "other": "Bookmark this element"
+  },
+  "bookmark.button.tip.remove" : {
+    "other": "Remove this bookmark"
+  },
+  "bookmark.button.tip.mixed" : {
+    "other": "Mixed values, click to bookmark all"
+  },
+  "bookmark.button.tip.saving" : {
+    "other": "Saving bookmark status"
+  },
+  "bookmark.secondary.inside": {
+    "other": "Inside"
+  },
   "mkfile.empty.template.label": {
     "other": "Empty File"
   },
@@ -2242,6 +2269,9 @@
   },
   "cells.quick-filter": {
     "other": "Filter Cells"
+  },
+  "ws.quick-filter": {
+    "other": "Filter Workspaces"
   },
   "visibility.panel.title": {
     "other": "Visibility"
@@ -2284,5 +2314,32 @@
   },
   "addressbook.pick.group":{
     "other": "Select group"
+  },
+  "confirm.dialog.title":{
+    "other": "Confirm"
+  },
+  "confirm.dialog.destructive":{
+    "other": "You are about to delete"
+  },
+  "confirm.dialog.skipNext":{
+    "other": "Do not warn me next time"
+  },
+  "material.paginator.rows":{
+    "other": "Rows per page"
+  },
+  "material.paginator.of":{
+    "other": "of"
+  },
+  "form.input-image.fileTypes":{
+    "other": "Please use only images (jpeg,png,bmp,webp)"
+  },
+  "form.input-image.clearButton":{
+    "other": "Reset"
+  },
+  "form.input-image.clearConfirm":{
+    "other": "Do you want to remove current image?"
+  },
+  "form.input-image.avatarMax":{
+    "other": "Please use images smaller than 5MB"
   }
 }
