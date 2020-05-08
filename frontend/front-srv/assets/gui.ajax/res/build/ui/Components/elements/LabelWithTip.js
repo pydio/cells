@@ -26,33 +26,34 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var LabelWithTip = (function (_React$Component) {
-    _inherits(LabelWithTip, _React$Component);
+exports['default'] = _react2['default'].createClass({
+    displayName: 'LabelWithTip',
 
-    function LabelWithTip() {
-        _classCallCheck(this, LabelWithTip);
+    propTypes: {
+        label: _react2['default'].PropTypes.string,
+        labelElement: _react2['default'].PropTypes.object,
+        tooltip: _react2['default'].PropTypes.string,
+        tooltipClassName: _react2['default'].PropTypes.string,
+        className: _react2['default'].PropTypes.string,
+        style: _react2['default'].PropTypes.object
+    },
 
-        _React$Component.apply(this, arguments);
-    }
+    getInitialState: function getInitialState() {
+        return { show: false };
+    },
 
-    LabelWithTip.prototype.show = function show() {
+    show: function show() {
         this.setState({ show: true });
-    };
-
-    LabelWithTip.prototype.hide = function hide() {
+    },
+    hide: function hide() {
         this.setState({ show: false });
-    };
+    },
 
-    LabelWithTip.prototype.render = function render() {
-
+    render: function render() {
         if (this.props.tooltip) {
             var tooltipStyle = {};
             if (this.props.label || this.props.labelElement) {
@@ -76,7 +77,7 @@ var LabelWithTip = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'span',
-                { onMouseEnter: this.show.bind(this), onMouseLeave: this.hide.bind(this), style: style, className: this.props.className },
+                { onMouseEnter: this.show, onMouseLeave: this.hide, style: style, className: this.props.className },
                 label,
                 this.props.children,
                 _react2['default'].createElement('div', { label: this.props.tooltip, style: _extends({}, tooltipStyle, { display: this.state.show ? 'block' : 'none' }), className: this.props.tooltipClassName })
@@ -98,10 +99,7 @@ var LabelWithTip = (function (_React$Component) {
                 );
             }
         }
-    };
+    }
 
-    return LabelWithTip;
-})(_react2['default'].Component);
-
-exports['default'] = LabelWithTip;
+});
 module.exports = exports['default'];

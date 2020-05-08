@@ -1217,6 +1217,42 @@
         "methods": []
       }
     ],
+    "AdminComponents/util/QuotaField.js": [
+      {
+        "description": "",
+        "displayName": "QuotaField",
+        "methods": [
+          {
+            "name": "divide",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "initialValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "multiple",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "v",
+                "type": null
+              },
+              {
+                "name": "u",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminLogs/board/LogBoard.js": [
       {
         "description": "",
@@ -2169,159 +2205,10 @@
         "methods": []
       }
     ],
-    "AdminPeople/editor/acl/PermissionMaskEditor.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "dmObserver",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "recursiveLoadNodesWithChildren",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "crtMask",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "recursiveClearNodeValues",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "values",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onCheckboxCheck",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "checkboxName",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "roleAclObject",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "checkboxesComputeStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "role": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Role"
-            },
-            "required": false,
-            "description": ""
-          },
-          "workspace": {
-            "type": {
-              "name": "instanceOf",
-              "value": "IdmWorkspace"
-            },
-            "required": false,
-            "description": ""
-          },
-          "globalWorkspacePermissions": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showGlobalPermissions": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onGlobalPermissionsChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onNodesChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showModal": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideModal": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminPeople/editor/acl/RightsSelector.js": [
       {
         "description": "",
+        "displayName": "RightsSelector",
         "methods": [
           {
             "name": "getAcl",
@@ -2353,51 +2240,38 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "acl": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "disabled": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideDeny": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "hideLabels": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "advancedAcl": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
+        ]
+      }
+    ],
+    "AdminPeople/editor/acl/RightsSummary.js": [
+      {
+        "description": "",
+        "displayName": "RightsSummary",
+        "methods": []
+      }
+    ],
+    "AdminPeople/editor/acl/WorkspaceAcl.js": [
+      {
+        "description": "",
+        "displayName": "WorkspaceAcl",
+        "methods": [
+          {
+            "name": "onAclChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "oldValue",
+                "type": null
+              }
+            ],
+            "returns": null
           }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/acl/WorkspacesAcls.js": [
@@ -2499,21 +2373,6 @@
         ]
       }
     ],
-    "AdminPeople/editor/info/UserActivity.js": [
-      {
-        "description": "",
-        "displayName": "UserActivity",
-        "methods": [
-          {
-            "name": "loadActivity",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
     "AdminPeople/editor/info/UserInfo.js": [
       {
         "description": "",
@@ -2571,36 +2430,6 @@
             "returns": null
           }
         ]
-      }
-    ],
-    "AdminPeople/editor/panel/SharesList.js": [
-      {
-        "description": "",
-        "methods": [],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "userId": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "userData": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
       }
     ],
     "AdminPeople/editor/params/ParameterCreate.js": [
@@ -2728,6 +2557,7 @@
     "AdminPeople/editor/params/ParameterEntry.js": [
       {
         "description": "",
+        "displayName": "ParameterEntry",
         "methods": [
           {
             "name": "onChangeParameter",
@@ -2798,46 +2628,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "acl": {
-            "type": {
-              "name": "instanceOf",
-              "value": "IdmACL"
-            },
-            "required": false,
-            "description": ""
-          },
-          "role": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Role"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actions": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "parameters": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "inherited": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/params/ParametersPanel.js": [
@@ -2891,6 +2682,7 @@
     "AdminPeople/editor/params/ParametersPicker.js": [
       {
         "description": "",
+        "displayName": "ParametersPicker",
         "methods": [
           {
             "name": "filter",
@@ -2928,66 +2720,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "allParameters": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "allActions": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onSelection": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actionsPrefix": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "'[a] '",
-              "computed": false
-            }
-          },
-          "parametersPrefix": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            }
-          },
-          "initialSelection": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "AdminPeople/editor/user/UserPasswordDialog.js": [
@@ -3417,350 +3150,6 @@
           },
           {
             "name": "removeRule",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Actions.js": [
-      {
-        "description": "",
-        "displayName": "Actions",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/ChipValues.js": [
-      {
-        "description": "",
-        "displayName": "ChipValues",
-        "methods": [
-          {
-            "name": "addChip",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "deleteChip",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "chipValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Conditions.js": [
-      {
-        "description": "",
-        "displayName": "Conditions",
-        "methods": [
-          {
-            "name": "onConditionAdd",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "fieldName",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onConditionRemove",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fieldName",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fieldName",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Effect.js": [
-      {
-        "description": "",
-        "displayName": "Effect",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/InlineLabel.js": [
-      {
-        "description": "",
-        "displayName": "InlineLabel",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onEnter",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "cancel",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "open",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Label.js": [
-      {
-        "description": "",
-        "displayName": "Label",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Resources.js": [
-      {
-        "description": "",
-        "displayName": "Resources",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/RuleEditor.js": [
-      {
-        "description": "",
-        "displayName": "RuleEditor",
-        "methods": [
-          {
-            "name": "isDirty",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isValid",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isCreate",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "rule",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "revert",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "save",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/Subjects.js": [
-      {
-        "description": "",
-        "displayName": "Subjects",
-        "methods": [
-          {
-            "name": "onChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newValues",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/policies/editor/ValuesOrRegexp.js": [
-      {
-        "description": "",
-        "displayName": "ValuesOrRegexp",
-        "methods": [
-          {
-            "name": "onItemTouchTap",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onTextFieldSubmitted",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "cancelTextField",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -5646,6 +5035,22 @@
         "displayName": "DataSourceLocalSelector",
         "methods": [
           {
+            "name": "compareAddresses",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "a1",
+                "type": null
+              },
+              {
+                "name": "a2",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "baseIsInvalid",
             "docblock": null,
             "modifiers": [],
@@ -5668,6 +5073,18 @@
               },
               {
                 "name": "exists",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onPeerChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
                 "type": null
               }
             ],
