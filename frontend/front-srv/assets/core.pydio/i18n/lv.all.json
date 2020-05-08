@@ -2329,5 +2329,17 @@
   },
   "material.paginator.of": {
     "other": "of"
+  },
+  "form.input-image.fileTypes": {
+    "other": "Please use only images (jpeg,png,bmp,webp)"
+  },
+  "form.input-image.clearButton": {
+    "other": "Reset"
+  },
+  "form.input-image.clearConfirm": {
+    "other": "Do you want to remove current image?"
+  },
+  "form.input-image.avatarMax": {
+    "other": "Please use images smaller than 5MB"
   }
 }

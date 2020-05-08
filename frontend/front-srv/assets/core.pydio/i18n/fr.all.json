@@ -2329,5 +2329,17 @@
   },
   "material.paginator.of": {
     "other": "sur"
+  },
+  "form.input-image.fileTypes": {
+    "other": "N'utilisez que des images (jpeg,png,bmp,webp)"
+  },
+  "form.input-image.clearButton": {
+    "other": "Supprimer"
+  },
+  "form.input-image.clearConfirm": {
+    "other": "Voulez-vous supprimer cette image?"
+  },
+  "form.input-image.avatarMax": {
+    "other": "Veuillez utiliser une image plus petite que 5Mo"
   }
 }
