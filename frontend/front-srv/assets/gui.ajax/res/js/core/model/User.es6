@@ -298,7 +298,8 @@ export default class User{
         const stringPref = HasherUtils.base64_encode(guiPrefs);
         this.getIdmUser().then(idmUser => {
             idmUser.Attributes['preferences'] = JSON.stringify({gui_preferences: stringPref});
-            const api = new UserServiceApi(PydioApi.getRestClient());
+            // Use a silent client to avoid displaying errors
+            const api = new UserServiceApi(PydioApi.getRestClient({silent: true}));
             api.putUser(idmUser.Login, idmUser).then(ok => {
                 this.idmUser = idmUser;
             })

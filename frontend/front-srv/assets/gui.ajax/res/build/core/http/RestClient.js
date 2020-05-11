@@ -85,15 +85,19 @@ var JwtApiClient = (function (_ApiClient) {
     /**
      *
      * @param pydioObject {Pydio}
+     * @param options {Object}
      */
 
     function JwtApiClient(pydioObject) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
         _classCallCheck(this, JwtApiClient);
 
         _ApiClient.call(this);
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
+        this.options = options;
         pydioObject.observe('beforeApply-logout', function () {
             _PydioApi2['default'].JWT_DATA = null;
         });
@@ -313,7 +317,7 @@ var JwtApiClient = (function (_ApiClient) {
             console.info('404 not found', msg);
             return;
         }
-        if (this.pydio && this.pydio.UI) {
+        if (this.pydio && this.pydio.UI && !this.options.silent) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }
         if (console) {

@@ -42,12 +42,14 @@ class JwtApiClient extends ApiClient{
     /**
      *
      * @param pydioObject {Pydio}
+     * @param options {Object}
      */
-    constructor(pydioObject){
+    constructor(pydioObject, options = {}){
         super();
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
+        this.options = options;
         pydioObject.observe('beforeApply-logout', ()=>{
             PydioApi.JWT_DATA = null;
         });
@@ -260,10 +262,10 @@ class JwtApiClient extends ApiClient{
         }
         if (reason.response && reason.response.status === 404) {
             // 404 may happen
-            console.info('404 not found', msg)
+            console.info('404 not found', msg);
             return
         }
-        if(this.pydio && this.pydio.UI) {
+        if(this.pydio && this.pydio.UI && !this.options.silent) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }
         if (console) {

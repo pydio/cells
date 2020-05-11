@@ -855,13 +855,13 @@ var FilmStripMinisite = (function (_React$Component7) {
                     { className: 'vertical_layout', style: { flex: 1, backgroundColor: '#424242', position: 'relative' } },
                     editor
                 ),
-                React.createElement('div', { style: { height: 20, background: '#424242', zIndex: 1 } }),
+                React.createElement('div', { style: { height: 10, background: '#424242', zIndex: 1 } }),
                 React.createElement(
                     'div',
-                    { className: 'vertical_layout', style: { height: 160, backgroundColor: '#424242', zIndex: 1 } },
-                    React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props, { horizontalRibbon: true, displayMode: "grid-160" })),
-                    React.createElement(Copyright, _extends({ mode: "insert" }, this.props))
-                )
+                    { className: 'vertical_layout', style: { height: 176, backgroundColor: '#424242', zIndex: 1 } },
+                    React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props, { horizontalRibbon: true, displayMode: "grid-160" }))
+                ),
+                React.createElement(Copyright, _extends({ mode: "insert" }, this.props))
             );
         }
     }]);

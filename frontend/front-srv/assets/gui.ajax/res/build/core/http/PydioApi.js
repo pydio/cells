@@ -145,11 +145,13 @@ var PydioApi = (function () {
     }
 
     /**
-     * @return {JwtApiClient}
+     * @return {RestClient}
      */
 
     PydioApi.getRestClient = function getRestClient() {
-        return new _RestClient2['default'](this.getClient()._pydioObject);
+        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+        return new _RestClient2['default'](this.getClient()._pydioObject, options);
     };
 
     PydioApi.getMultipartThreshold = function getMultipartThreshold() {

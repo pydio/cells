@@ -88,10 +88,10 @@ class PydioApi{
     }
 
     /**
-     * @return {JwtApiClient}
+     * @return {RestClient}
      */
-    static getRestClient(){
-        return new RestClient(this.getClient()._pydioObject);
+    static getRestClient(options={}){
+        return new RestClient(this.getClient()._pydioObject, options);
     }
 
     static getMultipartThreshold(){
