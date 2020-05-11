@@ -1,10 +1,11 @@
-module github.com/gobuffalo/packr
+module github.com/pydio/packr
 
 go 1.12
 
 require (
 	github.com/gobuffalo/envy v1.7.0
 	github.com/gobuffalo/packd v0.3.0
+	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.5.2
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.3.0

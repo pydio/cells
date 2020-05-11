@@ -105,7 +105,7 @@ func (b Box) FindString(name string) (string, error) {
 // Find returns either the byte slice of the requested
 // file or an error if it can not be found.
 func (b Box) Find(name string) ([]byte, error) {
-	f, err := b.find(name)
+	f, err := b.find(name, false)
 	if err == nil {
 		bb := &bytes.Buffer{}
 		bb.ReadFrom(f)
@@ -116,7 +116,7 @@ func (b Box) Find(name string) ([]byte, error) {
 
 // Has returns true if the resource exists in the box
 func (b Box) Has(name string) bool {
-	_, err := b.find(name)
+	_, err := b.find(name, false)
 	if err != nil {
 		return false
 	}
@@ -137,13 +137,13 @@ func (b Box) decompress(bb []byte) []byte {
 	return data
 }
 
-func (b Box) find(name string) (File, error) {
+func (b Box) find(name string, lockSet bool) (File, error) {
 	if bb, ok := b.data[name]; ok {
 		return packd.NewFile(name, bytes.NewReader(bb))
 	}
 
 	if b.directories == nil {
-		b.indexDirectories()
+		b.indexDirectories(lockSet)
 	}
 
 	cleanName := filepath.ToSlash(filepath.Clean(name))
@@ -154,13 +154,17 @@ func (b Box) find(name string) (File, error) {
 	// Absolute name is considered as relative to the box root
 	cleanName = strings.TrimPrefix(cleanName, "/")
 
-	if _, o1 := GetBox(b.Path); !o1 {
+	if _, o1, _ := GetBox(b.Path); !o1 {
 		if l, o2 := loaders[b.Path]; o2 {
 			l()
 		}
 	}
 
-	if box, ok := GetBox(b.Path); ok {
+	if box, ok, lock := GetBox(b.Path); ok {
+		if !lockSet{
+			lock.Lock()
+			defer lock.Unlock()
+		}
 		if bb, ok := box[cleanName]; ok {
 			bb = b.decompress(bb)
 			return packd.NewFile(cleanName, bytes.NewReader(bb))
@@ -184,7 +188,7 @@ func (b Box) find(name string) (File, error) {
 
 // Open returns a File using the http.File interface
 func (b Box) Open(name string) (http.File, error) {
-	return b.find(name)
+	return b.find(name, false)
 }
 
 // List shows "What's in the box?"
@@ -207,9 +211,13 @@ func (b Box) List() []string {
 	return keys
 }
 
-func (b *Box) indexDirectories() {
+func (b *Box) indexDirectories(lockSet bool) {
 	b.directories = map[string]bool{}
-	if box, ok := GetBox(b.Path); ok {
+	if box, ok, lock := GetBox(b.Path); ok {
+		if !lockSet{
+			lock.Lock()
+			lock.Unlock()
+		}
 		for name := range box {
 			prefix, _ := path.Split(name)
 			// Even on Windows the suffix appears to be a /

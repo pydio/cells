@@ -4167,10 +4167,10 @@
 			"tree": true
 		},
 		{
-			"checksumSHA1": "1nhHAedLoZtrtPoroK3i13atfE4=",
+			"checksumSHA1": "DV1wtIRI/MJLnayitGyEQ2yBEsw=",
 			"path": "github.com/pydio/packr",
-			"revision": "b301dba14ac55016232726b2d058593dbd214cd9",
-			"revisionTime": "2020-03-20T15:40:24Z"
+			"revision": "c9c4b51f07ae32c5df60a98fad5cb00fbbb266b2",
+			"revisionTime": "2020-05-04T14:52:59Z"
 		},
 		{
 			"checksumSHA1": "kkYqEi0iUICktn03od75Zb0dKmA=",
