@@ -125,9 +125,8 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
-	cfg := config.Default()
-	u := cfg.Get("defaults", "url").String("")
-	p, _ := url.Parse(u)
+	p := req.Request.URL
+	p.Path = ""
 
 	jsonSpec := service.SwaggerSpec()
 	jsonSpec.Spec().Host = p.Host
@@ -141,8 +140,8 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 			Type:             "oauth2",
 			Description:      "Login using OAuth2 code flow",
 			Flow:             "accessCode",
-			AuthorizationURL: u + "/oidc/oauth2/auth",
-			TokenURL:         u + "/oidc/oauth2/token",
+			AuthorizationURL: p.String() + "/oidc/oauth2/auth",
+			TokenURL:         p.String() + "/oidc/oauth2/token",
 		},
 	}
 	jsonSpec.Spec().SecurityDefinitions = map[string]*spec.SecurityScheme{"oauth2": scheme}

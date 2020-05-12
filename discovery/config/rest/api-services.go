@@ -35,7 +35,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/ctl"
@@ -326,11 +325,11 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
 	}
-	configAddress := ""
-	c := config.Default().Get("defaults", "url").String("")
-	if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
-		configAddress = c
-	}
+	//configAddress := ""
+	//c := config.Default().Get("defaults", "url").String("")
+	//if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
+	//	configAddress = c
+	//}
 	protoSrv := &ctl.Service{
 		Name:         srv.Name(),
 		Status:       status,
@@ -347,10 +346,10 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		}
 		p := int32(node.Port)
 		a := node.Address
-		if configAddress != "" {
-			a = configAddress
-			p = 0
-		}
+		//if configAddress != "" {
+		//	a = configAddress
+		//	p = 0
+		//}
 		protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 			Id:       node.Id,
 			Port:     p,

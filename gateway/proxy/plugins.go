@@ -26,7 +26,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -52,38 +51,39 @@ import (
 
 var (
 	caddyfile = `
-{{.Bind}} {
-	proxy /a  {{.Micro | urls}} {
+{{range .Sites}}
+{{range .Binds}}{{.}} {{end}}{
+	proxy /a  {{$.Micro | urls}} {
 		without /a
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /oidc {{.OAuth | urls}} {
+	proxy /oidc {{$.OAuth | urls}} {
 		insecure_skip_verify
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /io   {{.Gateway | serviceAddress}} {
+	proxy /io   {{$.Gateway | serviceAddress}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /data {{.Gateway | serviceAddress}} {
+	proxy /data {{$.Gateway | serviceAddress}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /ws   {{.WebSocket | urls}} {
+	proxy /ws   {{$.WebSocket | urls}} {
 		websocket
 		without /ws
 	}
-	proxy /dav {{.DAV | urls}} {
+	proxy /dav {{$.DAV | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -91,44 +91,44 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	
-	proxy /plug/ {{.FrontPlugins | urls}} {
+	proxy /plug/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /public/ {{.FrontPlugins | urls}} {
+	proxy /public/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /public/plug/ {{.FrontPlugins | urls}} {
+	proxy /public/plug/ {{$.FrontPlugins | urls}} {
 		without /public
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /user/reset-password/ {{.FrontPlugins | urls}} {
+	proxy /user/reset-password/ {{$.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
-	proxy /robots.txt {{.FrontPlugins | urls}} {
+	proxy /robots.txt {{$.FrontPlugins | urls}} {
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
-	proxy /login {{urls .FrontPlugins "/gui"}} {
+	proxy /login {{urls $.FrontPlugins "/gui"}} {
 		without /login
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-{{if .ProxyGRPC}}
-	proxy /grpc https://{{.ProxyGRPC | urls}} {
+{{if $.ProxyGRPC}}
+	proxy /grpc https://{{$.ProxyGRPC | urls}} {
 		without /grpc
 		insecure_skip_verify
 	}
@@ -140,12 +140,12 @@ var (
 {{end}}
 
 	redir 302 {
-		{{if .ProxyGRPC}}if {>Content-type} not_has "application/grpc"{{end}}
+		{{if $.ProxyGRPC}}if {>Content-type} not_has "application/grpc"{{end}}
 		if {path} is /
 		/ /login
 	}
 	
-	{{range .PluginTemplates}}
+	{{range $.PluginTemplates}}
 	{{call .}}
 	{{end}}
 	
@@ -157,7 +157,7 @@ var (
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
 		if {path} not_starts_with "/dav"
-		{{range .PluginPathes}}
+		{{range $.PluginPathes}}
 		if {path} not_starts_with "{{.}}"
 		{{end}}
 		if {path} not_starts_with "/public/"
@@ -166,24 +166,35 @@ var (
 		to {path} {path}/ /login
 	}
 
-	root {{.WebRoot}}
+	root {{$.WebRoot}}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
-	errors "{{.Logs}}/caddy_errors.log"
+	errors "{{$.Logs}}/caddy_errors.log"
 }
 
-{{if .HTTPRedirectSource}}
-http://{{.HTTPRedirectSource.Host}} {
-	redir https://{{.HTTPRedirectTarget.Host}}
+{{if .SSLRedirect}}
+{{range $k,$v := .Redirects}}
+{{$k}} {
+	redir {{$v}}
 }
+{{end}}
+{{end}}
+
 {{end}}
 	`
 
 	caddyconf = struct {
-		// Main site URL
+		// Legacy
 		Bind         string
 		ExternalHost string
+		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
+		TLS     string
+		TLSCert string
+		TLSKey  string
+
+		// New way
+		Sites        []caddy.SiteConf
 		Micro        string
 		OAuth        string
 		Gateway      string
@@ -194,13 +205,6 @@ http://{{.HTTPRedirectSource.Host}} {
 		WebRoot      string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
-		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
-		TLS     string
-		TLSCert string
-		TLSKey  string
-		// If TLS is enabled, also enable auto-redirect from http to https
-		HTTPRedirectSource *url.URL
-		HTTPRedirectTarget *url.URL
 
 		PluginTemplates []caddy.TemplateFunc
 		PluginPathes    []string
@@ -222,33 +226,42 @@ func init() {
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
-				//httpserver.HTTP2 = false
-
-				certEmail := config.Get("cert", "proxy", "email").String("")
-				if certEmail != "" {
-					caddytls.Agreed = true
-					caURL := config.Get("cert", "proxy", "caUrl").String("")
-					log.Logger(ctx).Debug(fmt.Sprintf("Configuring Let's Encrypt - SSL process, CA URL: %s", caURL))
-					caddytls.DefaultCAUrl = caURL
-
-					// Pre-check to insure path for automated generation of certificate is writable
-					caddyWDir := caddyutils.AssetsPath()
-					if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
-
-						log.Logger(ctx).Error("*******************************************************************")
-						log.Logger(ctx).Error("   ERROR: ")
-						log.Logger(ctx).Error("   You have chosen Let's Encrypt automatic management of TLS certificate,")
-						log.Logger(ctx).Error("   but it seems that you do not have sufficient permissions on Caddy's working directory: ")
-						log.Logger(ctx).Error("   " + caddyWDir)
-						log.Logger(ctx).Error("   (WRITE permission is required for the user that runs the App)")
-						log.Logger(ctx).Error("          ")
-						if u, er := user.Current(); er == nil {
-							log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
-							log.Logger(ctx).Error("          ")
+				if sites, er := config.LoadSites(); er == nil {
+					// TODO : THIS COULD BE SET A SITE LEVEL INSIDE CADDY CONFIGS
+					useLE := false
+					for _, s := range sites {
+						if s.HasTLS() && s.GetLetsEncrypt() != nil {
+							le := s.GetLetsEncrypt()
+							if le.AcceptEULA {
+								caddytls.Agreed = true
+							}
+							if le.StagingCA {
+								caddytls.DefaultCAUrl = config.DefaultCaStagingUrl
+							}
+							useLE = true
+							break
 						}
-						log.Logger(ctx).Error("*******************************************************************")
+					}
+					if useLE {
+						// Pre-check to insure path for automated generation of certificate is writable
+						caddyWDir := caddyutils.AssetsPath()
+						if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
 
-						return nil, nil, nil, err
+							log.Logger(ctx).Error("*******************************************************************")
+							log.Logger(ctx).Error("   ERROR: ")
+							log.Logger(ctx).Error("   You have chosen Let's Encrypt automatic management of TLS certificate,")
+							log.Logger(ctx).Error("   but it seems that you do not have sufficient permissions on Caddy's working directory: ")
+							log.Logger(ctx).Error("   " + caddyWDir)
+							log.Logger(ctx).Error("   (WRITE permission is required for the user that runs the App)")
+							log.Logger(ctx).Error("          ")
+							if u, er := user.Current(); er == nil {
+								log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
+								log.Logger(ctx).Error("          ")
+							}
+							log.Logger(ctx).Error("*******************************************************************")
+
+							return nil, nil, nil, err
+						}
 					}
 				}
 
@@ -372,19 +385,12 @@ func LoadCaddyConf() error {
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
 
-	u, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
-	if err != nil {
-		return err
-	}
-
 	caddyconf.Micro = common.SERVICE_MICRO_API
 	external := viper.Get("grpc_external")
 	externalSet := external != nil && external.(string) != ""
 
-	protocol := "http://"
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
 	if tls {
-		protocol = "https://"
 		if self := config.Get("cert", "proxy", "self").Bool(false); self {
 			caddyconf.TLS = "self_signed"
 		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
@@ -407,26 +413,13 @@ func LoadCaddyConf() error {
 		}
 	}
 
-	_ = protocol
-	// Test multiple hots
-	// caddyconf.Bind = "local.pydio:" + u.Port() + " localhost:" + u.Port() //protocol + u.Host
-	// Test ALL hosts
-	caddyconf.Bind = ":" + u.Port()
-
-	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && (caddyconf.TLS != "" || caddyconf.TLSCert != "" && caddyconf.TLSKey != "") {
-		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
-			var e error
-			if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
-				caddyconf.HTTPRedirectSource, _ = url.Parse("http://" + caddyconf.HTTPRedirectTarget.Hostname())
-			}
-		} else {
-			return fmt.Errorf("cannot find url configuration")
-		}
+	sites, er := config.LoadSites()
+	if er != nil {
+		return er
 	}
-
-	uExt, err := url.Parse(config.Get("defaults", "url").String(""))
-	if err == nil {
-		caddyconf.ExternalHost = uExt.Host
+	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
+	if er != nil {
+		return er
 	}
 
 	return nil

@@ -39,15 +39,11 @@ func GetSessionStore(req *http.Request) sessions.Store {
 			MaxAge:   60 * SessionTimeoutMinutes,
 			HttpOnly: true,
 		}
-		if config.Get("cert", "proxy", "ssl").Bool(false) {
+		// TODO :  DOES NOT WORK EMPTY Req.URL.Scheme
+		if req.URL.Scheme == "https" {
 			sessionStore.Options.Secure = true
 		}
-		/*
-			urlVal := config.Get("defaults", "url").String("")
-			if parsed, e := url.Parse(urlVal); e == nil {
-				sessionStore.Options.Domain = strings.Split(parsed.Host, ":")[0]
-			}
-		*/
+		// TODO :  DOES NOT WORK EMPTY Req.URL.Host
 		sessionStore.Options.Domain = req.URL.Hostname()
 	}
 	return sessionStore

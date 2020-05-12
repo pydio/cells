@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"bytes"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,7 +29,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
@@ -49,23 +47,23 @@ import (
 
 const (
 	caddyfile = `
-		 {{.URL}} {
-			 root "{{.Root}}"
-			 proxy /install {{urls .Micro}}
-		 	{{if .TLS}}tls {{.TLS}}{{end}}
-			{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
-		 }
+{{range .Sites}}
+{{range .Binds}}{{.}} {{end}}{
+	root "{{$.WebRoot}}"
+	proxy /install {{urls $.Micro}}
+
+	{{if .TLS}}tls {{.TLS}}{{end}}
+	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
+}
+{{end}}
 	 `
 )
 
 var (
 	caddyconf = struct {
-		URL     *url.URL
-		Root    string
+		Sites   []caddy.SiteConf
+		WebRoot string
 		Micro   string
-		TLS     string
-		TLSCert string
-		TLSKey  string
 	}{}
 
 	niBindUrl          string
@@ -259,25 +257,6 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// config.Save("cli", "Install / Setting default Port")	cmd.Println("Got the assets, internal is ", internal.String())
 
-	// Manage TLS settings
-	var tls, tlsKey, tlsCert string
-	if config.Get("cert", "proxy", "ssl").Bool(false) {
-		if config.Get("cert", "proxy", "self").Bool(false) {
-			tls = "self_signed"
-		} else if config.Get("cert", "proxy", "email").String("") != "" {
-			tls = config.Get("cert", "proxy", "email").String("")
-			caddytls.Agreed = true
-			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
-		} else {
-			cert := config.Get("cert", "proxy", "certFile").String("")
-			key := config.Get("cert", "proxy", "keyFile").String("")
-			if cert != "" && key != "" {
-				tlsCert = cert
-				tlsKey = key
-			}
-		}
-	}
-
 	// config.Save("cli", "Install / Saving final configs")
 	// cmd.Println("final configs saved")
 
@@ -286,9 +265,9 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	micro.Start()
 
 	// starting the installation REST service
-	install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
+	regService := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
 
-	installServ := install.(service.Service)
+	installServ := regService.(service.Service)
 	// Strip some flag to avoid panic on re-registering a flag twice
 	flags := installServ.Options().Web.Options().Cmd.App().Flags
 	var newFlags []cli.Flag
@@ -301,18 +280,21 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
 	// Starting service install
-	install.Start()
+	regService.Start()
 
 	// Creating temporary caddy file
-	caddyconf.URL, err = url.Parse(proxyConf.GetBindURL())
-	caddyconf.Root = dir
-	caddyconf.Micro = common.SERVICE_MICRO_API
-	if tls != "" {
-		caddyconf.TLS = tls
-	} else if tlsCert != "" {
-		caddyconf.TLSCert = tlsCert
-		caddyconf.TLSKey = tlsKey
+	sites, err := config.LoadSites()
+	if err != nil {
+		cmd.Println("Could not start with fast restart:", err)
+		os.Exit(1)
 	}
+	var er error
+	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
+	if er != nil {
+		cmd.Println("Could not convert sites to caddy confs", er)
+	}
+	caddyconf.WebRoot = dir
+	caddyconf.Micro = common.SERVICE_MICRO_API
 
 	caddy.Enable(caddyfile, play)
 
@@ -324,16 +306,15 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + proxyConf.GetBindURL()))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + proxyConf.GetExternalURL()))
+	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + proxyConf.GetBinds()[0]))
 	cmd.Println("")
 
 	subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
 		cmd.Println("")
-		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetExternalURL()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetDefaultBindURL()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")
 
-		open(proxyConf.GetExternalURL())
+		open(proxyConf.GetDefaultBindURL())
 
 		return nil
 	})
@@ -348,7 +329,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	instance.Wait()
 
 	subscriber.Unsubscribe()
-	install.Stop()
+	regService.Stop()
 
 }
 

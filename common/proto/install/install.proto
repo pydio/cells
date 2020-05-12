@@ -47,14 +47,16 @@ message InstallConfig {
 
 // ProxyConfig gives necessary URL and TLS configurations to start proxy
 message ProxyConfig {
-    string BindURL = 1;
-    string ExternalURL = 2;
-    repeated string RedirectURLs = 3;
+    // A list of [host]:port to bind to
+    repeated string Binds = 1;
+    // TLS configuration used for this site
     oneof TLSConfig {
         TLSSelfSigned SelfSigned = 4;
         TLSLetsEncrypt LetsEncrypt = 5;
         TLSCertificate Certificate = 6;
     }
+    // If TLS is set, whether to automatically redirect each http://host:port to https://host:port
+    bool SSLRedirect = 2;
 }
 
 // TLSSelfSigned generates a selfsigned certificate
@@ -73,6 +75,7 @@ message TLSLetsEncrypt {
 message TLSCertificate {
     string CertFile = 1;
     string KeyFile = 2;
+    string CellsRootCA = 3;
 }
 
 message CheckResult{

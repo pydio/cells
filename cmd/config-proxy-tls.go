@@ -23,12 +23,13 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"net/url"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 )
 
@@ -47,38 +48,30 @@ Four modes are currently supported:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		proxyConfig := loadProxyConf()
-		initialTLS := proxyConfig.TLSConfig != nil
-		// Get TLS info from end user
-		_, e := promptTLSMode(proxyConfig)
-		if e != nil {
-			log.Fatal(e)
-		}
-		if initialTLS != (proxyConfig.TLSConfig != nil) {
-			// There was a change in tls => this will impact external URL !
-			cmd.Println("Switching TLS mode: checking external URL")
-			e := promptExtURL(proxyConfig)
+		// TODO : PICK THE SITE TO EDIT (OR ADD OR DELETE)
+		sites, _ := config.LoadSites(true)
+
+		for _, site := range sites {
+			// Get TLS info from end user
+			_, e := promptTLSMode(site)
 			if e != nil {
 				log.Fatal(e)
 			}
 		}
 
-		applyProxyConfig(proxyConfig)
-
-		cmd.Println("*************************************************************")
-		cmd.Println(" Config has been updated, please restart now!")
-		cmd.Println("**************************************************************")
+		e := config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
+		if e != nil {
+			log.Fatal(e)
+		} else {
+			cmd.Println("*************************************************************")
+			cmd.Println(" Config has been updated, please restart now!")
+			cmd.Println("**************************************************************")
+		}
 
 	},
 }
 
-func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
-
-	// Load defaults
-	certFile := config.Get("cert", "proxy", "certFile").String("")
-	keyFile := config.Get("cert", "proxy", "keyFile").String("")
-	certEmail := config.Get("cert", "proxy", "email").String("")
-	enabled = true
+func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 
 	selector := promptui.Select{
 		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
@@ -95,8 +88,14 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		return
 	}
 
+	enabled = true
 	switch i {
 	case 0:
+		var certFile, keyFile string
+		if site.HasTLS() && site.GetTLSCertificate() != nil {
+			certFile = site.GetTLSCertificate().GetCertFile()
+			keyFile = site.GetTLSCertificate().GetKeyFile()
+		}
 		certPrompt := promptui.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile}
 		keyPrompt := promptui.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile}
 		if certFile, e = certPrompt.Run(); e != nil {
@@ -105,14 +104,18 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		if keyFile, e = keyPrompt.Run(); e != nil {
 			return
 		}
-		tlsConf := &install.ProxyConfig_Certificate{
+		site.TLSConfig = &install.ProxyConfig_Certificate{
 			Certificate: &install.TLSCertificate{
 				CertFile: certFile,
 				KeyFile:  keyFile,
-			}}
-		proxyConfig.TLSConfig = tlsConf
+			},
+		}
 
 	case 1:
+		var certEmail string
+		if site.HasTLS() && site.GetTLSLetsEncrypt() != nil {
+			certEmail = site.GetTLSLetsEncrypt().GetEmail()
+		}
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
 		acceptEulaPrompt := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
 		useStagingPrompt := promptui.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
@@ -124,7 +127,6 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		}
 		// TODO validate email
 
-		acceptEula := true
 		if val, e1 := acceptEulaPrompt.Run(); e1 != nil {
 			e = e1
 			return
@@ -141,39 +143,26 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 			useStaging = false
 		}
 
-		tlsConf := &install.ProxyConfig_LetsEncrypt{
+		site.TLSConfig = &install.ProxyConfig_LetsEncrypt{
 			LetsEncrypt: &install.TLSLetsEncrypt{
 				Email:      certMail,
-				AcceptEULA: acceptEula,
+				AcceptEULA: true,
 				StagingCA:  useStaging,
 			},
 		}
-		proxyConfig.TLSConfig = tlsConf
 
 	case 2:
 
-		tlsConf := &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}}
-		proxyConfig.TLSConfig = tlsConf
+		site.TLSConfig = &install.ProxyConfig_SelfSigned{
+			SelfSigned: &install.TLSSelfSigned{},
+		}
 
 	case 3:
 		enabled = false
-		proxyConfig.TLSConfig = nil
+		site.TLSConfig = nil
 	}
-
-	// Adapt bind URLS in case TLS mode has changed
-	scheme := "http"
-	if enabled {
-		scheme = "https"
-	}
-	bu, err := url.Parse(proxyConfig.GetBindURL())
-	if err != nil {
-		return enabled, fmt.Errorf("could not parse bind URL %s, cause: %s", proxyConfig.GetBindURL(), err.Error())
-	}
-	bu.Scheme = scheme
-	proxyConfig.BindURL = bu.String()
 
 	// Reset redirect URL: for the time being we rather use this as a flag
-	proxyConfig.RedirectURLs = []string{}
 	if enabled {
 		redirPrompt := promptui.Select{
 			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
@@ -182,7 +171,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 				"No",
 			}}
 		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
-			proxyConfig.RedirectURLs = []string{"http://" + bu.Host}
+			site.SSLRedirect = true
 		}
 	}
 

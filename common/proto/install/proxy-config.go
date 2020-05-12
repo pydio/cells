@@ -6,32 +6,76 @@ import (
 	"strings"
 )
 
+func (m *ProxyConfig) GetDefaultBindURL() string {
+	scheme := "http"
+	if m.TLSConfig != nil {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s", scheme, m.Binds[0])
+}
+
+func (m *ProxyConfig) GetBindURLs() (addresses []string) {
+	scheme := "http"
+	if m.HasTLS() {
+		scheme = "https"
+	}
+	for _, b := range m.Binds {
+		host := b
+		if strings.HasPrefix(b, ":") {
+			host = "localhost" + b
+		}
+		addresses = append(addresses, fmt.Sprintf("%s://%s", scheme, host))
+	}
+	return
+}
+
+func (m *ProxyConfig) HasTLS() bool {
+	return m.TLSConfig != nil
+}
+
+func (m *ProxyConfig) GetTLSCertificate() *TLSCertificate {
+	if cert, ok := m.TLSConfig.(*ProxyConfig_Certificate); ok {
+		return cert.Certificate
+	} else {
+		return nil
+	}
+}
+
+func (m *ProxyConfig) GetTLSSelfSigned() *TLSSelfSigned {
+	if cert, ok := m.TLSConfig.(*ProxyConfig_SelfSigned); ok {
+		return cert.SelfSigned
+	} else {
+		return nil
+	}
+}
+
+func (m *ProxyConfig) GetTLSLetsEncrypt() *TLSLetsEncrypt {
+	if cert, ok := m.TLSConfig.(*ProxyConfig_LetsEncrypt); ok {
+		return cert.LetsEncrypt
+	} else {
+		return nil
+	}
+}
+
 func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(string) string) error {
-	if u, o := data[getKey("BindURL")]; o {
-		if s, o := u.(string); o {
-			m.BindURL = s
-		} else {
-			return fmt.Errorf("unexpected type for BindURL (expected string)")
-		}
-	}
-	if u, o := data[getKey("ExternalURL")]; o {
-		if s, o := u.(string); o {
-			m.ExternalURL = s
-		} else {
-			return fmt.Errorf("unexpected type for ExternalURL (expected string)")
-		}
-	}
-	if u, o := data[getKey("RedirectURLs")]; o {
+	if u, o := data[getKey("Binds")]; o {
 		if s, o := u.([]interface{}); o {
 			for _, v := range s {
 				if d, o := v.(string); o {
-					m.RedirectURLs = append(m.RedirectURLs, d)
+					m.Binds = append(m.Binds, d)
 				} else {
-					return fmt.Errorf("unexpected type for RedirectURLs item (expected string)")
+					return fmt.Errorf("unexpected type for Binds item (expected string)")
 				}
 			}
 		} else {
-			return fmt.Errorf("unexpected type for RedirectURLs (expected array)")
+			return fmt.Errorf("unexpected type for Binds (expected array)")
+		}
+	}
+	if u, o := data[getKey("SSLRedirect")]; o {
+		if b, o := u.(bool); o {
+			m.SSLRedirect = b
+		} else {
+			return fmt.Errorf("unexpected type for SSLRedirect (expected bool)")
 		}
 	}
 	if t, o := data[getKey("TLSConfig")]; o {

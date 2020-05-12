@@ -43,10 +43,9 @@ var (
 )
 
 func InitConfiguration(values common.ConfigValues) {
-	externalURL := config.Get("defaults", "url").String("")
 
-	conf = NewProvider(externalURL, values)
-
+	defaultBind := config.GetDefaultSiteURL()
+	conf = NewProvider(defaultBind, values)
 	for _, onConfigurationInit := range onConfigurationInits {
 		onConfigurationInit()
 	}
@@ -82,7 +81,13 @@ func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvid
 }
 
 func (v *configurationProvider) InsecureRedirects() []string {
-	return v.v.StringArray("insecureRedirects", []string{})
+	rr := v.v.StringArray("insecureRedirects", []string{})
+	sites, _ := config.LoadSites()
+	var out []string
+	for _, r := range rr {
+		out = append(out, varsFromStr(r, sites)...)
+	}
+	return out
 }
 
 func (v *configurationProvider) WellKnownKeys(include ...string) []string {

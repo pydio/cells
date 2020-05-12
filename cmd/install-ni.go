@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"strings"
 	"time"
 
@@ -47,7 +46,7 @@ func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallC
 		return nil, err
 	}
 
-	err = applyProxyConfig(pconf)
+	err = applyProxySites([]*install.ProxyConfig{pconf})
 	if err != nil {
 		return nil, err
 	}
@@ -107,16 +106,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	bindURL.Scheme = scheme
 
-	extURL, err := url.Parse(niExtUrl)
-	if !strings.HasPrefix(niExtUrl, "http") {
-		extURL, err = guessSchemeAndParseBaseURL(niExtUrl, proxyConfig.GetTLSConfig() != nil)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("could not parse provided external URL %s: %s", niExtUrl, err.Error())
-	}
-
-	proxyConfig.BindURL = bindURL.String()
-	proxyConfig.ExternalURL = extURL.String()
+	proxyConfig.Binds = []string{bindURL.String()}
 
 	return proxyConfig, nil
 }
@@ -126,9 +116,12 @@ func installFromConf() (*install.InstallConfig, error) {
 	fmt.Printf("\033[1m## Performing Installation\033[0m \n")
 
 	installConf, err := unmarshallConf()
+	if err != nil {
+		return nil, err
+	}
 
 	// Preconfiguring proxy:
-	err = applyProxyConfig(installConf.GetProxyConfig())
+	err = applyProxySites([]*install.ProxyConfig{installConf.GetProxyConfig()})
 	if err != nil {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
 	}

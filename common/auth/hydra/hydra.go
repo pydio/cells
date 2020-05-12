@@ -15,16 +15,12 @@ import (
 )
 
 var (
-	hydraBaseURL  string
 	hydraAdminURL string
-	hydraOAuthURL string
 )
 
 func init() {
 	config.OnInitialized(func() {
-		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
-		hydraAdminURL = hydraBaseURL + "/oidc-admin"
-		hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
+		hydraAdminURL = config.GetDefaultSiteURL() + "/oidc-admin"
 	})
 }
 

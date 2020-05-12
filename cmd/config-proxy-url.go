@@ -26,6 +26,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/pydio/cells/common"
+
+	"github.com/pydio/cells/common/config"
+
 	"github.com/jaytaylor/go-hostsfile"
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -42,15 +46,20 @@ var urlCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		proxyConfig := loadProxyConf()
+		sites, _ := config.LoadSites(true)
 
-		// Get SSL info from end user
-		e := promptURLs(proxyConfig, false)
+		for _, site := range sites {
+			// Get URL info
+			e := promptURLs(site, false)
+			if e != nil {
+				log.Fatal(e)
+			}
+		}
+
+		e := config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
 		if e != nil {
 			log.Fatal(e)
 		}
-
-		applyProxyConfig(proxyConfig)
 
 		cmd.Println("*************************************************************")
 		cmd.Println(" Config has been updated, please restart now!")
@@ -59,9 +68,9 @@ var urlCmd = &cobra.Command{
 	},
 }
 
-func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
+func promptURLs(site *install.ProxyConfig, includeTLS bool) (e error) {
 	// Get URL info from end user
-	e = promptBindURL(proxyConfig, false)
+	e = promptBindURL(site, false)
 	if e != nil {
 		return
 	}
@@ -75,21 +84,16 @@ func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 	}
 
 	if includeTLS {
-		_, e = promptTLSMode(proxyConfig)
+		_, e = promptTLSMode(site)
 		if e != nil {
 			return
 		}
 	}
 
-	e = promptExtURL(proxyConfig)
-	if e != nil {
-		return
-	}
-
 	return
 }
 
-func promptBindURL(proxyConfig *install.ProxyConfig, resolveHosts bool) (e error) {
+func promptBindURL(site *install.ProxyConfig, resolveHosts bool) (e error) {
 
 	defaultPort := "8080"
 	var bindHost string
@@ -139,7 +143,7 @@ func promptBindURL(proxyConfig *install.ProxyConfig, resolveHosts bool) (e error
 		return
 	}
 	if bindHost == resolveString {
-		return promptBindURL(proxyConfig, true)
+		return promptBindURL(site, true)
 	}
 
 	// Sanity checks
@@ -159,11 +163,18 @@ func promptBindURL(proxyConfig *install.ProxyConfig, resolveHosts bool) (e error
 		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
 	}
 
-	proxyConfig.BindURL = bindURL.String()
+	site.Binds = append(site.Binds, fmt.Sprintf("%s:%s", bindURL.Hostname(), bindURL.Port()))
+
+	// TLS not included by default, still ask the user if he wants to change it
+	addOtherHost := p.Prompt{Label: "Do you want to add another host? [y/N] ", Default: ""}
+	if val, e1 := addOtherHost.Run(); e1 == nil && (val == "Y" || val == "y") {
+		return promptBindURL(site, false)
+	}
 
 	return nil
 }
 
+/*
 func promptExtURL(proxyConfig *install.ProxyConfig) error {
 
 	// Gather predefined info to enhance suggestions
@@ -216,6 +227,7 @@ func promptExtURL(proxyConfig *install.ProxyConfig) error {
 	proxyConfig.ExternalURL = external
 	return nil
 }
+*/
 
 // helper to add a not-so-stupid scheme to URL strings to be then able to rely on the net/url package to manipulate URL.
 func guessSchemeAndParseBaseURL(rawURL string, tlsEnabled bool) (*url.URL, error) {

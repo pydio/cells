@@ -2,9 +2,17 @@ package auth
 
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
+
+	"github.com/ory/fosite"
+
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/proto/install"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/hydra/client"
@@ -123,16 +131,22 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 	if err != nil {
 		return err
 	}
+	sites, _ := config.LoadSites()
 
 	for _, cli := range clients {
 		_, err := s.GetClient(ctx, cli.GetID())
 
 		var redirectURIs []string
 		for _, r := range cli.RedirectURIs {
-			redirectURIs = append(redirectURIs, rangeFromStr(r)...)
+			tt := rangeFromStr(r)
+			for _, t := range tt {
+				vv := varsFromStr(t, sites)
+				redirectURIs = append(redirectURIs, vv...)
+			}
 		}
 
 		cli.RedirectURIs = redirectURIs
+		fmt.Println("Redirects: ", redirectURIs)
 
 		if errors.Cause(err) == sqlcon.ErrNoRows {
 			// Let's create it
@@ -191,6 +205,34 @@ func rangeFromStr(s string) []string {
 
 		min = min + 1
 	}
+	return res
+}
 
+func varsFromStr(s string, sites []*install.ProxyConfig) []string {
+	var res []string
+	defaultBind := ""
+	if len(sites) > 0 {
+		defaultBind = sites[0].GetDefaultBindURL()
+	}
+	if strings.Contains(s, "#default_bind#") {
+		res = append(res, strings.ReplaceAll(s, "#default_bind#", defaultBind))
+	} else if strings.Contains(s, "#binds...#") {
+		for _, si := range sites {
+			for _, b := range si.GetBindURLs() {
+				res = append(res, strings.ReplaceAll(s, "#binds...#", b))
+			}
+		}
+	} else if strings.Contains(s, "#insecure_binds...") {
+		for _, si := range sites {
+			for _, a := range si.GetBindURLs() {
+				u, e := url.Parse(a)
+				if e == nil && !fosite.IsRedirectURISecure(u) {
+					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", a))
+				}
+			}
+		}
+	} else {
+		res = append(res, s)
+	}
 	return res
 }

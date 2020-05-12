@@ -143,10 +143,10 @@ var SampleConfig = `{
 						"refresh_token"
 					],
 					"redirect_uris": [
-						"http://EXTERNAL_HOST/auth/callback"
+						"#default_bind#/auth/callback"
                     ],
                     "post_logout_redirect_uris": [
-                        "http://EXTERNAL_HOST/auth/logout"
+                        "#default_bind#/auth/logout"
                     ],
 					"response_types": ["code", "token", "id_token"],
 					"scope": "openid email profile pydio offline"
@@ -174,7 +174,7 @@ var SampleConfig = `{
 					],
 					"redirect_uris": [
 						"http://localhost:3000/servers/callback",
-						"http://EXTERNAL_HOST/oauth2/oob"
+						"#binds...#/oauth2/oob"
 					],
 					"response_types": [
 						"code",

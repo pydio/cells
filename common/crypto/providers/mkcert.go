@@ -21,7 +21,7 @@
  *
  */
 
-package config
+package providers
 
 import (
 	"crypto"
@@ -58,6 +58,8 @@ type MkCert struct {
 
 	caCert *x509.Certificate
 	caKey  crypto.PrivateKey
+
+	filenamePrefix string
 }
 
 // NewMkCert creates a new MkCert instance
@@ -86,7 +88,7 @@ func (m *MkCert) GeneratedResources() (certFile, keyFile, caFile, caKeyFile stri
 }
 
 // MakeCerts triggers the certificate generation process, using a list of known hosts
-func (m *MkCert) MakeCert(hosts []string) error {
+func (m *MkCert) MakeCert(hosts []string, prefix string) error {
 	if err := m.loadCA(); err != nil {
 		return err
 	}
@@ -143,7 +145,7 @@ func (m *MkCert) MakeCert(hosts []string) error {
 		return errors.Wrap(err, "failed to generate certificate")
 	}
 
-	certFile, keyFile := m.fileNames(hosts)
+	certFile, keyFile := m.fileNames(hosts, prefix)
 
 	privDER, err := x509.MarshalPKCS8PrivateKey(priv)
 	if err != nil {
@@ -193,13 +195,14 @@ func (m *MkCert) generateKey(rootCA bool) (crypto.PrivateKey, error) {
 	return rsa.GenerateKey(rand.Reader, 2048)
 }
 
-func (m *MkCert) fileNames(hosts []string) (certFile, keyFile string) {
-	defaultName := strings.Replace(hosts[0], ":", "_", -1)
-	defaultName = strings.Replace(defaultName, "*", "_wildcard", -1)
-	if len(hosts) > 1 {
-		defaultName += "-" + strconv.Itoa(len(hosts)-1)
+func (m *MkCert) fileNames(hosts []string, defaultName string) (certFile, keyFile string) {
+	if defaultName == "" {
+		defaultName = strings.Replace(hosts[0], ":", "_", -1)
+		defaultName = strings.Replace(defaultName, "*", "_wildcard", -1)
+		if len(hosts) > 1 {
+			defaultName += "-" + strconv.Itoa(len(hosts)-1)
+		}
 	}
-
 	certFile = filepath.Join(m.rootLocation, defaultName+".pem")
 	m.certFile = certFile
 	keyFile = filepath.Join(m.rootLocation, defaultName+"-key.pem")
