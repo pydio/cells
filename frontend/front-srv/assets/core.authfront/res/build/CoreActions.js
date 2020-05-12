@@ -48,10 +48,6 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
 var pydio = window.pydio;
 
 var LanguagePicker = function LanguagePicker() {

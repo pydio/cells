@@ -24,9 +24,6 @@ import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon,
 import PydioApi from "pydio/http/api";
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
-
-import qs from 'query-string'
-
 let pydio = window.pydio;
 
 const LanguagePicker = () => {
