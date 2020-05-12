@@ -130,14 +130,14 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		user, _ := permissions.SearchUniqueUser(ctx, username, "")
 
 		if user == nil {
-			return nil
+			return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
 		}
 
 		// double check if user was already locked to reduce work load
 		if permissions.IsUserLocked(user) {
 			msg := fmt.Sprintf("locked user %s is still trying to connect", user.GetLogin())
 			log.Logger(ctx).Warn(msg, user.ZapLogin())
-			return err
+			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
 		}
 
 		var failedInt int64
@@ -174,6 +174,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 				user.ZapLogin(),
 				zap.String(common.KEY_USER_UUID, user.GetUuid()),
 			)
+			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
 		}
 
 		log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", user.GetLogin()), user.ZapLogin())
@@ -182,6 +183,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 			log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))
 		}
 
-		return err
+		// Replacing error not to give any hint
+		return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
 	}
 }
