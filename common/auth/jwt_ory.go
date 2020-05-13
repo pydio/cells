@@ -68,7 +68,7 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 	// Getting or creating challenge
 	challenge := v.Get("challenge")
 	if challenge == "" {
-		if c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
+		if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
 			return "", err
 		} else {
 			challenge = c.Challenge
@@ -76,36 +76,30 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 	}
 
 	// Searching login challenge
-	login, err := hydra.GetLogin(challenge)
+	login, err := hydra.GetLogin(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
 		return "", err
 	}
 
 	// Accepting login challenge
-	if _, err := hydra.AcceptLogin(challenge, claims.Subject); err != nil {
+	if _, err := hydra.AcceptLogin(ctx, challenge, claims.Subject); err != nil {
 		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 		return "", err
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(challenge)
+	consent, err := hydra.CreateConsent(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 		return "", err
 	}
 
 	// Accepting consent
-	if _, err := hydra.AcceptConsent(
-		consent.Challenge,
-		login.GetRequestedScope(),
-		login.GetRequestedAudience(),
-		map[string]string{},
-		map[string]string{
-			"name":  claims.Name,
-			"email": claims.Email,
-		},
-	); err != nil {
+	if _, err := hydra.AcceptConsent(ctx, consent.Challenge, login.GetRequestedScope(), login.GetRequestedAudience(), map[string]string{}, map[string]string{
+		"name":  claims.Name,
+		"email": claims.Email,
+	}); err != nil {
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
 		return "", err
 	}
@@ -122,7 +116,7 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 		return "", err
 	}
 
-	code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
 		return "", err
@@ -145,7 +139,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	// Getting or creating challenge
 	challenge := v.Get("challenge")
 	if challenge == "" {
-		if c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
+		if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
 			return "", err
 		} else {
 			challenge = c.Challenge
@@ -188,26 +182,27 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	}
 
 	// Searching login challenge
-	login, err := hydra.GetLogin(challenge)
+	login, err := hydra.GetLogin(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
 		return "", err
 	}
 
 	// Accepting login challenge
-	if _, err := hydra.AcceptLogin(challenge, identity.UserID); err != nil {
+	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
 		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 		return "", err
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(challenge)
+	consent, err := hydra.CreateConsent(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 		return "", err
 	}
 
 	// Accepting consent
+<<<<<<< HEAD
 	if _, err := hydra.AcceptConsent(
 		consent.Challenge,
 		login.GetRequestedScope(),
@@ -219,6 +214,12 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 			"authSource": source,
 		},
 	); err != nil {
+=======
+	if _, err := hydra.AcceptConsent(ctx, consent.Challenge, login.GetRequestedScope(), login.GetRequestedAudience(), map[string]string{}, map[string]string{
+		"name":  identity.Username,
+		"email": identity.Email,
+	}); err != nil {
+>>>>>>> ef35bb2ea... Replicate hydra config and registries to handle multiple hostname. Extract hostname from context meta.
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
 		return "", err
 	}
@@ -235,7 +236,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 		return "", err
 	}
 
-	code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
 		return "", err
@@ -251,7 +252,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName string, password string) (*goauth.Token, error) {
 
 	// Getting or creating challenge
-	c, err := hydra.CreateLogin(config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
+	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {
 		return nil, errors.Wrap(err, "PasswordCredentialsToken")
 	}
@@ -300,20 +301,20 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	}
 
 	// Searching login challenge
-	login, err := hydra.GetLogin(challenge)
+	login, err := hydra.GetLogin(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
 		return nil, err
 	}
 
 	// Accepting login challenge
-	if _, err := hydra.AcceptLogin(challenge, identity.UserID); err != nil {
+	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
 		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
 		return nil, err
 	}
 
 	// Creating consent
-	consent, err := hydra.CreateConsent(challenge)
+	consent, err := hydra.CreateConsent(ctx, challenge)
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
 		return nil, err
@@ -347,7 +348,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 		return nil, err
 	}
 
-	code, err := hydra.CreateAuthCode(consent, login.GetClientID(), redirectURL)
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
 	if err != nil {
 		e := fosite.ErrorToRFC6749Error(err)
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(e))
@@ -358,7 +359,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 		return nil, err
 	}
 
-	return hydra.Exchange(code)
+	return hydra.Exchange(ctx, code)
 }
 
 func (c *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
@@ -367,12 +368,12 @@ func (c *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionI
 		opt.setValue(v)
 	}
 
-	logout, err := hydra.CreateLogout(requestUrl, username, sessionID)
+	logout, err := hydra.CreateLogout(ctx, requestUrl, username, sessionID)
 	if err != nil {
 		return err
 	}
 
-	if err := hydra.AcceptLogout(logout.Challenge, v.Get("access_token"), v.Get("refresh_token")); err != nil {
+	if err := hydra.AcceptLogout(ctx, logout.Challenge, v.Get("access_token"), v.Get("refresh_token")); err != nil {
 		return err
 	}
 

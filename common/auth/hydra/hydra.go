@@ -1,19 +1,16 @@
 package hydra
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"net/http"
 	"time"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"golang.org/x/oauth2"
 )
 
+/*
 var (
 	hydraAdminURL string
 )
@@ -23,6 +20,7 @@ func init() {
 		hydraAdminURL = config.GetDefaultSiteURL() + "/oidc-admin"
 	})
 }
+*/
 
 type ConsentResponse struct {
 	Challenge                    string   `json:"challenge"`
@@ -50,9 +48,9 @@ type TokenResponse struct {
 	ExpiresIn    int64  `json:"expires_in"`
 }
 
-func GetLogin(challenge string) (*auth.GetLoginResponse, error) {
+func GetLogin(ctx context.Context, challenge string) (*auth.GetLoginResponse, error) {
 	c := auth.NewLoginProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.GetLogin(context.Background(), &auth.GetLoginRequest{
+	resp, err := c.GetLogin(ctx, &auth.GetLoginRequest{
 		Challenge: challenge,
 	})
 	if err != nil {
@@ -62,9 +60,9 @@ func GetLogin(challenge string) (*auth.GetLoginResponse, error) {
 	return resp, nil
 }
 
-func CreateLogin(clientID string, scopes, audiences []string) (*auth.ID, error) {
+func CreateLogin(ctx context.Context, clientID string, scopes, audiences []string) (*auth.ID, error) {
 	c := auth.NewLoginProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.CreateLogin(context.Background(), &auth.CreateLoginRequest{
+	resp, err := c.CreateLogin(ctx, &auth.CreateLoginRequest{
 		ClientID:  clientID,
 		Scopes:    scopes,
 		Audiences: audiences,
@@ -76,9 +74,9 @@ func CreateLogin(clientID string, scopes, audiences []string) (*auth.ID, error) 
 	return resp.GetLogin(), nil
 }
 
-func AcceptLogin(challenge string, subject string) (*RedirectResponse, error) {
+func AcceptLogin(ctx context.Context, challenge string, subject string) (*RedirectResponse, error) {
 	c := auth.NewLoginProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	_, err := c.AcceptLogin(context.Background(), &auth.AcceptLoginRequest{
+	_, err := c.AcceptLogin(ctx, &auth.AcceptLoginRequest{
 		Challenge: challenge,
 		Subject:   subject,
 	})
@@ -89,7 +87,8 @@ func AcceptLogin(challenge string, subject string) (*RedirectResponse, error) {
 	return nil, nil
 }
 
-func RejectLogin(challenge string, body interface{}) (*RedirectResponse, error) {
+/*
+func RejectLogin(ctx context.Context, challenge string, body interface{}) (*RedirectResponse, error) {
 	resp := new(RedirectResponse)
 
 	if err := put("login", "reject", challenge, body, resp); err != nil {
@@ -98,10 +97,11 @@ func RejectLogin(challenge string, body interface{}) (*RedirectResponse, error) 
 
 	return resp, nil
 }
-
-func GetConsent(challenge string) (*auth.GetConsentResponse, error) {
+*/
+/*
+func GetConsent(ctx context.Context, challenge string) (*auth.GetConsentResponse, error) {
 	c := auth.NewConsentProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.GetConsent(context.Background(), &auth.GetConsentRequest{
+	resp, err := c.GetConsent(ctx, &auth.GetConsentRequest{
 		Challenge: challenge,
 	})
 	if err != nil {
@@ -110,16 +110,17 @@ func GetConsent(challenge string) (*auth.GetConsentResponse, error) {
 
 	return resp, nil
 }
+*/
 
-func CreateConsent(loginChallenge string) (*auth.ID, error) {
+func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error) {
 
-	login, err := GetLogin(loginChallenge)
+	login, err := GetLogin(ctx, loginChallenge)
 	if err != nil {
 		return nil, err
 	}
 
 	c := auth.NewConsentProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.CreateConsent(context.Background(), &auth.CreateConsentRequest{
+	resp, err := c.CreateConsent(ctx, &auth.CreateConsentRequest{
 		LoginChallenge: login.Challenge,
 	})
 	if err != nil {
@@ -129,9 +130,9 @@ func CreateConsent(loginChallenge string) (*auth.ID, error) {
 	return resp.GetConsent(), nil
 }
 
-func AcceptConsent(challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
+func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
 	c := auth.NewConsentProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	_, err := c.AcceptConsent(context.Background(), &auth.AcceptConsentRequest{
+	_, err := c.AcceptConsent(ctx, &auth.AcceptConsentRequest{
 		Challenge:   challenge,
 		Scopes:      scopes,
 		Audiences:   audiences,
@@ -145,7 +146,8 @@ func AcceptConsent(challenge string, scopes, audiences []string, accessToken, id
 	return nil, nil
 }
 
-func RejectConsent(challenge string, body interface{}) (*RedirectResponse, error) {
+/*
+func RejectConsent(ctx context.Context, challenge string, body interface{}) (*RedirectResponse, error) {
 	resp := new(RedirectResponse)
 
 	if err := put("consent", "reject", challenge, body, resp); err != nil {
@@ -154,10 +156,11 @@ func RejectConsent(challenge string, body interface{}) (*RedirectResponse, error
 
 	return resp, nil
 }
+*/
 
-func CreateLogout(url, subject, sessionID string) (*auth.ID, error) {
+func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID, error) {
 	c := auth.NewLogoutProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.CreateLogout(context.Background(), &auth.CreateLogoutRequest{
+	resp, err := c.CreateLogout(ctx, &auth.CreateLogoutRequest{
 		RequestURL: url,
 		Subject:    subject,
 		SessionID:  sessionID,
@@ -169,9 +172,9 @@ func CreateLogout(url, subject, sessionID string) (*auth.ID, error) {
 	return resp.GetLogout(), nil
 }
 
-func AcceptLogout(challenge string, accessToken string, refreshToken string) error {
+func AcceptLogout(ctx context.Context, challenge string, accessToken string, refreshToken string) error {
 	c := auth.NewLogoutProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	_, err := c.AcceptLogout(context.Background(), &auth.AcceptLogoutRequest{
+	_, err := c.AcceptLogout(ctx, &auth.AcceptLogoutRequest{
 		Challenge:    challenge,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -183,9 +186,9 @@ func AcceptLogout(challenge string, accessToken string, refreshToken string) err
 	return nil
 }
 
-func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, error) {
+func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI string) (string, error) {
 	c := auth.NewAuthCodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.CreateAuthCode(context.Background(), &auth.CreateAuthCodeRequest{
+	resp, err := c.CreateAuthCode(ctx, &auth.CreateAuthCodeRequest{
 		Consent:     consent,
 		ClientID:    clientID,
 		RedirectURI: redirectURI,
@@ -197,6 +200,7 @@ func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, err
 	return resp.Code, nil
 }
 
+/*
 func get(flow string, challenge string, res interface{}) error {
 	cli := &http.Client{}
 
@@ -244,11 +248,12 @@ func put(flow string, action string, challenge string, body interface{}, res int
 
 	return nil
 }
+*/
 
-func Exchange(code string) (*oauth2.Token, error) {
+func Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 
 	c := auth.NewAuthCodeExchangerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.Exchange(context.Background(), &auth.ExchangeRequest{
+	resp, err := c.Exchange(ctx, &auth.ExchangeRequest{
 		Code: code,
 	})
 	if err != nil {
@@ -269,9 +274,9 @@ func Exchange(code string) (*oauth2.Token, error) {
 	return token, nil
 }
 
-func Refresh(refreshToken string) (*TokenResponse, error) {
+func Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	c := auth.NewAuthTokenRefresherClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
-	resp, err := c.Refresh(context.Background(), &auth.RefreshTokenRequest{
+	resp, err := c.Refresh(ctx, &auth.RefreshTokenRequest{
 		RefreshToken: refreshToken,
 	})
 	if err != nil {

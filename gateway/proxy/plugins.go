@@ -385,6 +385,8 @@ func LoadCaddyConf() error {
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
 
+	// TODO : SHALL WE DEFINE A FULL PROXYCONFIG FOR GRPC
+	// TO ALLOW HTTP ON ALL ENDPOINTS AND HTTPS ON GRPC ONLY?
 	caddyconf.Micro = common.SERVICE_MICRO_API
 	external := viper.Get("grpc_external")
 	externalSet := external != nil && external.(string) != ""

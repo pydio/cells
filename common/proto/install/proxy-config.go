@@ -3,7 +3,11 @@ package install
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
+
+	"github.com/jaytaylor/go-hostsfile"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 func (m *ProxyConfig) GetDefaultBindURL() string {
@@ -27,6 +31,33 @@ func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 		addresses = append(addresses, fmt.Sprintf("%s://%s", scheme, host))
 	}
 	return
+}
+
+func (m *ProxyConfig) GetExternalUrls() map[string]string {
+	uniques := make(map[string]string)
+	for _, b := range m.GetBindURLs() {
+		u, e := url.Parse(b)
+		if e != nil {
+			continue
+		}
+		if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
+			u.Host = u.Hostname() // Replace host with version without port
+			b = u.String()
+		}
+		uniques[u.Hostname()] = b
+		if u.Hostname() == "0.0.0.0" {
+			ii, _ := net.GetAvailableIPs()
+			for _, i := range ii {
+				uniques[i.String()] = strings.ReplaceAll(b, "0.0.0.0", i.String())
+			}
+			if other, e := hostsfile.ReverseLookup("127.0.0.1"); e == nil && len(other) > 0 {
+				for _, o := range other {
+					uniques[o] = strings.ReplaceAll(b, "0.0.0.0", o)
+				}
+			}
+		}
+	}
+	return uniques
 }
 
 func (m *ProxyConfig) HasTLS() bool {

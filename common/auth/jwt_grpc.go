@@ -58,7 +58,7 @@ func (p *grpcprovider) GetType() ProviderType {
 }
 
 func (c *grpcprovider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
-	return hydra.Exchange(code)
+	return hydra.Exchange(ctx, code)
 }
 
 func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {

@@ -276,6 +276,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 				{servicecontext.HttpMetaUserAgent: servicecontext.HttpMetaUserAgent},
 				{servicecontext.HttpMetaContentType: servicecontext.HttpMetaContentType},
 				{servicecontext.HttpMetaProtocol: servicecontext.HttpMetaProtocol},
+				{servicecontext.HttpMetaHostname: servicecontext.HttpMetaHostname},
 				{servicecontext.HttpMetaRequestMethod: servicecontext.HttpMetaRequestMethod},
 				{servicecontext.HttpMetaRequestURI: servicecontext.HttpMetaRequestURI},
 				{servicecontext.HttpMetaCookiesString: servicecontext.HttpMetaCookiesString},

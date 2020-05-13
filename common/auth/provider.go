@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/ory/hydra/driver/configuration"
@@ -37,32 +38,63 @@ type configurationProvider struct {
 }
 
 var (
-	conf                 ConfigurationProvider
-	onConfigurationInits []func()
+	confMap     map[string]ConfigurationProvider
+	confMutex   *sync.Mutex
+	defaultConf ConfigurationProvider
+
+	onConfigurationInits []func(scanner common.Scanner)
 	confInit             bool
 )
 
+func init() {
+	confMap = make(map[string]ConfigurationProvider)
+	confMutex = &sync.Mutex{}
+}
+
 func InitConfiguration(values common.ConfigValues) {
 
-	defaultBind := config.GetDefaultSiteURL()
-	conf = NewProvider(defaultBind, values)
-	for _, onConfigurationInit := range onConfigurationInits {
-		onConfigurationInit()
+	confMutex.Lock()
+	defer confMutex.Unlock()
+	initConnector := false
+	for hostName, rootUrl := range config.GetSitesAllowedHostnames() {
+		if _, o := confMap[hostName]; o { // avoid duplication
+			continue
+		}
+		p := NewProvider(rootUrl, values)
+		if !initConnector {
+			// Use first conf as default
+			defaultConf = p
+			for _, onConfigurationInit := range onConfigurationInits {
+				onConfigurationInit(p.Connectors())
+			}
+			initConnector = true
+		}
+		confMap[hostName] = p
 	}
-
 	confInit = true
 }
 
-func OnConfigurationInit(f func()) {
+func OnConfigurationInit(f func(scanner common.Scanner)) {
 	onConfigurationInits = append(onConfigurationInits, f)
 
 	if confInit == true {
-		f()
+		confMutex.Lock()
+		defer confMutex.Unlock()
+		for _, provider := range confMap {
+			f(provider.Connectors())
+			break
+		}
 	}
 }
 
-func GetConfigurationProvider() ConfigurationProvider {
-	return conf
+func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
+	confMutex.Lock()
+	defer confMutex.Unlock()
+	if len(hostname) > 0 {
+		return confMap[hostname[0]]
+	} else {
+		return defaultConf
+	}
 }
 
 func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvider {

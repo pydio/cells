@@ -25,10 +25,10 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/micro/go-micro"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/driver"
-	"github.com/ory/hydra/driver/configuration"
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
 	"github.com/ory/hydra/x"
@@ -43,12 +43,6 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/oauth"
-)
-
-var (
-	store *oauth2.FositeSQLStore
-	reg   driver.Registry
-	conf  configuration.Provider
 )
 
 func init() {
@@ -77,32 +71,37 @@ func init() {
 func serve(s service.Service) (micro.Option, error) {
 	srv := defaults.NewHTTPServer()
 
-	admin := x.NewRouterAdmin()
-	public := x.NewRouterPublic()
+	router := mux.NewRouter()
 
-	reg := auth.GetRegistry()
-	conf := auth.GetConfigurationProvider()
+	hh := config.GetSitesAllowedHostnames()
+	for h, _ := range hh {
+		r := router.Host(h).Subrouter()
 
-	oauth2Handler := oauth2.NewHandler(reg, conf)
-	oauth2Handler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
+		conf := auth.GetConfigurationProvider(h)
+		reg := auth.DuplicateRegistryForConf(conf)
 
-	consentHandler := consent.NewHandler(reg, conf)
-	consentHandler.SetRoutes(admin)
+		admin := x.NewRouterAdmin()
+		public := x.NewRouterPublic()
 
-	keyHandler := jwk.NewHandler(reg, conf)
-	keyHandler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
+		oauth2Handler := oauth2.NewHandler(reg, conf)
+		oauth2Handler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
 
-	mux := http.NewServeMux()
+		consentHandler := consent.NewHandler(reg, conf)
+		consentHandler.SetRoutes(admin)
 
-	if conf.CORSEnabled("admin") {
-		mux.Handle("/oidc-admin/", http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(admin)))
-	} else {
-		mux.Handle("/oidc-admin/", http.StripPrefix("/oidc-admin", admin))
+		keyHandler := jwk.NewHandler(reg, conf)
+		keyHandler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
+
+		if conf.CORSEnabled("admin") {
+			r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(servicecontext.HttpMetaExtractorWrapper(admin))))
+		} else {
+			r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", servicecontext.HttpMetaExtractorWrapper(admin)))
+		}
+
+		r.PathPrefix("/oidc/").Handler(http.StripPrefix("/oidc", servicecontext.HttpMetaExtractorWrapper(public)))
 	}
 
-	mux.Handle("/oidc/", http.StripPrefix("/oidc", public))
-
-	hd := srv.NewHandler(mux)
+	hd := srv.NewHandler(router)
 
 	if err := srv.Handle(hd); err != nil {
 		return nil, err

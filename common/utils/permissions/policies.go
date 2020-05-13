@@ -84,6 +84,7 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 			servicecontext.HttpMetaUserAgent,
 			servicecontext.HttpMetaContentType,
 			servicecontext.HttpMetaProtocol,
+			servicecontext.HttpMetaHostname,
 			servicecontext.ClientTime,
 			servicecontext.ServerTime,
 		} {

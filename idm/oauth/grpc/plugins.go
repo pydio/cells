@@ -93,14 +93,14 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	auth.OnConfigurationInit(func() {
+	auth.OnConfigurationInit(func(scanner common.Scanner) {
 		var m []struct {
-			ID   string `"json:id"`
-			Name string `"json:id"`
-			Type string `"json:type"`
+			ID   string
+			Name string
+			Type string
 		}
 
-		if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
+		if err := scanner.Scan(&m); err != nil {
 			log.Fatal("Wrong configuration ", err)
 		}
 

@@ -26,7 +26,7 @@ func RefreshAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 			return errors.New("No refresh token")
 		}
 
-		token, err := hydra.Refresh(refreshToken.(string))
+		token, err := hydra.Refresh(req.Request.Context(), refreshToken.(string))
 		if err != nil {
 			return err
 		}
