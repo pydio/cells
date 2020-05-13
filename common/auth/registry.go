@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/ory/fosite"
 
 	"github.com/pydio/cells/common/config"
@@ -42,8 +44,10 @@ func InitRegistry(dao sql.DAO) {
 	once.Do(func() {
 
 		db := sqlx.NewDb(dao.DB(), dao.Driver())
+		l := logrus.New()
+		l.SetLevel(logrus.PanicLevel)
 
-		reg = driver.NewRegistrySQL().WithConfig(defaultConf)
+		reg = driver.NewRegistrySQL().WithConfig(defaultConf).WithLogger(l)
 		r := reg.(*driver.RegistrySQL).WithDB(db)
 		r.Init()
 
@@ -104,7 +108,9 @@ func GetRegistry() driver.Registry {
 }
 
 func DuplicateRegistryForConf(c ConfigurationProvider) driver.Registry {
-	return driver.NewRegistrySQL().WithConfig(c)
+	l := logrus.New()
+	l.SetLevel(logrus.PanicLevel)
+	return driver.NewRegistrySQL().WithConfig(c).WithLogger(l)
 }
 
 func GetRegistrySQL() *driver.RegistrySQL {
