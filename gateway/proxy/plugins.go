@@ -412,7 +412,6 @@ func LoadCaddyConf() error {
 	if er != nil {
 		return er
 	}
-	fmt.Println(sites)
 	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
 	if er != nil {
 		return er

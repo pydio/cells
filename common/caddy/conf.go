@@ -1,7 +1,6 @@
 package caddy
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -50,12 +49,9 @@ func (s SiteConf) Redirects() map[string]string {
 
 func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 	bc := SiteConf{ProxyConfig: pc}
-	fmt.Println("--------- A ", pc.ReverseProxyURL)
 	if pc.ReverseProxyURL != "" {
-		fmt.Println("--------- ", pc.ReverseProxyURL)
 		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
 			bc.ExternalHost = u.Hostname()
-			fmt.Println("--------- ", bc.ExternalHost)
 		}
 	}
 	switch v := bc.TLSConfig.(type) {
