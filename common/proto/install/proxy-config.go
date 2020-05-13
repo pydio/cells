@@ -35,6 +35,15 @@ func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 
 func (m *ProxyConfig) GetExternalUrls() map[string]string {
 	uniques := make(map[string]string)
+	if ext := m.GetReverseProxyURL(); ext != "" {
+		if u, e := url.Parse(ext); e == nil {
+			if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
+				u.Host = u.Hostname() // Replace host with version without port
+				ext = u.String()
+			}
+			uniques[u.Hostname()] = ext
+		}
+	}
 	for _, b := range m.GetBindURLs() {
 		u, e := url.Parse(b)
 		if e != nil {
@@ -107,6 +116,13 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 			m.SSLRedirect = b
 		} else {
 			return fmt.Errorf("unexpected type for SSLRedirect (expected bool)")
+		}
+	}
+	if u, o := data[getKey("ReverseProxyURL")]; o {
+		if b, o := u.(string); o {
+			m.ReverseProxyURL = b
+		} else {
+			return fmt.Errorf("unexpected type for ReverseProxyURL (expected string)")
 		}
 	}
 	if t, o := data[getKey("TLSConfig")]; o {

@@ -1,6 +1,8 @@
 package caddy
 
 import (
+	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/mholt/caddy/caddytls"
@@ -16,6 +18,8 @@ type SiteConf struct {
 	TLS     string
 	TLSCert string
 	TLSKey  string
+	// Parsed External host if any
+	ExternalHost string
 }
 
 func (s SiteConf) Redirects() map[string]string {
@@ -46,6 +50,14 @@ func (s SiteConf) Redirects() map[string]string {
 
 func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 	bc := SiteConf{ProxyConfig: pc}
+	fmt.Println("--------- A ", pc.ReverseProxyURL)
+	if pc.ReverseProxyURL != "" {
+		fmt.Println("--------- ", pc.ReverseProxyURL)
+		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
+			bc.ExternalHost = u.Hostname()
+			fmt.Println("--------- ", bc.ExternalHost)
+		}
+	}
 	switch v := bc.TLSConfig.(type) {
 	case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
 		certFile, keyFile, err := providers.LoadCertificates(pc)

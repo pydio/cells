@@ -52,28 +52,29 @@ import (
 var (
 	caddyfile = `
 {{range .Sites}}
+{{$ExternalHost := .ExternalHost}}
 {{range .Binds}}{{.}} {{end}}{
 	proxy /a  {{$.Micro | urls}} {
 		without /a
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	proxy /oidc {{$.OAuth | urls}} {
 		insecure_skip_verify
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	proxy /io   {{$.Gateway | serviceAddress}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	proxy /data {{$.Gateway | serviceAddress}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
@@ -84,7 +85,7 @@ var (
 		without /ws
 	}
 	proxy /dav {{$.DAV | urls}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
@@ -92,38 +93,38 @@ var (
 	}
 	
 	proxy /plug/ {{$.FrontPlugins | urls}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	proxy /public/ {{$.FrontPlugins | urls}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	proxy /public/plug/ {{$.FrontPlugins | urls}} {
 		without /public
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	proxy /user/reset-password/ {{$.FrontPlugins | urls}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
 	proxy /robots.txt {{$.FrontPlugins | urls}} {
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
 	proxy /login {{urls $.FrontPlugins "/gui"}} {
 		without /login
-		header_upstream Host {host}
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
@@ -185,14 +186,6 @@ var (
 	`
 
 	caddyconf = struct {
-		// Legacy
-		Bind         string
-		ExternalHost string
-		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
-		TLS     string
-		TLSCert string
-		TLSKey  string
-
 		// New way
 		Sites        []caddy.SiteConf
 		Micro        string
@@ -394,9 +387,9 @@ func LoadCaddyConf() error {
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
 	if tls {
 		if self := config.Get("cert", "proxy", "self").Bool(false); self {
-			caddyconf.TLS = "self_signed"
+			//caddyconf.TLS = "self_signed"
 		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
-			caddyconf.TLS = certEmail
+			//caddyconf.TLS = certEmail
 			if !externalSet {
 				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
 			}
@@ -404,8 +397,8 @@ func LoadCaddyConf() error {
 			cert := config.Get("cert", "proxy", "certFile").String("")
 			key := config.Get("cert", "proxy", "keyFile").String("")
 			if cert != "" && key != "" {
-				caddyconf.TLSCert = cert
-				caddyconf.TLSKey = key
+				//caddyconf.TLSCert = cert
+				//caddyconf.TLSKey = key
 				if !externalSet {
 					caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
 				}
@@ -419,6 +412,7 @@ func LoadCaddyConf() error {
 	if er != nil {
 		return er
 	}
+	fmt.Println(sites)
 	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
 	if er != nil {
 		return er

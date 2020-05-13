@@ -21,8 +21,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/config"
@@ -45,21 +43,6 @@ func promptAndApplyProxyConfig() (*install.ProxyConfig, error) {
 		return nil, e
 	}
 
-	site := &install.ProxyConfig{}
-
-	// Get SSL info from end user
-	e := promptURLs(site, true)
-	if e != nil {
-		return nil, e
-	}
-	fmt.Println(site)
-
-	// Save and reload
-	e = applyProxySites([]*install.ProxyConfig{site})
-	if e != nil {
-		return nil, e
-	}
-	return site, e
 }
 
 func applyProxySites(sites []*install.ProxyConfig) error {

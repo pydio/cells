@@ -49,6 +49,8 @@ message InstallConfig {
 message ProxyConfig {
     // A list of [host]:port to bind to
     repeated string Binds = 1;
+    // Optional URL of reverse proxy exposing this site
+    string ReverseProxyURL = 3;
     // TLS configuration used for this site
     oneof TLSConfig {
         TLSSelfSigned SelfSigned = 4;

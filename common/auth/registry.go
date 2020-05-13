@@ -8,14 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sirupsen/logrus"
-
-	"github.com/ory/fosite"
-
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
-
 	"github.com/jmoiron/sqlx"
+	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/driver"
@@ -24,10 +18,13 @@ import (
 	"github.com/ory/hydra/x"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/sql"
 )
 

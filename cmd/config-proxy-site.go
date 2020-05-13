@@ -39,8 +39,8 @@ import (
 )
 
 var urlCmd = &cobra.Command{
-	Use:   "url",
-	Short: "Manage main URLs of the application",
+	Use:   "site",
+	Short: "Manage sites where application is exposed",
 	Long: `
 
 `,
@@ -48,15 +48,15 @@ var urlCmd = &cobra.Command{
 
 		sites, _ := config.LoadSites(true)
 
-		for _, site := range sites {
-			// Get URL info
-			e := promptURLs(site, false)
-			if e != nil {
-				log.Fatal(e)
-			}
+		// Get URL info
+		newSite := &install.ProxyConfig{}
+		e := promptURLs(newSite)
+		if e != nil {
+			log.Fatal(e)
 		}
+		sites = append(sites, newSite)
 
-		e := config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
+		e = config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -68,26 +68,21 @@ var urlCmd = &cobra.Command{
 	},
 }
 
-func promptURLs(site *install.ProxyConfig, includeTLS bool) (e error) {
+func promptURLs(site *install.ProxyConfig) (e error) {
 	// Get URL info from end user
 	e = promptBindURL(site, false)
 	if e != nil {
 		return
 	}
 
-	if !includeTLS {
-		// TLS not included by default, still ask the user if he wants to change it
-		promptTls := p.Prompt{Label: "Do you want to change your TLS config as well? [y/N] ", Default: ""}
-		if val, e1 := promptTls.Run(); e1 == nil && (val == "Y" || val == "y") {
-			includeTLS = true
-		}
+	_, e = promptTLSMode(site)
+	if e != nil {
+		return
 	}
 
-	if includeTLS {
-		_, e = promptTLSMode(site)
-		if e != nil {
-			return
-		}
+	e = promptExtURL(site)
+	if e != nil {
+		return
 	}
 
 	return
@@ -174,60 +169,19 @@ func promptBindURL(site *install.ProxyConfig, resolveHosts bool) (e error) {
 	return nil
 }
 
-/*
-func promptExtURL(proxyConfig *install.ProxyConfig) error {
+func promptExtURL(site *install.ProxyConfig) error {
 
-	// Gather predefined info to enhance suggestions
-	bind, e := url.Parse(proxyConfig.GetBindURL())
-	if e != nil {
-		return e
+	prompt := p.Prompt{
+		Label:    "If this site is accessed through a reverse proxy, provide full external URL (https://mydomain.com)",
+		Validate: validUrl,
 	}
-	parts := strings.Split(bind.Host, ":")
-	if len(parts) != 2 {
-		return fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", bind.Host)
-	}
-	extUrl := &url.URL{
-		Scheme: "http",
-		Host:   bind.Host,
-	}
-	if parts[1] == "80" || parts[1] == "443" {
-		extUrl.Host = parts[0] // Strip port
-	}
-	if parts[1] == "443" || proxyConfig.GetTLSConfig() != nil {
-		extUrl.Scheme = "https"
+	val, _ := prompt.Run()
+	if val != "" {
+		site.ReverseProxyURL = val
 	}
 
-	external := extUrl.String()
-
-	fmt.Println("Your instance will be accessible at " + external + ". If you are behind a reverse proxy or inside a private network, you may need to manually set an alternative External URL. Do not change this is you are not sure!")
-	changeExternal := p.Select{
-		Label: "Setup a different URL for external access",
-		Items: []string{"Use " + external, "Set another URL"},
-	}
-	if choice, _, _ := changeExternal.Run(); choice == 1 {
-		extPrompt := p.Prompt{
-			Label:    "External Url used to access application from outside world",
-			Validate: validScheme,
-			Default:  extUrl.String(),
-		}
-		var err error
-		external, err = extPrompt.Run()
-		if err != nil {
-			return err
-
-		}
-		external = strings.TrimSuffix(external, "/")
-	}
-
-	_, err := url.Parse(external)
-	if err != nil {
-		return err
-	}
-
-	proxyConfig.ExternalURL = external
 	return nil
 }
-*/
 
 // helper to add a not-so-stupid scheme to URL strings to be then able to rely on the net/url package to manipulate URL.
 func guessSchemeAndParseBaseURL(rawURL string, tlsEnabled bool) (*url.URL, error) {
