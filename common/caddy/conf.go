@@ -79,6 +79,8 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 				}
 				if le.StagingCA {
 					caddytls.DefaultCAUrl = config.DefaultCaStagingUrl
+				} else {
+					caddytls.DefaultCAUrl = config.DefaultCaUrl
 				}
 			}
 		} else {

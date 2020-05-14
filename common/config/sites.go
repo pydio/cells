@@ -9,7 +9,7 @@ var (
 	DefaultBindingSite = &install.ProxyConfig{
 		Binds:       []string{"0.0.0.0:8080"},
 		TLSConfig:   &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
-		SSLRedirect: true,
+		SSLRedirect: false,
 	}
 )
 
