@@ -21348,9 +21348,15 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var invalid = _state2.invalid;
             var m = _state2.m;
 
+<<<<<<< HEAD
             var pAds = [].concat(_toConsumableArray(peerAddresses));
             pAds = ["ANY"].concat(_toConsumableArray(pAds));
             if (invalidAddress && invalidAddress !== 'ANY') {
+=======
+            var pAds = peerAddresses || [];
+            pAds = ["ANY"].concat(_toConsumableArray(pAds));
+            if (invalidAddress) {
+>>>>>>> aa664f46b... Handle empty PeerAddress for datasources when node is unique or FS is distributed
                 pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
 
@@ -21373,9 +21379,15 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             fullWidth: true
                         },
                         pAds.map(function (address) {
+<<<<<<< HEAD
                             var label = m('selector.peer.any');
                             if (address !== 'ANY') {
                                 label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' (' + m('selector.peer.invalid') + ')' : '');
+=======
+                            var label = 'Any peer (unique node or distributed FS)';
+                            if (address !== 'ANY') {
+                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "");
+>>>>>>> aa664f46b... Handle empty PeerAddress for datasources when node is unique or FS is distributed
                             }
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
                         })
