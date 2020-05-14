@@ -416,7 +416,8 @@ var PydioApi = (function () {
         if (targetPath[0] === "/") {
             targetPath = targetPath.substring(1);
         }
-        var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+        var fUrl = this.getPydioObject().getFrontendUrl();
+        var url = fUrl.protocol + '//' + fUrl.host;
         var params = {
             Bucket: 'io',
             Key: targetPath,
