@@ -138,6 +138,8 @@ func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
+	defer merger.Close()
+
 	diff, err := merger.LoadAndDiffShares(ctx, params)
 	if err != nil {
 		return input.WithError(err), err

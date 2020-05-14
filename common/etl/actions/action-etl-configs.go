@@ -104,6 +104,8 @@ func (c *SyncConfigAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
+	defer merger.Close()
+
 	diff, err := merger.LoadAndDiffConfig(ctx)
 	if err != nil {
 		return input.WithError(err), err

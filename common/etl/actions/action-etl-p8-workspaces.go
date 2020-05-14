@@ -230,6 +230,8 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 	}
 
 	merger := etl.NewMerger(left, right, &models.MergeOptions{})
+	defer merger.Close()
+
 	aclsDiff := new(models.ACLDiff)
 	merger.Diff(pydio8ACLs, acls, aclsDiff)
 	log.Logger(ctx).Info("After merge ACLs", zap.Any("add", aclsDiff.ToAdd()))

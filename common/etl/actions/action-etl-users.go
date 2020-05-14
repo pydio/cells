@@ -145,6 +145,8 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(err), err
 	}
 
+	defer merger.Close()
+
 	if _, ok := c.params["splitUsersRoles"]; ok {
 
 		cellAdmin, ok := c.params["cellAdmin"]

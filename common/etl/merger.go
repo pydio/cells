@@ -3,6 +3,7 @@ package etl
 import (
 	"context"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -588,4 +589,21 @@ func (m *Merger) SaveShares(ctx context.Context, diff *models.ShareDiff, progres
 		}
 	}
 
+}
+
+func (m *Merger) Close() error {
+	// Check if the left or right store need to be closed
+	if c, ok := m.Source.(io.Closer); ok {
+		if err := c.Close(); err != nil {
+			return err
+		}
+	}
+
+	if c, ok := m.Target.(io.Closer); ok {
+		if err := c.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
