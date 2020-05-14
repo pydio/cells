@@ -21047,7 +21047,7 @@ var AutocompleteTree = (function (_React$Component) {
             this.lastSearch = basePath;
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var listRequest = new _pydioHttpRestApi.RestListPeerFoldersRequest();
-            listRequest.PeerAddress = peerAddress;
+            listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             listRequest.Path = basePath;
             this.setState({ loading: true });
             return api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
@@ -21075,7 +21075,7 @@ var AutocompleteTree = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var createRequest = new _pydioHttpRestApi.RestCreatePeerFolderRequest();
-            createRequest.PeerAddress = peerAddress;
+            createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             createRequest.Path = value + '/' + newName;
             api.createPeerFolder(peerAddress, createRequest).then(function (result) {
                 _this2.lastSearch = null; // Force reload
@@ -21352,8 +21352,9 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var m = _state2.m;
 
             var pAds = peerAddresses || [];
+            pAds = ["ANY"].concat(_toConsumableArray(pAds));
             if (invalidAddress) {
-                pAds = [].concat(_toConsumableArray(pAds), [invalidAddress]);
+                pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
 
             return _react2['default'].createElement(
@@ -21373,7 +21374,11 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             fullWidth: true
                         },
                         pAds.map(function (address) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "") });
+                            var label = 'Any peer (unique node or distributed FS)';
+                            if (address !== 'ANY') {
+                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "");
+                            }
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
                         })
                     )
                 ),
@@ -23678,6 +23683,10 @@ var DataSource = (function (_Observable) {
                             _this.internalInvalid = value;
                             _this.notify('update');
                             return true;
+                        } else if (p === 'PeerAddress') {
+                            if (value === 'ANY') {
+                                val = '';
+                            }
                         }
                     target[p] = val;
                     _this.notify('update');
@@ -23691,6 +23700,8 @@ var DataSource = (function (_Observable) {
                         return _this.buildProxy(out);
                     } else if (p === 'StorageType') {
                         return out || 'LOCAL';
+                    } else if (p === 'PeerAddress') {
+                        return out || 'ANY';
                     } else {
                         return out;
                     }

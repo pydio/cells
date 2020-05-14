@@ -96,7 +96,7 @@ class AutocompleteTree extends React.Component{
         this.lastSearch = basePath;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         let listRequest = new RestListPeerFoldersRequest();
-        listRequest.PeerAddress = peerAddress;
+        listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
         listRequest.Path = basePath;
         this.setState({loading: true});
         return api.listPeerFolders(peerAddress, listRequest).then(nodesColl => {
@@ -118,7 +118,7 @@ class AutocompleteTree extends React.Component{
         const {value} = this.state;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const createRequest = new RestCreatePeerFolderRequest();
-        createRequest.PeerAddress = peerAddress;
+        createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
         createRequest.Path = value + '/' + newName;
         api.createPeerFolder(peerAddress, createRequest).then(result => {
             this.lastSearch = null; // Force reload
@@ -304,8 +304,9 @@ class DataSourceLocalSelector extends React.Component{
         const {model, pydio} = this.props;
         const {peerAddresses, invalidAddress, invalid, m} = this.state;
         let pAds = peerAddresses || [];
+        pAds = ["ANY", ...pAds];
         if(invalidAddress){
-            pAds = [...pAds, invalidAddress];
+            pAds = [invalidAddress, ...pAds];
         }
 
         return (
@@ -318,7 +319,11 @@ class DataSourceLocalSelector extends React.Component{
                         fullWidth={true}
                     >
                         {pAds.map(address => {
-                            return <MenuItem value={address} primaryText={"Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)":"")}/>
+                            let label = 'Any peer (unique node or distributed FS)';
+                            if(address !== 'ANY') {
+                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)":"");
+                            }
+                            return <MenuItem value={address} primaryText={label}/>
                         })}
                     </ModernSelectField>
                 </div>

@@ -57,6 +57,10 @@ class DataSource extends Observable {
                     this.internalInvalid = value;
                     this.notify('update');
                     return true;
+                } else if (p === 'PeerAddress') {
+                    if(value === 'ANY'){
+                        val = '';
+                    }
                 }
                 target[p] = val;
                 this.notify('update');
@@ -70,6 +74,8 @@ class DataSource extends Observable {
                     return this.buildProxy(out);
                 } else if (p === 'StorageType') {
                     return out || 'LOCAL';
+                } else if (p === 'PeerAddress') {
+                    return out || 'ANY';
                 } else {
                     return out;
                 }
