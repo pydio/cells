@@ -55,7 +55,7 @@ func applyProxySites(sites []*install.ProxyConfig) error {
 	}
 
 	// Clean TLS context after the update
-	config.ResetTlsConfigs()
+	// config.ResetTlsConfigs()
 	return nil
 
 }

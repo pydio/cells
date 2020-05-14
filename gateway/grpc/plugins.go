@@ -7,7 +7,6 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
-	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -40,9 +39,11 @@ func init() {
 		}),
 	}
 	plugins.Register(func() {
-		if port := viper.Get("grpc_external"); port != nil {
-			opts = append(opts, service.Port(port.(string)))
-		}
+		/*
+			if port := viper.Get("grpc_external"); port != nil {
+				opts = append(opts, service.Port(port.(string)))
+			}
+		*/
 		service.NewService(opts...)
 	})
 

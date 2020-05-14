@@ -67,7 +67,7 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 	if e != nil {
 		return e
 	}
-	ResetTlsConfigs()
+	//ResetTlsConfigs()
 	return nil
 
 }

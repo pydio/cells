@@ -26,10 +26,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
 
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
@@ -37,7 +40,6 @@ import (
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
 	"github.com/pborman/uuid"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -161,8 +163,8 @@ var (
 		header_upstream X-Forwarded-Proto {scheme}
 		header_upstream X-Forwarded-Port {port}
 	}
-{{if $.ProxyGRPC}}
-	proxy /grpc https://{{$.ProxyGRPC | urls}} {
+{{if not $.GrpcExternals}}
+	proxy /grpc https://{{$.GrpcService | urls}} {
 		without /grpc
 		insecure_skip_verify
 	}
@@ -174,7 +176,7 @@ var (
 {{end}}
 
 	redir 302 {
-		{{if $.ProxyGRPC}}if {>Content-type} not_has "application/grpc"{{end}}
+		{{if not $.GrpcExternals}}if {>Content-type} not_has "application/grpc"{{end}}
 		if {path} is /
 		/ /login
 	}
@@ -216,19 +218,33 @@ var (
 {{end}}
 
 {{end}}
+
+{{range .GrpcExternals}}
+{{range .Binds}}{{.}} {{end}}{
+	proxy / https://{{$.GrpcService | urls}} {
+		insecure_skip_verify
+	}
+	root {{$.WebRoot}}
+	{{if .TLS}}tls {{.TLS}}{{end}}
+	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
+	errors "{{$.Logs}}/caddy_grpc_errors.log"	
+}
+{{end}}
+
 	`
 
 	caddyconf = struct {
 		// New way
-		Sites        []caddy.SiteConf
-		Micro        string
-		OAuth        string
-		Gateway      string
-		WebSocket    string
-		FrontPlugins string
-		DAV          string
-		ProxyGRPC    string
-		WebRoot      string
+		Sites         []caddy.SiteConf
+		Micro         string
+		OAuth         string
+		Gateway       string
+		WebSocket     string
+		FrontPlugins  string
+		DAV           string
+		GrpcService   string
+		GrpcExternals []caddy.SiteConf
+		WebRoot       string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
 
@@ -241,6 +257,7 @@ var (
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
 		DAV:          common.SERVICE_GATEWAY_DAV,
+		GrpcService:  common.SERVICE_GATEWAY_GRPC,
 	}
 )
 
@@ -262,7 +279,7 @@ func init() {
 								caddytls.Agreed = true
 							}
 							if le.StagingCA {
-								caddytls.DefaultCAUrl = config.DefaultCaStagingUrl
+								caddytls.DefaultCAUrl = caddy.DefaultCaStagingUrl
 							}
 							useLE = true
 							break
@@ -410,36 +427,7 @@ func LoadCaddyConf() error {
 
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
-
-	// TODO : SHALL WE DEFINE A FULL PROXYCONFIG FOR GRPC
-	// TO ALLOW HTTP ON ALL ENDPOINTS AND HTTPS ON GRPC ONLY?
 	caddyconf.Micro = common.SERVICE_MICRO_API
-	external := viper.Get("grpc_external")
-	externalSet := external != nil && external.(string) != ""
-
-	tls := config.Get("cert", "proxy", "ssl").Bool(false)
-	if tls {
-		if self := config.Get("cert", "proxy", "self").Bool(false); self {
-			//caddyconf.TLS = "self_signed"
-		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
-			//caddyconf.TLS = certEmail
-			if !externalSet {
-				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
-			}
-		} else {
-			cert := config.Get("cert", "proxy", "certFile").String("")
-			key := config.Get("cert", "proxy", "keyFile").String("")
-			if cert != "" && key != "" {
-				//caddyconf.TLSCert = cert
-				//caddyconf.TLSKey = key
-				if !externalSet {
-					caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
-				}
-			} else {
-				fmt.Println("Missing one of certFile/keyFile in SSL declaration. Will not enable SSL on proxy")
-			}
-		}
-	}
 
 	sites, er := config.LoadSites()
 	if er != nil {
@@ -448,6 +436,21 @@ func LoadCaddyConf() error {
 	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
 	if er != nil {
 		return er
+	}
+
+	caddyconf.GrpcExternals = []caddy.SiteConf{}
+	if external := viper.GetString("grpc_external"); external != "" {
+		// Duplicate sites with new port
+		newSites, _ := caddy.SitesToCaddyConfigs(sites)
+		for _, si := range newSites {
+			var binds []string
+			for _, b := range si.Binds {
+				h, _, _ := net.SplitHostPort(b)
+				binds = append(binds, net.JoinHostPort(h, external))
+			}
+			si.Binds = binds
+			caddyconf.GrpcExternals = append(caddyconf.GrpcExternals, si)
+		}
 	}
 
 	return nil

@@ -4,11 +4,16 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/mholt/caddy/caddytls"
-	"github.com/pydio/cells/common/config"
+	"github.com/golang/protobuf/proto"
 
+	"github.com/mholt/caddy/caddytls"
 	"github.com/pydio/cells/common/crypto/providers"
 	"github.com/pydio/cells/common/proto/install"
+)
+
+var (
+	DefaultCaUrl        = "https://acme-v02.api.letsencrypt.org/directory"
+	DefaultCaStagingUrl = "https://acme-staging-v02.api.letsencrypt.org/directory"
 )
 
 type SiteConf struct {
@@ -48,7 +53,9 @@ func (s SiteConf) Redirects() map[string]string {
 }
 
 func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
-	bc := SiteConf{ProxyConfig: pc}
+	bc := SiteConf{
+		ProxyConfig: proto.Clone(pc).(*install.ProxyConfig),
+	}
 	if pc.ReverseProxyURL != "" {
 		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
 			bc.ExternalHost = u.Hostname()
@@ -78,9 +85,9 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 					caddytls.Agreed = true
 				}
 				if le.StagingCA {
-					caddytls.DefaultCAUrl = config.DefaultCaStagingUrl
+					caddytls.DefaultCAUrl = DefaultCaStagingUrl
 				} else {
-					caddytls.DefaultCAUrl = config.DefaultCaUrl
+					caddytls.DefaultCAUrl = DefaultCaUrl
 				}
 			}
 		} else {
