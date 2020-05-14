@@ -344,7 +344,7 @@ class PydioApi{
                     httpOptions:{
                         timeout:PydioApi.getMultipartUploadTimeout()
                     },
-                    endpoint:url.replace('/io', ''),
+                    endpoint:url,
                 });
                 const managed = new ManagedMultipart({
                     params: {...params, Body: file},
