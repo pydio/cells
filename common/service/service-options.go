@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"regexp"
 
@@ -56,7 +57,8 @@ type ServiceOptions struct {
 	Prefix     interface{}
 	Migrations []*Migration
 
-	Port string
+	Port      string
+	TLSConfig *tls.Config
 
 	Micro micro.Service
 	Web   web.Service
@@ -171,6 +173,12 @@ func Regexp(r string) ServiceOption {
 func Port(p string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Port = p
+	}
+}
+
+func WithTLSConfig(c *tls.Config) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.TLSConfig = c
 	}
 }
 

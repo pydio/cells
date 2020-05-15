@@ -4,6 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/config"
+	"github.com/spf13/viper"
+
+	"github.com/pydio/cells/common/crypto/providers"
+	"github.com/pydio/cells/common/proto/install"
+
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
@@ -39,11 +45,23 @@ func init() {
 		}),
 	}
 	plugins.Register(func() {
-		/*
+		ss, _ := config.LoadSites()
+		if len(ss) == 1 && !ss[0].HasTLS() {
+			// This is a simple config without TLS - Access will be direct not through proxy
+			//fmt.Println("[NO-TLS] " + common.SERVICE_GATEWAY_GRPC + " served as HTTP and should be accessed directly (no TLS)")
 			if port := viper.Get("grpc_external"); port != nil {
 				opts = append(opts, service.Port(port.(string)))
 			}
-		*/
+		} else {
+			localConfig := &install.ProxyConfig{
+				Binds:     []string{common.SERVICE_GATEWAY_GRPC},
+				TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
+			}
+			if tls, e := providers.LoadTLSServerConfig(localConfig); e == nil {
+				//fmt.Println("[TLS] Activating self-signed TLS on " + common.SERVICE_GATEWAY_GRPC)
+				opts = append(opts, service.WithTLSConfig(tls))
+			}
+		}
 		service.NewService(opts...)
 	})
 
