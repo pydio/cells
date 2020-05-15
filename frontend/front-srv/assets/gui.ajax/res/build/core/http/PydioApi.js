@@ -368,7 +368,8 @@ var PydioApi = (function () {
         if (targetPath[0] === "/") {
             targetPath = targetPath.substring(1);
         }
-        var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+        var frontU = this.getPydioObject().getFrontendUrl();
+        var url = frontU.protocol + '//' + frontU.host;
         var params = {
             Bucket: 'io',
             Key: targetPath,
@@ -393,7 +394,7 @@ var PydioApi = (function () {
                         timeout: PydioApi.getMultipartUploadTimeout()
                     }
                 });
-                var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
+                var s3 = new _awsSdk2['default'].S3({ endpoint: url });
                 var signed = s3.getSignedUrl('putObject', params);
                 var xhr = _this6.uploadFile(file, '', '', onCompleteWrapped, onErrorWrapped, onProgress, signed, { method: 'PUT', customHeaders: { 'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream' } });
                 resolve(xhr);
@@ -474,7 +475,9 @@ var PydioApi = (function () {
         var bucketParams = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
         var attachmentName = arguments.length <= 4 || arguments[4] === undefined ? '' : arguments[4];
 
-        var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+        var frontU = this.getPydioObject().getFrontendUrl();
+        var url = frontU.protocol + '//' + frontU.host;
+
         var user = this.getPydioObject().user;
         var slug = user.getActiveRepositoryObject().getSlug();
         if (node.getMetadata().has("repository_id")) {
@@ -554,7 +557,7 @@ var PydioApi = (function () {
                 secretAccessKey: 'gatewaysecret',
                 s3ForcePathStyle: true
             });
-            var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
+            var s3 = new _awsSdk2['default'].S3({ endpoint: url });
             var signed = s3.getSignedUrl('getObject', params);
             var output = signed + '&pydio_jwt=' + jwt;
 
@@ -582,7 +585,8 @@ var PydioApi = (function () {
         var _this8 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this8.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var frontU = _this8.getPydioObject().getFrontendUrl();
+            var url = frontU.protocol + '//' + frontU.host;
             var slug = _this8.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
@@ -596,7 +600,7 @@ var PydioApi = (function () {
                 ResponseContentType: 'text/plain',
                 ResponseCacheControl: "no-cache"
             };
-            var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
+            var s3 = new _awsSdk2['default'].S3({ endpoint: url });
             s3.getObject(params, function (err, data) {
                 if (!err) {
                     contentCallback(data.Body.toString('utf-8'));
@@ -611,7 +615,8 @@ var PydioApi = (function () {
         var _this9 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this9.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var frontU = _this9.getPydioObject().getFrontendUrl();
+            var url = frontU.protocol + '//' + frontU.host;
             var slug = _this9.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
@@ -624,7 +629,7 @@ var PydioApi = (function () {
                 Key: slug + nodePath,
                 Body: content
             };
-            var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
+            var s3 = new _awsSdk2['default'].S3({ endpoint: url });
             s3.putObject(params, function (err) {
                 if (!err) {
                     finishedCallback('Ok');
