@@ -21,7 +21,6 @@
 package oauth
 
 import (
-	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/packr"
