@@ -46,6 +46,12 @@
   "PolicyGroup.LoggedUsers.Rule4": {
     "other": "Update user-defined metadata"
   },
+  "PolicyGroup.LoggedUsers.Rule5": {
+    "other": "Read-access to all FrontendService"
+  },
+  "PolicyGroup.LoggedUsers.Rule6": {
+    "other": "Write-access to FrontendService except global binaries uploads"
+  },
 
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"

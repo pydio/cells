@@ -448,12 +448,6 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 	} else if binaryType == "GLOBAL" {
 
-		// GLOBAL binaries are only editable by admins
-		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN {
-			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
-			return
-		}
-
 		router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
 		node := &tree.Node{
 			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryId,
