@@ -1,10 +1,19 @@
 package models
 
 type MergeOptions struct {
+	SyncType   MergeSyncType
 	Origin     string
 	AuthSource string
 	RolePrefix string
 }
+
+type MergeSyncType int
+
+const (
+	FULLSYNC MergeSyncType = iota
+	CREATEONLYSYNC
+	NODELETESYNC
+)
 
 func (m *MergeOptions) ToMap() map[string]string {
 	// Transform options to map[string]string

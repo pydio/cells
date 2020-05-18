@@ -1,10 +1,12 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/cells/common/etl"
 	"github.com/pydio/cells/common/etl/stores"
+	"github.com/pydio/cells/common/proto/jobs"
 )
 
 type etlAction struct {
@@ -17,7 +19,7 @@ func (c *etlAction) ProvidesProgress() bool {
 	return true
 }
 
-func (c *etlAction) parseStores(params map[string]string) error {
+func (c *etlAction) ParseStores(params map[string]string) error {
 	c.params = params
 	if r, o := params["left"]; o {
 		c.leftType = r
@@ -36,8 +38,8 @@ func (c *etlAction) parseStores(params map[string]string) error {
 	return nil
 }
 
-func (c *etlAction) initMerger() (*etl.Merger, error) {
-	options := stores.CreateOptions(c.params)
+func (c *etlAction) initMerger(ctx context.Context, input jobs.ActionMessage) (*etl.Merger, error) {
+	options := stores.CreateOptions(ctx, c.params, input)
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {
 		return nil, err

@@ -1,21 +1,27 @@
 package stores
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/cells/common/etl/models"
+	"github.com/pydio/cells/common/proto/jobs"
 )
 
 // Options passes params and merge options when initializing stores
 type Options struct {
 	Params       map[string]string
 	MergeOptions *models.MergeOptions
+	ActionInput  jobs.ActionMessage
+	Context      context.Context
 }
 
 // CreateOptions initialize an empty Options object
-func CreateOptions(param map[string]string) *Options {
+func CreateOptions(ctx context.Context, param map[string]string, input jobs.ActionMessage) *Options {
 	m := &Options{
+		Context:      ctx,
 		Params:       param,
+		ActionInput:  input,
 		MergeOptions: &models.MergeOptions{},
 	}
 	return m

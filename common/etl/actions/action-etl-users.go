@@ -84,7 +84,7 @@ func (c *SyncUsersAction) GetName() string {
 
 // Init parses and validates parameters
 func (c *SyncUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	return c.parseStores(action.Parameters)
+	return c.ParseStores(action.Parameters)
 }
 
 // Run the actual action code
@@ -140,14 +140,14 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		finished <- true
 	}()
 
-	merger, err := c.initMerger()
+	merger, err := c.initMerger(ctx, input)
 	if err != nil {
 		return input.WithError(err), err
 	}
 
 	defer merger.Close()
 
-	if _, ok := c.params["splitUsersRoles"]; ok {
+	if _, ok := c.params["splitUserRoles"]; ok {
 
 		cellAdmin, ok := c.params["cellAdmin"]
 		if !ok {
@@ -166,6 +166,13 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 			if u.Login == cellAdmin || u.Login == common.PYDIO_S3ANON_USERNAME || u.Uuid == "ROOT_GROUP" {
 				delete(usersDiff.Delete, k)
 			}
+		}
+		switch merger.Options.SyncType {
+		case models.CREATEONLYSYNC:
+			usersDiff.Update = nil
+			usersDiff.Delete = nil
+		case models.NODELETESYNC:
+			usersDiff.Delete = nil
 		}
 		log.Logger(ctx).Debug("Diffs after listing users", zap.Any("users", usersDiff))
 		merger.SaveUsers(ctx, usersDiff, new(models.RoleDiff), progress)
@@ -195,6 +202,14 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		usersDiff, rolesDiff, err := merger.LoadAndDiffUsers(ctx, listProgress)
 		if err != nil {
 			return input.WithError(err), err
+		}
+
+		switch merger.Options.SyncType {
+		case models.CREATEONLYSYNC:
+			usersDiff.Update = nil
+			usersDiff.Delete = nil
+		case models.NODELETESYNC:
+			usersDiff.Delete = nil
 		}
 
 		msg = "Persisting modifications"
