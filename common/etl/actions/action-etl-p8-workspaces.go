@@ -80,7 +80,7 @@ func (c *SyncWorkspacesAction) GetParametersForm() *forms.Form {
 
 // Pass parameters
 func (c *SyncWorkspacesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	if err := c.parseStores(action.Parameters); err != nil {
+	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
 	}
 	if _, ok := action.Parameters["cellAdmin"]; !ok {
@@ -91,7 +91,7 @@ func (c *SyncWorkspacesAction) Init(job *jobs.Job, cl client.Client, action *job
 
 func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[string]string, progress chan etl.MergeOperation) {
 
-	options := stores.CreateOptions(c.params)
+	options := stores.CreateOptions(ctx, c.params, jobs.ActionMessage{})
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {
 		progress <- etl.MergeOperation{Error: err}

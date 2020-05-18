@@ -61,7 +61,7 @@ func (c *SyncConfigAction) GetName() string {
 
 // Init passes relevant parameters.
 func (c *SyncConfigAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	return c.parseStores(action.Parameters)
+	return c.ParseStores(action.Parameters)
 }
 
 // Run the actual action code.
@@ -99,7 +99,7 @@ func (c *SyncConfigAction) Run(ctx context.Context, channels *actions.RunnableCh
 		finished <- true
 	}()
 
-	merger, err := c.initMerger()
+	merger, err := c.initMerger(ctx, input)
 	if err != nil {
 		return input.WithError(err), err
 	}

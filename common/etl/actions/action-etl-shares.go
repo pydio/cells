@@ -66,7 +66,7 @@ func (c *SyncSharesAction) GetParametersForm() *forms.Form {
 
 // Pass parameters
 func (c *SyncSharesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	if err := c.parseStores(action.Parameters); err != nil {
+	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
 	}
 	if mappingJson, ok := action.Parameters["mapping"]; !ok {
@@ -133,7 +133,7 @@ func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableCh
 		params["ownerId"] = c.ownerId
 	}
 
-	merger, err := c.initMerger()
+	merger, err := c.initMerger(ctx, input)
 	if err != nil {
 		return input.WithError(err), err
 	}
