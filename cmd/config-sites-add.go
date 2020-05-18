@@ -38,8 +38,8 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 )
 
-var urlCmd = &cobra.Command{
-	Use:   "site",
+var sitesAdd = &cobra.Command{
+	Use:   "sites",
 	Short: "Manage sites where application is exposed",
 	Long: `
 
@@ -48,9 +48,9 @@ var urlCmd = &cobra.Command{
 
 		sites, _ := config.LoadSites(true)
 
-		// Get URL info
 		newSite := &install.ProxyConfig{}
-		e := promptURLs(newSite)
+
+		e := promptSite(newSite, false)
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -68,11 +68,36 @@ var urlCmd = &cobra.Command{
 	},
 }
 
-func promptURLs(site *install.ProxyConfig) (e error) {
-	// Get URL info from end user
-	e = promptBindURL(site, false)
-	if e != nil {
-		return
+func init() {
+	sitesCmd.AddCommand(sitesAdd)
+}
+
+func promptSite(site *install.ProxyConfig, edit bool) (e error) {
+
+	if edit {
+		label := "Site already declares the followings hosts : " + strings.Join(site.Binds, "") + ". Do you want to change this"
+		pr := p.Select{Label: label, Items: []string{
+			"Leave as is",
+			"Reset list and a new host",
+			"Append hosts to this list",
+		}}
+		i, _, e := pr.Run()
+		if e != nil {
+			return e
+		}
+		if i == 1 {
+			site.Binds = []string{}
+			promptBindURLs(site, false)
+		} else if i == 2 {
+			promptBindURLs(site, false)
+		}
+	} else {
+		// Get URL info from end user
+		e = promptBindURLs(site, false)
+		if e != nil {
+			return
+		}
+
 	}
 
 	_, e = promptTLSMode(site)
@@ -88,7 +113,7 @@ func promptURLs(site *install.ProxyConfig) (e error) {
 	return
 }
 
-func promptBindURL(site *install.ProxyConfig, resolveHosts bool) (e error) {
+func promptBindURLs(site *install.ProxyConfig, resolveHosts bool) (e error) {
 
 	defaultPort := "8080"
 	var bindHost string
@@ -138,7 +163,7 @@ func promptBindURL(site *install.ProxyConfig, resolveHosts bool) (e error) {
 		return
 	}
 	if bindHost == resolveString {
-		return promptBindURL(site, true)
+		return promptBindURLs(site, true)
 	}
 
 	// Sanity checks
@@ -163,7 +188,7 @@ func promptBindURL(site *install.ProxyConfig, resolveHosts bool) (e error) {
 	// TLS not included by default, still ask the user if he wants to change it
 	addOtherHost := p.Prompt{Label: "Do you want to add another host? [y/N] ", Default: ""}
 	if val, e1 := addOtherHost.Run(); e1 == nil && (val == "Y" || val == "y") {
-		return promptBindURL(site, false)
+		return promptBindURLs(site, false)
 	}
 
 	return nil
@@ -174,6 +199,7 @@ func promptExtURL(site *install.ProxyConfig) error {
 	prompt := p.Prompt{
 		Label:    "If this site is accessed through a reverse proxy, provide full external URL (https://mydomain.com)",
 		Validate: validUrl,
+		Default:  site.ReverseProxyURL,
 	}
 	val, _ := prompt.Run()
 	if val != "" {
@@ -181,6 +207,123 @@ func promptExtURL(site *install.ProxyConfig) error {
 	}
 
 	return nil
+}
+
+func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
+
+	/*
+		items := []string{
+			"Provide paths to certificate/key files",
+			"Use Let's Encrypt to automagically generate certificate during installation process",
+			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
+			"Disable TLS (staging environments only, never recommended!)",
+		}
+
+	*/
+
+	selector := p.Select{
+		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
+		Items: []string{
+			"Provide paths to certificate/key files",
+			"Use Let's Encrypt to automagically generate certificate during installation process",
+			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
+			"Disable TLS (staging environments only, never recommended!)",
+		},
+	}
+	var i int
+	i, _, e = selector.Run()
+	if e != nil {
+		return
+	}
+
+	enabled = true
+	switch i {
+	case 0:
+		var certFile, keyFile string
+		if site.HasTLS() && site.GetTLSCertificate() != nil {
+			certFile = site.GetTLSCertificate().GetCertFile()
+			keyFile = site.GetTLSCertificate().GetKeyFile()
+		}
+		certPrompt := p.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile}
+		keyPrompt := p.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile}
+		if certFile, e = certPrompt.Run(); e != nil {
+			return
+		}
+		if keyFile, e = keyPrompt.Run(); e != nil {
+			return
+		}
+		site.TLSConfig = &install.ProxyConfig_Certificate{
+			Certificate: &install.TLSCertificate{
+				CertFile: certFile,
+				KeyFile:  keyFile,
+			},
+		}
+
+	case 1:
+		var certEmail string
+		if site.HasTLS() && site.GetTLSLetsEncrypt() != nil {
+			certEmail = site.GetTLSLetsEncrypt().GetEmail()
+		}
+		mailPrompt := p.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
+		acceptEulaPrompt := p.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
+		useStagingPrompt := p.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
+
+		certMail, e1 := mailPrompt.Run()
+		if e1 != nil {
+			e = e1
+			return
+		}
+		// TODO validate email
+
+		if val, e1 := acceptEulaPrompt.Run(); e1 != nil {
+			e = e1
+			return
+		} else if !(val == "Y" || val == "y" || val == "") {
+			e = fmt.Errorf("You must agree to Let's Encrypt SA to use automated certificate generation feature.")
+			return
+		}
+
+		useStaging := true
+		if val, e1 := useStagingPrompt.Run(); e1 != nil {
+			e = e1
+			return
+		} else if val == "N" || val == "n" || val == "" {
+			useStaging = false
+		}
+
+		site.TLSConfig = &install.ProxyConfig_LetsEncrypt{
+			LetsEncrypt: &install.TLSLetsEncrypt{
+				Email:      certMail,
+				AcceptEULA: true,
+				StagingCA:  useStaging,
+			},
+		}
+
+	case 2:
+
+		site.TLSConfig = &install.ProxyConfig_SelfSigned{
+			SelfSigned: &install.TLSSelfSigned{},
+		}
+
+	case 3:
+		enabled = false
+		site.TLSConfig = nil
+	}
+
+	// Reset redirect URL: for the time being we rather use this as a flag
+	if enabled {
+		redirPrompt := p.Select{
+			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
+			Items: []string{
+				"Yes",
+				"No",
+			}}
+		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
+			site.SSLRedirect = true
+		}
+	}
+
+	return
 }
 
 // helper to add a not-so-stupid scheme to URL strings to be then able to rely on the net/url package to manipulate URL.
@@ -211,8 +354,4 @@ func guessParsableURL(rawURL string, tlsEnabled bool) (string, error) {
 	}
 
 	return fmt.Sprintf("%s://%s", scheme, rawURL), nil
-}
-
-func init() {
-	proxyCmd.AddCommand(urlCmd)
 }

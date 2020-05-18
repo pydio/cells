@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/config"
+
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
@@ -188,4 +190,19 @@ func unmarshallConf() (*install.InstallConfig, error) {
 	fmt.Printf("... Install config loaded from %s \n", path)
 
 	return confFromFile, nil
+}
+
+func applyProxySites(sites []*install.ProxyConfig) error {
+
+	// Save configs
+	config.Set(sites, "defaults", "sites")
+	err := config.Save("cli", "Saving sites configs")
+	if err != nil {
+		return err
+	}
+
+	// Clean TLS context after the update
+	// config.ResetTlsConfigs()
+	return nil
+
 }
