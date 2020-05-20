@@ -316,6 +316,14 @@ func (d *daocache) Flush(final bool) error {
 		delete(cache, d.session)
 	}
 
+	if derr := d.DAO.Flush(final); derr != nil {
+		if err == nil {
+			return derr
+		} else {
+			return errors.New("Combined error from dao : " + strings.Join([]string{derr.Error(), err.Error()}, " "))
+		}
+	}
+
 	return err
 }
 
