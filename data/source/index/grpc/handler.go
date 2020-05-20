@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	cindex "github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 	"github.com/pydio/cells/data/source/index/sessions"
@@ -62,10 +63,10 @@ func getDAO(ctx context.Context, session string) index.DAO {
 			return dao.(index.DAO)
 		}
 
-		return index.NewDAOCache(session, servicecontext.GetDAO(ctx).(index.DAO)).(index.DAO)
+		return index.NewDAOCache(session, cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))).(index.DAO)
 	}
 
-	return servicecontext.GetDAO(ctx).(index.DAO)
+	return cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))
 }
 
 // NewTreeServer factory.
