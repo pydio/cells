@@ -68,6 +68,12 @@ type DAO interface {
 	CleanResourcesOnDeletion() (error, string)
 }
 
+type CacheDAO interface {
+	// PathCreateNoAdd does the same as Path(create=true) but does not really
+	// create the node in the cache, just find a firstAvailableIndex
+	PathCreateNoAdd(strpath string) (mtree.MPath, *mtree.TreeNode, error)
+}
+
 // NewDAO for the common sql index
 func NewDAO(o dao.DAO, rootNodeId string) dao.DAO {
 	switch v := o.(type) {

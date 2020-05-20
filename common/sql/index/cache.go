@@ -206,8 +206,26 @@ func (d *daocache) Unlock() {
 	d.DAO.(commonsql.DAO).Unlock()
 }
 
-// Path resolution for a node
+// Path resolves a node mpath, eventually creating it (and its parents)
 func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+	return d.path(strpath, create, false, reqNode...)
+}
+
+// PathCreateNoAdd does the same as Path(create=true) but does not really
+// create the node in the cache, just find a firstAvailableIndex
+func (d *daocache) PathCreateNoAdd(strpath string) (mtree.MPath, *mtree.TreeNode, error) {
+	mpath, nodes, err := d.path(strpath, true, true)
+	if err != nil {
+		return nil, nil, err
+	} else if len(nodes) == 0 {
+		return nil, nil, fmt.Errorf("PathCreateNodeAdd : node already exists")
+	} else {
+		return mpath, nodes[0], nil
+	}
+}
+
+// Path resolution for a node
+func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, nil, nil
@@ -257,8 +275,10 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (mtr
 			node.Etag = fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.Uuid, node.MTime))))
 		}
 
-		if err := d.AddNode(node); err != nil {
-			return nil, nil, err
+		if !noAdd {
+			if err := d.AddNode(node); err != nil {
+				return nil, nil, err
+			}
 		}
 
 		return node.MPath, []*mtree.TreeNode{node}, nil
