@@ -26,6 +26,9 @@ func (t *testSessionLocker) Unlock(ctx context.Context) error {
 	return nil
 }
 
+func (t *testSessionLocker) AddChildTarget(parentUUID, targetChildName string) {
+}
+
 func Test_updateLockerForByteSize(t *testing.T) {
 	Convey("Test update lock expiration time", t, func() {
 		tester := &testSessionLocker{}

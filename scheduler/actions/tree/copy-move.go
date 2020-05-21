@@ -27,10 +27,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"github.com/micro/protobuf/ptypes"
-	"github.com/micro/protobuf/ptypes/any"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
