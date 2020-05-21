@@ -54924,7 +54924,7 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        if (nextProps.pluginId !== this.props.pluginId) {
+        if (nextProps.pluginId && nextProps.pluginId !== this.props.pluginId) {
             this.loadPluginData(nextProps.pluginId);
             this.setState({ values: {} });
         }
@@ -54953,8 +54953,11 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
+        var pluginId = this.props.pluginId;
 
-        this.loadPluginData(this.props.pluginId);
+        if (pluginId) {
+            this.loadPluginData(pluginId);
+        }
 
         return {
             loaded: false,
@@ -55689,14 +55692,16 @@ var ServiceExposedConfigs = (function (_React$Component) {
         value: function componentDidMount() {
             var serviceName = this.props.serviceName;
 
-            this.loadServiceData(serviceName);
+            if (serviceName) {
+                this.loadServiceData(serviceName);
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             var _this = this;
 
-            if (nextProps.serviceName !== this.props.serviceName) {
+            if (nextProps.serviceName && nextProps.serviceName !== this.props.serviceName) {
                 this.setState({ values: {}, originalValues: {} }, function () {
                     _this.loadServiceData(nextProps.serviceName);
                 });
@@ -55712,7 +55717,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
         value: function configFormsDiscoveryWithHttpInfo(serviceName) {
             var postBody = null;
 
-            // verify the required parameter 'serviceName' is set
+            // verify that the required parameter 'serviceName' is set
             if (serviceName === undefined || serviceName === null) {
                 throw new Error("Missing the required parameter 'serviceName' when calling configFormsDiscovery");
             }

@@ -124,7 +124,7 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        if (nextProps.pluginId !== this.props.pluginId) {
+        if (nextProps.pluginId && nextProps.pluginId !== this.props.pluginId) {
             this.loadPluginData(nextProps.pluginId);
             this.setState({ values: {} });
         }
@@ -153,8 +153,11 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
+        var pluginId = this.props.pluginId;
 
-        this.loadPluginData(this.props.pluginId);
+        if (pluginId) {
+            this.loadPluginData(pluginId);
+        }
 
         return {
             loaded: false,

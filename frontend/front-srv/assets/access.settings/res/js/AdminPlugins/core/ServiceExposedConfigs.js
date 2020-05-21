@@ -11,11 +11,13 @@ class ServiceExposedConfigs extends React.Component{
 
     componentDidMount(){
         const {serviceName} = this.props;
-        this.loadServiceData(serviceName);
+        if(serviceName){
+            this.loadServiceData(serviceName);
+        }
     }
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.serviceName !== this.props.serviceName){
+        if(nextProps.serviceName && nextProps.serviceName !== this.props.serviceName){
             this.setState({values:{}, originalValues:{}}, () => {
                 this.loadServiceData(nextProps.serviceName);
             });
@@ -29,7 +31,7 @@ class ServiceExposedConfigs extends React.Component{
     configFormsDiscoveryWithHttpInfo(serviceName) {
         let postBody = null;
 
-        // verify the required parameter 'serviceName' is set
+        // verify that the required parameter 'serviceName' is set
         if (serviceName === undefined || serviceName === null) {
             throw new Error("Missing the required parameter 'serviceName' when calling configFormsDiscovery");
         }
