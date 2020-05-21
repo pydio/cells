@@ -43,6 +43,8 @@ export default function (pydio) {
                         })
                     }
                     pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
+                }).catch(e => {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });

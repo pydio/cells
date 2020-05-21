@@ -264,6 +264,8 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
+                })['catch'](function (e) {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });
@@ -405,6 +407,8 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
+                })['catch'](function (e) {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });

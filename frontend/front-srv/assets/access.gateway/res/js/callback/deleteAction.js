@@ -72,6 +72,8 @@ export default function (pydio) {
                         })
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
+                }).catch(e => {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });
