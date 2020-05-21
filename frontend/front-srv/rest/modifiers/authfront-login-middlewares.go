@@ -149,6 +149,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		}
 		failedInt++
 		user.Attributes["failedConnections"] = fmt.Sprintf("%d", failedInt)
+		hardLock := false
 
 		if failedInt >= maxFailedLogins {
 			// Set lock via attributes
@@ -174,7 +175,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 				user.ZapLogin(),
 				zap.String(common.KEY_USER_UUID, user.GetUuid()),
 			)
-			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
+			hardLock = true
 		}
 
 		log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", user.GetLogin()), user.ZapLogin())
@@ -184,6 +185,10 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		}
 
 		// Replacing error not to give any hint
-		return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
+		if hardLock {
+			return errors.New("user.locked", "User is locked - Please contact your admin", http.StatusUnauthorized)
+		} else {
+			return errors.New("login.failed", "Login failed", http.StatusUnauthorized)
+		}
 	}
 }
