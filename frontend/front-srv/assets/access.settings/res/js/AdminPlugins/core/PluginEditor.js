@@ -98,7 +98,7 @@ const PluginEditor = React.createClass({
     },
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.pluginId !== this.props.pluginId){
+        if(nextProps.pluginId && nextProps.pluginId !== this.props.pluginId){
             this.loadPluginData(nextProps.pluginId);
             this.setState({values:{}});
         }
@@ -121,7 +121,10 @@ const PluginEditor = React.createClass({
 
     getInitialState(){
 
-        this.loadPluginData(this.props.pluginId);
+        const {pluginId} = this.props;
+        if(pluginId){
+            this.loadPluginData(pluginId);
+        }
 
         return {
             loaded:false,

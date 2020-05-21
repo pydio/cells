@@ -261,6 +261,8 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
+                })['catch'](function (e) {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });
@@ -402,6 +404,8 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
+                })['catch'](function (e) {
+                    pydio.UI.displayMessage('ERROR', e.Title || e.message);
                 });
             }
         });
@@ -1471,17 +1475,21 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -1495,25 +1503,21 @@ var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 
 var _materialUi = require("material-ui");
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
+var _Pydio$requireLib = _pydio2['default'].requireLib("hoc");
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 
-var _Pydio$requireLib2 = _pydio2["default"].requireLib('components');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var FoldersTree = _Pydio$requireLib2.FoldersTree;
 
-var TreeDialog = _react2["default"].createClass({
-    displayName: "TreeDialog",
+var TreeDialog = _react2['default'].createClass({
+    displayName: 'TreeDialog',
 
     propTypes: {
-        isMove: _react2["default"].PropTypes.bool.isRequired,
-        submitValue: _react2["default"].PropTypes.func.isRequired
+        isMove: _react2['default'].PropTypes.bool.isRequired,
+        submitValue: _react2['default'].PropTypes.func.isRequired
     },
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
@@ -1558,7 +1562,7 @@ var TreeDialog = _react2["default"].createClass({
                 repoLabel = user.getCrossRepositories().get(repoId).getLabel();
             }
         }
-        var dm = _pydioModelDataModel2["default"].RemoteDataModelFactory(repoId ? { tmp_repository_id: repoId } : {}, repoLabel);
+        var dm = _pydioModelDataModel2['default'].RemoteDataModelFactory(repoId ? { tmp_repository_id: repoId } : {}, repoLabel);
         var root = dm.getRootNode();
         if (repoId) {
             root.getMetadata().set('repository_id', repoId);
@@ -1590,7 +1594,7 @@ var TreeDialog = _react2["default"].createClass({
         var api = new _pydioHttpRestApi.TreeServiceApi(PydioApi.getRestClient());
         var request = new _pydioHttpRestApi.RestCreateNodesRequest();
 
-        var path = slug + _pydioUtilLang2["default"].trimRight(parent.getPath(), '/') + '/' + nodeName;
+        var path = slug + _pydioUtilLang2['default'].trimRight(parent.getPath(), '/') + '/' + nodeName;
         var node = new _pydioHttpRestApi.TreeNode();
         node.Path = path;
         node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
@@ -1625,20 +1629,20 @@ var TreeDialog = _react2["default"].createClass({
         };
 
         var user = this.props.pydio.user;
-        var wsSelector = _react2["default"].createElement("div", { style: { height: 30 } });
+        var wsSelector = _react2['default'].createElement('div', { style: { height: 30 } });
         if (user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()) {
             (function () {
                 var items = [];
                 if (user.canWrite()) {
-                    items.push(_react2["default"].createElement(_materialUi.MenuItem, { key: 'current', value: '__CURRENT__', primaryText: _this2.props.pydio.MessageHash[372] }));
+                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { key: 'current', value: '__CURRENT__', primaryText: _this2.props.pydio.MessageHash[372] }));
                 }
                 user.getCrossRepositories().forEach(function (repo, key) {
-                    items.push(_react2["default"].createElement(_materialUi.MenuItem, { key: key, value: key, primaryText: repo.getLabel() }));
+                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { key: key, value: key, primaryText: repo.getLabel() }));
                 });
-                wsSelector = _react2["default"].createElement(
-                    "div",
+                wsSelector = _react2['default'].createElement(
+                    'div',
                     null,
-                    _react2["default"].createElement(
+                    _react2['default'].createElement(
                         ModernSelectField,
                         {
                             style: { width: '100%' },
@@ -1655,17 +1659,17 @@ var TreeDialog = _react2["default"].createClass({
         var closeStyle = { width: 0 };
         var newFolderFormOpen = this.state.newFolderFormOpen;
 
-        return _react2["default"].createElement(
-            "div",
+        return _react2['default'].createElement(
+            'div',
             { style: { width: '100%', paddingTop: 18 } },
             wsSelector,
-            _react2["default"].createElement(
+            _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 0, style: { height: 300, overflowX: 'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#f5f5f5', marginTop: 4 } },
-                _react2["default"].createElement(
-                    "div",
+                _react2['default'].createElement(
+                    'div',
                     { style: { marginTop: -41, marginLeft: -21 } },
-                    _react2["default"].createElement(FoldersTree, {
+                    _react2['default'].createElement(FoldersTree, {
                         pydio: this.props.pydio,
                         dataModel: this.state.dataModel,
                         onNodeSelected: this.onNodeSelected,
@@ -1674,10 +1678,10 @@ var TreeDialog = _react2["default"].createClass({
                     })
                 )
             ),
-            _react2["default"].createElement(
+            _react2['default'].createElement(
                 _materialUi.Paper,
                 {
-                    className: "bezier-transitions",
+                    className: 'bezier-transitions',
                     zDepth: 0,
                     style: {
                         display: 'flex',
@@ -1689,25 +1693,25 @@ var TreeDialog = _react2["default"].createClass({
                         marginTop: newFolderFormOpen ? 0 : 4
                     }
                 },
-                _react2["default"].createElement(ModernTextField, { fullWidth: true, floatingLabelText: this.props.pydio.MessageHash[173], ref: "newfolder_input", style: { flex: 1 } }),
-                _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-check", iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[48], onTouchTap: function () {
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: this.props.pydio.MessageHash[173], ref: 'newfolder_input', style: { flex: 1 } }),
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-check', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[48], onTouchTap: function () {
                         _this2.createNewFolder();
                     } }),
-                _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onTouchTap: openNewFolderForm })
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-close', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onTouchTap: openNewFolderForm })
             ),
-            _react2["default"].createElement(
-                "div",
+            _react2['default'].createElement(
+                'div',
                 { style: { display: 'flex', alignItems: 'center' } },
-                _react2["default"].createElement(ModernTextField, {
+                _react2['default'].createElement(ModernTextField, {
                     style: { flex: 1, width: '100%', marginRight: 10 },
                     floatingLabelText: this.props.pydio.MessageHash[373],
-                    ref: "input",
+                    ref: 'input',
                     value: this.state.selectedNode.getPath(),
                     disabled: false,
                     onChange: function () {}
                 }),
-                !newFolderFormOpen && _react2["default"].createElement(_materialUi.IconButton, {
-                    iconClassName: "mdi mdi-folder-plus",
+                !newFolderFormOpen && _react2['default'].createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-folder-plus',
                     style: { height: 38, width: 38, padding: 6 },
                     iconStyle: { color: '#546E7A', fontSize: 24 },
                     tooltip: this.props.pydio.MessageHash[154],
@@ -1720,8 +1724,8 @@ var TreeDialog = _react2["default"].createClass({
 
 });
 
-exports["default"] = TreeDialog;
-module.exports = exports["default"];
+exports['default'] = TreeDialog;
+module.exports = exports['default'];
 
 },{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
 /*

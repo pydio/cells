@@ -11,11 +11,13 @@ class ServiceExposedConfigs extends React.Component{
 
     componentDidMount(){
         const {serviceName} = this.props;
-        this.loadServiceData(serviceName);
+        if(serviceName){
+            this.loadServiceData(serviceName);
+        }
     }
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.serviceName !== this.props.serviceName){
+        if(nextProps.serviceName && nextProps.serviceName !== this.props.serviceName){
             this.setState({values:{}, originalValues:{}}, () => {
                 this.loadServiceData(nextProps.serviceName);
             });

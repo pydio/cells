@@ -41,14 +41,16 @@ var ServiceExposedConfigs = (function (_React$Component) {
         value: function componentDidMount() {
             var serviceName = this.props.serviceName;
 
-            this.loadServiceData(serviceName);
+            if (serviceName) {
+                this.loadServiceData(serviceName);
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             var _this = this;
 
-            if (nextProps.serviceName !== this.props.serviceName) {
+            if (nextProps.serviceName && nextProps.serviceName !== this.props.serviceName) {
                 this.setState({ values: {}, originalValues: {} }, function () {
                     _this.loadServiceData(nextProps.serviceName);
                 });
