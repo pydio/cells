@@ -282,6 +282,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				if er := router.WrappedCanApply(ctx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_DELETE, Source: filtered}); er != nil {
 					return er
 				}
+				// Additional check for child locks to secure recycle bin empty operation
+				if permissions.HasChildLocks(ctx, filtered) {
+					return errors.New("children.locks", "Resource is currently busy, please retry later", 423)
+				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
 				log.Auditer(ctx).Info(
@@ -327,7 +331,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			return nil
 		})
 		if e != nil {
-			service.RestError500(req, resp, e)
+			service.RestErrorDetect(req, resp, e)
 			return
 		}
 	}

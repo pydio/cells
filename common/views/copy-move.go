@@ -110,10 +110,23 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}
 		}
 	}
+	var childLockDir, childLockBase string
+	if parentTarget, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}}); e == nil {
+		childLockDir = parentTarget.GetNode().Uuid
+		childLockBase = path.Base(targetNode.Path)
+	}
 
-	if move && !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
-		log.Logger(ctx).Info("Setting Lock on Node with session " + session)
-		locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*30)
+	if !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
+		if move {
+			log.Logger(ctx).Info("Setting Lock on SourceNode with session " + session)
+			locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*30)
+		} else {
+			locker = permissions.NewLockSession("", session, time.Second*30)
+		}
+		if childLockDir != "" {
+			log.Logger(ctx).Info("Setting ChildLock on TargetNode Parent")
+			locker.AddChildTarget(childLockDir, childLockBase)
+		}
 		// Will be unlocked by sync process
 		if err := locker.Lock(ctx); err != nil {
 			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))

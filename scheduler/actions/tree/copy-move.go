@@ -27,6 +27,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/registry"
+	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/permissions"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -226,8 +233,33 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 }
 
 func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *tree.Node) {
+	// Look for registered child locks : children that are currently in creation
+	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
 	compares := make(map[string]struct{})
-	listReq := &tree.ListNodesRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}, Recursive: false}
+
+	if r, e := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil {
+		pNode = r.GetNode()
+		aclClient := idm.NewACLServiceClient(registry.GetClient(common.SERVICE_ACL))
+		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			Actions: []*idm.ACLAction{{Name: permissions.AclChildLock.Name + ":*"}},
+			NodeIDs: []string{pNode.GetUuid()},
+		})
+		if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); e == nil {
+			defer st.Close()
+			for {
+				r, er := st.Recv()
+				if er != nil {
+					break
+				}
+				aName := r.GetACL().GetAction().GetName()
+				aName = strings.TrimPrefix(aName, permissions.AclChildLock.Name+":")
+				log.Logger(ctx).Info("-- SuffixPath : adding value from ChildLock " + aName)
+				compares[strings.ToLower(aName)] = struct{}{}
+			}
+		}
+	}
+
+	listReq := &tree.ListNodesRequest{Node: pNode, Recursive: false}
 	c.Client.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		basename := strings.ToLower(path.Base(node.Path))
 		compares[basename] = struct{}{}
