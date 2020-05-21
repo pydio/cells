@@ -211,8 +211,6 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		return
 	}
 
-	fmt.Println("Response ERror ", response.Error)
-
 	if response.Error != "" {
 		service.RestError401(req, rsp, errors.New(response.Error))
 		return
