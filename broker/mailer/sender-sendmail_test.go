@@ -22,6 +22,7 @@ package mailer
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -85,12 +86,6 @@ func TestSendmail_Input(t *testing.T) {
 			ContentHtml: "Test",
 		})
 		So(e, ShouldNotBeNil)
-		e = sendmail.Send(&mailer.Mail{
-			From:        &mailer.User{Address: "test@pydio.com"},
-			To:          []*mailer.User{{Address: "toto@pydio.com"}},
-			Subject:     "test",
-			ContentHtml: "Test",
-		})
-		So(e, ShouldBeNil)
+		So(strings.Contains(e.Error(), "does not seems a valid email address"), ShouldBeTrue)
 	})
 }
