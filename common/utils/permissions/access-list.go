@@ -77,6 +77,7 @@ var (
 	AclPolicy      = &idm.ACLAction{Name: "policy"}
 	AclQuota       = &idm.ACLAction{Name: "quota"}
 	AclLock        = &idm.ACLAction{Name: "lock"}
+	AclChildLock   = &idm.ACLAction{Name: "child_lock"}
 	AclContentLock = &idm.ACLAction{Name: "content_lock"}
 	// Not used yet
 	AclFrontAction_      = &idm.ACLAction{Name: "action:*"}

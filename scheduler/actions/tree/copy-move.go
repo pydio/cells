@@ -29,14 +29,20 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/protobuf/ptypes"
+	"github.com/micro/protobuf/ptypes/any"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 	"github.com/pydio/cells/scheduler/lang"
@@ -150,7 +156,32 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 }
 
 func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *tree.Node) {
+	// Look for registered child locks : children that are currently in creation
+	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
 	compares := make(map[string]struct{})
+
+	if r, e := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil {
+		pNode = r.GetNode()
+		aclClient := idm.NewACLServiceClient(registry.GetClient(common.SERVICE_ACL))
+		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			Actions: []*idm.ACLAction{{Name: permissions.AclChildLock.Name + ":*"}},
+			NodeIDs: []string{pNode.GetUuid()},
+		})
+		if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); e == nil {
+			defer st.Close()
+			for {
+				r, er := st.Recv()
+				if er != nil {
+					break
+				}
+				aName := r.GetACL().GetAction().GetName()
+				aName = strings.TrimPrefix(aName, permissions.AclChildLock.Name+":")
+				log.Logger(ctx).Info("-- SuffixPath : adding value from ChildLock " + aName)
+				compares[strings.ToLower(aName)] = struct{}{}
+			}
+		}
+	}
+
 	listReq := &tree.ListNodesRequest{Node: &tree.Node{Path: path.Dir(targetNode.Path)}, Recursive: false}
 	st, er := c.Client.ListNodes(ctx, listReq)
 	if er != nil {
