@@ -215,20 +215,24 @@ type Cextensions struct {
 }
 
 type Cglobal_param struct {
-	XMLName          xml.Name `xml:"global_param,omitempty" json:"global_param,omitempty"`
-	Attrchoices      string   `xml:"choices,attr,omitempty"  json:",omitempty"`
-	Attrdefault      string   `xml:"default,attr,omitempty"  json:",omitempty"`
-	AttrdefaultImage string   `xml:"defaultImage,attr,omitempty"  json:",omitempty"`
-	Attrdescription  string   `xml:"description,attr,omitempty"  json:",omitempty"`
-	Attreditable     string   `xml:"editable,attr,omitempty"  json:",omitempty"`
-	Attrexpose       string   `xml:"expose,attr,omitempty"  json:",omitempty"`
-	Attrgroup        string   `xml:"group,attr,omitempty"  json:",omitempty"`
-	Attrlabel        string   `xml:"label,attr,omitempty"  json:",omitempty"`
-	AttrloadAction   string   `xml:"loadAction,attr,omitempty"  json:",omitempty"`
-	Attrmandatory    string   `xml:"mandatory,attr,omitempty"  json:",omitempty"`
-	Attrname         string   `xml:"name,attr,omitempty"  json:",omitempty"`
-	Attrtype         string   `xml:"type,attr,omitempty"  json:",omitempty"`
-	AttruploadAction string   `xml:"uploadAction,attr,omitempty"  json:",omitempty"`
+	XMLName                    xml.Name `xml:"global_param,omitempty" json:"global_param,omitempty"`
+	Attrchoices                string   `xml:"choices,attr,omitempty"  json:",omitempty"`
+	Attrdefault                string   `xml:"default,attr,omitempty"  json:",omitempty"`
+	AttrdefaultImage           string   `xml:"defaultImage,attr,omitempty"  json:",omitempty"`
+	Attrdescription            string   `xml:"description,attr,omitempty"  json:",omitempty"`
+	Attreditable               string   `xml:"editable,attr,omitempty"  json:",omitempty"`
+	Attrexpose                 string   `xml:"expose,attr,omitempty"  json:",omitempty"`
+	Attrgroup                  string   `xml:"group,attr,omitempty"  json:",omitempty"`
+	Attrlabel                  string   `xml:"label,attr,omitempty"  json:",omitempty"`
+	AttrloadAction             string   `xml:"loadAction,attr,omitempty"  json:",omitempty"`
+	Attrmandatory              string   `xml:"mandatory,attr,omitempty"  json:",omitempty"`
+	Attrname                   string   `xml:"name,attr,omitempty"  json:",omitempty"`
+	Attrtype                   string   `xml:"type,attr,omitempty"  json:",omitempty"`
+	AttruploadAction           string   `xml:"uploadAction,attr,omitempty"  json:",omitempty"`
+	AttrreplicationGroup       string   `xml:"replicationGroup,attr,omitempty" json:"replicationGroup,omitempty"`
+	AttrreplicationTitle       string   `xml:"replicationTitle,attr,omitempty" json:"replicationTitle,omitempty"`
+	AttrreplicationDescription string   `xml:"replicationDescription,attr,omitempty" json:"replicationDescription,omitempty"`
+	AttrreplicationMandatory   string   `xml:"replicationMandatory,attr,omitempty" json:"replicationMandatory,omitempty"`
 }
 
 type Cgui struct {

@@ -22,6 +22,7 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 		Label:  "Field Name",
 		Values: []*forms.SwitchValue{},
 	}
+	makeSwitch := len(asSwitch) > 0 && asSwitch[0]
 
 	for i := 0; i < s.NumField(); i++ {
 		value := s.Field(i)
@@ -40,6 +41,10 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 			pp = structProperties.Prop[i]
 		}
 		if field := fieldForValue(fieldName, value.Kind(), value.Type(), pp); field != nil {
+			if f, ok := field.(*forms.ReplicableFields); ok && makeSwitch {
+				f.Mandatory = true
+				field = f
+			}
 			g.Fields = append(g.Fields, field)
 			sw.Values = append(sw.Values, &forms.SwitchValue{
 				Name:   fieldName,
@@ -49,7 +54,7 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 			})
 		}
 	}
-	if len(asSwitch) > 0 && asSwitch[0] {
+	if makeSwitch {
 		// return a unique switch
 		g.Fields = []forms.Field{sw}
 	}
