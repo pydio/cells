@@ -253,6 +253,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 						Id:          "Actions",
 						Title:       "Actions",
 						Description: "Acl Actions",
+						Mandatory:   true,
 						Fields:      a.Groups[0].Fields,
 					}},
 				})
