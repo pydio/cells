@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component} = require('react')
-const {IconButton, FlatButton, Paper} = require('material-ui')
+import {Component} from 'react'
+import {IconButton, Paper} from 'material-ui'
 
-const UP_ARROW = 'mdi mdi-menu-up';
-const DOWN_ARROW = 'mdi mdi-menu-down';
-const REMOVE = 'mdi mdi-delete-circle';
+const UP_ARROW = 'mdi mdi-chevron-up';
+const DOWN_ARROW = 'mdi mdi-chevron-down';
+const REMOVE = 'mdi mdi-close';
+const ADD_VALUE = 'mdi mdi-plus';
 
 import FormPanel from './FormPanel'
 
@@ -34,24 +35,64 @@ class ReplicatedGroup extends Component{
         const {subValues, parameters} = props;
         const firstParam = parameters[0];
         const instanceValue = subValues[firstParam['name']] || '';
-        this.state = {toggled: instanceValue ? false : true};
+        this.state = {toggled: !instanceValue};
     }
 
     render(){
 
-        const {depth, onSwapUp, onSwapDown, onRemove, parameters, subValues, disabled} = this.props;
+        const {depth, onSwapUp, onSwapDown, onRemove, parameters, subValues, disabled, onAddValue} = this.props;
         const {toggled} = this.state;
+        const unique = parameters.length === 1;
         const firstParam = parameters[0];
         const instanceValue = subValues[firstParam['name']] || <span style={{color: 'rgba(0,0,0,0.33)'}}>Empty Value</span>;
+        const ibStyles = {width:36, height:36, padding:6}
+
+        if (unique) {
+            const disStyle = {opacity: .3};
+            const remStyle =  (!!!onRemove || disabled)?disStyle:{};
+            const upStyle =  (!!!onSwapUp || disabled)?disStyle:{};
+            const downStyle =  (!!!onSwapDown || disabled)?disStyle:{};
+            return (
+                <div style={{display:'flex', width: '100%'}}>
+                    <div style={{flex: 1}}>
+                        <FormPanel
+                            {...this.props}
+                            tabs={null}
+                            values={subValues}
+                            onChange={null}
+                            className="replicable-unique"
+                            depth={-1}
+                            style={{paddingBottom:0}}
+                        />
+                    </div>
+                    <div style={{display:'flex', fontSize:24, paddingLeft: 4, paddingTop: 2}}>
+                        {onAddValue &&
+                        <div>
+                            <div className={ADD_VALUE} style={{padding:'8px 4px', cursor:'pointer'}} onClick={onAddValue}/>
+                        </div>
+                        }
+                        <div>
+                            <div className={REMOVE} style={{padding:'8px 4px', cursor:'pointer', ...remStyle}} onClick={onRemove}/>
+                        </div>
+                        <div style={{display:'flex', flexDirection: 'column', padding:'0 4px'}}>
+                            <div className={UP_ARROW} style={{height:16,cursor:'pointer', ...upStyle}} onClick={onSwapUp}/>
+                            <div className={DOWN_ARROW} style={{height:16,cursor:'pointer', ...downStyle}} onClick={onSwapDown}/>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         return (
-            <Paper style={{marginLeft: 2, marginRight: 2, marginBottom: 10}}>
+            <Paper zDepth={0} style={{border:'2px solid whitesmoke', marginBottom: 8}}>
                 <div style={{display:'flex', alignItems: 'center'}}>
-                    <div>{<IconButton iconClassName={'mdi mdi-chevron-' + (this.state.toggled ? 'up' : 'down')} onTouchTap={()=>{this.setState({toggled:!this.state.toggled})}}/>}</div>
+                    <div>{<IconButton iconClassName={'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right')} iconStyle={{color:'rgba(0,0,0,.15)'}} onTouchTap={()=>{this.setState({toggled:!this.state.toggled})}}/>}</div>
                     <div style={{flex: 1, fontSize:16}}>{instanceValue}</div>
                     <div>
-                        <IconButton iconClassName={UP_ARROW} onTouchTap={onSwapUp} disabled={!!!onSwapUp || disabled}/>
-                        <IconButton iconClassName={DOWN_ARROW} onTouchTap={onSwapDown} disabled={!!!onSwapDown || disabled}/>
+                        {onAddValue && <IconButton style={ibStyles} iconClassName={ADD_VALUE} onTouchTap={onAddValue}/>}
+                        <IconButton style={ibStyles} iconClassName={REMOVE} onTouchTap={onRemove} disabled={!!!onRemove || disabled}/>
+                        <IconButton style={ibStyles} iconClassName={UP_ARROW} onTouchTap={onSwapUp} disabled={!!!onSwapUp || disabled}/>
+                        <IconButton style={ibStyles} iconClassName={DOWN_ARROW} onTouchTap={onSwapDown} disabled={!!!onSwapDown || disabled}/>
                     </div>
                 </div>
                 {toggled &&
@@ -63,11 +104,6 @@ class ReplicatedGroup extends Component{
                         className="replicable-group"
                         depth={depth}
                     />
-                }
-                {toggled &&
-                    <div style={{padding: 4, textAlign: 'right'}}>
-                        <FlatButton label="Remove" primary={true} onTouchTap={onRemove} disabled={!!!onRemove || disabled}/>
-                    </div>
                 }
             </Paper>
         );

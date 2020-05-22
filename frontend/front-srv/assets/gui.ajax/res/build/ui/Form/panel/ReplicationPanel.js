@@ -177,7 +177,8 @@ exports['default'] = React.createClass({
         var replicationMandatory = firstParam['replicationMandatory'] === 'true';
 
         var instances = this.instances();
-        var multiple = instances.length > 1;
+        var multipleRows = instances.length > 1;
+        var multipleParams = parameters.length > 1;
         var rows = instances.map(function (subValues, index) {
             var onSwapUp = undefined,
                 onSwapDown = undefined,
@@ -185,41 +186,52 @@ exports['default'] = React.createClass({
             var onParameterChange = function onParameterChange(paramName, newValue, oldValue) {
                 _this3.onParameterChange(index, paramName, newValue, oldValue);
             };
-            if (multiple && index > 0) {
+            if (multipleRows && index > 0) {
                 onSwapUp = function () {
                     _this3.swapRows(index, index - 1);
                 };
             }
-            if (multiple && index < instances.length - 1) {
+            if (multipleRows && index < instances.length - 1) {
                 onSwapDown = function () {
                     _this3.swapRows(index, index + 1);
                 };
             }
-            if (multiple || !replicationMandatory) {
+            if (multipleRows || !replicationMandatory) {
                 onRemove = function () {
                     _this3.removeRow(index);
                 };
             }
             var props = { onSwapUp: onSwapUp, onSwapDown: onSwapDown, onRemove: onRemove, onParameterChange: onParameterChange };
+            if (replicationMandatory && index === 0) {
+                props.onAddValue = function () {
+                    return _this3.addRow();
+                };
+            }
             return React.createElement(_ReplicatedGroup2['default'], _extends({ key: index }, _this3.props, props, { subValues: subValues }));
         });
 
+        if (replicationMandatory) {
+            return React.createElement(
+                'div',
+                { className: 'replicable-field', style: { marginBottom: 14 } },
+                rows
+            );
+        }
+
+        var tStyle = rows.length ? {} : { backgroundColor: 'whitesmoke', borderRadius: 4 };
         return React.createElement(
             'div',
-            { className: 'replicable-field' },
+            { className: 'replicable-field', style: { marginBottom: 14 } },
             React.createElement(
                 'div',
-                { className: 'title-bar' },
-                React.createElement(IconButton, { key: 'add', style: { float: 'right' }, iconClassName: 'mdi mdi-plus', iconStyle: { fontSize: 24 }, tooltip: 'Add value', onClick: this.addRow, disabled: disabled }),
+                { style: _extends({ display: 'flex', alignItems: 'center' }, tStyle) },
+                React.createElement(IconButton, { key: 'add', iconClassName: 'mdi mdi-plus-box-outline', tooltipPosition: "top-right", style: { height: 36, width: 36, padding: 6 }, iconStyle: { fontSize: 24 }, tooltip: 'Add value', onClick: function () {
+                        return _this3.addRow();
+                    }, disabled: disabled }),
                 React.createElement(
                     'div',
-                    { className: 'title' },
+                    { className: 'title', style: { fontSize: 16, flex: 1 } },
                     replicationTitle
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'legend' },
-                    replicationDescription
                 )
             ),
             rows

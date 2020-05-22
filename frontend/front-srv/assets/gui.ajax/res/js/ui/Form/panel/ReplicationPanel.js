@@ -141,31 +141,39 @@ export default React.createClass({
         const replicationMandatory = firstParam['replicationMandatory'] === 'true';
 
         const instances = this.instances();
-        const multiple = instances.length > 1;
+        const multipleRows = instances.length > 1;
+        const multipleParams = parameters.length > 1;
         const rows = instances.map((subValues, index) => {
             let onSwapUp, onSwapDown, onRemove;
             const onParameterChange = (paramName, newValue, oldValue) => {
                 this.onParameterChange(index, paramName, newValue, oldValue);
             };
-            if(multiple && index > 0){
+            if(multipleRows && index > 0){
                 onSwapUp = () => { this.swapRows(index, index-1) };
             }
-            if(multiple && index < instances.length - 1){
+            if(multipleRows && index < instances.length - 1){
                 onSwapDown = () => { this.swapRows(index, index+1) };
             }
-            if( multiple || !replicationMandatory ) {
+            if( multipleRows || !replicationMandatory ) {
                 onRemove = () => { this.removeRow(index); };
             }
             const props = {onSwapUp, onSwapDown, onRemove, onParameterChange};
+            if(replicationMandatory && index === 0){
+                props.onAddValue = ()=> this.addRow() ;
+            }
             return ( <ReplicatedGroup key={index} {...this.props} {...props} subValues={subValues} /> );
         });
 
+        if(replicationMandatory){
+            return <div className="replicable-field" style={{marginBottom: 14}}>{rows}</div>
+        }
+
+        const tStyle = rows.length?{}:{backgroundColor:'whitesmoke', borderRadius:4};
         return (
-            <div className="replicable-field">
-                <div className="title-bar">
-                    <IconButton key="add" style={{float:'right'}} iconClassName="mdi mdi-plus"  iconStyle={{fontSize:24}} tooltip="Add value" onClick={this.addRow} disabled={disabled}/>
-                    <div className="title">{replicationTitle}</div>
-                    <div className="legend">{replicationDescription}</div>
+            <div className="replicable-field" style={{marginBottom: 14}}>
+                <div style={{display:'flex', alignItems:'center', ...tStyle}}>
+                    <IconButton key="add" iconClassName="mdi mdi-plus-box-outline" tooltipPosition={"top-right"} style={{height:36,width:36,padding:6}} iconStyle={{fontSize:24}} tooltip="Add value" onClick={()=>this.addRow()} disabled={disabled}/>
+                    <div className="title" style={{fontSize: 16, flex: 1}}>{replicationTitle}</div>
                 </div>
                 {rows}
             </div>

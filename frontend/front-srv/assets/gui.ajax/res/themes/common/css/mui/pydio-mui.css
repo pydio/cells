@@ -3146,6 +3146,9 @@
 .react-mui-context .pydio-form-panel .replicable-field .replicable-group .form-legend {
   margin-bottom: 8px;
 }
+.react-mui-context .pydio-form-panel.replicable-unique {
+  padding-bottom: 1px;
+}
 .react-mui-context .pydio-form-helper {
   position: absolute;
   width: 360px;
