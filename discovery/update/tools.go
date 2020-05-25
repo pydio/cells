@@ -219,7 +219,11 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			return
 		}
 
-		pKey := config.Default().Get("publicKey").String("")
+		pKey, ok := conf.Get("publicKey").(string)
+		if !ok || pKey == "" {
+			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
+			return
+		}
 		block, _ := pem.Decode([]byte(pKey))
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
