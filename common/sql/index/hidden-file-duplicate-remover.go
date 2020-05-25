@@ -34,7 +34,7 @@ type HiddenFileDuplicateRemoverSQL struct {
 
 func init() {
 	queries["removeDuplicateHiddenFiles"] = `
-		delete %%PREFIX%%_idx_tree from %%PREFIX%%_idx_tree left outer join (select name, etag, uuid, SUBSTRING_INDEX(mpath1,'.',level - 1) as pmpath from %%PREFIX%%_idx_tree where name = ".pydio" group by etag, pmpath having count(etag) > 1 and count(pmpath) > 1) as t1 on %%PREFIX%%_idx_tree.uuid = t1.uuid where t1.uuid is not null
+		delete %%PREFIX%%_idx_tree from %%PREFIX%%_idx_tree left outer join (select max(uuid) as uuid, etag, SUBSTRING_INDEX(mpath1,'.',level - 1) as pmpath from %%PREFIX%%_idx_tree where name = ".pydio" group by etag, pmpath having count(etag) > 1 and count(pmpath) > 1) as t1 on %%PREFIX%%_idx_tree.uuid = t1.uuid where t1.uuid is not null
 	`
 }
 
