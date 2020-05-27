@@ -1338,6 +1338,9 @@ func (fs *FSObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continua
 		return result, err
 	}
 
+	if continuationToken != "" && len(loi.Objects) == 0 {
+		return result, InvalidContinuationToken{Token: continuationToken}
+	}
 	listObjectsV2Info := ListObjectsV2Info{
 		IsTruncated:           loi.IsTruncated,
 		ContinuationToken:     continuationToken,
