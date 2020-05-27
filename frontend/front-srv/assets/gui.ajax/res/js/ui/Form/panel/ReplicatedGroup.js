@@ -102,7 +102,7 @@ class ReplicatedGroup extends Component{
                         values={subValues}
                         onChange={null}
                         className="replicable-group"
-                        depth={depth}
+                        depth={-1}
                     />
                 }
             </Paper>
