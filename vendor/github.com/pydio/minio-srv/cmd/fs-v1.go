@@ -1322,6 +1322,12 @@ func (fs *FSObjects) DeleteBucketPolicy(ctx context.Context, bucket string) erro
 
 // ListObjectsV2 lists all blobs in bucket filtered by prefix
 func (fs *FSObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (result ListObjectsV2Info, err error) {
+	if continuationToken != "" {
+		// First check that continuation token is a valid key
+		if _, e := fs.getObjectInfo(ctx, bucket, continuationToken); e != nil {
+			return result, InvalidContinuationToken{Token: continuationToken}
+		}
+	}
 	marker := continuationToken
 	if marker == "" {
 		marker = startAfter

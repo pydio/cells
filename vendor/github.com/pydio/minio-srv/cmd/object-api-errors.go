@@ -198,6 +198,14 @@ func (e UnsupportedDelimiter) Error() string {
 	return fmt.Sprintf("delimiter '%s' is not supported. Only '/' is supported", e.Delimiter)
 }
 
+type InvalidContinuationToken struct{
+	Token string
+}
+
+func (e InvalidContinuationToken) Error() string {
+	return fmt.Sprintf("Invalid continuation token %s, interrupting listing", e.Token)
+}
+
 // InvalidUploadIDKeyCombination - invalid upload id and key marker combination.
 type InvalidUploadIDKeyCombination struct {
 	UploadIDMarker, KeyMarker string
