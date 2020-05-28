@@ -66,7 +66,7 @@ To apply the actual update, re-run the command with a --version parameter.
 			c := color.New(color.FgGreen)
 			c.Println("\nNew packages are available. Please run the following command to upgrade to a given version")
 			c.Println("")
-			c = color.New(color.FgBlack, color.Bold)
+			c = color.New(color.FgBlue, color.Bold)
 			c.Println(os.Args[0] + " update --version=x.y.z")
 			c.Println("")
 
@@ -92,7 +92,7 @@ To apply the actual update, re-run the command with a --version parameter.
 				log.Fatal("Cannot find the requested version")
 			}
 
-			c := color.New(color.FgBlack)
+			c := color.New(color.FgBlue)
 			c.Println("Updating binary now")
 			c.Println("")
 			pgChan := make(chan float64)
@@ -110,7 +110,7 @@ To apply the actual update, re-run the command with a --version parameter.
 						color.New(color.FgRed).Println("\rError while updating binary: " + e.Error())
 						return
 					case <-doneChan:
-						color.New(color.FgBlack, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!")
+						color.New(color.FgGreen, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!")
 						fmt.Println("")
 						return
 					}
