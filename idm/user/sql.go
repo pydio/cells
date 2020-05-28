@@ -53,16 +53,16 @@ const (
 
 var (
 	queries = map[string]string{
-		"AddAttribute":         `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
-		"GetAttributes":        `select name, value from idm_user_attributes where uuid = ?`,
-		"DeleteAttribute":      `delete from idm_user_attributes where uuid = ? and name = ?`,
-		"DeleteAttributes":     `delete from idm_user_attributes where uuid = ?`,
-		"AddRole":              `replace into idm_user_roles (uuid, role) values (?, ?)`,
-		"GetRoles":             `select role from idm_user_roles where uuid = ?`,
-		"DeleteUserRoles":      `delete from idm_user_roles where uuid = ?`,
-		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
-		"DeleteRoleById":       `delete from idm_user_roles where role = ?`,
-		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
+		"AddAttribute":     `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
+		"GetAttributes":    `select name, value from idm_user_attributes where uuid = ?`,
+		"DeleteAttribute":  `delete from idm_user_attributes where uuid = ? and name = ?`,
+		"DeleteAttributes": `delete from idm_user_attributes where uuid = ?`,
+		"AddRole":          `replace into idm_user_roles (uuid, role) values (?, ?)`,
+		"GetRoles":         `select role from idm_user_roles where uuid = ?`,
+		"DeleteUserRoles":  `delete from idm_user_roles where uuid = ?`,
+		//"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
+		"DeleteRoleById": `delete from idm_user_roles where role = ?`,
+		//"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
 	}
 
 	unPrepared = map[string]func(...interface{}) string{
@@ -600,18 +600,20 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 		rows++
 	}
 
-	// If some children have been deleted, remove them now
-	if st, er := s.GetStmt("DeleteUserRolesClean"); er != nil {
-		return rows, er
-	} else if _, err := st.Exec(); err != nil {
-		return rows, err
-	}
+	/*
+		// If some children have been deleted, remove them now
+		if st, er := s.GetStmt("DeleteUserRolesClean"); er != nil {
+			return rows, er
+		} else if _, err := st.Exec(); err != nil {
+			return rows, err
+		}
 
-	if st, er := s.GetStmt("DeleteAttsClean"); er != nil {
-		return rows, er
-	} else if _, err := st.Exec(); err != nil {
-		return rows, err
-	}
+		if st, er := s.GetStmt("DeleteAttsClean"); er != nil {
+			return rows, er
+		} else if _, err := st.Exec(); err != nil {
+			return rows, err
+		}
+	*/
 
 	return rows, nil
 }
