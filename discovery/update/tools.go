@@ -226,6 +226,10 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			return
 		}
 		block, _ := pem.Decode([]byte(pKey))
+		if block == nil {
+			errorChan <- fmt.Errorf("cannot decode public key")
+			return
+		}
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
 			errorChan <- err
