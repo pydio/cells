@@ -79,7 +79,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			s.runUni(ctx, patch, p, force, rootsInfo)
 		}
 		if errs, ok := patch.HasErrors(); ok {
-			patch.Done(patch)
+			//patch.Done(patch)
 			return patch, errs[0]
 		} else if dryRun {
 			patch.Done(patch)

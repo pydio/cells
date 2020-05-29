@@ -1,6 +1,6 @@
 -- +migrate Up
 CREATE TABLE IF NOT EXISTS idm_user_attributes (
-    uuid         INTEGER NOT NULL,
+    uuid         VARCHAR(128) NOT NULL,
     name       VARCHAR(255) NOT NULL,
     value      TEXT,
 
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS idm_user_attributes (
 );
 
 CREATE TABLE IF NOT EXISTS idm_user_roles (
-    uuid         INTEGER NOT NULL,
+    uuid         VARCHAR(128) NOT NULL,
     role       VARCHAR(255) NOT NULL,
 
     PRIMARY KEY (uuid, role)

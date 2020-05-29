@@ -94,6 +94,9 @@ func (b *AbstractPatch) Status(s model.Status) {
 	}
 	if b.statusChan != nil {
 		go func() {
+			defer func() {
+				recover()
+			}()
 			b.closeLock.Lock()
 			c := b.closing
 			b.closeLock.Unlock()
