@@ -108,6 +108,11 @@ class Session extends FolderItem {
             this.setStatus('ready');
             return Promise.resolve()
         }
+        const conf = Pydio.getInstance().getPluginConfigs("uploader.html").get("DEFAULT_STAT_SLICES");
+        let sliceSize = 400;
+        if(conf && !isNaN(parseInt(conf))){
+            sliceSize = parseInt(conf);
+        }
 
         this.setStatus(StatusItem.StatusAnalyze);
         const api = new TreeServiceApi(PydioApi.getRestClient());
@@ -124,7 +129,7 @@ class Session extends FolderItem {
 
         return new Promise((resolve, reject) => {
             const proms = [];
-            this.bulkStatSliced(api, request.NodePaths, 400).then(response => {
+            this.bulkStatSliced(api, request.NodePaths, sliceSize).then(response => {
                 if(!response.Nodes || !response.Nodes.length){
                     this.setStatus('ready');
                     resolve(proms);
