@@ -26,6 +26,7 @@ import NavigationHelper from '../util/NavigationHelper'
 import MenuItemListener from '../util/MenuItemListener'
 import AdminStyles from "../styles/AdminStyles";
 const {UserWidget} = Pydio.requireLib('workspaces');
+import {LeftToggleListener} from './AdminDashboard'
 
 class AdminMenu extends React.Component{
 
@@ -42,6 +43,10 @@ class AdminMenu extends React.Component{
     onMenuChange(event, node){
         this.props.dataModel.setSelectedNodes([]);
         this.props.dataModel.setContextNode(node);
+        const listener = LeftToggleListener.getInstance();
+        if(listener.isActive()){
+            listener.toggle();
+        }
     }
 
     render(){

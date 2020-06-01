@@ -51,6 +51,8 @@ var _stylesAdminStyles = require("../styles/AdminStyles");
 
 var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
+var _AdminDashboard = require('./AdminDashboard');
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -93,6 +95,10 @@ var AdminMenu = (function (_React$Component) {
         value: function onMenuChange(event, node) {
             this.props.dataModel.setSelectedNodes([]);
             this.props.dataModel.setContextNode(node);
+            var listener = _AdminDashboard.LeftToggleListener.getInstance();
+            if (listener.isActive()) {
+                listener.toggle();
+            }
         }
     }, {
         key: 'render',
