@@ -24,6 +24,7 @@ import {MessagesConsumerMixin} from '../util/Mixins'
 import shuffle from 'lodash.shuffle'
 import Header from '../styles/Header'
 import AdminStyles from "../styles/AdminStyles";
+import DOMUtils from 'pydio/util/dom'
 
 let Dashboard = React.createClass({
 
@@ -80,8 +81,10 @@ let Dashboard = React.createClass({
         const flexContainerStyle = {...verticalFlex};
         const {accent2Color} = this.props.muiTheme.palette;
         const adminStyles= AdminStyles(this.props.muiTheme.palette);
-        const paperStyle = {...adminStyles.body.block.container, flex: 1, minWidth: 450, margin: 8};
-        const flatProps = {...adminStyles.props.header.flatButton};
+        const w = DOMUtils.getViewportWidth();
+        const paperStyle = {...adminStyles.body.block.container, flex: 1, minWidth: Math.min(w - 26, 450), margin: 8};
+        const flatStyle = {style: {height: 34,lineHeight: '34px', margin: 2}};
+        const flatProps = {...adminStyles.props.header.flatButton, ...flatStyle};
         const icProps = {
             color: adminStyles.props.header.flatButton.labelStyle.color,
             style: {fontSize:20}

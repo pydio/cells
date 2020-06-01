@@ -383,8 +383,13 @@ func (s *Handler) watchErrors() {
 			if len(branch) > 0 {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
-				s.syncTask.SetupEventsChan(nil, nil, nil)
-				s.syncTask.Run(context.Background(), false, false)
+				md := make(map[string]string)
+				md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
+				ctx := metadata.NewContext(context.Background(), md)
+				client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+					JobID:  "resync-ds-" + s.dsName,
+					RunNow: true,
+				}))
 			}
 		case <-s.stop:
 			return

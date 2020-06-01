@@ -23,6 +23,7 @@ import {Paper, FontIcon, IconButton, RefreshIndicator} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "./AdminStyles";
+import {LeftToggleListener} from '../board/AdminDashboard'
 
 class Header extends Component{
 
@@ -32,13 +33,15 @@ class Header extends Component{
             title, centerContent, actions, tabs, tabValue, onTabChange, muiTheme, editorMode} = this.props;
 
         const adminStyles = AdminStyles(muiTheme.palette);
+        const listener = LeftToggleListener.getInstance();
 
         let styles = {
             base: {
-                padding: '0 16px',
+                padding: listener.isActive() ? '0 16px 0 0':'0 16px',
                 backgroundColor: '#ffffff',
                 boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 2px',
-                zIndex: 10
+                zIndex: 10,
+                marginLeft:listener.isActive() && listener.isOpen() ? 256 : 0
             },
             container: {
                 display:'flex',
@@ -127,11 +130,14 @@ class Header extends Component{
 
 
         let icon;
-        if(this.props.icon) {
+        if(listener.isActive()){
+            icon = <IconButton iconClassName={listener.isOpen()?"mdi mdi-backburger":"mdi mdi-menu"} iconStyle={styles.icon} onTouchTap={() => listener.toggle()}/>
+        } else if(this.props.icon) {
             icon = <FontIcon className={this.props.icon} style={styles.icon} />
         } else if(backButtonAction) {
             icon = <IconButton style={{marginLeft: -18}} iconClassName={"mdi mdi-chevron-left"} onTouchTap={backButtonAction}/>
         }
+
         let reloadButton;
         if(reloadAction){
             reloadButton = <IconButton iconClassName={"mdi mdi-reload"} onTouchTap={reloadAction} {...adminStyles.props.header.iconButton} />;

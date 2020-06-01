@@ -24,6 +24,7 @@ import AdminLeftNav from './AdminLeftNav'
 import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
+import Observable from 'pydio/lang/observable'
 
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
@@ -31,6 +32,43 @@ import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "../styles/AdminStyles";
 import { colors, getMuiTheme } from 'material-ui/styles';
 import { MuiThemeProvider } from 'material-ui';
+
+class LeftToggleListener extends Observable {
+    constructor() {
+        super();
+        this.active = false;
+        this.open = false;
+    }
+
+    update(){
+        this.notify('update');
+    }
+
+    isOpen(){
+        return !this.active || this.open;
+    }
+
+    isActive(){
+        return this.active;
+    }
+
+    toggle(){
+        this.open = !this.open;
+        this.update();
+    }
+
+    setActive(b){
+        this.active = b;
+        this.update();
+    }
+
+    static getInstance(){
+        if(!LeftToggleListener.__INSTANCE){
+            LeftToggleListener.__INSTANCE = new LeftToggleListener();
+        }
+        return LeftToggleListener.__INSTANCE;
+    }
+}
 
 let AdminDashboard = React.createClass({
 
@@ -54,7 +92,6 @@ let AdminDashboard = React.createClass({
             selectedNodes:dm.getSelectedNodes(),
             contextStatus:dm.getContextNode().isLoaded(),
             openLeftNav: false,
-            leftDocked: true,
             showAdvanced: showAdvanced,
         };
     },
@@ -153,6 +190,13 @@ let AdminDashboard = React.createClass({
             this.props.pydio.Controller.actions.delete("bookmark");
         }.bind(this);
         this.props.pydio.observe("actions_loaded", this._bmObserver);
+        LeftToggleListener.getInstance().observe('update', ()=>{
+            // Simple state change
+            this.setState({
+                toggleOpen: LeftToggleListener.getInstance().isOpen(),
+                toggleActive: LeftToggleListener.getInstance().isActive(),
+            });
+        });
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         DOMUtils.observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
@@ -171,12 +215,12 @@ let AdminDashboard = React.createClass({
         if(this._bmObserver){
             this.props.pydio.stopObserving("actions_loaded", this._bmObserver);
         }
+        LeftToggleListener.getInstance().stopObserving('update');
         DOMUtils.stopObservingWindowResize(this._resizeObserver);
     },
 
     computeLeftIsDocked(){
-        const w = DOMUtils.getViewportWidth();
-        this.setState({leftDocked: w > 780});
+        LeftToggleListener.getInstance().setActive(DOMUtils.getViewportWidth() <= 780);
     },
 
     routeMasterPanel(node, selectedNode){
@@ -215,7 +259,7 @@ let AdminDashboard = React.createClass({
     },
 
     render(){
-        const {showAdvanced, rightPanel, leftDocked, openLeftNav} = this.state;
+        const {showAdvanced, rightPanel} = this.state;
         const {pydio} = this.props;
         const dm = pydio.getContextHolder();
 
@@ -223,27 +267,6 @@ let AdminDashboard = React.createClass({
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-
-        /*
-        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
-        let leftIcon, leftIconClick;
-        if (leftDocked) {
-            leftIcon = "mdi mdi-tune-vertical";
-            leftIconClick = () => {
-                dm.requireContextChange(dm.getRootNode());
-            }
-        } else {
-            leftIcon = "mdi mdi-menu";
-            leftIconClick = () => {
-                this.setState({openLeftNav: !openLeftNav})
-            };
-        }
-        const leftIconButton = (
-            <div style={{margin: '0 12px'}}>
-                <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
-            </div>
-        );
-        */
 
         const theme = getMuiTheme({
             palette:{
@@ -265,12 +288,12 @@ let AdminDashboard = React.createClass({
                         dataModel={dm}
                         rootNode={dm.getRootNode()}
                         contextNode={dm.getContextNode()}
-                        open={leftDocked || openLeftNav}
+                        open={LeftToggleListener.getInstance().isOpen()}
                         showAdvanced={showAdvanced}
                         toggleAdvanced={this.toggleAdvanced.bind(this)}
                     />
                     <TasksPanel pydio={pydio} mode={"absolute"}/>
-                    <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: leftDocked ? 256 : 0}}>
+                    <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: LeftToggleListener.getInstance().isActive() ? 0 : 256}}>
                         {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
                     </Paper>
                     <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
@@ -284,3 +307,4 @@ let AdminDashboard = React.createClass({
 
 AdminDashboard = muiThemeable()(AdminDashboard);
 export {AdminDashboard as default}
+export {LeftToggleListener}

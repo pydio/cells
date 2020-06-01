@@ -1721,6 +1721,8 @@ func toAPIErrorCode(err error) (apiErr APIErrorCode) {
 		apiErr = ErrReadQuorum
 	case UnsupportedDelimiter:
 		apiErr = ErrNotImplemented
+	case InvalidContinuationToken:
+		apiErr = ErrIncorrectContinuationToken
 	case InvalidMarkerPrefixCombination:
 		apiErr = ErrNotImplemented
 	case InvalidUploadIDKeyCombination:

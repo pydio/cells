@@ -27,7 +27,15 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require('react');
 
@@ -51,6 +59,10 @@ var _pydioModelDataModel = require('pydio/model/data-model');
 
 var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 
+var _pydioLangObservable = require('pydio/lang/observable');
+
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
@@ -67,6 +79,57 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var AsyncComponent = _Pydio$requireLib.AsyncComponent;
 var TasksPanel = _Pydio$requireLib.TasksPanel;
+
+var LeftToggleListener = (function (_Observable) {
+    _inherits(LeftToggleListener, _Observable);
+
+    function LeftToggleListener() {
+        _classCallCheck(this, LeftToggleListener);
+
+        _get(Object.getPrototypeOf(LeftToggleListener.prototype), 'constructor', this).call(this);
+        this.active = false;
+        this.open = false;
+    }
+
+    _createClass(LeftToggleListener, [{
+        key: 'update',
+        value: function update() {
+            this.notify('update');
+        }
+    }, {
+        key: 'isOpen',
+        value: function isOpen() {
+            return !this.active || this.open;
+        }
+    }, {
+        key: 'isActive',
+        value: function isActive() {
+            return this.active;
+        }
+    }, {
+        key: 'toggle',
+        value: function toggle() {
+            this.open = !this.open;
+            this.update();
+        }
+    }, {
+        key: 'setActive',
+        value: function setActive(b) {
+            this.active = b;
+            this.update();
+        }
+    }], [{
+        key: 'getInstance',
+        value: function getInstance() {
+            if (!LeftToggleListener.__INSTANCE) {
+                LeftToggleListener.__INSTANCE = new LeftToggleListener();
+            }
+            return LeftToggleListener.__INSTANCE;
+        }
+    }]);
+
+    return LeftToggleListener;
+})(_pydioLangObservable2['default']);
 
 var AdminDashboard = _react2['default'].createClass({
     displayName: 'AdminDashboard',
@@ -91,7 +154,6 @@ var AdminDashboard = _react2['default'].createClass({
             selectedNodes: dm.getSelectedNodes(),
             contextStatus: dm.getContextNode().isLoaded(),
             openLeftNav: false,
-            leftDocked: true,
             showAdvanced: showAdvanced
         };
     },
@@ -180,6 +242,8 @@ var AdminDashboard = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
+        var _this2 = this;
+
         var dm = this.props.pydio.getContextHolder();
         dm.observe("context_changed", this.dmChangesToState);
         dm.observe("selection_changed", this.dmChangesToState);
@@ -200,6 +264,13 @@ var AdminDashboard = _react2['default'].createClass({
             this.props.pydio.Controller.actions['delete']("bookmark");
         }).bind(this);
         this.props.pydio.observe("actions_loaded", this._bmObserver);
+        LeftToggleListener.getInstance().observe('update', function () {
+            // Simple state change
+            _this2.setState({
+                toggleOpen: LeftToggleListener.getInstance().isOpen(),
+                toggleActive: LeftToggleListener.getInstance().isActive()
+            });
+        });
         this._resizeObserver = this.computeLeftIsDocked.bind(this);
         _pydioUtilDom2['default'].observeWindowResize(this._resizeObserver);
         this.computeLeftIsDocked();
@@ -218,12 +289,12 @@ var AdminDashboard = _react2['default'].createClass({
         if (this._bmObserver) {
             this.props.pydio.stopObserving("actions_loaded", this._bmObserver);
         }
+        LeftToggleListener.getInstance().stopObserving('update');
         _pydioUtilDom2['default'].stopObservingWindowResize(this._resizeObserver);
     },
 
     computeLeftIsDocked: function computeLeftIsDocked() {
-        var w = _pydioUtilDom2['default'].getViewportWidth();
-        this.setState({ leftDocked: w > 780 });
+        LeftToggleListener.getInstance().setActive(_pydioUtilDom2['default'].getViewportWidth() <= 780);
     },
 
     routeMasterPanel: function routeMasterPanel(node, selectedNode) {
@@ -269,8 +340,6 @@ var AdminDashboard = _react2['default'].createClass({
         var _state = this.state;
         var showAdvanced = _state.showAdvanced;
         var rightPanel = _state.rightPanel;
-        var leftDocked = _state.leftDocked;
-        var openLeftNav = _state.openLeftNav;
         var pydio = this.props.pydio;
 
         var dm = pydio.getContextHolder();
@@ -279,27 +348,6 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-
-        /*
-        // LEFT BUTTON FOR TOGGLING LEFT BAR : TODO ?
-        let leftIcon, leftIconClick;
-        if (leftDocked) {
-            leftIcon = "mdi mdi-tune-vertical";
-            leftIconClick = () => {
-                dm.requireContextChange(dm.getRootNode());
-            }
-        } else {
-            leftIcon = "mdi mdi-menu";
-            leftIconClick = () => {
-                this.setState({openLeftNav: !openLeftNav})
-            };
-        }
-        const leftIconButton = (
-            <div style={{margin: '0 12px'}}>
-                <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
-            </div>
-        );
-        */
 
         var theme = (0, _materialUiStyles.getMuiTheme)({
             palette: {
@@ -324,14 +372,14 @@ var AdminDashboard = _react2['default'].createClass({
                     dataModel: dm,
                     rootNode: dm.getRootNode(),
                     contextNode: dm.getContextNode(),
-                    open: leftDocked || openLeftNav,
+                    open: LeftToggleListener.getInstance().isOpen(),
                     showAdvanced: showAdvanced,
                     toggleAdvanced: this.toggleAdvanced.bind(this)
                 }),
                 _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: leftDocked ? 256 : 0 }) },
+                    { zDepth: 0, className: 'main-panel', style: _extends({}, adminStyles.body.mainPanel, { left: LeftToggleListener.getInstance().isActive() ? 0 : 256 }) },
                     this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
                 ),
                 _react2['default'].createElement(
@@ -346,4 +394,4 @@ var AdminDashboard = _react2['default'].createClass({
 
 exports['default'] = AdminDashboard = (0, _materialUiStyles.muiThemeable)()(AdminDashboard);
 exports['default'] = AdminDashboard;
-module.exports = exports['default'];
+exports.LeftToggleListener = LeftToggleListener;

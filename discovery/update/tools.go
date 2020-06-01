@@ -99,29 +99,19 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 
 	marshaller := jsonpb.Marshaler{}
 	jsonReq, _ := marshaller.MarshalToString(request)
-	reader := strings.NewReader(string(jsonReq))
-	proxy := os.Getenv("CELLS_UPDATE_HTTP_PROXY")
 
-	var response *http.Response
-	var err error
-	if proxy == "" {
-		response, err = http.Post(strings.TrimRight(parsed.String(), "/")+"/", "application/json", reader)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		postRequest, err := http.NewRequest("POST", strings.TrimRight(parsed.String(), "/")+"/", reader)
-		if err != nil {
-			return nil, err
-		}
-		postRequest.Header.Add("Content-type", "application/json")
-
-		proxyUrl, err := url.Parse(proxy)
-		if err != nil {
-			return nil, err
-		}
-		myClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
-		response, err = myClient.Do(postRequest)
+	postRequest, err := http.NewRequest("POST", strings.TrimRight(parsed.String(), "/")+"/", strings.NewReader(string(jsonReq)))
+	if err != nil {
+		return nil, err
+	}
+	postRequest.Header.Add("Content-type", "application/json")
+	hC, e := getHttpClient()
+	if e != nil {
+		return nil, e
+	}
+	response, err := hC.Do(postRequest)
+	if err != nil {
+		return nil, err
 	}
 
 	if response.StatusCode != 200 {
@@ -189,7 +179,18 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 		close(doneChan)
 	}()
 
-	if resp, err := http.Get(p.BinaryURL); err != nil {
+	dlRequest, err := http.NewRequest("GET", p.BinaryURL, nil)
+	if err != nil {
+		errorChan <- err
+		return
+	}
+	hC, e := getHttpClient()
+	if e != nil {
+		errorChan <- e
+		return
+	}
+
+	if resp, err := hC.Do(dlRequest); err != nil {
 		errorChan <- err
 		return
 	} else {
@@ -219,8 +220,16 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			return
 		}
 
-		pKey := config.Default().Get("publicKey").String("")
+		pKey, ok := conf.Get("publicKey").(string)
+		if !ok || pKey == "" {
+			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
+			return
+		}
 		block, _ := pem.Decode([]byte(pKey))
+		if block == nil {
+			errorChan <- fmt.Errorf("cannot decode public key")
+			return
+		}
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
 			errorChan <- err
@@ -263,4 +272,16 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 		return
 	}
 
+}
+
+func getHttpClient() (*http.Client, error) {
+	hC := http.DefaultClient
+	if proxy := os.Getenv("CELLS_UPDATE_HTTP_PROXY"); proxy != "" {
+		proxyUrl, err := url.Parse(proxy)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse CELLS_UPDATE_HTTP_PROXY : %s", err.Error())
+		}
+		hC = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	}
+	return hC, nil
 }

@@ -50,6 +50,8 @@ var _AdminStyles = require("./AdminStyles");
 
 var _AdminStyles2 = _interopRequireDefault(_AdminStyles);
 
+var _boardAdminDashboard = require('../board/AdminDashboard');
+
 var Header = (function (_Component) {
     _inherits(Header, _Component);
 
@@ -77,13 +79,15 @@ var Header = (function (_Component) {
             var editorMode = _props.editorMode;
 
             var adminStyles = (0, _AdminStyles2['default'])(muiTheme.palette);
+            var listener = _boardAdminDashboard.LeftToggleListener.getInstance();
 
             var styles = {
                 base: {
-                    padding: '0 16px',
+                    padding: listener.isActive() ? '0 16px 0 0' : '0 16px',
                     backgroundColor: '#ffffff',
                     boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 2px',
-                    zIndex: 10
+                    zIndex: 10,
+                    marginLeft: listener.isActive() && listener.isOpen() ? 256 : 0
                 },
                 container: {
                     display: 'flex',
@@ -162,11 +166,16 @@ var Header = (function (_Component) {
             }
 
             var icon = undefined;
-            if (this.props.icon) {
+            if (listener.isActive()) {
+                icon = React.createElement(_materialUi.IconButton, { iconClassName: listener.isOpen() ? "mdi mdi-backburger" : "mdi mdi-menu", iconStyle: styles.icon, onTouchTap: function () {
+                        return listener.toggle();
+                    } });
+            } else if (this.props.icon) {
                 icon = React.createElement(_materialUi.FontIcon, { className: this.props.icon, style: styles.icon });
             } else if (backButtonAction) {
                 icon = React.createElement(_materialUi.IconButton, { style: { marginLeft: -18 }, iconClassName: "mdi mdi-chevron-left", onTouchTap: backButtonAction });
             }
+
             var reloadButton = undefined;
             if (reloadAction) {
                 reloadButton = React.createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-reload", onTouchTap: reloadAction }, adminStyles.props.header.iconButton));

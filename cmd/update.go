@@ -32,7 +32,6 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
@@ -50,14 +49,7 @@ To apply the actual update, re-run the command with a --version parameter.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		url := config.Default().Get("defaults", "update", "updateUrl").String("")
-		pKey := config.Default().Get("defaults", "update", "publicKey").String("")
-		channel := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "channel").String("stable")
-		configs := config.Map{}
-		configs.Set("updateUrl", url)
-		configs.Set("channel", channel)
-		configs.Set("publicKey", pKey)
-
+		configs := config.GetUpdatesConfigs()
 		binaries, e := update2.LoadUpdates(context.Background(), configs, &update.UpdateRequest{})
 		if e != nil {
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))
@@ -74,7 +66,7 @@ To apply the actual update, re-run the command with a --version parameter.
 			c := color.New(color.FgGreen)
 			c.Println("\nNew packages are available. Please run the following command to upgrade to a given version")
 			c.Println("")
-			c = color.New(color.FgBlack, color.Bold)
+			c = color.New(color.FgBlue, color.Bold)
 			c.Println(os.Args[0] + " update --version=x.y.z")
 			c.Println("")
 
@@ -100,7 +92,7 @@ To apply the actual update, re-run the command with a --version parameter.
 				log.Fatal("Cannot find the requested version")
 			}
 
-			c := color.New(color.FgBlack)
+			c := color.New(color.FgBlue)
 			c.Println("Updating binary now")
 			c.Println("")
 			pgChan := make(chan float64)
@@ -118,7 +110,7 @@ To apply the actual update, re-run the command with a --version parameter.
 						color.New(color.FgRed).Println("\rError while updating binary: " + e.Error())
 						return
 					case <-doneChan:
-						color.New(color.FgBlack, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!")
+						color.New(color.FgGreen, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!")
 						fmt.Println("")
 						return
 					}

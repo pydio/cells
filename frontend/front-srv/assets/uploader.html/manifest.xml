@@ -4,6 +4,7 @@
         <global_param expose="true" name="DEFAULT_EXISTING" group="CONF_MESSAGE[Default Behaviour]" type="select" choices="overwrite|CONF_MESSAGE[Always Override],rename|CONF_MESSAGE[Auto Rename File],alert|CONF_MESSAGE[Prompt user]" label="CONF_MESSAGE[Existing Files]" description="CONF_MESSAGE[Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)]" mandatory="false" default="rename"/>
         <global_param expose="true" name="DEFAULT_AUTO_START" group="CONF_MESSAGE[Default Behaviour]" type="boolean" label="CONF_MESSAGE[Auto Start]" description="CONF_MESSAGE[Default value for automatically starting upload or not]" mandatory="false" default="true"/>
         <global_param expose="true" name="DEFAULT_AUTO_CLOSE" group="CONF_MESSAGE[Default Behaviour]" type="boolean" label="CONF_MESSAGE[Auto Close]" description="CONF_MESSAGE[Default value for automatically closing the dialog after upload or not]" mandatory="false" default="true"/>
+        <global_param expose="true" name="DEFAULT_STAT_SLICES" group="CONF_MESSAGE[Default Behaviour]" type="integer" label="CONF_MESSAGE[Stat Slices]" description="CONF_MESSAGE[Size of requests used to test if files already exists]" mandatory="false" default="400"/>
     </server_settings>
     <client_settings>
         <resources>
