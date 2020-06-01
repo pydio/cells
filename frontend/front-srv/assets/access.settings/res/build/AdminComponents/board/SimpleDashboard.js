@@ -49,6 +49,10 @@ var _stylesAdminStyles = require("../styles/AdminStyles");
 
 var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -113,8 +117,10 @@ var Dashboard = _react2['default'].createClass({
         var accent2Color = this.props.muiTheme.palette.accent2Color;
 
         var adminStyles = (0, _stylesAdminStyles2['default'])(this.props.muiTheme.palette);
-        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
-        var flatProps = _extends({}, adminStyles.props.header.flatButton);
+        var w = _pydioUtilDom2['default'].getViewportWidth();
+        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: Math.min(w - 26, 450), margin: 8 });
+        var flatStyle = { style: { height: 34, lineHeight: '34px', margin: 2 } };
+        var flatProps = _extends({}, adminStyles.props.header.flatButton, flatStyle);
         var icProps = {
             color: adminStyles.props.header.flatButton.labelStyle.color,
             style: { fontSize: 20 }

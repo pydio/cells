@@ -88,7 +88,7 @@ var LeftToggleListener = (function (_Observable) {
 
         _get(Object.getPrototypeOf(LeftToggleListener.prototype), 'constructor', this).call(this);
         this.active = false;
-        this.open = true;
+        this.open = false;
     }
 
     _createClass(LeftToggleListener, [{

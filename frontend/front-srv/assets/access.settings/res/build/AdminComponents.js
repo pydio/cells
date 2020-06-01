@@ -17003,7 +17003,7 @@ var LeftToggleListener = (function (_Observable) {
 
         _get(Object.getPrototypeOf(LeftToggleListener.prototype), 'constructor', this).call(this);
         this.active = false;
-        this.open = true;
+        this.open = false;
     }
 
     _createClass(LeftToggleListener, [{
@@ -17581,6 +17581,10 @@ var _stylesAdminStyles = require("../styles/AdminStyles");
 
 var _stylesAdminStyles2 = _interopRequireDefault(_stylesAdminStyles);
 
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -17645,8 +17649,10 @@ var Dashboard = _react2['default'].createClass({
         var accent2Color = this.props.muiTheme.palette.accent2Color;
 
         var adminStyles = (0, _stylesAdminStyles2['default'])(this.props.muiTheme.palette);
-        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: 450, margin: 8 });
-        var flatProps = _extends({}, adminStyles.props.header.flatButton);
+        var w = _pydioUtilDom2['default'].getViewportWidth();
+        var paperStyle = _extends({}, adminStyles.body.block.container, { flex: 1, minWidth: Math.min(w - 26, 450), margin: 8 });
+        var flatStyle = { style: { height: 34, lineHeight: '34px', margin: 2 } };
+        var flatProps = _extends({}, adminStyles.props.header.flatButton, flatStyle);
         var icProps = {
             color: adminStyles.props.header.flatButton.labelStyle.color,
             style: { fontSize: 20 }
@@ -17816,7 +17822,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../styles/AdminStyles":28,"../styles/Header":29,"../util/Mixins":34,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],27:[function(require,module,exports){
+},{"../styles/AdminStyles":28,"../styles/Header":29,"../util/Mixins":34,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/dom":"pydio/util/dom","react":"react"}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

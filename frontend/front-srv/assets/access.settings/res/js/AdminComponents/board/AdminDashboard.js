@@ -37,7 +37,7 @@ class LeftToggleListener extends Observable {
     constructor() {
         super();
         this.active = false;
-        this.open = true;
+        this.open = false;
     }
 
     update(){
