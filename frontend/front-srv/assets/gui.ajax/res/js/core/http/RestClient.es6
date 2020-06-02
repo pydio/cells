@@ -69,16 +69,23 @@ class RestClient extends ApiClient{
     /**
      * Get current JWT Token
      */
-    static get() {
-        return JSON.parse(window.sessionStorage.getItem("token"))
+    get() {
+        return JSON.parse(window.sessionStorage.getItem(this.tokenKey()))
     }
 
-    static store(token){
-        window.sessionStorage.setItem("token", JSON.stringify(token))
+    store(token){
+        window.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
     }
 
-    static remove() {
-        window.sessionStorage.removeItem("token")
+    remove() {
+        window.sessionStorage.removeItem(this.tokenKey())
+    }
+
+    tokenKey(){
+        if(this.pydio.Parameters.has('MINISITE')) {
+            return "token-" + this.pydio.Parameters.get('MINISITE');
+        }
+        return "token";
     }
 
     getCurrentChallenge() {
@@ -98,7 +105,6 @@ class RestClient extends ApiClient{
     }
 
     sessionLogout(){
-        console.log("In sessionLogout")
         return this.jwtWithAuthInfo({type: "logout"});
     }
 
@@ -110,11 +116,19 @@ class RestClient extends ApiClient{
                 if (response.data && response.data.RedirectTo) {
                     window.location.href = response.data.RedirectTo
                 } else if (response.data && response.data.Trigger) {
-                    this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    const controller = this.pydio.getController();
+                    if(controller.getActionByName(response.data.Trigger)){
+                        controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    } else if(this.pydio.Parameters.has('PRELOG_USER')) {
+                        this.pydio.observeOnce("actions_refreshed", () => {
+                            controller.actions.delete('login');
+                            controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
+                        });
+                    }
                 } else if (response.data && response.data.Token) {
-                    RestClient.store(response.data.Token);
+                    this.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
-                    RestClient.remove()
+                    this.remove()
                 } else {
                     throw "no user found"
                 }
@@ -122,14 +136,14 @@ class RestClient extends ApiClient{
                 if (request.AuthInfo.type !== "logout") {
                     this.pydio.getController().fireAction('logout');
                 }
-                RestClient.remove()
+                this.remove();
                 
                 throw e
             });
     }
 
     getAuthToken() {
-        const token = RestClient.get();
+        const token = this.get();
         const now = Math.floor(Date.now() / 1000);
 
         if (!token) {

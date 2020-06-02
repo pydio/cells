@@ -109,16 +109,23 @@ var RestClient = (function (_ApiClient) {
      * Get current JWT Token
      */
 
-    RestClient.get = function get() {
-        return JSON.parse(window.sessionStorage.getItem("token"));
+    RestClient.prototype.get = function get() {
+        return JSON.parse(window.sessionStorage.getItem(this.tokenKey()));
     };
 
-    RestClient.store = function store(token) {
-        window.sessionStorage.setItem("token", JSON.stringify(token));
+    RestClient.prototype.store = function store(token) {
+        window.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
     };
 
-    RestClient.remove = function remove() {
-        window.sessionStorage.removeItem("token");
+    RestClient.prototype.remove = function remove() {
+        window.sessionStorage.removeItem(this.tokenKey());
+    };
+
+    RestClient.prototype.tokenKey = function tokenKey() {
+        if (this.pydio.Parameters.has('MINISITE')) {
+            return "token-" + this.pydio.Parameters.get('MINISITE');
+        }
+        return "token";
     };
 
     RestClient.prototype.getCurrentChallenge = function getCurrentChallenge() {
@@ -138,7 +145,6 @@ var RestClient = (function (_ApiClient) {
     };
 
     RestClient.prototype.sessionLogout = function sessionLogout() {
-        console.log("In sessionLogout");
         return this.jwtWithAuthInfo({ type: "logout" });
     };
 
@@ -153,11 +159,21 @@ var RestClient = (function (_ApiClient) {
             if (response.data && response.data.RedirectTo) {
                 window.location.href = response.data.RedirectTo;
             } else if (response.data && response.data.Trigger) {
-                _this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                (function () {
+                    var controller = _this.pydio.getController();
+                    if (controller.getActionByName(response.data.Trigger)) {
+                        controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    } else if (_this.pydio.Parameters.has('PRELOG_USER')) {
+                        _this.pydio.observeOnce("actions_refreshed", function () {
+                            controller.actions['delete']('login');
+                            controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
+                        });
+                    }
+                })();
             } else if (response.data && response.data.Token) {
-                RestClient.store(response.data.Token);
+                _this.store(response.data.Token);
             } else if (request.AuthInfo.type === "logout") {
-                RestClient.remove();
+                _this.remove();
             } else {
                 throw "no user found";
             }
@@ -165,7 +181,7 @@ var RestClient = (function (_ApiClient) {
             if (request.AuthInfo.type !== "logout") {
                 _this.pydio.getController().fireAction('logout');
             }
-            RestClient.remove();
+            _this.remove();
 
             throw e;
         });
@@ -174,7 +190,7 @@ var RestClient = (function (_ApiClient) {
     RestClient.prototype.getAuthToken = function getAuthToken() {
         var _this2 = this;
 
-        var token = RestClient.get();
+        var token = this.get();
         var now = Math.floor(Date.now() / 1000);
 
         if (!token) {

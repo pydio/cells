@@ -129,7 +129,13 @@ var Registry = (function () {
                 }
             });
         })['catch'](function () {
-            return fetch(url);
+            return fetch(url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    "X-Pydio-Minisite": Parameters.get('MINISITE')
+                }
+            });
         }).then(function (response) {
             return response.text();
         }).then(function (txt) {

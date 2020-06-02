@@ -92,7 +92,13 @@ export default class Registry{
                 })
             })
             .catch(() => {
-                return fetch(url)
+                return fetch(url, {
+                    method:'GET',
+                    credentials:'same-origin',
+                    headers: {
+                        "X-Pydio-Minisite": Parameters.get('MINISITE'),
+                    },
+                })
             })
             .then((response) => response.text())
             .then((txt) => {
