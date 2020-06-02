@@ -123,7 +123,10 @@ func (m *Merger) diffUsers(extUsers map[string]*idm.User, apiUsers map[string]*i
 				if extUser.Attributes == nil {
 					extUser.Attributes = make(map[string]string, 1)
 				}
-				extUser.Attributes[idm.UserAttrPassHashed] = "true"
+
+				if _, ok := extUser.Attributes[idm.UserAttrPassHashed]; !ok {
+					extUser.Attributes[idm.UserAttrPassHashed] = "true"
+				}
 			}
 			userDiff.Create[extUserId] = extUser
 			activeUser := models.User{extUser}

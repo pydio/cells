@@ -208,8 +208,11 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		case models.CREATEONLYSYNC:
 			usersDiff.Update = nil
 			usersDiff.Delete = nil
+			rolesDiff.Updates = nil
+			rolesDiff.Deletes = nil
 		case models.NODELETESYNC:
 			usersDiff.Delete = nil
+			rolesDiff.Deletes = nil
 		}
 
 		msg = "Persisting modifications"
