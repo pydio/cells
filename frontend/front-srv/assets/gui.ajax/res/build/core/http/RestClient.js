@@ -159,17 +159,7 @@ var RestClient = (function (_ApiClient) {
             if (response.data && response.data.RedirectTo) {
                 window.location.href = response.data.RedirectTo;
             } else if (response.data && response.data.Trigger) {
-                (function () {
-                    var controller = _this.pydio.getController();
-                    if (controller.getActionByName(response.data.Trigger)) {
-                        controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
-                    } else if (_this.pydio.Parameters.has('PRELOG_USER')) {
-                        _this.pydio.observeOnce("actions_refreshed", function () {
-                            controller.actions['delete']('login');
-                            controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
-                        });
-                    }
-                })();
+                _this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
             } else if (response.data && response.data.Token) {
                 _this.store(response.data.Token);
             } else if (request.AuthInfo.type === "logout") {

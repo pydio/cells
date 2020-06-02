@@ -116,15 +116,7 @@ class RestClient extends ApiClient{
                 if (response.data && response.data.RedirectTo) {
                     window.location.href = response.data.RedirectTo
                 } else if (response.data && response.data.Trigger) {
-                    const controller = this.pydio.getController();
-                    if(controller.getActionByName(response.data.Trigger)){
-                        controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
-                    } else if(this.pydio.Parameters.has('PRELOG_USER')) {
-                        this.pydio.observeOnce("actions_refreshed", () => {
-                            controller.actions.delete('login');
-                            controller.fireAction(response.data.Trigger, response.data.TriggerInfo);
-                        });
-                    }
+                    this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
                 } else if (response.data && response.data.Token) {
                     this.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
