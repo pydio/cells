@@ -26,8 +26,6 @@ import (
 	"strings"
 	"time"
 
-	context2 "github.com/pydio/cells/common/utils/context"
-
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -42,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -73,7 +72,7 @@ func GetVirtualNodesManager() *VirtualNodesManager {
 // Load requests the virtual nodes from the DocStore service.
 func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
-		if vNodes, found := vManagerCache.Get("virtual-nodes"); found {
+		if vNodes, found := vManagerCache.Get("###virtual-nodes###"); found {
 			m.VirtualNodes = vNodes.([]*tree.Node)
 			return
 		}
@@ -107,7 +106,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 			m.VirtualNodes = append(m.VirtualNodes, &node)
 		}
 	}
-	vManagerCache.Set("virtual-nodes", m.VirtualNodes, cache.DefaultExpiration)
+	vManagerCache.Set("###virtual-nodes###", m.VirtualNodes, cache.DefaultExpiration)
 }
 
 // ByUuid finds a VirtualNode by its Uuid.
@@ -201,7 +200,15 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		return nil, e
 	}
 
+	if cached, ok := vManagerCache.Get(resolved.Path); ok {
+		if cn, casted := cached.(*tree.Node); casted {
+			log.Logger(ctx).Debug("VirtualNodes: returning cached resolved node", cn.Zap())
+			return cn, nil
+		}
+	}
+
 	if readResp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
+		vManagerCache.Set(resolved.Path, readResp.Node, cache.DefaultExpiration)
 		return readResp.Node, nil
 	} else if errors.Parse(e.Error()).Code == 404 {
 		if len(retry) == 0 {
@@ -229,6 +236,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			} else if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
 				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", newNode.Zap("resolved"), zap.Error(e))
 			}
+			vManagerCache.Set(resolved.Path, createResp.Node, cache.DefaultExpiration)
 			return createResp.Node, nil
 		}
 	}
