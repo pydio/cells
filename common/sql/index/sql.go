@@ -724,7 +724,7 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 }
 
 // GetNode from path
-func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
+func (dao *IndexSQL) GetNode(path mtree.MPath, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -737,6 +737,7 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 	node.SetMPath(path...)
 
 	mpath := node.MPath.String()
+	fSize := len(computeFoldersSize) > 0 && computeFoldersSize[0]
 
 	if stmt, args, e := dao.GetStmtWithArgs("selectNode", mpath); e == nil {
 		row := stmt.QueryRow(args...)
@@ -744,7 +745,7 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 		if err != nil {
 			return nil, err
 		}
-		if treeNode != nil && !treeNode.IsLeaf() {
+		if fSize && treeNode != nil && !treeNode.IsLeaf() {
 			dao.folderSize(treeNode)
 		}
 		return treeNode, nil
@@ -754,7 +755,7 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 }
 
 // GetNodeByUUID returns the node stored with the unique uuid
-func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
+func (dao *IndexSQL) GetNodeByUUID(uuid string, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -768,7 +769,7 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
-	if treeNode != nil && !treeNode.IsLeaf() {
+	if len(computeFoldersSize) > 0 && computeFoldersSize[0] && treeNode != nil && !treeNode.IsLeaf() {
 		dao.folderSize(treeNode)
 	}
 	return treeNode, nil
@@ -881,7 +882,7 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint6
 
 	all := []int{}
 
-	for node := range dao.GetNodeChildren(reqPath) {
+	for node := range dao.GetNodeChildren(reqPath, false) {
 		all = append(all, int(node.MPath.Index()))
 	}
 
@@ -946,7 +947,7 @@ func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 }
 
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
+func (dao *IndexSQL) GetNodeChildren(path mtree.MPath, computeFoldersSize bool) chan *mtree.TreeNode {
 
 	dao.Lock()
 
@@ -981,7 +982,7 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 				if err != nil {
 					break
 				}
-				if treeNode != nil && !treeNode.IsLeaf() {
+				if computeFoldersSize && treeNode != nil && !treeNode.IsLeaf() {
 					dao.folderSize(treeNode)
 				}
 				c <- treeNode
@@ -993,7 +994,7 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path mtree.MPath, skipFolderSize bool) chan *mtree.TreeNode {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath, computeFoldersSize bool) chan *mtree.TreeNode {
 
 	dao.Lock()
 
@@ -1029,7 +1030,7 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath, skipFolderSize bool) chan *mt
 				if err != nil {
 					break
 				}
-				if !skipFolderSize && treeNode != nil && !treeNode.IsLeaf() {
+				if computeFoldersSize && treeNode != nil && !treeNode.IsLeaf() {
 					dao.folderSize(treeNode)
 				}
 				c <- treeNode
@@ -1158,7 +1159,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 
 	// Load all children
 	var nodes []*mtree.TreeNode
-	for node := range dao.GetNodeTree(pathFrom, true) {
+	for node := range dao.GetNodeTree(pathFrom, false) {
 		nodes = append(nodes, node)
 	}
 	log.Logger(ctx).Debug("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))

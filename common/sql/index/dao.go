@@ -49,16 +49,15 @@ type DAO interface {
 	GetNodes(...mtree.MPath) chan *mtree.TreeNode
 	SetNodes(string, int64) sql.BatchSender
 
-	// Getters
-	GetNode(mtree.MPath) (*mtree.TreeNode, error)
-	GetNodeByUUID(string) (*mtree.TreeNode, error)
+	// Getters - optional bool represents a computeFoldersSize flag
+	GetNode(mtree.MPath, ...bool) (*mtree.TreeNode, error)
+	GetNodeByUUID(string, ...bool) (*mtree.TreeNode, error)
+	GetNodeChildren(mtree.MPath, bool) chan *mtree.TreeNode
+	GetNodeTree(mtree.MPath, bool) chan *mtree.TreeNode
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
 	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)
 	GetNodeChildrenCounts(mtree.MPath) (int, int)
-	GetNodeChildren(mtree.MPath) chan *mtree.TreeNode
-	GetNodeTree(mtree.MPath, bool) chan *mtree.TreeNode
-
 	MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error
 
 	PushCommit(node *mtree.TreeNode) error

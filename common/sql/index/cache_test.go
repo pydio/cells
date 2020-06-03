@@ -305,7 +305,7 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		var i int
-		for _ = range getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath) {
+		for _ = range getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath, false) {
 			i++
 		}
 
@@ -418,7 +418,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1})
+		nodes := getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1}, false)
 		count := 0
 		for range nodes {
 			count++
@@ -436,7 +436,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 7) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1, 1})
+		nodes = getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1, 1}, false)
 		count = 0
 		for range nodes {
 			count++

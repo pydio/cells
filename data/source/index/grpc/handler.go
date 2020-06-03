@@ -241,7 +241,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
-		node, err = dao.GetNodeByUUID(req.GetNode().GetUuid())
+		node, err = dao.GetNodeByUUID(req.GetNode().GetUuid(), true)
 		if err != nil || node == nil {
 			return errors.NotFound(name, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
 		}
@@ -266,7 +266,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 			// Do not return error, or send a file not exists?
 			return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 		}
-		node, err = dao.GetNode(path)
+		node, err = dao.GetNode(path, true)
 		if err != nil {
 			if len(path) == 1 && path[0] == 1 {
 				// This is the root node, let's create it
@@ -326,6 +326,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 	var c chan *mtree.TreeNode
 
 	// Special case for  "Ancestors", node can have either Path or Uuid
+	// There is no need to compute additional stats here (folderSize)
 	if req.Ancestors {
 
 		var node *mtree.TreeNode
@@ -391,9 +392,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 		if req.Recursive {
-			c = dao.GetNodeTree(path, false)
+			c = dao.GetNodeTree(path, true)
 		} else {
-			c = dao.GetNodeChildren(path)
+			c = dao.GetNodeChildren(path, true)
 		}
 
 		// Additional filters

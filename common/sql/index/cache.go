@@ -414,7 +414,7 @@ func (d *daocache) SetNodes(etag string, size int64) commonsql.BatchSender {
 }
 
 // Getters
-func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
+func (d *daocache) GetNode(path mtree.MPath, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -422,10 +422,10 @@ func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 		return node, nil
 	}
 
-	return d.DAO.GetNode(path)
+	return d.DAO.GetNode(path, computeFoldersSize...)
 }
 
-func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
+func (d *daocache) GetNodeByUUID(uuid string, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 	for _, n := range d.cache {
@@ -433,7 +433,7 @@ func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 			return n, nil
 		}
 	}
-	return d.DAO.GetNodeByUUID(uuid)
+	return d.DAO.GetNodeByUUID(uuid, computeFoldersSize...)
 }
 
 func testEq(a, b []string) bool {
@@ -620,7 +620,7 @@ func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
+func (d *daocache) GetNodeChildren(path mtree.MPath, _ bool) chan *mtree.TreeNode {
 
 	c := make(chan *mtree.TreeNode)
 
