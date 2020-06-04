@@ -64,10 +64,9 @@ func getDAO(ctx context.Context, session string) index.DAO {
 	dao := cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))
 
 	if session != "" {
-		// if dao := index.GetDAOCache(session); dao != nil {
-		// 	return dao.(index.DAO)
-		// }
-
+		if dao := index.GetDAOCache(session); dao != nil {
+			return dao.(index.DAO)
+		}
 		return index.NewDAOCache(session, dao).(index.DAO)
 	}
 
