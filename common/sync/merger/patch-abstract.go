@@ -42,7 +42,9 @@ type AbstractPatch struct {
 
 	sessionProviderContext context.Context
 	sessionSilent          bool
-	lockSession            string
+
+	lockSessionProviderContext context.Context
+	lockSession                string
 
 	skipFilterToTarget bool
 	postFilter         func()
@@ -136,12 +138,14 @@ func (b *AbstractPatch) Target(newTarget ...model.PathSyncTarget) model.PathSync
 	return b.target
 }
 
-func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSession bool, lockSession ...string) {
+func (b *AbstractPatch) SetLockSessionData(providerContext context.Context, lockSession string) {
+	b.lockSessionProviderContext = providerContext
+	b.lockSession = lockSession
+}
+
+func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSession bool) {
 	b.sessionProviderContext = providerContext
 	b.sessionSilent = silentSession
-	if len(lockSession) > 0 {
-		b.lockSession = lockSession[0]
-	}
 }
 
 func (b *AbstractPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
@@ -164,8 +168,8 @@ func (b *AbstractPatch) FinishSession(sessionUuid string) (err error) {
 		err = sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
 	}
 	if lockBranchProvider, ok := b.Target().(model.LockBranchProvider); ok && b.lockSession != "" {
-		log.Logger(b.sessionProviderContext).Info("Unlocking branch with session " + b.lockSession)
-		err = lockBranchProvider.UnlockBranch(b.sessionProviderContext, b.lockSession)
+		log.Logger(b.lockSessionProviderContext).Info("Unlocking branch with session " + b.lockSession)
+		err = lockBranchProvider.UnlockBranch(b.lockSessionProviderContext, b.lockSession)
 	}
 	return
 }
