@@ -23,6 +23,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -180,6 +181,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	// First get by Uuid, it must be unique
 	if len(objectUuid) > 0 {
 		if node, err := s.IndexSQL.GetNodeByUUID(objectUuid); err == nil && node != nil {
+
 			s.rebuildGroupPath(node)
 			if node.Path != objectPath {
 				// This is a move
@@ -457,20 +459,32 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 
 		var uuid string
 		var level uint32
-		var rat []byte
+		var mpath1 string
+		var mpath2 string
+		var mpath3 string
+		var mpath4 string
 		var name string
 		var leaf int32
 		var etag string
 		res.Scan(
 			&uuid,
 			&level,
-			&rat,
+			&mpath1,
+			&mpath2,
+			&mpath3,
+			&mpath4,
 			&name,
 			&leaf,
 			&etag,
 		)
 		node := mtree.NewTreeNode()
-		node.SetBytes(rat)
+		var mpath []uint64
+		for _, m := range strings.Split(mpath1+mpath2+mpath3+mpath4, ".") {
+			i, _ := strconv.ParseUint(m, 10, 64)
+			mpath = append(mpath, i)
+		}
+		node.SetMPath(mpath...)
+		// node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Etag = etag
 		s.rebuildGroupPath(node)
@@ -554,20 +568,32 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 	for res.Next() {
 		var uuid string
 		var level uint32
-		var rat []byte
+		var mpath1 string
+		var mpath2 string
+		var mpath3 string
+		var mpath4 string
 		var name string
 		var leaf int32
 		var etag string
 		res.Scan(
 			&uuid,
 			&level,
-			&rat,
+			&mpath1,
+			&mpath2,
+			&mpath3,
+			&mpath4,
 			&name,
 			&leaf,
 			&etag,
 		)
 		node := mtree.NewTreeNode()
-		node.SetBytes(rat)
+		var mpath []uint64
+		for _, m := range strings.Split(mpath1+mpath2+mpath3+mpath4, ".") {
+			i, _ := strconv.ParseUint(m, 10, 64)
+			mpath = append(mpath, i)
+		}
+		node.SetMPath(mpath...)
+		// node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Level = int(level)
 		node.Etag = etag

@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS %%PREFIX%%_tree (
     uuid  VARCHAR(128)      NOT NULL,
     level SMALLINT          NOT NULL,
 
-    hash   BIGINT            NOT NULL,
     `name` VARCHAR(255)      NOT NULL,
     leaf     TINYINT(1),
     mtime    INT             NOT NULL,
@@ -15,10 +14,9 @@ CREATE TABLE IF NOT EXISTS %%PREFIX%%_tree (
     mpath2 VARCHAR(255)      NOT NULL,
     mpath3 VARCHAR(255)      NOT NULL,
     mpath4 VARCHAR(255)      NOT NULL,
-    rat    BLOB              NOT NULL,
-
+    
     CONSTRAINT tree_pk PRIMARY KEY (uuid),
-    CONSTRAINT tree_u1 UNIQUE (hash)
+    CONSTRAINT tree_u1 UNIQUE (mpath1, mpath2, mpath3, mpath4)
 );
 
 CREATE INDEX %%PREFIX%%_tree_name_idx ON %%PREFIX%%_tree(`name`);

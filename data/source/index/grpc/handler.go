@@ -60,15 +60,18 @@ type TreeServer struct {
 func init() {}
 
 func getDAO(ctx context.Context, session string) index.DAO {
-	if session != "" {
-		if dao := index.GetDAOCache(session); dao != nil {
-			return dao.(index.DAO)
-		}
 
-		return index.NewDAOCache(session, cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))).(index.DAO)
+	dao := cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))
+
+	if session != "" {
+		// if dao := index.GetDAOCache(session); dao != nil {
+		// 	return dao.(index.DAO)
+		// }
+
+		return index.NewDAOCache(session, dao).(index.DAO)
 	}
 
-	return cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))
+	return dao
 }
 
 // NewTreeServer factory.

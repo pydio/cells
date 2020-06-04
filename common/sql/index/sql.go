@@ -26,9 +26,10 @@ import (
 	databasesql "database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"math/big"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -81,12 +82,12 @@ func init() {
 			num = args[0].(int)
 		}
 
-		str := `insert into %%PREFIX%%_idx_tree (uuid, level, hash, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4, rat) values `
+		str := `insert into %%PREFIX%%_idx_tree (uuid, level, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4) values `
 
-		str = str + `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		str = str + `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 		for i := 1; i < num; i++ {
-			str = str + `, (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+			str = str + `, (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 		}
 
 		return str
@@ -103,8 +104,35 @@ func init() {
 	}
 	queries["updateTree"] = func(mpathes ...string) string {
 		return `
-		update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, leaf=?, mtime=?, etag=?, size=?, mode=?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
-		where uuid = ?`
+		replace into %%PREFIX%%_idx_tree(level, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4, uuid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	}
+	queries["updateReplace"] = func(dao sql.DAO, args ...string) (string, []interface{}) {
+		whereSub, whereArgs := getMPathLike([]byte(args[0]))
+
+		mapping := args[1:]
+		mpath1 := mapping[0:2]
+		mpath2 := mapping[2:4]
+		mpath3 := mapping[4:6]
+		mpath4 := mapping[6:8]
+
+		var mpathSub []string
+
+		if mpath1[0] != mpath1[1] {
+			mpathSub = append(mpathSub, `mpath1 = `+dao.Concat(`"`+mpath1[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath1[0])+2)+`)`))
+		}
+		if mpath2[0] != mpath2[1] {
+			mpathSub = append(mpathSub, `mpath2 = `+dao.Concat(`"`+mpath2[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath2[0])+2)+`)`))
+		}
+		if mpath3[0] != mpath3[1] {
+			mpathSub = append(mpathSub, `mpath3 = `+dao.Concat(`"`+mpath3[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath3[0])+2)+`)`))
+		}
+		if mpath4[0] != mpath4[1] {
+			mpathSub = append(mpathSub, `mpath4 = `+dao.Concat(`"`+mpath4[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath4[0])+2)+`)`))
+		}
+
+		return fmt.Sprintf(`
+		update %%PREFIX%%_idx_tree set level = level + ?, %s
+		where %s`, strings.Join(mpathSub, ", "), whereSub), whereArgs
 	}
 	queries["updateMeta"] = func(mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set name = ?, leaf = ?, mtime = ?, etag=?, size=?, mode=? WHERE uuid = ?`
@@ -124,11 +152,11 @@ func init() {
 	}
 	queries["selectNodeUuid"] = func(mpathes ...string) string {
 		return `
-		select uuid, level, rat, name, leaf, mtime, etag, size, mode
+		select uuid, level, mpath1, mpath2, mpath3, mpath4, name, leaf, mtime, etag, size, mode
         from %%PREFIX%%_idx_tree where uuid = ?`
 	}
 
-	queries["updateNodes"] = func(mpathes ...string) (string, []interface{}) {
+	queries["updateNodes"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
@@ -136,7 +164,7 @@ func init() {
 			where (%s)`, sub), args
 	}
 
-	queries["deleteTree"] = func(mpathes ...string) (string, []interface{}) {
+	queries["deleteTree"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
@@ -144,62 +172,62 @@ func init() {
 			where (%s)`, sub), args
 	}
 
-	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
+	queries["selectNode"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEquals([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-		SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+		SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 		FROM %%PREFIX%%_idx_tree
 		WHERE %s`, sub), args
 	}
 
-	queries["selectNodes"] = func(mpathes ...string) (string, []interface{}) {
+	queries["selectNodes"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE (%s)	
 			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
-	queries["tree"] = func(mpathes ...string) (string, []interface{}) {
+	queries["tree"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s and level >= ?
 			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
-	queries["children"] = func(mpathes ...string) (string, []interface{}) {
+	queries["children"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ?
 			ORDER BY name`, sub), args
 	}
 
-	queries["child"] = func(mpathes ...string) (string, []interface{}) {
+	queries["child"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ? AND name like ?`, sub), args
 	}
 
-	queries["lastChild"] = func(mpathes ...string) (string, []interface{}) {
+	queries["lastChild"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ?
 			ORDER BY mpath4, mpath3, mpath2, mpath1 DESC LIMIT 1`, sub), args
 	}
 
-	queries["childrenEtags"] = func(mpathes ...string) (string, []interface{}) {
+	queries["childrenEtags"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
 			SELECT etag
@@ -208,16 +236,16 @@ func init() {
 			ORDER BY name`, sub), args
 	}
 
-	queries["dirtyEtags"] = func(mpathes ...string) (string, []interface{}) {
+	queries["dirtyEtags"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE etag = '-1' AND (%s) AND level >= ?
 			ORDER BY level DESC`, sub), args
 	}
 
-	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
+	queries["childrenCount"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select leaf, count(leaf)
@@ -226,7 +254,7 @@ func init() {
 			GROUP BY leaf`, sub), args
 	}
 
-	queries["childrenSize"] = func(mpathes ...string) (string, []interface{}) {
+	queries["childrenSize"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select sum(size)
@@ -305,7 +333,6 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	if _, err := stmt.Exec(
 		node.Uuid,
 		node.Level,
-		node.MPath.Hash(),
 		node.Name(),
 		node.IsLeafInt(),
 		mTime,
@@ -316,7 +343,6 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 		mpath2,
 		mpath3,
 		mpath4,
-		node.Bytes(),
 	); err != nil {
 		return err
 	}
@@ -363,7 +389,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 			mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
-			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.MPath.Hash(), node.Name(), node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4, node.Bytes())
+			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.Name(), node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4)
 
 			count = count + 1
 
@@ -409,7 +435,6 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 
 	_, err := updateTree.Exec(
 		node.Level,
-		node.MPath.Hash(),
 		node.Name(),
 		node.IsLeafInt(),
 		node.MTime,
@@ -420,7 +445,6 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 		mpath2,
 		mpath3,
 		mpath4,
-		node.Bytes(),
 		node.Uuid,
 	)
 
@@ -1042,154 +1066,82 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath, computeFoldersSize bool) chan
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) (e error) {
-
-	var err error
-	var pathFrom, pathTo mtree.MPath
-	pathFrom = nodeFrom.MPath
-	pathTo = nodeTo.MPath
-
-	ppf := pathFrom.Parent()
-	if len(ppf) == 0 {
-		return fmt.Errorf("Cannot move root")
+func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
+	if nodeFrom == nil {
+		return errors.New("Source node cannot be empty")
 	}
 
-	ppt := pathTo.Parent()
-	if len(ppt) == 0 {
-		return fmt.Errorf("Cannot replace root")
+	if nodeTo == nil {
+		return errors.New("Target node cannot be empty")
 	}
 
-	pf0, psf0, pf1, psf1 := mtree.NewRat(), mtree.NewRat(), mtree.NewRat(), mtree.NewRat()
-	pf0.SetMPath(ppf...)
-	psf0.SetMPath(ppf.Sibling()...)
+	pathFrom := nodeFrom.MPath
+	pathTo := nodeTo.MPath
 
-	pf1.SetMPath(ppt...)
-	psf1.SetMPath(ppt.Sibling()...)
+	mpath1From, mpath2From, mpath3From, mpath4From := prepareMPathParts(nodeFrom)
+	mpath1To, mpath2To, mpath3To, mpath4To := prepareMPathParts(nodeTo)
 
-	var idx uint64
-	m, n := new(big.Int), new(big.Int)
+	nodeFrom.SetName(nodeTo.Name())
+	nodeFrom.SetMPath(pathTo...)
 
-	if idx, err = dao.GetNodeFirstAvailableChildIndex(ppt); err != nil {
-		return fmt.Errorf("Could not retrieve new materialized path " + nodeTo.Path)
-	}
-
-	m.SetUint64(idx)
-	n.SetUint64(uint64(pathFrom[len(pathFrom)-1]))
-
-	p0 := mtree.NewMatrix(pf0.Num(), psf0.Num(), pf0.Denom(), psf0.Denom())
-	p1 := mtree.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
-	toPath := nodeTo.Path
-
-	updateTree, er := dao.GetStmt("updateTree")
-	if er != nil {
-		return er
-	}
-
-	// Update Node MPath/Rat
-	updateRat := func(node *mtree.TreeNode) {
-		M0 := mtree.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
-		M1 := mtree.MoveSubtree(p0, m, p1, n, M0)
-		rat := mtree.NewRat()
-		rat.SetFrac(M1.GetA11(), M1.GetA12())
-		node.SetRat(rat)
-
-		// Update the node name for the root node
-		// Checking the level vs the filenames is one way to check we're at the root
-		filenames := strings.Split(toPath, "/")
-		if node.Level <= len(filenames) {
-			node.SetName(filenames[node.Level-1])
-		}
-	}
-
-	// Single-call DB Update
-	update := func(node *mtree.TreeNode) error {
-		updateRat(node)
-		return dao.SetNode(node)
-	}
-
-	// Transaction-based DB Update
-	updateTx := func(tx *databasesql.Tx, node *mtree.TreeNode) error {
-
-		updateRat(node)
-		mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
-		stmt := tx.Stmt(updateTree)
-		if stmt == nil {
-			return fmt.Errorf("empty TX statement")
-		}
-		_, err := stmt.Exec(
-			node.Level,
-			node.MPath.Hash(),
-			node.Name(),
-			node.IsLeafInt(),
-			node.MTime,
-			node.Etag,
-			node.Size,
-			node.Mode,
-			mpath1,
-			mpath2,
-			mpath3,
-			mpath4,
-			node.Bytes(),
-			node.Uuid,
-		)
+	// Start by updating the original node
+	if err := dao.SetNode(nodeFrom); err != nil {
 		return err
 	}
 
-	// Start by updating the original node
-	if e = update(nodeFrom); e != nil {
-		return
+	// Then replace the children mpaths
+	updateChildren, updateChildrenArgs, err := dao.GetStmtWithArgs("updateReplace",
+		pathFrom.String(),
+		mpath1From, mpath1To,
+		mpath2From, mpath2To,
+		mpath3From, mpath3To,
+		mpath4From, mpath4To,
+	)
+	if err != nil {
+		return err
+	}
+
+	updateChildrenArgs = append([]interface{}{
+		len(pathTo) - len(pathFrom),
+	}, updateChildrenArgs...)
+
+	res, err := updateChildren.Exec(
+		updateChildrenArgs...,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	nrows, err := res.RowsAffected()
+	if err != nil {
+		return err
 	}
 
 	t1 := time.Now()
 	ctx := context.Background()
-	tx, errTx := dao.DB().Begin()
-	if errTx != nil {
-		return errTx
-	}
-	defer func() {
-		if errTx == nil {
-			tx.Commit()
-			log.Logger(ctx).Debug("[MoveNodeTree] Finished committing transaction", zap.Duration("duration", time.Now().Sub(t1)))
-		} else {
-			tx.Rollback()
-			log.Logger(ctx).Error("[MoveNodeTree] Rollback transaction", zap.Duration("duration", time.Now().Sub(t1)))
-			e = errTx
-		}
-	}()
 
-	// Load all children
-	var nodes []*mtree.TreeNode
-	for node := range dao.GetNodeTree(pathFrom, false) {
-		nodes = append(nodes, node)
-	}
-	log.Logger(ctx).Debug("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
-	t1 = time.Now()
-
-	// Update all children in transaction
-	for _, node := range nodes {
-		if errTx = updateTx(tx, node); errTx != nil {
-			break
-		}
-	}
-
-	log.Logger(ctx).Debug("[MoveNodeTree] Finished moving", zap.Int("nodes", len(nodes)+1), zap.Duration("duration", time.Now().Sub(t1)))
-	return
+	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
+	return nil
 }
 
 func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, error) {
 	var (
-		uuid  string
-		rat   []byte
-		level uint32
-		name  string
-		leaf  int32
-		mtime int64
-		etag  string
-		size  int64
-		mode  int32
+		uuid   string
+		mpath1 string
+		mpath2 string
+		mpath3 string
+		mpath4 string
+		level  uint32
+		name   string
+		leaf   int32
+		mtime  int64
+		etag   string
+		size   int64
+		mode   int32
 	)
 
-	if err := row.Scan(&uuid, &level, &rat, &name, &leaf, &mtime, &etag, &size, &mode); err != nil {
+	if err := row.Scan(&uuid, &level, &mpath1, &mpath2, &mpath3, &mpath4, &name, &leaf, &mtime, &etag, &size, &mode); err != nil {
 		return nil, err
 	}
 	nodeType := tree.NodeType_LEAF
@@ -1198,7 +1150,14 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, erro
 	}
 
 	node := mtree.NewTreeNode()
-	node.SetBytes(rat)
+
+	var mpath []uint64
+	for _, m := range strings.Split(mpath1+mpath2+mpath3+mpath4, ".") {
+		i, _ := strconv.ParseUint(m, 10, 64)
+		mpath = append(mpath, i)
+	}
+	node.SetMPath(mpath...)
+	// node.SetBytes(rat)
 
 	metaName, _ := json.Marshal(name)
 	node.Node = &tree.Node{
@@ -1283,11 +1242,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 		node, _ = dao.GetNodeChild(path[0:level], names[level])
 
 		if nil != node {
-			res := new(big.Int)
-
-			res.Sub(node.NV(), p.NV())
-			res.Div(res, p.SNV())
-			path[level] = res.Uint64()
+			path[level] = node.MPath[len(node.MPath)-1]
 			parents[level] = node
 
 			node.Path = strings.Trim(strings.Join(names[0:level], "/"), "/")

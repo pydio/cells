@@ -22,7 +22,6 @@
 package mtree
 
 import (
-	"math/big"
 	"sync"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -33,8 +32,8 @@ type TreeNode struct {
 	*tree.Node
 	mutex *sync.RWMutex
 	MPath MPath
-	rat   *Rat
-	srat  *Rat
+	//rat   *Rat
+	//srat  *Rat
 	Level int
 }
 
@@ -43,8 +42,8 @@ func NewTreeNode() *TreeNode {
 	t := new(TreeNode)
 	t.Node = new(tree.Node)
 	t.MPath = MPath{}
-	t.rat = NewRat()
-	t.srat = NewRat()
+	// t.rat = NewRat()
+	// t.srat = NewRat()
 	t.mutex = &sync.RWMutex{}
 
 	return t
@@ -52,7 +51,6 @@ func NewTreeNode() *TreeNode {
 
 // SetMeta sets a meta using a lock
 func (t *TreeNode) SetMeta(name string, value interface{}) {
-
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
@@ -80,76 +78,76 @@ func (t *TreeNode) Name() string {
 }
 
 // Bytes encoding of the rational
-func (t *TreeNode) Bytes() []byte {
-	b, _ := t.rat.GobEncode()
+// func (t *TreeNode) Bytes() []byte {
+// 	b, _ := t.rat.GobEncode()
 
-	return b
-}
+// 	return b
+// }
 
 // NV represents the numerator value of the rational
-func (t *TreeNode) NV() *big.Int {
-	return t.rat.Num()
-}
+// func (t *TreeNode) NV() *big.Int {
+// 	return t.rat.Num()
+// }
 
-// DV represents the denominator value of the rational
-func (t *TreeNode) DV() *big.Int {
-	return t.rat.Denom()
-}
+// // DV represents the denominator value of the rational
+// func (t *TreeNode) DV() *big.Int {
+// 	return t.rat.Denom()
+// }
 
-// SNV represents the numerator value of the node sibling
-func (t *TreeNode) SNV() *big.Int {
-	return t.srat.Num()
-}
+// // SNV represents the numerator value of the node sibling
+// func (t *TreeNode) SNV() *big.Int {
+// 	return t.srat.Num()
+// }
 
-// SDV represents the denominator value of the node sibling
-func (t *TreeNode) SDV() *big.Int {
-	return t.srat.Denom()
-}
+// // SDV represents the denominator value of the node sibling
+// func (t *TreeNode) SDV() *big.Int {
+// 	return t.srat.Denom()
+// }
 
 // SetMPath triggers the calculation of the rat representation and the sibling rat representation for the node
 func (t *TreeNode) SetMPath(mpath ...uint64) {
 	t.MPath = MPath(mpath)
 
-	smpath := t.MPath.Sibling()
+	// smpath := t.MPath.Sibling()
 
-	t.rat.SetMPath(mpath...)
-	t.srat.SetMPath(smpath...)
+	// t.rat.SetMPath(mpath...)
+	// t.srat.SetMPath(smpath...)
 
 	t.Level = len(mpath)
 }
 
 // SetRat triggers the calculation of the mpath based on the rational value given for the node
-func (t *TreeNode) SetRat(rat *Rat) {
-	mpath := MPath{}
+// func (t *TreeNode) SetRat(rat *Rat) {
+// 	mpath := MPath{}
 
-	for rat.Cmp(rat0.Rat) == 1 {
-		f, _ := rat.Float64()
-		i := int64(f)
-		u := uint64(f)
+// 	for rat.Cmp(rat0.Rat) == 1 {
+// 		f, _ := rat.Float64()
+// 		i := int64(f)
+// 		u := uint64(f)
 
-		mpath = append(mpath, u)
+// 		mpath = append(mpath, u)
 
-		r := NewRat()
-		r.SetFrac(big.NewInt(i), int1)
+// 		r := NewRat()
+// 		r.SetFrac(big.NewInt(i), int1)
 
-		rat.Sub(rat.Rat, r.Rat)
+// 		rat.Sub(rat.Rat, r.Rat)
 
-		if rat.Cmp(rat0.Rat) == 0 {
-			break
-		}
+// 		if rat.Cmp(rat0.Rat) == 0 {
+// 			break
+// 		}
 
-		rat.Inv(rat.Rat)
-		rat.Sub(rat.Rat, rat1.Rat)
-		rat.Inv(rat.Rat)
-	}
+// 		rat.Inv(rat.Rat)
+// 		rat.Sub(rat.Rat, rat1.Rat)
+// 		rat.Inv(rat.Rat)
+// 	}
 
-	t.SetMPath(mpath...)
-}
+// 	t.SetMPath(mpath...)
+// }
 
-// SetBytes decodes the byte representation of the rat and applies it to the current node
-func (t *TreeNode) SetBytes(b []byte) {
-	r := NewRat()
-	r.GobDecode(b)
+// // SetBytes decodes the byte representation of the rat and applies it to the current node
+// func (t *TreeNode) SetBytes(b []byte) {
+// 	r := NewRat()
+// 	r.GobDecode(b)
 
-	t.SetRat(r)
-}
+// 	t.SetRat(r)
+// }

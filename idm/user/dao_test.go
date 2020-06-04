@@ -13,7 +13,7 @@ import (
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -533,7 +533,7 @@ func TestQueryBuilder(t *testing.T) {
 			for _, u := range *users {
 				log.Print(u)
 			}
-			So(users, ShouldHaveLength, 3)
+			So(users, ShouldHaveLength, 2)
 		}
 
 		{

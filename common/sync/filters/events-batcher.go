@@ -208,7 +208,8 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession st
 	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})
 	patch.SetupChannels(ev.statuses, ev.done, ev.cmd)
 	if batchSession != "" {
-		patch.SetSessionData(events[0].CreateContext(ev.globalContext), false, batchSession)
+		//
+		// patch.SetSessionData(events[0].CreateContext(ev.globalContext), false, batchSession)
 	} else if len(events) > 10 {
 		patch.SetSessionData(events[0].CreateContext(ev.globalContext), false)
 	}

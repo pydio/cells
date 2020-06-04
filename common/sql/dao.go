@@ -48,16 +48,20 @@ type DAO interface {
 	UseExclusion()
 	Lock()
 	Unlock()
+
+	// Helper functions for expressions that can differ from one dao to another
+	Concat(...string) string
 }
 
 // Handler for the main functions of the DAO
 type Handler struct {
 	dao.DAO
+	helper Helper
 
 	stmts         map[string]string
 	ifuncs        map[string]func(...interface{}) string // TODO - replace next with this
 	funcs         map[string]func(...string) string      // Queries that need to be run before we get a statement
-	funcsWithArgs map[string]func(...string) (string, []interface{})
+	funcsWithArgs map[string]func(DAO, ...string) (string, []interface{})
 
 	prepared     map[string]*sql.Stmt
 	preparedLock *sync.RWMutex
@@ -71,6 +75,10 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 	if err != nil {
 		return nil
 	}
+	helper, err := newHelper(driver)
+	if err != nil {
+		return nil
+	}
 	// Special case for sqlite, we use a mutex to simulate locking as sqlite's locking is not quite up to the task
 	var mu atomic.Value
 	if driver == "sqlite3" {
@@ -78,10 +86,11 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 	}
 	return &Handler{
 		DAO:           dao.NewDAO(conn, driver, prefix),
+		helper:        helper,
 		stmts:         make(map[string]string),
 		ifuncs:        make(map[string]func(...interface{}) string),
 		funcs:         make(map[string]func(...string) string),
-		funcsWithArgs: make(map[string]func(...string) (string, []interface{})),
+		funcsWithArgs: make(map[string]func(DAO, ...string) (string, []interface{})),
 		prepared:      make(map[string]*sql.Stmt),
 		preparedLock:  new(sync.RWMutex),
 		replacer:      strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
@@ -120,7 +129,7 @@ func (h *Handler) Prepare(key string, query interface{}) error {
 		h.ifuncs[key] = v
 	case func(...string) string:
 		h.funcs[key] = v
-	case func(...string) (string, []interface{}):
+	case func(DAO, ...string) (string, []interface{}):
 		h.funcsWithArgs[key] = v
 	case string:
 		v = h.replacer.Replace(v)
@@ -160,6 +169,7 @@ func (h *Handler) readStmt(query string) *sql.Stmt {
 }
 
 func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
+	//fmt.Println(query)
 	if stmt := h.readStmt(query); stmt != nil {
 		return stmt, nil
 	}
@@ -169,6 +179,7 @@ func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
 
 // GetStmt returns a list of all statements used by the dao
 func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
+
 	if v, ok := h.stmts[key]; ok {
 		return h.getStmt(v)
 	}
@@ -197,7 +208,7 @@ func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt,
 		for _, s := range params {
 			sParams = append(sParams, fmt.Sprintf("%v", s))
 		}
-		query, args := v(sParams...)
+		query, args := v(h, sParams...)
 		query = h.replacer.Replace(query)
 		stmt, err := h.getStmt(query)
 		return stmt, args, err
@@ -219,4 +230,8 @@ func (h *Handler) Unlock() {
 	if current, ok := h.mu.Load().(*sync.Mutex); ok {
 		current.Unlock()
 	}
+}
+
+func (h *Handler) Concat(s ...string) string {
+	return h.helper.Concat(s...)
 }

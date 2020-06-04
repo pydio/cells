@@ -401,6 +401,20 @@ func (d *daocache) DelNode(node *mtree.TreeNode) error {
 
 	delete(d.cache, node.MPath.String())
 
+	// nameCache, ok := d.nameCache[node.Name()]
+	// if !ok {
+	// 	return errors.New("Should have a name in cache")
+	// }
+
+	// var nodes []*mtree.TreeNode
+	// for _, n := range nameCache {
+	// 	if n.MPath.String() != node.MPath.String() {
+	// 		nodes = append(nodes, n)
+	// 	}
+	// }
+
+	// d.nameCache[node.Name()] = nodes
+
 	return nil
 }
 
