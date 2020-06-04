@@ -20,11 +20,9 @@
 
 package mtree
 
-import (
-	"testing"
-
-	. "github.com/smartystreets/goconvey/convey"
-)
+// import (
+// 	. "github.com/smartystreets/goconvey/convey"
+// )
 
 var (
 	mockMPath    MPath
@@ -38,31 +36,31 @@ func init() {
 	mockTreeNode.SetMPath(mockMPath...)
 }
 
-func TestTreeNode(t *testing.T) {
+// func TestTreeNode(t *testing.T) {
 
-	Convey("Test SetRat", t, func() {
-		f := NewFloat()
-		f.SetRat(mockRat.Rat)
+// 	Convey("Test SetRat", t, func() {
+// 		f := NewFloat()
+// 		f.SetRat(mockRat.Rat)
 
-		So(f, ShouldResemble, mockFloat)
-	})
+// 		So(f, ShouldResemble, mockFloat)
+// 	})
 
-	Convey("Test SetRat", t, func() {
-		r := NewRat()
-		r.SetMPath(mockMPath...)
+// 	Convey("Test SetRat", t, func() {
+// 		r := NewRat()
+// 		r.SetMPath(mockMPath...)
 
-		PrintMemUsage("Before first node")
+// 		PrintMemUsage("Before first node")
 
-		n := NewTreeNode()
-		n.SetRat(r)
+// 		n := NewTreeNode()
+// 		n.SetRat(r)
 
-		PrintMemUsage("After first node")
+// 		PrintMemUsage("After first node")
 
-		So(n.MPath, ShouldResemble, mockMPath)
+// 		So(n.MPath, ShouldResemble, mockMPath)
 
-		n1 := NewTreeNode()
-		n1.SetMPath([]uint64(mockMPath)...)
+// 		n1 := NewTreeNode()
+// 		n1.SetMPath([]uint64(mockMPath)...)
 
-		PrintMemUsage("After Second node")
-	})
-}
+// 		PrintMemUsage("After Second node")
+// 	})
+// }
