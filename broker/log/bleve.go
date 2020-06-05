@@ -156,26 +156,29 @@ func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
 	}
 	q = bleve.NewQueryStringQuery(str)
 	req := bleve.NewSearchRequest(q)
-	req.Size = 30
-
-	sr, err := idx.Search(req)
-	if err != nil {
-		fmt.Println(err)
-		return 0, err
-	}
-	//fmt.Printf("Switching to a request of %d size \n", sr.Total)
-	if sr.Total > 30 {
-		req.Size = int(sr.Total)
-		sr, _ = idx.Search(req)
-	}
+	req.Size = 1000
 	var count int64
-	b := idx.NewBatch()
-	for _, hit := range sr.Hits {
-		b.Delete(hit.ID)
-		count++
+
+	for {
+		sr, err := idx.Search(req)
+		if err != nil {
+			fmt.Println(err)
+			return 0, err
+		}
+		b := idx.NewBatch()
+		for _, hit := range sr.Hits {
+			b.Delete(hit.ID)
+			count++
+		}
+		if err := idx.Batch(b); err != nil {
+			return count, err
+		}
+		if sr.Total <= uint64(req.Size) {
+			break
+		}
 	}
 
-	return count, idx.Batch(b)
+	return count, nil
 }
 
 // MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
