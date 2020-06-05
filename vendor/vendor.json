@@ -930,10 +930,12 @@
 			"revisionTime": "2018-03-08T21:23:07Z"
 		},
 		{
-			"checksumSHA1": "ySzd4wbbkGYl9Ch1dJbJOAmNXWQ=",
+			"checksumSHA1": "EC/J7WzcgmFxFwkZL0qqWxEO9bk=",
 			"path": "github.com/etcd-io/bbolt",
-			"revision": "63597a96ec0ad9e6d43c3fc81e809909e0237461",
-			"revisionTime": "2019-01-28T18:11:30Z"
+			"revision": "68cc10a767ea1c6b9e8dcb9847317ff192d6d974",
+			"revisionTime": "2020-03-19T20:29:37Z",
+			"version": "v1.3.4",
+			"versionExact": "v1.3.4"
 		},
 		{
 			"checksumSHA1": "XEBl9iQQvfXNlwCSzyAOCqAlYEA=",
