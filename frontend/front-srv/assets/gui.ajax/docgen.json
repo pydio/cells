@@ -9487,6 +9487,20 @@
             "returns": null
           },
           {
+            "name": "pause",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "resume",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "uploadPart",
             "docblock": null,
             "modifiers": [],
@@ -9532,15 +9546,19 @@
           },
           {
             "name": "getRestClient",
-            "docblock": "@return {JwtApiClient}",
+            "docblock": "@return {RestClient}",
             "modifiers": [
               "static"
             ],
-            "params": [],
+            "params": [
+              {
+                "name": "options"
+              }
+            ],
             "returns": {
               "description": null,
               "type": {
-                "name": "JwtApiClient"
+                "name": "RestClient"
               }
             },
             "description": null
@@ -10901,6 +10919,9 @@
                 "name": "pydioObject",
                 "description": "{Pydio}",
                 "type": null
+              },
+              {
+                "name": "options"
               }
             ],
             "returns": null,
@@ -10928,9 +10949,7 @@
           {
             "name": "get",
             "docblock": "Get current JWT Token",
-            "modifiers": [
-              "static"
-            ],
+            "modifiers": [],
             "params": [],
             "returns": null,
             "description": "Get current JWT Token"
@@ -10938,9 +10957,7 @@
           {
             "name": "store",
             "docblock": null,
-            "modifiers": [
-              "static"
-            ],
+            "modifiers": [],
             "params": [
               {
                 "name": "token",
@@ -10952,9 +10969,14 @@
           {
             "name": "remove",
             "docblock": null,
-            "modifiers": [
-              "static"
-            ],
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "tokenKey",
+            "docblock": null,
+            "modifiers": [],
             "params": [],
             "returns": null
           },

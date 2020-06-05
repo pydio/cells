@@ -125,7 +125,8 @@ var PydioDataModel = (function (_Observable) {
   */
 
 	PydioDataModel.prototype.requireContextChange = function requireContextChange(ajxpNode) {
-		var _this = this;
+		var _this = this,
+		    _arguments = arguments;
 
 		var forceReload = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
@@ -140,24 +141,24 @@ var PydioDataModel = (function (_Observable) {
 			paginationPage = ajxpNode.getMetadata().get('paginationData').get('new_page');
 			forceReload = true;
 		}
-		if (ajxpNode != this._rootNode && (!ajxpNode.getParent() || ajxpNode.fake)) {
+		if (ajxpNode !== this._rootNode && (!ajxpNode.getParent() || ajxpNode.fake)) {
 			// Find in arbo or build fake arbo
 			var fakeNodes = [];
 			ajxpNode = ajxpNode.findInArbo(this._rootNode, fakeNodes);
 			if (fakeNodes.length) {
 				var _ret = (function () {
 					var firstFake = fakeNodes.shift();
-					firstFake.observeOnce("first_load", (function (e) {
-						this.requireContextChange(ajxpNode);
-					}).bind(_this));
-					firstFake.observeOnce("error", (function (message) {
+					firstFake.observeOnce("first_load", function (e) {
+						_this.requireContextChange(ajxpNode);
+					});
+					firstFake.observeOnce("error", function (message) {
 						_langLogger2['default'].error(message);
 						firstFake.notify("node_removed");
 						var parent = firstFake.getParent();
 						parent.removeChild(firstFake);
 						//delete(firstFake);
-						this.requireContextChange(parent);
-					}).bind(_this));
+						_this.requireContextChange(parent);
+					});
 					_this.publish("context_loading");
 					firstFake.load(_this._iAjxpNodeProvider);
 					return {
@@ -168,35 +169,27 @@ var PydioDataModel = (function (_Observable) {
 				if (typeof _ret === 'object') return _ret.v;
 			}
 		}
-		ajxpNode.observeOnce("loaded", (function () {
-			this.setContextNode(ajxpNode, true);
-			this.publish("context_loaded");
-			if (this.getPendingSelection()) {
-				var selPath = ajxpNode.getPath() + (ajxpNode.getPath() == "/" ? "" : "/") + this.getPendingSelection();
+		ajxpNode.observeOnce("loaded", function () {
+			_this.setContextNode(ajxpNode, true);
+			_this.publish("context_loaded");
+			if (_this.getPendingSelection()) {
+				var selPath = ajxpNode.getPath() + (ajxpNode.getPath() === "/" ? "" : "/") + _this.getPendingSelection();
 				var selNode = ajxpNode.findChildByPath(selPath);
 				if (selNode) {
-					this.setSelectedNodes([selNode], this);
-				} else {
-					if (ajxpNode.getMetadata().get("paginationData") && arguments.length < 3) {
-						var newPage = undefined;
-						var currentPage = ajxpNode.getMetadata().get("paginationData").get("current");
-						this.loadPathInfoSync(selPath, function (foundNode) {
-							newPage = foundNode.getMetadata().get("page_position");
-						}, { page_position: 'true' });
-						if (newPage && newPage !== currentPage) {
-							ajxpNode.getMetadata().get("paginationData").set("new_page", newPage);
-							this.requireContextChange(ajxpNode, true, true);
-							return;
-						}
-					}
+					_this.setSelectedNodes([selNode], _this);
+				} else if (ajxpNode.getMetadata().get("paginationData") && _arguments.length < 3) {
+					_this.loadPathInfoSync(selPath, function (foundNode) {
+						ajxpNode.addChild(foundNode);
+						_this.setSelectedNodes([foundNode], _this);
+					});
 				}
-				this.clearPendingSelection();
+				_this.clearPendingSelection();
 			}
-		}).bind(this));
-		ajxpNode.observeOnce("error", (function (message) {
+		});
+		ajxpNode.observeOnce("error", function (message) {
 			_langLogger2['default'].error(message);
-			this.publish("context_loaded");
-		}).bind(this));
+			_this.publish("context_loaded");
+		});
 		this.publish("context_loading");
 		try {
 			if (forceReload) {

@@ -42,10 +42,6 @@ var _SearchScopeSelector = require('./SearchScopeSelector');
 
 var _SearchScopeSelector2 = _interopRequireDefault(_SearchScopeSelector);
 
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _materialUiStyles = require('material-ui/styles');
 
 /**
@@ -200,7 +196,7 @@ var MainSearch = (function (_Component) {
                 mode === 'advanced' && loading && _react2['default'].createElement(
                     'div',
                     { style: { marginRight: 10 } },
-                    _react2['default'].createElement(_materialUi.CircularProgress, { size: 20, thickness: 3 })
+                    _react2['default'].createElement(_materialUi.CircularProgress, { size: 20, thickness: 2 })
                 ),
                 _react2['default'].createElement('span', { className: 'panel-header-close mdi mdi-close', onClick: this.props.onClose })
             ),
@@ -230,8 +226,8 @@ var MainSearch = (function (_Component) {
                 }),
                 loading && _react2['default'].createElement(
                     'div',
-                    { style: { marginTop: 9, marginRight: 9 } },
-                    _react2['default'].createElement(_materialUi.CircularProgress, { size: 20, thickness: 3 })
+                    { style: { marginTop: 7, marginRight: 9 } },
+                    _react2['default'].createElement(_materialUi.CircularProgress, { size: 20, thickness: 2 })
                 )
             )
         );

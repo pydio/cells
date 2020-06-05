@@ -96,57 +96,49 @@ export default class PydioDataModel extends Observable{
 				paginationPage = ajxpNode.getMetadata().get('paginationData').get('new_page');
 				forceReload = true;
 		}
-		if(ajxpNode != this._rootNode && (!ajxpNode.getParent() || ajxpNode.fake)){
+		if(ajxpNode !== this._rootNode && (!ajxpNode.getParent() || ajxpNode.fake)){
 			// Find in arbo or build fake arbo
 			let fakeNodes = [];
 			ajxpNode = ajxpNode.findInArbo(this._rootNode, fakeNodes);
 			if(fakeNodes.length){
 				const firstFake = fakeNodes.shift();
-				firstFake.observeOnce("first_load", function(e){
+				firstFake.observeOnce("first_load", (e) => {
 					this.requireContextChange(ajxpNode);
-				}.bind(this));
-				firstFake.observeOnce("error", function(message){
+				});
+				firstFake.observeOnce("error", (message) => {
 					Logger.error(message);
 					firstFake.notify("node_removed");
 					const parent = firstFake.getParent();
 					parent.removeChild(firstFake);
 					//delete(firstFake);
 					this.requireContextChange(parent);
-				}.bind(this) );
+				});
 				this.publish("context_loading");
 				firstFake.load(this._iAjxpNodeProvider);
 				return;
 			}
 		}
-		ajxpNode.observeOnce("loaded", function(){
+		ajxpNode.observeOnce("loaded", () => {
 			this.setContextNode(ajxpNode, true);
 			this.publish("context_loaded");
             if(this.getPendingSelection()){
-                const selPath = ajxpNode.getPath() + (ajxpNode.getPath() == "/" ? "" : "/" ) +this.getPendingSelection();
+                const selPath = ajxpNode.getPath() + (ajxpNode.getPath() === "/" ? "" : "/" ) +this.getPendingSelection();
                 const selNode =  ajxpNode.findChildByPath(selPath);
                 if(selNode) {
                     this.setSelectedNodes([selNode], this);
-                }else{
-                    if(ajxpNode.getMetadata().get("paginationData") && arguments.length < 3){
-                        let newPage;
-                        let currentPage = ajxpNode.getMetadata().get("paginationData").get("current");
-                        this.loadPathInfoSync(selPath, function(foundNode){
-                            newPage = foundNode.getMetadata().get("page_position");
-                        }, {page_position:'true'});
-                        if(newPage && newPage !== currentPage){
-                            ajxpNode.getMetadata().get("paginationData").set("new_page", newPage);
-                            this.requireContextChange(ajxpNode, true, true);
-                            return;
-                        }
-                    }
+                }else if(ajxpNode.getMetadata().get("paginationData") && arguments.length < 3){
+                    this.loadPathInfoSync(selPath, (foundNode) => {
+                        ajxpNode.addChild(foundNode);
+                        this.setSelectedNodes([foundNode], this);
+                    });
                 }
                 this.clearPendingSelection();
             }
-		}.bind(this));
-		ajxpNode.observeOnce("error", function(message){
+		});
+		ajxpNode.observeOnce("error", (message) => {
             Logger.error(message);
 			this.publish("context_loaded");
-		}.bind(this));
+		});
 		this.publish("context_loading");
 		try{
 			if(forceReload){

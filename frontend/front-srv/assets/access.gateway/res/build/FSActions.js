@@ -1489,6 +1489,8 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
@@ -1638,13 +1640,20 @@ var TreeDialog = _react2['default'].createClass({
         var wsSelector = _react2['default'].createElement('div', { style: { height: 30 } });
         if (user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()) {
             (function () {
+                var menuItems = [];
                 var items = [];
                 if (user.canWrite()) {
-                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { key: 'current', value: '__CURRENT__', primaryText: _this2.props.pydio.MessageHash[372] }));
+                    menuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { key: 'current', value: '__CURRENT__', primaryText: _this2.props.pydio.MessageHash[372] }));
                 }
                 user.getCrossRepositories().forEach(function (repo, key) {
-                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { key: key, value: key, primaryText: repo.getLabel() }));
+                    items.push({ label: repo.getLabel(), item: _react2['default'].createElement(_materialUi.MenuItem, { key: key, value: key, primaryText: repo.getLabel() }) });
                 });
+                items.sort(function (a, b) {
+                    return a.label.localeCompare(b.label, undefined, { numeric: true });
+                });
+                menuItems = [].concat(_toConsumableArray(menuItems), _toConsumableArray(items.map(function (i) {
+                    return i.item;
+                })));
                 wsSelector = _react2['default'].createElement(
                     'div',
                     null,
@@ -1656,13 +1665,11 @@ var TreeDialog = _react2['default'].createClass({
                             value: _this2.state.wsId,
                             onChange: _this2.handleRepositoryChange
                         },
-                        items
+                        menuItems
                     )
                 );
             })();
         }
-        var openStyle = { flex: 1, width: '100%' };
-        var closeStyle = { width: 0 };
         var newFolderFormOpen = this.state.newFolderFormOpen;
 
         return _react2['default'].createElement(

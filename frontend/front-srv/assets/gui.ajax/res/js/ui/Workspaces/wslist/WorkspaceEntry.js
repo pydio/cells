@@ -318,6 +318,9 @@ let WorkspaceEntry =React.createClass({
         if(workspace.getId() === pydio.user.activeRepository ) {
             menuNode = pydio.getContextHolder().getRootNode();
             if (showFoldersTree) {
+                if(menuNode.isLoading()){
+                    menuNode.observeOnce("loaded", () => {this.forceUpdate()});
+                }
                 const children = menuNode.getChildren();
                 let hasFolders = false;
                 children.forEach(c => {
@@ -346,7 +349,7 @@ let WorkspaceEntry =React.createClass({
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
 
         if(loading){
-            additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
+            additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         } else {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){

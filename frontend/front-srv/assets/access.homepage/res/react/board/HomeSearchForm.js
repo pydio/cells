@@ -142,7 +142,7 @@ class HomeSearchForm extends Component{
                         onBlur={()=>{this.setState({searchFocus: false})}}
                     />
                     {loading &&
-                        <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={3}/></div>
+                        <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>
                     }
                     {queryString && !loading &&
                         <FontIcon className="mdi mdi-close" style={styles.close} onTouchTap={()=>this.update('')}/>

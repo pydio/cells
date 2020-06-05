@@ -231,7 +231,7 @@ var HomeSearchForm = (function (_Component) {
                     loading && React.createElement(
                         'div',
                         { style: { marginTop: 14, marginRight: 8 } },
-                        React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3 })
+                        React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2 })
                     ),
                     queryString && !loading && React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-close', style: styles.close, onTouchTap: function () {
                             return _this3.update('');

@@ -48,6 +48,14 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioModelEmptyNodeProvider = require('pydio/model/empty-node-provider');
+
+var _pydioModelEmptyNodeProvider2 = _interopRequireDefault(_pydioModelEmptyNodeProvider);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
@@ -67,8 +75,6 @@ var _MainSearch2 = _interopRequireDefault(_MainSearch);
 var _materialUi = require('material-ui');
 
 var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
 
 /**
  * Multi-state search component
@@ -93,31 +99,34 @@ var SearchForm = (function (_Component) {
         _Component.call(this, props);
 
         // Create Fake DM
-        this._basicDataModel = new PydioDataModel(true);
-        var rNodeProvider = new EmptyNodeProvider();
-        this._basicDataModel.setAjxpNodeProvider(rNodeProvider);
-        var rootNode = new AjxpNode("/", false, '', '', rNodeProvider);
-        this._basicDataModel.setRootNode(rootNode);
+        var clearDataModel = function clearDataModel() {
+            var basicDataModel = new PydioDataModel(true);
+            var rNodeProvider = new _pydioModelEmptyNodeProvider2['default']();
+            basicDataModel.setAjxpNodeProvider(rNodeProvider);
+            var rootNode = new _pydioModelNode2['default']("/", false, '', '', rNodeProvider);
+            basicDataModel.setRootNode(rootNode);
+            return basicDataModel;
+        };
 
         this.state = {
             values: props.advancedPanel && props.values ? props.values : {},
             display: props.advancedPanel ? 'advanced' : 'closed',
-            dataModel: this._basicDataModel,
+            dataModel: clearDataModel(),
             empty: true,
             loading: false,
             searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
         };
 
-        this.setMode = _lodash2['default'].debounce(this.setMode, 250);
-        this.update = _lodash2['default'].debounce(this.update, 500);
-        this.submit = _lodash2['default'].debounce(this.submit, 500);
+        this.setMode = _lodash.debounce(this.setMode, 250);
+        this.update = _lodash.debounce(this.update, 500);
+        this.submit = _lodash.debounce(this.submit, 500);
 
         this.props.pydio.observe('repository_list_refreshed', function () {
             if (!props.advancedPanel) {
                 _this.setState({
                     values: {},
                     display: 'closed',
-                    dataModel: _this._basicDataModel,
+                    dataModel: clearDataModel(),
                     empty: true,
                     loading: false
                 });

@@ -26,6 +26,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _utilDND = require('../util/DND');
 
 var _react = require('react');
@@ -37,6 +41,8 @@ var _pydio = require('pydio');
 var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -148,8 +154,22 @@ var SimpleTreeNode = _react2['default'].createClass({
     _nodeToChildren: function _nodeToChildren() {
         var children = [];
         this.props.node.getChildren().forEach(function (c) {
-            if (!c.isLeaf() || c.getAjxpMime() === 'ajxp_browsable_archive') children.push(c);
+            if (!c.isLeaf() || c.getAjxpMime() === 'ajxp_browsable_archive') {
+                children.push(c);
+            }
         });
+        var sortFunction = function sortFunction(nodeA, nodeB) {
+            // Recycle always last
+            if (nodeA.isRecycle()) {
+                return 1;
+            }
+            if (nodeB.isRecycle()) {
+                return -1;
+            }
+            return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, { numeric: true });
+        };
+        children.sort(sortFunction);
+
         return children;
     },
 
@@ -175,6 +195,7 @@ var SimpleTreeNode = _react2['default'].createClass({
 
         var _props = this.props;
         var node = _props.node;
+        var dataModel = _props.dataModel;
         var childrenOnly = _props.childrenOnly;
         var canDrop = _props.canDrop;
         var isOverCurrent = _props.isOverCurrent;
@@ -317,6 +338,7 @@ var SimpleTreeNode = _react2['default'].createClass({
             _react2['default'].createElement(
                 'ul',
                 null,
+                node.getMetadata().has('paginationData') && _react2['default'].createElement(TreePaginator, { node: node, dataModel: dataModel, depth: depth + 1, paddingOffset: paddingOffset }),
                 children
             )
         );
@@ -329,6 +351,72 @@ if (window.ReactDND) {
 } else {
     DragDropTreeNode = SimpleTreeNode;
 }
+
+var TreePaginator = (function (_React$Component) {
+    _inherits(TreePaginator, _React$Component);
+
+    function TreePaginator() {
+        _classCallCheck(this, TreePaginator);
+
+        _React$Component.apply(this, arguments);
+    }
+
+    TreePaginator.prototype.goTo = function goTo(i) {
+        var _props2 = this.props;
+        var dataModel = _props2.dataModel;
+        var node = _props2.node;
+
+        node.getMetadata().get('paginationData').set('current', i);
+        node.reload(dataModel.getAjxpNodeProvider());
+    };
+
+    TreePaginator.prototype.render = function render() {
+        var _this2 = this;
+
+        var _props3 = this.props;
+        var node = _props3.node;
+        var depth = _props3.depth;
+        var paddingOffset = _props3.paddingOffset;
+        var muiTheme = _props3.muiTheme;
+
+        var icProps = {
+            style: { width: 24, height: 24, padding: 0 }
+        };
+        var data = node.getMetadata().get('paginationData');
+        var crt = data.get('current');
+        var total = data.get('total');
+        var pageWord = _pydio2['default'].getMessages()['331'];
+        var label = pageWord + ' ' + crt + ' / ' + total;
+        return _react2['default'].createElement(
+            'li',
+            null,
+            _react2['default'].createElement(
+                'div',
+                { style: { paddingLeft: paddingOffset + depth * 20, paddingTop: 5, paddingBottom: 5, display: 'flex', alignItems: 'center' } },
+                _react2['default'].createElement('div', { style: { paddingLeft: 14, paddingRight: 6, color: 'rgba(0,0,0,.43)' }, className: "mdi mdi-format-list-bulleted" }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', color: 'rgba(0,0,0,.73)', backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 3, marginRight: 10 } },
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", onTouchTap: function () {
+                            _this2.goTo(crt - 1);
+                        }, disabled: crt === 1 }, icProps)),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '0 20px', flex: 1, textAlign: 'center', fontSize: 13 } },
+                        label
+                    ),
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", onTouchTap: function () {
+                            _this2.goTo(crt + 1);
+                        }, disabled: crt === total }, icProps))
+                )
+            )
+        );
+    };
+
+    return TreePaginator;
+})(_react2['default'].Component);
+
+TreePaginator = _materialUiStyles.muiThemeable()(TreePaginator);
 
 /**
  * Simple openable / loadable tree taking AjxpNode as inputs

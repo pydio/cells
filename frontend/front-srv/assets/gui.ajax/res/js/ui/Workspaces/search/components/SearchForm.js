@@ -22,19 +22,22 @@ import React, {Component} from 'react'
 
 import FilePreview from '../../views/FilePreview'
 import AdvancedSearch from './AdvancedSearch'
+
 import Pydio from 'pydio'
+import AjxpNode from 'pydio/model/node'
+import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 import LangUtils from 'pydio/util/lang'
 import SearchApi from 'pydio/http/search-api'
 
-const {EmptyStateView} = Pydio.requireLib('components')
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+const {EmptyStateView} = Pydio.requireLib('components');
+const {PydioContextConsumer} = require('pydio').requireLib('boot');
 
 import SearchScopeSelector from './SearchScopeSelector'
 import MainSearch from './MainSearch'
 
 import {Paper, FlatButton, IconButton} from 'material-ui';
 
-import _ from 'lodash';
+import {debounce} from 'lodash';
 
 /**
  * Multi-state search component
@@ -45,31 +48,34 @@ class SearchForm extends Component {
         super(props);
 
         // Create Fake DM
-        this._basicDataModel = new PydioDataModel(true);
-        let rNodeProvider = new EmptyNodeProvider();
-        this._basicDataModel.setAjxpNodeProvider(rNodeProvider);
-        const rootNode = new AjxpNode("/", false, '', '', rNodeProvider);
-        this._basicDataModel.setRootNode(rootNode);
+        const clearDataModel = () => {
+            const basicDataModel = new PydioDataModel(true);
+            let rNodeProvider = new EmptyNodeProvider();
+            basicDataModel.setAjxpNodeProvider(rNodeProvider);
+            const rootNode = new AjxpNode("/", false, '', '', rNodeProvider);
+            basicDataModel.setRootNode(rootNode);
+            return basicDataModel;
+        };
 
         this.state = {
             values: (props.advancedPanel && props.values ? props.values : {}),
             display: props.advancedPanel ? 'advanced' : 'closed',
-            dataModel: this._basicDataModel,
+            dataModel: clearDataModel(),
             empty: true,
             loading: false,
             searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
         };
 
-        this.setMode = _.debounce(this.setMode, 250);
-        this.update = _.debounce(this.update, 500);
-        this.submit = _.debounce(this.submit, 500);
+        this.setMode = debounce(this.setMode, 250);
+        this.update = debounce(this.update, 500);
+        this.submit = debounce(this.submit, 500);
 
         this.props.pydio.observe('repository_list_refreshed', () => {
             if(!props.advancedPanel){
                 this.setState({
                     values: {},
                     display:'closed',
-                    dataModel: this._basicDataModel,
+                    dataModel: clearDataModel(),
                     empty: true,
                     loading: false
                 });

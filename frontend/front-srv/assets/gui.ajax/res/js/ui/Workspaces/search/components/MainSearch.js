@@ -21,8 +21,7 @@
 import React, {Component, PropTypes} from 'react'
 import {FontIcon, TextField, CircularProgress, FlatButton} from 'material-ui';
 import SearchScopeSelector from './SearchScopeSelector'
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
-import _ from 'lodash';
+const {PydioContextConsumer} = require('pydio').requireLib('boot');
 import {muiThemeable} from 'material-ui/styles'
 
 /**
@@ -135,7 +134,7 @@ class MainSearch extends Component {
                     <FlatButton style={{textTransform:'none', color:'white', fontSize:15, marginTop:-5, padding:'0 16px'}} onTouchTap={mode === 'advanced' ? onMore : onAdvanced}>{mode === 'advanced' ? '- ' + getMessage(606) : '+ ' + getMessage(605)}</FlatButton>
                     }
                     {mode === 'advanced' && loading &&
-                    <div style={{marginRight: 10}} ><CircularProgress size={20} thickness={3}/></div>
+                    <div style={{marginRight: 10}} ><CircularProgress size={20} thickness={2}/></div>
                     }
                     <span className="panel-header-close mdi mdi-close" onClick={this.props.onClose}></span>
                 </div>
@@ -161,7 +160,7 @@ class MainSearch extends Component {
                     />
 
                     {loading &&
-                    <div style={{marginTop:9, marginRight: 9}} ><CircularProgress size={20} thickness={3}/></div>
+                    <div style={{marginTop:7, marginRight: 9}} ><CircularProgress size={20} thickness={2}/></div>
                     }
                 </div>
                 }

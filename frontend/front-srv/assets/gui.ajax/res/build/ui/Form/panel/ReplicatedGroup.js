@@ -156,7 +156,7 @@ var ReplicatedGroup = (function (_Component) {
                 values: subValues,
                 onChange: null,
                 className: 'replicable-group',
-                depth: depth
+                depth: -1
             }))
         );
     };

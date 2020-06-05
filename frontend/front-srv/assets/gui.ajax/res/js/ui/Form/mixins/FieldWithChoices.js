@@ -69,14 +69,18 @@ export default function (PydioComponent){
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);
             } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
-                    const sorter = []
+                    const sorter = [];
+                    const pages = [];
                     pydio.user.repositories.forEach(function (repository) {
-                        if(repository.getRepositoryType() !== "cell"){
+                        if(repository.getId() === 'settings' || repository.getId() === 'homepage'){
+                            pages.push({id: repository.getId(), label: '['+pydio.MessageHash['331']+'] ' + repository.getLabel()});
+                        } else if(repository.getRepositoryType() !== "cell"){
                             sorter.push({id:repository.getId(), label:repository.getLabel()});
-                            //output.set(repository.getId(), repository.getLabel());
                         }
                     });
-                    sorter.sort((a,b)=> a.label > b.label? 1 : -1);
+                    console.log(sorter);
+                    sorter.sort((a,b)=> a.label.localeCompare(b.label, undefined, {numeric: true}));
+                    sorter.push(...pages);
                     sorter.forEach(d => output.set(d.id, d.label));
                 }
                 if (this.onChoicesLoaded) {

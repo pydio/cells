@@ -384,6 +384,11 @@ var WorkspaceEntry = React.createClass({
         if (workspace.getId() === pydio.user.activeRepository) {
             menuNode = pydio.getContextHolder().getRootNode();
             if (showFoldersTree) {
+                if (menuNode.isLoading()) {
+                    menuNode.observeOnce("loaded", function () {
+                        _this3.forceUpdate();
+                    });
+                }
                 var children = menuNode.getChildren();
                 var hasFolders = false;
                 children.forEach(function (c) {
@@ -417,7 +422,7 @@ var WorkspaceEntry = React.createClass({
         var loading = _state.loading;
 
         if (loading) {
-            additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
+            additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
         } else {
             var addStyle = popoverOpen ? { opacity: 1 } : {};
             if (popoverOpen) {

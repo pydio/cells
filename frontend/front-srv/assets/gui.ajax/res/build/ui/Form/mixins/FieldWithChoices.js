@@ -88,15 +88,19 @@ exports['default'] = function (PydioComponent) {
                 if (pydio.user) {
                     (function () {
                         var sorter = [];
+                        var pages = [];
                         pydio.user.repositories.forEach(function (repository) {
-                            if (repository.getRepositoryType() !== "cell") {
+                            if (repository.getId() === 'settings' || repository.getId() === 'homepage') {
+                                pages.push({ id: repository.getId(), label: '[' + pydio.MessageHash['331'] + '] ' + repository.getLabel() });
+                            } else if (repository.getRepositoryType() !== "cell") {
                                 sorter.push({ id: repository.getId(), label: repository.getLabel() });
-                                //output.set(repository.getId(), repository.getLabel());
                             }
                         });
+                        console.log(sorter);
                         sorter.sort(function (a, b) {
-                            return a.label > b.label ? 1 : -1;
+                            return a.label.localeCompare(b.label, undefined, { numeric: true });
                         });
+                        sorter.push.apply(sorter, pages);
                         sorter.forEach(function (d) {
                             return output.set(d.id, d.label);
                         });

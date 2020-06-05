@@ -21,8 +21,9 @@
 import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget} from '../util/DND'
 import React from 'react';
 import Pydio from 'pydio';
-import {Checkbox} from 'material-ui'
+import {Checkbox, IconButton} from 'material-ui'
 const {withContextMenu} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 let ContextMenuWrapper = (props) => {
     return (
@@ -128,8 +129,22 @@ var SimpleTreeNode = React.createClass({
     _nodeToChildren:function(){
         var children = [];
         this.props.node.getChildren().forEach(function(c){
-            if(!c.isLeaf() || c.getAjxpMime() === 'ajxp_browsable_archive') children.push(c);
+            if(!c.isLeaf() || c.getAjxpMime() === 'ajxp_browsable_archive') {
+                children.push(c);
+            }
         });
+        const sortFunction = (nodeA, nodeB) => {
+            // Recycle always last
+            if(nodeA.isRecycle()) {
+                return 1;
+            }
+            if(nodeB.isRecycle()) {
+                return -1;
+            }
+            return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
+        };
+        children.sort(sortFunction);
+
         return children;
     },
 
@@ -152,7 +167,7 @@ var SimpleTreeNode = React.createClass({
         else return (this.props.dataModel.getSelectedNodes().indexOf(n) !== -1);
     },
     render: function () {
-        const {node, childrenOnly, canDrop, isOverCurrent,
+        const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
             depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel} = this.props;
         var hasFolderChildrens = this.state.children.length?true:false;
@@ -269,6 +284,7 @@ var SimpleTreeNode = React.createClass({
             <li ref={connector} className={"treenode" + node.getPath().replace(/\//g, '_')}>
                 {selfLabel}
                 <ul>
+                    {node.getMetadata().has('paginationData') && <TreePaginator node={node} dataModel={dataModel} depth={depth+1} paddingOffset={paddingOffset}/>}
                     {children}
                 </ul>
             </li>
@@ -286,7 +302,41 @@ if(window.ReactDND){
     DragDropTreeNode = SimpleTreeNode;
 }
 
+class TreePaginator extends React.Component {
 
+    goTo(i){
+        const {dataModel, node} = this.props;
+        node.getMetadata().get('paginationData').set('current', i);
+        node.reload(dataModel.getAjxpNodeProvider());
+    }
+
+    render(){
+        const {node, depth, paddingOffset, muiTheme} = this.props;
+        const icProps = {
+            style:{width: 24, height: 24, padding: 0}
+        };
+        const data = node.getMetadata().get('paginationData');
+        const crt = data.get('current');
+        const total = data.get('total');
+        const pageWord = Pydio.getMessages()['331'];
+        const label = pageWord + ' ' + crt + ' / ' + total;
+        return (
+            <li>
+                <div style={{paddingLeft: paddingOffset + depth * 20, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
+                    <div style={{paddingLeft: 14, paddingRight: 6, color: 'rgba(0,0,0,.43)'}} className={"mdi mdi-format-list-bulleted"}/>
+                    <div style={{display:'flex', alignItems:'center', color:'rgba(0,0,0,.73)', backgroundColor:'rgba(0,0,0,0.02)', borderRadius: 3, marginRight: 10}}>
+                        <IconButton iconClassName={"mdi mdi-chevron-left"} onTouchTap={()=>{this.goTo(crt -1 )}} disabled={crt === 1} {...icProps}/>
+                        <div style={{padding: '0 20px', flex:1, textAlign:'center', fontSize: 13}}>{label}</div>
+                        <IconButton iconClassName={"mdi mdi-chevron-right"} onTouchTap={()=>{this.goTo(crt + 1 )}} disabled={crt === total} {...icProps}/>
+                    </div>
+                </div>
+            </li>
+        );
+    }
+
+}
+
+TreePaginator = muiThemeable()(TreePaginator);
 
 
 /**

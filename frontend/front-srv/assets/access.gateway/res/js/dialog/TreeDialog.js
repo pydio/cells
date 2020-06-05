@@ -139,13 +139,16 @@ const TreeDialog = React.createClass({
         let user = this.props.pydio.user;
         let wsSelector = <div style={{height: 30}}/> ;
         if(user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()){
+            let menuItems = [];
             let items = [];
             if(user.canWrite()){
-                items.push(<MenuItem key={'current'} value={'__CURRENT__'} primaryText={this.props.pydio.MessageHash[372]} />);
+                menuItems.push(<MenuItem key={'current'} value={'__CURRENT__'} primaryText={this.props.pydio.MessageHash[372]} />);
             }
             user.getCrossRepositories().forEach(function(repo, key){
-                items.push(<MenuItem key={key} value={key} primaryText={repo.getLabel()} />);
+                items.push({label:repo.getLabel(), item: <MenuItem key={key} value={key} primaryText={repo.getLabel()} />});
             });
+            items.sort((a,b) => a.label.localeCompare(b.label, undefined, {numeric: true}));
+            menuItems = [...menuItems, ...items.map(i => i.item)];
             wsSelector = (
                 <div>
                     <ModernSelectField
@@ -154,13 +157,11 @@ const TreeDialog = React.createClass({
                         value={this.state.wsId}
                         onChange={this.handleRepositoryChange}
                     >
-                        {items}
+                        {menuItems}
                     </ModernSelectField>
                 </div>
             );
         }
-        let openStyle = {flex:1,width:'100%'};
-        let closeStyle = {width:0};
         const {newFolderFormOpen} = this.state;
         return (
             <div style={{width:'100%', paddingTop: 18}}>
