@@ -79,8 +79,8 @@ func Init() {
 			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   filepath.Join(logDir, "pydio.log"),
-				MaxSize:    500, // megabytes
-				MaxBackups: 3,
+				MaxSize:    10, // megabytes
+				MaxBackups: 100,
 				MaxAge:     28, // days
 			})
 
