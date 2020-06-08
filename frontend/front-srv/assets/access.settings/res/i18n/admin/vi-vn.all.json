@@ -168,7 +168,7 @@
     "other": "Hãy chắc chắn để chọn một thư mục hai cấp. Lưu trữ đối tượng sẽ bắt đầu trên thư mục cha."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Thư mục được hiển thị dưới dạng S3 bucket và phải tuân theo cách đặt tên DNS."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Local Folder"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Create Folder"

@@ -168,7 +168,7 @@
     "other": "Achten Sie darauf, einen zwei-Ebenen-Tiefe-Ordner auswählen. Der Objektspeicher wird im übergeordneten Ordner gestartet."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Der Ordner wird als S3-Bucket bereitgestellt und muss den DNS-Namen entsprechen."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Lokaler Ordner"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer-Adresse"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Ordner erstellen"
