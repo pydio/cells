@@ -347,8 +347,7 @@ class DataSourceEditor extends React.Component{
                             <div style={styles.legend}>{m('storage.legend.azure')}</div>
                             <ModernTextField fullWidth={true}  hintText={m('storage.azure.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
                             <ModernTextField fullWidth={true} hintText={m('storage.azure.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
-                            <ModernTextField fullWidth={true} hintText={m('storage.azure.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
-                            <ModernTextField fullWidth={true} hintText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
+                            <ModernTextField fullWidth={true} type={"password"} hintText={m('storage.azure.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                         </div>
                     }
                     {model.StorageType === 'GCS' &&

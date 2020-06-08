@@ -20756,11 +20756,8 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, type: "password", hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
-                                model.ObjectsBaseFolder = v;
                             } })
                     ),
                     model.StorageType === 'GCS' && _react2['default'].createElement(
