@@ -45,10 +45,10 @@
     "other": "Benutzerdefinierte Metadaten aktualisieren"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Lesezugriff auf alle FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Schreibzugriff auf FrontendService mit Ausnahme globaler Binärdateien"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect-Vorgänge"
