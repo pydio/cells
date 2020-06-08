@@ -216,7 +216,7 @@ func (b *Box) indexDirectories(lockSet bool) {
 	if box, ok, lock := GetBox(b.Path); ok {
 		if !lockSet{
 			lock.Lock()
-			lock.Unlock()
+			defer lock.Unlock()
 		}
 		for name := range box {
 			prefix, _ := path.Split(name)
