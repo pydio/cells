@@ -21351,11 +21351,13 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var invalid = _state2.invalid;
             var m = _state2.m;
 
-            var pAds = peerAddresses || [];
+            var pAds = [].concat(_toConsumableArray(peerAddresses));
             pAds = ["ANY"].concat(_toConsumableArray(pAds));
-            if (invalidAddress) {
+            if (invalidAddress && invalidAddress !== 'ANY') {
                 pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
+
+            console.log(peerAddresses, pAds);
 
             return _react2['default'].createElement(
                 'div',
@@ -21374,9 +21376,9 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             fullWidth: true
                         },
                         pAds.map(function (address) {
-                            var label = 'Any peer (unique node or distributed FS)';
+                            var label = m('selector.peer.any');
                             if (address !== 'ANY') {
-                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "");
+                                label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' (' + m('selector.peer.invalid') + ')' : '');
                             }
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
                         })

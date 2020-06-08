@@ -303,11 +303,13 @@ class DataSourceLocalSelector extends React.Component{
 
         const {model, pydio} = this.props;
         const {peerAddresses, invalidAddress, invalid, m} = this.state;
-        let pAds = peerAddresses || [];
+        let pAds = [...peerAddresses];
         pAds = ["ANY", ...pAds];
-        if(invalidAddress){
+        if(invalidAddress && invalidAddress !== 'ANY'){
             pAds = [invalidAddress, ...pAds];
         }
+
+        console.log(peerAddresses, pAds);
 
         return (
             <div>
@@ -319,9 +321,9 @@ class DataSourceLocalSelector extends React.Component{
                         fullWidth={true}
                     >
                         {pAds.map(address => {
-                            let label = 'Any peer (unique node or distributed FS)';
+                            let label = m('selector.peer.any');
                             if(address !== 'ANY') {
-                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)":"");
+                                label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' ('+m('selector.peer.invalid')+')':'');
                             }
                             return <MenuItem value={address} primaryText={label}/>
                         })}
