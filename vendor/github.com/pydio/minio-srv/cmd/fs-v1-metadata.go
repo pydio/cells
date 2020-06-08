@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 	pathutil "path"
+	"time"
 
 	"github.com/pydio/minio-srv/cmd/logger"
 	"github.com/pydio/minio-srv/pkg/lock"
@@ -114,6 +115,8 @@ type fsMetaV1 struct {
 	Meta map[string]string `json:"meta,omitempty"`
 	// parts info for current object - used in encryption.
 	Parts []objectPartInfo `json:"parts,omitempty"`
+	// Keep last knows ModTime to detect file changed on FS
+	ModTime time.Time `json:"modTime,omitempty"`
 }
 
 // IsValid - tells if the format is sane by validating the version
@@ -150,6 +153,7 @@ func (m fsMetaV1) ToObjectInfo(bucket, object string, fi os.FileInfo) ObjectInfo
 	}
 
 	// We set file info only if its valid.
+	forceDefaultETag := false
 	objInfo.ModTime = timeSentinel
 	if fi != nil {
 		objInfo.ModTime = fi.ModTime()
@@ -158,10 +162,19 @@ func (m fsMetaV1) ToObjectInfo(bucket, object string, fi os.FileInfo) ObjectInfo
 			// Directory is always 0 bytes in S3 API, treat it as such.
 			objInfo.Size = 0
 			objInfo.IsDir = fi.IsDir()
+		} else if !m.ModTime.IsZero() && m.ModTime.Before(fi.ModTime()) {
+			// ModTime of file is older than the last one we are aware of : content must have
+			// been modified on the filesystem
+			// Send a defaultETag to force sync to recompute proper value
+			forceDefaultETag = true
 		}
 	}
 
-	objInfo.ETag = extractETag(m.Meta)
+	if forceDefaultETag {
+		objInfo.ETag = defaultEtag
+	} else {
+		objInfo.ETag = extractETag(m.Meta)
+	}
 	objInfo.ContentType = m.Meta["content-type"]
 	objInfo.ContentEncoding = m.Meta["content-encoding"]
 	if storageClass, ok := m.Meta[amzStorageClass]; ok {
@@ -195,6 +208,10 @@ func (m *fsMetaV1) WriteTo(lk *lock.LockedFile) (n int64, err error) {
 
 func parseFSVersion(fsMetaBuf []byte) string {
 	return gjson.GetBytes(fsMetaBuf, "version").String()
+}
+
+func parseModTime(fsMetaBuf []byte) time.Time{
+	return gjson.GetBytes(fsMetaBuf, "modTime").Time()
 }
 
 func parseFSMetaMap(fsMetaBuf []byte) map[string]string {
@@ -252,6 +269,8 @@ func (m *fsMetaV1) ReadFrom(ctx context.Context, lk *lock.LockedFile) (n int64, 
 
 	// obtain version.
 	m.Version = parseFSVersion(fsMetaBuf)
+
+	m.ModTime = parseModTime(fsMetaBuf)
 
 	// Verify if the format is valid, return corrupted format
 	// for unrecognized formats.
