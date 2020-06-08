@@ -168,7 +168,7 @@
     "other": "Veuillez vous assurer de sélectionner un répertoire à au moins 2 niveaux de profondeur."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Le répertoire est exposé comme Bucket S3 et doit être compatible avec les noms de DNS."
+    "other": "Le dossier est exposé comme un bucket S3 et doit être conforme aux noms DNS (minuscules, sans espace ni caractères spéciaux)."
   },
   "ds.editor.selector.folder": {
     "other": "Répertoire local"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Adresse du Nœud"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "N'importe quel nœud (nœud unique ou système de fichier distribué)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Nœud"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalide"
   },
   "ds.editor.selector.mkdir": {
     "other": "Créer un dossier"

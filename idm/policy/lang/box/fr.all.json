@@ -44,6 +44,12 @@
   "PolicyGroup.LoggedUsers.Rule4": {
     "other": "Mettre à jour les métadonnées définies par l'utilisateur"
   },
+  "PolicyGroup.LoggedUsers.Rule5": {
+    "other": "Accès en lecture à tous les services FrontendService"
+  },
+  "PolicyGroup.LoggedUsers.Rule6": {
+    "other": "Accès en écriture à FrontendService à l'exception des uploads de binaires"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"
   },

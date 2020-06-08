@@ -168,7 +168,7 @@
     "other": "Assicurati di selezionare una cartella due livelli più in basso. L'archivio dell'oggetto inizierà nella cartella che la contiene."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "La cartella è esposta come un bucket S3 e deve rispettare i nomi DNS."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Cartella Locale"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Indirizzo Peer"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Create Folder"
