@@ -17,10 +17,10 @@ dbtcphostname: mysql
 dbtcpport: 3306
 dbtcpname: cells
 dbtcpuser: pydio
-dbtcppassword: pydio
+dbtcppassword: cells
 dsname: pydiods1
 dsport: 41850
-dsfolder: /tmp/data
+dsfolder: /data
 externalmicro: 0
 externalgateway: 42568
 externalwebsocket: 42402
