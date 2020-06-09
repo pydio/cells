@@ -160,6 +160,8 @@ const (
 	XPydioIndexationSessionUuid  = "X-Pydio-Indexation-Session"
 	XPydioMoveUuid               = "X-Pydio-Move"
 	SyncSessionClose_            = "close-"
+	SyncSessionPrefixCopy        = "copy-"
+	SyncSessionPrefixMove        = "move-"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
 	PYDIO_PROFILE_STANDARD = "standard"

@@ -145,7 +145,7 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 	if len(branches) > 5 {
 		c := mtree.CommonPrefix('/', branches...)
 		if c != "" && c != "." {
-			fmt.Println("Loading common prefix", c)
+			//fmt.Println("Loading common prefix", c)
 			branches = []string{c}
 		}
 	}
