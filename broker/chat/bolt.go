@@ -191,6 +191,9 @@ func (h *boltdbimpl) ListRooms(request *chat.ListRoomsRequest) (rooms []*chat.Ch
 		} else {
 
 			bucket, _ := h.getRoomsBucket(tx, false, request.ByType, "")
+			if bucket == nil {
+				return nil
+			}
 			return bucket.ForEach(func(k, v []byte) error {
 				if v != nil {
 					return nil
@@ -221,6 +224,9 @@ func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.Ch
 	var found bool
 	e := h.DB().View(func(tx *bolt.Tx) error {
 		bucket, _ := h.getRoomsBucket(tx, false, byType, "")
+		if bucket == nil {
+			return fmt.Errorf("rooms bucket %s not initialized", byType.String())
+		}
 		c := bucket.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			if v != nil {
