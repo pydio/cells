@@ -104,7 +104,7 @@ var withSelection = function withSelection(getSelection) {
                 var selection = tab.selection;
                 var playing = tab.playing;
 
-                if (!selection) {
+                if (!selection || selection.length() == 0) {
                     return _react2['default'].createElement(Component, remainingProps);
                 }
 

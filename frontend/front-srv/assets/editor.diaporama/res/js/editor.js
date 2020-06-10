@@ -26,11 +26,13 @@ import { compose } from 'redux'
 import { ImageContainer } from './components'
 import urlForSize from './sizes'
 
-const conf = pydio.getPluginConfigs('editor.diaporama');
-const sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
+const editors = Pydio.getInstance().Registry.getActiveExtensionByType("editor")
+const editorConf = editors.filter(({id}) => id === 'editor.diaporama')[0]
+const pluginConf = pydio.getPluginConfigs('editor.diaporama');
+const sizes = pluginConf && pluginConf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
 
-const { SizeProviders, withResolution, withSelection, withResize, EditorActions } = Pydio.requireLib('hoc');
-const { ImageSizeProvider, ContainerSizeProvider } = SizeProviders;
+
+const { withResolution, withSelection, withResize, EditorActions } = Pydio.requireLib('hoc');
 const ExtendedImageContainer = withResize(ImageContainer);
 
 @connect(null, EditorActions)
@@ -59,7 +61,8 @@ class Editor extends PureComponent {
     render() {
         const {node, src, editorData} = this.props;
 
-        if (!node) return null;
+        if (!node || !src) return null;
+
         let orientation;
         if(node.getMetadata().get("image_exif_orientation")){
             orientation = node.getMetadata().get("image_exif_orientation");
@@ -72,25 +75,6 @@ class Editor extends PureComponent {
                 ...imageClassName,
                 'ort-rotate-' + orientation
             ];
-        }
-
-    //     <ContainerSizeProvider>
-    //     {({containerWidth, containerHeight}) =>
-    //         <ImageSizeProvider url={src} node={node}>
-    //         {({imgWidth, imgHeight}) =>
-    //
-    //
-    //     }
-    //     </ImageSizeProvider>
-    // }
-    // </ContainerSizeProvider>
-
-    // width={imgWidth}
-    // height={imgHeight}
-    // containerWidth={containerWidth}
-    // containerHeight={containerHeight}
-        if(!src){
-            return null;
         }
         return (
             <ExtendedImageContainer
@@ -106,7 +90,8 @@ class Editor extends PureComponent {
     }
 }
 
-const getSelectionFilter = (node) => node.getMetadata().get('is_image')
+const getSelectionFilter = (node) => editorConf.mimes.indexOf(node.getAjxpMime()) > -1
+// const getSelectionFilter = (node) => node.getMetadata().get('is_image')
 const getSelection = (node) => new Promise((resolve, reject) => {
     let selection = [];
 
@@ -125,13 +110,17 @@ const getSelection = (node) => new Promise((resolve, reject) => {
 const mapStateToProps = (state, props) => {
     const {node, editorData} = props;
 
-    if (!node) return props;
+    if (!node) {
+        return props;
+    }
 
     const {tabs} = state;
 
     const tab = tabs.filter(({editorData: currentEditorData, node: currentNode}) => (!currentEditorData || currentEditorData.id === editorData.id) && currentNode.getPath() === node.getPath())[0] || {}
 
-    if (!tab) return props;
+    if (!tab) {
+        return props;
+    }
 
     const {node: tabNode, resolution: tabResolution} = tab;
 
