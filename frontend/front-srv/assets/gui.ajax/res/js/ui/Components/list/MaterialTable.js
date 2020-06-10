@@ -346,9 +346,7 @@ class MaterialTable extends React.Component{
         });
         if(actionsColumn){
             headers.push(
-                <TableHeaderColumn
-                    style={{width:48*actions.length + 32, height: 48, backgroundColor:'#F5F5F5', ...masterStyles.head}}
-                />
+                <TableHeaderColumn style={{width:48*actions.length + 32, height: 48, backgroundColor:'#F5F5F5', ...masterStyles.head}}/>
             )
         }
         if(emptyStateString && !rows.length){
