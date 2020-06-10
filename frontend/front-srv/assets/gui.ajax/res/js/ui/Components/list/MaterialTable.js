@@ -345,7 +345,11 @@ class MaterialTable extends React.Component{
             >{label}</TableHeaderColumn>
         });
         if(actionsColumn){
-            headers.push(<TableHeaderColumn style={{width:48*actions.length + 32}}/>)
+            headers.push(
+                <TableHeaderColumn
+                    style={{width:48*actions.length + 32, height: 48, backgroundColor:'#F5F5F5', ...masterStyles.head}}
+                />
+            )
         }
         if(emptyStateString && !rows.length){
             showCheckboxes = false;

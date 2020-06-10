@@ -496,7 +496,9 @@ var MaterialTable = (function (_React$Component) {
             );
         });
         if (actionsColumn) {
-            headers.push(_react2['default'].createElement(_materialUi.TableHeaderColumn, { style: { width: 48 * actions.length + 32 } }));
+            headers.push(_react2['default'].createElement(_materialUi.TableHeaderColumn, {
+                style: _extends({ width: 48 * actions.length + 32, height: 48, backgroundColor: '#F5F5F5' }, masterStyles.head)
+            }));
         }
         if (emptyStateString && !rows.length) {
             showCheckboxes = false;
