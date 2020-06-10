@@ -59,11 +59,10 @@ const withSelection = (getSelection) => {
                 }
 
                 render() {
-
                     const {tab, dispatch, ...remainingProps} = this.props
                     const {id, selection, playing} = tab
 
-                    if (!selection) {
+                    if (!selection || selection.length() == 0) {
                         return (
                             <Component
                                 {...remainingProps}

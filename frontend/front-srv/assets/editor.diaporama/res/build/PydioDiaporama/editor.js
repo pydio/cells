@@ -52,18 +52,20 @@ var _sizes = require('./sizes');
 
 var _sizes2 = _interopRequireDefault(_sizes);
 
-var conf = pydio.getPluginConfigs('editor.diaporama');
-var sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
+var editors = Pydio.getInstance().Registry.getActiveExtensionByType("editor");
+var editorConf = editors.filter(function (_ref) {
+    var id = _ref.id;
+    return id === 'editor.diaporama';
+})[0];
+var pluginConf = pydio.getPluginConfigs('editor.diaporama');
+var sizes = pluginConf && pluginConf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
 
 var _Pydio$requireLib = Pydio.requireLib('hoc');
 
-var SizeProviders = _Pydio$requireLib.SizeProviders;
 var withResolution = _Pydio$requireLib.withResolution;
 var withSelection = _Pydio$requireLib.withSelection;
 var withResize = _Pydio$requireLib.withResize;
 var EditorActions = _Pydio$requireLib.EditorActions;
-var ImageSizeProvider = SizeProviders.ImageSizeProvider;
-var ContainerSizeProvider = SizeProviders.ContainerSizeProvider;
 
 var ExtendedImageContainer = withResize(_components.ImageContainer);
 
@@ -100,7 +102,8 @@ var Editor = (function (_PureComponent) {
             var src = _props.src;
             var editorData = _props.editorData;
 
-            if (!node) return null;
+            if (!node || !src) return null;
+
             var orientation = undefined;
             if (node.getMetadata().get("image_exif_orientation")) {
                 orientation = node.getMetadata().get("image_exif_orientation");
@@ -110,25 +113,6 @@ var Editor = (function (_PureComponent) {
 
             if (orientation) {
                 imageClassName = [].concat(_toConsumableArray(imageClassName), ['ort-rotate-' + orientation]);
-            }
-
-            //     <ContainerSizeProvider>
-            //     {({containerWidth, containerHeight}) =>
-            //         <ImageSizeProvider url={src} node={node}>
-            //         {({imgWidth, imgHeight}) =>
-            //
-            //
-            //     }
-            //     </ImageSizeProvider>
-            // }
-            // </ContainerSizeProvider>
-
-            // width={imgWidth}
-            // height={imgHeight}
-            // containerWidth={containerWidth}
-            // containerHeight={containerHeight}
-            if (!src) {
-                return null;
             }
             return _react2['default'].createElement(ExtendedImageContainer, {
                 editorData: editorData,
@@ -155,8 +139,9 @@ var Editor = (function (_PureComponent) {
 })(_react.PureComponent);
 
 var getSelectionFilter = function getSelectionFilter(node) {
-    return node.getMetadata().get('is_image');
+    return editorConf.mimes.indexOf(node.getAjxpMime()) > -1;
 };
+// const getSelectionFilter = (node) => node.getMetadata().get('is_image')
 var getSelection = function getSelection(node) {
     return new Promise(function (resolve, reject) {
         var selection = [];
@@ -181,17 +166,21 @@ var mapStateToProps = function mapStateToProps(state, props) {
     var node = props.node;
     var editorData = props.editorData;
 
-    if (!node) return props;
+    if (!node) {
+        return props;
+    }
 
     var tabs = state.tabs;
 
-    var tab = tabs.filter(function (_ref) {
-        var currentEditorData = _ref.editorData;
-        var currentNode = _ref.node;
+    var tab = tabs.filter(function (_ref2) {
+        var currentEditorData = _ref2.editorData;
+        var currentNode = _ref2.node;
         return (!currentEditorData || currentEditorData.id === editorData.id) && currentNode.getPath() === node.getPath();
     })[0] || {};
 
-    if (!tab) return props;
+    if (!tab) {
+        return props;
+    }
 
     var tabNode = tab.node;
     var tabResolution = tab.resolution;
