@@ -81,6 +81,10 @@ var DataSource = (function (_Observable) {
                             _this.internalInvalid = value;
                             _this.notify('update');
                             return true;
+                        } else if (p === 'PeerAddress') {
+                            if (value === 'ANY') {
+                                val = '';
+                            }
                         }
                     target[p] = val;
                     _this.notify('update');
@@ -94,6 +98,8 @@ var DataSource = (function (_Observable) {
                         return _this.buildProxy(out);
                     } else if (p === 'StorageType') {
                         return out || 'LOCAL';
+                    } else if (p === 'PeerAddress') {
+                        return out || 'ANY';
                     } else {
                         return out;
                     }

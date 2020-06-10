@@ -8,9 +8,10 @@ services:
     ports: ["80:80", "443:443"]
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
+      - PYDIO_EXIT_AFTER_INSTALL=true
     volumes: 
-      - "cellsdir:/var/cells"
-      - "./data:/var/cells/data"
+      - "workingdir:/var/cells"
+      - "datadir:/data"
       - "./config:/pydio/config"
     depends_on:
       - mysql
@@ -19,10 +20,10 @@ services:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_ROOT_PASSWORD: cells
       MYSQL_DATABASE: cells
       MYSQL_USER: pydio
-      MYSQL_PASSWORD: pydio
+      MYSQL_PASSWORD: cells
     volumes:
       - "mysqldir:/var/lib/mysql"
     command:
@@ -33,5 +34,6 @@ services:
       ]
 
 volumes:
-  cellsdir: {}
+  workingdir: {}
+  datadir: {}
   mysqldir: {}

@@ -123,11 +123,16 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 	}
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
 	cl := tree.NewNodeProviderClient(srvName, defaults.NewClient())
+	var opts []client.CallOption
+	if listReq.PeerAddress != "" {
+		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, listReq.PeerAddress))
+		opts = append(opts, selectorOption)
+	}
 
 	// Use a selector to make sure to we call the service that is running on the specific node
 	streamer, e := cl.ListNodes(req.Request.Context(), &tree.ListNodesRequest{
 		Node: &tree.Node{Path: listReq.Path},
-	}, client.WithSelectOption(registry.PeerClientSelector(srvName, listReq.PeerAddress)))
+	}, opts...)
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
@@ -156,8 +161,12 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 	}
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
 	cl := tree.NewNodeReceiverClient(srvName, defaults.NewClient())
-	selector := client.WithSelectOption(registry.PeerClientSelector(srvName, createReq.PeerAddress))
-	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}}, selector)
+	var opts []client.CallOption
+	if createReq.PeerAddress != "" {
+		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, createReq.PeerAddress))
+		opts = append(opts, selectorOption)
+	}
+	cr, e := cl.CreateNode(req.Request.Context(), &tree.CreateNodeRequest{Node: &tree.Node{Path: createReq.Path}}, opts...)
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)
 		return
@@ -218,7 +227,11 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 
 	folder := newSource.StorageConfiguration["folder"]
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
-	selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
+	var opts []client.CallOption
+	if newSource.PeerAddress != "" {
+		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
+		opts = append(opts, selectorOption)
+	}
 	defClient := defaults.NewClient()
 
 	cl := tree.NewNodeProviderClient(srvName, defClient)
@@ -233,7 +246,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	// Stat node to make sure it exists - Create it otherwise
 	_, e := cl.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{Path: folder},
-	}, selectorOption)
+	}, opts...)
 
 	if e != nil {
 		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
@@ -241,7 +254,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 			if _, err := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
-			}}, selectorOption); err != nil {
+			}}, opts...); err != nil {
 				return errors.Forbidden("ds.folder.cannot.create", err.Error())
 			}
 		} else {
@@ -255,11 +268,11 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 		Type: tree.NodeType_LEAF,
 		Path: path.Join(parentName, uuid.New()),
 	}
-	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, selectorOption)
+	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, opts...)
 	if e != nil {
 		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
 	} else {
-		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, selectorOption); er != nil {
+		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, opts...); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
 		}
 	}

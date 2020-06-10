@@ -4066,10 +4066,10 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "cW4wcE+BWxehz4F/uros/8E6uI4=",
+			"checksumSHA1": "n23A+2aZQgZ9IYn6Lr/uikx+LoY=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "ff8647cf887ac099fd16a8bf2d688ab47c1d79da",
-			"revisionTime": "2020-05-27T12:00:04Z",
+			"revision": "931fc0589a3c99bf4b47bd15ad63b16dcc2cf2a7",
+			"revisionTime": "2020-06-08T13:29:17Z",
 			"tree": true
 		},
 		{
@@ -4079,10 +4079,10 @@
 			"revisionTime": "2020-05-04T12:46:35Z"
 		},
 		{
-			"checksumSHA1": "DV1wtIRI/MJLnayitGyEQ2yBEsw=",
+			"checksumSHA1": "yvFfOKGz1F5ar5NMRuAjWatiY8c=",
 			"path": "github.com/pydio/packr",
-			"revision": "c9c4b51f07ae32c5df60a98fad5cb00fbbb266b2",
-			"revisionTime": "2020-05-04T14:52:59Z"
+			"revision": "7d41389ccc6e0fd56b9838729842fdf31c131881",
+			"revisionTime": "2020-06-08T15:12:12Z"
 		},
 		{
 			"checksumSHA1": "kkYqEi0iUICktn03od75Zb0dKmA=",

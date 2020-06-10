@@ -304,7 +304,7 @@ func (c *ChildrenRunner) FilterOutSource(ctx context.Context, sourceName string)
 				return true
 			}
 		}
-		if val, ok := basic["PeerAddress"]; ok && !net.PeerAddressIsLocal(val.(string)) {
+		if val, ok := basic["PeerAddress"]; ok && val.(string) != "" && !net.PeerAddressIsLocal(val.(string)) {
 			log.Logger(ctx).Info(fmt.Sprintf("Ignoring %s as PeerAddress (%s) does not correspond to any current peer ip", c.childPrefix+sourceName, val))
 			return true
 		}

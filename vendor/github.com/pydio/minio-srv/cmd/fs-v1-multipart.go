@@ -665,10 +665,6 @@ func (fs *FSObjects) CompleteMultipartUpload(ctx context.Context, bucket string,
 	fsMeta.Meta["etag"] = s3MD5
 	// Save consolidated actual size.
 	fsMeta.Meta[ReservedMetadataPrefix+"actual-size"] = strconv.FormatInt(objectActualSize, 10)
-	if _, err = fsMeta.WriteTo(metaFile); err != nil {
-		logger.LogIf(ctx, err)
-		return oi, toObjectErr(err, bucket, object)
-	}
 
 	// Deny if WORM is enabled
 	if globalWORMEnabled {
@@ -685,6 +681,12 @@ func (fs *FSObjects) CompleteMultipartUpload(ctx context.Context, bucket string,
 	fsRemoveAll(ctx, uploadIDDir)
 	fi, err := fsStatFile(ctx, pathJoin(fs.fsPath, bucket, object))
 	if err != nil {
+		return oi, toObjectErr(err, bucket, object)
+	}
+
+	fsMeta.ModTime = fi.ModTime()
+	if _, err = fsMeta.WriteTo(metaFile); err != nil {
+		logger.LogIf(ctx, err)
 		return oi, toObjectErr(err, bucket, object)
 	}
 

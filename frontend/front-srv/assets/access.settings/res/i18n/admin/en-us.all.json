@@ -168,7 +168,7 @@
     "other": "Make sure to select a two-levels deep folder. Object storage will start on the parent folder."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Folder is exposed as an S3 bucket and must comply to DNS names."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Local Folder"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Create Folder"

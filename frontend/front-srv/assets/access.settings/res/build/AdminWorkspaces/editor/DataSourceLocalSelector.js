@@ -153,7 +153,7 @@ var AutocompleteTree = (function (_React$Component) {
             this.lastSearch = basePath;
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var listRequest = new _pydioHttpRestApi.RestListPeerFoldersRequest();
-            listRequest.PeerAddress = peerAddress;
+            listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             listRequest.Path = basePath;
             this.setState({ loading: true });
             return api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
@@ -181,7 +181,7 @@ var AutocompleteTree = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var createRequest = new _pydioHttpRestApi.RestCreatePeerFolderRequest();
-            createRequest.PeerAddress = peerAddress;
+            createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             createRequest.Path = value + '/' + newName;
             api.createPeerFolder(peerAddress, createRequest).then(function (result) {
                 _this2.lastSearch = null; // Force reload
@@ -457,10 +457,13 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var invalid = _state2.invalid;
             var m = _state2.m;
 
-            var pAds = peerAddresses || [];
-            if (invalidAddress) {
-                pAds = [].concat(_toConsumableArray(pAds), [invalidAddress]);
+            var pAds = [].concat(_toConsumableArray(peerAddresses));
+            pAds = ["ANY"].concat(_toConsumableArray(pAds));
+            if (invalidAddress && invalidAddress !== 'ANY') {
+                pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
+
+            console.log(peerAddresses, pAds);
 
             return _react2['default'].createElement(
                 'div',
@@ -479,7 +482,11 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             fullWidth: true
                         },
                         pAds.map(function (address) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)" : "") });
+                            var label = m('selector.peer.any');
+                            if (address !== 'ANY') {
+                                label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' (' + m('selector.peer.invalid') + ')' : '');
+                            }
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
                         })
                     )
                 ),

@@ -168,7 +168,7 @@
     "other": "Asegúrese de seleccionar un directorio con dos niveles de profundidad. El almacenamiento de objetos comenzará en el directorio raíz."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "El directorio está expuesto como un bucket S3 y debe cumplir con las normas para nombres de DNS."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Directorio Local"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Peer Address"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Create Folder"

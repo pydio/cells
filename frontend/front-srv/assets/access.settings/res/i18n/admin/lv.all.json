@@ -168,7 +168,7 @@
     "other": "Pārliecinieties ka ir izvēlēta direktorija ar diviem zemākiem līmeņiem. Objektu uzglabāšana sāksies no augstākstāvošas direktorijas."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Direktorija ir pārstāvēta kā S3 bucket un tai jāatbilst DNS nosaukumu prasībām."
+    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
     "other": "Lokālā direktorija"
@@ -178,6 +178,15 @@
   },
   "ds.editor.selector.peer": {
     "other": "Avota adrese"
+  },
+  "ds.editor.selector.peer.any": {
+    "other": "Any peer (unique node or distributed FS)"
+  },
+  "ds.editor.selector.peer.word": {
+    "other": "Peer"
+  },
+  "ds.editor.selector.peer.invalid": {
+    "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
     "other": "Create Folder"

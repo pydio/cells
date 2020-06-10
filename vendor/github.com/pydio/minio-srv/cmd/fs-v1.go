@@ -478,15 +478,19 @@ func (fs *FSObjects) CopyObject(ctx context.Context, srcBucket, srcObject, dstBu
 
 		fsMeta.Meta = srcInfo.UserDefined
 		fsMeta.Meta["etag"] = srcInfo.ETag
-		if _, err = fsMeta.WriteTo(wlk); err != nil {
-			return oi, toObjectErr(err, srcBucket, srcObject)
-		}
 
 		// Stat the file to get file size.
 		fi, err := fsStatFile(ctx, pathJoin(fs.fsPath, srcBucket, srcObject))
 		if err != nil {
 			return oi, toObjectErr(err, srcBucket, srcObject)
 		}
+
+		// Set last known ModTime before saving meta
+		fsMeta.ModTime = fi.ModTime()
+		if _, err = fsMeta.WriteTo(wlk); err != nil {
+			return oi, toObjectErr(err, srcBucket, srcObject)
+		}
+
 		// Return the new object info.
 		return fsMeta.ToObjectInfo(srcBucket, srcObject, fi), nil
 	}
@@ -979,17 +983,18 @@ func (fs *FSObjects) putObject(ctx context.Context, bucket string, object string
 		return ObjectInfo{}, toObjectErr(err, bucket, object)
 	}
 
-	if bucket != minioMetaBucket {
-		// Write FS metadata after a successful namespace operation.
-		if _, err = fsMeta.WriteTo(wlk); err != nil {
-			return ObjectInfo{}, toObjectErr(err, bucket, object)
-		}
-	}
-
 	// Stat the file to fetch timestamp, size.
 	fi, err := fsStatFile(ctx, pathJoin(fs.fsPath, bucket, object))
 	if err != nil {
 		return ObjectInfo{}, toObjectErr(err, bucket, object)
+	}
+
+	if bucket != minioMetaBucket {
+		// Write FS metadata after a successful namespace operation.
+		fsMeta.ModTime = fi.ModTime()
+		if _, err = fsMeta.WriteTo(wlk); err != nil {
+			return ObjectInfo{}, toObjectErr(err, bucket, object)
+		}
 	}
 
 	// Success.

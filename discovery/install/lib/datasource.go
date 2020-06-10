@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/utils/net"
 )
 
 // DATASOURCE Action
@@ -83,7 +82,9 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		// Store indexes tables
 		index := fmt.Sprintf(`pydio.grpc.data.index.%s`, source)
 		config.Set("default", "services", index, "dsn")
-		config.Set(conf.PeerAddress, "services", index, "PeerAddress")
+		if conf.PeerAddress != "" {
+			config.Set(conf.PeerAddress, "services", index, "PeerAddress")
+		}
 		tableNames := config.IndexServiceTableNames(source)
 		config.Set(tableNames, "services", index, "tables")
 
@@ -126,12 +127,14 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 		ObjectsPort:          int32(port),
 		StorageConfiguration: make(map[string]string),
 	}
-	if h, e := os.Hostname(); e == nil {
-		conf.PeerAddress = h
-	} else {
-		ip, _ := net.GetExternalIP()
-		conf.PeerAddress = ip.String()
-	}
+	/*
+		if h, e := os.Hostname(); e == nil {
+			conf.PeerAddress = h
+		} else {
+			ip, _ := net.GetExternalIP()
+			conf.PeerAddress = ip.String()
+		}
+	*/
 	if c.GetDsS3Custom() != "" {
 		conf.StorageConfiguration["customEndpoint"] = c.GetDsS3Custom()
 		if c.GetDsS3CustomRegion() != "" {
@@ -182,12 +185,14 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	if runtime.GOOS == "darwin" {
 		normalize = "true"
 	}
-	if h, e := os.Hostname(); e == nil {
-		conf.PeerAddress = h
-	} else {
-		ip, _ := net.GetExternalIP()
-		conf.PeerAddress = ip.String()
-	}
+	/*
+		if h, e := os.Hostname(); e == nil {
+			conf.PeerAddress = h
+		} else {
+			ip, _ := net.GetExternalIP()
+			conf.PeerAddress = ip.String()
+		}
+	*/
 	conf.StorageConfiguration = map[string]string{
 		"folder":    folder,
 		"normalize": normalize,

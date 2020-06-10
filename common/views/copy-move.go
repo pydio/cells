@@ -49,7 +49,12 @@ func GetSessionID(ctx context.Context) (string, bool) {
 // reconciliate creates and deletes when move is done between two differing datasources).
 func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
 
-	session := uuid.New()
+	sessionPrefix := common.SyncSessionPrefixCopy
+	if move {
+		sessionPrefix = common.SyncSessionPrefixMove
+	}
+	session := sessionPrefix + uuid.New()
+
 	childrenMoved := 0
 	var totalSize int64
 

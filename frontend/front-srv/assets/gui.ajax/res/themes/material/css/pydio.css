@@ -510,6 +510,9 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-text {
   padding: 18px 0 13px;
 }
+.react-mui-context .material-list.files-list.table-mode .material-list-text span.cell-usermeta-tags.cell[data-label='Tags'] {
+  width: 7% !important;
+}
 .react-mui-context .material-list.files-list.table-mode span.cell {
   color: rgba(0, 0, 0, 0.53);
 }
@@ -545,8 +548,6 @@ div.dialogBox div#element_overlay {
   display: none;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-actions {
-  position: absolute;
-  right: 0;
   padding-top: 4px;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell {

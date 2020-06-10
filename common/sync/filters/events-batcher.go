@@ -207,8 +207,12 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession st
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})
 	patch.SetupChannels(ev.statuses, ev.done, ev.cmd)
+	// Copy/Move Cases
 	if batchSession != "" {
-		// This is triggered by copy/move sessions only
+		// This is triggered by copy sessions only
+		if strings.HasPrefix(batchSession, common.SyncSessionPrefixCopy) {
+			patch.SetSessionData(events[0].CreateContext(ev.globalContext), false)
+		}
 		patch.SetLockSessionData(events[0].CreateContext(ev.globalContext), batchSession)
 	} else if len(events) > 10 {
 		patch.SetSessionData(events[0].CreateContext(ev.globalContext), false)
