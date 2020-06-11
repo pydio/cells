@@ -35,10 +35,11 @@ func getDefaultJobs() []*jobs.Job {
 
 	imagesQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Extension: "jpg,png,jpeg,gif,bmp,tiff",
+		MinSize:   1,
 	})
 
 	exifQuery, _ := ptypes.MarshalAny(&tree.Query{
-		Extension: "jpg",
+		Extension: "jpg,jpeg",
 	})
 
 	thumbnailsJob := &jobs.Job{
@@ -61,11 +62,6 @@ func getDefaultJobs() []*jobs.Job {
 			{
 				ID:         "actions.images.thumbnails",
 				Parameters: map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
-				NodesFilter: &jobs.NodesSelector{
-					Query: &service.Query{
-						SubQueries: []*any.Any{imagesQuery},
-					},
-				},
 			},
 			{
 				ID: "actions.images.exif",
