@@ -127,6 +127,11 @@ var Session = function (_FolderItem) {
                 this.setStatus('ready');
                 return Promise.resolve();
             }
+            var conf = _pydio2.default.getInstance().getPluginConfigs("uploader.html").get("DEFAULT_STAT_SLICES");
+            var sliceSize = 400;
+            if (conf && !isNaN(parseInt(conf))) {
+                sliceSize = parseInt(conf);
+            }
 
             this.setStatus('analyse');
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
@@ -145,7 +150,7 @@ var Session = function (_FolderItem) {
 
             return new Promise(function (resolve, reject) {
                 var proms = [];
-                _this2.bulkStatSliced(api, request.NodePaths, 400).then(function (response) {
+                _this2.bulkStatSliced(api, request.NodePaths, sliceSize).then(function (response) {
                     if (!response.Nodes || !response.Nodes.length) {
                         _this2.setStatus('ready');
                         resolve(proms);
