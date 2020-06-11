@@ -195,7 +195,7 @@ var ShareView = (function (_React$Component) {
                     pydio: pydio,
                     iconClassName: "mdi mdi-share-variant",
                     primaryTextId: m(131),
-                    style: { flex: 1, height: 300, backgroundColor: 'transparent' }
+                    style: { flex: 1, height: 200, padding: '100px 0', backgroundColor: 'transparent' }
                 }),
                 !loading && resources.length > 0 && _react2['default'].createElement(
                     _materialUi.List,
