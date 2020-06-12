@@ -110,9 +110,13 @@ var Editor = (function (_PureComponent) {
             }
 
             var imageClassName = ['diaporama-image-main-block'];
+            var imageStyle = {
+                boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
+            };
 
             if (orientation) {
                 imageClassName = [].concat(_toConsumableArray(imageClassName), ['ort-rotate-' + orientation]);
+                imageStyle.imageOrientation = 'none';
             }
             return _react2['default'].createElement(ExtendedImageContainer, {
                 editorData: editorData,
@@ -121,7 +125,7 @@ var Editor = (function (_PureComponent) {
                 renderOnChange: true,
                 passOnProps: true,
                 imgClassName: imageClassName.join(" "),
-                imgStyle: { boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px' }
+                imgStyle: imageStyle
             });
         }
     }], [{

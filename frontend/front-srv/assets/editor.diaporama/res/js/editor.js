@@ -69,12 +69,16 @@ class Editor extends PureComponent {
         }
 
         let imageClassName = ['diaporama-image-main-block']
+        let imageStyle = {
+            boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
+        }
 
         if (orientation) {
             imageClassName = [
                 ...imageClassName,
                 'ort-rotate-' + orientation
             ];
+            imageStyle.imageOrientation = 'none'
         }
         return (
             <ExtendedImageContainer
@@ -84,7 +88,7 @@ class Editor extends PureComponent {
                 renderOnChange={true}
                 passOnProps={true}
                 imgClassName={imageClassName.join(" ")}
-                imgStyle={{boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'}}
+                imgStyle={imageStyle}
             />
         )
     }

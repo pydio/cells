@@ -221,44 +221,45 @@ var withImageSize = function withImageSize(Component) {
             var node = this.props.node;
 
             var meta = node.getMetadata();
+            var width = meta.has('image_width') && parseInt(meta.get('image_width')) || 200;
+            var height = meta.has('image_height') && parseInt(meta.get('image_height')) || 200;
 
             this.state = {
-                imgWidth: meta.has('image_width') && parseInt(meta.get('image_width')) || 200,
-                imgHeight: meta.has('image_height') && parseInt(meta.get('image_height')) || 200
+                imgWidth: width,
+                imgHeight: height
             };
 
             this.updateSize = function (imgWidth, imgHeight) {
                 return _this4.setState({ imgWidth: imgWidth, imgHeight: imgHeight });
             };
-            this.getImageSize = _lodash2['default'].throttle(DOMUtils.imageLoader, 100);
         }
 
-        _class2.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-            var src = nextProps.src;
-            var node = nextProps.node;
+        _class2.prototype.reset = function reset() {
+            var node = this.props.node;
 
             var meta = node.getMetadata();
-            if (!src) {
+            var update = this.updateSize;
+
+            if (!meta.has('image_width')) {
+                DOMUtils.imageLoader(this.props.src, function () {
+                    update(this.width, this.height);
+                }, function () {});
+
                 return;
             }
 
-            var update = this.updateSize;
-            this.getImageSize(src, function () {
-                if (!meta.has('image_width')) {
-                    meta.set("image_width", this.width);
-                    meta.set("image_height", this.height);
-                }
+            var width = meta.has('image_width') && parseInt(meta.get('image_width')) || 200;
+            var height = meta.has('image_height') && parseInt(meta.get('image_height')) || 200;
 
-                update(this.width, this.height);
-            }, function () {
-                if (meta.has('image_width')) {
-                    update(meta.get('image_width'), meta.get('image_height'));
-                }
-            });
+            update(width, height);
         };
 
         _class2.prototype.componentDidMount = function componentDidMount() {
-            var test = ReactDOM.findDOMNode(this);
+            this.reset();
+        };
+
+        _class2.prototype.componentDidUpdate = function componentDidUpdate() {
+            this.reset();
         };
 
         _class2.prototype.render = function render() {

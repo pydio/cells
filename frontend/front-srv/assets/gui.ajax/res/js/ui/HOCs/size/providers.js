@@ -147,44 +147,47 @@ export const withImageSize = (Component) => {
 
             const {node} = this.props
             const meta = node.getMetadata()
+            const width = meta.has('image_width') && parseInt(meta.get('image_width')) || 200
+            const height = meta.has('image_height') && parseInt(meta.get('image_height')) || 200 
 
             this.state = {
-                imgWidth: meta.has('image_width') && parseInt(meta.get('image_width')) || 200,
-                imgHeight: meta.has('image_height') && parseInt(meta.get('image_height')) || 200
+                imgWidth: width,
+                imgHeight: height
             }
 
             this.updateSize = (imgWidth, imgHeight) => this.setState({imgWidth, imgHeight})
-            this.getImageSize = _.throttle(DOMUtils.imageLoader, 100)
         }
 
         static get displayName() {
             return `WithImageResize(${getDisplayName(Component)})`
         }
 
-        componentWillReceiveProps(nextProps) {
-            const {src, node} = nextProps
+        reset() {
+            const {node} = this.props
             const meta = node.getMetadata()
-            if(!src){
+            const update = this.updateSize
+
+            if (!meta.has('image_width')) {
+                DOMUtils.imageLoader(this.props.src, function() {
+                    update(this.width, this.height)
+                }, function () {
+                })
+                
                 return
             }
+            
+            const width = meta.has('image_width') && parseInt(meta.get('image_width')) || 200
+            const height = meta.has('image_height') && parseInt(meta.get('image_height')) || 200
 
-            const update = this.updateSize
-            this.getImageSize(src, function() {
-                if (!meta.has('image_width')){
-                    meta.set("image_width", this.width);
-                    meta.set("image_height", this.height);
-                }
-
-                update(this.width, this.height)
-            }, function() {
-                if (meta.has('image_width')) {
-                    update(meta.get('image_width'), meta.get('image_height'))
-                }
-            })
+            update(width, height)
         }
 
         componentDidMount() {
-            const test = ReactDOM.findDOMNode(this)
+            this.reset()
+        }
+
+        componentDidUpdate() {
+            this.reset()
         }
 
         render() {
