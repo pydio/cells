@@ -157,7 +157,7 @@ class UploadItem extends StatusItem {
     _doAbort(completeCallback){
         if(this.xhr){
             try{
-                console.log('Should abort', this.getFullPath());
+                //console.log('Should abort', this.getFullPath());
                 this._userAborted = true;
                 this.xhr.abort();
             }catch(e){}

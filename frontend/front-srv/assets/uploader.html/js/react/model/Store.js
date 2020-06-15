@@ -278,9 +278,7 @@ class Store extends Observable{
     }
 
     isRunning(){
-        const runningStatus =  this._processing.filter(u => u.getStatus() === StatusItem.StatusLoading).length > 0;
-        console.log('isRunning?', runningStatus);
-        return runningStatus;
+        return this._processing.filter(u => u.getStatus() === StatusItem.StatusLoading).length > 0;
     }
 
     pause(){

@@ -329,11 +329,9 @@ var Store = function (_Observable) {
     }, {
         key: 'isRunning',
         value: function isRunning() {
-            var runningStatus = this._processing.filter(function (u) {
+            return this._processing.filter(function (u) {
                 return u.getStatus() === _StatusItem2.default.StatusLoading;
             }).length > 0;
-            console.log('isRunning?', runningStatus);
-            return runningStatus;
         }
     }, {
         key: 'pause',

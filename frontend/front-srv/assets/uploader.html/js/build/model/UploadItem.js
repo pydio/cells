@@ -199,7 +199,6 @@ var UploadItem = function (_StatusItem) {
         value: function _doAbort(completeCallback) {
             if (this.xhr) {
                 try {
-                    console.log('Should abort', this.getFullPath());
                     this._userAborted = true;
                     this.xhr.abort();
                 } catch (e) {}
