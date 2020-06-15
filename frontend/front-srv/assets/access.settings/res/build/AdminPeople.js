@@ -1300,7 +1300,8 @@ var Dashboard = _react2['default'].createClass({
                             node: rootNode,
                             dataModel: this.props.dataModel,
                             className: 'users-groups-tree',
-                            paddingOffset: 10
+                            paddingOffset: 10,
+                            noPaginator: true
                         })
                     )
                 ),

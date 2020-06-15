@@ -423,6 +423,7 @@ let Dashboard = React.createClass({
                                 dataModel={this.props.dataModel}
                                 className="users-groups-tree"
                                 paddingOffset={10}
+                                noPaginator={true}
                             />
                         </div>
                     </div>
