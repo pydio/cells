@@ -36313,6 +36313,24 @@
         }
       },
       {
+        "description": "",
+        "displayName": "TreePaginator",
+        "methods": [
+          {
+            "name": "goTo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "i",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
         "description": "Simple openable / loadable tree taking AjxpNode as inputs",
         "methods": [
           {

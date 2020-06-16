@@ -209,9 +209,10 @@ var SimpleTreeNode = _react2['default'].createClass({
         var selectedItemStyle = _props.selectedItemStyle;
         var getItemStyle = _props.getItemStyle;
         var forceLabel = _props.forceLabel;
+        var noPaginator = _props.noPaginator;
 
-        var hasFolderChildrens = this.state.children.length ? true : false;
-        var hasChildren;
+        var hasFolderChildrens = !!this.state.children.length;
+        var hasChildren = undefined;
         if (hasFolderChildrens) {
             hasChildren = _react2['default'].createElement(
                 'span',
@@ -242,13 +243,15 @@ var SimpleTreeNode = _react2['default'].createClass({
                     values = status.VALUES;
                     inherited = status.INHERITED;
                     disabled = status.DISABLED;
-                    if (status.CLASSNAME) additionalClassName = ' ' + status.CLASSNAME;
+                    if (status.CLASSNAME) {
+                        additionalClassName = ' ' + status.CLASSNAME;
+                    }
                 } else if (checkboxesValues && checkboxesValues[node.getPath()]) {
                     values = checkboxesValues[node.getPath()];
                 }
                 var valueClasses = [];
                 boxes = checkboxes.map((function (c) {
-                    var selected = values[c] !== undefined ? values[c] : false;
+                    var selected = values[c] === undefined ? false : values[c];
                     var click = (function (event, value) {
                         onCheckboxCheck(node, c, value);
                     }).bind(this);
@@ -338,7 +341,7 @@ var SimpleTreeNode = _react2['default'].createClass({
             _react2['default'].createElement(
                 'ul',
                 null,
-                node.getMetadata().has('paginationData') && _react2['default'].createElement(TreePaginator, { node: node, dataModel: dataModel, depth: depth + 1, paddingOffset: paddingOffset }),
+                !noPaginator && node.getMetadata().has('paginationData') && _react2['default'].createElement(TreePaginator, { node: node, dataModel: dataModel, depth: depth + 1, paddingOffset: paddingOffset }),
                 children
             )
         );
@@ -478,7 +481,8 @@ var DNDTreeView = _react2['default'].createClass({
                 onCheckboxCheck: this.props.onCheckboxCheck,
                 selectedItemStyle: this.props.selectedItemStyle,
                 getItemStyle: this.props.getItemStyle,
-                paddingOffset: this.props.paddingOffset
+                paddingOffset: this.props.paddingOffset,
+                noPaginator: this.props.noPaginator
             })
         );
     }
@@ -608,6 +612,7 @@ var FoldersTree = _react2['default'].createClass({
                 showRoot: this.props.showRoot ? true : false,
                 selectedItemStyle: this.props.selectedItemStyle,
                 getItemStyle: this.props.getItemStyle,
+                noPaginator: this.props.noPaginator,
                 className: "folders-tree" + (this.props.className ? ' ' + this.props.className : '')
             });
         } else {
@@ -619,6 +624,7 @@ var FoldersTree = _react2['default'].createClass({
                 selectedItemStyle: this.props.selectedItemStyle,
                 getItemStyle: this.props.getItemStyle,
                 showRoot: this.props.showRoot ? true : false,
+                noPaginator: this.props.noPaginator,
                 className: "folders-tree" + (this.props.className ? ' ' + this.props.className : '')
             });
         }

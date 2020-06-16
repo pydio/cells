@@ -110,8 +110,8 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 		}
 		if model.NodeRequiresChecksum(node) && isCsProvider {
 			wg.Add(1)
+			throttle <- struct{}{}
 			go func() {
-				throttle <- struct{}{}
 				defer func() {
 					<-throttle
 					wg.Done()

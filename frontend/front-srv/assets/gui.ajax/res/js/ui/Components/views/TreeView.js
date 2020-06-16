@@ -169,9 +169,9 @@ var SimpleTreeNode = React.createClass({
     render: function () {
         const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
-            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel} = this.props;
-        var hasFolderChildrens = this.state.children.length?true:false;
-        var hasChildren;
+            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel, noPaginator} = this.props;
+        const hasFolderChildrens = !!this.state.children.length;
+        let hasChildren;
         if(hasFolderChildrens){
             hasChildren = (
                 <span onClick={this.onChildDisplayToggle}>
@@ -201,14 +201,16 @@ var SimpleTreeNode = React.createClass({
                     values = status.VALUES;
                     inherited = status.INHERITED;
                     disabled = status.DISABLED;
-                    if(status.CLASSNAME) additionalClassName = ' ' + status.CLASSNAME;
+                    if(status.CLASSNAME) {
+                        additionalClassName = ' ' + status.CLASSNAME;
+                    }
                 }else if(checkboxesValues && checkboxesValues[node.getPath()]){
                     values = checkboxesValues[node.getPath()];
                 }
                 var valueClasses = [];
                 boxes = checkboxes.map(function(c){
-                    var selected = values[c] !== undefined ? values[c] : false;
-                    var click = function(event, value){
+                    const selected = values[c] === undefined ? false : values[c];
+                    const click = function(event, value){
                         onCheckboxCheck(node, c, value);
                     }.bind(this);
                     if(selected) {
@@ -284,7 +286,9 @@ var SimpleTreeNode = React.createClass({
             <li ref={connector} className={"treenode" + node.getPath().replace(/\//g, '_')}>
                 {selfLabel}
                 <ul>
-                    {node.getMetadata().has('paginationData') && <TreePaginator node={node} dataModel={dataModel} depth={depth+1} paddingOffset={paddingOffset}/>}
+                    {!noPaginator && node.getMetadata().has('paginationData') &&
+                    <TreePaginator node={node} dataModel={dataModel} depth={depth+1} paddingOffset={paddingOffset}/>
+                    }
                     {children}
                 </ul>
             </li>
@@ -398,6 +402,7 @@ let DNDTreeView = React.createClass({
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
                     paddingOffset={this.props.paddingOffset}
+                    noPaginator={this.props.noPaginator}
                 />
             </ul>
         )
@@ -527,6 +532,7 @@ let FoldersTree = React.createClass({
                     showRoot={this.props.showRoot ? true : false}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
+                    noPaginator={this.props.noPaginator}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
             );
@@ -540,6 +546,7 @@ let FoldersTree = React.createClass({
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
                     showRoot={this.props.showRoot ? true : false}
+                    noPaginator={this.props.noPaginator}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
             );
