@@ -4,6 +4,7 @@ import "fmt"
 
 type Helper interface {
 	Concat(...string) string
+	Hash(...string) string
 }
 
 func newHelper(d string) (Helper, error) {

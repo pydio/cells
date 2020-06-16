@@ -51,6 +51,7 @@ type DAO interface {
 
 	// Helper functions for expressions that can differ from one dao to another
 	Concat(...string) string
+	Hash(...string) string
 }
 
 // Handler for the main functions of the DAO
@@ -59,8 +60,8 @@ type Handler struct {
 	helper Helper
 
 	stmts         map[string]string
-	ifuncs        map[string]func(...interface{}) string // TODO - replace next with this
-	funcs         map[string]func(...string) string      // Queries that need to be run before we get a statement
+	ifuncs        map[string]func(DAO, ...interface{}) string // TODO - replace next with this
+	funcs         map[string]func(DAO, ...string) string      // Queries that need to be run before we get a statement
 	funcsWithArgs map[string]func(DAO, ...string) (string, []interface{})
 
 	prepared     map[string]*sql.Stmt
@@ -88,8 +89,8 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 		DAO:           dao.NewDAO(conn, driver, prefix),
 		helper:        helper,
 		stmts:         make(map[string]string),
-		ifuncs:        make(map[string]func(...interface{}) string),
-		funcs:         make(map[string]func(...string) string),
+		ifuncs:        make(map[string]func(DAO, ...interface{}) string),
+		funcs:         make(map[string]func(DAO, ...string) string),
 		funcsWithArgs: make(map[string]func(DAO, ...string) (string, []interface{})),
 		prepared:      make(map[string]*sql.Stmt),
 		preparedLock:  new(sync.RWMutex),
@@ -125,9 +126,9 @@ func (h *Handler) Version() (string, error) {
 // Prepare the statements that can be used by the DAO
 func (h *Handler) Prepare(key string, query interface{}) error {
 	switch v := query.(type) {
-	case func(...interface{}) string:
+	case func(DAO, ...interface{}) string:
 		h.ifuncs[key] = v
-	case func(...string) string:
+	case func(DAO, ...string) string:
 		h.funcs[key] = v
 	case func(DAO, ...string) (string, []interface{}):
 		h.funcsWithArgs[key] = v
@@ -169,7 +170,7 @@ func (h *Handler) readStmt(query string) *sql.Stmt {
 }
 
 func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
-	//fmt.Println(query)
+	// fmt.Println(query)
 	if stmt := h.readStmt(query); stmt != nil {
 		return stmt, nil
 	}
@@ -184,7 +185,7 @@ func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
 		return h.getStmt(v)
 	}
 	if v, ok := h.ifuncs[key]; ok {
-		query := v(args...)
+		query := v(h, args...)
 		query = h.replacer.Replace(query)
 		return h.getStmt(query)
 	}
@@ -193,7 +194,7 @@ func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
 		for _, s := range args {
 			sArgs = append(sArgs, fmt.Sprintf("%v", s))
 		}
-		query := v(sArgs...)
+		query := v(h, sArgs...)
 		query = h.replacer.Replace(query)
 
 		return h.getStmt(query)
@@ -234,4 +235,8 @@ func (h *Handler) Unlock() {
 
 func (h *Handler) Concat(s ...string) string {
 	return h.helper.Concat(s...)
+}
+
+func (h *Handler) Hash(s ...string) string {
+	return h.helper.Hash(s...)
 }

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS %%PREFIX%%_tree (
     mpath2 VARCHAR(255)      NOT NULL,
     mpath3 VARCHAR(255)      NOT NULL,
     mpath4 VARCHAR(255)      NOT NULL,
-    
+
     CONSTRAINT tree_pk PRIMARY KEY (uuid),
     CONSTRAINT tree_u1 UNIQUE (mpath1, mpath2, mpath3, mpath4)
 );

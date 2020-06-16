@@ -76,35 +76,66 @@ func init() {
 	inserting.Store(make(map[string]bool))
 	cond = sync.NewCond(&sync.Mutex{})
 
-	queries["insertTree"] = func(args ...interface{}) string {
+	queries["insertTree"] = func(dao sql.DAO, args ...interface{}) string {
 		var num int
 		if len(args) == 1 {
 			num = args[0].(int)
 		}
 
-		str := `insert into %%PREFIX%%_idx_tree (uuid, level, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4) values `
+		columns := []string{"uuid", "level", "name", "leaf", "mtime", "etag", "size", "mode", "mpath1", "mpath2", "mpath3", "mpath4"}
+		values := []string{"?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"}
 
-		str = str + `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
+		if hash != "" {
+			columns = append(columns, "hash")
+			values = append(values, hash)
+		}
+
+		str := `
+			insert into %%PREFIX%%_idx_tree (` +
+			strings.Join(columns, ",") + `
+			) values (` +
+			strings.Join(values, ",") + `
+			)`
 
 		for i := 1; i < num; i++ {
-			str = str + `, (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+			str = str + `, (` + strings.Join(values, ",") + `)`
 		}
 
 		return str
 	}
-	queries["insertCommit"] = func(mpathes ...string) string {
+	queries["insertCommit"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
-		insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size)
-		values (?, ?, ?, ?)`
+			insert into %%PREFIX%%_idx_commits (
+				uuid, etag, mtime, size
+			) values (
+				?, ?, ?, ?
+			)`
 	}
-	queries["insertCommitWithData"] = func(mpathes ...string) string {
+	queries["insertCommitWithData"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
-		insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
-		values (?, ?, ?, ?, ?)`
+			insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
+			values (?, ?, ?, ?, ?)
+		`
 	}
-	queries["updateTree"] = func(mpathes ...string) string {
+	queries["updateTree"] = func(dao sql.DAO, mpathes ...string) string {
+
+		columns := []string{"level", "name", "leaf", "mtime", "etag", "size", "mode", "mpath1", "mpath2", "mpath3", "mpath4", "uuid"}
+		values := []string{"?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"}
+
+		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
+		if hash != "" {
+			columns = append(columns, "hash")
+			values = append(values, hash)
+		}
+
 		return `
-		replace into %%PREFIX%%_idx_tree(level, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4, uuid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+			replace into %%PREFIX%%_idx_tree (` +
+			strings.Join(columns, ",") + `
+			) values (` +
+			strings.Join(values, ",") + `
+			)
+		`
 	}
 	queries["updateReplace"] = func(dao sql.DAO, args ...string) (string, []interface{}) {
 		whereSub, whereArgs := getMPathLike([]byte(args[0]))
@@ -130,27 +161,32 @@ func init() {
 			mpathSub = append(mpathSub, `mpath4 = `+dao.Concat(`"`+mpath4[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath4[0])+2)+`)`))
 		}
 
+		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
+		if hash != "" {
+			mpathSub = append(mpathSub, `hash = `+hash)
+		}
+
 		return fmt.Sprintf(`
 		update %%PREFIX%%_idx_tree set level = level + ?, %s
 		where %s`, strings.Join(mpathSub, ", "), whereSub), whereArgs
 	}
-	queries["updateMeta"] = func(mpathes ...string) string {
+	queries["updateMeta"] = func(dao sql.DAO, mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set name = ?, leaf = ?, mtime = ?, etag=?, size=?, mode=? WHERE uuid = ?`
 	}
-	queries["updateEtag"] = func(mpathes ...string) string {
+	queries["updateEtag"] = func(dao sql.DAO, mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
 
-	queries["deleteCommits"] = func(mpathes ...string) string {
+	queries["deleteCommits"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
 		delete from %%PREFIX%%_idx_commits where uuid = ?`
 	}
-	queries["selectCommits"] = func(mpathes ...string) string {
+	queries["selectCommits"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
 		select etag, mtime, size, data from %%PREFIX%%_idx_commits where uuid = ? ORDER BY id DESC
 	`
 	}
-	queries["selectNodeUuid"] = func(mpathes ...string) string {
+	queries["selectNodeUuid"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
 		select uuid, level, mpath1, mpath2, mpath3, mpath4, name, leaf, mtime, etag, size, mode
         from %%PREFIX%%_idx_tree where uuid = ?`
