@@ -843,7 +843,6 @@ func (a *azureObjects) CopyObject(ctx context.Context, srcBucket, srcObject, des
 		return objInfo, azureToObjectError(err, srcBucket, srcObject)
 	}
 	contentMd5 := srcBlob.Properties.ContentMD5
-	fmt.Println(contentMd5)
 	srcBlobURL := srcBlob.GetURL()
 	destBlob := a.client.GetContainerReference(destBucket).GetBlobReference(destObject)
 	azureMeta, _, err := s3MetaToAzureProperties(ctx, srcInfo.UserDefined)
