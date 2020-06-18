@@ -36,9 +36,10 @@ import (
 
 const SessionRolesKey = "roles"
 const SessionWorkspacesKey = "workspaces"
+const SessionAccessListKey = "accessList"
 const SessionUsernameKey = "user"
 const SessionProfileKey = "profile"
-const SessionClaimsKey = "profile"
+const SessionClaimsKey = "claims"
 const SessionLimiterKey = "limiter"
 
 const LimiterRate = 30
@@ -68,6 +69,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		log.Logger(ctx).Debug("Setting workspaces in session", zap.Any("workspaces", workspaces))
 		session.Set(SessionRolesKey, roles)
 		session.Set(SessionWorkspacesKey, workspaces)
+		session.Set(SessionAccessListKey, accessList)
 		session.Set(SessionUsernameKey, claims.Name)
 		session.Set(SessionProfileKey, claims.Profile)
 		session.Set(SessionClaimsKey, claims)
@@ -83,6 +85,7 @@ func ClearSession(session *melody.Session) {
 
 	session.Set(SessionRolesKey, nil)
 	session.Set(SessionWorkspacesKey, nil)
+	session.Set(SessionAccessListKey, nil)
 	session.Set(SessionUsernameKey, nil)
 	session.Set(SessionProfileKey, nil)
 	session.Set(SessionClaimsKey, nil)

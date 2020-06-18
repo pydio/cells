@@ -153,6 +153,11 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				return err
 			}
 			respNode := resp.Node
+			wrapperCtx, wrapperN, _ := inputFilter(ctx, respNode, "in")
+			if err := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); err != nil {
+				log.Logger(ctx).Debug("Skipping node in search results", respNode.ZapPath())
+				continue
+			}
 			for r, p := range nodesPrefixes {
 				if strings.HasPrefix(respNode.Path, r+"/") {
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))

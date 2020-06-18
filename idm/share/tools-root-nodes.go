@@ -33,7 +33,7 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 			node := resp.Node
 			var multipleMeta []*tree.WorkspaceRelativePath
 			for _, ws := range accessList.Workspaces {
-				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, ws, resp.Node); ok {
+				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, accessList, ws, resp.Node); ok {
 					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 						WsLabel: ws.Label,
 						WsUuid:  ws.UUID,

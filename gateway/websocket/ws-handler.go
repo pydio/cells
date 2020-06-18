@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/meta"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -194,11 +195,20 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 	return w.Websocket.BroadcastFilter([]byte(`"dump"`), func(session *melody.Session) bool {
 
-		value, ok := session.Get(SessionWorkspacesKey)
-		if !ok || value == nil {
+		var workspaces map[string]*idm.Workspace
+		var accessList *permissions.AccessList
+
+		if value, ok := session.Get(SessionWorkspacesKey); !ok || value == nil {
 			return false
+		} else {
+			workspaces = value.(map[string]*idm.Workspace)
 		}
-		workspaces := value.(map[string]*idm.Workspace)
+
+		if value, ok := session.Get(SessionAccessListKey); !ok || value == nil {
+			return false
+		} else {
+			accessList = value.(*permissions.AccessList)
+		}
 
 		// Rate-limit events (let Optimistic events always go through)
 		if lim, ok := session.Get(SessionLimiterKey); ok && !event.Optimistic {
@@ -233,8 +243,8 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 		enrichedNodes := make(map[string]*tree.Node)
 		for wsId, workspace := range workspaces {
-			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Target)
-			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Source)
+			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, accessList, workspace, event.Target)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, accessList, workspace, event.Source)
 			// Depending on node, broadcast now
 			if t1 || t2 {
 				eType := event.Type

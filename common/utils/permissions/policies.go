@@ -101,7 +101,5 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	policyContext[PolicyNodeMetaPath] = node.Path
 	policyContext[PolicyNodeMetaMTime] = string(node.MTime)
 	policyContext[PolicyNodeMetaSize] = string(node.Size)
-	if node.IsLeaf() {
-		policyContext[PolicyNodeMetaExtension] = strings.TrimLeft(path.Ext(node.Path), ".")
-	}
+	policyContext[PolicyNodeMetaExtension] = strings.TrimLeft(path.Ext(node.Path), ".")
 }

@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
@@ -159,7 +158,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 			if resp == nil {
 				continue
 			}
-			if a.FilterActivity(ctx, accessList.Workspaces, resp.Activity) {
+			if a.FilterActivity(ctx, accessList, resp.Activity) {
 				resp.Activity.Summary = render.Markdown(resp.Activity, inputReq.PointOfView, inputReq.Language, serverLinks)
 				collection = append(collection, resp.Activity)
 			}
@@ -233,7 +232,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 }
 
 // FilterActivity is used internally to show only authorized events depending on the context
-func (a *ActivityHandler) FilterActivity(ctx context.Context, workspaces map[string]*idm.Workspace, ac *activity.Object) bool {
+func (a *ActivityHandler) FilterActivity(ctx context.Context, accessList *permissions.AccessList, ac *activity.Object) bool {
 
 	if ac.Object == nil {
 		return true
@@ -243,8 +242,8 @@ func (a *ActivityHandler) FilterActivity(ctx context.Context, workspaces map[str
 	if (obj.Type == activity.ObjectType_Folder || obj.Type == activity.ObjectType_Document) && obj.Name != "" {
 		node := &tree.Node{Path: obj.Name, Uuid: obj.Id}
 		count := 0
-		for _, workspace := range workspaces {
-			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, workspace, node); ok {
+		for _, workspace := range accessList.Workspaces {
+			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, accessList, workspace, node); ok {
 				if obj.PartOf == nil {
 					obj.PartOf = &activity.Object{
 						Type:  activity.ObjectType_Collection,
