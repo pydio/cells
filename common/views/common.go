@@ -200,18 +200,22 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		n.Uuid = "" // Make sure to look by path
 		searchFunc = tree.BuildAncestorsListOrParent
 	}
-	if parents, err := searchFunc(ctx, p.GetTreeClient(), n); err != nil {
+	parents, err := searchFunc(ctx, p.GetTreeClient(), n)
+	if err != nil {
 		return ctx, nil, err
-	} else {
-		if hasBranchInfo {
-			if branchInfo.AncestorsList == nil {
-				branchInfo.AncestorsList = make(map[string][]*tree.Node, 1)
-			}
-			branchInfo.AncestorsList[node.Path] = parents
-			ctx = WithBranchInfo(ctx, identifier, branchInfo)
-		}
-		return ctx, parents, nil
 	}
+
+	if hasBranchInfo {
+		if branchInfo.AncestorsList == nil {
+			branchInfo.AncestorsList = make(map[string][]*tree.Node, 1)
+		}
+		branchInfo.AncestorsList[node.Path] = parents
+		ctx = WithBranchInfo(ctx, identifier, branchInfo)
+	}
+	if orParents && len(parents) > 0 && parents[0].Path != n.Path {
+		parents = append([]*tree.Node{n}, parents...)
+	}
+	return ctx, parents, nil
 
 }
 
