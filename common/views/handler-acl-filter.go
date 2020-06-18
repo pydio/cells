@@ -199,7 +199,10 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 	}
 	accessList := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	// First load ancestors or grab them from BranchInfo
-	ctx, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, true)
+	checkNode := node.Clone()
+	checkNode.Type = tree.NodeType_LEAF
+	checkNode.Size = requestData.Size
+	ctx, parents, err := AncestorsListFromContext(ctx, checkNode, "in", a.clientsPool, true)
 	if err != nil {
 		return 0, err
 	}
@@ -207,6 +210,22 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)
+}
+
+func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+	if a.skipContext(ctx) {
+		return a.next.MultipartCreate(ctx, node, requestData)
+	}
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
+	// First load ancestors or grab them from BranchInfo
+	ctx, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, true)
+	if err != nil {
+		return "", err
+	}
+	if !accessList.CanWrite(ctx, parents...) {
+		return "", errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
+	}
+	return a.next.MultipartCreate(ctx, node, requestData)
 }
 
 func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {

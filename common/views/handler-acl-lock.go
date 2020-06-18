@@ -76,6 +76,30 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
+func (a *AclLockFilter) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+	branchInfo, ok := GetBranchInfo(ctx, "in")
+	if !ok {
+		return a.next.MultipartCreate(ctx, node, requestData)
+	}
+
+	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	nodes := []*tree.Node{node}
+	for _, ancestorNodes := range branchInfo.AncestorsList {
+		nodes = append(nodes, ancestorNodes...)
+	}
+
+	if accessList.IsLocked(ctx, nodes...) {
+		return "", errors.New("parent.locked", "Node is currently locked", 423)
+	}
+
+	return a.next.MultipartCreate(ctx, node, requestData)
+
+}
+
 // WrappedCanApply will perform checks on quota to make sure an operation is authorized
 func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 
@@ -83,6 +107,8 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 	var ctx context.Context
 
 	switch operation.GetType() {
+	case tree.NodeChangeEvent_READ:
+		return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
 	case tree.NodeChangeEvent_CREATE:
 		node = operation.GetTarget()
 		ctx = targetCtx
