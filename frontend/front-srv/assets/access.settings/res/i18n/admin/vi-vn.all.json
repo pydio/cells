@@ -6,7 +6,7 @@
     "other": "Hoạt động"
   },
   "loading": {
-    "other": "Loading..."
+    "other": "Đang tải..."
   },
   "ds.board.ds.legend": {
     "other": "Datasources là các đường dẫn tới dữ liệu và được Pydio tập hợp vào một cây thư mục duy nhất. Nó có thể nằm ở nhiều nơi khác nhau trong hệ thống lưu trữ của bạn."
@@ -27,13 +27,13 @@
     "other": "Versioning Policies"
   },
   "ds.board.wsfromds.title": {
-    "other": "Create Workspace"
+    "other": "Tạo workspace"
   },
   "ds.board.wsfromds.legend": {
-    "other": "Create a new workspace at the root of datasource %s"
+    "other": "Tạo một workspace mới ở thư mục gốc của datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Nhãn"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -120,7 +120,7 @@
     "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
   },
   "ds.editor.storage.readOnly": {
-    "other": "Read-only mode"
+    "other": "Chế độ chỉ đọc"
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
@@ -129,7 +129,7 @@
     "other": "Store checksums locally (do not modify objects)"
   },
   "ds.editor.storage.nativeEtags": {
-    "other": "Use Native Etags (will disable Desktop Sync)"
+    "other": "Sử dụng Native Etags (sẽ tắt đồng bộ máy tính để bàn)"
   },
   "ds.editor.storage.legend.checksumMapper": {
     "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
@@ -138,7 +138,7 @@
     "other": "Tạo mới DataSource"
   },
   "ds.editor.name.inuse": {
-    "other": "This name is already in use, make sure to pick another one!"
+    "other": "Tên này đã được sử dụng, hãy chọn một tên khác!"
   },
   "ds.editor.options": {
     "other": "Tùy chọn chính"
@@ -186,16 +186,16 @@
     "other": "Peer"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "invalid"
+    "other": "không hợp lệ"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "Tạo Thư mục"
   },
   "ds.editor.selector.mkdir.legend": {
-    "other": "Create a new folder under %s"
+    "other": "Tạo một thư mục mới dưới %s"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
+    "other": "Tên thư mục"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Hệ điều hành là MacOSX"
@@ -777,10 +777,10 @@
     "other": "Edit policy rules"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Chỉnh sửa nhãn"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Lưu các thay đổi"
   },
   "policies.policy.delete": {
     "other": "Delete policy"
@@ -795,10 +795,10 @@
     "other": "Loại Policy"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Thêm rule mới"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Xoá rule"
   },
   "policies.rule.delete.confirm": {
     "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
@@ -1053,10 +1053,10 @@
     "other": "Đường dẫn Template"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Lưu mẫu"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Xóa mẫu"
   },
   "virtual.delete.confirm": {
     "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
@@ -1068,7 +1068,7 @@
     "other": "Display code"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Chỉnh sửa code"
   },
   "ws.1": {
     "other": "Manage DataSources"
@@ -1548,7 +1548,7 @@
     "other": "Kích hoạt"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Xóa"
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
