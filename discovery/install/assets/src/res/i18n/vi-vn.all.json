@@ -123,10 +123,10 @@
     "other": "Database to use (will be created if it does not exist)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "Cổng"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "Cổng kết nối đến mysql"
   },
   "form.dbUser.label": {
     "other": "Database User"
@@ -144,13 +144,13 @@
     "other": "Socket"
   },
   "form.dbSocketFile.legend": {
-    "other": "Enter the location of the socket file to use to connect"
+    "other": "Nhập vị trí của tệp socket để kết nối"
   },
   "form.dbManualDSN.label": {
     "other": "DSN"
   },
   "form.dbManualDSN.legend": {
-    "other": "Use Golang-style DSN to describe the database connection"
+    "other": "Sử dụng DSN kiểu Golang để mô tả kết nối database"
   },
   "form.frontendApplicationTitle.label": {
     "other": "Tên Ứng Dụng"
@@ -162,13 +162,13 @@
     "other": "Ngôn ngữ mặc định"
   },
   "form.frontendLogin.label": {
-    "other": "Admin user login *"
+    "other": "Đăng nhập Admin user *"
   },
   "form.frontendLogin.legend": {
     "other": "Identifier used to log in"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "Mật khẩu Admin"
   },
   "form.frontendPassword.legend": {
     "other": "Mật khẩu được sử dụng để đăng nhập"
@@ -177,19 +177,19 @@
     "other": "Xác nhận mật khẩu"
   },
   "form.frontendRepeatPassword.legend": {
-    "other": "Confirm password twice"
+    "other": "Xác nhận mật khẩu hai lần"
   },
   "form.dsFolder.label": {
-    "other": "Path of the default datasource"
+    "other": "Đường dẫn mặc định của datasource"
   },
   "form.dsFolder.legend": {
     "other": "Sử dụng đường dẫn tuyệt đối trên máy chủ"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "Local FS (lưu trữ tất cả dữ liệu trên máy chủ này)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 (store all data inside S3 buckets)"
+    "other": "Amazon S3 (lưu trữ tất cả dữ liệu trong S3 buckets)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 Api Key"
@@ -201,10 +201,10 @@
     "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "Khóa Bí mật"
   },
   "form.dsS3ValidateKeys": {
-    "other": "Connect to S3 to define buckets"
+    "other": "Kết nối tới S3 để xác định buckets"
   },
   "form.s3BucketsPrefix.label": {
     "other": "Buckets prefix"
@@ -231,7 +231,7 @@
     "other": "Quay lại"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Cài đặt ngay"
   },
   "stepper.button.reload": {
     "other": "Tải lại"
