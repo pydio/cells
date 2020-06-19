@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/micro/go-micro/client"
@@ -283,7 +284,11 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identifier string, orParents bool, read bool, write bool) error {
 
-	accessList := c.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
+	val := c.Value(CtxUserAccessListKey{})
+	if val == nil {
+		return fmt.Errorf("cannot find accessList in context for checking permissions")
+	}
+	accessList := val.(*permissions.AccessList)
 	ctx, parents, err := AncestorsListFromContext(c, node, identifier, a.clientsPool, orParents)
 	if err != nil {
 		return err

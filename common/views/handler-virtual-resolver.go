@@ -46,7 +46,7 @@ func NewVirtualNodesHandler() *VirtualNodesResolver {
 func (v *VirtualNodesResolver) updateInput(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	virtualManager := GetVirtualNodesManager()
-	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && !branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && !branchInfo.Binary && branchInfo.Root != nil {
 		originalUuid := branchInfo.Root.Uuid
 		if virtual, exists := virtualManager.ByUuid(branchInfo.Root.Uuid); exists {
 			resolvedRoot, e := virtualManager.ResolveInContext(ctx, virtual, v.clientsPool, true)
