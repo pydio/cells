@@ -44,6 +44,10 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 
 	var ids []string
 	for _, n := range ancestors {
+		if n.Uuid == source.Uuid {
+			// Make sure no to use source as recycle root
+			continue
+		}
 		ids = append(ids, n.Uuid)
 	}
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
