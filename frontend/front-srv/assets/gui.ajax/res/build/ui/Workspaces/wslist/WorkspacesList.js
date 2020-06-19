@@ -46,10 +46,6 @@ var _pydioModelRepository = require('pydio/model/repository');
 
 var _pydioModelRepository2 = _interopRequireDefault(_pydioModelRepository);
 
-var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
-
-var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
-
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
@@ -255,8 +251,7 @@ var Entries = (function (_React$Component) {
                         pydio: pydio,
                         key: ws.getId(),
                         workspace: ws,
-                        showFoldersTree: activeWorkspace && activeWorkspace === ws.getId(),
-                        nonActiveRoot: nonActiveRoots[ws.getSlug()]
+                        showFoldersTree: activeWorkspace && activeWorkspace === ws.getId()
                     });
                 }),
                 !entries.length && emptyState,
@@ -293,34 +288,12 @@ var WorkspacesList = (function (_React$Component2) {
         workspaces.forEach(function (o) {
             return wsList.push(o);
         });
-        var notActives = wsList.filter(function (ws) {
-            return !(pydio && pydio.user && pydio.user.activeRepository === ws.getId());
-        }).filter(function (ws) {
-            return ws.getNodeProviderDef() && ws.getNodeProviderDef().name === 'MetaNodeProvider';
-        });
-
-        if (notActives.length) {
-            this.loadNonActiveRoots(notActives);
-        }
         return {
             random: Math.random(),
             workspaces: workspaces,
-            nonActiveRoots: {},
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
-    };
-
-    WorkspacesList.prototype.loadNonActiveRoots = function loadNonActiveRoots(workspaces) {
-        var _this4 = this;
-
-        _pydioModelMetaNodeProvider2['default'].loadRoots(workspaces.map(function (ws) {
-            return ws.getSlug();
-        })).then(function (nonActiveRoots) {
-            _this4.setState({ nonActiveRoots: nonActiveRoots, random: Math.random() });
-        })['catch'](function (e) {
-            _this4.setState({ nonActiveRoots: {}, random: Math.random() });
-        });
     };
 
     WorkspacesList.prototype.componentDidMount = function componentDidMount() {
@@ -336,13 +309,12 @@ var WorkspacesList = (function (_React$Component2) {
     };
 
     WorkspacesList.prototype.render = function render() {
-        var _this6 = this;
+        var _this5 = this;
 
         var createAction = undefined;
         var _state2 = this.state;
         var workspaces = _state2.workspaces;
         var activeWorkspace = _state2.activeWorkspace;
-        var nonActiveRoots = _state2.nonActiveRoots;
         var popoverOpen = _state2.popoverOpen;
         var popoverAnchor = _state2.popoverAnchor;
         var popoverContent = _state2.popoverContent;
@@ -378,15 +350,15 @@ var WorkspacesList = (function (_React$Component2) {
         var messages = pydio.MessageHash;
 
         var createClick = (function (event) {
-            var _this5 = this;
+            var _this4 = this;
 
             var target = event.target;
             _pydioHttpResourcesManager2['default'].loadClassesAndApply(['ShareDialog'], function () {
-                _this5.setState({
+                _this4.setState({
                     popoverOpen: true,
                     popoverAnchor: target,
                     popoverContent: _react2['default'].createElement(ShareDialog.CreateCellDialog, { pydio: pydio, onDismiss: function () {
-                            _this5.setState({ popoverOpen: false });
+                            _this4.setState({ popoverOpen: false });
                         } })
                 });
             });
@@ -434,7 +406,7 @@ var WorkspacesList = (function (_React$Component2) {
                     anchorEl: popoverAnchor,
                     useLayerForClickAway: true,
                     onRequestClose: function () {
-                        _this6.setState({ popoverOpen: false });
+                        _this5.setState({ popoverOpen: false });
                     },
                     anchorOrigin: sharedEntries.length ? { horizontal: "left", vertical: "top" } : { horizontal: "left", vertical: "bottom" },
                     targetOrigin: sharedEntries.length ? { horizontal: "left", vertical: "top" } : { horizontal: "left", vertical: "bottom" },
@@ -450,7 +422,6 @@ var WorkspacesList = (function (_React$Component2) {
                 titleStyle: _extends({}, sectionTitleStyle, { marginTop: 5, position: 'relative', overflow: 'visible', transition: 'none' }),
                 pydio: pydio,
                 activeWorkspace: activeWorkspace,
-                nonActiveRoots: nonActiveRoots,
                 palette: muiTheme.palette,
                 buttonStyles: buttonStyles
             }),
@@ -462,7 +433,6 @@ var WorkspacesList = (function (_React$Component2) {
                 pydio: pydio,
                 createAction: createAction,
                 activeWorkspace: activeWorkspace,
-                nonActiveRoots: nonActiveRoots,
                 palette: muiTheme.palette,
                 buttonStyles: buttonStyles,
                 emptyState: _react2['default'].createElement(

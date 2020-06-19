@@ -341,7 +341,7 @@ var SimpleTreeNode = _react2['default'].createClass({
             _react2['default'].createElement(
                 'ul',
                 null,
-                !noPaginator && node.getMetadata().has('paginationData') && _react2['default'].createElement(TreePaginator, { node: node, dataModel: dataModel, depth: depth + 1, paddingOffset: paddingOffset }),
+                !noPaginator && node.getMetadata().has('paginationData') && parseInt(node.getMetadata().has('paginationData').get('total')) > 1 && _react2['default'].createElement(TreePaginator, { node: node, dataModel: dataModel, depth: depth + 1, paddingOffset: paddingOffset }),
                 children
             )
         );

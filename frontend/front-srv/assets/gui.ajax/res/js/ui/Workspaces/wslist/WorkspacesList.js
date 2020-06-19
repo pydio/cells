@@ -23,7 +23,6 @@ import Pydio from 'pydio'
 const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
 import Repository from 'pydio/model/repository'
-import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, Popover, FlatButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
@@ -158,7 +157,6 @@ class Entries extends React.Component{
                             key={ws.getId()}
                             workspace={ws}
                             showFoldersTree={activeWorkspace && activeWorkspace===ws.getId()}
-                            nonActiveRoot={nonActiveRoots[ws.getSlug()]}
                         />
                     ))}
                     {!entries.length && emptyState}
@@ -189,28 +187,12 @@ class WorkspacesList extends React.Component{
         const workspaces = pydio.user ? pydio.user.getRepositoriesList() : [];
         const wsList = [];
         workspaces.forEach(o => wsList.push(o));
-        const notActives = wsList
-            .filter(ws => !(pydio && pydio.user && pydio.user.activeRepository === ws.getId()))
-            .filter(ws => ws.getNodeProviderDef() && ws.getNodeProviderDef().name === 'MetaNodeProvider');
-
-        if(notActives.length) {
-            this.loadNonActiveRoots(notActives);
-        }
         return {
             random: Math.random(),
             workspaces,
-            nonActiveRoots:{},
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
-    }
-
-    loadNonActiveRoots(workspaces){
-        MetaNodeProvider.loadRoots(workspaces.map(ws => ws.getSlug())).then(nonActiveRoots => {
-            this.setState({nonActiveRoots, random: Math.random()});
-        }).catch(e => {
-            this.setState({nonActiveRoots: {}, random: Math.random()});
-        });
     }
 
     componentDidMount(){
@@ -227,7 +209,7 @@ class WorkspacesList extends React.Component{
 
     render(){
         let createAction;
-        const {workspaces,activeWorkspace, nonActiveRoots, popoverOpen, popoverAnchor, popoverContent} = this.state;
+        const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle} = this.props;
 
         // Split Workspaces from Cells
@@ -312,7 +294,6 @@ class WorkspacesList extends React.Component{
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
                         pydio={pydio}
                         activeWorkspace={activeWorkspace}
-                        nonActiveRoots={nonActiveRoots}
                         palette={muiTheme.palette}
                         buttonStyles={buttonStyles}
                     />
@@ -325,7 +306,6 @@ class WorkspacesList extends React.Component{
                     pydio={pydio}
                     createAction={createAction}
                     activeWorkspace={activeWorkspace}
-                    nonActiveRoots={nonActiveRoots}
                     palette={muiTheme.palette}
                     buttonStyles={buttonStyles}
                     emptyState={

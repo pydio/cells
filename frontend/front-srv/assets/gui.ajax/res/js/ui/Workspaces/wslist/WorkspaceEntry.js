@@ -19,23 +19,22 @@
  */
 
 
-import WorkspaceCard from "./WorkspaceCard";
 
-const React = require('react')
-const {muiThemeable} = require('material-ui/styles')
+
+import React from "react";
+import Pydio from "pydio";
+import {muiThemeable} from "material-ui/styles";
 import Color from 'color'
 import {CircularProgress, Popover, Dialog} from 'material-ui'
 import { DragSource, DropTarget, flow } from 'react-dnd';
+import Node from "pydio/model/node";
 import DOMUtils from 'pydio/util/dom'
-import ContextMenuModel from 'pydio/model/context-menu'
-const Pydio = require('pydio');
-const PydioApi = require('pydio/http/api');
-const Node = require('pydio/model/node');
 import ResourcesManager from 'pydio/http/resources-manager'
-const {FoldersTree, DND, ChatIcon, MenuUtils} = Pydio.requireLib('components');
-const {withContextMenu} = Pydio.requireLib('hoc');
+const {FoldersTree, DND, ChatIcon} = Pydio.requireLib('components');
+import MetaNodeProvider from 'pydio/model/meta-node-provider'
+import WorkspaceCard from "./WorkspaceCard";
 
-const { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } = DND;
+const { Types, collectDrop, nodeDropTarget } = DND;
 
 
 let Badge = ({children, muiTheme}) => {
@@ -231,7 +230,24 @@ let WorkspaceEntry =React.createClass({
         return {};
     },
 
-    workspacePopover(event, menuNode){
+    workspacePopoverNode(workspace, menuNode = undefined) {
+        if(menuNode){
+            return Promise.resolve(menuNode)
+        }
+        return MetaNodeProvider.loadRoots([workspace.getSlug()]).then(results => {
+            if(results && results[workspace.getSlug()]) {
+                return results[workspace.getSlug()]
+            }  else {
+                const fakeNode = new Node('/', false, workspace.getLabel());
+                fakeNode.setRoot(true);
+                fakeNode.getMetadata().set('repository_id', workspace.getId());
+                fakeNode.getMetadata().set('workspaceEntry', workspace);
+                return fakeNode;
+            }
+        })
+    },
+
+    workspacePopover(event, menuNode = undefined){
         const {pydio, workspace} = this.props;
         event.stopPropagation();
         const {target} = event;
@@ -239,38 +255,39 @@ let WorkspaceEntry =React.createClass({
         const viewportH = DOMUtils.getViewportHeight();
         const viewportW = DOMUtils.getViewportWidth();
         const popoverTop = (viewportH - offsetTop < 250);
-        if(workspace.getOwner()){
-            ResourcesManager.loadClassesAndApply(["ShareDialog"], () => {
-                const popoverContent = (<ShareDialog.CellCard
-                    pydio={pydio}
-                    cellId={workspace.getId()}
-                    onDismiss={()=>{this.setState({popoverOpen: false})}}
-                    onHeightChange={()=>{this.setState({popoverHeight: 500})}}
-                    editorOneColumn={viewportW < 700}
-                    rootNode={menuNode}
-                />);
+        this.workspacePopoverNode(workspace, menuNode).then(n => {
+            if(workspace.getOwner()){
+                ResourcesManager.loadClassesAndApply(["ShareDialog"], () => {
+                    const popoverContent = (<ShareDialog.CellCard
+                        pydio={pydio}
+                        cellId={workspace.getId()}
+                        onDismiss={()=>{this.setState({popoverOpen: false})}}
+                        onHeightChange={()=>{this.setState({popoverHeight: 500})}}
+                        editorOneColumn={viewportW < 700}
+                        rootNode={n}
+                    />);
+                    this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
+                });
+            } else{
+                const popoverContent = (
+                    <WorkspaceCard
+                        pydio={pydio}
+                        workspace={workspace}
+                        rootNode={n}
+                        onDismiss={()=>{this.setState({popoverOpen: false})}}
+                    />
+                );
                 this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
-            });
-        } else{
-            const popoverContent = (
-                <WorkspaceCard
-                    pydio={pydio}
-                    workspace={workspace}
-                    rootNode={menuNode}
-                    onDismiss={()=>{this.setState({popoverOpen: false})}}
-                />
-            );
-            this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
-        }
+            }
+        });
     },
 
     render(){
 
-        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, nonActiveRoot} = this.props;
+        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree} = this.props;
 
         let current = (pydio.user.getActiveRepository() === workspace.getId()),
             currentClass="workspace-entry",
-            messages = pydio.MessageHash,
             onHover, onOut, onClick,
             additionalAction,
             treeToggle;
@@ -315,7 +332,8 @@ let WorkspaceEntry =React.createClass({
         }
 
         let menuNode;
-        if(workspace.getId() === pydio.user.activeRepository ) {
+        let popoverNode;
+        if(current) {
             menuNode = pydio.getContextHolder().getRootNode();
             if (showFoldersTree) {
                 if(menuNode.isLoading()){
@@ -336,11 +354,9 @@ let WorkspaceEntry =React.createClass({
             }
             iconStyle.opacity = 1;
             iconStyle.color = accent2;
+            popoverNode = menuNode;
         }else{
             menuNode = new Node('/', false, workspace.getLabel());
-            if(nonActiveRoot){
-                menuNode = nonActiveRoot;
-            }
             menuNode.setRoot(true);
             menuNode.getMetadata().set('repository_id', workspace.getId());
             menuNode.getMetadata().set('workspaceEntry', workspace);
@@ -358,7 +374,7 @@ let WorkspaceEntry =React.createClass({
             additionalAction = (
                 <span
                     className="workspace-additional-action with-hover mdi mdi-dots-vertical"
-                    onClick={(e) => this.workspacePopover(e, menuNode)}
+                    onClick={(e) => this.workspacePopover(e, popoverNode)}
                     style={addStyle}
                 />
             );
