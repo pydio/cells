@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -224,7 +223,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		if targetIsParent {
 			dir = targetNodePath
 		} else {
-			dir, base = filepath.Split(targetNodePath)
+			dir, base = path.Split(targetNodePath)
 		}
 		targetNode := &tree.Node{Path: dir}
 		targetCtx, targetNode, nodeErr := inputFilter(ctx, targetNode, targetId)
@@ -255,12 +254,16 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			}
 			createSize += r.Node.Size
 			targetNode.Size = r.Node.Size
+			checkNode := targetNode.Clone()
+			if !targetIsParent { // Use real target to eventually check for name / extension
+				checkNode.Path = targetNodePath
+			}
 			if move {
-				if sErr := getRouter().WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: r.Node, Target: targetNode}); sErr != nil {
+				if sErr := getRouter().WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: r.Node, Target: checkNode}); sErr != nil {
 					return sErr
 				}
 			} else {
-				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: targetNode}); er != nil {
+				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: checkNode}); er != nil {
 					return er
 				}
 			}
@@ -443,10 +446,35 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 		}
 		cleanUrl := strings.Split(u, "?")[0]
 		cleanUrl = strings.Split(cleanUrl, "#")[0]
-		basename := filepath.Base(cleanUrl)
+		basename := path.Base(cleanUrl)
 		if basename == "" {
 			basename = jobUuid
 		}
+		targetPath := path.Join(fullPathParentNode.Path, basename)
+		targetNode := &tree.Node{Path: targetPath}
+		if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+			updateCtx, realTarget, e := inputFilter(ctx, targetNode, "sel")
+			if e != nil {
+				return e
+			} else {
+				accessList, e := views.AccessListFromContext(updateCtx)
+				if e != nil {
+					return e
+				}
+				// First load ancestors or grab them from BranchInfo
+				ctx, parents, err := views.AncestorsListFromContext(updateCtx, realTarget, "in", getRouter().GetClientsPool(), true)
+				if err != nil {
+					return err
+				}
+				if !accessList.CanWrite(ctx, parents...) {
+					return errors.Forbidden(common.SERVICE_JOBS, "Parent Node is not writeable")
+				}
+			}
+			return nil
+		}); err != nil {
+			return jobUuids, err
+		}
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -460,7 +488,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 					ID:         "actions.cmd.wget",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{filepath.Join(fullPathParentNode.Path, basename)},
+						Pathes: []string{path.Join(fullPathParentNode.Path, basename)},
 					},
 				},
 			},
