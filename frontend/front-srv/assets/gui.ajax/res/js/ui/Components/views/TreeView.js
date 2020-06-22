@@ -286,7 +286,7 @@ var SimpleTreeNode = React.createClass({
             <li ref={connector} className={"treenode" + node.getPath().replace(/\//g, '_')}>
                 {selfLabel}
                 <ul>
-                    {!noPaginator && node.getMetadata().has('paginationData') && parseInt(node.getMetadata().has('paginationData').get('total')) > 1 &&
+                    {!noPaginator && node.getMetadata().has('paginationData') && parseInt(node.getMetadata().get('paginationData').get('total')) > 1 &&
                     <TreePaginator node={node} dataModel={dataModel} depth={depth+1} paddingOffset={paddingOffset}/>
                     }
                     {children}
