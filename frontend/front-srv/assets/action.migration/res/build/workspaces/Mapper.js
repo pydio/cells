@@ -898,26 +898,23 @@ var WorkspaceMapper = (function (_React$Component) {
                 var template = root.template;
                 var parentDs = root.parentDs;
 
-                var datasourcePath = undefined;
+                // let datasourcePath;
 
-                // Check if we have a perfect match for a datasource
-                var datasource = datasources.filter(function (ds) {
-                    return trimURL(template.replace(/AJXP_DATA_PATH/g, "/Users/gregory/Library/Application\ Support/Pydio/cells/data")) === trimURL(_Ws2Datasources2['default'].extractPath(ds));
-                })[0];
+                // // Check if we have a perfect match for a datasource
+                // const cellsDataPath = // TODO need to get this path from the loaded datasources
+                // let datasource = datasources.filter((ds) => trimURL(template.replace(/AJXP_DATA_PATH/g, cellsDataPath)) === trimURL(Ws2Datasources.extractPath(ds)))[0]
 
-                if (!datasource) {
-                    // Check if we have a parent match for a datasource
-                    datasource = datasources.filter(function (ds) {
-                        return trimURL(parentDs.replace(/AJXP_DATA_PATH/g, "/Users/gregory/Library/Application\ Support/Pydio/cells/data")) === trimURL(_Ws2Datasources2['default'].extractPath(ds));
-                    })[0];
-                    datasourcePath = parentDs;
-                } else {
-                    datasourcePath = template;
-                }
+                // if (!datasource) {
+                //     // Check if we have a parent match for a datasource
+                //     datasource = datasources.filter((ds) => trimURL(parentDs.replace(/AJXP_DATA_PATH/g, cellsDataPath)) === trimURL(Ws2Datasources.extractPath(ds)))[0]
+                //     datasourcePath = parentDs
+                // } else {
+                //     datasourcePath = template
+                // }
 
                 return _extends({}, map, {
-                    datasourcePath: datasourcePath,
-                    datasource: datasource || {}
+                    datasourcePath: parentDs,
+                    datasource: {}
                 });
             });
 
