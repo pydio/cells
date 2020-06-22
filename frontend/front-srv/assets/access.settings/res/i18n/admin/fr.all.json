@@ -1677,13 +1677,13 @@
     "other": "Supprimer tout"
   },
   "scheduler.tasks.activity.title": {
-    "other": "Task Activity"
+    "other": "Activité de la tâche"
   },
   "scheduler.tasks.activity.loading": {
-    "other": "Loading activity..."
+    "other": "Chargement des activités..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Aucune activité"
   },
   "scheduler.schedule.monthly": {
     "other": "Tous les %1 de chaque mois à %2"
