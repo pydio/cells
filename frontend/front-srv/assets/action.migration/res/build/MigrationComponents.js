@@ -32707,7 +32707,7 @@ var WorkspaceMapper = (function (_React$Component) {
                 _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-left" }), label: this.T('next10') + limit, disabled: prev === undefined, onTouchTap: function () {
                         _this5.setState({ offset: prev });
                     } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-right" }), label: this.T('previous10') + limit, labelPosition: "before", disabled: next === undefined, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-right" }), label: this.T('prev10') + limit, labelPosition: "before", disabled: next === undefined, onTouchTap: function () {
                         _this5.setState({ offset: next });
                     } })
             );

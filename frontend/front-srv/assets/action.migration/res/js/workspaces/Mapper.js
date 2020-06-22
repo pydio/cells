@@ -576,7 +576,7 @@ export default class WorkspaceMapper extends React.Component{
         return (
             <div style={{display:'flex', justifyContent:'center', position: 'absolute', top: -13, left: 0, right: 0}}>
                 <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-left"}/>} label={this.T('next10') + limit} disabled={prev === undefined} onTouchTap={()=>{this.setState({offset: prev})}}/>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-right"}/>} label={this.T('previous10') + limit} labelPosition={"before"} disabled={next === undefined} onTouchTap={()=>{this.setState({offset: next})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-right"}/>} label={this.T('prev10') + limit} labelPosition={"before"} disabled={next === undefined} onTouchTap={()=>{this.setState({offset: next})}}/>
             </div>
         );
     }
