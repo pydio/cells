@@ -1676,6 +1676,15 @@
   "scheduler.tasks.bulk.clear": {
     "other": "Supprimer tout"
   },
+  "scheduler.tasks.activity.title": {
+    "other": "Task Activity"
+  },
+  "scheduler.tasks.activity.loading": {
+    "other": "Loading activity..."
+  },
+  "scheduler.tasks.activity.empty": {
+    "other": "No logs found"
+  },
   "scheduler.schedule.monthly": {
     "other": "Tous les %1 de chaque mois à %2"
   },
