@@ -1755,7 +1755,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -1801,7 +1801,11 @@ var TaskActivity = (function (_React$Component) {
         _classCallCheck(this, TaskActivity);
 
         _get(Object.getPrototypeOf(TaskActivity.prototype), "constructor", this).call(this, props);
-        this.state = { activity: [], loading: false };
+        this.state = {
+            activity: [],
+            loading: false,
+            page: 0
+        };
     }
 
     _createClass(TaskActivity, [{
@@ -1839,6 +1843,7 @@ var TaskActivity = (function (_React$Component) {
         value: function loadActivity(props) {
             var _this2 = this;
 
+            var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
             var task = props.task;
 
             if (!task) {
@@ -1849,17 +1854,15 @@ var TaskActivity = (function (_React$Component) {
 
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
-            request.Page = 0;
+            request.Page = page;
             request.Size = 200;
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
                 var ll = response.Logs || [];
-                // Logs are reverse sorted on time
-                ll.reverse();
-                _this2.setState({ activity: ll, loading: false });
+                _this2.setState({ activity: ll, loading: false, page: page });
             })["catch"](function () {
-                _this2.setState({ activity: [], loading: false });
+                _this2.setState({ activity: [], loading: false, page: page });
             });
         }
     }, {
@@ -1946,7 +1949,10 @@ var TaskActivity = (function (_React$Component) {
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var onRequestClose = _props2.onRequestClose;
-            var activity = this.state.activity;
+            var _state = this.state;
+            var activity = _state.activity;
+            var loading = _state.loading;
+            var page = _state.page;
 
             var cellBg = "#f5f5f5";
             var lineHeight = 32;
@@ -1964,8 +1970,29 @@ var TaskActivity = (function (_React$Component) {
                     { style: { padding: '0 24px 10px', fontWeight: 500, backgroundColor: cellBg, display: 'flex', alignItems: 'center' } },
                     _react2["default"].createElement(
                         "div",
-                        { style: { flex: 1 } },
-                        "Tasks Logs"
+                        null,
+                        pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.title']
+                    ),
+                    _react2["default"].createElement(
+                        "div",
+                        { style: { flex: 1, textAlign: 'center', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                        page > 0 && _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-left", color: "rgba(0,0,0,.7)", style: { cursor: 'pointer' }, onClick: function () {
+                                _this3.loadActivity(_this3.props, page - 1);
+                            } }),
+                        (page > 0 || activity.length >= 200) && _react2["default"].createElement(
+                            "span",
+                            { style: { fontSize: 12 } },
+                            pydio.MessageHash[331],
+                            " ",
+                            loading ? _react2["default"].createElement(_materialUi.CircularProgress, { size: 16, thickness: 1.5 }) : _react2["default"].createElement(
+                                "span",
+                                null,
+                                page + 1
+                            )
+                        ),
+                        activity.length >= 200 && _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-right", color: "rgba(0,0,0,.7)", style: { cursor: 'pointer' }, onClick: function () {
+                                _this3.loadActivity(_this3.props, page + 1);
+                            } })
                     ),
                     _react2["default"].createElement(
                         "div",
@@ -1978,7 +2005,18 @@ var TaskActivity = (function (_React$Component) {
                     columns: columns,
                     data: activity,
                     showCheckboxes: false,
-                    emptyStateString: 'No activity found',
+                    emptyStateString: loading ? _react2["default"].createElement(
+                        "div",
+                        { style: { display: 'flex', alignItems: 'center' } },
+                        " ",
+                        _react2["default"].createElement(_materialUi.CircularProgress, { size: 16, thickness: 1.5 }),
+                        " ",
+                        _react2["default"].createElement(
+                            "span",
+                            { style: { flex: 1, marginLeft: 5 } },
+                            pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.loading']
+                        )
+                    ) : pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.empty'],
                     emptyStateStyle: { backgroundColor: cellBg },
                     computeRowStyle: function (row) {
                         return { borderBottomColor: '#fff', height: lineHeight };

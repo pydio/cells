@@ -895,7 +895,6 @@ var WorkspaceMapper = (function (_React$Component) {
                     return root.ws === idx;
                 })[0];
 
-                var template = root.template;
                 var parentDs = root.parentDs;
 
                 // let datasourcePath;

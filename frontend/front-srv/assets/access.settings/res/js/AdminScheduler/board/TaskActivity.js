@@ -21,7 +21,7 @@
 import React from "react"
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
-import {FontIcon} from 'material-ui'
+import {FontIcon, CircularProgress} from 'material-ui'
 import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
 
 const {MaterialTable} = Pydio.requireLib('components');
@@ -32,7 +32,11 @@ class TaskActivity extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {activity:[], loading: false};
+        this.state = {
+            activity:[],
+            loading: false,
+            page:0,
+        };
     }
 
     componentDidMount(){
@@ -60,7 +64,7 @@ class TaskActivity extends React.Component{
         }
     }
 
-    loadActivity(props){
+    loadActivity(props, page = 0){
 
         const {task} = props;
         if(!task){
@@ -71,17 +75,15 @@ class TaskActivity extends React.Component{
 
         let request = new LogListLogRequest();
         request.Query = "+OperationUuid:\"" + operationId + "\"";
-        request.Page = 0;
+        request.Page = page;
         request.Size = 200;
         request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
         this.setState({loading: true});
         api.listTasksLogs(request).then(response => {
             const ll = response.Logs || [];
-            // Logs are reverse sorted on time
-            ll.reverse();
-            this.setState({activity:ll, loading: false})
+            this.setState({activity:ll, loading: false, page: page})
         }).catch(()=>{
-            this.setState({activity:[], loading: false})
+            this.setState({activity:[], loading: false, page: page})
         });
 
     }
@@ -151,7 +153,7 @@ class TaskActivity extends React.Component{
 
     render(){
         const {pydio, onRequestClose} = this.props;
-        const {activity} = this.state;
+        const {activity, loading, page} = this.state;
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
         const columns = [
@@ -167,7 +169,12 @@ class TaskActivity extends React.Component{
         return (
             <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>
                 <div style={{padding:'0 24px 10px', fontWeight:500, backgroundColor:cellBg, display:'flex', alignItems:'center'}}>
-                    <div style={{flex: 1}}>Tasks Logs</div>
+                    <div>{pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.title']}</div>
+                    <div style={{flex:1, textAlign:'center', fontSize: 20, display:'flex', alignItems:'center', justifyContent:'center'}}>
+                        {page > 0 && <FontIcon className={"mdi mdi-chevron-left"} color={"rgba(0,0,0,.7)"} style={{cursor: 'pointer'}} onClick={()=>{this.loadActivity(this.props, page - 1)}}/>}
+                        {(page > 0 || activity.length >= 200) && <span style={{fontSize: 12}}>{pydio.MessageHash[331]} {(loading?<CircularProgress size={16} thickness={1.5}/>:<span>{page + 1}</span>)}</span>}
+                        {activity.length >= 200 && <FontIcon className={"mdi mdi-chevron-right"} color={"rgba(0,0,0,.7)"} style={{cursor: 'pointer'}} onClick={()=>{this.loadActivity(this.props, page + 1)}}/>}
+                    </div>
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={onRequestClose}>
                         <FontIcon className={"mdi mdi-close"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
                     </div>
@@ -177,7 +184,7 @@ class TaskActivity extends React.Component{
                     columns={columns}
                     data={activity}
                     showCheckboxes={false}
-                    emptyStateString={'No activity found'}
+                    emptyStateString={loading ? <div style={{display:'flex', alignItems:'center'}}> <CircularProgress size={16} thickness={1.5}/> <span style={{flex:1, marginLeft: 5}}>{pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.loading']}</span></div> : pydio.MessageHash['ajxp_admin.scheduler.tasks.activity.empty']}
                     emptyStateStyle={{backgroundColor: cellBg}}
                     computeRowStyle={(row) => {return {borderBottomColor: '#fff', height: lineHeight}}}
                 />
