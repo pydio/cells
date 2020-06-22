@@ -1676,6 +1676,15 @@
   "scheduler.tasks.bulk.clear": {
     "other": "Xóa tất cả"
   },
+  "scheduler.tasks.activity.title": {
+    "other": "Task Activity"
+  },
+  "scheduler.tasks.activity.loading": {
+    "other": "Loading activity..."
+  },
+  "scheduler.tasks.activity.empty": {
+    "other": "No logs found"
+  },
   "scheduler.schedule.monthly": {
     "other": "Mỗi %1 của mỗi tháng tại %2"
   },
