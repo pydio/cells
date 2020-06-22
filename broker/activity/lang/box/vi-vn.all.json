@@ -54,22 +54,22 @@
     "other": "{{.Object}} đã được chỉnh sửa bởi {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Metadata đã được thay đổi bởi {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Đã chỉnh sửa metadata trên {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} đã chỉnh sửa metadata trên {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Chú thích bởi {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Đã chú thích {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} đã đưa ra chú thích mới trên {{.Object}}"
   },
   "MovedBy": {
     "other": "{{.Actor}} đã chuyển đi"
