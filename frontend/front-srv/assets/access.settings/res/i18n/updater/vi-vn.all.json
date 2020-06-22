@@ -36,16 +36,16 @@
     "other": "Kiểm tra ngay"
   },
   "package.version": {
-    "other": "Version"
+    "other": "Phiên bản"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Nhãn"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Thông tin chi tiết"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Hiển thị Changelog"
   },
   "start.update": {
     "other": "Bắt đầu nâng cấp"

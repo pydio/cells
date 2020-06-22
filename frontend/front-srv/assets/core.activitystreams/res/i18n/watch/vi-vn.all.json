@@ -3,7 +3,7 @@
     "other": "Trông nom..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "Đang theo dõi..."
   },
   "10": {
     "other": "Bất cứ ai cũng đang mở tập tin"
@@ -54,24 +54,24 @@
     "other": "Tư vấn"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "Nhận thông báo khi..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "Không (không nhận thông báo)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "Nội dung được truy cập"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "Nội dung được sửa đổi"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "Nội dung được truy cập hoặc được sửa đổi"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "Giá trị hỗn hợp"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "Đang lưu các trạng thái"
   }
 }

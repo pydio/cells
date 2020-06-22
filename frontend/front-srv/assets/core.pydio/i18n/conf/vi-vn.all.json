@@ -120,13 +120,13 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "Tên nguồn dữ liệu"
   },
   "Database": {
     "other": "Database"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "Tệp tin Database"
   },
   "Database name": {
     "other": "Database name"
@@ -135,13 +135,13 @@
     "other": "Database server"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "Nhãn mặc định"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "Ngôn ngữ mặc định"
   },
   "Default Metasources": {
-    "other": "Default Metasources"
+    "other": "Metasources mặc định"
   },
   "Default Rights": {
     "other": "Default Rights"

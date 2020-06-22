@@ -1,21 +1,21 @@
 {
   "Always Override": {
-    "other": "Always Override"
+    "other": "Luôn luôn ghi đè"
   },
   "Auto Close": {
-    "other": "Auto Close"
+    "other": "Tự động đóng"
   },
   "Auto Rename File": {
-    "other": "Auto Rename File"
+    "other": "Tự động thay đổi tên tệp"
   },
   "Auto Start": {
-    "other": "Auto Start"
+    "other": "Tự khởi động"
   },
   "Auto-switching HTML5 or IFrame uploader.": {
-    "other": "Auto-switching HTML5 or IFrame uploader."
+    "other": "Tự động chuyển đổi HTML5 hoặc IFrame uploader."
   },
   "Default Behaviour": {
-    "other": "Default Behaviour"
+    "other": "Hành vi mặc định"
   },
   "Default value for automatically closing the dialog after upload or not": {
     "other": "Default value for automatically closing the dialog after upload or not"
@@ -27,7 +27,7 @@
     "other": "Existing Files"
   },
   "HTML Uploader": {
-    "other": "Standard"
+    "other": "Tiêu chuẩn"
   },
   "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
     "other": "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)"

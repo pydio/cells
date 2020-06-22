@@ -3,13 +3,13 @@
     "other": "Đường dẫn"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "Trình tải về mặc định"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "Khi tải xuống một thư mục hoặc nhiều lựa chọn, tự động tạo một kho lưu trữ bằng định dạng này"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Đường dẫn đến thư mục trên máy chủ"
   },
   "Gateway": {
     "other": "Gateway"
