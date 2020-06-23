@@ -81,7 +81,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 	roots := workspace.RootUUIDs
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-			if accessList != nil && !accessList.CanReadPath(ctx, node) {
+			if accessList != nil && !accessList.CanReadPath(ctx, node, r.virtualResolver) {
 				log.Logger(ctx).Debug("[WorkspaceCanSeeNode] Cannot read node - Skipping", node.ZapPath())
 				continue
 			}
@@ -96,6 +96,16 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 			})
 			log.Logger(ctx).Debug("Router Filtered node", zap.String("rootPath", parent.Path), zap.String("workspace", workspace.Label), zap.String("from", node.Path), zap.String("to", newNode.Path))
 			return newNode, true
+		}
+	}
+	return nil, false
+}
+
+func (r *RouterEventFilter) virtualResolver(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+	vManager := GetVirtualNodesManager()
+	if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
+		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, r.GetClientsPool(), false); e == nil {
+			return resolved, true
 		}
 	}
 	return nil, false

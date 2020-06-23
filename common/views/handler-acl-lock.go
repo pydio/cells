@@ -59,7 +59,7 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
 
-	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	accessList, err := permissions.AccessListForLockedNodes(ctx, a.virtualResolver)
 	if err != nil {
 		return 0, err
 	}
@@ -82,7 +82,7 @@ func (a *AclLockFilter) MultipartCreate(ctx context.Context, node *tree.Node, re
 		return a.next.MultipartCreate(ctx, node, requestData)
 	}
 
-	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	accessList, err := permissions.AccessListForLockedNodes(ctx, a.virtualResolver)
 	if err != nil {
 		return "", err
 	}
@@ -118,7 +118,7 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 	}
 
 	// Load all nodes
-	accessList, err := permissions.AccessListForLockedNodes(ctx)
+	accessList, err := permissions.AccessListForLockedNodes(ctx, a.virtualResolver)
 	if err != nil {
 		return err
 	}
@@ -135,4 +135,14 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 	}
 
 	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
+}
+
+func (a *AclLockFilter) virtualResolver(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+	vManager := GetVirtualNodesManager()
+	if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
+		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, a.clientsPool, false); e == nil {
+			return resolved, true
+		}
+	}
+	return nil, false
 }

@@ -368,23 +368,10 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 }
 
 // AccessListForLockedNodes builds a flattened node list containing all currently locked nodes
-func AccessListForLockedNodes(ctx context.Context, excludedSessions ...string) (accessList *AccessList, err error) {
+func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver) (accessList *AccessList, err error) {
 	accessList = NewAccessList([]*idm.Role{})
 
 	acls, _ := GetACLsForActions(ctx, AclLock)
-
-	if len(excludedSessions) > 0 {
-		var a []*idm.ACL
-		for _, excludedSession := range excludedSessions {
-			for _, acl := range acls {
-				if acl.Action.Value != excludedSession {
-					a = append(a, acl)
-				}
-			}
-
-			acls = a
-		}
-	}
 
 	accessList.Append(acls)
 	accessList.NodesAcls = make(map[string]Bitmask)
@@ -396,7 +383,7 @@ func AccessListForLockedNodes(ctx context.Context, excludedSessions ...string) (
 		accessList.NodesAcls[acl.NodeID] = b
 	}
 
-	accessList.LoadNodePathsAcls(ctx)
+	accessList.LoadNodePathsAcls(ctx, resolver)
 
 	return accessList, nil
 }

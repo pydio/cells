@@ -227,13 +227,14 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			metaProvidersCloser meta.MetaProviderCloser
 		)
 
+		claims, _ := session.Get(SessionClaimsKey)
+		uName, _ := session.Get(SessionUsernameKey)
+		metaCtx = metadata.NewContext(context.Background(), map[string]string{
+			common.PYDIO_CONTEXT_USER_KEY: uName.(string),
+		})
+		metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
+
 		if event.refreshTarget && event.Target != nil {
-			claims, _ := session.Get(SessionClaimsKey)
-			uName, _ := session.Get(SessionUsernameKey)
-			metaCtx = metadata.NewContext(context.Background(), map[string]string{
-				common.PYDIO_CONTEXT_USER_KEY: uName.(string),
-			})
-			metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 			metaProviderClients, metaProvidersCloser, metaProviderNames = meta.InitMetaProviderClients(metaCtx, false)
 			defer metaProvidersCloser()
 			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
@@ -243,8 +244,8 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 		enrichedNodes := make(map[string]*tree.Node)
 		for wsId, workspace := range workspaces {
-			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, accessList, workspace, event.Target)
-			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, nil, workspace, event.Source) // Do not deep-check acl on source nodes (deleted!)
+			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, accessList, workspace, event.Target)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, nil, workspace, event.Source) // Do not deep-check acl on source nodes (deleted!)
 			// log.Logger(ctx).Info("Ws can see", zap.String("eType", event.Type.String()), zap.Bool("source", t2), event.Source.ZapPath(), zap.Bool("target", t1), event.Target.ZapPath())
 			// Depending on node, broadcast now
 			if t1 || t2 {

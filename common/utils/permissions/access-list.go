@@ -363,11 +363,6 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 		var checkOn map[string]Bitmask
 		var checkKey string
 		if byPath {
-			if a.nodesPathsAcls == nil {
-				if e := a.LoadNodePathsAcls(ctx); e != nil {
-					log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
-				}
-			}
 			checkOn = a.nodesPathsAcls
 			checkKey = node.Path
 		} else {
@@ -399,14 +394,24 @@ func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 }
 
 // CanRead checks if a node has READ access.
-func (a *AccessList) CanReadPath(ctx context.Context, node *tree.Node) bool {
+func (a *AccessList) CanReadPath(ctx context.Context, node *tree.Node, resolver VirtualPathResolver) bool {
+	if a.nodesPathsAcls == nil {
+		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
+			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
+		}
+	}
 	nodes := a.pathAncestors(node)
 	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
 }
 
 // CanWrite checks if a node has WRITE access.
-func (a *AccessList) CanWritePath(ctx context.Context, node *tree.Node) bool {
+func (a *AccessList) CanWritePath(ctx context.Context, node *tree.Node, resolver VirtualPathResolver) bool {
+	if a.nodesPathsAcls == nil {
+		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
+			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
+		}
+	}
 	nodes := a.pathAncestors(node)
 	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
@@ -454,7 +459,9 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 
 }
 
-func (a *AccessList) LoadNodePathsAcls(ctx context.Context) error {
+type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
+
+func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPathResolver) error {
 	a.nodesPathsAcls = make(map[string]Bitmask, len(a.NodesAcls))
 	cli := tree.NewNodeProviderStreamerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
 	st, e := cli.ReadNodeStream(ctx)
@@ -464,9 +471,14 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context) error {
 	defer st.Close()
 	// Retrieving path foreach ids
 	for nodeID, b := range a.NodesAcls {
+		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
+			log.Logger(ctx).Debug("Acl.LoadNodePathsAcls : Loading resolved node", n.Zap())
+			a.nodesPathsAcls[strings.TrimSuffix(n.Path, "/")] = b
+			continue
+		}
 		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
 		if err != nil {
-			continue
+			return err
 		}
 		resp, err := st.Recv()
 		if err != nil || resp.Node == nil {
