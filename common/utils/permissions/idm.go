@@ -396,19 +396,7 @@ func AccessListForLockedNodes(ctx context.Context, excludedSessions ...string) (
 		accessList.NodesAcls[acl.NodeID] = b
 	}
 
-	accessList.NodesPathsAcls = make(map[string]Bitmask)
-
-	cli := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-
-	// Retrieving path foreach ids
-	for nodeID := range accessList.NodesAcls {
-		resp, err := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
-		if err != nil {
-			return nil, err
-		}
-
-		accessList.NodesPathsAcls[resp.Node.Path] = b
-	}
+	accessList.LoadNodePathsAcls(ctx)
 
 	return accessList, nil
 }

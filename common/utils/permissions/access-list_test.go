@@ -156,3 +156,15 @@ func TestAccessList_Flatten(t *testing.T) {
 
 	})
 }
+
+func TestPathAncestors(t *testing.T) {
+	Convey("Test Path Ancestors", t, func() {
+		a := &AccessList{}
+
+		nn := a.pathAncestors(&tree.Node{Path: "/pydiods1/toto/tata/zzz", Type: tree.NodeType_LEAF})
+		So(len(nn), ShouldEqual, 4)
+
+		nn = a.pathAncestors(&tree.Node{Path: "/", Type: tree.NodeType_COLLECTION})
+		So(len(nn), ShouldEqual, 1)
+	})
+}

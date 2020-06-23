@@ -23,6 +23,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"path"
 	"sort"
 	"strings"
 
@@ -31,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -175,10 +177,11 @@ type AccessList struct {
 	Workspaces         map[string]*idm.Workspace
 	Acls               []*idm.ACL
 	NodesAcls          map[string]Bitmask
-	NodesPathsAcls     map[string]Bitmask
 	WorkspacesNodes    map[string]map[string]Bitmask
 	OrderedRoles       []*idm.Role
 	FrontPluginsValues []*idm.ACL
+
+	nodesPathsAcls map[string]Bitmask
 }
 
 // NewAccessList creates a new AccessList.
@@ -336,15 +339,15 @@ func (a *AccessList) FirstMaskForParents(ctx context.Context, nodes ...*tree.Nod
 
 // FirstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
 func (a *AccessList) FirstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
-	keys := make([]string, 0, len(a.NodesPathsAcls))
-	for k := range a.NodesPathsAcls {
+	keys := make([]string, 0, len(a.nodesPathsAcls))
+	for k := range a.nodesPathsAcls {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	for _, path := range keys {
-		if strings.HasPrefix(path, strings.TrimRight(node.Path, "/")+"/") {
-			return a.NodesPathsAcls[path]
+	for _, p := range keys {
+		if strings.HasPrefix(p, strings.TrimRight(node.Path, "/")+"/") {
+			return a.nodesPathsAcls[p]
 		}
 	}
 	return Bitmask{}
@@ -353,11 +356,25 @@ func (a *AccessList) FirstMaskForChildren(ctx context.Context, node *tree.Node) 
 // ParentMaskOrDeny browses access list from current node to ROOT, going through each parent.
 // If there is a deny anywhere up the path, it returns that deny,
 // otherwise it sends the first Bitmask found (closest parent having a Bitmask set).
-func (a *AccessList) ParentMaskOrDeny(ctx context.Context, nodes ...*tree.Node) (bool, Bitmask) {
+func (a *AccessList) ParentMaskOrDeny(ctx context.Context, byPath bool, nodes ...*tree.Node) (bool, Bitmask) {
 	var firstParent Bitmask
 	var hasParentDeny bool
 	for _, node := range nodes {
-		if bitmask, ok := a.NodesAcls[node.Uuid]; ok {
+		var checkOn map[string]Bitmask
+		var checkKey string
+		if byPath {
+			if a.nodesPathsAcls == nil {
+				if e := a.LoadNodePathsAcls(ctx); e != nil {
+					log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
+				}
+			}
+			checkOn = a.nodesPathsAcls
+			checkKey = node.Path
+		} else {
+			checkOn = a.NodesAcls
+			checkKey = node.Uuid
+		}
+		if bitmask, ok := checkOn[checkKey]; ok {
 			if firstParent.BitmaskFlag == BitmaskFlag(0) {
 				firstParent = bitmask
 			}
@@ -371,13 +388,27 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, nodes ...*tree.Node) 
 
 // CanRead checks if a node has READ access.
 func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
-	deny, mask := a.ParentMaskOrDeny(ctx, nodes...)
+	deny, mask := a.ParentMaskOrDeny(ctx, false, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
 }
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
-	deny, mask := a.ParentMaskOrDeny(ctx, nodes...)
+	deny, mask := a.ParentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
+}
+
+// CanRead checks if a node has READ access.
+func (a *AccessList) CanReadPath(ctx context.Context, node *tree.Node) bool {
+	nodes := a.pathAncestors(node)
+	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) CanWritePath(ctx context.Context, node *tree.Node) bool {
+	nodes := a.pathAncestors(node)
+	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
 }
 
@@ -421,6 +452,44 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 	}
 	return workspaces, workspacesRoots
 
+}
+
+func (a *AccessList) LoadNodePathsAcls(ctx context.Context) error {
+	a.nodesPathsAcls = make(map[string]Bitmask, len(a.NodesAcls))
+	cli := tree.NewNodeProviderStreamerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	st, e := cli.ReadNodeStream(ctx)
+	if e != nil {
+		return e
+	}
+	defer st.Close()
+	// Retrieving path foreach ids
+	for nodeID, b := range a.NodesAcls {
+		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		if err != nil {
+			continue
+		}
+		resp, err := st.Recv()
+		if err != nil || resp.Node == nil {
+			continue
+		}
+		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
+	}
+	return nil
+}
+
+func (a *AccessList) pathAncestors(node *tree.Node) (nodes []*tree.Node) {
+	var n *tree.Node
+	n = node.Clone()
+	n.Path = strings.TrimPrefix(n.Path, "/")
+	for {
+		nodes = append(nodes, n.Clone())
+		parent := path.Dir(n.Path)
+		if n.Path == "/" || parent == "" || parent == "." {
+			break
+		}
+		n = &tree.Node{Path: parent, Type: tree.NodeType_COLLECTION}
+	}
+	return
 }
 
 /* LOGGING SUPPORT */

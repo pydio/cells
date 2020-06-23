@@ -22,7 +22,6 @@ package views
 
 import (
 	"context"
-	"path"
 	"strings"
 	"time"
 
@@ -38,9 +37,7 @@ import (
 // Extended Router used mainly to filter events sent from inside to outside the application
 type RouterEventFilter struct {
 	Router
-	//RootNodesCache map[string]*tree.Node
 	RootNodesCache *cache.Cache
-	AncestorsCache *cache.Cache
 }
 
 // NewRouterEventFilter creates a new EventFilter properly initialized
@@ -68,7 +65,6 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 	r.Router.handlers = handlers
 	r.Router.pool = pool
 	r.RootNodesCache = cache.New(120*time.Second, 10*time.Minute)
-	r.AncestorsCache = cache.New(120*time.Second, 10*time.Minute)
 	r.initHandlers()
 	return r
 
@@ -85,14 +81,9 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 	roots := workspace.RootUUIDs
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-			//log.Logger(ctx).Debug("Before Filter", zap.Any("node", node))
-			if accessList != nil {
-				if ancestors, e := r.getAncestorsCached(ctx, node); e == nil {
-					if !accessList.CanRead(ctx, append([]*tree.Node{node}, ancestors...)...) {
-						log.Logger(ctx).Debug("[WorkspaceCanSeeNode] CANNOT READ node - Skipping", node.ZapPath())
-						continue
-					}
-				}
+			if accessList != nil && !accessList.CanReadPath(ctx, node) {
+				log.Logger(ctx).Debug("[WorkspaceCanSeeNode] Cannot read node - Skipping", node.ZapPath())
+				continue
 			}
 			newNode := node.Clone()
 			r.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
@@ -140,42 +131,5 @@ func (r *RouterEventFilter) getRoot(ctx context.Context, rootId string) *tree.No
 		return resp.Node
 	}
 	return nil
-
-}
-
-func (r *RouterEventFilter) getAncestorsCached(ctx context.Context, node *tree.Node) ([]*tree.Node, error) {
-
-	if data, ok := r.AncestorsCache.Get(node.Path); ok {
-		log.Logger(ctx).Debug("Returning Node ancestors from Cache")
-		return data.([]*tree.Node), nil
-	}
-
-	parentPath := path.Dir(node.Path)
-	if data, ok := r.AncestorsCache.Get(parentPath); ok {
-		log.Logger(ctx).Debug("Returning Parent ancestors from Cache")
-		nodes := data.([]*tree.Node)
-		return append([]*tree.Node{node}, nodes...), nil
-	}
-	s, e := r.pool.GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{Node: node, Ancestors: true})
-	if e != nil {
-		return nil, e
-	}
-	defer s.Close()
-	var data []*tree.Node
-	for {
-		resp, e := s.Recv()
-		if e != nil {
-			break
-		}
-		data = append(data, resp.Node)
-	}
-	// Cache parents
-	for i, cacheNode := range data {
-		sli := data[i+1:]
-		r.AncestorsCache.Set(cacheNode.Path, sli, cache.DefaultExpiration)
-		log.Logger(ctx).Debug("Caching "+cacheNode.Path, zap.Any("nodes", len(sli)))
-	}
-
-	return data, nil
 
 }

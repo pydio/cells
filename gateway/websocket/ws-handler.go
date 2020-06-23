@@ -244,7 +244,8 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		enrichedNodes := make(map[string]*tree.Node)
 		for wsId, workspace := range workspaces {
 			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, accessList, workspace, event.Target)
-			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, accessList, workspace, event.Source)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, nil, workspace, event.Source) // Do not deep-check acl on source nodes (deleted!)
+			// log.Logger(ctx).Info("Ws can see", zap.String("eType", event.Type.String()), zap.Bool("source", t2), event.Source.ZapPath(), zap.Bool("target", t1), event.Target.ZapPath())
 			// Depending on node, broadcast now
 			if t1 || t2 {
 				eType := event.Type
