@@ -29664,7 +29664,7 @@ var Dashboard = (function (_React$Component) {
                 content = _react2['default'].createElement(
                     _materialUi.Paper,
                     adminStyles.body.block.props,
-                    _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: showLogs, styles: styles })
+                    _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: showLogs, styles: adminStyles })
                 );
             } else {
                 (function () {
@@ -29782,32 +29782,36 @@ var Dashboard = (function (_React$Component) {
                         { className: 'layout-fill' },
                         (task || localStatus.length > 0) && _react2['default'].createElement(
                             _materialUi.Paper,
-                            null,
+                            adminStyles.body.block.props,
                             _react2['default'].createElement(
-                                'h5',
-                                null,
+                                'div',
+                                { style: adminStyles.body.block.headerFull },
                                 this.T('importing')
                             ),
-                            localStatus.length > 0 && _react2['default'].createElement(
+                            _react2['default'].createElement(
                                 'div',
-                                null,
-                                localStatus.map(function (x) {
-                                    return _react2['default'].createElement(
-                                        'div',
-                                        null,
-                                        x
-                                    );
-                                })
-                            ),
-                            task && _react2['default'].createElement(
-                                'div',
-                                null,
-                                _react2['default'].createElement(
-                                    'h6',
+                                { style: { padding: 16 } },
+                                localStatus.length > 0 && _react2['default'].createElement(
+                                    'div',
                                     null,
-                                    task.StatusMessage
+                                    localStatus.map(function (x) {
+                                        return _react2['default'].createElement(
+                                            'div',
+                                            null,
+                                            x
+                                        );
+                                    })
                                 ),
-                                task.Status !== "Finished" && _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: (task.Progress || 0) * 100, style: { width: '100%' } })
+                                task && _react2['default'].createElement(
+                                    'div',
+                                    null,
+                                    _react2['default'].createElement(
+                                        'h6',
+                                        null,
+                                        task.StatusMessage
+                                    ),
+                                    task.Status !== "Finished" && _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: (task.Progress || 0) * 100, style: { width: '100%' } })
+                                )
                             )
                         ),
                         content
@@ -29934,9 +29938,7 @@ var TaskActivity = (function (_React$Component) {
             var pydio = _props.pydio;
             var task = _props.task;
             var styles = _props.styles;
-            var _state = this.state;
-            var activity = _state.activity;
-            var loading = _state.loading;
+            var activity = this.state.activity;
 
             var columns = [{ name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return moment(row.Ts * 1000).fromNow();
@@ -29946,7 +29948,7 @@ var TaskActivity = (function (_React$Component) {
                 { className: "vertical-layout", style: { height: '100%' } },
                 _react2["default"].createElement(
                     "div",
-                    { style: _extends({}, styles.stepLegend, { padding: 16 }) },
+                    { style: _extends({}, styles.body.block.headerFull) },
                     this.T('logs.legend').replace("%s", task.ID)
                 ),
                 _react2["default"].createElement(

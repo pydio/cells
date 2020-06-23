@@ -59,7 +59,7 @@ class TaskActivity extends React.Component{
 
     render(){
         const {pydio, task, styles} = this.props;
-        const {activity, loading} = this.state;
+        const {activity} = this.state;
         const columns = [
             {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: '25%'}, headerStyle:{width: '25%'}, renderCell:(row=>{
                     return moment(row.Ts * 1000).fromNow();
@@ -68,7 +68,7 @@ class TaskActivity extends React.Component{
         ];
         return (
             <div className="vertical-layout" style={{height:'100%'}}>
-                <div style={{...styles.stepLegend, padding:16}}>{this.T('logs.legend').replace("%s", task.ID)}</div>
+                <div style={{...styles.body.block.headerFull}}>{this.T('logs.legend').replace("%s", task.ID)}</div>
                 <div className="layout-fill vertical-layout">
                     <MaterialTable
                         columns={columns}

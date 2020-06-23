@@ -120,7 +120,7 @@ export default class Dashboard extends React.Component {
         if(showLogs){
             content = (
                 <Paper {...adminStyles.body.block.props}>
-                    <TaskActivity pydio={pydio} task={showLogs} styles={styles}/>
+                    <TaskActivity pydio={pydio} task={showLogs} styles={adminStyles}/>
                 </Paper>
             )
         } else {
@@ -225,19 +225,21 @@ export default class Dashboard extends React.Component {
 
                     <div className="layout-fill">
                         {(task || localStatus.length > 0) &&
-                        <Paper>
-                            <h5>{this.T('importing')}</h5>
-                            {localStatus.length > 0 &&
-                            <div>{localStatus.map(x => <div>{x}</div>)}</div>
-                            }
-                            {task &&
-                            <div>
-                                <h6>{task.StatusMessage}</h6>
-                                {task.Status !== "Finished" &&
-                                <LinearProgress mode="determinate" min={0} max={100} value={(task.Progress || 0) * 100} style={{width:'100%'}} />
+                        <Paper {...adminStyles.body.block.props}>
+                            <div style={adminStyles.body.block.headerFull}>{this.T('importing')}</div>
+                            <div style={{padding:16}}>
+                                {localStatus.length > 0 &&
+                                <div>{localStatus.map(x => <div>{x}</div>)}</div>
+                                }
+                                {task &&
+                                <div>
+                                    <h6>{task.StatusMessage}</h6>
+                                    {task.Status !== "Finished" &&
+                                    <LinearProgress mode="determinate" min={0} max={100} value={(task.Progress || 0) * 100} style={{width:'100%'}} />
+                                    }
+                                </div>
                                 }
                             </div>
-                            }
                         </Paper>
                         }
 

@@ -226,7 +226,7 @@ var Dashboard = (function (_React$Component) {
                 content = _react2['default'].createElement(
                     _materialUi.Paper,
                     adminStyles.body.block.props,
-                    _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: showLogs, styles: styles })
+                    _react2['default'].createElement(_TaskActivity2['default'], { pydio: pydio, task: showLogs, styles: adminStyles })
                 );
             } else {
                 (function () {
@@ -344,32 +344,36 @@ var Dashboard = (function (_React$Component) {
                         { className: 'layout-fill' },
                         (task || localStatus.length > 0) && _react2['default'].createElement(
                             _materialUi.Paper,
-                            null,
+                            adminStyles.body.block.props,
                             _react2['default'].createElement(
-                                'h5',
-                                null,
+                                'div',
+                                { style: adminStyles.body.block.headerFull },
                                 this.T('importing')
                             ),
-                            localStatus.length > 0 && _react2['default'].createElement(
+                            _react2['default'].createElement(
                                 'div',
-                                null,
-                                localStatus.map(function (x) {
-                                    return _react2['default'].createElement(
-                                        'div',
-                                        null,
-                                        x
-                                    );
-                                })
-                            ),
-                            task && _react2['default'].createElement(
-                                'div',
-                                null,
-                                _react2['default'].createElement(
-                                    'h6',
+                                { style: { padding: 16 } },
+                                localStatus.length > 0 && _react2['default'].createElement(
+                                    'div',
                                     null,
-                                    task.StatusMessage
+                                    localStatus.map(function (x) {
+                                        return _react2['default'].createElement(
+                                            'div',
+                                            null,
+                                            x
+                                        );
+                                    })
                                 ),
-                                task.Status !== "Finished" && _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: (task.Progress || 0) * 100, style: { width: '100%' } })
+                                task && _react2['default'].createElement(
+                                    'div',
+                                    null,
+                                    _react2['default'].createElement(
+                                        'h6',
+                                        null,
+                                        task.StatusMessage
+                                    ),
+                                    task.Status !== "Finished" && _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: (task.Progress || 0) * 100, style: { width: '100%' } })
+                                )
                             )
                         ),
                         content

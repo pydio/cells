@@ -108,9 +108,7 @@ var TaskActivity = (function (_React$Component) {
             var pydio = _props.pydio;
             var task = _props.task;
             var styles = _props.styles;
-            var _state = this.state;
-            var activity = _state.activity;
-            var loading = _state.loading;
+            var activity = this.state.activity;
 
             var columns = [{ name: 'Ts', label: pydio.MessageHash['settings.17'], style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return moment(row.Ts * 1000).fromNow();
@@ -120,7 +118,7 @@ var TaskActivity = (function (_React$Component) {
                 { className: "vertical-layout", style: { height: '100%' } },
                 _react2["default"].createElement(
                     "div",
-                    { style: _extends({}, styles.stepLegend, { padding: 16 }) },
+                    { style: _extends({}, styles.body.block.headerFull) },
                     this.T('logs.legend').replace("%s", task.ID)
                 ),
                 _react2["default"].createElement(
