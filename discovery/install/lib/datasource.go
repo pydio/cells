@@ -109,7 +109,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	if conf.StorageType == object.StorageType_S3 {
 		config.Set(c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket")
 		config.Set(c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket")
-		config.Set(c.GetDsS3BucketVersions(), "services", "pydio.versions-stores", "bucket")
+		config.Set(c.GetDsS3BucketVersions(), "services", "pydio.versions-store", "bucket")
 	}
 
 	config.Save("cli", "Install / Setting default DataSources")
