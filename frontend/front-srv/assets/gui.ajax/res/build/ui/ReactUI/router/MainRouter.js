@@ -70,7 +70,7 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             var slug = repo ? repo.getSlug() : "";
             var reserved = ['homepage', 'settings'];
             var prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
-            var uri = '/' + prefix + slug + path;
+            var uri = '/' + prefix + slug + path.replace('#', '%23');
 
             if (this.props.location.action === 'POP') {
                 _reactRouterLibBrowserHistory2['default'].replace(uri);

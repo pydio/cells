@@ -18,14 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import _ from 'lodash';
-
 const PathRouterWrapper = (pydio) => {
     class PathRouter extends React.PureComponent {
 
-        _handle({params}) {
-            const splat = params.splat || ""
-            const path = pydio.getContextNode().getPath()
+        static _handle({params}) {
+            const splat = params.splat || "";
+            const path = pydio.getContextNode().getPath();
 
             if ("/" + splat !== path) {
                 pydio.goTo("/" + splat)
@@ -33,11 +31,11 @@ const PathRouterWrapper = (pydio) => {
         }
 
         componentWillMount() {
-            this._handle(this.props);
+            PathRouter._handle(this.props);
         }
 
         componentWillReceiveProps(nextProps) {
-            this._handle(nextProps);
+            PathRouter._handle(nextProps);
         }
 
         render() {

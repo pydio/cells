@@ -43,7 +43,7 @@ const MainRouterWrapper = (pydio) => {
             const slug = repo ? repo.getSlug() : "";
             const reserved = ['homepage', 'settings'];
             const prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
-            const uri = `/${prefix}${slug}${path}`
+            const uri = `/${prefix}${slug}${path.replace('#','%23')}`;
 
             if (this.props.location.action === 'POP') {
                 browserHistory.replace(uri)

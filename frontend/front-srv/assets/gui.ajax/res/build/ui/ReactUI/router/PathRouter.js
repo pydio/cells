@@ -22,15 +22,9 @@
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
 
 var PathRouterWrapper = function PathRouterWrapper(pydio) {
     var PathRouter = (function (_React$PureComponent) {
@@ -42,7 +36,7 @@ var PathRouterWrapper = function PathRouterWrapper(pydio) {
             _React$PureComponent.apply(this, arguments);
         }
 
-        PathRouter.prototype._handle = function _handle(_ref) {
+        PathRouter._handle = function _handle(_ref) {
             var params = _ref.params;
 
             var splat = params.splat || "";
@@ -54,11 +48,11 @@ var PathRouterWrapper = function PathRouterWrapper(pydio) {
         };
 
         PathRouter.prototype.componentWillMount = function componentWillMount() {
-            this._handle(this.props);
+            PathRouter._handle(this.props);
         };
 
         PathRouter.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-            this._handle(nextProps);
+            PathRouter._handle(nextProps);
         };
 
         PathRouter.prototype.render = function render() {
