@@ -43,7 +43,7 @@ function cssFormStyle() {
     return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle } });
 }
 
-var cssGroup = '\n.pydio-form-group {\n    width: 100% !important;\n    margin: 16px !important;\n    margin-top: 0 !important;\n}\n';
+var cssGroup = '\n.react-mui-context .app-canvas .pydio-form-group {\n    width: 100% !important;\n    margin: 16px !important;\n    margin-top: 0 !important;\n}\n';
 
 function cssFormGroupFullStyle() {
     return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssGroup } });

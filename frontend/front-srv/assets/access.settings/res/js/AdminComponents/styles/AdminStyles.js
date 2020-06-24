@@ -49,7 +49,7 @@ function cssFormStyle() {
 }
 
 const cssGroup = `
-.pydio-form-group {
+.react-mui-context .app-canvas .pydio-form-group {
     width: 100% !important;
     margin: 16px !important;
     margin-top: 0 !important;
