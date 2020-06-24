@@ -233,13 +233,18 @@ func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueCo
 
 func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues, check bool) (e error) {
 
+	initialConfig := config.Default().Get("services", servicecontext.GetServiceName(ctx), "valid").Bool(false)
 	defer func() {
+		var newConfig bool
 		if e != nil {
-			config.Default().Set(false, "services", servicecontext.GetServiceName(ctx), "valid")
+			newConfig = false
 		} else {
-			config.Default().Set(true, "services", servicecontext.GetServiceName(ctx), "valid")
+			newConfig = true
 		}
-		config.Save(common.PYDIO_SYSTEM_USERNAME, "Update mailer valid config")
+		if newConfig != initialConfig {
+			config.Default().Set(true, "services", servicecontext.GetServiceName(ctx), "valid")
+			config.Save(common.PYDIO_SYSTEM_USERNAME, "Update mailer valid config")
+		}
 	}()
 
 	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
