@@ -39,9 +39,11 @@ var onSave = function onSave(_ref) {
     var tab = _ref.tab;
     var dispatch = _ref.dispatch;
     return function () {
-        return tab.pydio.ApiClient.postPlainTextContent(tab.url, tab.content, function (success) {
-            if (!success) {
-                dispatch(EditorActions.tabModify({ id: tab.id, error: "There was an error while saving" }));
+        return _pydio2['default'].getInstance().ApiClient.postPlainTextContent(tab.url, tab.content, function (success) {
+            if (success) {
+                dispatch(EditorActions.tabModify({ id: tab.id, message: _pydio2['default'].getMessages()[115] }));
+            } else {
+                dispatch(EditorActions.tabModify({ id: tab.id, message: _pydio2['default'].getMessages()[210] }));
             }
         });
     };

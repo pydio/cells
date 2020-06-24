@@ -19,13 +19,15 @@
  */
 
 import Pydio from 'pydio'
-const { EditorActions } = Pydio.requireLib('hoc')
+const { EditorActions } = Pydio.requireLib('hoc');
 
 // Actions definitions
 export const onSave = ({tab, dispatch}) => () => {
-    return tab.pydio.ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
-        if (!success) {
-            dispatch(EditorActions.tabModify({id: tab.id, error: "There was an error while saving"}))
+    return Pydio.getInstance().ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
+        if (success) {
+            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[115]}))
+        } else {
+            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[210]}))
         }
     })
-}
+};
