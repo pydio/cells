@@ -93,14 +93,20 @@ and the user originating this call.
 				if e != nil {
 					log.Fatal("Cannot retrieve this version")
 				}
-				prevId := id - 1
+				var previousVersion *file.Version
 				if targetVersionDiff != "" {
-					prevId, e = strconv.ParseUint(targetVersionDiff, 10, 64)
+					targetId, e := strconv.ParseUint(targetVersionDiff, 10, 64)
 					if e != nil {
 						log.Fatal("Cannot parse target version")
 					}
+					previousVersion = version
+					version, e = store.Retrieve(targetId)
+					if e != nil {
+						log.Fatal("Cannot parse retrieve target version")
+					}
+				} else {
+					previousVersion, e = store.Retrieve(id - 1)
 				}
-				previousVersion, e := store.Retrieve(prevId)
 				if e != nil {
 					log.Fatal("Cannot retrieve previous version")
 				}
