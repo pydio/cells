@@ -18277,6 +18277,7 @@ var Header = (function (_Component) {
                         textTransform: 'uppercase',
                         fontWeight: 500,
                         cursor: 'pointer',
+                        whiteSpace: 'nowrap',
                         color: 'rgba(0, 0, 0, 0.73)',
                         transition: _pydioUtilDom2['default'].getBeziersTransition(),
                         borderBottom: '2px solid transparent'

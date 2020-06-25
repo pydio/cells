@@ -79,6 +79,7 @@ class Header extends Component{
                     textTransform: 'uppercase',
                     fontWeight: 500,
                     cursor: 'pointer',
+                    whiteSpace:'nowrap',
                     color: 'rgba(0, 0, 0, 0.73)',
                     transition: DOMUtils.getBeziersTransition(),
                     borderBottom: '2px solid transparent'
