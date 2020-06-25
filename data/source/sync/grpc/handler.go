@@ -217,7 +217,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				NodeId: nodeUUID,
 				UserId: "ds:" + syncConfig.Name,
 			}); e == nil {
-				log.Logger(ctx).Info("Loaded plain size from data-key service")
+				log.Logger(ctx).Debug("Loaded plain size from data-key service")
 				return resp.GetSize(), nil
 			} else {
 				log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
