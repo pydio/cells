@@ -80,12 +80,6 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 		}
 
-		// legacy
-		if _, ok := session.Values["jwt"]; ok {
-			delete(session.Values, "jwt")
-			session.Save(r, w)
-		}
-
 		if value, ok := session.Values["access_token"]; ok {
 			ctx := r.Context()
 			ctx, _, err = jwtVerifier.Verify(ctx, value.(string))

@@ -33,7 +33,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
-	"github.com/scottleedavis/go-exif-remove"
+	exifremove "github.com/scottleedavis/go-exif-remove"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -200,6 +200,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
+	}
+
+	// Legacy code
+	if _, ok := session.Values["jwt"]; ok {
+		delete(session.Values, "jwt")
 	}
 
 	response := &rest.FrontSessionResponse{}
