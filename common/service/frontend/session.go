@@ -79,7 +79,12 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 		}
-		//log.Logger(r.Context()).Info("Loading session name", zap.String("s", sessionName), zap.Any("jwt", session.Values["jwt"]))
+
+		// legacy
+		if _, ok := session.Values["jwt"]; ok {
+			delete(session.Values, "jwt")
+			session.Save(r, w)
+		}
 
 		if value, ok := session.Values["access_token"]; ok {
 			ctx := r.Context()
