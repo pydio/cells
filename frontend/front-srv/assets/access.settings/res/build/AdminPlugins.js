@@ -56608,17 +56608,22 @@ var UpdaterDashboard = _react2['default'].createClass({
 
         this.setState({ loading: true });
 
-        var url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
-        window.fetch(url, {
-            method: 'GET',
-            credentials: 'same-origin'
-        }).then(function (response) {
-            response.json().then(function (data) {
-                if (data.backend) {
-                    _this.setState({ backend: data.backend });
-                }
+        // Load version
+        _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+            var url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
+            var headers = { Authorization: 'Bearer ' + jwt };
+            window.fetch(url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: headers
+            }).then(function (response) {
+                response.json().then(function (data) {
+                    if (data.backend) {
+                        _this.setState({ backend: data.backend });
+                    }
+                })['catch'](function () {});
             })['catch'](function () {});
-        })['catch'](function () {});
+        });
 
         var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();

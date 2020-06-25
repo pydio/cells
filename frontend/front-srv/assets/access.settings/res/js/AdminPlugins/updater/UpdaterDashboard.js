@@ -50,17 +50,22 @@ let UpdaterDashboard = React.createClass({
         const {pydio, rootNode} = this.props;
         this.setState({loading:true});
 
-        let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
-        window.fetch(url, {
-            method:'GET',
-            credentials:'same-origin',
-        }).then((response) => {
-            response.json().then((data) => {
-                if(data.backend){
-                    this.setState({backend:data.backend})
-                }
+        // Load version
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            const url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
+            const headers = {Authorization: 'Bearer ' + jwt};
+            window.fetch(url, {
+                method:'GET',
+                credentials:'same-origin',
+                headers
+            }).then((response) => {
+                response.json().then((data) => {
+                    if(data.backend){
+                        this.setState({backend:data.backend})
+                    }
+                }).catch(()=>{});
             }).catch(()=>{});
-        }).catch(()=>{});
+        });
 
         const api = new UpdateServiceApi(PydioApi.getRestClient());
         Pydio.startLoading();
