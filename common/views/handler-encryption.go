@@ -86,12 +86,14 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
-		dsName = branchInfo.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	}
-
-	err := clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-	if err != nil {
-		return nil, errors.New("views.handler.encryption.GetObject", "failed to set node meta data", 500)
+		if branchInfo.Root != nil {
+			dsName = branchInfo.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		} else if branchInfo.Name != "" {
+			dsName = branchInfo.Name
+		} else {
+			return nil, errors.New("views.handler.encryption.GetObject", "cannot find datasource name", 500)
+		}
+		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 	}
 
 	info, offset, length, skipBytesCount, err := e.getNodeInfoForRead(ctx, clone, requestData)
