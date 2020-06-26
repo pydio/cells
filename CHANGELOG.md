@@ -1,20 +1,16 @@
-# Changes between v2.1.0-rc0 and v2.1.0-rc1
+# Changes between v2.1.0-rc1 and v2.1.0-rc2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.1.0-rc0...v2.1.0-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.1.0-rc1...v2.1.0-rc2)
 
-- [#c3a3d3e](https://github.com/pydio/cells/commit/c3a3d3e93a2d4cdc24ae12e52fad9f4de1ecdb33): Re-adapt styling
-- [#3fa3d7d](https://github.com/pydio/cells/commit/3fa3d7d8dbee77613e7fdab28e0204d55c6cd021): Typo in full-s3 version-store(s)
-- [#68e7eab](https://github.com/pydio/cells/commit/68e7eaba1b46b2cd8f906169de0191c8e7385ae2): CanReadPath : must handle virtual nodes case (pass resolver function)
-- [#bec4f01](https://github.com/pydio/cells/commit/bec4f015350329c3ae2b921e7da0ff7ed8418289): New method accessList.CanReadPath to avoid false-negatives on moving or deleted nodes
-- [#c44ee05](https://github.com/pydio/cells/commit/c44ee05205c4f7a1686801eaf14c70fbf74e3cab): Typo in pagination
-- [#eceef7e](https://github.com/pydio/cells/commit/eceef7e65746bb7d3693cfd97cfc10fbe7320253): Typo in language key
-- [#4c9525f](https://github.com/pydio/cells/commit/4c9525f2018f4f6f46fd471693aae9998e2d968a): A few more msgs + DE/FR translation
-- [#835b1cf](https://github.com/pydio/cells/commit/835b1cf00e3212ccba670ba17103710d25711d34): Improve tasks logs (loader and pagination)
-- [#8f445dd](https://github.com/pydio/cells/commit/8f445ddf1a1d56e7305534244b6442f88111119d): Fix to migration
-- [#deeefb4](https://github.com/pydio/cells/commit/deeefb43c0d74b8141da3c51b6f7abf8de0720eb): Copy/move : use full target node path when checking for new node
-- [#3c44642](https://github.com/pydio/cells/commit/3c44642d049ce43986d5198adc0e1b69a50b1479): TreePaginator : prevent displaying page 1/1 WorkspacesList : disable massive load of workspace roots, lazy load when opening popover
-- [#bf5d4d6](https://github.com/pydio/cells/commit/bf5d4d6474edbde8fd8c083ead8cfb083cfa0527): Avoid recursion when deleting recycleRoot folders
-- [#8fcf2ee](https://github.com/pydio/cells/commit/8fcf2ee301d19006b6bffb7dfe830e603fa433a7): Missing checks for nil value
-- [#2ec2416](https://github.com/pydio/cells/commit/2ec2416675c60b1573c9aa4ac6eee5d511fca9f4): Pass accessList instead of ws list in WorkspaceCanSeeNode - Cache ancestors in EventRouter
-- [#ec68dd6](https://github.com/pydio/cells/commit/ec68dd6e313685b6d01965c45f97c1ea8d0ba9db): Implement more precise filtering
-- [#c5248e7](https://github.com/pydio/cells/commit/c5248e721b78adf677d8e01e952395c26b6696ba): AncestorsListFromContext : prepend input node when orParents is set
+- [#b144747](https://github.com/pydio/cells/commit/b144747791dbeb360599e08bc58b86266490f34a): Fix double cookie header
+- [#a2ec469](https://github.com/pydio/cells/commit/a2ec469477883bc1dbd6a867b07d7f147716ae1f): Fix bootconf call
+- [#8453386](https://github.com/pydio/cells/commit/8453386dbebf43ce6f49e27693d9384729aa2c0d): Lower log level
+- [#84b0c7f](https://github.com/pydio/cells/commit/84b0c7f3c2d22f09678711f50481e7cc97c03042): Fix admin tab whitespace wrap
+- [#841f350](https://github.com/pydio/cells/commit/841f3502ab6434930aba87d94a084bae9cbcdd37): Fix nil in encryption handler
+- [#6b854aa](https://github.com/pydio/cells/commit/6b854aa3667fad9f55d17fdd167f0957c26c63be): Removing legacy session values
+- [#485b146](https://github.com/pydio/cells/commit/485b1465f864c94f474da864b8559105944902f5): Removing legacy session values
+- [#eb032e9](https://github.com/pydio/cells/commit/eb032e9ce03a2206986bd3ec2d441ab3067bfffd): Mailer : do not save conf if validity does not change
+- [#62128b4](https://github.com/pydio/cells/commit/62128b42a9aa99c4cf44115d1d667e854df3e91f): Fix inverted params for cells config versions diff
+- [#6b3db36](https://github.com/pydio/cells/commit/6b3db3698ae905588ed549dbebb27253b8942be5): Fix text editor basic version
+- [#545fb58](https://github.com/pydio/cells/commit/545fb58f83e799c51df0008b416c8f387eb9c795): Fix # support in JS Router
+- [#2266bd0](https://github.com/pydio/cells/commit/2266bd0ab83afb694c436b9d114fb7d564a37169): Restrict CSS
