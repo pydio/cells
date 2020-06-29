@@ -497,6 +497,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
+	values.Set("response_type", "id_token token")
 	values.Set("redirect_uri", defaultRedirectURI)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
@@ -516,6 +517,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	}
 
 	out.AccessToken = resp.GetAccessToken()
+	out.IDToken = resp.GetExtra("id_token").(string)
 	out.RefreshToken = resp.GetExtra("refresh_token").(string)
 	out.Expiry = resp.GetExtra("expires_in").(int64)
 
