@@ -16,7 +16,7 @@ Pydio Cells is the nextgen file sharing platform for organizations. It is a full
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for **development** and testing purposes. See the [Deployment section below](#deployment)  for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for **development** and testing purposes. See the [Deployment section below](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
@@ -80,7 +80,10 @@ Pydio Cells uses many open source golang libraries. Most important ones are list
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us. You ca find a comprehensive [Developer Guide](https://pydio.com/en/docs/developer-guide) on our web site. Our online docs are open source as well, feel free to improve them by contributing!
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us. You can find a comprehensive [Developer Guide](https://pydio.com/en/docs/developer-guide) on our website. Our online docs are open source as well, feel free to improve them by contributing!
+
+We are also looking for help to translate the Cells interface in various languages.  
+It is really easy to participate: just navigate to [our page in the Crowdin translation tool](https://crowdin.com/project/pydio-cells), create an account and get started.
 
 ## Versioning
 
