@@ -31,10 +31,6 @@ func init() {
 		return &RpcAction{}
 	})
 
-	manager.Register(shellActionName, func() actions.ConcreteAction {
-		return &ShellAction{}
-	})
-
 	manager.Register(wgetActionName, func() actions.ConcreteAction {
 		return &WGetAction{}
 	})
