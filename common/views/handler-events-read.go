@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -65,8 +66,9 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 			}
 		}
 		if node.Uuid != "" {
+			c := context2.WithMetaCopy(ctx)
 			go func() {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+				client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
 					Target: node,
 				}))
@@ -104,8 +106,9 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 			}
 		}
 		if eventNode.Uuid != "" {
+			c := context2.WithMetaCopy(ctx)
 			go func() {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+				client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
 					Target: eventNode,
 				}))
