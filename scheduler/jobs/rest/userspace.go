@@ -450,10 +450,9 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 		if basename == "" {
 			basename = jobUuid
 		}
-		targetPath := path.Join(fullPathParentNode.Path, basename)
-		targetNode := &tree.Node{Path: targetPath}
+		// Recheck target node for policies
 		if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-			updateCtx, realTarget, e := inputFilter(ctx, targetNode, "sel")
+			updateCtx, realTarget, e := inputFilter(ctx, &tree.Node{Path: path.Join(parentPath, basename)}, "sel")
 			if e != nil {
 				return e
 			} else {
