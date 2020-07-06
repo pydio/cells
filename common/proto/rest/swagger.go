@@ -7810,6 +7810,10 @@ var SwaggerJson = `{
           "type": "string",
           "format": "int64"
         },
+        "DurationDate": {
+          "type": "string",
+          "title": "Pass a duration with \u003e or \u003c to compute MinDate / MaxDate"
+        },
         "Type": {
           "$ref": "#/definitions/treeNodeType",
           "title": "Limit to a given node type"

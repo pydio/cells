@@ -221,7 +221,7 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 	if (q.MinSize > 0 && node.Size < q.MinSize) || (q.MaxSize > 0 && node.Size > q.MaxSize) {
 		return false
 	}
-
+	q.ParseDurationDate()
 	if (q.MinDate > 0 && node.MTime < q.MinDate) || (q.MaxDate > 0 && node.MTime > q.MaxDate) {
 		return false
 	}

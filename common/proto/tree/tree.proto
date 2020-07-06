@@ -374,6 +374,8 @@ message Query {
     // Range for date
     int64 MinDate = 4;
     int64 MaxDate = 5;
+    // Pass a duration with > or < to compute MinDate / MaxDate
+    string DurationDate = 16;
     // Limit to a given node type
     NodeType Type = 6;
     // Search in filename

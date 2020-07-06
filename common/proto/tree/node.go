@@ -22,7 +22,9 @@ package tree
 
 import (
 	"encoding/json"
+	"fmt"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -305,4 +307,41 @@ func (node *Node) getMetaString(namespace string) (meta string) {
 		return meta
 	}
 	return ""
+}
+
+// ParseDurationDate transforms DurationDate field to proper MinDate/MaxDate values
+// variadic ref is passed mostly for test, should normally use NOW for reference time
+func (m *Query) ParseDurationDate(ref ...time.Time) error {
+	if m.DurationDate == "" {
+		return nil
+	}
+
+	firstChar := m.DurationDate[0:1]
+	if firstChar != "<" && firstChar != ">" {
+		return fmt.Errorf("DurationDate must start with < or > character")
+	}
+	ds := strings.TrimSpace(m.DurationDate[1:])
+	var d time.Duration
+	if strings.HasSuffix(ds, "d") {
+		// Parse as number of days
+		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
+		if er != nil {
+			return er
+		}
+		d = time.Duration(days) * 24 * time.Hour
+	} else if goD, e := time.ParseDuration(strings.TrimSpace(m.DurationDate[1:])); e != nil {
+		return e
+	} else {
+		d = goD
+	}
+	now := time.Now()
+	if len(ref) > 0 {
+		now = ref[0]
+	}
+	if firstChar == "<" {
+		m.MinDate = now.Add(-d).Unix()
+	} else {
+		m.MaxDate = now.Add(-d).Unix()
+	}
+	return nil
 }

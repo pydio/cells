@@ -74,6 +74,9 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 	// Filter Node Type
 	listReq.FilterType = q.Type
 	// Filter Date
+	if e := q.ParseDurationDate(); e != nil {
+		return e
+	}
 	if q.MaxDate > 0 || q.MinDate > 0 {
 		var dateParts []string
 		if q.MinDate > 0 {

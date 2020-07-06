@@ -215,6 +215,9 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		boolean.AddMust(numRange)
 	}
 	// Date Range
+	if e := queryObject.ParseDurationDate(); e != nil {
+		return e
+	}
 	if queryObject.MinDate > 0 || queryObject.MaxDate > 0 {
 		var dateRange *query.DateRangeQuery
 		if queryObject.MaxDate > 0 {
