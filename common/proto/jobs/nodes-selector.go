@@ -79,8 +79,12 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			return nil
 		}
 
-		e := ptypes.UnmarshalAny(selector.Query.SubQueries[0], q)
-		if e != nil {
+		if e := ptypes.UnmarshalAny(selector.Query.SubQueries[0], q); e != nil {
+			log.Logger(ctx).Error("Could not parse input query", zap.Error(e))
+			return e
+		}
+		if e := q.ParseDurationDate(); e != nil {
+			log.Logger(ctx).Error("Error while parsing DurationDate", zap.Error(e))
 			return e
 		}
 		// If paths are preset, just load nodes and do not go further
