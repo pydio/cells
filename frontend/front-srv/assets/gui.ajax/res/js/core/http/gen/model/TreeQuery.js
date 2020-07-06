@@ -76,6 +76,9 @@ export default class TreeQuery {
             if (data.hasOwnProperty('MaxDate')) {
                 obj['MaxDate'] = ApiClient.convertToType(data['MaxDate'], 'String');
             }
+            if (data.hasOwnProperty('DurationDate')) {
+                obj['DurationDate'] = ApiClient.convertToType(data['DurationDate'], 'String');
+            }
             if (data.hasOwnProperty('Type')) {
                 obj['Type'] = TreeNodeType.constructFromObject(data['Type']);
             }
@@ -131,6 +134,10 @@ export default class TreeQuery {
     * @member {String} MaxDate
     */
     MaxDate = undefined;
+    /**
+    * @member {String} DurationDate
+    */
+    DurationDate = undefined;
     /**
     * @member {module:model/TreeNodeType} Type
     */

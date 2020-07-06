@@ -53,6 +53,7 @@ var TreeQuery = (function () {
         this.MaxSize = undefined;
         this.MinDate = undefined;
         this.MaxDate = undefined;
+        this.DurationDate = undefined;
         this.Type = undefined;
         this.FileName = undefined;
         this.Content = undefined;
@@ -93,6 +94,9 @@ var TreeQuery = (function () {
             }
             if (data.hasOwnProperty('MaxDate')) {
                 obj['MaxDate'] = _ApiClient2['default'].convertToType(data['MaxDate'], 'String');
+            }
+            if (data.hasOwnProperty('DurationDate')) {
+                obj['DurationDate'] = _ApiClient2['default'].convertToType(data['DurationDate'], 'String');
             }
             if (data.hasOwnProperty('Type')) {
                 obj['Type'] = _TreeNodeType2['default'].constructFromObject(data['Type']);
@@ -152,6 +156,10 @@ module.exports = exports['default'];
 
 /**
 * @member {String} MaxDate
+*/
+
+/**
+* @member {String} DurationDate
 */
 
 /**

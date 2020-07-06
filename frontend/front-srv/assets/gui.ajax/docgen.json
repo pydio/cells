@@ -3640,6 +3640,10 @@
               {
                 "name": "props",
                 "type": null
+              },
+              {
+                "name": "page",
+                "type": null
               }
             ],
             "returns": null
@@ -40348,6 +40352,22 @@
             "returns": null
           },
           {
+            "name": "workspacePopoverNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "workspace",
+                "type": null
+              },
+              {
+                "name": "menuNode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "workspacePopover",
             "docblock": null,
             "modifiers": [],
@@ -40558,18 +40578,6 @@
             "params": [
               {
                 "name": "pydio",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "loadNonActiveRoots",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "workspaces",
                 "type": null
               }
             ],
