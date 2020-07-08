@@ -30221,6 +30221,7 @@ function getMetadataAction(state, onLocalUpdate) {
     var url = state.url;
     var user = state.user;
     var pwd = state.pwd;
+    var skipVerify = state.skipVerify;
     var workspaceMapping = state.workspaceMapping;
     var metadataFeatures = state.metadataFeatures;
     var metadataMapping = state.metadataMapping;
@@ -30236,6 +30237,7 @@ function getMetadataAction(state, onLocalUpdate) {
             name: "actions.etl.p8-global-meta",
             params: {
                 url: url, user: user, password: pwd,
+                skipVerify: skipVerify ? "true" : "false",
                 mapping: JSON.stringify(workspaceMapping)
             }
         };

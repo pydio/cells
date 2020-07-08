@@ -152,7 +152,7 @@ export function getSharesSummary(state){
 
 export function getMetadataAction(state, onLocalUpdate) {
 
-    const {url, user, pwd, workspaceMapping, metadataFeatures, metadataMapping, metadataCreate} = state;
+    const {url, user, pwd, skipVerify, workspaceMapping, metadataFeatures, metadataMapping, metadataCreate} = state;
 
     let global = metadataFeatures.indexOf('watches') > -1 || metadataFeatures.indexOf('bookmarks') > -1;
     let files = metadataFeatures.indexOf('filesMeta') > -1 ;
@@ -163,6 +163,7 @@ export function getMetadataAction(state, onLocalUpdate) {
             name:"actions.etl.p8-global-meta",
             params:{
                 url, user, password: pwd,
+                skipVerify:skipVerify?"true":"false",
                 mapping:JSON.stringify(workspaceMapping)
             }
         };
