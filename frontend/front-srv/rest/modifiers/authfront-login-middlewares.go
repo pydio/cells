@@ -97,12 +97,6 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
 		}
 
-		// Redirecting if needed
-		challenge, ok := in.AuthInfo["challenge"]
-		if challenge != "" {
-
-		}
-
 		return nil
 	}
 }

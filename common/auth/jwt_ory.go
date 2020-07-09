@@ -157,6 +157,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	var err error
 
 	connectors := GetConnectors()
+	source := ""
 	for _, c := range connectors {
 		cc, ok := c.Conn().(PasswordConnector)
 		if !ok {
@@ -176,6 +177,8 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 			err = errors.New("password does not match")
 			continue
 		}
+
+		source = c.ID()
 
 		break
 	}
@@ -211,8 +214,9 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 		login.GetRequestedAudience(),
 		map[string]string{},
 		map[string]string{
-			"name":  identity.Username,
-			"email": identity.Email,
+			"name":       identity.Username,
+			"email":      identity.Email,
+			"authSource": source,
 		},
 	); err != nil {
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
@@ -259,6 +263,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	connectors := GetConnectors()
 
 	attempt := 0
+	source := ""
 	for _, c := range connectors {
 		cc, ok := c.Conn().(PasswordConnector)
 		if !ok {
@@ -280,6 +285,8 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 			err = errors.New("password does not match")
 			continue
 		}
+
+		source = c.ID()
 
 		break
 	}
@@ -319,8 +326,9 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 		login.GetRequestedAudience(),
 		map[string]string{},
 		map[string]string{
-			"name":  identity.Username,
-			"email": identity.Email,
+			"name":       identity.Username,
+			"email":      identity.Email,
+			"authSource": source,
 		},
 	); err != nil {
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))

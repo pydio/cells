@@ -58,6 +58,13 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
+		_, claims, err := auth.DefaultJWTVerifier().Verify(req.Request.Context(), token.AccessToken)
+		if err != nil {
+			return err
+		}
+
+		in.AuthInfo["source"] = claims.AuthSource
+
 		session.Values["access_token"] = token.AccessToken
 		session.Values["id_token"] = token.Extra("id_token").(string)
 		session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))

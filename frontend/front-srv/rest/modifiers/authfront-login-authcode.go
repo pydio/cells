@@ -1,6 +1,7 @@
 package modifiers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/emicklei/go-restful"
@@ -25,6 +26,14 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 		if err != nil {
 			return err
 		}
+
+		_, claims, err := auth.DefaultJWTVerifier().Verify(req.Request.Context(), token.AccessToken)
+		if err != nil {
+			return err
+		}
+
+		in.AuthInfo["login"] = claims.Name
+		in.AuthInfo["source"] = claims.AuthSource
 
 		session.Values["access_token"] = token.AccessToken
 		session.Values["id_token"] = token.Extra("id_token").(string)
