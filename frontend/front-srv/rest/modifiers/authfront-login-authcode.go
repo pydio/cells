@@ -1,7 +1,6 @@
 package modifiers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/emicklei/go-restful"
