@@ -178,7 +178,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 			continue
 		}
 
-		source = c.ID()
+		source = c.Name()
 
 		break
 	}
@@ -286,7 +286,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 			continue
 		}
 
-		source = c.ID()
+		source = c.Name()
 
 		break
 	}
