@@ -61,7 +61,9 @@ func init() {}
 
 func getDAO(ctx context.Context, session string) index.DAO {
 
-	dao := cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO))
+	dao := cindex.NewFolderSizeCacheDAO(
+		cindex.NewHiddenFileDuplicateRemoverDAO(servicecontext.GetDAO(ctx).(index.DAO)),
+	)
 
 	if session != "" {
 		if dao := index.GetDAOCache(session); dao != nil {
@@ -229,13 +231,17 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
 	defer track(ctx, "ReadNode", time.Now(), req, resp)
-	dao := servicecontext.GetDAO(ctx).(index.DAO)
+
+	var session = ""
 	md, has := metadata.FromContext(ctx)
 	if has {
-		if session, ok := md["x-indexation-session"]; ok {
-			dao = getDAO(ctx, session)
+		if s, ok := md["x-indexation-session"]; ok {
+			session = s
 		}
 	}
+
+	dao := getDAO(ctx, session)
+
 	name := servicecontext.GetServiceName(ctx)
 
 	var node *mtree.TreeNode
@@ -243,7 +249,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
-		node, err = dao.GetNodeByUUID(req.GetNode().GetUuid(), true)
+		node, err = dao.GetNodeByUUID(req.GetNode().GetUuid())
 		if err != nil || node == nil {
 			return errors.NotFound(name, "Could not find node by UUID with %s ", req.GetNode().GetUuid())
 		}
@@ -268,7 +274,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 			// Do not return error, or send a file not exists?
 			return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 		}
-		node, err = dao.GetNode(path, true)
+		node, err = dao.GetNode(path)
 		if err != nil {
 			if len(path) == 1 && path[0] == 1 {
 				// This is the root node, let's create it
@@ -316,7 +322,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 	defer track(ctx, "ListNodes", time.Now(), req, resp)
 
-	dao := servicecontext.GetDAO(ctx).(index.DAO)
+	var session = ""
+
+	dao := getDAO(ctx, session)
 	name := servicecontext.GetServiceName(ctx)
 
 	defer resp.Close()
@@ -394,9 +402,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 		if req.Recursive {
-			c = dao.GetNodeTree(path, true)
+			c = dao.GetNodeTree(path)
 		} else {
-			c = dao.GetNodeChildren(path, true)
+			c = dao.GetNodeChildren(path)
 		}
 
 		// Additional filters
@@ -564,7 +572,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 	var childrenEvents []*tree.NodeChangeEvent
 	if node.Type == tree.NodeType_COLLECTION {
-		c := dao.GetNodeTree(path, false)
+		c := dao.GetNodeTree(path)
 		names := strings.Split(reqPath, "/")
 		for child := range c {
 			if child.Name() == common.PYDIO_SYNC_HIDDEN_FILE_META {

@@ -73,3 +73,7 @@ func (dao *HiddenFileDuplicateRemoverSQL) Flush(final bool) error {
 
 	return dao.DAO.Flush(final)
 }
+
+func (dao *HiddenFileDuplicateRemoverSQL) GetSQLDAO() sql.DAO {
+	return dao.DAO.GetSQLDAO()
+}

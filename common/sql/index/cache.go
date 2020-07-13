@@ -134,7 +134,7 @@ func (d *daocache) resync() {
 	d.childCache = make(map[string][]*mtree.TreeNode)
 	d.nameCache = make(map[string][]*mtree.TreeNode)
 
-	for node := range d.DAO.GetNodeTree(mtree.NewMPath(1), false) {
+	for node := range d.DAO.GetNodeTree(mtree.NewMPath(1)) {
 		mpath := node.MPath.String()
 		pmpath := node.MPath.Parent().String()
 
@@ -428,7 +428,7 @@ func (d *daocache) SetNodes(etag string, size int64) commonsql.BatchSender {
 }
 
 // Getters
-func (d *daocache) GetNode(path mtree.MPath, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
+func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -436,10 +436,10 @@ func (d *daocache) GetNode(path mtree.MPath, computeFoldersSize ...bool) (*mtree
 		return node, nil
 	}
 
-	return d.DAO.GetNode(path, computeFoldersSize...)
+	return d.DAO.GetNode(path)
 }
 
-func (d *daocache) GetNodeByUUID(uuid string, computeFoldersSize ...bool) (*mtree.TreeNode, error) {
+func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 	for _, n := range d.cache {
@@ -447,7 +447,7 @@ func (d *daocache) GetNodeByUUID(uuid string, computeFoldersSize ...bool) (*mtre
 			return n, nil
 		}
 	}
-	return d.DAO.GetNodeByUUID(uuid, computeFoldersSize...)
+	return d.DAO.GetNodeByUUID(uuid)
 }
 
 func testEq(a, b []string) bool {
@@ -634,7 +634,7 @@ func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path mtree.MPath, _ bool) chan *mtree.TreeNode {
+func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 
 	c := make(chan *mtree.TreeNode)
 
@@ -653,7 +653,7 @@ func (d *daocache) GetNodeChildren(path mtree.MPath, _ bool) chan *mtree.TreeNod
 	return c
 }
 
-func (d *daocache) GetNodeTree(path mtree.MPath, _ bool) chan *mtree.TreeNode {
+func (d *daocache) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 	c := make(chan *mtree.TreeNode)
 
 	go func() {

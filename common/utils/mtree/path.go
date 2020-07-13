@@ -96,6 +96,18 @@ func (m MPath) Parents() []MPath {
 	return mpathes
 }
 
+func (m MPath) CommonRoot(m2 MPath) MPath {
+	var root MPath
+
+	for i := 0; i < len(m) && i < len(m2); i++ {
+		if m[i] == m2[i] {
+			root = append(root, m[i])
+		}
+	}
+
+	return root
+}
+
 // Rat representation of a materialized path
 func (m MPath) Rat() *Rat {
 	id := new(big.Float)

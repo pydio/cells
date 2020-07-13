@@ -49,11 +49,11 @@ type DAO interface {
 	GetNodes(...mtree.MPath) chan *mtree.TreeNode
 	SetNodes(string, int64) sql.BatchSender
 
-	// Getters - optional bool represents a computeFoldersSize flag
-	GetNode(mtree.MPath, ...bool) (*mtree.TreeNode, error)
-	GetNodeByUUID(string, ...bool) (*mtree.TreeNode, error)
-	GetNodeChildren(mtree.MPath, bool) chan *mtree.TreeNode
-	GetNodeTree(mtree.MPath, bool) chan *mtree.TreeNode
+	// Getters
+	GetNode(mtree.MPath) (*mtree.TreeNode, error)
+	GetNodeByUUID(string) (*mtree.TreeNode, error)
+	GetNodeChildren(mtree.MPath) chan *mtree.TreeNode
+	GetNodeTree(mtree.MPath) chan *mtree.TreeNode
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
 	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)
@@ -65,6 +65,8 @@ type DAO interface {
 	ListCommits(node *mtree.TreeNode) ([]*tree.ChangeLog, error)
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
 	CleanResourcesOnDeletion() (error, string)
+
+	GetSQLDAO() sql.DAO
 }
 
 type CacheDAO interface {
