@@ -225,7 +225,7 @@ func TestMysql(t *testing.T) {
 	// Getting children count
 	Convey("Test Getting the Children Cumulated Size", t, func() {
 
-		parent, _ := getDAO(ctxNoCache).GetNode(mockLongNodeMPath, true)
+		parent, _ := NewFolderSizeCacheDAO(getDAO(ctxNoCache)).GetNode(mockLongNodeMPath)
 
 		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
 	})
@@ -234,7 +234,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeChildren(mockLongNodeMPath, false) {
+		for _ = range getDAO(ctxNoCache).GetNodeChildren(mockLongNodeMPath) {
 			i++
 		}
 
@@ -246,7 +246,7 @@ func TestMysql(t *testing.T) {
 
 		var i int
 		PrintMemUsage("GetNodeTree")
-		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}, false) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}) {
 			i++
 		}
 		PrintMemUsage("GetNodeTree END")
@@ -327,7 +327,7 @@ func TestMysql(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1}, false)
+		nodes := getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -335,7 +335,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1}, false)
+		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -344,7 +344,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1, 1}, false)
+		nodes = getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
@@ -888,7 +888,7 @@ func TestMoveNodeTree(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo, false) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo) {
 			i++
 		}
 

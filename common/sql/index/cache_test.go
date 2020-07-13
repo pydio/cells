@@ -305,7 +305,7 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		var i int
-		for _ = range getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath, false) {
+		for _ = range getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath) {
 			i++
 		}
 
@@ -321,7 +321,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		var i int
 		PrintMemUsage("Test Getting the Children of a node")
-		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}, false) {
+		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}) {
 			i++
 		}
 
@@ -418,7 +418,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1}, false)
+		nodes := getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -426,7 +426,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeTree(mtree.MPath{1}, false)
+		nodes = getDAO(ctxWithCache).GetNodeTree(mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -436,7 +436,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 7) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1, 1}, false)
+		nodes = getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
