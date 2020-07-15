@@ -256,39 +256,39 @@ var mandatoryOptions = []ServiceOption{
 	}),
 
 	// Adding a check before starting the service to ensure all dependencies are running
-	// BeforeStart(func(s Service) error {
-	// 	ctx := s.Options().Context
+	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
 
-	// 	log.Logger(ctx).Debug("BeforeStart - Check dependencies")
+		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
-	// 	for _, d := range s.Options().Dependencies {
+		for _, d := range s.Options().Dependencies {
 
-	// 		log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
+			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
 
-	// 		err := Retry(func() error {
-	// 			runningServices, err := registry.ListRunningServices()
-	// 			if err != nil {
-	// 				return err
-	// 			}
+			err := Retry(func() error {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
 
-	// 			for _, r := range runningServices {
-	// 				if d.Name == r.Name() {
-	// 					return nil
-	// 				}
-	// 			}
+				for _, r := range runningServices {
+					if d.Name == r.Name() {
+						return nil
+					}
+				}
 
-	// 			return fmt.Errorf("dependency %s not found", d.Name)
-	// 		}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+				return fmt.Errorf("dependency %s not found", d.Name)
+			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
 
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 	}
+			if err != nil {
+				return err
+			}
+		}
 
-	// 	log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
+		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
 
-	// 	return nil
-	// }),
+		return nil
+	}),
 
 	// Adding the dao to the context
 	BeforeStart(func(s Service) error {
