@@ -146,11 +146,14 @@ class ResourcePoliciesPanel extends React.Component{
 
     /**
      *
-     * @param userSubjects
      * @param policies
      * @return {boolean}
      */
-    hasOneWrite(userSubjects, policies){
+    hasOneWrite(policies){
+        const {idmUser} = this.state;
+        const userSubjects = idmUser.Roles.map(role => 'role:' + role.Uuid);
+        userSubjects.push('user:' + idmUser.Login);
+
         for(let i=0; i<userSubjects.length; i++){
             for(let j=0; j < policies.length; j++){
                 if(policies[j].Subject === userSubjects[i] && policies[j].Action === 'WRITE'){
@@ -161,15 +164,27 @@ class ResourcePoliciesPanel extends React.Component{
         return false;
     }
 
+    findCrtUserSubject(policies){
+        const {idmUser} = this.state;
+        const search = ['user:'+idmUser.Login, 'role:'+idmUser.Uuid];
+        const pp = policies.filter(p => search.indexOf(p.Subject) > -1);
+        if(pp.length){
+            return pp[0].Subject;
+        } else {
+            return search[0];
+        }
+    }
+
     /**
      *
-     * @param idmUser
      * @param policies
      * @return {{groupBlocks: Array, hasWrite: boolean}}
      */
-    listUserRoles(idmUser, policies){
-        const {hideGroups} = this.state;
-        const crtUserSubject = 'user:' + idmUser.Login;
+    listUserRoles(policies){
+        const {hideGroups, idmUser} = this.state;
+        const crtUserSubject = this.findCrtUserSubject(policies);
+        const hasWrite = this.hasOneWrite(policies);
+
         let values = {};
         idmUser.Roles.map(role => {
             if (!role.GroupRole || hideGroups) {
@@ -177,10 +192,10 @@ class ResourcePoliciesPanel extends React.Component{
             }
             values['role:' + role.Uuid] = role.Label;
         });
-        values[crtUserSubject] = 'You';
-        const hasWrite = this.hasOneWrite(Object.keys(values), policies);
+
         // Add other subjects
         values = {...this.listOtherUsersSubjects(policies, crtUserSubject), ...values};
+        values[crtUserSubject] = 'You';
         const keys = Object.keys(values);
         // Build Lines
         let groupBlocks = [];
@@ -217,7 +232,7 @@ class ResourcePoliciesPanel extends React.Component{
                 const roleId = p.Subject.substr('role:'.length);
                 if (cellAcls[roleId].User) {
                     const usr = cellAcls[roleId].User;
-                    if(currentUserSubject !== 'user:' + usr.Login){
+                    if(currentUserSubject !== 'user:' + usr.Login && currentUserSubject !== 'role:'+usr.Uuid){
                         subs[p.Subject] = usr.Attributes && usr.Attributes['displayName'] ? usr.Attributes['displayName'] : usr.Login;
                     }
                 } else if(cellAcls[roleId].Group && !hideGroups) {
@@ -300,6 +315,7 @@ class ResourcePoliciesPanel extends React.Component{
                 disableWrite = true;
             }
         }
+        console.log("Line", subject, label, disableRead, disableWrite);
         return(
             <div style={{display: 'flex', margin:10, marginRight: 0}}>
                 <div style={{flex:1}}>{label}</div>
@@ -362,7 +378,7 @@ class ResourcePoliciesPanel extends React.Component{
         }
 
         if(!loading && !error) {
-            const {groupBlocks, hasWrite} = this.listUserRoles(idmUser, dirtyPolicies?dirtyPolicies:policies);
+            const {groupBlocks, hasWrite} = this.listUserRoles(dirtyPolicies?dirtyPolicies:policies);
             const teamBlocks = this.listUserTeams(userTeams, dirtyPolicies?dirtyPolicies:policies, !hasWrite);
             let heads = <div><span style={styles.head}>{mess['visibility.panel.right-read']}</span><span style={styles.head}>{mess['visibility.panel.right-edit']}</span></div>;
             if (groupBlocks.length){
