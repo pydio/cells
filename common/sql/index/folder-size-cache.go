@@ -179,7 +179,6 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNod
 
 func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 	mpath, nodes, err := dao.DAO.Path(strpath, create, reqNode...)
-	fmt.Println("Path ", mpath)
 
 	if create {
 		go dao.invalidateMPathHierarchy(mpath, -1)
@@ -190,21 +189,18 @@ func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...*tre
 
 // Add a node in the tree
 func (dao *FolderSizeCacheSQL) AddNode(node *mtree.TreeNode) error {
-	fmt.Println("AddNode ", node.MPath)
 	go dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.AddNode(node)
 }
 
 // SetNode updates a node, including its tree position
 func (dao *FolderSizeCacheSQL) SetNode(node *mtree.TreeNode) error {
-	fmt.Println("SetNode ", node.MPath)
 	go dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.SetNode(node)
 }
 
 // Remove a node from the tree
 func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
-	fmt.Println("DelNode ", node.MPath)
 	go dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.DelNode(node)
 }
@@ -212,8 +208,6 @@ func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
 func (dao *FolderSizeCacheSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 	root := nodeTo.MPath.CommonRoot(nodeFrom.MPath)
-
-	fmt.Println("MoveNodeTree ", nodeTo.MPath, len(nodeTo.MPath)-len(root), nodeFrom.MPath, len(nodeFrom.MPath)-len(root))
 
 	go dao.invalidateMPathHierarchy(nodeTo.MPath, len(nodeTo.MPath)-len(root))
 	go dao.invalidateMPathHierarchy(nodeFrom.MPath, len(nodeFrom.MPath)-len(root))
@@ -229,13 +223,11 @@ func (dao *FolderSizeCacheSQL) invalidateMPathHierarchy(mpath mtree.MPath, level
 
 	parents := mpath.Parents()
 	if level > -1 {
-		fmt.Println("Parents are truncated to ", mpath.Parents()[0:level])
 		parents = mpath.Parents()[0:level]
 	}
 
 	for _, p := range parents {
 		folderSizeLock.Lock()
-		fmt.Println("Invalidating this path : ", p.String())
 		delete(folderSizeCache, p.String())
 		folderSizeLock.Unlock()
 	}
