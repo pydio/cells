@@ -199,12 +199,18 @@ var ResourcePoliciesPanel = (function (_React$Component) {
 
     /**
      *
-     * @param userSubjects
      * @param policies
      * @return {boolean}
      */
 
-    ResourcePoliciesPanel.prototype.hasOneWrite = function hasOneWrite(userSubjects, policies) {
+    ResourcePoliciesPanel.prototype.hasOneWrite = function hasOneWrite(policies) {
+        var idmUser = this.state.idmUser;
+
+        var userSubjects = idmUser.Roles.map(function (role) {
+            return 'role:' + role.Uuid;
+        });
+        userSubjects.push('user:' + idmUser.Login);
+
         for (var i = 0; i < userSubjects.length; i++) {
             for (var j = 0; j < policies.length; j++) {
                 if (policies[j].Subject === userSubjects[i] && policies[j].Action === 'WRITE') {
@@ -215,17 +221,34 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         return false;
     };
 
+    ResourcePoliciesPanel.prototype.findCrtUserSubject = function findCrtUserSubject(policies) {
+        var idmUser = this.state.idmUser;
+
+        var search = ['user:' + idmUser.Login, 'role:' + idmUser.Uuid];
+        var pp = policies.filter(function (p) {
+            return search.indexOf(p.Subject) > -1;
+        });
+        if (pp.length) {
+            return pp[0].Subject;
+        } else {
+            return search[0];
+        }
+    };
+
     /**
      *
-     * @param idmUser
      * @param policies
      * @return {{groupBlocks: Array, hasWrite: boolean}}
      */
 
-    ResourcePoliciesPanel.prototype.listUserRoles = function listUserRoles(idmUser, policies) {
-        var hideGroups = this.state.hideGroups;
+    ResourcePoliciesPanel.prototype.listUserRoles = function listUserRoles(policies) {
+        var _state4 = this.state;
+        var hideGroups = _state4.hideGroups;
+        var idmUser = _state4.idmUser;
 
-        var crtUserSubject = 'user:' + idmUser.Login;
+        var crtUserSubject = this.findCrtUserSubject(policies);
+        var hasWrite = this.hasOneWrite(policies);
+
         var values = {};
         idmUser.Roles.map(function (role) {
             if (!role.GroupRole || hideGroups) {
@@ -233,10 +256,10 @@ var ResourcePoliciesPanel = (function (_React$Component) {
             }
             values['role:' + role.Uuid] = role.Label;
         });
-        values[crtUserSubject] = 'You';
-        var hasWrite = this.hasOneWrite(Object.keys(values), policies);
+
         // Add other subjects
         values = _extends({}, this.listOtherUsersSubjects(policies, crtUserSubject), values);
+        values[crtUserSubject] = 'You';
         var keys = Object.keys(values);
         // Build Lines
         var groupBlocks = [];
@@ -279,7 +302,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 var roleId = p.Subject.substr('role:'.length);
                 if (cellAcls[roleId].User) {
                     var usr = cellAcls[roleId].User;
-                    if (currentUserSubject !== 'user:' + usr.Login) {
+                    if (currentUserSubject !== 'user:' + usr.Login && currentUserSubject !== 'role:' + usr.Uuid) {
                         subs[p.Subject] = usr.Attributes && usr.Attributes['displayName'] ? usr.Attributes['displayName'] : usr.Login;
                     }
                 } else if (cellAcls[roleId].Group && !hideGroups) {
@@ -379,6 +402,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 disableWrite = true;
             }
         }
+        console.log("Line", subject, label, disableRead, disableWrite);
         return _react2['default'].createElement(
             'div',
             { style: { display: 'flex', margin: 10, marginRight: 0 } },
@@ -422,16 +446,16 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 fontSize: 10
             }
         };
-        var _state4 = this.state;
-        var edit = _state4.edit;
-        var policies = _state4.policies;
-        var dirtyPolicies = _state4.dirtyPolicies;
-        var error = _state4.error;
-        var idmUser = _state4.idmUser;
-        var userTeams = _state4.userTeams;
-        var loading = _state4.loading;
-        var pickedUser = _state4.pickedUser;
-        var pickedLabel = _state4.pickedLabel;
+        var _state5 = this.state;
+        var edit = _state5.edit;
+        var policies = _state5.policies;
+        var dirtyPolicies = _state5.dirtyPolicies;
+        var error = _state5.error;
+        var idmUser = _state5.idmUser;
+        var userTeams = _state5.userTeams;
+        var loading = _state5.loading;
+        var pickedUser = _state5.pickedUser;
+        var pickedLabel = _state5.pickedLabel;
         var _props5 = this.props;
         var onDismiss = _props5.onDismiss;
         var style = _props5.style;
@@ -478,7 +502,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         }
 
         if (!loading && !error) {
-            var _listUserRoles = this.listUserRoles(idmUser, dirtyPolicies ? dirtyPolicies : policies);
+            var _listUserRoles = this.listUserRoles(dirtyPolicies ? dirtyPolicies : policies);
 
             var groupBlocks = _listUserRoles.groupBlocks;
             var hasWrite = _listUserRoles.hasWrite;
