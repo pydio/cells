@@ -189,19 +189,19 @@ func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...*tre
 
 // Add a node in the tree
 func (dao *FolderSizeCacheSQL) AddNode(node *mtree.TreeNode) error {
-	go dao.invalidateMPathHierarchy(node.MPath, -1)
+	dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.AddNode(node)
 }
 
 // SetNode updates a node, including its tree position
 func (dao *FolderSizeCacheSQL) SetNode(node *mtree.TreeNode) error {
-	go dao.invalidateMPathHierarchy(node.MPath, -1)
+	dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.SetNode(node)
 }
 
 // Remove a node from the tree
 func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
-	go dao.invalidateMPathHierarchy(node.MPath, -1)
+	dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.DelNode(node)
 }
 
@@ -209,8 +209,8 @@ func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
 func (dao *FolderSizeCacheSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 	root := nodeTo.MPath.CommonRoot(nodeFrom.MPath)
 
-	go dao.invalidateMPathHierarchy(nodeTo.MPath, len(nodeTo.MPath)-len(root))
-	go dao.invalidateMPathHierarchy(nodeFrom.MPath, len(nodeFrom.MPath)-len(root))
+	dao.invalidateMPathHierarchy(nodeTo.MPath, len(nodeTo.MPath)-len(root))
+	dao.invalidateMPathHierarchy(nodeFrom.MPath, len(nodeFrom.MPath)-len(root))
 
 	return dao.DAO.MoveNodeTree(nodeFrom, nodeTo)
 }

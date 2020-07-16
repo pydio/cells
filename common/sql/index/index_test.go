@@ -34,7 +34,7 @@ func init() {
 
 	mockNode = NewNode(&tree.Node{
 		Uuid: "ROOT",
-		Type: tree.NodeType_LEAF,
+		Type: tree.NodeType_COLLECTION,
 	}, []uint64{1}, []string{""})
 
 	updateNode = NewNode(&tree.Node{

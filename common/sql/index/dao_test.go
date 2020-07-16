@@ -224,10 +224,54 @@ func TestMysql(t *testing.T) {
 
 	// Getting children count
 	Convey("Test Getting the Children Cumulated Size", t, func() {
-
-		parent, _ := NewFolderSizeCacheDAO(getDAO(ctxNoCache)).GetNode(mockLongNodeMPath)
+		currentDAO := NewFolderSizeCacheDAO(getDAO(ctxNoCache))
+		root, _ := currentDAO.GetNodeByUUID("ROOT")
+		parent, _ := currentDAO.GetNode(mockLongNodeMPath)
 
 		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
+		So(root.Size, ShouldEqual, parent.Size)
+
+		// Add new node and check size
+		newNode := NewNode(&tree.Node{
+			Uuid: "newNodeFolderSize",
+			Type: tree.NodeType_LEAF,
+			Size: 37,
+		}, append(mockLongNode.MPath, 37), []string{"newNodeFolderSize"})
+
+		err := currentDAO.AddNode(newNode)
+		So(err, ShouldBeNil)
+
+		root, _ = currentDAO.GetNodeByUUID("ROOT")
+		parent, _ = currentDAO.GetNode(mockLongNodeMPath)
+
+		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size+newNode.Size)
+		So(root.Size, ShouldEqual, parent.Size)
+
+		// Move the node and check size
+		movedNewNode := NewNode(&tree.Node{
+			Uuid: "newNodeFolderSize",
+			Type: tree.NodeType_LEAF,
+			Size: 37,
+		}, append(root.MPath, 37), []string{"newNodeFolderSize"})
+
+		err = currentDAO.MoveNodeTree(newNode, movedNewNode)
+		So(err, ShouldBeNil)
+
+		root, _ = currentDAO.GetNodeByUUID("ROOT")
+		parent, _ = currentDAO.GetNode(mockLongNodeMPath)
+
+		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
+		So(root.Size, ShouldEqual, parent.Size+newNode.Size)
+
+		err = currentDAO.DelNode(movedNewNode)
+		So(err, ShouldBeNil)
+
+		root, _ = currentDAO.GetNodeByUUID("ROOT")
+		parent, _ = currentDAO.GetNode(mockLongNodeMPath)
+
+		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
+		So(root.Size, ShouldEqual, parent.Size)
+
 	})
 
 	// Setting a file
