@@ -95,6 +95,7 @@ var RestClient = (function (_ApiClient) {
 
         var sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
         this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || _uuid.v4();
+        sessionIdStorage.setItem("pydioSessionId", this.pydioSessionId);
     }
 
     /**

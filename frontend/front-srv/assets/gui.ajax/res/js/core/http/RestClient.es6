@@ -51,6 +51,7 @@ class RestClient extends ApiClient{
         
         const sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
         this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || uuid()
+        sessionIdStorage.setItem("pydioSessionId", this.pydioSessionId)
     }
 
     /**
