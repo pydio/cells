@@ -60,6 +60,8 @@ var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
 
+var _uuid = require('uuid');
+
 // Override parseDate method to support ISO8601 cross-browser
 
 var _require = require('./gen/index');
@@ -68,6 +70,11 @@ var ApiClient = _require.ApiClient;
 ApiClient.parseDate = function (str) {
     return _moment2['default'](str).toDate();
 };
+
+var sessionStorage = undefined.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
+var sessionIdStorage = undefined.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
+var pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || _uuid.v4();
+sessionIdStorage.setItem("pydioSessionId", pydioSessionId);
 
 // Override callApi Method
 
@@ -102,6 +109,9 @@ var RestClient = (function (_ApiClient) {
         if (this.pydio.Parameters.has('MINISITE')) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
         }
+
+        headers = { "X-Pydio-Frontend-Session": sessionIdStorage.getItem("pydioSessionId") };
+
         return _ApiClient.prototype.callApi.call(this, '/frontend/session', 'POST', null, null, headers, null, request, [], ['application/json'], ['application/json'], _genModelRestFrontSessionResponse2['default']);
     };
 
@@ -110,21 +120,22 @@ var RestClient = (function (_ApiClient) {
      */
 
     RestClient.prototype.get = function get() {
-        return JSON.parse(window.sessionStorage.getItem(this.tokenKey()));
+        return JSON.parse(sessionStorage.getItem(this.tokenKey()));
     };
 
     RestClient.prototype.store = function store(token) {
-        window.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
+        sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
     };
 
     RestClient.prototype.remove = function remove() {
-        window.sessionStorage.removeItem(this.tokenKey());
+        sessionStorage.removeItem(this.tokenKey());
     };
 
     RestClient.prototype.tokenKey = function tokenKey() {
         if (this.pydio.Parameters.has('MINISITE')) {
             return "token-" + this.pydio.Parameters.get('MINISITE');
         }
+
         return "token";
     };
 

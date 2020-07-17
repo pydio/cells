@@ -108,6 +108,16 @@ class PydioApi{
      * @return {RestClient}
      */
     static getRestClient(options={}){
+        if (options == {}) {
+            if (PydioApi._PydioRestClient && options == {}) {
+                return PydioApi._PydioRestClient;
+            }
+    
+            const client = new RestClient(this.getClient()._pydioObject, {});
+            PydioApi._PydioRestClient = client
+            return client 
+        }
+
         return new RestClient(this.getClient()._pydioObject, options);
     }
 

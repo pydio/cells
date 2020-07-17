@@ -27,11 +27,17 @@ import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
 import IdmApi from './IdmApi'
+import {v4 as uuid} from 'uuid'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
     return moment(str).toDate();
 };
+
+const sessionStorage = this.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
+const sessionIdStorage = this.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
+const pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || uuid()
+sessionIdStorage.setItem("pydioSessionId", pydioSessionId)
 
 // Override callApi Method
 class RestClient extends ApiClient{
@@ -58,6 +64,9 @@ class RestClient extends ApiClient{
         if(this.pydio.Parameters.has('MINISITE')) {
             headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE')};
         }
+
+        headers = {"X-Pydio-Frontend-Session": sessionIdStorage.getItem("pydioSessionId")}
+
         return super.callApi(
             '/frontend/session', 'POST',
             null, null, headers, null,
@@ -70,21 +79,22 @@ class RestClient extends ApiClient{
      * Get current JWT Token
      */
     get() {
-        return JSON.parse(window.sessionStorage.getItem(this.tokenKey()))
+        return JSON.parse(sessionStorage.getItem(this.tokenKey()))
     }
 
     store(token){
-        window.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
+        sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
     }
 
     remove() {
-        window.sessionStorage.removeItem(this.tokenKey())
+        sessionStorage.removeItem(this.tokenKey())
     }
 
     tokenKey(){
         if(this.pydio.Parameters.has('MINISITE')) {
             return "token-" + this.pydio.Parameters.get('MINISITE');
         }
+
         return "token";
     }
 

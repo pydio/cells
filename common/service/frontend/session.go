@@ -75,6 +75,9 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 		if h, ok := r.Header["X-Pydio-Minisite"]; ok {
 			sessionName = sessionName + "-" + strings.Join(h, "")
 		}
+		if h, ok := r.Header[common.XPydioFrontendSessionUuid]; ok {
+			sessionName = sessionName + "-" + strings.Join(h, "")
+		}
 		session, err := GetSessionStore().Get(r, sessionName)
 		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))

@@ -158,6 +158,7 @@ const (
 	XPydioClientUuid             = "X-Pydio-Client-Uuid"
 	XPydioSessionUuid            = "X-Pydio-Session"
 	XPydioIndexationSessionUuid  = "X-Pydio-Indexation-Session"
+	XPydioFrontendSessionUuid    = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid               = "X-Pydio-Move"
 	SyncSessionClose_            = "close-"
 	SyncSessionPrefixCopy        = "copy-"
@@ -191,6 +192,7 @@ var (
 		XPydioClientUuid,
 		XPydioSessionUuid,
 		XPydioIndexationSessionUuid,
+		XPydioFrontendSessionUuid,
 		XPydioMoveUuid,
 	}
 )

@@ -158,6 +158,9 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
 		sessionName = sessionName + "-" + h
 	}
+	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
+		sessionName = sessionName + "-" + h
+	}
 
 	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
 	if err != nil && session == nil {
@@ -193,6 +196,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 
 	sessionName := "pydio"
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
+		sessionName = sessionName + "-" + h
+	}
+	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
 		sessionName = sessionName + "-" + h
 	}
 
@@ -244,6 +250,9 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 
 	sessionName := "pydio"
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
+		sessionName = sessionName + "-" + h
+	}
+	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
 		sessionName = sessionName + "-" + h
 	}
 

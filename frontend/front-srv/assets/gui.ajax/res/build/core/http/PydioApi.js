@@ -168,6 +168,16 @@ var PydioApi = (function () {
     PydioApi.getRestClient = function getRestClient() {
         var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
+        if (options == {}) {
+            if (PydioApi._PydioRestClient && options == {}) {
+                return PydioApi._PydioRestClient;
+            }
+
+            var client = new _RestClient2['default'](this.getClient()._pydioObject, {});
+            PydioApi._PydioRestClient = client;
+            return client;
+        }
+
         return new _RestClient2['default'](this.getClient()._pydioObject, options);
     };
 
