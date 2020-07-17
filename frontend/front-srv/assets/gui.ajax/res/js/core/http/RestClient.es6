@@ -34,11 +34,6 @@ ApiClient.parseDate = function (str) {
     return moment(str).toDate();
 };
 
-const sessionStorage = this.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
-const sessionIdStorage = this.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
-const pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || uuid()
-sessionIdStorage.setItem("pydioSessionId", pydioSessionId)
-
 // Override callApi Method
 class RestClient extends ApiClient{
 
@@ -52,6 +47,10 @@ class RestClient extends ApiClient{
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
+        this.sessionStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
+        
+        const sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
+        this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || uuid()
     }
 
     /**
@@ -65,7 +64,7 @@ class RestClient extends ApiClient{
             headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE')};
         }
 
-        headers = {"X-Pydio-Frontend-Session": sessionIdStorage.getItem("pydioSessionId")}
+        headers = {"X-Pydio-Frontend-Session": this.pydioSessionId}
 
         return super.callApi(
             '/frontend/session', 'POST',
@@ -79,15 +78,15 @@ class RestClient extends ApiClient{
      * Get current JWT Token
      */
     get() {
-        return JSON.parse(sessionStorage.getItem(this.tokenKey()))
+        return JSON.parse(this.sessionStorage.getItem(this.tokenKey()))
     }
 
     store(token){
-        sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
+        this.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
     }
 
     remove() {
-        sessionStorage.removeItem(this.tokenKey())
+        this.sessionStorage.removeItem(this.tokenKey())
     }
 
     tokenKey(){

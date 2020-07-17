@@ -71,11 +71,6 @@ ApiClient.parseDate = function (str) {
     return _moment2['default'](str).toDate();
 };
 
-var sessionStorage = undefined.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
-var sessionIdStorage = undefined.pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
-var pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || _uuid.v4();
-sessionIdStorage.setItem("pydioSessionId", pydioSessionId);
-
 // Override callApi Method
 
 var RestClient = (function (_ApiClient) {
@@ -96,6 +91,10 @@ var RestClient = (function (_ApiClient) {
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
+        this.sessionStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
+
+        var sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
+        this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || _uuid.v4();
     }
 
     /**
@@ -110,7 +109,7 @@ var RestClient = (function (_ApiClient) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
         }
 
-        headers = { "X-Pydio-Frontend-Session": sessionIdStorage.getItem("pydioSessionId") };
+        headers = { "X-Pydio-Frontend-Session": this.pydioSessionId };
 
         return _ApiClient.prototype.callApi.call(this, '/frontend/session', 'POST', null, null, headers, null, request, [], ['application/json'], ['application/json'], _genModelRestFrontSessionResponse2['default']);
     };
@@ -120,15 +119,15 @@ var RestClient = (function (_ApiClient) {
      */
 
     RestClient.prototype.get = function get() {
-        return JSON.parse(sessionStorage.getItem(this.tokenKey()));
+        return JSON.parse(this.sessionStorage.getItem(this.tokenKey()));
     };
 
     RestClient.prototype.store = function store(token) {
-        sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
+        this.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
     };
 
     RestClient.prototype.remove = function remove() {
-        sessionStorage.removeItem(this.tokenKey());
+        this.sessionStorage.removeItem(this.tokenKey());
     };
 
     RestClient.prototype.tokenKey = function tokenKey() {
