@@ -60,6 +60,10 @@ var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
 
+var _PydioStorage = require('./PydioStorage');
+
+var _PydioStorage2 = _interopRequireDefault(_PydioStorage);
+
 var _uuid = require('uuid');
 
 // Override parseDate method to support ISO8601 cross-browser
@@ -91,11 +95,9 @@ var RestClient = (function (_ApiClient) {
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
-        this.sessionStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
 
-        var sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
-        this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || _uuid.v4();
-        sessionIdStorage.setItem("pydioSessionId", this.pydioSessionId);
+        this.pydioSessionId = _PydioStorage2['default'].getSessionIdStorage().getItem("pydioSessionId") || _uuid.v4();
+        _PydioStorage2['default'].getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId);
     }
 
     /**
@@ -120,15 +122,15 @@ var RestClient = (function (_ApiClient) {
      */
 
     RestClient.prototype.get = function get() {
-        return JSON.parse(this.sessionStorage.getItem(this.tokenKey()));
+        return JSON.parse(_PydioStorage2['default'].getSessionStorage().getItem(this.tokenKey()));
     };
 
     RestClient.prototype.store = function store(token) {
-        this.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token));
+        _PydioStorage2['default'].getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token));
     };
 
     RestClient.prototype.remove = function remove() {
-        this.sessionStorage.removeItem(this.tokenKey());
+        _PydioStorage2['default'].getSessionStorage().removeItem(this.tokenKey());
     };
 
     RestClient.prototype.tokenKey = function tokenKey() {
@@ -198,7 +200,7 @@ var RestClient = (function (_ApiClient) {
             return Promise.reject("no token");
         }
 
-        if (token.ExpiresAt >= now + 5) {
+        if (token && token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken);
         }
 

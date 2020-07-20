@@ -27,6 +27,7 @@ import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
 import IdmApi from './IdmApi'
+import PydioStorage from './PydioStorage'
 import {v4 as uuid} from 'uuid'
 
 // Override parseDate method to support ISO8601 cross-browser
@@ -47,11 +48,9 @@ class RestClient extends ApiClient{
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
-        this.sessionStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
-        
-        const sessionIdStorage = pydioObject.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
-        this.pydioSessionId = sessionIdStorage.getItem("pydioSessionId") || uuid()
-        sessionIdStorage.setItem("pydioSessionId", this.pydioSessionId)
+
+        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId") || uuid()
+        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId)
     }
 
     /**
@@ -79,15 +78,15 @@ class RestClient extends ApiClient{
      * Get current JWT Token
      */
     get() {
-        return JSON.parse(this.sessionStorage.getItem(this.tokenKey()))
+        return JSON.parse(PydioStorage.getSessionStorage().getItem(this.tokenKey()))
     }
 
     store(token){
-        this.sessionStorage.setItem(this.tokenKey(), JSON.stringify(token))
+        PydioStorage.getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token))
     }
 
     remove() {
-        this.sessionStorage.removeItem(this.tokenKey())
+        PydioStorage.getSessionStorage().removeItem(this.tokenKey())
     }
 
     tokenKey(){
@@ -152,7 +151,7 @@ class RestClient extends ApiClient{
             return Promise.reject("no token")
         }
 
-        if (token.ExpiresAt >= now + 5) {
+        if (token && token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken)
         }
 
@@ -271,7 +270,6 @@ class RestClient extends ApiClient{
     getIdmApi(){
         return new IdmApi(this);
     }
-
 }
 
 export {RestClient as default}
