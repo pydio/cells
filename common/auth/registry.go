@@ -69,7 +69,9 @@ func InitRegistry(dao sql.DAO) {
 		}
 
 		store := oauth2.NewFositeSQLStore(db, r, conf)
-		store.CreateSchemas(dao.Driver())
+		if _, err := store.CreateSchemas(dao.Driver()); err != nil {
+			log.Warn("Failed to create fosite sql store schemas", zap.Error(err))
+		}
 
 		RegisterOryProvider(r.OAuth2Provider())
 	})
