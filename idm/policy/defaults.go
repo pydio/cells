@@ -33,6 +33,7 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy/conditions"
+	"github.com/pydio/cells/idm/policy/converter"
 )
 
 var (
@@ -46,7 +47,7 @@ var (
 			Description:   "PolicyGroup.PublicAccess.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "discovery-policy",
 					Description: "PolicyGroup.PublicAccess.Rule1",
 					Subjects:    []string{"profile:anon"},
@@ -54,7 +55,7 @@ var (
 					Actions:     []string{"GET"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "reset-password-policy",
 					Description: "PolicyGroup.PublicAccess.Rule2",
 					Subjects:    []string{"profile:anon"},
@@ -62,7 +63,7 @@ var (
 					Actions:     []string{"PUT", "POST"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-state",
 					Description: "PolicyGroup.PublicAccess.Rule3",
 					Subjects:    []string{"profile:anon"},
@@ -70,7 +71,7 @@ var (
 					Actions:     []string{"GET"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-auth",
 					Description: "PolicyGroup.PublicAccess.Rule4",
 					Subjects:    []string{"profile:anon"},
@@ -87,7 +88,7 @@ var (
 			Description:   "PolicyGroup.PublicInstall.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "install-policy",
 					Description: "PolicyGroup.PublicInstall.Rule1",
 					Subjects:    []string{"profile:anon"},
@@ -105,7 +106,7 @@ var (
 			Description:   "PolicyGroup.LoggedUsers.Description",
 			ResourceGroup: idm.PolicyResourceGroup_rest,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "admin-default-policy",
 					Description: "PolicyGroup.LoggedUsers.Rule1",
 					Subjects:    []string{"profile:admin"},
@@ -113,7 +114,7 @@ var (
 					Actions:     []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-default-policy",
 					Description: "PolicyGroup.LoggedUsers.Rule2",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -144,7 +145,7 @@ var (
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-read",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -157,7 +158,7 @@ var (
 					Actions: []string{"GET", "POST"},
 					Effect:  ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-put",
 					Description: "PolicyGroup.LoggedUsers.Rule4",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -167,7 +168,7 @@ var (
 					Actions: []string{"PUT"},
 					Effect:  ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-read",
 					Description: "PolicyGroup.LoggedUsers.Rule5",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -177,7 +178,7 @@ var (
 					Actions: []string{"GET"},
 					Effect:  ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-post",
 					Description: "PolicyGroup.LoggedUsers.Rule6",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -198,7 +199,7 @@ var (
 			Description:   "PolicyGroup.OIDC.Description",
 			ResourceGroup: idm.PolicyResourceGroup_oidc,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "all-users-login",
 					Description: "PolicyGroup.OIDC.Rule1",
 					Subjects:    []string{"user:<.+>", "profile:<.+>", "role:<.+>"},
@@ -219,7 +220,7 @@ var (
 			Description:   "PolicyGroup.ACLSample1.Description",
 			ResourceGroup: idm.PolicyResourceGroup_acl,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-complex-rule1",
 					Description: "PolicyGroup.ACLSample1.Rule1",
 					Subjects:    []string{"policy:sample-acl-policy"},
@@ -227,7 +228,7 @@ var (
 					Actions:     []string{"read", "write"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-complex-rule2",
 					Description: "PolicyGroup.ACLSample1.Rule2",
 					Subjects:    []string{"policy:sample-acl-policy"},
@@ -243,7 +244,7 @@ var (
 						},
 					},
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-complex-rule3",
 					Description: "PolicyGroup.ACLSample1.Rule3",
 					Subjects:    []string{"policy:sample-acl-policy"},
@@ -269,7 +270,7 @@ var (
 			Description:   "PolicyGroup.ACLSamplePeriod.Description",
 			ResourceGroup: idm.PolicyResourceGroup_acl,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-temporary-access2",
 					Description: "PolicyGroup.ACLSamplePeriod.Rule1",
 					Subjects:    []string{"policy:limited-period-access-acl-policy2"},
@@ -292,7 +293,7 @@ var (
 			Description:   "PolicyGroup.ACLSampleDateDisable.Description",
 			ResourceGroup: idm.PolicyResourceGroup_acl,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-date-rule1",
 					Description: "PolicyGroup.ACLSampleDateDisable.Rule1",
 					Subjects:    []string{"policy:no-access-after-acl-policy"},
@@ -300,7 +301,7 @@ var (
 					Actions:     []string{"read", "write"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-date-rule2",
 					Description: "PolicyGroup.ACLSampleDateDisable.Rule2",
 					Subjects:    []string{"policy:no-access-after-acl-policy"},
@@ -323,7 +324,7 @@ var (
 			Description:   "PolicyGroup.ACLSampleBusinessHours.Description",
 			ResourceGroup: idm.PolicyResourceGroup_acl,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-office-hours-rule",
 					Description: "PolicyGroup.ACLSampleBusinessHours.Rule1",
 					Subjects:    []string{"policy:office-hours-access-acl-policy"},
@@ -345,7 +346,7 @@ var (
 			Description:   "PolicyGroup.ACLSampleExternalIP.Description",
 			ResourceGroup: idm.PolicyResourceGroup_acl,
 			Policies: []*idm.Policy{
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-complex-rule4",
 					Description: "PolicyGroup.ACLSampleExternalIP.Rule1",
 					Subjects:    []string{"policy:no-external-access-acl-policy"},
@@ -353,7 +354,7 @@ var (
 					Actions:     []string{"read", "write"},
 					Effect:      ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "acl-complex-rule5",
 					Description: "PolicyGroup.ACLSampleExternalIP.Rule2",
 					Subjects:    []string{"policy:no-external-access-acl-policy"},
@@ -438,7 +439,7 @@ func Upgrade103(ctx context.Context) error {
 	}
 	for _, group := range groups {
 		if group.Uuid == "rest-apis-default-accesses" {
-			group.Policies = append(group.Policies, LadonToProtoPolicy(&ladon.DefaultPolicy{
+			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "shares-default-policy",
 				Description: "PolicyGroup.LoggedUsers.Rule3",
 				Subjects:    []string{"profile:standard", "profile:shared"},
@@ -489,7 +490,7 @@ func Upgrade120(ctx context.Context) error {
 				}
 				updates = append(updates, p)
 			}
-			updates = append(updates, LadonToProtoPolicy(&ladon.DefaultPolicy{
+			updates = append(updates, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "user-meta-tags-no-delete",
 				Description: "PolicyGroup.LoggedUsers.Rule3",
 				Subjects:    []string{"profile:standard", "profile:shared"},
@@ -512,14 +513,14 @@ func Upgrade120(ctx context.Context) error {
 				log.Logger(ctx).Info("Deleted unused policy group "+group.Uuid, zap.Error(err))
 			}
 		} else if group.Uuid == "public-access" {
-			group.Policies = append(group.Policies, LadonToProtoPolicy(&ladon.DefaultPolicy{
+			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "frontend-state",
 				Description: "PolicyGroup.PublicAccess.Rule3",
 				Subjects:    []string{"profile:anon"},
 				Resources:   []string{"rest:/frontend/<.*>"},
 				Actions:     []string{"GET"},
 				Effect:      ladon.AllowAccess,
-			}), LadonToProtoPolicy(&ladon.DefaultPolicy{
+			}), converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "frontend-auth",
 				Description: "PolicyGroup.PublicAccess.Rule4",
 				Subjects:    []string{"profile:anon"},
@@ -578,7 +579,7 @@ func Upgrade142(ctx context.Context) error {
 	}
 	for _, group := range groups {
 		if group.Uuid == "rest-apis-default-accesses" {
-			group.Policies = append(group.Policies, LadonToProtoPolicy(&ladon.DefaultPolicy{
+			group.Policies = append(group.Policies, converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 				ID:          "user-ws-readonly",
 				Description: "PolicyGroup.LoggedUsers.Rule4",
 				Subjects:    []string{"profile:standard", "profile:shared"},
@@ -669,7 +670,7 @@ func Upgrade210(ctx context.Context) error {
 				newPolicies = append(newPolicies, p)
 			}
 			newPolicies = append(newPolicies,
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-read",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -682,7 +683,7 @@ func Upgrade210(ctx context.Context) error {
 					Actions: []string{"GET", "POST"},
 					Effect:  ladon.AllowAccess,
 				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
+				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-put",
 					Description: "PolicyGroup.LoggedUsers.Rule4",
 					Subjects:    []string{"profile:standard", "profile:shared"},

@@ -25,11 +25,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/utils/permissions"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 )
@@ -111,9 +113,15 @@ func getMetaProviderStreamers(withCoreMeta bool) ([]tree.NodeProviderStreamerCli
 	// Init with Meta Grpc Service
 	var result []tree.NodeProviderStreamerClient
 	var names []string
-	if withCoreMeta {
-		result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)))
-		names = append(names, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+
+	// Load core Meta
+	result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)))
+	names = append(names, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+
+	// Load User meta (if claims are not empty!)
+	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+		log.Logger(ctx).Debug("No user/claims found - skipping user metas on metaStreamers init!")
+		return result, names
 	}
 
 	// Other Meta Providers (running services only)

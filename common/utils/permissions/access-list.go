@@ -22,8 +22,6 @@ package permissions
 
 import (
 	"context"
-	"fmt"
-	"path"
 	"sort"
 	"strings"
 
@@ -37,42 +35,13 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// PolicyResolver implements the check of an object against a set of ACL policies
 type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error)
 
-type BitmaskFlag uint32
-
-const (
-	FlagRead BitmaskFlag = 1 << iota
-	FlagWrite
-	FlagDeny
-	FlagList
-	FlagDelete
-	FlagPolicy
-	FlagQuota
-	FlagLock
-)
+// VirtualPathResolver must be able to load virtual nodes based on their UUID
+type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
 
 var (
-	NamesToFlags = map[string]BitmaskFlag{
-		"read":   FlagRead,
-		"write":  FlagWrite,
-		"deny":   FlagDeny,
-		"list":   FlagList,
-		"delete": FlagDelete,
-		"policy": FlagPolicy,
-		"quota":  FlagQuota,
-		"lock":   FlagLock,
-	}
-	FlagsToNames = map[BitmaskFlag]string{
-		FlagRead:   "read",
-		FlagWrite:  "write",
-		FlagDeny:   "deny",
-		FlagList:   "list",
-		FlagDelete: "delete",
-		FlagPolicy: "policy",
-		FlagQuota:  "quota",
-		FlagLock:   "lock",
-	}
 	AclRead        = &idm.ACLAction{Name: "read", Value: "1"}
 	AclWrite       = &idm.ACLAction{Name: "write", Value: "1"}
 	AclDeny        = &idm.ACLAction{Name: "deny", Value: "1"}
@@ -91,84 +60,9 @@ var (
 	ResolvePolicyRequest PolicyResolver
 )
 
-type Bitmask struct {
-	BitmaskFlag
-	PolicyIds  map[string]string
-	ValueFlags map[BitmaskFlag]string
-}
-
-func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNode ...*tree.Node) bool {
-
-	if flag != FlagPolicy && flag != FlagDeny && f.BitmaskFlag&FlagPolicy != 0 && ResolvePolicyRequest != nil {
-		// We should first resolve the policy, given the ctx and the node
-		policyContext := make(map[string]string)
-		PolicyContextFromMetadata(policyContext, ctx)
-		if len(ctxNode) > 0 {
-			PolicyContextFromNode(policyContext, ctxNode[0])
-		}
-		var subjects []string
-		for k, _ := range f.PolicyIds {
-			subjects = append(subjects, fmt.Sprintf("policy:%s", k))
-		}
-		req := &idm.PolicyEngineRequest{
-			Subjects: subjects,
-			Resource: "acl",
-			Action:   FlagsToNames[flag],
-			Context:  policyContext,
-		}
-		if resp, err := ResolvePolicyRequest(ctx, req); err == nil && resp.Allowed {
-			log.Logger(ctx).Debug("Policy Allowed", zap.Any("req", req))
-			return true
-		} else {
-			log.Logger(ctx).Debug("Policy Not Allowed", zap.Any("req", req))
-			return false
-		}
-	}
-
-	return f.BitmaskFlag&flag != 0
-}
-
-// AddFlag adds a simple flag.
-func (f *Bitmask) AddFlag(flag BitmaskFlag) {
-	f.BitmaskFlag |= flag
-}
-
-// AddPolicyFlag adds a policy flag and stacks policies.
-func (f *Bitmask) AddPolicyFlag(policyId string) {
-	f.AddFlag(FlagPolicy)
-	if f.PolicyIds == nil {
-		f.PolicyIds = make(map[string]string)
-	}
-	f.PolicyIds[policyId] = policyId
-}
-
-// AddValueFlag stores the value of a BitmaskFlag.
-func (f *Bitmask) AddValueFlag(flag BitmaskFlag, value string) {
-	f.AddFlag(flag)
-	if f.ValueFlags == nil {
-		f.ValueFlags = make(map[BitmaskFlag]string)
-	}
-	f.ValueFlags[flag] = value
-}
-
-type Right struct {
-	Read  bool
-	Write bool
-}
-
-func (r *Right) IsAccessible() bool {
-	return r.Read || r.Write
-}
-
-func (r *Right) String() string {
-	var s []string
-	if r.Read {
-		s = append(s, "read")
-	}
-	if r.Write {
-		s = append(s, "write")
-	}
-	return strings.Join(s, ",")
+func init() {
+	// Use default resolver (loads policies in memory and cache them for 1mn)
+	ResolvePolicyRequest = LocalACLPoliciesResolver
 }
 
 // AccessList is a merged representation of all ACLs that a user has access to.
@@ -233,7 +127,7 @@ func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]str
 	accessListWsNodes := a.GetWorkspacesNodes()
 	results := make(map[string]string)
 	for wsId, wsNodes := range accessListWsNodes {
-		rights := &Right{}
+		rights := &right{}
 		for nodeId, _ := range wsNodes {
 			if a.CanRead(ctx, &tree.Node{Uuid: nodeId}) {
 				rights.Read = true
@@ -242,12 +136,128 @@ func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]str
 				rights.Write = true
 			}
 		}
-		if rights.IsAccessible() {
-			results[wsId] = rights.String()
+		if rights.isAccessible() {
+			results[wsId] = rights.toString()
 		}
 	}
 	return results
 }
+
+// CanRead checks if a node has READ access.
+func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
+}
+
+// CanRead checks if a node has READ access.
+func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	if a.nodesPathsAcls == nil {
+		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
+			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
+			return false
+		}
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, true, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	if a.nodesPathsAcls == nil {
+		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
+			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
+			return false
+		}
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, true, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
+	// First we check for parents
+	mask, _ := a.firstMaskForParents(ctx, nodes...)
+	if mask.HasFlag(ctx, FlagLock, nodes[0]) {
+		return true
+	}
+
+	if mask := a.firstMaskForChildren(ctx, nodes[0]); mask.HasFlag(ctx, FlagLock, nodes[0]) {
+		return true
+	}
+
+	return false
+}
+
+// BelongsToWorkspaces finds corresponding workspace parents for this node.
+func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]string) {
+
+	wsNodes := a.GetWorkspacesNodes()
+	foundWorkspaces := make(map[string]bool)
+	workspacesRoots = make(map[string]string)
+	for _, node := range nodes {
+		uuid := node.Uuid
+		for wsId, wsRoots := range wsNodes {
+			if _, has := a.Workspaces[wsId]; !has {
+				continue
+			}
+			for rootId, _ := range wsRoots {
+				if rootId == uuid {
+					foundWorkspaces[wsId] = true
+					workspacesRoots[wsId] = rootId
+				}
+			}
+		}
+	}
+	for workspaceId, _ := range foundWorkspaces {
+		workspaces = append(workspaces, a.Workspaces[workspaceId])
+	}
+	return workspaces, workspacesRoots
+
+}
+
+// LoadNodePathsAcls retrieve each nodes by UUID, to wich an ACL is attached
+func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPathResolver) error {
+	a.nodesPathsAcls = make(map[string]Bitmask, len(a.NodesAcls))
+	cli := tree.NewNodeProviderStreamerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	st, e := cli.ReadNodeStream(ctx)
+	if e != nil {
+		return e
+	}
+	defer st.Close()
+	// Retrieving path foreach ids
+	for nodeID, b := range a.NodesAcls {
+		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
+			log.Logger(ctx).Debug("Acl.LoadNodePathsAcls : Loading resolved node", n.Zap())
+			a.nodesPathsAcls[strings.TrimSuffix(n.Path, "/")] = b
+			continue
+		}
+		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		if err != nil {
+			return err
+		}
+		resp, err := st.Recv()
+		if err != nil || resp.Node == nil {
+			continue
+		}
+		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
+	}
+	return nil
+}
+
+// Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key
+func (a *AccessList) Zap() zapcore.Field {
+	return zap.Any(common.KEY_ACCESS_LIST, a)
+}
+
+/***************
+PRIVATE METHODS
+****************/
 
 // Flatten Permissions based on all the lists received :
 // First go through each nodes and create Bitmask for each one, organized by roles
@@ -327,36 +337,10 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 	return flattenedNodes, flattenedWorkspaces
 }
 
-// FirstMaskForParents just climbs up the tree and gets the first non empty mask found.
-func (a *AccessList) FirstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
-	for _, node := range nodes {
-		if bitmask, ok := a.NodesAcls[node.Uuid]; ok {
-			return bitmask, node
-		}
-	}
-	return Bitmask{}, nil
-}
-
-// FirstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
-func (a *AccessList) FirstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
-	keys := make([]string, 0, len(a.nodesPathsAcls))
-	for k := range a.nodesPathsAcls {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, p := range keys {
-		if strings.HasPrefix(p, strings.TrimRight(node.Path, "/")+"/") {
-			return a.nodesPathsAcls[p]
-		}
-	}
-	return Bitmask{}
-}
-
-// ParentMaskOrDeny browses access list from current node to ROOT, going through each parent.
+// parentMaskOrDeny browses access list from current node to ROOT, going through each parent.
 // If there is a deny anywhere up the path, it returns that deny,
 // otherwise it sends the first Bitmask found (closest parent having a Bitmask set).
-func (a *AccessList) ParentMaskOrDeny(ctx context.Context, byPath bool, nodes ...*tree.Node) (bool, Bitmask) {
+func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ...*tree.Node) (bool, Bitmask) {
 	var firstParent Bitmask
 	var hasParentDeny bool
 	for _, node := range nodes {
@@ -364,7 +348,7 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 		var checkKey string
 		if byPath {
 			checkOn = a.nodesPathsAcls
-			checkKey = node.Path
+			checkKey = strings.Trim(node.Path, "/")
 		} else {
 			checkOn = a.NodesAcls
 			checkKey = node.Uuid
@@ -381,131 +365,49 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 	return hasParentDeny, firstParent
 }
 
-// CanRead checks if a node has READ access.
-func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
-	deny, mask := a.ParentMaskOrDeny(ctx, false, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
-}
-
-// CanWrite checks if a node has WRITE access.
-func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
-	deny, mask := a.ParentMaskOrDeny(ctx, false, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
-}
-
-// CanRead checks if a node has READ access.
-func (a *AccessList) CanReadPath(ctx context.Context, node *tree.Node, resolver VirtualPathResolver) bool {
-	if a.nodesPathsAcls == nil {
-		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
-			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
-		}
-	}
-	nodes := a.pathAncestors(node)
-	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
-}
-
-// CanWrite checks if a node has WRITE access.
-func (a *AccessList) CanWritePath(ctx context.Context, node *tree.Node, resolver VirtualPathResolver) bool {
-	if a.nodesPathsAcls == nil {
-		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
-			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
-		}
-	}
-	nodes := a.pathAncestors(node)
-	deny, mask := a.ParentMaskOrDeny(ctx, true, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
-}
-
-// CanWrite checks if a node has WRITE access.
-func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
-	// First we check for parents
-	mask, _ := a.FirstMaskForParents(ctx, nodes...)
-	if mask.HasFlag(ctx, FlagLock, nodes[0]) {
-		return true
-	}
-
-	if mask := a.FirstMaskForChildren(ctx, nodes[0]); mask.HasFlag(ctx, FlagLock, nodes[0]) {
-		return true
-	}
-
-	return false
-}
-
-// BelongsToWorkspaces finds corresponding workspace parents for this node.
-func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]string) {
-
-	wsNodes := a.GetWorkspacesNodes()
-	foundWorkspaces := make(map[string]bool)
-	workspacesRoots = make(map[string]string)
+// firstMaskForParents just climbs up the tree and gets the first non empty mask found.
+func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
 	for _, node := range nodes {
-		uuid := node.Uuid
-		for wsId, wsRoots := range wsNodes {
-			if _, has := a.Workspaces[wsId]; !has {
-				continue
-			}
-			for rootId, _ := range wsRoots {
-				if rootId == uuid {
-					foundWorkspaces[wsId] = true
-					workspacesRoots[wsId] = rootId
-				}
-			}
+		if bitmask, ok := a.NodesAcls[node.Uuid]; ok {
+			return bitmask, node
 		}
 	}
-	for workspaceId, _ := range foundWorkspaces {
-		workspaces = append(workspaces, a.Workspaces[workspaceId])
-	}
-	return workspaces, workspacesRoots
-
+	return Bitmask{}, nil
 }
 
-type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
+// firstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
+func (a *AccessList) firstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
+	keys := make([]string, 0, len(a.nodesPathsAcls))
+	for k := range a.nodesPathsAcls {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 
-func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPathResolver) error {
-	a.nodesPathsAcls = make(map[string]Bitmask, len(a.NodesAcls))
-	cli := tree.NewNodeProviderStreamerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-	st, e := cli.ReadNodeStream(ctx)
-	if e != nil {
-		return e
+	for _, p := range keys {
+		if strings.HasPrefix(p, strings.TrimRight(node.Path, "/")+"/") {
+			return a.nodesPathsAcls[p]
+		}
 	}
-	defer st.Close()
-	// Retrieving path foreach ids
-	for nodeID, b := range a.NodesAcls {
-		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
-			log.Logger(ctx).Debug("Acl.LoadNodePathsAcls : Loading resolved node", n.Zap())
-			a.nodesPathsAcls[strings.TrimSuffix(n.Path, "/")] = b
-			continue
-		}
-		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
-		if err != nil {
-			return err
-		}
-		resp, err := st.Recv()
-		if err != nil || resp.Node == nil {
-			continue
-		}
-		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
-	}
-	return nil
+	return Bitmask{}
 }
 
-func (a *AccessList) pathAncestors(node *tree.Node) (nodes []*tree.Node) {
-	var n *tree.Node
-	n = node.Clone()
-	n.Path = strings.TrimPrefix(n.Path, "/")
-	for {
-		nodes = append(nodes, n.Clone())
-		parent := path.Dir(n.Path)
-		if n.Path == "/" || parent == "" || parent == "." {
-			break
-		}
-		n = &tree.Node{Path: parent, Type: tree.NodeType_COLLECTION}
-	}
-	return
+// right is a tool struct to compute right strings
+type right struct {
+	Read  bool
+	Write bool
 }
 
-/* LOGGING SUPPORT */
-// Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key
-func (a *AccessList) Zap() zapcore.Field {
-	return zap.Any(common.KEY_ACCESS_LIST, a)
+func (r *right) isAccessible() bool {
+	return r.Read || r.Write
+}
+
+func (r *right) toString() string {
+	var s []string
+	if r.Read {
+		s = append(s, "read")
+	}
+	if r.Write {
+		s = append(s, "write")
+	}
+	return strings.Join(s, ",")
 }

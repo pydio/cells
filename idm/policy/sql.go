@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/idm/policy/converter"
 )
 
 type sqlimpl struct {
@@ -156,7 +157,7 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	for _, policy := range group.Policies {
 		if policy.Id == "" { // must be a new policy
 			policy.Id = uuid.NewUUID().String()
-			err := s.Manager.Create(ProtoToLadonPolicy(policy))
+			err := s.Manager.Create(converter.ProtoToLadonPolicy(policy))
 			if err != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot create new ladon policy with description: %s", policy.Description), zap.Error(err))
 				return group, err
@@ -168,9 +169,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 				return group, err
 			}
 			if p != nil {
-				err = s.Manager.Update(ProtoToLadonPolicy(policy))
+				err = s.Manager.Update(converter.ProtoToLadonPolicy(policy))
 			} else {
-				err = s.Manager.Create(ProtoToLadonPolicy(policy))
+				err = s.Manager.Create(converter.ProtoToLadonPolicy(policy))
 			}
 			if err != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot upsert policy with id %s", policy.Id), zap.Error(err))
@@ -242,7 +243,7 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGro
 			policyGroup = alreadyScanned
 		}
 		if policy, e := s.Get(policyId); e == nil {
-			policyGroup.Policies = append(policyGroup.Policies, LadonToProtoPolicy(policy))
+			policyGroup.Policies = append(policyGroup.Policies, converter.LadonToProtoPolicy(policy))
 		}
 		policyGroup.ResourceGroup = idm.PolicyResourceGroup(resourceGroup)
 		result[policyGroup.Uuid] = policyGroup

@@ -47,6 +47,15 @@ var (
 		"root/folder1/subfolder2":       "root/folder1/subfolder2",
 		"root/folder1/subfolder2/file1": "root/folder1/subfolder2/file1",
 		"root/folder1/subfolder2/file2": "root/folder1/subfolder2/file2",
+		"root/folder1/subfolder2/file3": "root/folder1/subfolder2/file3",
+		"root/filtered":                 "root/filtered",
+		"root/filtered/sub1":            "root/filtered/sub1",
+		"root/filtered/sub1/sub11":      "root/filtered/sub11",
+		"root/filtered/sub1/sub11/file": "root/filtered/sub11/file",
+	}
+	metas = map[string]map[string]string{
+		"root/filtered":                 {"usermeta-tags": `"filtered"`},
+		"root/folder1/subfolder2/file3": {"usermeta-tags": `"filtered"`},
 	}
 	acls = []*idm.ACL{
 		{
@@ -87,14 +96,51 @@ var (
 			Action: &idm.ACLAction{Name: "lock", Value: "1"},
 		},
 	}
+	policyAcls = []*idm.ACL{
+		{
+			WorkspaceID: "ws1",
+			NodeID:      "root",
+			RoleID:      "user_id",
+			Action: &idm.ACLAction{
+				Name: "policy", Value: "meta-filter",
+			},
+		},
+	}
 )
+
+func policyMockResolver(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+	policyId := strings.TrimPrefix(request.Subjects[0], "policy:")
+	allowed := true
+
+	switch policyId {
+	case "meta-filter":
+		if v, o := request.Context["NodeMeta:usermeta-tags"]; o && v == "filtered" {
+			allowed = false
+		}
+	default:
+		allowed = true
+	}
+
+	return &idm.PolicyEngineResponse{
+		Allowed: allowed,
+	}, nil
+}
+
+func virtualMockResolver(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+	return nil, false
+}
 
 func listParents(nodeId string) []*tree.Node {
 	parts := strings.Split(nodeId, "/")
 	var paths, inverted []*tree.Node
 	total := len(parts)
 	for i := 0; i < total; i++ {
-		paths = append(paths, &tree.Node{Uuid: strings.Join(parts[0:i+1], "/")})
+		p := strings.Join(parts[0:i+1], "/")
+		node := &tree.Node{Uuid: p, Path: p}
+		if meta, ok := metas[p]; ok {
+			node.MetaStore = meta
+		}
+		paths = append(paths, node)
 	}
 	for i := 1; i <= total; i++ {
 		inverted = append(inverted, paths[total-i])
@@ -118,6 +164,15 @@ func TestAccessList_Flatten(t *testing.T) {
 		list.Append(acls)
 		list.Flatten(ctx)
 		So(list.NodesAcls, ShouldHaveLength, 4)
+
+		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
+		list.nodesPathsAcls = list.NodesAcls
+		list.Workspaces = map[string]*idm.Workspace{
+			"ws1": {UUID: "ws1"},
+			"ws2": {UUID: "ws2"},
+		}
+		So(list.HasPolicyBasedAcls(), ShouldBeFalse)
+
 		wsNodes := list.GetWorkspacesNodes()
 		So(wsNodes, ShouldHaveLength, 2)
 		result := map[string]map[string]Bitmask{}
@@ -137,34 +192,66 @@ func TestAccessList_Flatten(t *testing.T) {
 		testReadWrite := listParents("root/folder1/subfolder2/file1")
 		So(list.CanRead(ctx, testReadWrite...), ShouldBeTrue)
 		So(list.CanWrite(ctx, testReadWrite...), ShouldBeTrue)
+		So(list.IsLocked(ctx, testReadWrite...), ShouldBeFalse)
+		wss, _ := list.BelongsToWorkspaces(ctx, testReadWrite...)
+		So(wss, ShouldHaveLength, 2)
+
+		So(list.CanReadPath(ctx, virtualMockResolver, testReadWrite...), ShouldBeTrue)
+		So(list.CanWritePath(ctx, virtualMockResolver, testReadWrite...), ShouldBeTrue)
 
 		testReadOnly := listParents("root/folder1/subfolder2/file2")
 		So(list.CanRead(ctx, testReadOnly...), ShouldBeTrue)
 		So(list.CanWrite(ctx, testReadOnly...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, testReadOnly...), ShouldBeTrue)
+		So(list.CanWritePath(ctx, virtualMockResolver, testReadOnly...), ShouldBeFalse)
 
 		testDenied := listParents("root/folder1/subfolder1/fileA")
 		So(list.CanRead(ctx, testDenied...), ShouldBeFalse)
 		So(list.CanWrite(ctx, testDenied...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, testDenied...), ShouldBeFalse)
+		So(list.CanWritePath(ctx, virtualMockResolver, testDenied...), ShouldBeFalse)
 
 		testNothing := listParents("root/folder2")
 		So(list.CanRead(ctx, testNothing...), ShouldBeFalse)
 		So(list.CanWrite(ctx, testNothing...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, testNothing...), ShouldBeFalse)
+		So(list.CanWritePath(ctx, virtualMockResolver, testNothing...), ShouldBeFalse)
 
 		testNothing2 := listParents("root")
 		So(list.CanRead(ctx, testNothing2...), ShouldBeFalse)
 		So(list.CanWrite(ctx, testNothing2...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, testNothing2...), ShouldBeFalse)
+		So(list.CanWritePath(ctx, virtualMockResolver, testNothing2...), ShouldBeFalse)
 
 	})
+
 }
 
-func TestPathAncestors(t *testing.T) {
-	Convey("Test Path Ancestors", t, func() {
-		a := &AccessList{}
+func TestAclPolicies(t *testing.T) {
+	Convey("Test Policies", t, func() {
+		// Override default PolicyChecker
+		ResolvePolicyRequest = policyMockResolver
 
-		nn := a.pathAncestors(&tree.Node{Path: "/pydiods1/toto/tata/zzz", Type: tree.NodeType_LEAF})
-		So(len(nn), ShouldEqual, 4)
+		ctx := context.Background()
+		list := NewAccessList(roles)
+		list.Append(policyAcls)
+		list.Flatten(ctx)
+		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
+		list.nodesPathsAcls = list.NodesAcls
 
-		nn = a.pathAncestors(&tree.Node{Path: "/", Type: tree.NodeType_COLLECTION})
-		So(len(nn), ShouldEqual, 1)
+		So(list.HasPolicyBasedAcls(), ShouldBeTrue)
+
+		readable := listParents("root/folder1")
+		So(list.CanRead(ctx, readable...), ShouldBeTrue)
+		So(list.CanReadPath(ctx, virtualMockResolver, readable...), ShouldBeTrue)
+
+		denied := listParents("root/filtered")
+		So(list.CanRead(ctx, denied...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, denied...), ShouldBeFalse)
+
+		deniedDeep := listParents("root/filtered/sub11/file")
+		So(list.CanRead(ctx, deniedDeep...), ShouldBeFalse)
+		So(list.CanReadPath(ctx, virtualMockResolver, deniedDeep...), ShouldBeFalse)
 	})
+
 }

@@ -27,6 +27,8 @@ import (
 	"sort"
 	"strings"
 
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	errors2 "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
@@ -377,12 +379,21 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 	for _, r := range user.Roles {
 		roles = append(roles, r.Uuid)
 	}
-	// Build Fake Claims Now
+	// Build Claims Now
 	c := claim.Claims{
-		Name:  user.Login,
-		Email: "TODO@pydio.com",
-		Roles: strings.Join(roles, ","),
+		Name:      user.Login,
+		GroupPath: user.GroupPath,
+		Roles:     strings.Join(roles, ","),
 	}
+	if user.Attributes != nil {
+		if p, o := user.Attributes[idm.UserAttrProfile]; o {
+			c.Profile = p
+		}
+		if e, o := user.Attributes[idm.UserAttrEmail]; o {
+			c.Email = e
+		}
+	}
+	ctx = context2.WithMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 
