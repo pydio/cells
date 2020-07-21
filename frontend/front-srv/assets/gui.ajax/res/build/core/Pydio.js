@@ -269,7 +269,7 @@ var Pydio = (function (_Observable) {
             _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
                 // Logged in
                 _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
-            })['catch'](function () {
+            })['catch'](function (e) {
                 if (!_this2.Parameters.has("PRELOADED_REGISTRY")) {
                     _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
                 } else {

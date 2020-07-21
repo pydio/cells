@@ -96,8 +96,7 @@ var RestClient = (function (_ApiClient) {
         this.pydio = pydioObject;
         this.options = options;
 
-        this.pydioSessionId = _PydioStorage2['default'].getSessionIdStorage().getItem("pydioSessionId") || _uuid.v4();
-        _PydioStorage2['default'].getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId);
+        this.pydioSessionId = _PydioStorage2['default'].getSessionIdStorage().getItem("pydioSessionId");
     }
 
     /**
@@ -111,6 +110,9 @@ var RestClient = (function (_ApiClient) {
         if (this.pydio.Parameters.has('MINISITE')) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
         }
+
+        var pydioSessionId = this.pydioSessionId || _uuid.v4();
+        _PydioStorage2['default'].getSessionIdStorage().setItem("pydioSessionId", pydioSessionId);
 
         headers = { "X-Pydio-Frontend-Session": this.pydioSessionId };
 
@@ -176,6 +178,7 @@ var RestClient = (function (_ApiClient) {
             } else if (response.data && response.data.Token) {
                 _this.store(response.data.Token);
             } else if (request.AuthInfo.type === "logout") {
+                delete _this.pydioSessionId;
                 _this.remove();
             } else {
                 throw "no user found";
@@ -196,12 +199,13 @@ var RestClient = (function (_ApiClient) {
         var token = this.get();
         var now = Math.floor(Date.now() / 1000);
 
-        if (!token) {
-            return Promise.reject("no token");
-        }
-
         if (token && token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken);
+        }
+
+        // If we haven't got a session id, it means we've never log in or have logout
+        if (!this.pydioSessionId) {
+            return Promise.reject("no token");
         }
 
         if (!RestClient._updating) {
@@ -212,7 +216,8 @@ var RestClient = (function (_ApiClient) {
             RestClient._updating = null;
             return _this2.getAuthToken();
         })['catch'](function () {
-            return RestClient._updating = null;
+            RestClient._updating = null;
+            return Promise.reject("invalid token");
         });
     };
 

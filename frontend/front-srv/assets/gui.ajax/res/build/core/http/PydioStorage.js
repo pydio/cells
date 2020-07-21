@@ -23,6 +23,7 @@ var PydioStorage = (function () {
     }
 
     PydioStorage.prototype.getItem = function getItem(sKey) {
+        console.log("And yet we have ", this.oStorage);
         var sValue = this.oStorage[sKey];
         return sValue || null;
     };
@@ -57,7 +58,7 @@ var PydioStorage = (function () {
             return;
         }
 
-        delete (this.oStorage, sKey);
+        delete this.oStorage[sKey];
 
         // Need to add or reset the key
         for (var i = 0; i < this.aKeys.length; i++) {

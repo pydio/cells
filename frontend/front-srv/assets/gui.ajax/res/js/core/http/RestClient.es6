@@ -49,8 +49,7 @@ class RestClient extends ApiClient{
         this.pydio = pydioObject;
         this.options = options;
 
-        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId") || uuid()
-        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId)
+        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId")
     }
 
     /**
@@ -63,6 +62,9 @@ class RestClient extends ApiClient{
         if(this.pydio.Parameters.has('MINISITE')) {
             headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE')};
         }
+
+        const pydioSessionId = this.pydioSessionId || uuid()
+        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", pydioSessionId) 
 
         headers = {"X-Pydio-Frontend-Session": this.pydioSessionId}
 
@@ -129,6 +131,7 @@ class RestClient extends ApiClient{
                 } else if (response.data && response.data.Token) {
                     this.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
+                    delete this.pydioSessionId
                     this.remove()
                 } else {
                     throw "no user found"
@@ -147,12 +150,13 @@ class RestClient extends ApiClient{
         const token = this.get();
         const now = Math.floor(Date.now() / 1000);
 
-        if (!token) {
-            return Promise.reject("no token")
-        }
-
         if (token && token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken)
+        }
+
+        // If we haven't got a session id, it means we've never log in or have logout
+        if (!this.pydioSessionId) {
+            return Promise.reject("no token")
         }
 
         if (!RestClient._updating) {
@@ -162,7 +166,10 @@ class RestClient extends ApiClient{
         return RestClient._updating.then(() => {
             RestClient._updating = null;
             return this.getAuthToken()
-        }).catch(() => RestClient._updating = null)
+        }).catch(() => {
+            RestClient._updating = null
+            return Promise.reject("invalid token")
+        })
     }
 
     /**
