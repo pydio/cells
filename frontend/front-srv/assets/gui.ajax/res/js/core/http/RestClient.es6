@@ -103,20 +103,39 @@ class RestClient extends ApiClient{
         return qs.parse(window.location.search).login_challenge
     }
 
+    generateSessionId() {
+        this.pydioSessionId = uuid()
+        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId)
+    }
+
+    removeSessionId() {
+        this.pydioSessionId = null
+        PydioStorage.getSessionIdStorage().removeItem("pydioSessionId")
+    }
+
     sessionLoginWithCredentials(login, password){
+        this.generateSessionId()
         return this.jwtWithAuthInfo({login, password, challenge: this.getCurrentChallenge(), type:"credentials"})
     }
 
     sessionLoginWithAuthCode(code) {
+        this.generateSessionId()
         return this.jwtWithAuthInfo({code, type:"authorization_code"}, false);
     }
 
     sessionRefresh(){
+        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId")
+
+        if (!this.pydioSessionId) {
+            return Promise.reject("no active session")
+        }
+
         return this.jwtWithAuthInfo({type: "refresh"});
     }
 
     sessionLogout(){
-        return this.jwtWithAuthInfo({type: "logout"});
+        return this.jwtWithAuthInfo({type: "logout"})
+            .then(() => this.removeSessionId());
     }
 
     jwtWithAuthInfo(authInfo, reloadRegistry = true) {
@@ -131,7 +150,6 @@ class RestClient extends ApiClient{
                 } else if (response.data && response.data.Token) {
                     this.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
-                    delete this.pydioSessionId
                     this.remove()
                 } else {
                     throw "no user found"
@@ -154,11 +172,6 @@ class RestClient extends ApiClient{
             return Promise.resolve(token.AccessToken)
         }
 
-        // If we haven't got a session id, it means we've never log in or have logout
-        if (!this.pydioSessionId) {
-            return Promise.reject("no token")
-        }
-
         if (!RestClient._updating) {
             RestClient._updating = this.sessionRefresh()
         }
@@ -168,6 +181,7 @@ class RestClient extends ApiClient{
             return this.getAuthToken()
         }).catch(() => {
             RestClient._updating = null
+            this.removeSessionId()
             return Promise.reject("invalid token")
         })
     }

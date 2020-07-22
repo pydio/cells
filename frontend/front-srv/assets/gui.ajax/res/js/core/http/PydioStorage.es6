@@ -13,7 +13,6 @@ class PydioStorage {
     }
 
     getItem(sKey) {
-        console.log("And yet we have ", this.oStorage)
         const sValue = this.oStorage[sKey]
         return sValue || null
     }

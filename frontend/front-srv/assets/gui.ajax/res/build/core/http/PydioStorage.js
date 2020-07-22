@@ -23,7 +23,6 @@ var PydioStorage = (function () {
     }
 
     PydioStorage.prototype.getItem = function getItem(sKey) {
-        console.log("And yet we have ", this.oStorage);
         var sValue = this.oStorage[sKey];
         return sValue || null;
     };
