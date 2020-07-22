@@ -43,7 +43,7 @@ class PydioStorage {
     removeItem(sKey) {
         if(!sKey) { return; }
         
-        delete(this.oStorage, sKey)
+        delete this.oStorage[sKey]
 
         // Need to add or reset the key
         for (let i = 0; i < this.aKeys.length; i++) {

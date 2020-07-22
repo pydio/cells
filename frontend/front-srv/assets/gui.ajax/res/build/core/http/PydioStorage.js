@@ -57,7 +57,7 @@ var PydioStorage = (function () {
             return;
         }
 
-        delete (this.oStorage, sKey);
+        delete this.oStorage[sKey];
 
         // Need to add or reset the key
         for (var i = 0; i < this.aKeys.length; i++) {

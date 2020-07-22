@@ -49,8 +49,7 @@ class RestClient extends ApiClient{
         this.pydio = pydioObject;
         this.options = options;
 
-        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId") || uuid()
-        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId)
+        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId")
     }
 
     /**
@@ -63,6 +62,9 @@ class RestClient extends ApiClient{
         if(this.pydio.Parameters.has('MINISITE')) {
             headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE')};
         }
+
+        const pydioSessionId = this.pydioSessionId || uuid()
+        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", pydioSessionId) 
 
         headers = {"X-Pydio-Frontend-Session": this.pydioSessionId}
 
@@ -101,20 +103,39 @@ class RestClient extends ApiClient{
         return qs.parse(window.location.search).login_challenge
     }
 
+    generateSessionId() {
+        this.pydioSessionId = uuid()
+        PydioStorage.getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId)
+    }
+
+    removeSessionId() {
+        this.pydioSessionId = null
+        PydioStorage.getSessionIdStorage().removeItem("pydioSessionId")
+    }
+
     sessionLoginWithCredentials(login, password){
+        this.generateSessionId()
         return this.jwtWithAuthInfo({login, password, challenge: this.getCurrentChallenge(), type:"credentials"})
     }
 
     sessionLoginWithAuthCode(code) {
+        this.generateSessionId()
         return this.jwtWithAuthInfo({code, type:"authorization_code"}, false);
     }
 
     sessionRefresh(){
+        this.pydioSessionId = PydioStorage.getSessionIdStorage().getItem("pydioSessionId")
+
+        if (!this.pydioSessionId) {
+            return Promise.reject("no active session")
+        }
+
         return this.jwtWithAuthInfo({type: "refresh"});
     }
 
     sessionLogout(){
-        return this.jwtWithAuthInfo({type: "logout"});
+        return this.jwtWithAuthInfo({type: "logout"})
+            .then(() => this.removeSessionId());
     }
 
     jwtWithAuthInfo(authInfo, reloadRegistry = true) {
@@ -147,10 +168,6 @@ class RestClient extends ApiClient{
         const token = this.get();
         const now = Math.floor(Date.now() / 1000);
 
-        if (!token) {
-            return Promise.reject("no token")
-        }
-
         if (token && token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken)
         }
@@ -162,7 +179,11 @@ class RestClient extends ApiClient{
         return RestClient._updating.then(() => {
             RestClient._updating = null;
             return this.getAuthToken()
-        }).catch(() => RestClient._updating = null)
+        }).catch(() => {
+            RestClient._updating = null
+            this.removeSessionId()
+            return Promise.reject("invalid token")
+        })
     }
 
     /**

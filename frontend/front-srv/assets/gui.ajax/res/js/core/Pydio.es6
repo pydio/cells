@@ -197,7 +197,7 @@ class Pydio extends Observable{
                     // Logged in
                     this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
                 }).
-                catch(() => {
+                catch((e) => {
                     if (!this.Parameters.has("PRELOADED_REGISTRY")) {
                         this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
                     } else {
