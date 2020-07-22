@@ -300,7 +300,7 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 			req := bleve.NewSearchRequest(qu)
 			req.Size = 1
 			if r, e := b.Search(req); e == nil {
-				log.Logger(context.Background()).Info("In-memory bleve filter received result", zap.Any("r.Total", r.Total))
+				log.Logger(context.Background()).Debug("In-memory bleve filter received result", zap.Any("r.Total", r.Total))
 				return r.Total > 0
 			} else {
 				log.Logger(context.Background()).Error("Cannot search on in-memory bleve index - Discarding event node", zap.Error(e))
