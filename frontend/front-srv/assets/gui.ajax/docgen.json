@@ -9976,6 +9976,103 @@
         ]
       }
     ],
+    "core/http/PydioStorage.es6": [
+      {
+        "description": "",
+        "displayName": "PydioStorage",
+        "methods": [
+          {
+            "name": "getSessionIdStorage",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getSessionStorage",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "constructor",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "key",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "nKeyId",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "setItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              },
+              {
+                "name": "sValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "removeItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "length",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "core/http/PydioUsersApi.es6": [
       {
         "description": "",
@@ -10986,6 +11083,20 @@
           },
           {
             "name": "getCurrentChallenge",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "generateSessionId",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "removeSessionId",
             "docblock": null,
             "modifiers": [],
             "params": [],

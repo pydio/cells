@@ -21518,7 +21518,11 @@ var DsStorageType = (function (_React$Component) {
                 { zDepth: 0, style: styles.cont, onClick: function (e) {
                         onSelect(value);
                     }, rounded: false },
+<<<<<<< HEAD
                 image && _react2['default'].createElement('img', { style: styles.image, src: "plug/access.settings/res/images/" + image }),
+=======
+                image && _react2['default'].createElement('img', { style: styles.image, src: "/plug/access.settings/res/images/" + image }),
+>>>>>>> 3d8077da8... Recompile after merge
                 _react2['default'].createElement(
                     'div',
                     { style: styles.label },

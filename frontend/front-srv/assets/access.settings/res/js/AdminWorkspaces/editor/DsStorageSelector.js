@@ -43,9 +43,7 @@ class DsStorageType extends React.Component{
 
         return (
             <div zDepth={0} style={styles.cont} onClick={(e) => {onSelect(value)}} rounded={false}>
-                {image &&
-                    <img style={styles.image} src={"plug/access.settings/res/images/" + image}/>
-                }
+                {image && <img style={styles.image} src={"/plug/access.settings/res/images/" + image}/>}
                 <div style={styles.label}>{primaryText}</div>
             </div>
         )

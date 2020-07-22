@@ -666,7 +666,8 @@ var PydioApi = (function () {
         var _this10 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this10.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var frontU = _this10.getPydioObject().getFrontendUrl();
+            var url = frontU.protocol + '//' + frontU.host;
             var slug = _this10.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
@@ -679,7 +680,7 @@ var PydioApi = (function () {
                 Key: slug + node.getPath(),
                 CopySource: encodeURIComponent('io/' + slug + node.getPath() + '?versionId=' + versionId)
             };
-            var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
+            var s3 = new _awsSdk2['default'].S3({ endpoint: url });
             s3.copyObject(params, function (err) {
                 if (err) {
                     _this10.getPydioObject().UI.displayMessage('ERROR', err.message);
