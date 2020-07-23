@@ -22,37 +22,32 @@ package rest
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/registry"
-
-	servicecontext "github.com/pydio/cells/common/service/context"
-
-	"github.com/ory/ladon"
-
-	"github.com/pydio/cells/common/proto/jobs"
-
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/forms/protos"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-
-	"github.com/pydio/cells/scheduler/actions"
-
-	"github.com/go-openapi/spec"
-
 	"github.com/emicklei/go-restful"
+	"github.com/go-openapi/spec"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/registry"
+	"github.com/ory/ladon"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/forms/protos"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
 /*****************************
@@ -77,18 +72,13 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		endpointResponse.BuildRevision = common.BuildRevision
 	}
 
-	cfg := config.Default()
 	httpProtocol := "http"
 	wsProtocol := "ws"
 
-	mainUrl := cfg.Get("defaults", "url").String("")
-	if !strings.HasPrefix(mainUrl, "http") {
-		mainUrl = "http://" + mainUrl
-	}
-	urlParsed, _ := url.Parse(mainUrl)
+	urlParsed := net.ExternalDomainFromRequest(req.Request)
+	log.Logger(req.Request.Context()).Info("Request", zap.Any("mainUrl", urlParsed))
 
-	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
-	if ssl {
+	if urlParsed.Scheme == "https" {
 		httpProtocol = "https"
 		wsProtocol = "wss"
 	}
@@ -130,7 +120,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
-	p := req.Request.URL
+	p := net.ExternalDomainFromRequest(req.Request)
 	p.Path = ""
 
 	jsonSpec := service.SwaggerSpec()

@@ -3,7 +3,9 @@ package frontend
 import (
 	"encoding/base64"
 	"net/http"
+	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -13,40 +15,67 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 const (
 	SessionTimeoutMinutes = 24
 )
 
-var sessionStore *sessions.CookieStore
+var (
+	sessionStores     map[string]*sessions.CookieStore
+	sessionStoresLock *sync.Mutex
+	knownKey          []byte
+)
+
+func init() {
+	sessionStores = make(map[string]*sessions.CookieStore)
+	sessionStoresLock = &sync.Mutex{}
+}
+
+func loadKey() []byte {
+	if knownKey != nil {
+		return knownKey
+	}
+	val := config.Get("frontend", "session", "secureKey").String("")
+	var key []byte
+	if val == "" {
+		knownKey = securecookie.GenerateRandomKey(64)
+		val = base64.StdEncoding.EncodeToString(key)
+		config.Set(val, "frontend", "session", "secureKey")
+		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating session random key")
+	} else {
+		knownKey, _ = base64.StdEncoding.DecodeString(val)
+	}
+	return knownKey
+}
+
+func storeForUrl(u *url.URL) sessions.Store {
+	key := u.Scheme + "://" + u.Hostname()
+	sessionStoresLock.Lock()
+	defer sessionStoresLock.Unlock()
+	if ss, o := sessionStores[key]; o {
+		return ss
+	}
+
+	pKey := loadKey()
+	ss := sessions.NewCookieStore(pKey)
+	ss.Options = &sessions.Options{
+		Path:     "/a/frontend",
+		MaxAge:   60 * SessionTimeoutMinutes,
+		HttpOnly: true,
+	}
+	if u.Scheme == "https" {
+		ss.Options.Secure = true
+	}
+	ss.Options.Domain = u.Hostname()
+	sessionStores[key] = ss
+	return ss
+}
 
 func GetSessionStore(req *http.Request) sessions.Store {
-	if sessionStore == nil {
-		val := config.Get("frontend", "session", "secureKey").String("")
-		var key []byte
-		if val == "" {
-			key = securecookie.GenerateRandomKey(64)
-			val = base64.StdEncoding.EncodeToString(key)
-			config.Set(val, "frontend", "session", "secureKey")
-			config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating session random key")
-		} else {
-			key, _ = base64.StdEncoding.DecodeString(val)
-		}
-		sessionStore = sessions.NewCookieStore([]byte(val))
-		sessionStore.Options = &sessions.Options{
-			Path:     "/a/frontend",
-			MaxAge:   60 * SessionTimeoutMinutes,
-			HttpOnly: true,
-		}
-		// TODO :  DOES NOT WORK EMPTY Req.URL.Scheme
-		if req.URL.Scheme == "https" {
-			sessionStore.Options.Secure = true
-		}
-		// TODO :  DOES NOT WORK EMPTY Req.URL.Host
-		sessionStore.Options.Domain = req.URL.Hostname()
-	}
-	return sessionStore
+	u := net.ExternalDomainFromRequest(req)
+	return storeForUrl(u)
 }
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed
