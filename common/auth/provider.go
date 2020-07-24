@@ -165,7 +165,7 @@ func (v *configurationProvider) AccessTokenLifespan() time.Duration {
 }
 
 func (v *configurationProvider) RefreshTokenLifespan() time.Duration {
-	return v.v.Duration("refreshTokenLifespan", "1h")
+	return v.v.Duration("refreshTokenLifespan", "1440h")
 }
 
 func (v *configurationProvider) IDTokenLifespan() time.Duration {

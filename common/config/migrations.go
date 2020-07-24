@@ -106,13 +106,14 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 	external := config.Get("defaults", "url").String("")
 	oAuthFrontendConfig := map[string]interface{}{
-		"client_id":                 DefaultOAuthClientID,
-		"client_name":               "CellsFrontend Application",
-		"grant_types":               []string{"authorization_code", "refresh_token"},
-		"redirect_uris":             []string{external + "/auth/callback"},
-		"post_logout_redirect_uris": []string{external + "/auth/logout"},
-		"response_types":            []string{"code", "token", "id_token"},
-		"scope":                     "openid email profile pydio offline",
+		"client_id":                         DefaultOAuthClientID,
+		"client_name":                       "CellsFrontend Application",
+		"revokeRefreshTokenAfterInactivity": "2h",
+		"grant_types":                       []string{"authorization_code", "refresh_token"},
+		"redirect_uris":                     []string{external + "/auth/callback"},
+		"post_logout_redirect_uris":         []string{external + "/auth/logout"},
+		"response_types":                    []string{"code", "token", "id_token"},
+		"scope":                             "openid email profile pydio offline",
 	}
 	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",

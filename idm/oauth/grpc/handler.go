@@ -34,6 +34,7 @@ import (
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/oauth2"
+	"github.com/ory/x/sqlcon"
 	"github.com/ory/x/urlx"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
@@ -43,6 +44,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	pauth "github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/common/sql"
 )
 
 // Handler for the plugin
@@ -554,7 +556,44 @@ func (h *Handler) Revoke(ctx context.Context, in *pauth.RevokeTokenRequest, out 
 
 // PruneTokens garbage collect expired IdTokens and Tokens
 func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest, out *pauth.PruneTokensResponse) error {
-	auth.GetRegistry().OAuth2Storage().FlushInactiveAccessTokens(ctx, time.Now())
+
+	storage := auth.GetRegistry().OAuth2Storage()
+	err := storage.FlushInactiveAccessTokens(ctx, time.Now())
+	if err != nil {
+		return err
+	}
+
+	type client struct {
+		ID            string `json:"client_id"`
+		MaxInactivity string `json:"revokeRefreshTokenAfterInactivity"`
+	}
+
+	var clients []client
+	if err := auth.GetConfigurationProvider().Clients().Scan(&clients); err != nil {
+		return err
+	}
+
+	for _, c := range clients {
+		if c.MaxInactivity == "" {
+			continue
+		}
+
+		duration, err := time.ParseDuration(c.MaxInactivity)
+		if err != nil {
+			return err
+		}
+
+		store, ok := auth.GetRegistry().OAuth2Storage().(*oauth2.FositeSQLStore)
+		if !ok {
+			continue
+		}
+
+		if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
+			return nil
+		} else if err != nil {
+			return sqlcon.HandleError(err)
+		}
+	}
 
 	return nil
 }

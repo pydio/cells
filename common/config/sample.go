@@ -137,6 +137,7 @@ var SampleConfig = `{
                 {
 					"client_id": "` + DefaultOAuthClientID + `",
 					"client_name": "CellsFrontend Application",
+					"revokeRefreshTokenAfterInactivity": "2h",
 					"grant_types": [
 						"authorization_code", 
 						"refresh_token"
