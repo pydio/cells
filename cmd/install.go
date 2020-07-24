@@ -174,7 +174,6 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 
 			// Gather proxy information
-			var proxyConf *install.ProxyConfig
 			sites, err := config.LoadSites()
 			fatalIfError(cmd, err)
 			proxyConf = sites[0]
