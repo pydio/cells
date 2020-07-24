@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/mocks"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/meta"
 )
 
 // changesListener is an autoclosing pipe used for fanning out events
@@ -89,8 +88,6 @@ type TreeServer struct {
 // ReadNodeStream Implement stream for readNode method
 func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 	defer streamer.Close()
-	metaStreamer := meta.NewStreamLoader(ctx)
-	defer metaStreamer.Close()
 
 	for {
 		request, err := streamer.Recv()
@@ -106,7 +103,6 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProvi
 			response.Success = false
 		} else {
 			response.Success = true
-			metaStreamer.LoadMetas(ctx, response.Node)
 		}
 		e := streamer.Send(response)
 		if e != nil {
@@ -197,8 +193,6 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
 	node := req.GetNode()
-	metaStreamer := meta.NewStreamLoader(ctx)
-	defer metaStreamer.Close()
 
 	defer track("ReadNode", ctx, time.Now(), req, resp)
 
@@ -214,8 +208,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 		log.Logger(ctx).Debug("Response after lookUp", zap.String("path", resp.Node.GetPath()))
 
-		//s.enrichNodeWithMeta(ctx, resp.Node)
-		metaStreamer.LoadMetas(ctx, resp.Node)
+		s.enrichNodeWithMeta(ctx, resp.Node)
 
 		return nil
 	}
@@ -242,8 +235,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 		resp.Node = response.Node
 		s.updateDataSourceNode(resp.Node, dsName)
-		//s.enrichNodeWithMeta(ctx, resp.Node)
-		metaStreamer.LoadMetas(ctx, resp.Node)
+		s.enrichNodeWithMeta(ctx, resp.Node)
 
 		return nil
 	}
@@ -254,8 +246,6 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
 
 	defer track("ListNodes", ctx, time.Now(), req, resp)
-	metaStreamer := meta.NewStreamLoader(ctx)
-	defer metaStreamer.Close()
 
 	// Special case to get ancestors
 	if req.Ancestors {
@@ -295,8 +285,6 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				}
 			}
 		}
-
-		metaStreamer.LoadMetas(ctx, sendNode)
 		resp.Send(&tree.ListNodesResponse{
 			Node: sendNode,
 		})
@@ -321,7 +309,6 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				}
 				respNode := listResponse.Node
 				s.updateDataSourceNode(respNode, dsName)
-				metaStreamer.LoadMetas(ctx, respNode)
 				resp.Send(&tree.ListNodesResponse{
 					Node: respNode,
 				})
@@ -343,14 +330,14 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 		var numberSent, cursorIndex int64
 		numberSent, cursorIndex = 0, 0
-		return s.ListNodesWithLimit(ctx, metaStreamer, req, resp, &cursorIndex, &numberSent)
+		return s.ListNodesWithLimit(ctx, req, resp, &cursorIndex, &numberSent)
 
 	}
 
 }
 
 // ListNodesWithLimit implementation for the TreeServer
-func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.Loader, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream, cursorIndex *int64, numberSent *int64) error {
+func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream, cursorIndex *int64, numberSent *int64) error {
 
 	defer track("ListNodesWithLimit", ctx, time.Now(), req, resp)
 	defer resp.Close()
@@ -396,7 +383,6 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				log.Logger(ctx).Error("Cannot compute DataSource size, skipping", zap.String("dsName", name), zap.Error(er))
 			}
 			if req.FilterType == tree.NodeType_UNKNOWN && (!hasFilter || metaFilter.Match(name, outputNode)) {
-				metaStreamer.LoadMetas(ctx, outputNode)
 				resp.Send(&tree.ListNodesResponse{
 					Node: outputNode,
 				})
@@ -405,7 +391,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			if req.Recursive && limitDepth != 1 {
 				subNode := node.Clone()
 				subNode.Path = name
-				s.ListNodesWithLimit(ctx, metaStreamer, &tree.ListNodesRequest{
+				s.ListNodesWithLimit(ctx, &tree.ListNodesRequest{
 					Node:         subNode,
 					Recursive:    true,
 					WithVersions: req.WithVersions,
@@ -465,7 +451,6 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			}
 
 			s.updateDataSourceNode(clientResponse.Node, dsName)
-			metaStreamer.LoadMetas(ctx, clientResponse.Node)
 			resp.Send(clientResponse)
 			*cursorIndex++
 
@@ -482,10 +467,10 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 
 func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
 	st, er := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
-		Node: &tree.Node{Path: ""},
+		Node:         &tree.Node{Path: ""},
 	})
 	if er != nil {
-		return 0, er
+		return 0 , er
 	}
 	defer st.Close()
 	var size int64
