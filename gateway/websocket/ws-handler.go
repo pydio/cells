@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/protobuf/jsonpb"
 	"github.com/pydio/melody"
@@ -41,7 +43,6 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
@@ -188,6 +189,8 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 // the event or not.
 func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *NodeChangeEventWithInfo) error {
 
+	jsonMarshaler := &jsonpb.Marshaler{}
+
 	if event.Silent && !w.silentDropper.Allow() {
 		//log.Logger(ctx).Warn("Dropping Silent Event")
 		return nil
@@ -220,11 +223,8 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		}
 
 		var (
-			hasData             bool
-			metaCtx             context.Context
-			metaProviderClients []tree.NodeProviderStreamer_ReadNodeStreamClient
-			metaProviderNames   []string
-			metaProvidersCloser meta.MetaProviderCloser
+			hasData bool
+			metaCtx context.Context
 		)
 
 		claims, _ := session.Get(SessionClaimsKey)
@@ -232,17 +232,15 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		metaCtx = metadata.NewContext(context.Background(), map[string]string{
 			common.PYDIO_CONTEXT_USER_KEY: uName.(string),
 		})
+		metaCtx = servicecontext.WithServiceName(metaCtx, common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET)
 		metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 
 		if event.refreshTarget && event.Target != nil {
-			metaProviderClients, metaProvidersCloser, metaProviderNames = meta.InitMetaProviderClients(metaCtx, false)
-			defer metaProvidersCloser()
-			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
+			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(metaCtx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
 				event.Target = respNode.Node
 			}
 		}
 
-		enrichedNodes := make(map[string]*tree.Node)
 		for wsId, workspace := range workspaces {
 			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, accessList, workspace, event.Target)
 			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, nil, workspace, event.Source) // Do not deep-check acl on source nodes (deleted!)
@@ -251,20 +249,6 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			if t1 || t2 {
 				eType := event.Type
 				if nTarget != nil {
-					if event.refreshTarget {
-						if metaNode, ok := enrichedNodes[nTarget.Uuid]; ok {
-							for k, v := range metaNode.MetaStore {
-								nTarget.MetaStore[k] = v
-							}
-						} else {
-							metaNode = nTarget.Clone()
-							meta.EnrichNodesMetaFromProviders(metaCtx, metaProviderClients, metaProviderNames, metaNode)
-							for k, v := range metaNode.MetaStore {
-								nTarget.MetaStore[k] = v
-							}
-							enrichedNodes[nTarget.Uuid] = metaNode
-						}
-					}
 					nTarget.SetMeta("EventWorkspaceId", workspace.UUID)
 					nTarget = nTarget.WithoutReservedMetas()
 					log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("type", event.Type), zap.String("wsId", wsId), zap.Any("path", event.Target.Path))
@@ -281,9 +265,8 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 						eType = tree.NodeChangeEvent_DELETE
 					}
 				}
-				// We have to filter the event for this context
-				marshaler := &jsonpb.Marshaler{}
-				s, _ := marshaler.MarshalToString(&tree.NodeChangeEvent{
+
+				s, _ := jsonMarshaler.MarshalToString(&tree.NodeChangeEvent{
 					Type:   eType,
 					Target: nTarget,
 					Source: nSource,
