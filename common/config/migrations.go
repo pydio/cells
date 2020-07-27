@@ -42,7 +42,17 @@ var (
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, deleteConfigKeys, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL, movePydioConnectors)
+	configsMigrations = append(
+		configsMigrations,
+		renameServices1,
+		deleteConfigKeys,
+		setDefaultConfig,
+		forceDefaultConfig,
+		dsnRemoveAllowNativePassword,
+		updateLeCaURL,
+		movePydioConnectors,
+		missingRefreshTokenInactivity,
+	)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -396,6 +406,21 @@ func movePydioConnectors(config *Config) (bool, error) {
 	config.Set(connectors, path...)
 
 	return true, nil
+}
+
+func missingRefreshTokenInactivity(config *Config) (bool, error) {
+
+	var clients []map[string]interface{}
+	if config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients").Scan(&clients) == nil {
+		for _, c := range clients {
+			if _, o := c["revokeRefreshTokenAfterInactivity"]; !o && c["client_id"].(string) == DefaultOAuthClientID {
+				c["revokeRefreshTokenAfterInactivity"] = "2h"
+				config.Set(clients, "services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients")
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 func stringSliceEqual(a, b []string) bool {
