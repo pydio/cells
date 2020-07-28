@@ -77,6 +77,7 @@ func InitRegistry(dao sql.DAO) {
 	})
 
 	if err := syncClients(context.Background(), reg.ClientManager(), conf.Clients()); err != nil {
+		log.Warn("Failed to sync clients", zap.Error(err))
 		return
 	}
 

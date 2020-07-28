@@ -31,6 +31,11 @@ const LoginCallbackRouterWrapper = (pydio) => {
             PydioApi.getRestClient().sessionLoginWithAuthCode(values.code).then(() => {
                 browserHistory.replace("/")
 
+                const challenge = values.challenge
+                if (challenge) {
+                    PydioApi.getRestClient().jwtWithAuthInfo({type: "external", challenge: challenge})
+                }
+
                 PydioApi.getRestClient().getOrUpdateJwt()
                     .then(() => pydio.loadXmlRegistry(null, null, null))
                     .catch(() => {})
