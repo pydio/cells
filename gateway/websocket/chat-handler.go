@@ -50,18 +50,63 @@ type ChatHandler struct {
 	Pool      *views.ClientsPool
 }
 
+// NewChatHandler creates a new ChatHandler
 func NewChatHandler(serviceCtx context.Context) *ChatHandler {
 	w := &ChatHandler{}
 	w.Pool = views.NewClientsPool(true)
-	w.InitHandlers(serviceCtx)
+	w.initHandlers(serviceCtx)
 	return w
+}
+
+// BroadcastChatMessage sends chat message to connected sessions
+func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEvent) error {
+
+	marshaller := &jsonpb.Marshaler{}
+	buff := bytes.NewBuffer([]byte{})
+	var compareRoomId string
+
+	if msg.Message != nil {
+
+		if msg.Details == "DELETE" {
+			wsMessage := &chat.WebSocketMessage{
+				Type:    chat.WsMessageType_DELETE_MSG,
+				Message: msg.Message,
+			}
+			marshaller.Marshal(buff, wsMessage)
+		} else {
+			marshaller.Marshal(buff, msg.Message)
+		}
+
+		compareRoomId = msg.Message.RoomUuid
+
+	} else if msg.Room != nil {
+
+		compareRoomId = msg.Room.Uuid
+		wsMessage := &chat.WebSocketMessage{
+			Type: chat.WsMessageType_ROOM_UPDATE,
+			Room: msg.Room,
+		}
+		marshaller.Marshal(buff, wsMessage)
+
+	} else {
+		return fmt.Errorf("Event should provide at least a Msg or a Room")
+	}
+
+	return c.Websocket.BroadcastFilter(buff.Bytes(), func(session *melody.Session) bool {
+		if session.IsClosed() {
+			log.Logger(ctx).Error("Session is closed")
+			return false
+		}
+		return c.roomsHaveValue(session, compareRoomId)
+	})
+
 }
 
 func (c *ChatHandler) getChatClient() chat.ChatServiceClient {
 	return chat.NewChatServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, defaults.NewClient())
 }
 
-func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
+func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 
 	c.Websocket = melody.New()
 	c.Websocket.Config.MaxMessageSize = 2048
@@ -131,7 +176,11 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 
 			case chat.WsMessageType_JOIN:
 
-				foundRoom, e1 := c.FindOrCreateRoom(ctx, chatMsg.Room, true)
+				var isPing bool
+				if chatMsg.Message != nil && chatMsg.Message.Message == "PING" {
+					isPing = true
+				}
+				foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, !isPing)
 				log.Logger(serviceCtx).Debug("JOIN", zap.Any("msg", chatMsg), zap.Any("r", foundRoom), zap.Error(e1))
 				if e1 == nil {
 					session = c.roomsWithValue(session, foundRoom.Uuid)
@@ -139,27 +188,31 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 				if foundRoom == nil {
 					break
 				}
+				c.heartbeat(userName, foundRoom)
+				session = c.roomsWithValue(session, foundRoom.Uuid)
 				// Update Room Users
-				c.AppendUserToRoom(foundRoom, userName)
-				chatClient := c.getChatClient()
-				_, e := chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
-				if e != nil {
-					log.Logger(ctx).Error("Error while putting room", zap.Error(e))
+				if save := c.appendUserToRoom(foundRoom, userName); save {
+					chatClient := c.getChatClient()
+					_, e := chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
+					if e != nil {
+						log.Logger(ctx).Error("Error while putting room", zap.Error(e))
+					}
 				}
 
 			case chat.WsMessageType_LEAVE:
 
-				foundRoom, e1 := c.FindOrCreateRoom(ctx, chatMsg.Room, false)
+				foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
 				if e1 == nil && foundRoom != nil {
-					c.RemoveUserFromRoom(foundRoom, userName)
-					c.getChatClient().PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
-					log.Logger(serviceCtx).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
+					if save := c.removeUserFromRoom(foundRoom, userName); save {
+						c.getChatClient().PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
+						log.Logger(serviceCtx).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
+					}
 					session = c.roomsWithoutValue(session, foundRoom.Uuid)
 				}
 
 			case chat.WsMessageType_HISTORY:
 				// Must arrive AFTER a JOIN message
-				foundRoom, e1 := c.FindOrCreateRoom(ctx, chatMsg.Room, false)
+				foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
 				if e1 != nil {
 					break
 				}
@@ -265,7 +318,7 @@ func (c *ChatHandler) roomsWithoutValue(session *melody.Session, roomUuid string
 	return session
 }
 
-func (c *ChatHandler) FindOrCreateRoom(ctx context.Context, room *chat.ChatRoom, createIfNotExists bool) (*chat.ChatRoom, error) {
+func (c *ChatHandler) findOrCreateRoom(ctx context.Context, room *chat.ChatRoom, createIfNotExists bool) (*chat.ChatRoom, error) {
 
 	chatClient := c.getChatClient()
 
@@ -304,67 +357,32 @@ func (c *ChatHandler) FindOrCreateRoom(ctx context.Context, room *chat.ChatRoom,
 
 }
 
-func (c *ChatHandler) AppendUserToRoom(room *chat.ChatRoom, userName string) {
+func (c *ChatHandler) appendUserToRoom(room *chat.ChatRoom, userName string) bool {
 	uniq := map[string]string{}
 	for _, u := range room.Users {
 		uniq[u] = u
+	}
+	if _, already := uniq[userName]; already {
+		return false
 	}
 	uniq[userName] = userName
 	room.Users = []string{}
 	for _, name := range uniq {
 		room.Users = append(room.Users, name)
 	}
+	return true
 }
 
-func (c *ChatHandler) RemoveUserFromRoom(room *chat.ChatRoom, userName string) {
+func (c *ChatHandler) removeUserFromRoom(room *chat.ChatRoom, userName string) bool {
 	users := []string{}
+	var found bool
 	for _, u := range room.Users {
-		if u != userName {
+		if u == userName {
+			found = true
+		} else {
 			users = append(users, u)
 		}
 	}
 	room.Users = users
-}
-
-func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEvent) error {
-
-	marshaller := &jsonpb.Marshaler{}
-	buff := bytes.NewBuffer([]byte{})
-	var compareRoomId string
-
-	if msg.Message != nil {
-
-		if msg.Details == "DELETE" {
-			wsMessage := &chat.WebSocketMessage{
-				Type:    chat.WsMessageType_DELETE_MSG,
-				Message: msg.Message,
-			}
-			marshaller.Marshal(buff, wsMessage)
-		} else {
-			marshaller.Marshal(buff, msg.Message)
-		}
-
-		compareRoomId = msg.Message.RoomUuid
-
-	} else if msg.Room != nil {
-
-		compareRoomId = msg.Room.Uuid
-		wsMessage := &chat.WebSocketMessage{
-			Type: chat.WsMessageType_ROOM_UPDATE,
-			Room: msg.Room,
-		}
-		marshaller.Marshal(buff, wsMessage)
-
-	} else {
-		return fmt.Errorf("Event should provide at least a Msg or a Room")
-	}
-
-	return c.Websocket.BroadcastFilter(buff.Bytes(), func(session *melody.Session) bool {
-		if session.IsClosed() {
-			log.Logger(ctx).Error("Session is closed")
-			return false
-		}
-		return c.roomsHaveValue(session, compareRoomId)
-	})
-
+	return found
 }
