@@ -209,6 +209,27 @@ func updateLeCaURL(config *Config) (bool, error) {
 	return save, nil
 }
 
+func compare(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for _, aa := range a {
+		var found bool = false
+		for _, bb := range b {
+			if aa == bb {
+				found = true
+			}
+		}
+
+		if !found {
+			return false
+		}
+	}
+
+	return true
+}
+
 func forceDefaultConfig(config *Config) (bool, error) {
 	var save bool
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
@@ -272,6 +293,32 @@ func forceDefaultConfig(config *Config) (bool, error) {
 			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
 				if clientID == DefaultOAuthClientID {
 					addCellsFrontend = false
+				}
+
+				for _, n := range []string{"audience", "redirect_uris", "post_logout_redirect_uris"} {
+					if newVal, ok := oAuthFrontendConfig[n].([]string); ok {
+						v, ok := static[n]
+						if !ok {
+							saveStatics = true
+							static[n] = newVal
+						}
+
+						vv, ok := v.([]interface{})
+						if !ok {
+							saveStatics = true
+							static[n] = newVal
+						}
+
+						var val []string
+						for _, vvv := range vv {
+							val = append(val, vvv.(string))
+						}
+
+						if !compare(val, newVal) {
+							saveStatics = true
+							static[n] = newVal
+						}
+					}
 				}
 			}
 
