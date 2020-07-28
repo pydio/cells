@@ -260,6 +260,11 @@ class ChatClient extends PydioWebSocket {
                 console.error('WebSocket maxRetries reached, host is down!');
             }
         });
+        // Send pings on subscriptions
+        this.hbInterval = setInterval(()=>this.heartbeat(), 15 * 1000);
+        window.onbeforeunload = () => {
+            this.close();
+        }
     }
 
     close(){
@@ -271,6 +276,24 @@ class ChatClient extends PydioWebSocket {
             this.leaveRoom(roomType, objectId);
         });
         this.ws.close(1000, 'Closing', {keepClosed: true});
+        // Close regular ping
+        if(this.hbInterval){
+            clearInterval(this.hbInterval)
+        }
+    }
+
+    heartbeat() {
+        Object.keys(this.subscriptions).map(k => {
+            const {roomType, objectId} = this.getRoomInfoFromIdentifier(k);
+            let message = {
+                "@type" : "JOIN",
+                "Room":{"Type":roomType, "RoomTypeObject":objectId},
+                "Message":{"Message": "PING"}
+            };
+            try {
+                this.ws.send(JSON.stringify(message));
+            } catch(e){}
+        });
     }
 
 }
