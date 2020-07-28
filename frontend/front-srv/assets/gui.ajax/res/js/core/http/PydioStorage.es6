@@ -1,10 +1,6 @@
 class PydioStorage {
-    static getSessionIdStorage() {
-        return pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage
-    }
-
     static getSessionStorage() {
-        return pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : storage
+        return window.localStorage
     }
 
     constructor(props) {

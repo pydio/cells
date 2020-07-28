@@ -91,12 +91,11 @@ var RestClient = (function (_ApiClient) {
         _classCallCheck(this, RestClient);
 
         _ApiClient.call(this);
+        this.uuid = _uuid.v4();
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
-
-        this.pydioSessionId = _PydioStorage2['default'].getSessionIdStorage().getItem("pydioSessionId");
     }
 
     /**
@@ -110,11 +109,6 @@ var RestClient = (function (_ApiClient) {
         if (this.pydio.Parameters.has('MINISITE')) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
         }
-
-        var pydioSessionId = this.pydioSessionId || _uuid.v4();
-        _PydioStorage2['default'].getSessionIdStorage().setItem("pydioSessionId", pydioSessionId);
-
-        headers = { "X-Pydio-Frontend-Session": this.pydioSessionId };
 
         return _ApiClient.prototype.callApi.call(this, '/frontend/session', 'POST', null, null, headers, null, request, [], ['application/json'], ['application/json'], _genModelRestFrontSessionResponse2['default']);
     };
@@ -147,33 +141,15 @@ var RestClient = (function (_ApiClient) {
         return _queryString2['default'].parse(window.location.search).login_challenge;
     };
 
-    RestClient.prototype.generateSessionId = function generateSessionId() {
-        this.pydioSessionId = _uuid.v4();
-        _PydioStorage2['default'].getSessionIdStorage().setItem("pydioSessionId", this.pydioSessionId);
-    };
-
-    RestClient.prototype.removeSessionId = function removeSessionId() {
-        this.pydioSessionId = null;
-        _PydioStorage2['default'].getSessionIdStorage().removeItem("pydioSessionId");
-    };
-
     RestClient.prototype.sessionLoginWithCredentials = function sessionLoginWithCredentials(login, password) {
-        this.generateSessionId();
         return this.jwtWithAuthInfo({ login: login, password: password, challenge: this.getCurrentChallenge(), type: "credentials" });
     };
 
     RestClient.prototype.sessionLoginWithAuthCode = function sessionLoginWithAuthCode(code) {
-        this.generateSessionId();
         return this.jwtWithAuthInfo({ code: code, type: "authorization_code" }, false);
     };
 
     RestClient.prototype.sessionRefresh = function sessionRefresh() {
-        this.pydioSessionId = _PydioStorage2['default'].getSessionIdStorage().getItem("pydioSessionId");
-
-        if (!this.pydioSessionId) {
-            return Promise.reject("no active session");
-        }
-
         return this.jwtWithAuthInfo({ type: "refresh" });
     };
 
@@ -188,10 +164,9 @@ var RestClient = (function (_ApiClient) {
     RestClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
         var _this2 = this;
 
-        var reloadRegistry = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-
         var request = new _genModelRestFrontSessionRequest2['default']();
         request.AuthInfo = authInfo;
+
         return this.jwtEndpoint(request).then(function (response) {
             if (response.data && response.data.RedirectTo) {
                 window.location.href = response.data.RedirectTo;
@@ -220,7 +195,11 @@ var RestClient = (function (_ApiClient) {
         var token = this.get();
         var now = Math.floor(Date.now() / 1000);
 
-        if (token && token.ExpiresAt >= now + 5) {
+        if (!token) {
+            return Promise.reject("invalid token");
+        }
+
+        if (token.ExpiresAt >= now + 5) {
             return Promise.resolve(token.AccessToken);
         }
 
@@ -233,8 +212,6 @@ var RestClient = (function (_ApiClient) {
             return _this3.getAuthToken();
         })['catch'](function () {
             RestClient._updating = null;
-            _this3.removeSessionId();
-            return Promise.reject("invalid token");
         });
     };
 

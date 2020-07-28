@@ -168,8 +168,8 @@ var PydioApi = (function () {
     PydioApi.getRestClient = function getRestClient() {
         var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-        if (options == {}) {
-            if (PydioApi._PydioRestClient && options == {}) {
+        if (Object.keys(options).length === 0) {
+            if (PydioApi._PydioRestClient) {
                 return PydioApi._PydioRestClient;
             }
 

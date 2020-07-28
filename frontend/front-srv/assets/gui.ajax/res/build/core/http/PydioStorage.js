@@ -7,12 +7,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var PydioStorage = (function () {
-    PydioStorage.getSessionIdStorage = function getSessionIdStorage() {
-        return pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : window.sessionStorage;
-    };
-
     PydioStorage.getSessionStorage = function getSessionStorage() {
-        return pydio.Parameters.has("UNIQUE_SESSION_PER_BROWSER") ? window.localStorage : storage;
+        return window.localStorage;
     };
 
     function PydioStorage(props) {
