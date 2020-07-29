@@ -26,6 +26,8 @@ var (
 	reg  driver.Registry
 	once = &sync.Once{}
 
+	syncLock = &sync.Mutex{}
+
 	onRegistryInits []func()
 )
 
@@ -104,6 +106,9 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 	if c == nil {
 		return nil
 	}
+
+	syncLock.Lock()
+	defer syncLock.Unlock()
 
 	if err := c.Scan(&clients); err != nil {
 		return err
