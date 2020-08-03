@@ -4,10 +4,8 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"strconv"
 	"strings"
 
-	"github.com/micro/go-config/reader"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -67,7 +65,7 @@ func VersionHash() string {
 		return versionHash
 	}
 	// Create version seed
-	vSeed := config.Get("frontend", "versionSeed").String("")
+	vSeed := config.ApplicationConfig.Values("frontend", "versionSeed").Default("").String()
 	if vSeed == "" {
 		vSeed = uuid.New()
 		config.Set(vSeed, "frontend", "versionSeed")
@@ -79,26 +77,26 @@ func VersionHash() string {
 	return versionHash
 }
 
-func numberFromIntOrString(value reader.Value, def int) int {
-	intVal := def
-	if value.Int(-1) != -1 {
-		intVal = value.Int(def)
-	} else if value.String("") != "" {
-		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
-			intVal = int(parsed)
-		}
-	}
-	return intVal
-}
+// func numberFromIntOrString(value reader.Value, def int) int {
+// 	intVal := def
+// 	if value.Int(-1) != -1 {
+// 		intVal = value.Int(def)
+// 	} else if value.String("") != "" {
+// 		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
+// 			intVal = int(parsed)
+// 		}
+// 	}
+// 	return intVal
+// }
 
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
-	url := config.Get("defaults", "url").String("")
+	url := config.ApplicationConfig.Values("defaults", "url").Default("").String()
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
-	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
-	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
-	timeoutWarn := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN"), 3)
+	lang := config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	clientSession := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
+	timeoutWarn := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
 
 	vHash := VersionHash()
 	vDate := ""
@@ -127,11 +125,11 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Bool(false),
+		ValidMailer:                  config.ApplicationConfig.Values("services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells"),
+			Title: config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: i18n.AvailableLanguages,
@@ -146,7 +144,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		},
 	}
 
-	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").String(""); icBinary != "" {
+	if icBinary := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
 		b.CustomWording.IconBinary = icBinary
 	}
 

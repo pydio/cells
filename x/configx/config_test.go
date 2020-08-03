@@ -130,6 +130,7 @@ func TestStd(t *testing.T) {
 		So(m.Values("service/val").Default("").String(), ShouldEqual, "test")
 		So(m.Values("service/fakeval").Default("").String(), ShouldEqual, "")
 		So(m.Values("service/array[1]").Default(0).Int(), ShouldEqual, 2)
+		So(m.Values("service/array[5]").Default(24).Int(), ShouldEqual, 24)
 		So(m.Values("service/array[5]").Default(0).Int(), ShouldEqual, 0)
 		So(m.Values("service/array[fakeval]").Default(0).Int(), ShouldEqual, 0)
 	})

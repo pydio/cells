@@ -34,8 +34,9 @@ func (v *value) Default(i interface{}) Value {
 			return v.Values(ref.Get())
 		}
 
-		return &def{nil}
+		return (&def{nil}).Default(i)
 	}
+
 	return vv.Default(i)
 }
 
