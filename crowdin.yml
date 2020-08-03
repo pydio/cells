@@ -3,15 +3,15 @@ files:
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        ar-SA: ar-sa
+        ar: ar
         de: de
         es-ES: es-es
         fr: fr
         it: it
         ja: ja
-        ko-KR: ko-kr
+        ko: ko
         lv: lv
-        nl-NL: nl-nl
+        nl: nl
         pt-BR: pt-br
         ru: ru
         sv-SE: sv-se
@@ -22,15 +22,15 @@ files:
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        ar-SA: ar-sa
+        ar: ar
         de: de
         es-ES: es-es
         fr: fr
         it: it
         ja: ja
-        ko-KR: ko-kr
+        ko: ko
         lv: lv
-        nl-NL: nl-nl
+        nl: nl
         pt-BR: pt-br
         ru: ru
         sv-SE: sv-se
@@ -41,15 +41,15 @@ files:
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        ar-SA: ar-sa
+        ar: ar
         de: de
         es-ES: es-es
         fr: fr
         it: it
         ja: ja
-        ko-KR: ko-kr
+        ko: ko
         lv: lv
-        nl-NL: nl-nl
+        nl: nl
         pt-BR: pt-br
         ru: ru
         sv-SE: sv-se
@@ -60,15 +60,15 @@ files:
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        ar-SA: ar-sa
+        ar: ar
         de: de
         es-ES: es-es
         fr: fr
         it: it
         ja: ja
-        ko-KR: ko-kr
+        ko: ko
         lv: lv
-        nl-NL: nl-nl
+        nl: nl
         pt-BR: pt-br
         ru: ru
         sv-SE: sv-se

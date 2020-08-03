@@ -1,21 +1,21 @@
 {
   "1": {
-    "other": "Configuratie Gegevens"
+    "other": "Configuration Data"
   },
   "10": {
-    "other": "Meta Bronnen"
+    "other": "Meta Sources"
   },
   "100": {
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Naam"
+    "other": "Name"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Omschrijving"
+    "other": "Description"
   },
   "104": {
     "other": "Enabled"
@@ -24,37 +24,37 @@
     "other": "Automatic checks"
   },
   "106": {
-    "other": "Unique ID"
+    "other": "Unique Identifier"
   },
   "107": {
-    "other": "Plugin Configuraties"
+    "other": "Plugin Configurations"
   },
   "108": {
-    "other": "Documentatie"
+    "other": "Documentation"
   },
   "109": {
-    "other": "Applicatie Parameters"
+    "other": "Application Parameters"
   },
   "11": {
-    "other": "Voeg een bron toe"
+    "other": "Add a source"
   },
   "110": {
-    "other": "Werkruimtes \u0026 Gebruikers"
+    "other": "Workspaces & Users"
   },
   "111": {
-    "other": "Logboeken \u0026 Andere gegevens"
+    "other": "Backend"
   },
   "112": {
-    "other": "\u003cb\u003eApply this role by default\u003c/b\u003e to all new users."
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "Rol status is succesvol gewijzigd"
+    "other": "Role status was successfully modified"
   },
   "114": {
     "other": "Applies to"
   },
   "115": {
-    "other": "Schema"
+    "other": "Scheme"
   },
   "116": {
     "other": "Template Label"
@@ -63,37 +63,37 @@
     "other": "Template Driver"
   },
   "118": {
-    "other": "Nieuwe groep"
+    "other": "New group"
   },
   "119": {
-    "other": "Stel gebruikersgroep in"
+    "other": "Set user group"
   },
   "12": {
     "other": "Meta Plugin"
   },
   "120": {
-    "other": "Ga Pro"
+    "other": "Go Pro"
   },
   "121": {
-    "other": "Krijg professionele ondersteuning voor uw installatie"
+    "other": "Get professional support for your install"
   },
   "122": {
-    "other": "Alle Instellingen"
+    "other": "All Settings"
   },
   "123": {
-    "other": "Overige plugins"
+    "other": "Other plugins"
   },
   "124": {
-    "other": "Bron"
+    "other": "Source"
   },
   "125": {
     "other": "Alias"
   },
   "126": {
-    "other": "Weet je zeker dat je de / het geselecteerde element(en) wilt verwijderen?"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "127": {
-    "other": "Waarschuwing, gebruik geen speciale karakters, gebruiker wordt aangemaakt met login ID '%s'"
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
   },
   "128": {
     "other": "Successfully deleted group"
@@ -102,7 +102,7 @@
     "other": "Refresh plugins cache"
   },
   "13": {
-    "other": "Weet je zeker dat je deze bron wilt verwijderen?"
+    "other": "Are you sure you want to delete this source?"
   },
   "130": {
     "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
@@ -135,7 +135,7 @@
     "other": "Manage users and groups"
   },
   "14": {
-    "other": "Waar"
+    "other": "True"
   },
   "140": {
     "other": "Define profiles that can be applied at once to whole bunch of users."
@@ -168,7 +168,7 @@
     "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
   },
   "15": {
-    "other": "Niet Waar"
+    "other": "False"
   },
   "150": {
     "other": "Select a repository"
@@ -199,9 +199,6 @@
   },
   "159": {
     "other": "Guest"
-  },
-  "16": {
-    "other": "Bestandsdatum"
   },
   "160": {
     "other": "Group was successfully created"
@@ -234,7 +231,7 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Datum"
+    "other": "Date"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -248,239 +245,251 @@
   "173": {
     "other": "Pydio Backend Services and their running status"
   },
+  "174": {
+    "other": "Identity Management"
+  },
+  "175": {
+    "other": "Data Management"
+  },
+  "176": {
+    "other": "Security Policies"
+  },
+  "177": {
+    "other": "Security Policies"
+  },
   "18": {
     "other": "I.P."
   },
   "19": {
-    "other": "Niveau"
+    "other": "Level"
   },
   "2": {
-    "other": "Gebruikers \u0026 Groepen"
+    "other": "People"
   },
   "20": {
-    "other": "Gebruiker"
+    "other": "User"
   },
   "21": {
-    "other": "Actie"
+    "other": "Action"
   },
   "22": {
-    "other": "Parameters"
+    "other": "Params"
   },
   "22a": {
-    "other": "Parameters"
+    "other": "More info"
   },
   "23": {
-    "other": "Test Naam"
+    "other": "Test Name"
   },
   "24": {
-    "other": "Test Gegevens"
+    "other": "Test Data"
   },
   "25": {
-    "other": "Werkplek Toegang"
+    "other": "Workspaces Access"
   },
   "26": {
-    "other": "Wachtwoord Wijzigen"
+    "other": "Modify Password"
   },
   "27": {
-    "other": "Admin Rechten"
+    "other": "Admin Right"
   },
   "28": {
-    "other": "Gebruiker heeft admin rechten?"
+    "other": "User has admin rights?"
   },
   "29": {
-    "other": "Lezen"
+    "other": "Read"
   },
   "2b": {
     "other": "Data Management"
   },
   "3": {
-    "other": "Werkplekken"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "Schrijven"
+    "other": "Write"
   },
   "32": {
-    "other": "Toegang Driver"
+    "other": "Access Driver"
   },
   "33": {
-    "other": "Laden..."
+    "other": "Loading..."
   },
   "34": {
-    "other": "Weet je zeker dat je deze gebruiker wilt verwijderen? Deze actie is niet terug te draaien!"
+    "other": "Are you sure you want to delete this user? This operation is not reversible!"
   },
   "35": {
-    "other": "Weet je zeker dat je deze werkplek wilt verwijderen? Deze actie is niet terug te draaien!"
+    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "Verplichte velden ontbreken!"
+    "other": "Mandatory fields are missing!"
   },
   "37": {
-    "other": "Waarschuwing, het wachtwoord en de wachtwoord bevestiging verschillen!"
+    "other": "Warning, password and confirmation differ!"
   },
   "38": {
-    "other": "Vul alstublieft een login naam in!"
+    "other": "Please fill the login field!"
   },
   "39": {
-    "other": "Vul alstublieft beide wachtwoord velden in!"
+    "other": "Please fill both password fields!"
   },
   "3b": {
-    "other": "DataSources"
+    "other": "Storage"
   },
   "3c": {
     "other": "Template Paths"
   },
   "4": {
-    "other": "Logboeken"
+    "other": "Logs"
   },
   "40": {
-    "other": "Vink de box aan om te bevestigen!"
+    "other": "Please check the box to confirm!"
   },
   "41": {
-    "other": "Driver Opties"
+    "other": "Datasource Nodes"
   },
   "42": {
-    "other": "Kies alstublieft een driver!"
+    "other": "Please choose a driver!"
   },
   "43": {
-    "other": "Gebruiker bestaat al, kies een andere login!"
+    "other": "User already exists, please choose another login!"
   },
   "44": {
-    "other": "Gebruiker succesvol gemaakt."
+    "other": "User created successfully"
   },
   "45": {
-    "other": "Admin rechten gewijzigd voor deze gebruiker"
+    "other": "Changed admin right for user "
   },
   "46": {
-    "other": "Rechten gewijzgigd voor deze gebruiker"
+    "other": "Changed right for user "
   },
   "47": {
-    "other": "Gegevens opgeslagen voor deze gebruiker"
+    "other": "Saved data for user "
   },
   "48": {
-    "other": "Wachtwoord succesvol gewijzigd voor deze gebruiker"
+    "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Kan wachtwoord niet wijzigen"
+    "other": "Cannot update password"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Fout: Er is al een werkplek met deze naam"
+    "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "De conf map is niet schrijfbaar"
+    "other": "The conf directory is not writeable"
   },
   "52": {
     "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "Fout bij het proberen te wijzigen van de werkplek."
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "Werkplek succesvol gewijzigd"
+    "other": "Successfully edited workspace"
   },
   "55": {
-    "other": "Waarschuwing, op dit moment is het alleen mogelijk om 1 instantie van elke meta plugin toe te voegen."
+    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
   },
   "56": {
-    "other": "Meta bron succesvol toegevoegd"
+    "other": "Successfully added meta source"
   },
   "57": {
-    "other": "Meta bron succesvol verwijderd"
+    "other": "Successfully deleted meta source"
   },
   "58": {
-    "other": "Meta bron succesvol gewijzigd"
+    "other": "Successfully edited meta source"
   },
   "59": {
-    "other": "Meta bron succesvol verwijderd"
+    "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "Gebruikersnaam"
+    "other": "User Name"
   },
   "60": {
-    "other": "Gebruiker succesvol verwijderd"
+    "other": "User successfully erased"
   },
   "61": {
-    "other": "Verkeerde argumenten!"
+    "other": "Wrong arguments!"
   },
   "62": {
-    "other": "Rechten overzicht"
+    "other": "Rights Summary"
   },
   "63": {
-    "other": "Alles"
+    "other": "All"
   },
   "64": {
-    "other": "Rechten gewijzigd voor rol"
+    "other": "Changed right for role "
   },
   "65": {
-    "other": "Rol bestaat al, kies een andere naam!"
+    "other": "Role already exists, choose another name!"
   },
   "66": {
-    "other": "Rol succesvol aangemaakt"
+    "other": "Role successfully created"
   },
   "67": {
-    "other": "Kan de rol niet vinden"
+    "other": "Cannot find role "
   },
   "68": {
-    "other": "Rol Succesvol verwijderd"
+    "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Rollen"
+    "other": "Roles"
   },
   "7": {
     "other": "Is Admin"
   },
   "70": {
-    "other": "Gebruiker Rollen"
+    "other": "User Roles"
   },
   "71": {
-    "other": "Beschikbare Rollen"
+    "other": "Available Roles"
   },
   "72": {
-    "other": "Sleep en drop de rollen om deze toe te wijzen aan de gebruiker"
+    "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "Rol toegevoegd aan de gebruiker"
+    "other": "Role added to user "
   },
   "74": {
-    "other": "Rol verwijderd van de gebruiker"
+    "other": "Role deleted from user "
   },
   "75": {
-    "other": "Nieuwe Rol"
+    "other": "New Role"
   },
   "76": {
-    "other": "Rol Id"
+    "other": "Role Id"
   },
   "77": {
-    "other": "Toegangscontrole"
+    "other": "Access Control"
   },
   "78": {
-    "other": "Persoonlijke gegevens"
+    "other": "Personal data"
   },
   "79": {
-    "other": "Werkruimte"
+    "other": "Workspace"
   },
   "8": {
-    "other": "Werkplek Label"
+    "other": "Workspace Label"
   },
   "80": {
     "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
   },
   "81": {
-    "other": "Specifieke werkruimte gegevens"
+    "other": "Specific workspaces data"
   },
   "82": {
-    "other": "Massa-edit gebruiker"
+    "other": "Batch-edit users"
   },
   "83": {
     "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Gebruikers Rollen"
+    "other": "Users Roles"
   },
   "85": {
-    "other": "Handmatige acties filteren"
+    "other": "Manual actions filtering"
   },
   "86": {
     "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
@@ -492,19 +501,19 @@
     "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
   },
   "89": {
-    "other": "Specifieke gebruiker data"
+    "other": "User specific data"
   },
   "9": {
-    "other": "Toegangstype"
+    "other": "Access Type"
   },
   "90": {
-    "other": "Nieuwe werkruimte"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "Nieuw Template"
+    "other": "New Template"
   },
   "92": {
-    "other": "Maak een nieuw template"
+    "other": "Create a new template"
   },
   "93": {
     "other": "Edit"
@@ -522,10 +531,19 @@
     "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "Applicatie Kern"
+    "other": "Application Core"
   },
   "99": {
     "other": "Feature plugins"
+  },
+  "topbar.title": {
+    "other": "Cells Console"
+  },
+  "topbar.button.advanced": {
+    "other": "Show/hide advanced parameters"
+  },
+  "topbar.button.about": {
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"
