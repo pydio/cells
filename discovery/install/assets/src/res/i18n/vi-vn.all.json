@@ -36,7 +36,7 @@
     "other": "Admin user and frontend defaults"
   },
   "admin.legend": {
-    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+    "other": "Cung cấp thông tin đăng nhập cho người dùng quản trị. Bỏ trống nếu bạn đang triển khai trên cài đặt hiện có."
   },
   "admin.adminFound": {
     "other": "Người dùng đã được tìm thấy trong DB. Kiếm tra nếu bạn muốn một cái mới."
@@ -54,7 +54,7 @@
     "other": "Hiển thị thiết lập nâng cao"
   },
   "advanced.default.datasource": {
-    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+    "other": "Một datasource để lưu trữ dữ liệu cá nhân và dữ liệu của cells được tạo khi khởi động. Bạn có thể tạo các datasources sau quá trình cài đặt."
   },
   "license.stepLabel": {
     "other": "Giấy phép doanh nghiệp"
@@ -63,7 +63,7 @@
     "other": "Giấy phép doanh nghiệp của Pydio Cells"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "Giấy phép đăng ký đã được tìm thấy."
   },
   "license.details": {
     "other": "Cài đặt này hợp lệ cho %count người dùng cho đến khi %expiration."
@@ -120,7 +120,7 @@
     "other": "Tên database"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "Database to use (sẽ được tạo nếu nó không tồn tại)"
   },
   "form.dbTCPPort.label": {
     "other": "Cổng"
@@ -165,7 +165,7 @@
     "other": "Đăng nhập Admin user *"
   },
   "form.frontendLogin.legend": {
-    "other": "Identifier used to log in"
+    "other": "Mã định danh được sử dụng để đăng nhập"
   },
   "form.frontendPassword.label": {
     "other": "Mật khẩu Admin"
@@ -195,7 +195,7 @@
     "other": "S3 Api Key"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Key to connect to S3"
+    "other": "Key để kết nối với S3"
   },
   "form.dsS3ApiSecret.label": {
     "other": "S3 Api Secret"
@@ -213,16 +213,16 @@
     "other": "A unique prefix for creating the 6 default buckets"
   },
   "form.bucketList.found": {
-    "other": "Following bucket(s) already exist"
+    "other": "Bucket(s) đã tồn tại"
   },
   "form.bucketList.toCreate": {
-    "other": "Following bucket(s) will be created"
+    "other": "Bucket(s) sẽ được tạo"
   },
   "form.bucketList.notFound": {
-    "other": "Following buckets were not found"
+    "other": "Không tìm thấy buckets"
   },
   "form.bucketList.warnCreate": {
-    "other": "You are not allowed to create buckets, make sure to create them manually!"
+    "other": "Bạn không được phép tạo buckets, hãy tạo chúng theo cách thủ công!"
   },
   "stepper.button.next": {
     "other": "Tiếp theo"

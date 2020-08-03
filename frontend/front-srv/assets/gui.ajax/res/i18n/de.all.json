@@ -96,10 +96,10 @@
     "other": "Arbeitsumgebungen sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
   },
   "tour.workspaces.2": {
-    "other": "Andere Benutzer können Ordner für Sie freigeben. Diese erscheinen hier ebenfalls als Cells."
+    "other": "Zellen sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Zellen basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
   },
   "tour.workspaces.title": {
-    "other": "Arbeitsumgebungen & Cells"
+    "other": "Arbeitsumgebungen & Zellen"
   },
   "background.jobs.title": {
     "other": "Jobs in Bearbeitung"

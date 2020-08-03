@@ -18,12 +18,12 @@
     "other": "Pydio S3 Gateway"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Đường dẫn tuyệt đối đến một hoặc nhiều nút gốc"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Mục trên mỗi trang"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Khi ở chế độ đánh số trang, số mục sẽ hiển thị trên mỗi trang."
   }
 }

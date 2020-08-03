@@ -30,10 +30,10 @@
     "other": "Plantilla para extender gui.ajax a terminales con pantalla pequeña."
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "Desactivar esta función"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "No mostrar un \"smart banner\" al abrir una interfaz web en un terminal móvil."
   },
   "iOS Application Icon": {
     "other": "iOS Application Icon"

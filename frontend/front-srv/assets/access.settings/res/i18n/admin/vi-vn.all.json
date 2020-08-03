@@ -114,7 +114,7 @@
     "other": "Duyệt dữ liệu từ Google Cloud Storage bucket."
   },
   "ds.editor.storage.legend.versioning": {
-    "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
+    "other": "Thiết lập chính sách phiên bản để giữ lịch sử sửa đổi nội dung tệp. Chú ý rằng nó sẽ sử dụng thêm không gian lưu trữ."
   },
   "ds.editor.storage.legend.encryption": {
     "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
@@ -123,7 +123,7 @@
     "other": "Chế độ chỉ đọc"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+    "other": "Hãy sử dụng chế độ Chỉ đọc nếu bạn yêu cầu Cells không bao giờ viết bất cứ tệp ẩn nào và sử dụng eTags gốc làm checksums( điều này có thể cần thiết cho buckets với các nhóm dữ liệu hiện có rất lớn). Tuy nhiên, vui lòng chú ý rằng bất cứ không gian làm việc nào được tạo trên datasource này phải được đặt là Chỉ đọc, vì tính năng di chuyển có thể hoạt động không được chính xác."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Store checksums locally (do not modify objects)"
@@ -168,7 +168,7 @@
     "other": "Hãy chắc chắn để chọn một thư mục hai cấp. Lưu trữ đối tượng sẽ bắt đầu trên thư mục cha."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
+    "other": "Thư mục được hiện thị dưới dạng S3 bucket phải tuân theo tên DNS(chữ thường, không có khoảng trắng, ký tự đặc biệt)."
   },
   "ds.editor.selector.folder": {
     "other": "Local Folder"
@@ -183,7 +183,7 @@
     "other": "Any peer (unique node or distributed FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Peer"
+    "other": "Ngang hàng"
   },
   "ds.editor.selector.peer.invalid": {
     "other": "không hợp lệ"
@@ -243,10 +243,10 @@
     "other": "S3 Api Secret"
   },
   "ds.editor.storage.buckets.legend": {
-    "other": "Select one or more buckets"
+    "other": "Chọn một hoặc nhiều buckets"
   },
   "ds.editor.storage.buckets.reload": {
-    "other": "Reload buckets"
+    "other": "Tải lại buckets"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "Use regular expression"
@@ -255,13 +255,13 @@
     "other": "Regular expression"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
-    "other": "Setup storage to load buckets"
+    "other": "Thiết lập lưu trữ để tại buckets"
   },
   "ds.editor.storage.buckets.cont.loading": {
-    "other": "Loading accessible buckets"
+    "other": "Đang tải buckets có thể truy cập"
   },
   "ds.editor.storage.buckets.cont.empty": {
-    "other": "No buckets found"
+    "other": "Không tìm thấy buckets"
   },
   "ds.editor.storage.s3.legend.tags": {
     "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
@@ -768,13 +768,13 @@
     "other": "Tên Policy"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "# Quy tắc"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "Hiển thị các quy tắc chính sách"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "Chỉnh sửa các quy tắc chính sách"
   },
   "policies.policy.editLabels": {
     "other": "Chỉnh sửa nhãn"
@@ -783,10 +783,10 @@
     "other": "Lưu các thay đổi"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "Xóa Policy"
   },
   "policies.policy.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+    "other": "Bạn có chắc chắn muốn xóa chính sách này? Hãy chắc chắn rằng nó không phá vỡ tính bảo mật của ứng dụng!"
   },
   "policies.policy.new": {
     "other": "+ Policy mới"
@@ -801,7 +801,7 @@
     "other": "Xoá rule"
   },
   "policies.rule.delete.confirm": {
-    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
+    "other": "Bạn có chắc chắn muốn xóa quy tắc bảo mật này? Nó có thể phá vỡ mô hình bảo mật của ứng dụng!"
   },
   "policies.type.acl.legend": {
     "other": "Các Policy này được sử dụng để tự động cung cấp quyền truy cập đọc / ghi vào các workspaces hoặc các thư mục tùy theo hoàn cảnh hoặc tùy theo giá trị metadata đính kèm trên dữ liệu. Chúng được định nghĩa ở đây và được sử dụng trong bảng Access Control của users hoặc roles."
@@ -1035,13 +1035,13 @@
     "other": "Tên"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "ID mẫu"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "Mã mẫu"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "Nhãn dán cho mẫu"
   },
   "virtual.legend.1": {
     "other": "Template Path được tính toán tùy thuộc vào ngữ cảnh. Chúng có thể được sử dụng làm gốc cho các workspaces thay thế một đường dẫn datasource. Chúng được sử dụng theo mặc định để tạo workspace Personal Files để trỏ đến một thư mục khác nhau cho mỗi người dùng và để tính toán vị trí của các thư mục Cells của người dùng."
@@ -1059,13 +1059,13 @@
     "other": "Xóa mẫu"
   },
   "virtual.delete.confirm": {
-    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+    "other": "Bạn có chắc chắn muốn xóa đường dẫn mẫu này? Hoạt động này không thể đảo ngược!"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "Mã mẫu"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "Mã hiển thị"
   },
   "virtual.code.edit": {
     "other": "Chỉnh sửa code"
@@ -1551,10 +1551,10 @@
     "other": "Xóa"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+    "other": "Bạn có chắc chắn muốn xóa công việc này? Hoạt động này là không thể đảo ngược!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this job?"
+    "other": "Bạn có chắc chắn muốn xóa tất cả các nhiệm vụ cho công việc này?"
   },
   "scheduler.trigger.create.node": {
     "other": "Tạo node"
@@ -1641,7 +1641,7 @@
     "other": "Kết thúc"
   },
   "scheduler.task.duration": {
-    "other": "Duration"
+    "other": "Khoảng thời gian"
   },
   "scheduler.task.status": {
     "other": "Trạng thái"
@@ -1680,10 +1680,10 @@
     "other": "Task Activity"
   },
   "scheduler.tasks.activity.loading": {
-    "other": "Loading activity..."
+    "other": "Đang tải hoạt động..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Không tìm thấy bản ghi"
   },
   "scheduler.schedule.monthly": {
     "other": "Mỗi %1 của mỗi tháng tại %2"

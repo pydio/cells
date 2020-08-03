@@ -72,7 +72,7 @@
     "other": "Das Löschen einer Datenquelle ist ein destruktiver Vorgang: obwohl die Daten im zugrunde liegenden Speicher NICHT entfernt werden, wird der vorhandene Index gelöscht und die Verknüpfung aller mit den indizierten Nodes verknüpften ACLs aufgehoben."
   },
   "ds.editor.legend.delete.2": {
-    "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsbereiche entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
+    "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsumgebungen entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
   },
   "ds.editor.legend.delete.button": {
     "other": "Datenquelle löschen"
@@ -804,7 +804,7 @@
     "other": "Möchten Sie diese Sicherheitsregel wirklich entfernen? Dies könnte das Sicherheitsmodell der Anwendung beschädigen!"
   },
   "policies.type.acl.legend": {
-    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Worspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
+    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Arbeitsumgebung oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
   },
   "policies.type.acl.title": {
     "other": "Kontextbasierte ACLs"
@@ -1044,7 +1044,7 @@
     "other": "Beschriftung für Vorlage"
   },
   "virtual.legend.1": {
-    "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Workspace als Ersatz für einen festen Datasource-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Workspace zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Cells Ordner zuberechnen."
+    "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Arbeitsumgebung als Ersatz für einen festen Dateiquelle-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Arbeitsumgebung zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Zellen Ordner zuberechnen."
   },
   "virtual.legend.2": {
     "other": "Verwenden Sie Strg + Leertaste im Editor, um Hinweise zu den möglichen Werten zu erhalten. Derzeit unterstützte Werte sind: User.Name (dynamisch in den aktuell angemeldeten Benutzer aufgelöst) und DataSources (zur dynamischen Auswahl einer Datenquelle)."
@@ -1380,7 +1380,7 @@
     "other": "Desktop-Synchronisierung zulassen"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Mithilfe der Desktopsynchronisierung können Benutzer ihre Dateien offline auf ihrem Computer synchronisieren. Achtung, diese Funktion wird derzeit nur für persönliche Dateien unterstützt, da geteilte Workspace zu Konflikten führen können, wenn viele Benutzer Dokumente in demselben Ordner synchronisieren. Für persönliche Dateien können Sie diese Funktion auch mithilfe von Sicherheitsrichtlinien für jede Rolle einzeln aktivieren / deaktivieren."
+    "other": "Mithilfe der Desktopsynchronisierung können Benutzer ihre Dateien offline auf ihrem Computer synchronisieren. Achtung, diese Funktion wird derzeit nur für persönliche Dateien unterstützt, da geteilte Arbeitsumgebungen zu Konflikten führen können, wenn viele Benutzer Dokumente in demselben Ordner synchronisieren. Für persönliche Dateien können Sie diese Funktion auch mithilfe von Sicherheitsrichtlinien für jede Rolle einzeln aktivieren / deaktivieren."
   },
   "ws.editor.other.sync-personal": {
     "other": "(nur persönliche Workspace)"
