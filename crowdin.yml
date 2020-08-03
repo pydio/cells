@@ -9,11 +9,15 @@ files:
         fr: fr
         it: it
         ja: ja
+        ko-KR: ko-kr
         lv: lv
+        nl-NL: nl-nl
         pt-BR: pt-br
         ru: ru
+        sv-SE: sv-se
         vi: vi-vn
-        zh-CN: zh-cn  
+        zh-CN: zh-cn
+        zh-TW: zh-tw
   - source: '*/i18n/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -24,11 +28,15 @@ files:
         fr: fr
         it: it
         ja: ja
+        ko-KR: ko-kr
         lv: lv
+        nl-NL: nl-nl
         pt-BR: pt-br
         ru: ru
+        sv-SE: sv-se
         vi: vi-vn
-        zh-CN: zh-cn  
+        zh-CN: zh-cn
+        zh-TW: zh-tw
   - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -39,11 +47,15 @@ files:
         fr: fr
         it: it
         ja: ja
+        ko-KR: ko-kr
         lv: lv
+        nl-NL: nl-nl
         pt-BR: pt-br
         ru: ru
+        sv-SE: sv-se
         vi: vi-vn
-        zh-CN: zh-cn  
+        zh-CN: zh-cn
+        zh-TW: zh-tw
   - source: '*/i18n/*/conf/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -54,9 +66,12 @@ files:
         fr: fr
         it: it
         ja: ja
+        ko-KR: ko-kr
         lv: lv
+        nl-NL: nl-nl
         pt-BR: pt-br
         ru: ru
+        sv-SE: sv-se
         vi: vi-vn
-        zh-CN: zh-cn  
-
+        zh-CN: zh-cn
+        zh-TW: zh-tw
