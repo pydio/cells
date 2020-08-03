@@ -177,12 +177,12 @@
     "other": "Unique ID of this role (cannot be changed)."
   },
   "role.label.description": {
-    "other": "Human-readable label."
+    "other": "Etiqueta legible por humanos."
   },
   "role.autoapply.description": {
     "other": "Role is always applied to users with this profile(s)."
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "El rol siempre se aplica después de otros roles, excepto para el rol de usuario que prevalecerá."
   }
 }

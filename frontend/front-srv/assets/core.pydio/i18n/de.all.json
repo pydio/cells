@@ -1071,7 +1071,7 @@
     "other": "Arbeitsumgebung hinzufügen..."
   },
   "418": {
-    "other": "Eigene Arbeitsumgebung erstellen"
+    "other": "Cell erstellen"
   },
   "419": {
     "other": "Lade Vorlagen..."
@@ -2271,7 +2271,7 @@
     "other": "Zellen filtern"
   },
   "ws.quick-filter": {
-    "other": "Workspace filtern"
+    "other": "Arbeitsumgebungen filtern"
   },
   "visibility.panel.title": {
     "other": "Sichtbarkeit"

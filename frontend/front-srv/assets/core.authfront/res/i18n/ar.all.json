@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "Password Reset"
+  },
+  "2": {
+    "other": "Set your new password"
+  },
+  "3": {
+    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+  },
+  "4": {
+    "other": "Your login or email"
+  },
+  "5": {
+    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+  },
+  "6": {
+    "other": "Thank you, please reload now to log in!"
+  },
+  "7": {
+    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+  },
+  "8": {
+    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+  }
+}

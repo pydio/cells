@@ -1,0 +1,122 @@
+{
+  "start": {
+    "other": "Start"
+  },
+  "pause": {
+    "other": "Pause"
+  },
+  "clear": {
+    "other": "Clear"
+  },
+  "clear-header": {
+    "other": "Clear list..."
+  },
+  "clear-finished": {
+    "other": "Finished Uploads"
+  },
+  "clear-failed": {
+    "other": "Failed Uploads"
+  },
+  "clear-all": {
+    "other": "All Transfers"
+  },
+  "list.show-more": {
+    "other": "%d more - show all"
+  },
+  "options.existing": {
+    "other": "If a file with the same name exists:"
+  },
+  "options.existing.alert": {
+    "other": "Stop upload and alert me"
+  },
+  "options.existing.folders": {
+    "other": "Rename folders then files"
+  },
+  "options.existing.merge": {
+    "other": "Rename files only (merge folders)"
+  },
+  "options.existing.overwrite": {
+    "other": "Overwrite existing file silently"
+  },
+  "confirm.rename.all": {
+    "other": "Rename folders, then conflicting files"
+  },
+  "confirm.rename.merge": {
+    "other": "Rename files only (merge folders)"
+  },
+  "confirm.overwrite": {
+    "other": "Merge folders and overwrite files"
+  },
+  "confirm.save.choice": {
+    "other": "Save choice for next uploads"
+  },
+  "options": {
+    "other": "Upload options"
+  },
+  "upload.forbidden": {
+    "other": "You are not allowed to upload this file here"
+  },
+  "task.label": {
+    "other": "Uploading files to server..."
+  },
+  "no-folders-support": {
+    "other": "It seems that your browser does not support dropping folders"
+  },
+  "analyze.step": {
+    "other": "Preparing files and folders for upload..."
+  },
+  "drophere": {
+    "other": "Drop files here"
+  },
+  "drop-or": {
+    "other": "or"
+  },
+  "drop-pick-file": {
+    "other": "browse files"
+  },
+  "drop-pick-folder": {
+    "other": "browse folders"
+  },
+  "dialog.title": {
+    "other": "Transfers"
+  },
+  "status.new": {
+    "other": "Pending"
+  },
+  "status.error": {
+    "other": "An error occured"
+  },
+  "status.pause": {
+    "other": "Paused"
+  },
+  "status.analyse": {
+    "other": "Analyzing..."
+  },
+  "status.dir.loading": {
+    "other": "Creating folder"
+  },
+  "status.file.loading": {
+    "other": "Uploading file"
+  },
+  "status.dir.loaded": {
+    "other": "Folder created"
+  },
+  "status.file.loaded": {
+    "other": "File uploaded"
+  },
+  "status.part.loaded": {
+    "other": "Chunk uploaded"
+  },
+  "status.part.loading": {
+    "other": "Uploading chunk"
+  },
+  "status.multi-pause": {
+    "other": "Finishing current chunk before pausing"
+  },
+  "status.file.cannot-pause": {
+    "other": "Cannot pause this transfer"
+  },
+  "status.part.cannot-pause": {
+    "other": "Cannot pause chunk transfer"
+  }
+}

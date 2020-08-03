@@ -1,8 +1,8 @@
 {
   "Authentication FrontEnd": {
-    "other": "Authentication FrontEnd"
+    "other": "Autenticación FrontEnd"
   },
   "Actual way to authenticate users (via credentials, certificates, http, etc)": {
-    "other": "Actual way to authenticate users (via credentials, certificates, http, etc)"
+    "other": "Forma actual para autenticar usuarios (a través de credenciales, certificados, http, etc)"
   }
 }

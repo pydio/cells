@@ -29,7 +29,7 @@
     "other": "Cannot find corresponding user!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "¡Ocurrió un error al intentar establecer una nueva contraseña!"
   },
   "ResetPassword.Success.ResetFinished": {
     "other": "Your password has successfully been reset, you can now return to the login page!"
