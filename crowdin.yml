@@ -12,6 +12,7 @@ files:
         pt-BR: pt-br
         ru: ru
         vi: vi-vn
+        zh-CN: zh-cn  
   - source: '*/i18n/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -25,6 +26,7 @@ files:
         pt-BR: pt-br
         ru: ru
         vi: vi-vn
+        zh-CN: zh-cn  
   - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -38,6 +40,7 @@ files:
         pt-BR: pt-br
         ru: ru
         vi: vi-vn
+        zh-CN: zh-cn  
   - source: '*/i18n/*/conf/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -51,3 +54,5 @@ files:
         pt-BR: pt-br
         ru: ru
         vi: vi-vn
+        zh-CN: zh-cn  
+
