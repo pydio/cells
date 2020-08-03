@@ -306,6 +306,27 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 				user.Attributes = make(map[string]string)
 			}
 
+			type Plugin map[string]string
+			type RepoScope map[string]Plugin
+
+			if node.JSONMergedRole != nil && node.JSONMergedRole.PARAMETERS != nil {
+				p, err := json.Marshal(node.JSONMergedRole.PARAMETERS)
+				if err == nil {
+					var roleParams map[string]RepoScope
+					if err := json.Unmarshal(p, &roleParams); err == nil {
+						if e, ok := roleParams["AJXP_REPO_SCOPE_ALL"]["core.conf"]["email"]; ok {
+							user.Attributes[idm.UserAttrEmail] = e
+						}
+						if d, ok := roleParams["AJXP_REPO_SCOPE_ALL"]["core.conf"]["USER_DISPLAY_NAME"]; ok {
+							user.Attributes[idm.UserAttrDisplayName] = d
+						}
+					}
+
+				} else {
+					log.Logger(context.Background()).Debug("JSON marshal error", zap.Error(err))
+				}
+			}
+			
 			// Load password
 			if resp, e := cV1.GetAdvancedUserInfo(user.Login, s.Config); e == nil {
 				user.Password = resp.Password
