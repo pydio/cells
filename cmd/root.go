@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
@@ -140,6 +141,7 @@ You can customize the various storage locations with the following ENV variables
 func init() {
 	cobra.OnInitialize(
 		initLogLevel,
+		initConfig,
 	)
 
 	viper.SetEnvPrefix("pydio")
@@ -202,6 +204,27 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func initConfig() {
+	config.SetApplicationConfig(config.Default().Get())
+
+	go func() {
+		w, err := config.Watch()
+		if err != nil {
+			return
+		}
+
+		for {
+			ch, err := w.Next()
+			if err != nil {
+				break
+			}
+
+			config.SetApplicationConfig(ch)
+		}
+	}()
+
 }
 
 func initLogLevel() {

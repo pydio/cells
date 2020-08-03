@@ -71,7 +71,7 @@ func (s *JobsHandler) Filter() func(string) string {
 
 func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
@@ -204,7 +204,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", request))
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
+	languages := i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)
 
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {

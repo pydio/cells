@@ -34,7 +34,16 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/x/configx"
 )
+
+var (
+	ApplicationConfig configx.Values = configx.NewMap()
+)
+
+func SetApplicationConfig(scan configx.Scanner) {
+	scan.Scan(&ApplicationConfig)
+}
 
 // Map structure to store configuration
 type Map map[string]interface{}

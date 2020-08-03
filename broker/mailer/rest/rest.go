@@ -76,7 +76,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
-	langs := i18n.UserLanguagesFromRestRequest(req, config.Default())
+	langs := i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)
 	cli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
@@ -140,7 +140,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			} else {
 				output.Name = emailOrAddress
 			}
-			output.Language = i18n.UserLanguage(ctx, u, config.Default())
+			output.Language = i18n.UserLanguage(ctx, u, config.ApplicationConfig)
 			return output, nil
 		} else {
 			return nil, fmt.Errorf("user %s has no email set", emailOrAddress)

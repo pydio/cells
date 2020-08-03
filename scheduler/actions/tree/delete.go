@@ -105,7 +105,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.ApplicationConfig, true))
 
 	sourceNode := input.Nodes[0]
 

@@ -188,7 +188,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...))
 	return
 
 }
@@ -196,7 +196,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 // SchedulerActionsDiscovery lists all registered actions
 func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
 	actionManager := actions.GetActionsManager()
-	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...)
 	response := &rest.SchedulerActionsResponse{
 		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
 	}
@@ -322,5 +322,5 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	if form == nil {
 		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...))
 }

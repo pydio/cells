@@ -140,7 +140,7 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := i18n.GetDefaultLanguage(config.Default())
+	lang := i18n.GetDefaultLanguage(config.ApplicationConfig)
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}
