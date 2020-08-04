@@ -166,8 +166,6 @@ func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
 // FlattenedFrontValues generates a config.Map with frontend actions/parameters configs
 func (u *User) FlattenedFrontValues() configx.Values {
 	output := configx.NewMap()
-	// actions := config.NewMap()
-	// parameters := config.NewMap()
 	a := u.AccessList
 	for _, role := range a.OrderedRoles {
 		for _, acl := range a.FrontPluginsValues {
@@ -187,26 +185,6 @@ func (u *User) FlattenedFrontValues() configx.Values {
 			p := parts[1]
 			n := parts[2]
 
-			// var plugins *config.Map
-			// if t == "action" {
-			// 	plugins = actions
-			// } else {
-			// 	plugins = parameters
-			// }
-			// if plugs := plugins.Get(p); plugs != nil {
-			// 	plugins = plugs.(*config.Map)
-			// } else {
-			// 	plugins = config.NewMap()
-			// }
-			// var param *config.Map
-			// if sc := plugins.Get(n); sc != nil {
-			// 	param = sc.(*config.Map)
-			// } else {
-			// 	param = config.NewMap()
-			// }
-			// param.Set(scope, iVal)
-			// plugins.Set(n, param)
-
 			if t == "action" {
 				output.Values("actions", p, n, scope).Set(iVal)
 			} else {
@@ -214,9 +192,6 @@ func (u *User) FlattenedFrontValues() configx.Values {
 			}
 		}
 	}
-
-	// output.Set("actions", actions)
-	// output.Set("parameters", parameters)
 
 	return output
 }

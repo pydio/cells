@@ -313,7 +313,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
-	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("")
+	appTitle := config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
 		content, _ := ioutil.ReadAll(f)
 		var data map[string]Translation

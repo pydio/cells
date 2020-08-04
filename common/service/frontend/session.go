@@ -24,7 +24,7 @@ var sessionStore *sessions.CookieStore
 
 func GetSessionStore() sessions.Store {
 	if sessionStore == nil {
-		val := config.Get("frontend", "session", "secureKey").String("")
+		val := config.ApplicationConfig.Values("frontend", "session", "secureKey").String()
 		var key []byte
 		if val == "" {
 			key = securecookie.GenerateRandomKey(64)
@@ -40,10 +40,10 @@ func GetSessionStore() sessions.Store {
 			MaxAge:   60 * SessionTimeoutMinutes,
 			HttpOnly: true,
 		}
-		if config.Get("cert", "proxy", "ssl").Bool(false) {
+		if config.ApplicationConfig.Values("cert", "proxy", "ssl").Bool() {
 			sessionStore.Options.Secure = true
 		}
-		urlVal := config.Get("defaults", "url").String("")
+		urlVal := config.ApplicationConfig.Values("defaults", "url").String()
 		if parsed, e := url.Parse(urlVal); e == nil {
 			sessionStore.Options.Domain = strings.Split(parsed.Host, ":")[0]
 		}
