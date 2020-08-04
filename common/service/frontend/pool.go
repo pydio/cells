@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/utils/i18n"
 )
@@ -162,11 +163,11 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 		}
 	}
 	emptyStatus := RequestStatus{
-		Config:        config.Default(),
+		Config:        config.ApplicationConfig,
 		Lang:          lang,
 		NoClaims:      true,
-		AclParameters: config.NewMap(),
-		AclActions:    config.NewMap(),
+		AclParameters: configx.NewMap(),
+		AclActions:    configx.NewMap(),
 	}
 
 	for _, plugin := range p.Plugins {
@@ -225,6 +226,7 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	}
 	// Filter Accesses
 	filtered := make(map[string]Plugin)
+
 	for id, p := range p.Plugins {
 		if err := ApplyPluginModifiers(ctx, status, p); err != nil {
 			log.Logger(ctx).Error("Filtering out plugin "+id+" (error while applying filter)", zap.Error(err))

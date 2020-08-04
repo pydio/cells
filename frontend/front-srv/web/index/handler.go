@@ -40,12 +40,12 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Try to precompute registry
 	ctx := r.Context()
 	user := &frontend.User{}
-	cfg := config.Default()
 	rolesConfigs := user.FlattenedRolesConfigs()
+
 	status := frontend.RequestStatus{
-		Config:        cfg,
-		AclParameters: rolesConfigs.Get("parameters").(*config.Map),
-		AclActions:    rolesConfigs.Get("actions").(*config.Map),
+		Config:        config.ApplicationConfig,
+		AclParameters: rolesConfigs.Values("parameters"),
+		AclActions:    rolesConfigs.Values("actions"),
 		WsScopes:      user.GetActiveScopes(),
 		User:          user,
 		NoClaims:      !user.Logged,
