@@ -1,56 +1,56 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "URL naar Android App"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Toon Server QRCode"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "Aan de slag inschakelen"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Globaal zoeken inschakelen"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "Schakel optel tabellering in om toegang te krijgen tot start video's"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "Schakel cross-workspaces zoekformulier in op de startpagina"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "Laat gebruikers gemakkelijk verbinding maken met de nieuwste mobiele applicaties door een QRCode weer te geven"
   },
   "Mac PydioSync URL": {
     "other": "Mac PydioSync URL"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "Open workspace met een simpele klik"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "Open workspace met een simpele klik in plaats van dubbele klik."
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "URL naar Android App (laat leeg als u het blok wilt verbergen)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "URL naar iOS App (laat leeg als u het blok wilt verbergen)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "URL naar Mac sync applicatie (laat leeg als u het blok wilt verbergen)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "URL naar Windows sync programma (laat leeg als u het blok wilt verbergen)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Welkom pagina"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "Welkom pagina die een lijst met werkruimtes weergeeft"
   },
   "Windows PydioSync URL": {
     "other": "Windows PydioSync URL"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "URL naar iOS App"
   }
 }

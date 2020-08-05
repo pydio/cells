@@ -1,20 +1,20 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "最多30天"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "30 天后移除版本"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "保留所有"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "永远保持所有版本"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "定期消除"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "定期以不同的间隔来消除版本"
   }
 }

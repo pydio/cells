@@ -1,153 +1,153 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Последняя версия"
   },
   "1": {
-    "other": "Filename"
+    "other": "Имя файла"
   },
   "10": {
-    "other": "Text file"
+    "other": "Текстовый файл"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Не удается найти файл "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Исходная и конечная папки являются одинаковыми!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Ошибка при создании файла:"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Не удается найти папку "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Перейти к указанному местоположению"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Отправьте по электронной почте ссылку для доступа непосредственно к этому местоположению."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Отправить письмо"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Ваше имя и/или email"
   },
   "108": {
-    "other": "The destination email"
+    "other": "E-mail получателя"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "Активная ссылка"
   },
   "11": {
     "other": "Javascript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Добавить комментарий"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Письмо было отправлено :"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Не удалось отправить письмо: "
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Выделение пусто!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Во время копирования произошла неизвестная ошибка!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Файл успешно сохранен"
   },
   "116": {
-    "other": "files"
+    "other": "файлы"
   },
   "117": {
-    "other": "The folder"
+    "other": "Папка"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Скачать несколько файлов"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Нажмите на каждый файл, чтобы загрузить его."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "Изображение GIF"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "Вам не разрешено удалять дерево структуры!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Файл изображения "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Корзина"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "был перемещен в "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Перезаписать существующие файлы?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "Файл/папка с таким именем уже существует (регистр букв не имеет значения). Пожалуйста, выберите другое имя!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Миниатюры"
   },
   "127": {
-    "other": "Size"
+    "other": "Размер"
   },
   "128": {
-    "other": "files selected."
+    "other": "файлов выбрано."
   },
   "129": {
-    "other": "View"
+    "other": "Смотреть"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "Изображение JPG"
   },
   "130": {
-    "other": "Folders"
+    "other": "Папки"
   },
   "131": {
-    "other": "Details"
+    "other": "Подробности"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Нет файла или папки"
   },
   "133": {
-    "other": "Name"
+    "other": "Имя"
   },
   "134": {
-    "other": "Type"
+    "other": "Тип"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Размеры"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Просмотр большего изображения"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Посл. изменение"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "Редактирование онлайн"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML страница"
   },
   "140": {
-    "other": "Play whole folder"
+    "other": "Воспроизвести всю папку"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Чтение папки"
   },
   "142": {
-    "other": "Logged as "
+    "other": "Вы вошли как "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Гостевой просмотр. Войдите."
   },
   "144": {
     "other": "Not logged in."
@@ -300,97 +300,97 @@
     "other": "Stop searching"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Предпросмотр изображения"
   },
   "187": {
-    "other": "Online Edition - "
+    "other": "Онлайн редактор - "
   },
   "189": {
-    "other": "Edit My Preferences"
+    "other": "Изменить мои настройки"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP файл"
   },
   "190": {
-    "other": "Language"
+    "other": "Язык"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Отображение по умолчанию"
   },
   "192": {
-    "other": "List"
+    "other": "Список"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Миниатюры"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Изменение пароля"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "Настройки пользователя"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Ваш язык отличается от текущего языка!\\n Вы хотите перезагрузить страницу, чтобы переключить язык?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Изменение пароля вступит в силу после выхода из системы."
   },
   "198": {
-    "other": "New"
+    "other": "Новый"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Подтвердить"
   },
   "2": {
-    "other": "Size"
+    "other": "Размер"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV файл"
   },
   "200": {
-    "other": "Switch Repository to..."
+    "other": "Переключить репозиторий..."
   },
   "201": {
-    "other": "Warning, some of your changes are not saved!\\n Are you sure you want to close?"
+    "other": "Внимание! Некоторые изменения не сохранены!\\n Вы уверены, что хотите закрыть?"
   },
   "202": {
-    "other": "Warning, recursive copy!"
+    "other": "Внимание, рекурсивная копия!"
   },
   "203": {
-    "other": "Destintation folder is the same as original folder!"
+    "other": "Папка назначения совпадает с исходной папкой!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Файл \""
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "\" превышает возможный размер ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "Мб).\\nОн не будет загружен."
   },
   "207": {
-    "other": "You have no write permission on this folder"
+    "other": "У вас нет прав на запись в эту папку"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "У вас нет разрешения на чтение этой папки"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Внутренняя ошибка сервера, пожалуйста, свяжитесь с администратором!"
   },
   "21": {
-    "other": "PHP script"
+    "other": "PHP скрипт"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Загрузка не удалась"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Файл слишком большой! Пожалуйста, обратитесь к администратору или используйте клиент синхронизации."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Не найден файл на сервере!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Ошибка при копировании файла в текущую папку"
   },
   "214": {
     "other": "Browse"
@@ -2250,96 +2250,96 @@
     "other": "Saving bookmark status"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Внутри"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Пустой файл"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Безымянный документ"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Не используйте \"/\" в имени файла!"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Пожалуйста, используйте другое значение для переименования!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Переименование %1 в %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Фильтр Cell"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Фильтровать рабочие пространства"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Видимость"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Смотреть"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Редактировать"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Пользователи"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Ваша команда"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Изменение видимости"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Сохранить изменения"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Отменить изменения"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Произошла ошибка"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Выбрать пользователя..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Установить видимость на..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Эта расширенная функция позволяет решить, что создаваемые вами пользователи могут видеть и/или редактировать другие пользователи. По умолчанию, ваши пользователи видны только вам."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Неизвестно"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Выберите группу"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Подтвердить"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Вы собираетесь удалить"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Не предупреждать меня в следующий раз"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Строк на странице"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "из"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Пожалуйста, используйте только изображения (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Сброс"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Вы хотите удалить текущее изображение?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Пожалуйста, используйте изображения меньше, чем 5MB"
   }
 }

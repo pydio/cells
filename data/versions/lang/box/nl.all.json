@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Event gebaseerde taak voor het repliceren van data voor versiebeheer"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Versie {{.Uuid}} aangemaakt binnen versie bucket "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Versie metadata gemaakt voor {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Versie {{.Count}} opgeschoond",
+    "other": "Versies {{.Count}} opgeschoond"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Versiebestanden opschonen voor verwijderde nodes"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "{{.Count}} versie succesvol verwijderd",
+    "other": "{{.Count}} versies succesvol verwijderd."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "Beleid"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Naam"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Beleidsnaam"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Beschrijving"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Beschrijving van beleid"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Bewaar"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "DataSource gebruikt om versies op te slaan"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
     "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Bucket gebruikt binnen deze gegevensbron"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Grootte Limieten"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Globale grootte van alle versies in deze bucket"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limiteer de totale genomen grootte. Als het limiet is bereikt, worden de oudste versies verwijderd. Gebruik -1 voor geen limiet"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Cumulatieve grote voor versies van één bepaald bestand"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limiteer de grootte van alle versies van één bestand. Als het limiet is bereikt, worden de oudste versies verwijderd. Gebruik -1 voor geen limiet"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Negeer bestanden groter dan..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "Gebruik geen versiebeheer bij bestanden van meer dan deze limiet gebruiken. Gebruik -1 voor geen limiet"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Bewaar periodes"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Aantal te behouden versies per periode"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Begindatum"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Startpunt gebruikt voor de berekeningsperiode. 0 is de tijd van de laatste ingestelde versie, gebruik een andere periode om een limiet in te stellen"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Maximaal aantal versies"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Max aantal versies om deze periode te behouden. Gebruik -1 om alle versies te bewaren, 0 om alles te verwijderen."
   }
 }

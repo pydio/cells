@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "Разрешить пользователям создавать публичные ссылки на файлы"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "Разрешить пользователям создавать публичные ссылки на папки"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "Разрешить пользователям вручную выбирать хэш для генерируемых ссылок"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "Авторизации"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "Избегать дублирования меток"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Цвет фона"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Создать QRCode"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "Создать и отобразить QRCode для ссылки"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "Отключить совместное использование папок"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "Запретить пользователям создавать общие папки, если рабочее пространство уже существует с тем же названием"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "Запретить пользователям создавать публичные ссылки, только частные ссылки (защищены паролем)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "Кнопка Скачать"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "Скачать текст"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "Скачать текст с паролем"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "Включить предоставление доступа к папкам"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "Включить обмен папками (рабочая область и минисайт)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "Включить внутренний обмен файлами (обмен с существующими или временными пользователями)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "Включить внутренний обмен папками (обмен с существующими или временными пользователями)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "Включить генерацию публичных ссылок для файлов"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "Включить публичные ссылки для файлов"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "Файлы: включить внутренний обмен"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "Файлы: разрешить публичные ссылки"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "Общий доступ к папкам"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "Папки: включить внутренний обмен"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "Папки: разрешить публичные ссылки"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "Только внешняя почта"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "Пересылка событий Fork"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "Минимальная длина хэша"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "Хэш для редактирования"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "Если вы обнаружите проблемы с производительностью при изменении файлов расположенных глубоко в дереве папок, попробуйте активировать их. Пожалуйста, будьте внимательней к тому что вы делаете, это может вызвать большой объем вычислений на сервере."
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "Изображение, используемое в качестве кнопки для загрузки файла"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "Внутренний доступ"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "Генерация ссылок"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "Обязательно должен быть префикс для пользователей, создавших временных пользователей"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "Максимальный количество загрузок файла, 0 = без ограничений"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "Максимальное количество загрузок файла"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "Максимальный срок доступности файла"
   },
   "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file, 0 = unlimited"
+    "other": "Максимальный срок доступности ссылки, 0 = без ограничений"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "Минимальная длина сгенерированного хэша"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Минисайт"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "Минисайты и рабочие области"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "Только минуты"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "Заголовок страницы"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "Обязательный пароль"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "Центр обмена: акции и рекомендации»"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "Цвет фона страницы."
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "Цвет текста страницы."
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "Цвет тени текста страницы."
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "Общие настройки пользователей"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "Поделиться функциями"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Цвет текста"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "Тень"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Префикс пользователей Tmp"
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "Использовать правило перезаписи"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "Использовать внешнюю почту для приглашений"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "Использовать механизм RewriteEngine веб-сервера для создания красивых адресов URLs"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "Страница ссылок"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "Только рабочие области"
   }
 }

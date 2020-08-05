@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Configuratie bijwerken"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Server bijwerken"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "Http URL van de updateserver"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Publieke sleutel"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Officiële sleutel gebruikt om handtekening van de binaries te verifiëren."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Update kanaal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Kanaal gebruikt voor het aanvragen voor updates. Blijf bij stabiel als u niet zeker bent."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Stabiel"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Ontwikkeling (op eigen risico's)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Host van een proxyserver indien vereist voor uitgaande verbindingen"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Proxy Gebruiker"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Gebruiker voor proxy server identificatie"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Proxy wachtwoord"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Wachtwoord voor de proxy server identificatie"
   }
 }

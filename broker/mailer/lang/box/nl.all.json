@@ -1,165 +1,165 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Dit platform voor bestandsdelen is mogelijk gemaakt met Pydio Cells"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "Als de {ACTION} knop niet voor je werkt, kopieer en plak dan de onderstaande URL in je webbrowser."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "Hallo"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "Met vriendelijke groet"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "Wachtwoord reset aangevraagd voor {{.Configs.Title}}"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "Er is een verzoek tot het opnieuw instellen van het wachtwoord ontvangen voor je account op {{.Configs.Title}}."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "Als je dit verzoek niet hebt geïnitieerd, kun je dit negeren. Als u e-mails zoals deze blijft ontvangen, gelieve uw beheerder hiervan op de hoogte te stellen, aangezien het mogelijk een veiligheidsprobleem kan zijn."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Mijn wachtwoord opnieuw instellen"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "Klik hier om je wachtwoord opnieuw in te stellen"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "Je wachtwoord op {{.Configs.Title}} is opnieuw ingesteld"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "N.a.v. je verzoek om het wachtwoord opnieuw in te stellen, is jewachtwoord met succes opnieuw ingesteld voor {{.Configs.Title}}."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "Als je deze handeling niet hebt geïnitieerd, moet je jouw beheerder onmiddellijk waarschuwen, aangezien dit een beveiligingsprobleem kan zijn."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "Je meldingen van {{.Configs.Title}}"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "Hieronder staat een overzicht van alle meldingen die je hebt ontvangen op {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} heeft je een bericht gestuurd!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} heeft je een bericht gestuurd met behulp van de {{.Configs.Title}} applicatie: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "Welkom op {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "Er is een account voor je aangemaakt op {{.Configs.Title}}. \nJe login is {{.TplData.Login}}{{if .TplData.Password}} en je wachtwoord is {{.TplData.Password}}. Je kunt het wijzigen bij de eerste login{{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Klik hier om in te loggen"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Inloggen op {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} File Sharing platform wordt door je team gebruikt om efficiënt aan documenten samen te werken. We zijn blij dat je aan boord bent!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} heeft je uitgenodigd op {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "Er is een account voor je aangemaakt door {{.TplData.Inviter}} op {{.Configs.Title}}. \nJe login is {{.TplData.Login}}{{if .TplData.Password}} en je wachtwoord is {{.TplData.Password}}. Je kunt het de eerste keer dat je inlogt wijzigen{{end}}."
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Klik hier om in te loggen"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Inloggen op {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} File Sharing platform wordt gebruikt door {{.TplData.Inviter}} team om efficiënt aan documenten samen te werken. We zijn blij dat je aan boord bent!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} heeft je toegevoegd aan de cel {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} heeft je opgenomen in de cel {{.TplData.Cell}} op {{.Configs.Title}}! Je kunt beginnen met het delen van bestanden en mappen en efficiënt samenwerken."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "Klik hier om de cell te openen"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "{{.TplData.Cell}} openen"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} deelt een bestand met jou"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} deelt een bestand met jou.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link vervalt op {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}maximale downloads:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "{{.TplData.FileName}} openen"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "Klik om het bestand in uw browser te bekijken"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} File Sharing platform wordt door het {{.TplData.Inviter}} team gebruikt om efficiënt samen te werken aan documenten."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} deelt een map met jou"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} deelt een map met jou.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link vervalt op {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}maximale downloads:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "{{.TplData.FolderName}} openen"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "Klik om de documenten in uw browser te bekijken"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} File Sharing platform wordt door het {{.TplData.Inviter}} team gebruikt om efficiënt samen te werken aan documenten."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} stuurt u een test e-mail"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Open Pydio Cells"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Klik om de frontend te openen"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} File Sharing platform wordt door teams gebruikt om samen te werken aan documenten."
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "Mailprogramma"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "Standaard VAN e-mailadres"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "Adres dat als standaard gebruikt wordt bij het verzenden van e-mails. U moet een support e-mailadres gebruiken in plaats van een no-reply e-mailadres."
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "Wachtrij type"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "Persistente laag voor het opslaan van in behandeling zijnde e-mails"
   },
   "Mail.Config.Queue.ValueBolt": {
     "other": "On-file Database (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "Geheugen"
   },
   "Mail.Config.Mailer.Label": {
     "other": "Mailer Engine"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "Engine gebruikt voor het daadwerkelijk verzenden van e-mails"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
@@ -168,75 +168,75 @@
     "other": "Server Hostname"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "Host van de SMTP-server, b.v. smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "Server Poort"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "Poort van de SMTP Server, bijv. 587 (onveilig) of 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "Verbinding gebruiker"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "Gebruikersnaam is vereist om verbinding te maken met de SMTP-server"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "Connectie wachtwoord"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "Wachtwoord vereist om verbinding te maken met de SMTP-server"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "Zelf-ondertekend certificaat"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "Certificaatverificatie uitschakelen als uw SMTP-server certificaat zelf is ondertekend"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Service"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "API sleutel"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "API Key verstrekt door SendGrid om verbinding te maken met de service"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "WAARSCHUWING: Het standaard uitvoerbaar pad is /usr/bin/sendmail. Als u het wilt wijzigen, zorg er dan voor dat u de 'defaults > sendmail' sleutel in uw pydio.json configuratiebestand instelt."
   },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Executable Path"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "Volledig path van de sendmail executable op de server"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "Ander path (handmatig instellen in pydio.json config bestand)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "Standaard afzender weergavenaam"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "Naam die standaard gebruikt wordt bij het verzenden van e-mails."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "Van/Afzender adres en naam om te gebruiken"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "Definieer welk afzender adres/naam te gebruiken. Als er geen gebruiker-e-mailadres is ingesteld zal het standaard VAN adres worden gebruikt in alle gevallen."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Stuur mail VAN de gebruiker"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Stuur mail NAMENS de gebruiker"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "Altijd verzenden vanaf het standaard VAN adres/naam"
   }
 }

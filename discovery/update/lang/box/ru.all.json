@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Обновить конфигурацию"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Обновить сервер"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "Http URL сервера обновления"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Открытый ключ"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Официальный ключ, используемый для проверки подписи двоичных файлов."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Канал обновления"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Канал, используемый для запроса обновлений. Установите флажок на Стабильный, если не уверены."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Стабильный"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Dev (используйте на свой страх и риск)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "Proxy"
+    "other": "Прокси"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Прокси-сервер, если необходим для исходящих соединений"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Пользователь proxy"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Пользователь для идентификации на прокси-сервере"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Пароль прокси"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Пароль для идентификации прокси-сервера"
   }
 }

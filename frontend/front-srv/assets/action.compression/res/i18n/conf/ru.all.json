@@ -1,8 +1,8 @@
 {
   "Create and extract tar, tar.gz and tar.bz2 archives.": {
-    "other": "Create and extract tar, tar.gz and tar.bz2 archives."
+    "other": "Создание и распаковка архивов tar, tar.gz и tar.bz2."
   },
   "Tar Archives Support": {
-    "other": "Tar Archives Support"
+    "other": "Поддержка Tar архивов"
   }
 }

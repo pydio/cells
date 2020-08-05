@@ -1,20 +1,20 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "максимум 30 дней"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Удалить версии через 30 дней"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Сохранить все"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Сохранять все версии всегда"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Регулярная очистка"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Очистка версий через различные интервалы времени"
   }
 }

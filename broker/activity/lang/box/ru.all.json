@@ -1,86 +1,86 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Доступ к {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Доступ к {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} был доступен {{.Actor}}"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "Сотовый"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Создано {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Создано {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} был создан {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Удалено {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Удалено {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} Был удален {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Поделиться в {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} поделился {{.Object}} с вами"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Это ваш ежедневный дайджест Pydio"
   },
   "Document": {
-    "other": "Document"
+    "other": "Документ"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Папка"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Изменено {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Изменено {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} Был изменен {{.Actor}} \n"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Метаданные изменены {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Изменены метаданные на {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} изменил метаданные на {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Прокомментировал {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Оставил комментарий к {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} опубликовал новый комментарий к {{.Object}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Перемещено {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Перемещено {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} был перемещен {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Рабочее пространство"
   }
 }

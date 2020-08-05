@@ -1,86 +1,86 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "{{.Actor}}님이 접근 하였습니다."
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "{{.Object}}에 액세스 하였습니다."
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Actor}}님이 {{.Object}}에 액세스 했습니다."
   },
   "Cell": {
-    "other": "Cell"
+    "other": "공유 폴더"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "{{.Actor}}가 제공 하였습니다."
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "{{.Object}}을(를) 생성 하였습니다."
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 삭제 하였습니다."
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "{{.Actor}}님에 의해 삭제 되었습니다."
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "{{.Object}}가 삭제 되었습니다."
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 삭제 하였습니다."
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "{{.Object}}을(를) 공유 합니다."
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 공유 합니다."
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "일일 요약 보고서"
   },
   "Document": {
-    "other": "Document"
+    "other": "문서"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "폴더"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "{{.Actor}}가 수정 하였습니다."
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "{{.Object}}가 수정 되었습니다."
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 수정 하였습니다."
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "{{.Actor}}님이 속성을 수정 하였습니다."
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "{{.Object}}의 속성이 수정 되었습니다."
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}}님이 {{.Object}}의 속성을 수정 하였습니다."
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "{{.Actor}}가 댓글을 남겼습니다."
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "{{.Object}}에 댓글을 남겼습니다."
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}}님이 {{.Object}}에 새로운 댓글을 남겼습니다."
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "{{.Actor}}가 이동 시켰습니다."
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "{{.Object}}가 이동 되었습니다."
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Actor}}가 {{.Object}}을(를) 이동 하였습니다."
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "작업 폴더"
   }
 }

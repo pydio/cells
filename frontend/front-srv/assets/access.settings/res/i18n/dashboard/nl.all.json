@@ -1,48 +1,48 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Volg ons"
   },
   "cont.btn.github": {
-    "other": "Github Star"
+    "other": "GitHub Stars"
   },
   "cont.btn.tw": {
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "Code is openbaar beschikbaar op Github. Wilt u een bug repareren, anderen helpen in het forum of de volgende  functie pushen? Werk mee!\n                            Of laat je liefde zien op sociale netwerken!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells is gratis open source software. Help mee te ontwikkelen!"
   },
   "cont.title": {
     "other": "Pay it forward!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Ik heb een nieuwe functie geïmplementeerd: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Ik denk dat ik een bug heb gevonden! Post op het forum."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "Mijn bug is gekwalificeerd: open een github probleem."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "Hoe maak of voltooi je een vertaling?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Dashboard Beheerder"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "Unieke admin dashboard voor real-time monitoring van het platformgebruik."
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "Contact met Verkoop"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Meer informatie"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "Enterprise-georiënteerde functies"
   },
   "ent.features.legend": {
     "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
@@ -75,24 +75,24 @@
     "other": "Getting Started"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Gebruiker"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Werkruimte"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "Als u niet weet waar u moet beginnen, is de Administrator-gids zeker een goed begin!"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Dit is je dashboard voor het beheer van Pydio. Met behulp van het linkermenu kunt u <a class=\"doc-link\" data-path=\"/data/workspaces\">werkruimtes</a> en <a class=\"doc-link\" data-path=\"/idm/users\">gebruikers</a>maken,,\n                            controleer alle <a class=\"doc-link\" data-path=\"/admin/logs\">gebeurtenissen</a> wat gebeurd is op het platform, en beheer <a class=\"doc-link\" data-path=\"/parameters/core\">configuraties</a> en <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.import": {
     "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "De plaats om de activiteit op uw platform te beheren en te volgen"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Welkom bij Pydio Cells v2"
   }
 }

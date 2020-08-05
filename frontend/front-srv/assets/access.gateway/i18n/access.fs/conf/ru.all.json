@@ -1,29 +1,29 @@
 {
   "Path": {
-    "other": "Path"
+    "other": "Путь"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "Тип загрузки по умолчанию"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "При загрузке папки или нескольких файлов будет автоматически выбран данный тип архива"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Путь к папке на сревере"
   },
   "Gateway": {
-    "other": "Gateway"
+    "other": "Шлюз"
   },
   "Pydio S3 Gateway": {
-    "other": "Pydio S3 Gateway"
+    "other": "Pydio S3 шлюз"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Абсолютный путь к одному или нескольким корневым узлам"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Items на странице"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Только при нумерации страниц - число объектов на одной странице."
   }
 }

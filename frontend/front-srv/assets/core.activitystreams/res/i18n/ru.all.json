@@ -1,62 +1,62 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "Уведомления"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Активность по папке"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Активность по файлу"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "В зависимости от вашего браузера, для этого потребуется специальное разрешение. Чтобы отключить, зайдите в настройки и исключения вашего браузера. Если вы уже включили эту функцию, вероятно, ничего не произойдет."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "Ваш браузер пока не поддерживает Desktop Notifications."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Оповещений нет"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Уведомления о файлах, которые вы наблюдаете, появятся здесь"
   },
   "16": {
-    "other": "Inside"
+    "other": "Внутри"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Загрузка активности..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Нет активности в последнее время"
   },
   "19": {
-    "other": "More"
+    "other": "Подробнее"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "Очередь уведомлений"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Загрузка..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "Предупреждения"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Уведомления"
   },
   "5": {
-    "other": "All Events"
+    "other": "Все события"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Перейти к ..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Убрать"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Нет предупреждений"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Активность по рабочему пространству"
   }
 }

@@ -1,93 +1,93 @@
 {
   "1": {
-    "other": "Configuration Data"
+    "other": "配置数据"
   },
   "10": {
-    "other": "Meta Sources"
+    "other": "元数据源"
   },
   "100": {
-    "other": "Common '%s' plugins options"
+    "other": "常用%s插件选项"
   },
   "101": {
-    "other": "Name"
+    "other": "名称"
   },
   "102": {
-    "other": "Identifier"
+    "other": "识别码"
   },
   "103": {
-    "other": "Description"
+    "other": "描述"
   },
   "104": {
-    "other": "Enabled"
+    "other": "已启用"
   },
   "105": {
-    "other": "Automatic checks"
+    "other": "自动检查"
   },
   "106": {
-    "other": "Unique Identifier"
+    "other": "唯一标识符"
   },
   "107": {
-    "other": "Plugin Configurations"
+    "other": "插件配置"
   },
   "108": {
-    "other": "Documentation"
+    "other": "文档"
   },
   "109": {
-    "other": "Application Parameters"
+    "other": "应用程序参数"
   },
   "11": {
-    "other": "Add a source"
+    "other": "添加源"
   },
   "110": {
-    "other": "Workspaces & Users"
+    "other": "工作区和用户"
   },
   "111": {
-    "other": "Backend"
+    "other": "后端"
   },
   "112": {
-    "other": "<b>Apply this role by default</b> to all new users."
+    "other": "<b>默认情况下将此角色</b> 应用于所有新用户。"
   },
   "113": {
-    "other": "Role status was successfully modified"
+    "other": "角色状态已成功修改"
   },
   "114": {
-    "other": "Applies to"
+    "other": "应用到"
   },
   "115": {
-    "other": "Scheme"
+    "other": "方案"
   },
   "116": {
-    "other": "Template Label"
+    "other": "模板标签"
   },
   "117": {
-    "other": "Template Driver"
+    "other": "模板驱动"
   },
   "118": {
-    "other": "New group"
+    "other": "新组"
   },
   "119": {
-    "other": "Set user group"
+    "other": "设置用户组"
   },
   "12": {
-    "other": "Meta Plugin"
+    "other": "元数据插件"
   },
   "120": {
-    "other": "Go Pro"
+    "other": "升级为专业版"
   },
   "121": {
-    "other": "Get professional support for your install"
+    "other": "为您的安装获得专业支持"
   },
   "122": {
-    "other": "All Settings"
+    "other": "所有设置"
   },
   "123": {
-    "other": "Other plugins"
+    "other": "其它插件"
   },
   "124": {
-    "other": "Source"
+    "other": "来源"
   },
   "125": {
-    "other": "Alias"
+    "other": "别名"
   },
   "126": {
     "other": "Are you sure that you want to delete the selected element(s)?"
@@ -216,334 +216,334 @@
     "other": "Successfully updated roles"
   },
   "165": {
-    "other": "Successfully saved user preferences"
+    "other": "成功保存用户首选项"
   },
   "166": {
-    "other": "Successfully set lock (%1) on user (%2)"
+    "other": "成功设置在用户 (%2) 中锁定(%1)"
   },
   "167": {
-    "other": "Successfully unlocked user (%s)"
+    "other": "成功解锁用户 (%s)"
   },
   "168": {
-    "other": "%1 users were moved to group %2"
+    "other": "%1 用户已被移动到组 %2"
   },
   "169": {
-    "other": "No users were moved, there must have been something wrong!"
+    "other": "没有用户被移动，有错误请重试！"
   },
   "17": {
-    "other": "Date"
+    "other": "日期"
   },
   "170": {
-    "other": "Enable %1 (%2)"
+    "other": "启用 %1 (%2)"
   },
   "171": {
-    "other": "Import Users (Enterprise only)"
+    "other": "导入用户 (仅限企业版)"
   },
   "172": {
-    "other": "Services"
+    "other": "服务"
   },
   "173": {
-    "other": "Pydio Backend Services and their running status"
+    "other": "Pydio 后端服务及其运行状态"
   },
   "174": {
-    "other": "Identity Management"
+    "other": "身份管理"
   },
   "175": {
-    "other": "Data Management"
+    "other": "数据管理"
   },
   "176": {
-    "other": "Security Policies"
+    "other": "安全策略"
   },
   "177": {
-    "other": "Security Policies"
+    "other": "安全策略"
   },
   "18": {
     "other": "I.P."
   },
   "19": {
-    "other": "Level"
+    "other": "级别"
   },
   "2": {
-    "other": "People"
+    "other": "用户"
   },
   "20": {
-    "other": "User"
+    "other": "用户"
   },
   "21": {
-    "other": "Action"
+    "other": "动作"
   },
   "22": {
-    "other": "Params"
+    "other": "参数"
   },
   "22a": {
-    "other": "More info"
+    "other": "更多信息"
   },
   "23": {
-    "other": "Test Name"
+    "other": "测试名称"
   },
   "24": {
-    "other": "Test Data"
+    "other": "测试数据"
   },
   "25": {
-    "other": "Workspaces Access"
+    "other": "工作区访问权限"
   },
   "26": {
-    "other": "Modify Password"
+    "other": "修改密码"
   },
   "27": {
-    "other": "Admin Right"
+    "other": "管理员权限"
   },
   "28": {
-    "other": "User has admin rights?"
+    "other": "用户有管理员权限？"
   },
   "29": {
-    "other": "Read"
+    "other": "只读"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "数据管理"
   },
   "3": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "30": {
-    "other": "Write"
+    "other": "写入"
   },
   "32": {
-    "other": "Access Driver"
+    "other": "访问盘"
   },
   "33": {
-    "other": "Loading..."
+    "other": "加载中..."
   },
   "34": {
-    "other": "Are you sure you want to delete this user? This operation is not reversible!"
+    "other": "您确定要删除此用户吗？此操作不可逆！"
   },
   "35": {
-    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
+    "other": "您确定要删除此工作区吗？此操作不可逆！"
   },
   "36": {
-    "other": "Mandatory fields are missing!"
+    "other": "缺少必填字段！"
   },
   "37": {
-    "other": "Warning, password and confirmation differ!"
+    "other": "警告，密码和确认密码之间存在差异！"
   },
   "38": {
-    "other": "Please fill the login field!"
+    "other": "请填写登录字段！"
   },
   "39": {
-    "other": "Please fill both password fields!"
+    "other": "请填写两个密码字段！"
   },
   "3b": {
-    "other": "Storage"
+    "other": "存储"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "模板路径"
   },
   "4": {
-    "other": "Logs"
+    "other": "日志"
   },
   "40": {
-    "other": "Please check the box to confirm!"
+    "other": "请勾选复选框以确认！"
   },
   "41": {
-    "other": "Datasource Nodes"
+    "other": "数据源节点"
   },
   "42": {
-    "other": "Please choose a driver!"
+    "other": "请选择一个盘！"
   },
   "43": {
-    "other": "User already exists, please choose another login!"
+    "other": "用户已存在，请选择其他登录！"
   },
   "44": {
-    "other": "User created successfully"
+    "other": "用户创建成功"
   },
   "45": {
-    "other": "Changed admin right for user "
+    "other": "修改用户的管理员权限 "
   },
   "46": {
-    "other": "Changed right for user "
+    "other": "修改用户权限 "
   },
   "47": {
-    "other": "Saved data for user "
+    "other": "保存用户数据 "
   },
   "48": {
-    "other": "Password changed successfully for user "
+    "other": "用户密码修改成功 "
   },
   "49": {
-    "other": "Cannot update password"
+    "other": "无法更新密码"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Error: a workspace with the same name already exists"
+    "other": "错误：已存在具有相同名称的工作区"
   },
   "51": {
-    "other": "The conf directory is not writeable"
+    "other": "配置文件目录不可写"
   },
   "52": {
-    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
+    "other": "成功创建工作区！您现在可以添加一些“元数据源”来丰富数据，添加自动索引，等等。"
   },
   "53": {
-    "other": "Error while trying to edit workspace"
+    "other": "尝试编辑工作区时出错"
   },
   "54": {
-    "other": "Successfully edited workspace"
+    "other": "成功编辑工作区"
   },
   "55": {
-    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
+    "other": "警告，目前每个元插件只能添加一个实例。"
   },
   "56": {
-    "other": "Successfully added meta source"
+    "other": "成功添加元数据源"
   },
   "57": {
-    "other": "Successfully deleted meta source"
+    "other": "成功删除元数据源"
   },
   "58": {
-    "other": "Successfully edited meta source"
+    "other": "成功编辑元数据源"
   },
   "59": {
-    "other": "Successfully deleted workspace"
+    "other": "成功删除工作区"
   },
   "6": {
-    "other": "User Name"
+    "other": "用户名"
   },
   "60": {
-    "other": "User successfully erased"
+    "other": "用户删除成功"
   },
   "61": {
-    "other": "Wrong arguments!"
+    "other": "错误的参数！"
   },
   "62": {
-    "other": "Rights Summary"
+    "other": "权利摘要"
   },
   "63": {
-    "other": "All"
+    "other": "全部"
   },
   "64": {
-    "other": "Changed right for role "
+    "other": "修改角色的权利 "
   },
   "65": {
-    "other": "Role already exists, choose another name!"
+    "other": "角色已经存在，请选择另一个名称！"
   },
   "66": {
-    "other": "Role successfully created"
+    "other": "角色创建成功"
   },
   "67": {
-    "other": "Cannot find role "
+    "other": "找不到角色 "
   },
   "68": {
-    "other": "Successfully deleted role"
+    "other": "成功删除角色"
   },
   "69": {
-    "other": "Roles"
+    "other": "角色"
   },
   "7": {
-    "other": "Is Admin"
+    "other": "管理员"
   },
   "70": {
-    "other": "User Roles"
+    "other": "用户角色"
   },
   "71": {
-    "other": "Available Roles"
+    "other": "可用角色"
   },
   "72": {
-    "other": "Drag'n'drop roles to assign them to the user"
+    "other": "拖放角色分配给用户"
   },
   "73": {
-    "other": "Role added to user "
+    "other": "角色已添加到用户 "
   },
   "74": {
-    "other": "Role deleted from user "
+    "other": "角色已从用户删除 "
   },
   "75": {
-    "other": "New Role"
+    "other": "新建角色"
   },
   "76": {
-    "other": "Role Id"
+    "other": "角色ID"
   },
   "77": {
-    "other": "Access Control"
+    "other": "访问控制"
   },
   "78": {
-    "other": "Personal data"
+    "other": "个人数据"
   },
   "79": {
-    "other": "Workspace"
+    "other": "工作区"
   },
   "8": {
-    "other": "Workspace Label"
+    "other": "工作区标签"
   },
   "80": {
-    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
+    "other": "对此用户的权限进行微调(如果您想要使它成为用户登录时的默认工作区，点击工作区的标签)"
   },
   "81": {
-    "other": "Specific workspaces data"
+    "other": "指定工作区数据"
   },
   "82": {
-    "other": "Batch-edit users"
+    "other": "批量编辑用户"
   },
   "83": {
-    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
+    "other": "拖放角色以应用于所有选中的用户 (跳过共享用户)"
   },
   "84": {
-    "other": "Users Roles"
+    "other": "用户角色"
   },
   "85": {
-    "other": "Manual actions filtering"
+    "other": "手动操作过滤"
   },
   "86": {
-    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
+    "other": "列表中由逗号分隔的活动将被该角色禁用，不管访问权限如何。"
   },
   "87": {
-    "other": "Successfully updated actions for this role"
+    "other": "成功更新此角色的操作"
   },
   "88": {
-    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
+    "other": "此工作区是在配置文件中定义的，您不能通过 GUI 编辑其元数据源。"
   },
   "89": {
-    "other": "User specific data"
+    "other": "用户特定数据"
   },
   "9": {
-    "other": "Access Type"
+    "other": "访问类型"
   },
   "90": {
-    "other": "New Workspace"
+    "other": "新工作区"
   },
   "91": {
-    "other": "New Template"
+    "other": "新模板"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "创建新模板"
   },
   "93": {
-    "other": "Edit"
+    "other": "编辑"
   },
   "94": {
-    "other": "Batch Edit"
+    "other": "批量编辑"
   },
   "95": {
-    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+    "other": "选择一个标签和一个盘来访问数据 (检查所有部分的必填字段，您可以用鼠标悬停在选项标签上获取更多信息)。"
   },
   "96": {
-    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+    "other": "一旦选择了标签和驱动盘，请使用复选框在模板中预填写字段。 其他字段将留给用户。 如果您仍然想要将一些字段对用户隐藏，可以启用这些字段并将其留空。"
   },
   "97": {
-    "other": "Plugin options successfully updated"
+    "other": "插件选项已更新"
   },
   "98": {
-    "other": "Application Core"
+    "other": "应用程序核心。"
   },
   "99": {
-    "other": "Feature plugins"
+    "other": "功能插件"
   },
   "topbar.title": {
-    "other": "Cells Console"
+    "other": "管理员控制台"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "显示/隐藏高级参数"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "了解更多关于 Pydio Cells"
   },
   "group_access": {
     "other": "g"

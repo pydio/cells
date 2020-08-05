@@ -1,17 +1,17 @@
 {
   "Show file/folders activities": {
-    "other": "Show file/folders activities"
+    "other": "Показать действия для файлов/папок"
   },
   "Display file and folders activities in the right-hand info panel": {
-    "other": "Display file and folders activities in the right-hand info panel"
+    "other": "Отображение активности файлов и папок в правой панели информации"
   },
   "Activities": {
-    "other": "Activities"
+    "other": "Действия"
   },
   "Activity Center": {
-    "other": "Activity Center"
+    "other": "Центр активности"
   },
   "Activity Streams 2.0": {
-    "other": "Activity Streams 2.0"
+    "other": "Лента активности 2.0"
   }
 }

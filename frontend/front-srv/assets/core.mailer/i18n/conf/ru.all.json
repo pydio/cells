@@ -1,48 +1,48 @@
 {
   "Core component for sending emails": {
-    "other": "Core component for sending emails"
+    "other": "Основной компонент для отправки писем"
   },
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "Активировать очередь"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "Активные уведомления по электронной почте"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "Адрес отправителя"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "Тело макета"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "Выберите частоту рассылки (например, 9:00 или 9:00, 14:00 или среда)"
   },
   "Content": {
-    "other": "Content"
+    "other": "Содержимое"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "Основные настройки для отправки писем"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "Подробнее о частоте рассылки здесь"
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "Частота писем"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "Каждый X час"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "Каждые X минут"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "Каждый день в "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "Извлечь основной макет из локализованного файла. Преобладает по предыдущему параметру, убедитесь, что в файле макета есть PYDIO_MAIL_BODY."
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "Принудительно отправлять все письма этим отправителям, а не по адресам пользователей"
   },
   "Get the email in HTML": {
     "other": "Get the email in HTML"

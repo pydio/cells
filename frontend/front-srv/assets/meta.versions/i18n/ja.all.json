@@ -1,21 +1,21 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "バージョン"
   },
   "10": {
-    "other": "Date"
+    "other": "日付"
   },
   "11": {
-    "other": "Author"
+    "other": "作成者"
   },
   "12": {
-    "other": "Modification"
+    "other": "変更"
   },
   "13": {
     "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "以前のバージョンが見つかりませんでした"
   },
   "15": {
     "other": "Versions are created when you update the file content"
@@ -27,7 +27,7 @@
     "other": "Document previous versions"
   },
   "3": {
-    "other": "Download"
+    "other": "ダウンロード"
   },
   "4": {
     "other": "Download selected version to your computer"
@@ -39,7 +39,7 @@
     "other": "Open the selected version in a browser window"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "元に戻す..."
   },
   "8": {
     "other": "Revert the file to the selected revision on the server"
@@ -48,18 +48,18 @@
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "ファイルを作成しました"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "ファイルを削除しました"
   },
   "MODIFICATION": {
     "other": "Content modified"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "ファイルを移動しました"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "ファイル名を変更しました"
   }
 }

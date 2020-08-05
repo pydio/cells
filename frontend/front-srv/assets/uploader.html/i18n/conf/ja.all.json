@@ -1,6 +1,6 @@
 {
   "Always Override": {
-    "other": "Always Override"
+    "other": "常に上書き"
   },
   "Auto Close": {
     "other": "Auto Close"
@@ -15,7 +15,7 @@
     "other": "Auto-switching HTML5 or IFrame uploader."
   },
   "Default Behaviour": {
-    "other": "Default Behaviour"
+    "other": "既定の動作"
   },
   "Default value for automatically closing the dialog after upload or not": {
     "other": "Default value for automatically closing the dialog after upload or not"
@@ -24,7 +24,7 @@
     "other": "Default value for automatically starting upload or not"
   },
   "Existing Files": {
-    "other": "Existing Files"
+    "other": "既存のファイル"
   },
   "HTML Uploader": {
     "other": "Standard"

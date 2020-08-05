@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "OpenLayers Map"
+    "other": "Карта OpenLayers"
   },
   "10": {
-    "other": "Clear"
+    "other": "Очистить"
   },
   "2": {
-    "other": "Filter"
+    "other": "Фильтр"
   },
   "3": {
-    "other": "Position"
+    "other": "Позиция"
   },
   "4": {
-    "other": "Layers"
+    "other": "Слои"
   },
   "5": {
-    "other": "Antialias"
+    "other": "Сглаживание"
   },
   "6": {
-    "other": "Format"
+    "other": "Формат"
   },
   "7": {
-    "other": "Styles"
+    "other": "Стили"
   },
   "8": {
-    "other": "Filter"
+    "other": "Фильтр"
   },
   "9": {
-    "other": "Search"
+    "other": "Поиск"
   }
 }

@@ -3,22 +3,22 @@
     "other": "Last version"
   },
   "1": {
-    "other": "Filename"
+    "other": "ファイル名"
   },
   "10": {
-    "other": "Text file"
+    "other": "テキストファイル"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "ファイルが見つかりません："
   },
   "101": {
     "other": "The origin and destination folders are the same!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "ファイルの作成中にエラーが発生しました："
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "フォルダが見つかりません："
   },
   "104": {
     "other": "Go to the given location"
@@ -27,7 +27,7 @@
     "other": "Email an url to access directly to this location."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "メールを送信"
   },
   "107": {
     "other": "Your name and/or email"
@@ -78,28 +78,28 @@
     "other": "You are not allowed to delete the whole arborescence!"
   },
   "121": {
-    "other": "Image File "
+    "other": "画像ファイル："
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "ごみ箱"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "は次に移動されました："
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "既存のファイルを上書きしますか？"
   },
   "125": {
     "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "サムネイル"
   },
   "127": {
-    "other": "Size"
+    "other": "サイズ"
   },
   "128": {
-    "other": "files selected."
+    "other": "個のファイルが選択されました"
   },
   "129": {
     "other": "View"
@@ -108,19 +108,19 @@
     "other": "JPG picture"
   },
   "130": {
-    "other": "Folders"
+    "other": "フォルダ"
   },
   "131": {
-    "other": "Details"
+    "other": "詳細"
   },
   "132": {
     "other": "No file or folder"
   },
   "133": {
-    "other": "Name"
+    "other": "名前"
   },
   "134": {
-    "other": "Type"
+    "other": "種別"
   },
   "135": {
     "other": "Dimensions"
@@ -129,13 +129,13 @@
     "other": "View Larger Image"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "最終更新"
   },
   "139": {
     "other": "Edit Online"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML ページ"
   },
   "140": {
     "other": "Play whole folder"

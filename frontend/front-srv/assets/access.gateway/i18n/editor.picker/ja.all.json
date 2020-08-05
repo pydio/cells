@@ -1,44 +1,44 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "その他..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "別のエディタを選ぶ"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "ファイルを開くために別のエディタを選ぶ"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "これらのエディタはこのファイル形式をサポートしてないため、予測不可能な動作が起きる場合があります。"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "関連付けを解除"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "%sに対しての動作を選ぶ"
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "このセルに新たなアイテムを追加"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "%s内"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "ファイルを共有"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "フォルダを共有"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "ファイルの移動"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "フォルダの移動"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "ファイルのコピー"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "フォルダのコピー"
   }
 }

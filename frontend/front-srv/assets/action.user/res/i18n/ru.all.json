@@ -1,233 +1,233 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "%s общий доступ"
   },
   "10": {
-    "other": "Associated workspaces"
+    "other": "Папка в общем доступе"
   },
   "11": {
-    "other": "Are you sure that you want to delete the selected element(s)?"
+    "other": "Окончание"
   },
   "12": {
-    "other": "You don't have the permission to delete this element."
+    "other": "Пароль"
   },
   "13": {
-    "other": "Successfully deleted public file."
+    "other": "Да"
   },
   "14": {
-    "other": "Integrity"
+    "other": "Нет"
   },
   "15": {
-    "other": "Ok"
+    "other": "Файл был скачан %s раз"
   },
   "16": {
-    "other": "Broken"
+    "other": "сбросить"
   },
   "17": {
-    "other": "Download URL"
+    "other": "Нажмите для сброса счётчика"
   },
   "18": {
-    "other": "Copy URL"
+    "other": "Папка в общем доступе как новое рабочее пространство."
   },
   "19": {
-    "other": "Copy url to send by email."
+    "other": "Настройки рабочего пространства с общим доступом изменены"
   },
   "2": {
-    "other": "Shared folders"
+    "other": "Нажмите на изображение для загрузки <b>%s</b> на ваш локальный диск"
   },
   "20": {
-    "other": "Downloads"
+    "other": "Запрашиваемый файл не найдем. Возможно, он удалён или исключен из общего доступа для вас."
   },
   "21": {
-    "other": "Yes"
+    "other": "Доступно (дней)"
   },
   "22": {
-    "other": "No"
+    "other": "Разрешено загрузок"
   },
   "23": {
-    "other": "Successfully deleted %s files."
+    "other": "Пароль"
   },
   "24": {
-    "other": "Nothing to delete."
+    "other": "Установите срок окончания и определите пароль для доступа к файлу, нажмите <span class=\"icon-plus-sign\"></span> для создания ссылки. Вы можете создать несколько ссылок для отправки разным людям."
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "Нет лимита"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "Выберите пользователей или группы для присвоения им прав. 'Запись' создаст рабочее пространство только для загрузки, без просмотра."
   },
   "27": {
-    "other": "Owner"
+    "other": "Доступ к фалу"
   },
   "28": {
-    "other": "Files shared for direct download, either protected by a password or not."
+    "other": "Доступ к папке"
   },
   "29": {
-    "other": "Delegates workspaces created by users."
+    "other": "Интернет-ссылка"
   },
   "3": {
-    "other": "Shared files"
+    "other": "пароль неверен"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "Доступ вместе с..."
   },
   "31": {
-    "other": "Description"
+    "other": "Чтение"
   },
   "32": {
-    "other": "Reset"
+    "other": "Запись"
   },
   "33": {
-    "other": "Reset download counter"
+    "other": "Следить"
   },
   "34": {
-    "other": "My Shares"
+    "other": "Существующий или новый пользователь"
   },
   "35": {
-    "other": "All my shared items (files and folders)"
+    "other": "Метка"
   },
   "36": {
-    "other": "Parameters"
+    "other": "Установите метку и короткое описание"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "Подтверждение"
   },
   "38": {
-    "other": "Notifications"
+    "other": "Следить за содержимым папки"
   },
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Следить за доступом к этому файлу"
   },
   "4": {
-    "other": "File Path"
+    "other": "Введите пароль и нажмите на картинкудля загрузки <b>%s</b> на локальный диск"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Приглашения"
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Послать приглашения пользователям, которым вы предоставили доступ к этим элементам."
   },
   "42": {
-    "other": "Enter"
+    "other": "Пользователь %s дал вам права к файлу"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Пользователь %s дал вам права к папке"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Все мои персональные данные"
   },
   "44": {
-    "other": "My Account"
+    "other": "%s Share"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Послать приглашение"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Открыть рабочее пространство %s1 напрямую в %s2"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Статус отслеживания обновлён"
   },
   "48": {
-    "other": "My Users"
+    "other": "У вас нет прав доступа"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "создать пользователя"
   },
   "5": {
-    "other": "Repository"
+    "other": "пароль"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Общие"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Скачано"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Конфигурация"
   },
   "53": {
-    "other": "Back to my workspaces"
+    "other": "ничего"
   },
   "54": {
-    "other": "Update Members"
+    "other": "Общие с..."
   },
   "55": {
-    "other": "Add/Remove users from this team"
+    "other": "Общие..."
   },
   "56": {
-    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+    "other": "конфигурация софместного доступа..."
   },
   "57": {
-    "other": "Create a Team"
+    "other": "раз"
   },
   "58": {
-    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+    "other": "Установите хотя бы одно разрешение!"
   },
   "59": {
-    "other": "Team Label"
+    "other": "Страница скачивания"
   },
   "6": {
-    "other": "Password"
+    "other": "Остановить общий доступ"
   },
   "60": {
-    "other": "Team Users"
+    "other": "Прямая ссылка на скачивание"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "Встроенный код HTML"
   },
   "62": {
-    "other": "Send emails every X minutes"
+    "other": "Адрес мини-сайта"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "Новое рабочее пространство"
   },
   "64": {
-    "other": "Choose the hour of the day"
+    "other": "Для внутренних и внешних пользователей папка будет представлена как новое рабочее пространство."
   },
   "65": {
-    "other": "Choose the first hour of the day"
+    "other": "Публичный минисайт (без аутентификации)"
   },
   "66": {
-    "other": "Choose the second hour of the day"
+    "other": "Для внешних пользователей папка будет выглядеть как новый публичный адрес со списком файлов."
   },
   "67": {
-    "other": "Pick a day of the week"
+    "other": "Защищённый минисайт (требуется аутентификация)"
   },
   "68": {
-    "other": "Monday"
+    "other": "Для внешних и внутренних пользователей папка будет выглядеть как новый публичный адрес со списком файлов. Требуется аутентификация."
   },
   "69": {
-    "other": "Tuesday"
+    "other": "Конфигурировать мини-сайт"
   },
   "7": {
-    "other": "Expiration"
+    "other": "Остановка общего доступа не удаляет файлы. Для изменения параметров заново определите общий доступ к файлу."
   },
   "70": {
-    "other": "Wednesday"
+    "other": "Используйте переключатели для предоставления прав к папке. Если выбрать только 'Upload' (Загрузка), папка будет выглядеть пустой. В неё можно перетаскивать файлы."
   },
   "71": {
-    "other": "Thursday"
+    "other": "Разрешения"
   },
   "72": {
-    "other": "Friday"
+    "other": "Предпросмотр"
   },
   "73": {
-    "other": "Saturday"
+    "other": "Скачивание"
   },
   "74": {
-    "other": "Sunday"
+    "other": "Загрузка файлов"
   },
   "8": {
-    "other": "Elements"
+    "other": "Файл в общем доступе"
   },
   "9": {
-    "other": "Associated users"
+    "other": "Используйте это кнопку для прекращения общего доступа"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "Управление настройками учетной записи, моей адресной книги, общими элементами и т. д."
   },
   "title": {
-    "other": "My Account"
+    "other": "Мой аккаунт"
   }
 }
