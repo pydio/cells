@@ -17,7 +17,7 @@ type Value interface {
 	Default(interface{}) Value
 
 	Bool() bool
-	// Bytes() []byte
+	Bytes() []byte
 	Int() int
 	Int64() int64
 	Duration() time.Duration

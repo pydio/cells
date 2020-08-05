@@ -39,7 +39,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	registry2 "github.com/pydio/cells/common/registry"
@@ -307,9 +306,4 @@ func addressFromService(name string) string {
 	}
 
 	return strings.Join(urls, " ")
-}
-
-func peersFromConfig(path []string, def ...string) string {
-	c := config.Get(path...)
-	return c.String(def[0])
 }

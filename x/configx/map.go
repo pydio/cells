@@ -176,11 +176,19 @@ func (c *mymap) Int() int {
 func (c *mymap) Int64() int64 {
 	return c.Default(0).Int64()
 }
+func (c *mymap) Bytes() []byte {
+	return []byte(c.String())
+}
 func (c *mymap) Duration() time.Duration {
 	return c.Default(0 * time.Second).Duration()
 }
 func (c *mymap) String() string {
-	return c.Default("").String()
+	b, err := json.Marshal(c.v)
+	if err != nil {
+		return "cannot marshal"
+	}
+
+	return string(b)
 }
 func (c *mymap) StringMap() map[string]string {
 	return c.Default(map[string]string{}).StringMap()

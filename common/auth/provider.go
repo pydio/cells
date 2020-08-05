@@ -11,6 +11,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/x/configx"
 )
 
 type ConfigurationProvider interface {
@@ -24,16 +25,7 @@ type configurationProvider struct {
 	r string
 
 	// values
-	v common.ConfigValues
-
-	cors       common.ConfigValues
-	urls       common.ConfigValues
-	oidc       common.ConfigValues
-	clients    common.Scanner
-	connectors common.Scanner
-
-	drv string
-	dsn string
+	v configx.Values
 }
 
 var (
@@ -42,8 +34,9 @@ var (
 	confInit             bool
 )
 
-func InitConfiguration(values common.ConfigValues) {
-	externalURL := config.Get("defaults", "url").String("")
+func InitConfiguration(values configx.Values) {
+	// TODO - should be in parameter call
+	externalURL := config.ApplicationConfig.Values("defaults", "url").String()
 
 	conf = NewProvider(externalURL, values)
 
@@ -66,23 +59,15 @@ func GetConfigurationProvider() ConfigurationProvider {
 	return conf
 }
 
-func NewProvider(rootURL string, values common.ConfigValues) ConfigurationProvider {
-	drv, dsn := values.Database("dsn")
+func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	return &configurationProvider{
-		r:          rootURL,
-		v:          values,
-		cors:       values.Values("cors"),
-		urls:       values.Values("urls"),
-		oidc:       values.Values("oidc"),
-		clients:    values.Array("staticClients"),
-		connectors: values.Array("connectors"),
-		drv:        drv,
-		dsn:        dsn,
+		r: rootURL,
+		v: values,
 	}
 }
 
 func (v *configurationProvider) InsecureRedirects() []string {
-	return v.v.StringArray("insecureRedirects", []string{})
+	return v.v.Values("insecureRedirects").StringArray()
 }
 
 func (v *configurationProvider) WellKnownKeys(include ...string) []string {
@@ -96,7 +81,7 @@ func (v *configurationProvider) WellKnownKeys(include ...string) []string {
 }
 
 func (v *configurationProvider) ServesHTTPS() bool {
-	return v.v.Bool("https", false)
+	return v.v.Values("https").Bool()
 }
 
 func (v *configurationProvider) IsUsingJWTAsAccessTokens() bool {
@@ -104,36 +89,43 @@ func (v *configurationProvider) IsUsingJWTAsAccessTokens() bool {
 }
 
 func (v *configurationProvider) SubjectTypesSupported() []string {
-	return v.v.StringArray("subjectTypesSupported", []string{"public"})
+	return v.v.Values("subjectTypesSupported").Default([]string{"public"}).StringArray()
 }
 
 func (v *configurationProvider) DefaultClientScope() []string {
-	return v.v.StringArray("defaultClientScope", []string{"offline_access", "offline", "openid", "pydio", "email"})
+	return v.v.Values("defaultClientScope").Default([]string{"offline_access", "offline", "openid", "pydio", "email"}).StringArray()
 }
 
 func (v *configurationProvider) CORSEnabled(iface string) bool {
-	return v.cors.Values(iface).IsEmpty()
+	return v.v.Values("cors", iface).Bool()
 }
 
 func (v *configurationProvider) CORSOptions(iface string) cors.Options {
+	vals := v.v.Values("cors", iface)
 	return cors.Options{
-		AllowedOrigins:     v.cors.Values(iface).StringArray("allowedOrigins"),
-		AllowedMethods:     v.cors.Values(iface).StringArray("allowedMethods"),
-		AllowedHeaders:     v.cors.Values(iface).StringArray("allowedHeaders"),
-		ExposedHeaders:     v.cors.Values(iface).StringArray("exposedHeaders"),
-		AllowCredentials:   v.cors.Values(iface).Bool("allowCredentials", true),
-		OptionsPassthrough: v.cors.Values(iface).Bool("optionsPassthrough", false),
-		MaxAge:             v.cors.Values(iface).Int("maxAge", 0),
-		Debug:              v.cors.Values(iface).Bool("debug", false),
+		AllowedOrigins:     vals.Values("allowedOrigins").StringArray(),
+		AllowedMethods:     vals.Values("allowedMethods").StringArray(),
+		AllowedHeaders:     vals.Values("allowedHeaders").StringArray(),
+		ExposedHeaders:     vals.Values("exposedHeaders").StringArray(),
+		AllowCredentials:   vals.Values("allowCredentials").Default(true).Bool(),
+		OptionsPassthrough: vals.Values("optionsPassthrough").Bool(),
+		MaxAge:             vals.Values("maxAge").Int(),
+		Debug:              vals.Values("debug").Bool(),
 	}
 }
 
 func (v *configurationProvider) DSN() string {
-	return v.drv + "://" + v.dsn
+	drv := v.v.Values("dsn", "drv").Default("#/defaults/database/drv").String()
+	dsn := v.v.Values("dsn", "dsn").Default("#/defaults/database/dsn").String()
+
+	return drv + "://" + dsn
 }
 
 func (v *configurationProvider) DataSourcePlugin() string {
-	return v.drv + "://" + v.dsn
+	drv := v.v.Values("dsn", "drv").Default("#/defaults/database/drv").String()
+	dsn := v.v.Values("dsn", "dsn").Default("#/defaults/database/dsn").String()
+
+	return drv + "://" + dsn
 }
 
 func (v *configurationProvider) BCryptCost() int {
@@ -153,27 +145,27 @@ func (v *configurationProvider) PublicListenOn() string {
 }
 
 func (v *configurationProvider) PublicDisableHealthAccessLog() bool {
-	return v.v.Bool("publicDisabledHealthAccessLog", false)
+	return v.v.Values("publicDisabledHealthAccessLog").Bool()
 }
 
 func (v *configurationProvider) ConsentRequestMaxAge() time.Duration {
-	return v.v.Duration("consentRequestMaxAge", "30m")
+	return v.v.Values("consentRequestMaxAge").Default("30m").Duration()
 }
 
 func (v *configurationProvider) AccessTokenLifespan() time.Duration {
-	return v.v.Duration("accessTokenLifespan", "10m")
+	return v.v.Values("accessTokenLifespan").Default("10m").Duration()
 }
 
 func (v *configurationProvider) RefreshTokenLifespan() time.Duration {
-	return v.v.Duration("refreshTokenLifespan", "1440h")
+	return v.v.Values("refreshTokenLifespan").Default("1440h").Duration()
 }
 
 func (v *configurationProvider) IDTokenLifespan() time.Duration {
-	return v.v.Duration("idTokenLifespan", "1h")
+	return v.v.Values("idTokenLifespan").Default("1h").Duration()
 }
 
 func (v *configurationProvider) AuthCodeLifespan() time.Duration {
-	return v.v.Duration("authCodeLifespan", "10m")
+	return v.v.Values("authCodeLifespan").Default("10m").Duration()
 }
 
 func (v *configurationProvider) ScopeStrategy() string {
@@ -214,85 +206,85 @@ func (v *configurationProvider) GetRotatedSystemSecrets() [][]byte {
 }
 
 func (v *configurationProvider) GetSystemSecret() []byte {
-	return v.v.Bytes("secret", []byte{})
+	return v.v.Values("secret").Bytes()
 }
 
 func (v *configurationProvider) LogoutRedirectURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("logoutRedirectURL", "/oauth2/logout/callback"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "logoutRedirectURL").Default("/oauth2/logout/callback").String())
 	return u
 }
 
 func (v *configurationProvider) LoginURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("loginURL", "/oauth2/login"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "loginURL").Default("/oauth2/login").String())
 	return u
 }
 
 func (v *configurationProvider) LogoutURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("logoutURL", "/oauth2/logout"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "logoutURL").Default("/oauth2/logout").String())
 	return u
 }
 
 func (v *configurationProvider) ConsentURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("consentURL", "/oauth2/consent"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "consentURL").Default("/oauth2/consent").String())
 	return u
 }
 
 func (v *configurationProvider) ErrorURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("errorURL", "/oauth2/fallbacks/error"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "errorURL").Default("/oauth2/fallbacks/error").String())
 	return u
 }
 
 func (v *configurationProvider) PublicURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("publicURL", "/oidc/"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "publicURL").Default("/oidc/").String())
 	return u
 }
 
 func (v *configurationProvider) IssuerURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("issuerURL", "/oidc/"))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "issuerURL").Default("/oidc/").String())
 	return u
 }
 
 func (v *configurationProvider) OAuth2AuthURL() string {
-	return v.urls.String("oauth2AuthURL", "/oauth2/auth") // this should not have the host etc prepended...
+	return v.v.Values("urls", "oauth2AuthURL").Default("/oauth2/auth").String() // this should not have the host etc prepended...
 }
 
 func (v *configurationProvider) OAuth2ClientRegistrationURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("loginURL", ""))
+	u, _ := url.Parse(v.r + v.v.Values("urls", "loginURL").String())
 	return u
 }
 
 func (v *configurationProvider) AllowTLSTerminationFrom() []string {
-	return v.v.StringArray("allowTLSTerminationFrom", []string{})
+	return v.v.Values("allowTLSTerminationFrom").StringArray()
 }
 
 func (v *configurationProvider) AccessTokenStrategy() string {
-	return v.v.String("accessTokenStrategy", "opaque")
+	return v.v.Values("accessTokenStrategy").Default("opaque").String()
 }
 
 func (v *configurationProvider) SubjectIdentifierAlgorithmSalt() string {
-	return v.v.String("subjectIdentifierAlgorithmSalt", "")
+	return v.v.Values("subjectIdentifierAlgorithmSalt").String()
 }
 
 func (v *configurationProvider) OIDCDiscoverySupportedClaims() []string {
-	return v.oidc.StringArray("supportedClaims", []string{})
+	return v.v.Values("oidc", "supportedClaims").StringArray()
 }
 
 func (v *configurationProvider) OIDCDiscoverySupportedScope() []string {
-	return v.oidc.StringArray("supportedScope", []string{})
+	return v.v.Values("oidc", "supportedScope").StringArray()
 }
 
 func (v *configurationProvider) OIDCDiscoveryUserinfoEndpoint() string {
-	return v.oidc.String("userInfoEndpoint", "/oauth2/userinfo")
+	return v.v.Values("oidc", "userInfoEndpoint").Default("/oauth2/userinfo").String()
 }
 
 func (v *configurationProvider) ShareOAuth2Debug() bool {
-	return v.v.Bool("shareOAuth2Debug", false)
+	return v.v.Values("shareOAuth2Debug").Bool()
 }
 
 func (v *configurationProvider) Clients() common.Scanner {
-	return v.clients
+	return v.v.Values("staticClients")
 }
 
 func (v *configurationProvider) Connectors() common.Scanner {
-	return v.connectors
+	return v.v.Values("connectors")
 }

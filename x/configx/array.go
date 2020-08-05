@@ -107,7 +107,7 @@ func (c *array) Values(k ...Key) Values {
 }
 
 func (c *array) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(c)
+	jsonStr, err := json.Marshal(c.v)
 	if err != nil {
 		return err
 	}
@@ -131,11 +131,19 @@ func (c *array) Int() int {
 func (c *array) Int64() int64 {
 	return c.Default(0).Int64()
 }
+func (c *array) Bytes() []byte {
+	return []byte(c.String())
+}
 func (c *array) Duration() time.Duration {
 	return c.Default(0 * time.Second).Duration()
 }
 func (c *array) String() string {
-	return c.Default("").String()
+	b, err := json.Marshal(c.v)
+	if err != nil {
+		return "cannot marshal"
+	}
+
+	return string(b)
 }
 func (c *array) StringMap() map[string]string {
 	return c.Default(map[string]string{}).StringMap()

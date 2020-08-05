@@ -149,7 +149,7 @@ func NewService(opts ...ServiceOption) Service {
 	name := s.Options().Name
 
 	// Checking that the service is not bound to a certain IP
-	peerAddress := config.Get("services", name, "PeerAddress").String("")
+	peerAddress := config.ApplicationConfig.Values("services", name, "PeerAddress").String()
 
 	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
 		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", name), zap.String("ip", peerAddress))

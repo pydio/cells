@@ -62,25 +62,25 @@ func init() {
 		)
 
 		// load configuration
-		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.InitConfiguration(config.ApplicationConfig.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 
 		// And watch to know when we need to reload
-		watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
-		if err != nil {
-			log.Fatal("Could not initiate watcher")
-		}
+		// watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
+		// if err != nil {
+		// 	log.Fatal("Could not initiate watcher")
+		// }
 
-		go func() {
-			defer watcher.Stop()
-			for {
-				_, err := watcher.Next()
-				if err != nil {
-					break
-				}
+		// go func() {
+		// 	defer watcher.Stop()
+		// 	for {
+		// 		_, err := watcher.Next()
+		// 		if err != nil {
+		// 			break
+		// 		}
 
-				auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-			}
-		}()
+		// 		auth.InitConfiguration(config.ApplicationConfig.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		// 	}
+		// }()
 
 		// Register the service as a GRPC Auth Provider
 		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)

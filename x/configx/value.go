@@ -117,6 +117,9 @@ func (v *value) Scan(val interface{}) error {
 func (c *value) Bool() bool {
 	return c.Default(false).Bool()
 }
+func (c *value) Bytes() []byte {
+	return []byte(c.String())
+}
 func (c *value) Int() int {
 	return c.Default(0).Int()
 }

@@ -14,20 +14,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var (
-	hydraBaseURL  string
-	hydraAdminURL string
-	hydraOAuthURL string
-)
-
-func init() {
-	config.OnInitialized(func() {
-		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
-		hydraAdminURL = hydraBaseURL + "/oidc-admin"
-		hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
-	})
-}
-
 type ConsentResponse struct {
 	Challenge                    string   `json:"challenge"`
 	Skip                         bool     `json:"skip"`
@@ -204,6 +190,8 @@ func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, err
 func get(flow string, challenge string, res interface{}) error {
 	cli := &http.Client{}
 
+	hydraAdminURL := config.ApplicationConfig.Values("defaults", "urlInternal").String() + "/oidc-admin"
+
 	req, err := http.NewRequest("GET", hydraAdminURL+"/oauth2/auth/requests/"+flow, nil)
 
 	q := req.URL.Query()
@@ -229,6 +217,8 @@ func put(flow string, action string, challenge string, body interface{}, res int
 	if err != nil {
 		return err
 	}
+
+	hydraAdminURL := config.ApplicationConfig.Values("defaults", "urlInternal").String() + "/oidc-admin"
 
 	req, err := http.NewRequest("PUT", hydraAdminURL+"/oauth2/auth/requests/"+flow+"/"+action, bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")
