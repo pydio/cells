@@ -29,23 +29,23 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Sendmail struct {
 	BinPath string
 }
 
-func (s *Sendmail) Configure(ctx context.Context, conf config.Map) error {
-	s.BinPath = config.Get("defaults", "sendmail").String("/usr/bin/mail")
+func (s *Sendmail) Configure(ctx context.Context, conf configx.Values) error {
+	s.BinPath = conf.Values("defaults", "sendmail").Default("/usr/bin/mail").String()
 	return nil
 }
 
 func (s *Sendmail) Check(ctx context.Context) error {
-
 	// Check that executable path is correct
 	if _, err := os.Stat(s.BinPath); err != nil {
+
 		return errors.New("cannot find executable path")
 	}
 	return nil

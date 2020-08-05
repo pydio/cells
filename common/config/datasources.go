@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -75,17 +76,12 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesForDataServices(dataSrvType string) []string {
-	var res []string
-	var cfgMap Map
-	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType).Scan(&cfgMap); err == nil {
-		return SourceNamesFromDataConfigs(cfgMap)
-	}
-	return res
+	return SourceNamesFromDataConfigs(ApplicationConfig.Values("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType))
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
-func SourceNamesFromDataConfigs(cfgMap common.ConfigValues) []string {
-	names := cfgMap.StringArray("sources")
+func SourceNamesFromDataConfigs(values configx.Values) []string {
+	names := values.Values("sources").StringArray()
 	return SourceNamesFiltered(names)
 }
 

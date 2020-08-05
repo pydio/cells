@@ -28,8 +28,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -99,7 +99,7 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 	}
 }
 
-func (h *Handler) Init(c common.ConfigValues) error {
+func (h *Handler) Init(c configx.Values) error {
 	return nil
 }
 

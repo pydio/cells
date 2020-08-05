@@ -34,22 +34,24 @@ import (
 	"github.com/pydio/cells/broker/mailer/templates"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
+
+	// "github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Handler struct {
 	queueName    string
-	queueConfig  config.Map
+	queueConfig  configx.Values
 	senderName   string
-	senderConfig config.Map
+	senderConfig configx.Values
 	queue        mailer.Queue
 	sender       mailer.Sender
 }
 
-func NewHandler(serviceCtx context.Context, conf common.ConfigValues) (*Handler, error) {
+func NewHandler(serviceCtx context.Context, conf configx.Values) (*Handler, error) {
 	h := new(Handler)
 	h.initFromConf(serviceCtx, conf, true)
 	return h, nil
@@ -189,51 +191,25 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 	return nil
 }
 
-func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
+func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig configx.Values, senderName string, senderConfig configx.Values) {
 
 	// Defaults
 	queueName = "boltdb"
 	senderName = "sendmail"
-	senderConfig = conf.(config.Map)
-	queueConfig = conf.(config.Map)
+	senderConfig = conf.Values("sender")
+	queueConfig = conf.Values("queue")
 
-	// Parse configs for queue
-	if q := conf.String("queue"); q != "" {
-		var queueData struct {
-			Value string `json:"@value"`
-		}
-		if e := json.Unmarshal([]byte(q), &queueData); e == nil && queueData.Value != "" {
-			queueName = queueData.Value
-		}
+	queueName = queueConfig.Values("@value").Default("boltdb").String()
+	senderName = senderConfig.Values("@value").Default("sendmail").String()
 
-	}
+	log.Logger(context.Background()).Debug("Parsed config for mailer", zap.String("c", senderConfig.Get().String()))
 
-	// Parse configs for sender
-	var senderConf map[string]interface{}
-	if s := conf.String("sender"); s != "" {
-		json.Unmarshal([]byte(s), &senderConf)
-	} else if m := conf.Map("sender"); m != nil {
-		senderConf = m
-	}
-	if senderConf != nil {
-		senderConfig = config.Map{}
-		var name string
-		for k, v := range senderConf {
-			if k == forms.SwitchFieldValueKey {
-				name = v.(string)
-			} else {
-				senderConfig.Set(k, v)
-			}
-		}
-		log.Logger(context.Background()).Debug("Parsed config for mailer", zap.Any("c", senderConfig))
-		senderName = name
-	}
 	return
 }
 
-func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues, check bool) (e error) {
+func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check bool) (e error) {
 
-	initialConfig := config.Default().Get("services", servicecontext.GetServiceName(ctx), "valid").Bool(false)
+	initialConfig := conf.Values("valid").Bool()
 	defer func() {
 		var newConfig bool
 		if e != nil {
@@ -280,10 +256,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues, ch
 
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
-	var cfg config.Map
-	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&cfg); e != nil {
-		return e
-	}
+	cfg := config.ApplicationConfig.Values("services", servicecontext.GetServiceName(ctx))
 	queueName, _, senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)

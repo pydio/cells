@@ -27,8 +27,8 @@ import (
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -47,7 +47,7 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (h *sqlImpl) Init(options common.ConfigValues) error {
+func (h *sqlImpl) Init(options configx.Values) error {
 
 	// super
 	h.DAO.Init(options)
@@ -65,7 +65,7 @@ func (h *sqlImpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Values("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := h.Prepare(key, query); err != nil {
 				return err

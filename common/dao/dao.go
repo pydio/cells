@@ -22,12 +22,13 @@
 package dao
 
 import (
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/x/configx"
+
 )
 
 // DAO interface definition
 type DAO interface {
-	Init(common.ConfigValues) error
+	Init(configx.Values) error
 	GetConn() Conn
 	SetConn(Conn)
 	CloseConn() error
@@ -57,7 +58,7 @@ func NewDAO(conn Conn, driver string, prefix string) DAO {
 	}
 }
 
-func (h *handler) Init(c common.ConfigValues) error {
+func (h *handler) Init(c configx.Values) error {
 	return nil
 }
 

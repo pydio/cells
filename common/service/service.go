@@ -178,11 +178,13 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
-		Watch(func(v common.ConfigValues) {
-			ctx = servicecontext.WithConfig(s.Options().Context, v)
 
-			s.Init(Context(ctx))
-		}),
+		// TODO - WATCH THIS
+		// Watch(func(v configx.Values) {
+		// 	ctx = servicecontext.WithConfig(s.Options().Context, v)
+
+		// 	s.Init(Context(ctx))
+		// }),
 	)
 
 	// Finally, register on the main app registry
@@ -196,24 +198,13 @@ var mandatoryOptions = []ServiceOption{
 	AfterInit(func(s Service) error {
 		ctx := s.Options().Context
 
-		cfg := make(config.Map)
-
-		if err := config.Get("services", s.Name()).Scan(&cfg); err != nil {
-			log.Logger(ctx).Error("", zap.Error(err))
-			return err
-		}
-
-		if cfg == nil {
-			cfg = make(config.Map)
-		}
-
+		// TODO - We might need something for this ?
 		// Retrieving and assigning port to the config
-		if p := config.Get("ports", s.Name()).Int(0); p != 0 {
-			cfg.Set("port", p)
-		}
+		// if p := config.Get("ports", s.Name()).Int(0); p != 0 {
+		// 	cfg.Set("port", p)
+		// }
 
-		//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
-		ctx = servicecontext.WithConfig(ctx, cfg)
+		ctx = servicecontext.WithConfig(ctx, config.ApplicationConfig.Values("services", s.Name()))
 
 		s.Init(Context(ctx))
 
@@ -221,14 +212,15 @@ var mandatoryOptions = []ServiceOption{
 	}),
 
 	// Setting config watchers
-	AfterInit(func(s Service) error {
-		watchers := s.Options().Watchers
-		if len(watchers) == 0 {
-			return nil
-		}
-		registerWatchers(s.Name(), watchers)
-		return nil
-	}),
+	// TODO - WATCH THIS
+	// AfterInit(func(s Service) error {
+	// 	watchers := s.Options().Watchers
+	// 	if len(watchers) == 0 {
+	// 		return nil
+	// 	}
+	// 	registerWatchers(s.Name(), watchers)
+	// 	return nil
+	// }),
 
 	// Adding a check before starting the service to ensure only one is started if unique
 	BeforeStart(func(s Service) error {
@@ -655,19 +647,19 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
 	ctx := s.Options().Context
-	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Bool("autostart")
+	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Values("autostart").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
-	return s.Options().Fork || servicecontext.GetConfig(ctx).Bool("fork")
+	return s.Options().Fork || servicecontext.GetConfig(ctx).Values("fork").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
 	ctx := s.Options().Context
-	return s.Options().Unique || servicecontext.GetConfig(ctx).Bool("unique")
+	return s.Options().Unique || servicecontext.GetConfig(ctx).Values("unique").Bool()
 }
 
 func (s *service) Client() (string, client.Client) {

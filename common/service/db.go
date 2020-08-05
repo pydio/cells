@@ -28,7 +28,6 @@ import (
 	"github.com/micro/go-micro/server"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -39,15 +38,8 @@ func newDBProvider(service micro.Service) error {
 
 	// Starting DB Connection for the service
 	options = append(options, micro.BeforeStart(func() error {
-
 		ctx := service.Options().Context
-		cfgValues := servicecontext.GetConfig(ctx)
-		var cfg config.Map
-		if cfgValues != nil {
-			if m, ok := cfgValues.(config.Map); ok {
-				cfg = m
-			}
-		}
+		cfg := servicecontext.GetConfig(ctx)
 
 		d := servicecontext.GetDAO(ctx)
 

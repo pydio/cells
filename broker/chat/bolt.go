@@ -32,6 +32,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/chat"
+
+	"github.com/pydio/cells/x/configx"
 )
 
 type boltdbimpl struct {
@@ -45,7 +47,7 @@ const (
 	generalObject = "general"
 )
 
-func (h *boltdbimpl) Init(config common.ConfigValues) error {
+func (h *boltdbimpl) Init(config configx.Values) error {
 	h.DB().Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {

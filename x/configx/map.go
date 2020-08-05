@@ -106,7 +106,7 @@ func (c *mymap) Scan(val interface{}) error {
 		return nil
 	}
 
-	jsonStr, err := json.Marshal(c)
+	jsonStr, err := json.Marshal(c.v)
 	if err != nil {
 		return err
 	}

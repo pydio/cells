@@ -23,12 +23,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -42,7 +42,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	s.DAO.Init(options)
@@ -54,7 +54,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Values("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				return err

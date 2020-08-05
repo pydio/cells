@@ -126,7 +126,7 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
 
 	if dsName == "default" {
-		dsName = config.Get("defaults", "datasource").String("default")
+		dsName = config.ApplicationConfig.Values("defaults", "datasource").Default("default").String()
 	}
 
 	if cl, ok := p.Sources[dsName]; ok {

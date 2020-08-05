@@ -21,11 +21,11 @@
 package namespace
 
 import (
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
+	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -46,7 +46,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(options common.ConfigValues) error {
+func (dao *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	dao.DAO.Init(options)
@@ -70,7 +70,7 @@ func (dao *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Values("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := dao.Prepare(key, query); err != nil {
 				return err

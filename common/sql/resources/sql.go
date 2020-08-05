@@ -26,9 +26,9 @@ import (
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 
-	"github.com/pydio/cells/common"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 	"gopkg.in/doug-martin/goqu.v4"
 )
 
@@ -50,7 +50,7 @@ type ResourcesSQL struct {
 }
 
 // Init performs necessary up migration.
-func (s *ResourcesSQL) Init(options common.ConfigValues) error {
+func (s *ResourcesSQL) Init(options configx.Values) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/resources/migrations"),
@@ -62,7 +62,7 @@ func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 		return err
 	}
 
-	if prepare, ok := options.Get("prepare").(bool); !ok || prepare {
+	if options.Values("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				fmt.Println(err)

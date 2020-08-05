@@ -163,7 +163,7 @@ func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
 	return u.FlattenedRolesConfigs().Values("parameters", pluginId, name, "PYDIO_REPO_SCOPE_ALL").String()
 }
 
-// FlattenedFrontValues generates a config.Map with frontend actions/parameters configs
+// FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
 func (u *User) FlattenedFrontValues() configx.Values {
 	output := configx.NewMap()
 	a := u.AccessList
