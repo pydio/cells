@@ -1,125 +1,125 @@
 {
   "title": {
-    "other": "Software Updates"
+    "other": "Обновление ПО"
   },
   "legend": {
-    "other": "In-app binary updates"
+    "other": "Внутренние обновления приложения"
   },
   "current.version": {
-    "other": "Current Version"
+    "other": "Текущая версия"
   },
   "confirm.update": {
-    "other": "Are you sure that you want to perform the update?"
+    "other": "Вы уверены, что хотите выполнить обновление?"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "Следующие пакеты доступны для обновления"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "Поиск доступных обновлений..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "Обновления не обнаружены: нажмите для выполнения новой проверки."
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "Выберите по крайней мере один пакет!"
   },
   "package.released": {
-    "other": "Released"
+    "other": "Создано"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "Ревизия"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "Нажмите, чтобы проверить наличие обновлений"
   },
   "check.button": {
-    "other": "Check now"
+    "other": "Проверить"
   },
   "package.version": {
-    "other": "Version"
+    "other": "Версия"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Метка"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Подробности"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Показать изменения"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "Начать обновление"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "Сохранить настройки"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Обновление до Cells Enterprise"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Далее"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "Запуск"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Отмена"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Установить сейчас"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Закрыть"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "Пожалуйста, согласитесь с лицензионным соглашением"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "Я принимаю это соглашение"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "Введите действительный лицензионный ключ (предоставленный торговым представителем Pydio)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "Если у вас его нет, вы можете получить пробный ключ, связавшись с отделом продаж с помощью кнопки ниже или напрямую "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "Вставьте ключ здесь..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "Поиск последней версии Cells Enterprise"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Не удается загрузить Cells Enterprise!"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "Ошибка"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "Готов к установке %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Выпущен"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "Архитектура"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Описание"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "Нажатие Далее для загрузки новой версии и замены исполняемого файла Cells. Резервная копия исходного исполняемого файла будет сделана в папке конфигурации вашей ячейки (под %s), если вам нужно ее восстановить."
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Не удалось найти аналогичную версию для Cells Enterprise"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "Чтобы избежать обновлений, мы рекомендуем обновить Cells Home до Enterprise той же версии."
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "Пожалуйста, сначала обновите вашу текущую версию до одной из следующих версий, а затем повторите обновление до Cells Enterprise."
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "Установка обновления, пожалуйста подождите..."
   }
 }

@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Задания на основе события для копирования данных для версий"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Создана версия {{.Uuid}} внутри корзины версий "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Создана версия метаданных для {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Очищено {{.Count}} версий",
+    "other": "Очищено {{.Count}} версий"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Очистка файлов версий для удаленных узлов"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "Успешно удалено {{.Count}} версий",
+    "other": "Успешно удалено {{.Count}} версий."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "Политика"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Наименование"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Наименование Политики"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Описание"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Описание политики"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Хранилище"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "Источник данных, используемый для хранения версий"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "Корзина"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Корзина, используемая внутри этого источника данных"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Ограничения по размеру"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Общий размер всех версий, хранящихся в этой корзине"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Ограничение общего размера. Если ограничение установлено, старые версии будут удалены. Используйте -1 для снятия ограничения"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Общий размер для всех версий одного файла"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Ограничить размер для всех версий одного файла. Если достигнут лимит, старые версии будут удалены. Используйте -1 для отсутствия ограничения"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Игнорировать файлы больше, чем..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "Не создавать версии для файлов больше этого размера. Используйте -1 для снятия ограничения"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Сроки хранения"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Количество версий для хранения за период"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Начало периода"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Начальная точка, используемая для периода вычислений. 0 - время последней установленной версии, используйте другой период для установления предела"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Максимальное количество версий"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Максимальное количество версий для сохранения за этот период. Используйте -1 для сохранения всех версий, 0 для удаления всех."
   }
 }

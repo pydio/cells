@@ -1,501 +1,501 @@
 {
   "1": {
-    "other": "%s Public Download"
+    "other": "%s 公开下载"
   },
   "10": {
-    "other": "Folder is shared"
+    "other": "文件夹已共享"
   },
   "100": {
-    "other": "Shared files"
+    "other": "共享的文件"
   },
   "101": {
-    "other": "All files shared as public links"
+    "other": "作为公共链接共享的所有文件"
   },
   "102": {
-    "other": "Shared folders"
+    "other": "共享文件夹"
   },
   "103": {
-    "other": "All folders shared as workspaces or minisites."
+    "other": "所有文件夹作为工作区或迷你站点。"
   },
   "104": {
-    "other": "Displaying first link, there are %s others"
+    "other": "显示第一个链接，还有 %s 个其它链接"
   },
   "105": {
-    "other": "Displaying first link, there is one other"
+    "other": "显示第一个链接，另一个链接"
   },
   "106": {
-    "other": "Do you want to reset the download counter?"
+    "other": "您想要重置下载计数器吗？"
   },
   "107": {
-    "other": "Download limit must be between 1 and %s"
+    "other": "下载限制必须介于 1 和 %s 之间"
   },
   "108": {
-    "other": "Use a QRCode reader to scan the image "
+    "other": "使用二维码读取器扫描图像 "
   },
   "109": {
-    "other": "Minisite User"
+    "other": "迷你站点用户"
   },
   "11": {
-    "other": "Expiration"
+    "other": "过期时间"
   },
   "110": {
-    "other": "Share this"
+    "other": "分享这个"
   },
   "110b": {
-    "other": "Share"
+    "other": "分享"
   },
   "111": {
-    "other": "Share this page with other people"
+    "other": "与其他人分享这个页面"
   },
   "112": {
-    "other": "Share this page"
+    "other": "分享这个页面"
   },
   "113": {
-    "other": "As New Workspace"
+    "other": "作为新工作区"
   },
   "114": {
-    "other": "Share this folder with internal users"
+    "other": "与内部用户共享此文件夹"
   },
   "115": {
-    "other": "As Web link"
+    "other": "网页链接"
   },
   "116": {
-    "other": "Publish folder content as a minisite"
+    "other": "将文件夹内容发布为一个微型站点"
   },
   "117": {
-    "other": "As private minisite"
+    "other": "作为私有微型站点"
   },
   "118": {
-    "other": "Password-protected minisite"
+    "other": "密码保护的微型站点"
   },
   "119": {
-    "other": "Download link"
+    "other": "下载链接"
   },
   "12": {
-    "other": "Password"
+    "other": "密码"
   },
   "120": {
-    "other": "Simple download page"
+    "other": "简单下载页面"
   },
   "121": {
-    "other": "Public link"
+    "other": "公共链接"
   },
   "122": {
-    "other": "Create a public URL"
+    "other": "创建一个公共网址"
   },
   "123": {
-    "other": "Selection as minisite"
+    "other": "选择为迷你站点"
   },
   "124": {
-    "other": "Publish current selection"
+    "other": "发布当前选择"
   },
   "125": {
-    "other": "Edit Share"
+    "other": "编辑共享"
   },
   "126": {
-    "other": "Edit/stop already configured sharing"
+    "other": "编辑/停止已配置的共享"
   },
   "127": {
-    "other": "Migrate legacy"
+    "other": "从老版本迁移"
   },
   "128": {
-    "other": "Migrate legacy shares"
+    "other": "从老版本共享迁移"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "复制网址"
   },
   "13": {
-    "other": "Yes"
+    "other": "是"
   },
   "130": {
-    "other": "Copy URL to your clipboard"
+    "other": "复制URL到剪贴板"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "尚无共享文件或文件夹。"
   },
   "132": {
-    "other": "Workspace"
+    "other": "工作区"
   },
   "133": {
-    "other": "As a public link"
+    "other": "作为公共链接"
   },
   "134": {
-    "other": "As a workspace"
+    "other": "作为工作区"
   },
   "135": {
-    "other": "Folder will appear as a minisite in the user browser"
+    "other": "文件夹将在用户浏览器中显示为一个微型站点"
   },
   "136": {
-    "other": "Folder content will appear as a new workspace for the application users"
+    "other": "文件夹内容将作为应用程序用户的新工作区显示"
   },
   "137": {
-    "other": "Share selected file via a public link"
+    "other": "通过公共链接共享选定的文件"
   },
   "138": {
-    "other": "You have shared this folder as a public link (minisite)"
+    "other": "您已经共享此文件夹作为公共链接 (迷你站点)"
   },
   "138b": {
-    "other": "You have shared this folder as a public link, but it is currently inactive (expired)."
+    "other": "您已将此文件夹作为公共链接共享，但它目前处于非活动状态(过期)。"
   },
   "139": {
-    "other": "You have shared this folder as a workspace with application users"
+    "other": "您已经与应用程序用户共享此文件夹作为工作区"
   },
   "139b": {
-    "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
+    "other": "您已将此文件夹作为一个工作区与应用程序用户共享，但它目前处于非活动状态(过期)。"
   },
   "14": {
-    "other": "No"
+    "other": "否"
   },
   "140": {
-    "other": "You have shared this file via a public link"
+    "other": "您已通过公共链接共享此文件"
   },
   "140b": {
-    "other": "You have shared this file via a public link, but it is currently inactive (expired)."
+    "other": "您已经通过公共链接共享此文件，但它目前处于非活动状态(过期)。"
   },
   "141": {
-    "other": "Change parameters"
+    "other": "更改参数"
   },
   "142": {
-    "other": "Hide parameters"
+    "other": "隐藏参数"
   },
   "143": {
-    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
+    "other": "使用 <kbd>Ctrl</kbd>+<kbd>C</kbd>复制链接"
   },
   "144": {
-    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
+    "other": "使用 <kbd>&#8984;</kbd>+<kbd>C</kbd> 复制链接"
   },
   "145": {
-    "other": "Description"
+    "other": "描述"
   },
   "146": {
-    "other": "Will be displayed to the shared users"
+    "other": "将显示给共享用户"
   },
   "147": {
-    "other": "Security"
+    "other": "安全性"
   },
   "148": {
-    "other": "(Optional)"
+    "other": "(可选)"
   },
   "149": {
-    "other": "Leave 0 for no limit"
+    "other": "填写0则为无限制"
   },
   "15": {
-    "other": "File was download %s times"
+    "other": "文件下载了 %s 次"
   },
   "150": {
-    "other": "Access rights"
+    "other": "访问权限"
   },
   "151": {
-    "other": "Layout"
+    "other": "布局"
   },
   "152": {
-    "other": "Update"
+    "other": "更新"
   },
   "153": {
-    "other": "Standard (file list with application header)"
+    "other": "标准(带应用程序头的文件列表)"
   },
   "154": {
-    "other": "Film Strip (good for image galleries)"
+    "other": "电影带(适合图片库)"
   },
   "155": {
-    "other": "Embedded (smaller header, for widgets)"
+    "other": "嵌入式(小标题，小部件)"
   },
   "156": {
-    "other": "Successfully published link %s"
+    "other": "成功发布链接 %s"
   },
   "157": {
-    "other": "This folder is currently shared. If you delete it, associated share will be disabled."
+    "other": "此文件夹目前已共享。如果您删除它，关联共享将被禁用。"
   },
   "158": {
-    "other": "This file is currently shared. If you delete it, associated share will be disabled. "
+    "other": "此文件目前已共享。如果您删除它，关联的共享将被禁用。 "
   },
   "159": {
-    "other": "Owner"
+    "other": "所有者"
   },
   "16": {
-    "other": "reset"
+    "other": "重置"
   },
   "160": {
-    "other": "You are not allowed to delete this shared item"
+    "other": "您无权删除此共享项目"
   },
   "161": {
-    "other": "Deprecated Link"
+    "other": "废弃的链接"
   },
   "162": {
-    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) and apply it to the new link using the 'Change Parameters' form."
+    "other": "您在此文件上有一个或多个传统链接。 链接仍处于活动状态，但您可以通过停止此共享并重新创建一个新共享链接来替换它们。 复制共享“哈希” (链接的最后一部分，例如http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php), 并使用 '更改参数' 表单将其应用于新链接。"
   },
   "163": {
-    "other": "Drop Files Here (for upload-enabled minisites)"
+    "other": "拖放文件到此处(用于启用上传的迷你站点)"
   },
   "164": {
-    "other": "Not allowed: script was modified!"
+    "other": "不允许：脚本已修改！"
   },
   "165": {
-    "other": "Sorry, this link is expired!"
+    "other": "抱歉，此链接已过期！"
   },
   "166": {
-    "other": "Cannot find specified link!"
+    "other": "找不到指定的链接！"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "链接已过期！"
   },
   "168": {
-    "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
+    "other": "已达到授权下载次数。点击重置计数器并重新激活链接。"
   },
   "169": {
-    "other": "The expiration date was reached. Change the parameters with a new date if you want to reactivate the link."
+    "other": "已达到过期日期。如果您想要重新激活链接，请更改带有新日期的参数。"
   },
   "17": {
-    "other": "Click to reset download counter"
+    "other": "点击重置下载计数器"
   },
   "170": {
-    "other": "This is link is secured with a password."
+    "other": "这个链接需要密码。"
   },
   "171": {
-    "other": "Link Handle"
+    "other": "链接处理"
   },
   "172": {
-    "other": "Sorry this link is already used, please pick another handle."
+    "other": "对不起，此链接已被使用，请选择另一个处理器。"
   },
   "173": {
-    "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
+    "other": "如果你想要一个长效友好的链接 (如https://../my-share-link)，你可以使用这个字段。如果留空，链接处理器将会生成。"
   },
   "174": {
-    "other": "Reset"
+    "other": "重置"
   },
   "175": {
-    "other": "Please set a password and make sure it's long enough!"
+    "other": "请设置密码并确保密码足够长！"
   },
   "176": {
-    "other": "(Mandatory)"
+    "other": "（必填项）"
   },
   "177": {
-    "other": "View parameters"
+    "other": "查看参数"
   },
   "178": {
-    "other": "enabled"
+    "other": "已启用"
   },
   "179": {
-    "other": "Revert"
+    "other": "还原"
   },
   "18": {
-    "other": "Folder is shared as a new workspace"
+    "other": "文件夹作为新工作区共享"
   },
   "180": {
-    "other": "Clear list"
+    "other": "清除列表"
   },
   "181": {
-    "other": "Modify"
+    "other": "修改"
   },
   "182": {
-    "other": "Use the field above to pick a user from the internal directory or from your personal address book. If you want to create a new user, just type in a new identifier and hit Enter."
+    "other": "使用上面的字段从内部目录或个人地址簿中挑选用户。 如果您想要创建一个新用户，只需输入一个新的标识符并按回车。"
   },
   "183": {
-    "other": "Notify on content change"
+    "other": "更改内容时通知"
   },
   "184": {
-    "other": "Notify me when content is accessed or changed"
+    "other": "当内容被访问或更改时通知我"
   },
   "185": {
-    "other": "Notify me when content is accessed"
+    "other": "内容被访问时通知我"
   },
   "186": {
-    "other": "Notify me when content is changed"
+    "other": "当内容被更改时通知我"
   },
   "187": {
-    "other": "Do not notify me"
+    "other": "不要通知我"
   },
   "188": {
-    "other": "Receive alerts whenever a user accesses or modifies the content of this share."
+    "other": "当用户访问或修改此共享的内容时，接收警报。"
   },
   "189": {
-    "other": "Enable Public Link"
+    "other": "启用公开链接"
   },
   "19": {
-    "other": "Shared workspace options were successfully modified"
+    "other": "共享工作区选项已成功修改"
   },
   "190": {
-    "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
+    "other": "此文件目前无法公开访问。启用公共链接将创建一条唯一访问网址，您可以发送给任何人。 如果您想要与现有的 Pydio 用户分享，请使用“用户”选项卡。"
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "复制链接到剪贴板"
   },
   "192": {
-    "other": "Link has been copied to clipboard"
+    "other": "链接已复制到剪贴板"
   },
   "193": {
-    "other": "Customize Link"
+    "other": "自定义链接"
   },
   "194": {
-    "other": "For a prettier link, you can customize the last part"
+    "other": "为了链接更好看，您可以自定义最后一个部分"
   },
   "195": {
-    "other": "Warning, there is no embedded viewer for this file, except opening in a new tab of your browser: this may trigger a download automatically when user opens the link."
+    "other": "警告, 此文件没有嵌入的查看器, 将在您的浏览器的新标签页中打开：这可能会在用户打开链接时自动触发下载。"
   },
   "196": {
-    "other": "Secure Access"
+    "other": "安全访问"
   },
   "197": {
-    "other": "Use this field to send optional comments"
+    "other": "使用此字段发送可选评论"
   },
   "198": {
-    "other": "You can select the appearance of the link as it will appear in the browser."
+    "other": "您可以选择链接的外观，它将出现在浏览器中。"
   },
   "199": {
-    "other": "Share Visibility"
+    "other": "分享可见性"
   },
   "2": {
-    "other": "Click on the image to download <b>%s</b> to your hard drive"
+    "other": "点击图像下载 <b>%s</b> 到您的硬盘驱动器"
   },
   "20": {
-    "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
+    "other": "哎呀，您需要的文件找不到！也许它已被删除或不再与您共享。"
   },
   "200": {
-    "other": "Visible to other users"
+    "other": "对其他用户可见"
   },
   "201": {
-    "other": "Other users who access to the current workspace can update the links parameters, but they cannot delete it. Only you can stop this share or toggle its visibility"
+    "other": "访问当前工作区的其他用户可以更新链接参数，但他们不能删除它。 只有您可以停止此分享或切换其可见性"
   },
   "202": {
-    "other": "Other users who access to the current workspace can update the links parameters. You are not the owner of the share so you cannot delete it or toggle its visibility"
+    "other": "访问当前工作区的其他用户可以更新链接参数。 您不是该共享的所有者，因此您不能删除它或切换其可见性"
   },
   "203": {
-    "other": "Transfer Ownership"
+    "other": "转移所有权"
   },
   "203b": {
-    "other": "Transfer"
+    "other": "转移"
   },
   "204": {
-    "other": "If the share is publicly visible and you want another user to manage this share, you can transfer its ownership."
+    "other": "如果共享是公开可见的，并且你想要其他用户管理这个共享，你可以转移它的所有权。"
   },
   "205": {
-    "other": "Transfer to ... (user identifier)"
+    "other": "转移到... (用户标识符)"
   },
   "206": {
-    "other": "Shares are 'private' by default: you only can see them. If you want other users who access the current workspace to see and edit this share, toggle the visibility."
+    "other": "默认情况下，共享是“私有”的：只有您能看到它们。 如果您想要访问当前工作区的其他用户查看和编辑此共享，切换可见性。"
   },
   "207": {
-    "other": "Remote Users"
+    "other": "远程用户"
   },
   "208": {
-    "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
+    "other": "与其他文件共享平台的用户共享(与联合共享API兼容)。"
   },
   "209": {
-    "other": "Remote Address"
+    "other": "远程地址"
   },
   "21": {
-    "other": "Will expire on"
+    "other": "将于之后失效"
   },
   "210": {
-    "other": "Identifier"
+    "other": "识别符"
   },
   "211": {
-    "other": "pending"
+    "other": "待处理"
   },
   "212": {
-    "other": "accepted"
+    "other": "已接受"
   },
   "213": {
-    "other": "rejected"
+    "other": "已拒绝"
   },
   "214": {
-    "other": "not sent"
+    "other": "未发送"
   },
   "215": {
-    "other": "To enable a public link on a file or a folder, you first need to set up a password."
+    "other": "要在文件或文件夹中启用公共链接，您首先需要设置密码。"
   },
   "216": {
-    "other": "Successfully unshared element"
+    "other": "成功取消共享元素"
   },
   "217": {
-    "other": "Local Users"
+    "other": "本地用户"
   },
   "218": {
-    "other": "Notification"
+    "other": "通知"
   },
   "219": {
-    "other": "Error while loading share. Error was (%s)."
+    "other": "加载共享时出错。错误是 (%s)。"
   },
   "21b": {
-    "other": "Expired on"
+    "other": "有效期至"
   },
   "22": {
-    "other": "Allowed Downloads"
+    "other": "允许的下载"
   },
   "220": {
-    "other": "You are not allowed to create users"
+    "other": "您无权创建用户"
   },
   "221": {
-    "other": "You are not allowed to share with other users, only your own external users"
+    "other": "您无权与其他用户分享，只能分享给您自己的外部用户"
   },
   "222": {
-    "other": "User %s already exists, please choose another identifier"
+    "other": "用户 %s 已存在，请选择其他标识符"
   },
   "223": {
-    "other": "Custom link is too short, please use at least %s characters"
+    "other": "自定义链接太短，请使用至少 %s 个字符"
   },
   "224": {
-    "other": "You are not allowed to manage this share, please ask its owner to perform the changes, or to transfer you the ownership."
+    "other": "您无权管理此分享，请让其所有者执行更改，或转让所有权给您。"
   },
   "225": {
-    "other": "You are not allowed to create public links on files"
+    "other": "您无权在文件上创建公共链接"
   },
   "226": {
-    "other": "You are not allowed to create public links on folders"
+    "other": "您无权在文件夹中创建公共链接"
   },
   "227": {
-    "other": "You are not allowed to share files internally"
+    "other": "您无权在内部共享文件"
   },
   "228": {
-    "other": "You are not allowed to share folders internally"
+    "other": "您无权在内部共享文件夹"
   },
   "229": {
-    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+    "other": "将此代码粘贴到HTML页面中以插入预览文件。"
   },
   "22b": {
-    "other": "No more downloads"
+    "other": "没有下载任务"
   },
   "23": {
-    "other": "Password"
+    "other": "密码"
   },
   "230": {
-    "other": "Please save before sending an invitation"
+    "other": "发送邀请前请先保存"
   },
   "231": {
-    "other": "Click to start downloading"
+    "other": "点击开始下载"
   },
   "232": {
-    "other": "No entries found for share, did you maybe delete some users?"
+    "other": "未找到共享条目，您是否删除一些用户？"
   },
   "233": {
-    "other": "Reset this share"
+    "other": "重置此共享"
   },
   "234": {
-    "other": "It has been added to your %s workspace."
+    "other": "它已被添加到您的 %s 工作区。"
   },
   "235": {
-    "other": "Generate unique links to identify users"
+    "other": "生成唯一的链接来识别用户"
   },
   "236": {
-    "other": "Restrict access only to identified users"
+    "other": "限制指定的用户的访问"
   },
   "237": {
-    "other": "Use a random key instead of email in link"
+    "other": "在链接中使用随机密钥代替电子邮件"
   },
   "238": {
-    "other": "Share Types"
+    "other": "共享类型"
   },
   "24": {
-    "other": "Set expiration limits or define a password to access this share."
+    "other": "设置有效期或设置密码以访问此共享。"
   },
   "240": {
-    "other": "Group by..."
+    "other": "分组..."
   },
   "241": {
-    "other": "Shares List"
+    "other": "共享列表"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "加载更多结果"
   },
   "243": {
     "other": "Public Links"
@@ -648,154 +648,154 @@
     "other": "Read"
   },
   "32": {
-    "other": "Write"
+    "other": "写入"
   },
   "33": {
-    "other": "Watch"
+    "other": "监视"
   },
   "34": {
-    "other": "Existing or new user"
+    "other": "现有或新用户"
   },
   "35": {
-    "other": "Label"
+    "other": "标签"
   },
   "36": {
-    "other": "Set a label and a short description"
+    "other": "设置标签和简短描述"
   },
   "37": {
-    "other": "Confirm"
+    "other": "确认"
   },
   "38": {
-    "other": "Watch this folder content"
+    "other": "监控此文件夹内容"
   },
   "39": {
-    "other": "Watch this file activity"
+    "other": "监控此文件活动"
   },
   "4": {
-    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
+    "other": "输入所需的密码，然后点击图片下载 <b>%s</b> 到您的硬盘驱动器"
   },
   "40": {
-    "other": "Invitations"
+    "other": "邀请"
   },
   "41": {
-    "other": "Send invitations by email to the users you have shared this item with."
+    "other": "通过电子邮件将邀请发送给您共享此项目的用户。"
   },
   "42": {
-    "other": "A user of %s is sharing a file with you"
+    "other": "%s 的用户正在与您分享一个文件"
   },
   "43": {
-    "other": "A user of %s is sharing a folder with you"
+    "other": "%s 的用户正在与您分享一个文件夹"
   },
   "44": {
-    "other": "%s Share"
+    "other": "%s 分享"
   },
   "45": {
-    "other": "Send Invitation"
+    "other": "发送邀请"
   },
   "46": {
-    "other": "Open workspace %s1 directly in %s2"
+    "other": "直接在 %s2 中打开工作区 %s1"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "打开文件 %s1"
   },
   "46_mini": {
-    "other": "Open mini %s1"
+    "other": "打开迷你窗口 %s1"
   },
   "47": {
-    "other": "Successfully updated watch status"
+    "other": "成功更新监控状态"
   },
   "48": {
-    "other": "You are not allowed to access this data"
+    "other": "您无权访问此数据"
   },
   "49": {
-    "other": "create user"
+    "other": "创建用户"
   },
   "5": {
-    "other": "password"
+    "other": "密码"
   },
   "50": {
-    "other": "Shared"
+    "other": "共享"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "已下载"
   },
   "52": {
-    "other": "Configuration"
+    "other": "配置"
   },
   "53": {
-    "other": "none"
+    "other": "无"
   },
   "54": {
-    "other": "Shared with"
+    "other": "共享于"
   },
   "55": {
-    "other": "Shared..."
+    "other": "共享..."
   },
   "56": {
-    "other": "Configure sharing..."
+    "other": "配置共享..."
   },
   "57": {
-    "other": "times"
+    "other": "次数"
   },
   "58": {
-    "other": "Please check at least one permission!"
+    "other": "请勾选至少一个权限！"
   },
   "59": {
-    "other": "Download Page"
+    "other": "下载页面"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "停止共享"
   },
   "60": {
-    "other": "Direct Download Link"
+    "other": "直接下载链接"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "HTML 嵌入代码"
   },
   "62": {
-    "other": "Minisite Adress"
+    "other": "迷你站点地址"
   },
   "63": {
-    "other": "New workspace"
+    "other": "新工作区"
   },
   "64": {
-    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
+    "other": "对于内部和外部用户来说，文件夹将作为一个新工作区出现在目标用户工作区列表中。"
   },
   "65": {
-    "other": "Public Minisite (no authentication required)"
+    "other": "公共迷你站点(无需认证)"
   },
   "66": {
-    "other": "For external users, the folder will appear at a new public adress as a simple file list."
+    "other": "对于外部用户，文件夹将出现在一个新的公共地址中，作为一个简单的文件列表。"
   },
   "67": {
-    "other": "Private Minisite (users authentication required)"
+    "other": "私有迷你站点(无需认证)"
   },
   "68": {
-    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
+    "other": "对于内部或外部用户，文件夹将出现在一个新的地址中，作为一个简单的文件列表，但需要用户认证"
   },
   "69": {
-    "other": "Configure Minisite"
+    "other": "配置迷你站点"
   },
   "69r": {
-    "other": "Link Parameters"
+    "other": "链接参数"
   },
   "7": {
-    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
+    "other": "停止共享不会删除文件。如果您想要更改参数，重新共享文件。"
   },
   "70": {
-    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
+    "other": "勾选复选框配置公开访问此文件夹的权限。 如果只选中'上传'，此文件夹将是一个空的收件箱，人们可以在其中拖入文件。"
   },
   "70r": {
-    "other": "Permissions granted to the users accessing this link"
+    "other": "授予访问此链接的用户权限"
   },
   "71": {
-    "other": "Permissions"
+    "other": "权限"
   },
   "72": {
-    "other": "Preview"
+    "other": "预览"
   },
   "73": {
-    "other": "Download"
+    "other": "下载"
   },
   "74": {
     "other": "Upload files"

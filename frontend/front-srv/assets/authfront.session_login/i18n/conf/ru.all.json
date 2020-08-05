@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "Отображение стандартного экрана входа пользователя/пароля"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "Включить/выключить автоматически на основе используемого протокола"
   },
   "Order": {
-    "other": "Order"
+    "other": "Порядок"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "Заказать этот плагин с другими интерфейсами авторизации"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "Тип протокола"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "Только REST"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "Сессия или Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "Только сессии"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "Стандартный экран входа"
   }
 }

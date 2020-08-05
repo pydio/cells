@@ -1,8 +1,8 @@
 {
   "Inserts a video player in the info panel, either HTML5 or Flash depending on the format.": {
-    "other": "Inserts a video player in the info panel, either HTML5 or Flash depending on the format."
+    "other": "Встраивает плеер в информационную панель HTML5 или Flash в зависимости от формата."
   },
   "Video Player": {
-    "other": "Video Player"
+    "other": "Видеоплеер"
   }
 }

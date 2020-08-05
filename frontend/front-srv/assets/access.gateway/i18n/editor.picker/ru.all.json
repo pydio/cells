@@ -1,44 +1,44 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "Выберите другое..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "Выбрать другой редактор"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "Выбрать другой редактор для открытия этого файла"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "Внимание! Этот редактор не поддерживает файлы данного типа, результат непредсказуем!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "Очистить существующие ассоциации"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Выберите действие для %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Добавить новый элемент в эту ячейку"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Внутри %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Поделиться файлом"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Поделиться файлом"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Переместить файл"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Переместить папку"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Копировать файл"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Копировать папку"
   }
 }

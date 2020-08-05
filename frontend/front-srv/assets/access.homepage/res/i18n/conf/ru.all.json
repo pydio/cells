@@ -1,56 +1,56 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "URL-адрес приложения для Android"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Отобразить QRCode сервера"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "Включить начало работы"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Включить глобальный поиск"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "Включить добавление табуляции для доступа к начальным видео"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "Включить форму поиска кросс-рабочих областей на главной странице"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "Позволяет пользователям легко подключаться к последним мобильным приложениям, отображая QRCode"
   },
   "Mac PydioSync URL": {
-    "other": "Mac PydioSync URL"
+    "other": "URL Mac PydioSync"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "Открыть рабочую область простым нажатием"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "Откройте рабочее пространство простым щелчком вместо двойного щелчка."
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "URL для приложения Android (оставьте пустым, если хотите скрыть блок)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "URL для приложения iOS (оставьте пустым, если хотите скрыть блок)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "URL к приложению синхронизации Mac (оставьте пустым, если хотите скрыть блок)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "URL-адрес приложения синхронизации Windows (оставьте пустым, если хотите скрыть блок)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Страница приветствия"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "Страница приветствия со списком рабочих пространств"
   },
   "Windows PydioSync URL": {
-    "other": "Windows PydioSync URL"
+    "other": "URL-адрес PydioSync Windows"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "URL-адрес приложения для iOS"
   }
 }

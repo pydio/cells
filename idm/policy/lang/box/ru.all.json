@@ -1,119 +1,119 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Открытый доступ"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Открытый доступ к конечным точкам"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Анонимный доступ к данным (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Анонимный доступ к точкам сброса пароля (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Анонимный доступ к загрузке статуса интерфейса (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Анонимный доступ к начальной сессии (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Установочные точки (первый запуск)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Конечные точки установки требуют публичного доступа при первом запуске"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Анонимный доступ для установки конечных точек (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Зарегистрированные пользователи и администратор"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Решите, как обычные пользователи/пользователи могут получить доступ к остальным API"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Полные REST доступ к профилю администратора"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Доступ по умолчанию REST для зарегистрированного пользователя"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Список и поиск метаданных, определенных пользователем"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Обновить метаданные, определенные пользователем"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Доступ к чтению для всего FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Доступ к FrontendService без глобальных загрузок бинарных файлов"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "Операции OpenIdConnect"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Включить/отключить аутентификацию в OpenID Connect Server"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "По умолчанию доступ для входа всех пользователей"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "[Example] Комплексная политика ACL"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "Sample Complex Policy for managing ACLs dynamically"
+    "other": "Пример комплексной политики для динамического управления ACL"
   },
   "PolicyGroup.ACLSample1.Rule1": {
-    "other": "Default allowing read/write"
+    "other": "Разрешить чтение/запись по умолчанию"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "Preventing modification based on IP and file metadata conditions"
+    "other": "Предотвращение модификации на основе IP и метаданных"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out any file with a PNG extension if request does not come from localhost"
+    "other": "Отфильтровать любой файл с расширением PNG, если запрос не приходит с локального хоста"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "[Example] Ограниченный период"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Enables access to a workspace only for a given period"
+    "other": "Разрешает доступ к проекту только за данный период"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
+    "other": "Пример ACL правила, разрешающий доступ только в Feb и March 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "[Example] Нет доступа после указанной даты"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Отключить доступ к workspace после заданной даты"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
-    "other": "Global read/write"
+    "other": "Глобальное чтение/запись"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
-    "other": "Deny read/write if date is after 2018-02-28"
+    "other": "Запретить чтение/запись, если дата после 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "[Example] Доступ допускается только в рабочее время"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Разрешить доступ к рабочему пространству только в определенные часы"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
-    "other": "Office hours rule example, allowing read/write"
+    "other": "Пример правила, разрешающего чтение/запись в рабочее время"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "[Example] Отключить доступ на основе IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "Disable access to IPs outside of LAN"
+    "other": "Отключить доступ к IP-адресам вне локальной сети"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
-    "other": "Global read/write"
+    "other": "Глобальное чтение/запись"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
-    "other": "Denying IP if it's not localhost, 127.0.0.1 or ::1"
+    "other": "Отказ по IP если это не localhost, 127.0.0.1 или ::1"
   }
 }

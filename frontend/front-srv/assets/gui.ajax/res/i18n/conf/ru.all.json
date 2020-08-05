@@ -1,84 +1,84 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "Дополнительный фреймворк JS"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "Список папок через запятую для доступа к файлам JS, которые должны быть загружены BEFORE в основной фреймворк Pydio. Предпочтительный способ должен использоваться в объявлениях ресурсов плагина. Загрузка файлов JS при самом запуске страницы может быть опцией только в некоторых случаях."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "Дополнительное сообщение, отображаемое на экране запуска"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Домен аналитики"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Аналитика"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "ID аналитики"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "Добавить заголовок к картинке логотипа"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Название приложения"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "Атрибуты изображения, используемые в качестве фона"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "Фоновые атрибуты (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "Фоновые атрибуты (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "Фоновые атрибуты (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "Фоновые атрибуты (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "Фоновые атрибуты (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "Фоновые атрибуты (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "Фоновые атрибуты (низкое разрешение)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
     "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "По центру страницы (без повтора)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "Плагин клиента"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "Конфигурация сеанса Клиента"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "Время ожидания клиента"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "Пользовательский фон (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "Пользовательский фон (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "Пользовательский фон (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "Пользовательский фон (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "Пользовательский фон (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "Пользовательский фон (6)"
   },
   "Custom Icon": {
     "other": "Custom Icon"

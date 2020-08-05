@@ -1,6 +1,6 @@
 {
   "Action to trigger when clicking on Forgot Password": {
-    "other": "Action to trigger when clicking on Forgot Password"
+    "other": "Actie om te activeren bij het klikken op wachtwoord vergeten"
   },
   "Activate the users management system to protect your Pydio installation.": {
     "other": "Activate the users management system to protect your Pydio installation."
@@ -39,16 +39,16 @@
     "other": "Enable Users"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Enable the 'guest' user, who does not need to log in."
+    "other": "Schakel de 'gast'-gebruiker in die niet hoeft in te loggen."
   },
   "Forgot Password Action": {
-    "other": "Forgot Password Action"
+    "other": "Wachtwoord vergeten"
   },
   "Generic Auth Features": {
-    "other": "Generic Features"
+    "other": "Algemene kenmerken"
   },
   "Guest Browsing": {
-    "other": "Guest Browsing"
+    "other": "Gast browsen"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
     "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
@@ -129,7 +129,7 @@
     "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."
   },
   "Will be shown to the user at login": {
-    "other": "Will be shown to the user at login"
+    "other": "Wordt getoond aan de gebruiker bij het inloggen"
   },
   "Security": {
     "other": "Security"

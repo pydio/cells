@@ -24,10 +24,10 @@
     "other": "%d more - show all"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "同じファイル名が存在する場合："
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "アップロードを停止して知らせる"
   },
   "options.existing.folders": {
     "other": "Rename folders then files"
@@ -36,7 +36,7 @@
     "other": "Rename files only (merge folders)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "既存のファイルを上書きしますか"
   },
   "confirm.rename.all": {
     "other": "Rename folders, then conflicting files"
@@ -63,7 +63,7 @@
     "other": "It seems that your browser does not support dropping folders"
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "ファイル・フォルダのアップロードを準備しています..."
   },
   "drophere": {
     "other": "Drop files here"

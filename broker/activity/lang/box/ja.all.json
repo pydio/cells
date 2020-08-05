@@ -1,86 +1,86 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "{{.Actor}} がアクセス"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "{{.Object}} へアクセス"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} に {{.Actor}} がアクセスしました"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "セル"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "{{.Actor}} が作成"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "{{.Object}} を作成"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} を {{.Actor}} が作成しました"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "{{.Actor}} が削除"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "{{.Object}} を削除"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} を {{.Actor}} が削除しました"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "{{.Object}}での共有"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}}が{{.Object}}をあなたと共有しました"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "これは、Pydio の日報です"
   },
   "Document": {
-    "other": "Document"
+    "other": "ドキュメント"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "フォルダ"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "{{.Actor}} が変更"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "{{.Object}} を変更"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} を {{.Actor}} が変更しました"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "{{.Actor}} が変更したメタデータです"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "{{.Object}} のメタデータが更新されました"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Object}}のメタデータが{{.Actor}}に更新されました"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "{{.Actor}}によるコメントです"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "{{.Object}}のコメント"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}}が{{.Object}}にコメントしました"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "{{.Actor}} が移動"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "{{.Object}} を移動"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} を {{.Actor}} が移動"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "ワークスペース"
   }
 }

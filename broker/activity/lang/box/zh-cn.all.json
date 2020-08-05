@@ -1,86 +1,86 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "由 {{.Actor}} 访问"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "访问 {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} 被 {{.Actor}} 访问"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "由 {{.Actor}} 创建"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "创建 {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} 由 {{.Actor}} 创建"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "被 {{.Actor}} 删除"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "删除 {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} 被 {{.Actor}} 删除"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "在 {{.Object}} 中共享"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} 已分享 {{.Object}} 给您"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "这是您的 Pydio 每日摘要"
   },
   "Document": {
-    "other": "Document"
+    "other": "文档"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "文件夹"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "由 {{.Actor}} 修改"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "修改 {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} 被 {{.Actor}} 修改"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "由 {{.Actor}} 修改的元数据"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "修改 {{.Object}} 的元数据"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} 修改了 {{.Object}} 的元数据"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "{{.Actor}} 的评论"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "评论了 {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} 发布了 {{.Object}} 的新评论"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "由 {{.Actor}} 移动"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "移动 {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} 被 {{.Actor}} 移动"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "工作区"
   }
 }

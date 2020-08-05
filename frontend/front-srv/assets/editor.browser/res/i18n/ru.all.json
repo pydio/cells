@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "External window"
+    "other": "Программы просмотра"
   },
   "2": {
-    "other": "External browser window"
+    "other": "Открыть с помощью программы просмотра"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "Открытие файла в окне просмотра, подождите, это окно автоматически закроется."
   },
   "4": {
     "other": "New URL Bookmark"

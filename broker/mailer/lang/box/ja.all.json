@@ -1,242 +1,242 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Pydio の技術が存分に活かされたファイル共有プラットフォーム"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "{ACTION}-ボタンが動作しなければ、以下の URL をブラウザにコピー&ペーストしてください。"
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "やあ"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "敬具"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} のパスワードをリセット"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "{{.Configs.Title}} のアカウントに対するパスワードリセット要求を受け付けました。"
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "もしあなたがこの要求をしたのでなければ、無視して頂いて構いません。こういったメールが度重なるようでしたら、セキュリティに問題が生じている可能性がありますので、管理者に警告してください。"
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "パスワードをリセット"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "クリックしてパスワードをリセットする"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "{{.Configs.Title}} のパスワードはリセットされました"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "パスワードリセット要求に続き、{{.Configs.Title}} に対するあなたのパスワードは正常にリセットされました。"
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "もしあなたがこの操作を行ったのでなければ、セキュリティに問題が生じている可能性があるため、直ちに管理者へ警告してください。"
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "{{.Configs.Title}} 通知"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "以下は、あなたが {{.Configs.Title}} で受信したすべての通知の概要です"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}}がメッセージを送信しました！"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}}がアプリケーション{{.Configs.Title}}からメッセージを送信しました: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} へようこそ"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "{{.Configs.Title}} にあなたのアカウントが作成されました。\nあなたのログインは、 {{.TplData.Login}}{{if .TplData.Password}} で、パスワードは、{{.TplData.Password}} です。最初にログインする際に、これを変更できます{{end}}。"
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "クリックしてログイン"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} へログイン"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} ファイル共有プラットフォームは、文書における共同作業を効率的に進めるため、あなたのチームによって使用されています。ご一緒できてうれしいです!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} が {{.Configs.Title}} にあなたを招待しました"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "{{.Configs.Title}} に {{.TplData.Inviter}} があなたのアカウントを作成しました。ログインは、{{.TplData.Login}}{{if .TplData.Password}} で、パスワードは、{{.TplData.Password}} です。最初のログイン時に変更することができます{{end}}。"
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "クリックしてログイン"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} へログイン"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} ファイル共有プラットフォームは、文書における共同作業を効率的に進めるため、{{.TplData.Inviter}} チームによって使用されています。ご一緒できてうれしいです!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} はあなたをセル {{.TplData.Cell}} に追加しました"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} は、あなたを {{.Configs.Title}} のセル {{.TplData.Cell}} に入れました! ファイルやフォルダの共有を始めることができ、効率的に共同作業ができます。"
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "クリックしてセルを開く"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "{{.TplData.Cell}} を開く"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} はファイルをあなたと共有しています"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} はあなたとファイルを共有しています。\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}リンクは、{{.TplData.Expire}} に期限が切れます{{end}}\n\n{{if .TplData.MaxDownloads}}最大ダウンロード数 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "{{.TplData.FileName}} を開く"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "クリックしてファイルをブラウザでプレビュー"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} ファイル共有プラットフォームは、文書における共同作業を効率的に進めるため、{{.TplData.Inviter}} チームによって使用されています。"
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} はあなたとフォルダを共有しています"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} はあなたとフォルダを共有しています。\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}リンクは、{{.TplData.Expire}} に期限が切れます{{end}}\n\n{{if .TplData.MaxDownloads}}最大ダウンロード数 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "{{.TplData.FolderName}} を開く"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "クリックして文書をブラウザでプレビュー"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} ファイル共有プラットフォームは、文書における共同作業を効率的に進めるため、{{.TplData.Inviter}} チームによって使用されています。"
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} はテストメールをあなたに送信しています"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "セルを開く"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "クリックしてフロントエンドを開く"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} ファイル共有プラットフォームは、文書における共同作業を効率的に進めるため、チームによって使用されています。"
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "メーラー"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "デフォルトの FROM メールアドレス"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "メールの送信時にデフォルトとして使われるアドレス。no-reply メールではなく、適切なサポートメールを使用しなくてはなりません。"
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "キュータイプ"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "保留中のメールを保存しておく永続レイヤー"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "オンファイルデータベース (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "インメモリ"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "メイラーエンジン"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "実際にメールを送信するのに使用するエンジン"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "SMTP サーバー"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "サーバーホスト名"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "SMTP サーバーのホスト、例: smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "サーバーポート"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "SMTP サーバーのポート、例: 587 (ノンセキュア) あるいは 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "接続ユーザー"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "SMTP サーバーに接続するのに必要なユーザー名"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "接続パスワード"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "SMTP サーバーに接続するのに必要なパスワード"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "自己署名証明書"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "SMTP サーバーの証明書が自己署名の場合に証明書を検証しない"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "SendGrid サービス"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "API キー"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "サービスに接続するために SendGrid から提供される API キー"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "警告: デフォルトの実行パスは /usr/bin/sendmail です。 変更する場合は、pydio.jsonに 'default> sendmail' キーを設定してください。"
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "実行パス"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "サーバー上の sendmail 実行ファイルのフルパス"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "その他のパス (pydio.json 設定ファイルに手動で設定)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "デフォルトのメール送信者の表示名"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "メール送信時に、デフォルトの表示名を画面に表示します。"
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "送信元アドレスと送信者名を使用する"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "送信者のアドレスと名前を使用するかどうかを設定します。ユーザーのメールアドレスが設定されていない場合、デフォルトのメールアドレスと名前が使用されます。"
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "ユーザーからメールを送信"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "ユーザーの代わりにメールを送信"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "常にデフォルトの送信元アドレスと名前を使用する"
   }
 }

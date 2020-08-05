@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "更新配置"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "更新服务器"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "更新服务器的 URL"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "公钥"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "用于验证二进制签名的官方密钥。"
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "更新通道"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "用于请求更新的通道。如果您不确定，请选择稳定版通道。"
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "稳定版"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "开发者版(自行承担后果)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "Proxy"
+    "other": "代理服务器"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "出站连接需要的代理服务器主机"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "代理服务器用户名"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "代理服务器标识的用户"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "代理服务器密码"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "代理服务器标识密码"
   }
 }

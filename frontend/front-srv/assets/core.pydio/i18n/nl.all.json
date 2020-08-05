@@ -1,27 +1,27 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Laatste versie"
   },
   "1": {
-    "other": "Filename"
+    "other": "Bestandsnaam"
   },
   "10": {
-    "other": "Text file"
+    "other": "Tekst bestand"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Bestand niet gevonden "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "De oorsprong- en bestemmingsmappen zijn hetzelfde!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Fout bij makenvan bestand:"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Kan map niet vinden "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Ga naar de opgegeven locatie"
   },
   "105": {
     "other": "Email an url to access directly to this location."
@@ -147,7 +147,7 @@
     "other": "Logged as "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "Gast bladeren. Log in."
   },
   "144": {
     "other": "Not logged in."
@@ -198,16 +198,16 @@
     "other": "New Folder"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Nieuwe map aanmaken"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Nieuw leeg bestand"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Nieuw leeg bestand maken"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Bestand of map hernoemen"
   },
   "159": {
     "other": "Copy selection to..."

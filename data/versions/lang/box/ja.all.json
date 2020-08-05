@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "バージョン管理のためのデータレプリケーションに関するイベントベースジョブ"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "バージョンバケット内にバージョン {{.Uuid}} を作成"
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "{{.Uuid}} のバージョンメタデータを作成"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "{{.Count}} バージョンを削除",
+    "other": "{{.Count}} バージョンを削除"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "削除したノードのバージョンファイルを消去中"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "{{.Count}} バージョンを正常に削除しました",
+    "other": "{{.Count}} バージョンを正常に削除しました."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "ポリシー"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "名前"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "ポリシー名"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "備考"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "ポリシー詳細"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "ストア"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "バージョンの保存に使用されているデーターソース"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "バケット"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "このデータソース内部で使用するバケット"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "サイズ上限"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "このバケットに保存されるすべてのバージョンのグローバルサイズ"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "全体のサイズの上限を指定します。もし上限に達したら、最も古いバージョンから削除されます。-1 を指定すると、無制限を意味します"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "ファイルあたりのバージョンの累積サイズ"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "ひとつのファイルのバージョンすべてにかかるサイズの上限を指定します。上限に達した場合、最も古いバージョンから削除していきます。-1 を指定すると、無制限になります"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "これより大きいファイルは無視…"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "この上限より大きなファイルのバージョン管理はしない。-1 を指定すると、上限なし"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "保持期間"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "期間ごとに保持するバージョン数"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "保持開始"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "期間を算定する起点。0 を指定すると最後のバージョンの時刻。制限を設定するには別の期間を使用します"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "バージョンの最大数"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "この期間を通して保持するバージョンの最大数。-1 を指定すると、すべてのバージョンを、0 を指定するとすべて削除を意味します。"
   }
 }

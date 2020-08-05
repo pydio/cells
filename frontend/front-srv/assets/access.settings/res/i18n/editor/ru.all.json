@@ -1,203 +1,203 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "Без параметров"
   },
   "10": {
-    "other": "Write Only"
+    "other": "Только запись"
   },
   "11": {
-    "other": "Denied"
+    "other": "Отказано"
   },
   "12": {
-    "other": "No Access"
+    "other": "Нет доступа"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "Параметры поиска или действия"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "Выберите параметр или действие"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "Выберите один параметр или действие, затем нажмите «Добавить». Вы можете быстро выполнить поиск по параметрам, используя текстовое поле ниже."
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "Показать/скрыть наследование"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "Добавить параметр или действие"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "Настройки плагинов"
   },
   "19": {
-    "other": "always overrides"
+    "other": "всегда переопределяет"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Включено"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ добавить роль"
   },
   "21": {
-    "other": "reloading..."
+    "other": "перезагрузка..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "Загрузка действий кеша действий, пожалуйста, подождите, это будет сделано однократно..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "Загрузка параметров кеша действий, пожалуйста, подождите, это будет сделано однократно..."
   },
   "24": {
-    "other": "User Information"
+    "other": "Данные пользователя"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "Ограничения доступа"
   },
   "26": {
-    "other": "Group Information"
+    "other": "Информация о группе"
   },
   "27": {
-    "other": "Group Info"
+    "other": "Информация о группе"
   },
   "28": {
-    "other": "Role Information"
+    "other": "Информация о роли"
   },
   "29": {
-    "other": "Role Info"
+    "other": "Информация о роли"
   },
   "3": {
-    "other": "Disabled"
+    "other": "Выключено"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "Профиль и Роли"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "Уникальный идентификатор пользователя. Вы не можете изменить это значение."
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "Специфичный профиль. Может подразумевать, что некоторые роли применяются автоматически."
   },
   "33": {
-    "other": "Close"
+    "other": "Закрыть"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "Права доступа"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "Доступ к рабочему пространству"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "Страницы приложений"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "Настройка параметров"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Параметры приложения"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Все параметры рабочих областей"
   },
   "4": {
-    "other": "Clear value"
+    "other": "Очистить значение"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "Параметры каждой рабочей области"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "Дополнительные параметры"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "Уточните значения параметров приложения и выборочно отключите действия плагина для этой текущей роли. Здесь параметры являются глобальными для приложения (аутентификация, настройка и т. д.). См. вкладки рабочие пространства для параметров / действий, специфичных для рабочего пространства."
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "Предоставить доступ к рабочим областям для текущей роли/пользователя/группы"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Основные страницы приложений"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "Доступ к основным страницам приложения (например, Мой аккаунт, приветственная страница и т. д.)"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "Параметры и действия"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "Уточнить значения параметров рабочих областей и действия для определенных рабочих пространств"
   },
   "49": {
-    "other": "Shares"
+    "other": "Поделиться"
   },
   "5": {
-    "other": "Override value"
+    "other": "Переопределить значение"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "Совместные файлы и папки"
   },
   "51": {
-    "other": "With this user"
+    "other": "С этим пользователем"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "Cell и публичные ссылки, созданные этим пользователем"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "Поделились %1 из рабочего пространства %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Базовая информация о пользователе. Используйте кнопку справа для просмотра дополнительных действий."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Переключение профиля и ролей для автоматического предоставления прав доступа этому пользователю."
   },
   "6": {
-    "other": "Save value"
+    "other": "Сохранить значение"
   },
   "7": {
-    "other": "Action %s"
+    "other": "Действия: %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "Чтение и запись"
   },
   "9": {
-    "other": "Read Only"
+    "other": "Только чтение"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Управление ролями"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Добавить для ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Все рабочие области"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Только доступные Cell"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "Рабочее пространство %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Добавить пользовательский параметр или действие"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Нет параметров или действий"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Главная страница"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Страница приветствия, отображаемая после входа"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Консоль администратора"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Панель администрирования Pydio Cell"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Права установлены вручную"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Весе рабочие пространства"
   }
 }

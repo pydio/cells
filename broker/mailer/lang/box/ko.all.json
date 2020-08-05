@@ -1,33 +1,33 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "피디오가 선도하는 파일 공유 플랫폼"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "{ACTION} 버튼이 동작하지 않으면 아래의 URL을 복사하여 웹브라우저에 주소창에 붙여 넣고 엔터를 누르세요."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "안녕하세요."
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "감사합니다."
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "{{.Configs.Title}}으로 비밀번호 재설정 요청"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "당신의 {{.Configs.Title}}으로 비밀번호 재설정을 요청 하였습니다."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "비밀번호 변경이 필요치 않을 경우 무시해도 됩니다.\n반복적으로 이메일 요청이 들어올 경우 시스템 문제 이므로 관리자에게 문제점을 문의 하세요."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "내 비밀번호 재설정"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "여기를 누르면 비밀번호를 재설정 합니다."
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "{{.Configs.Title}}의 비밀번호가 재설정 되었습니다."
   },
   "Mail.ResetPasswordDone.Intros": {
     "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."

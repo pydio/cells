@@ -1,17 +1,17 @@
 {
   "Avatars": {
-    "other": "Avatars"
+    "other": "Аватары"
   },
   "Choose an avatar web service": {
-    "other": "Choose an avatar web service"
+    "other": "Выберите веб-сервис аватара"
   },
   "Get user avatar from Gravatar/Libravatar": {
-    "other": "Get user avatar from Gravatar/Libravatar"
+    "other": "Получить аватар пользователя с Gravatar/Libravatar"
   },
   "Gravatar type": {
-    "other": "Gravatar type"
+    "other": "Тип Gravatar"
   },
   "Provider": {
-    "other": "Provider"
+    "other": "Провайдер"
   }
 }

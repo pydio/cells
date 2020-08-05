@@ -1,44 +1,44 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "Kies andere..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "Kies een andere editor"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "Selecteer een andere editor om dit bestand te openen"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "Let op, deze editors ondersteunen dit bestandstype niet, hun gedrag kan onvoorspelbaar zijn!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "Verwijder associaties"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Kies actie voor %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Nieuw item toevoegen aan deze cel"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Binnenin %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Bestand delen"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Map delen"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Bestand verplaatsen"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Map verplaatsen"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Bestand kopiëren"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Map kopiëren"
   }
 }

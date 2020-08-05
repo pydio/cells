@@ -1,15 +1,15 @@
 {
   "Path": {
-    "other": "Path"
+    "other": "Pad"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "Standaard download formaat"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "Bij het downloaden van een map of meerdere selecties automatisch een archief aanmaken met behulp van dit formaat"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Path naar de map op de server"
   },
   "Gateway": {
     "other": "Gateway"
@@ -18,12 +18,12 @@
     "other": "Pydio S3 Gateway"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Absolute path naar één of meer root nodes"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Items per pagina"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Eenmaal in pagineringsmodus, aantal weer te geven items per pagina."
   }
 }

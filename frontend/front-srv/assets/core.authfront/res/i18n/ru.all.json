@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "Сброс пароля"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "Установите Ваш новый пароль"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "Введите Ваш идентификатор (user ID)"
   },
   "4": {
-    "other": "Your login or email"
+    "other": "Ваш идентификатор"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "Запрос на сброс пароля будет послан на email, который указан в вашей учётной записи. Нажмите на ссылку в письме, чтобы пересоздать пароль."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "Спасибо, теперь Вы можете зайти в систему!"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "Запрошен сброс пароля для учётной записи ассоциированной с этим email адресом. Если Вы не автор запроса просто проигнорируйте это письмо. Если Вы хотите сбросить пароль, то нажмите на ссылку:"
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "Используйте форму ниже, чтобы сбросить пароль. Пожалуйста, введите свой логин и новый пароль дважды."
   }
 }

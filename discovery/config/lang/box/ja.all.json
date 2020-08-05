@@ -1,20 +1,20 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "最大 30 日間"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "30 日後にバージョンを削除"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "すべて保持"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "永久にすべてのバージョンを保持"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "定期削除"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "さまざまな間隔で定期的にバージョンを取り除く"
   }
 }

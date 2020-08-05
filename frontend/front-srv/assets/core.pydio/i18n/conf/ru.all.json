@@ -1,60 +1,60 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Элементов на странице"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Icon for representing the template"
+    "other": "16X16 Иконка для представления шаблона"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "A user-defined description of the content of this workspace"
+    "other": "Пользовательское описание содержимого Workspace-а"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
+    "other": "Конечная точка API - Используется для запуска окна, позволяющего пользователю пройти проверку подлинности и принять условия приложения"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
     "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API setting - Redirect URL for the OAuth Application"
+    "other": "Настройка API - Перенаправление URL для OAuth приложения"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Абсолютный путь к публичной папке, где будут созданы временные ссылки для скачивания. Это используется для устаревших целей, для новых ссылок больше не используется, вместо этого используются Базовые URI."
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "Логин администратора"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "Email администратора"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "Email администратора, не используется на данный момент"
   },
   "Alias": {
-    "other": "Alias"
+    "other": "Псевдоним"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "Псевдоним для замены создаваемого уникального идентификатора проекта"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Allow group administrators to create a repository from this template."
+    "other": "Разрешить администраторам групп создавать репозиторий из этого шаблона."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Allow non-admin users to create a workspace from this template."
+    "other": "Разрешить пользователям не администраторам создавать workspace из этого шаблона."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Разрешить выбирать существующих пользователей при создании общего доступа к папкам"
   },
   "Allow to group admins": {
-    "other": "Allow to group admins"
+    "other": "Разрешить группировать администраторов"
   },
   "Allow to user": {
-    "other": "Allow to user"
+    "other": "Разрешить пользователю"
   },
   "App Title": {
-    "other": "Application Title"
+    "other": "Название приложения"
   },
   "Ascending": {
-    "other": "Ascending"
+    "other": "По возрастанию"
   },
   "Auth Driver Commons": {
     "other": "Auth Driver Commons"

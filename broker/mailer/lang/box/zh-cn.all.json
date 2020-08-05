@@ -1,242 +1,242 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "自豪的采用 Pydio 的文件共享平台"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "如果您无法使用 {ACTION} -按钮，只需复制并粘贴下面的 URL 到您的浏览器。"
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "您好"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "诚挚的"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "来自 {{.Configs.Title}} 的重置密码请求"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "已收到您在 {{.Configs.Title}} 上的帐户的重置密码请求。"
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "如果你没有触发此请求，你可以安全地忽略它。 如果您继续收到类似的电子邮件，请提醒您的管理员它可能是一个安全问题。"
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "重置我的密码"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "点击重置您的密码"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "您在 {{.Configs.Title}} 上的密码已被重置"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "根据您的重置密码请求，您在 {{.Configs.Title}} 的密码已成功重置。"
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "如果您没有触发此操作，请立即提醒您的管理员，因为这可能是一个安全问题。"
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "您的 {{.Configs.Title}} 通知"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "下面是您收到的 {{.Configs.Title}} 所有通知的摘要"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} 向您发送了一条消息！"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} 使用 {{.Configs.Title}} 应用程序向您发送了消息： {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "欢迎使用 {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "已在 {{.Configs.Title}}上为您创建了一个帐户。 \n 您的登录名是 {{.TplData.Login}}{{if .TplData.Password}} ，您的密码是 {{.TplData.Password}}。 您可以在第一次登录{{end}} 时更改它。"
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "点击登录"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "登录到 {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} 文件共享平台被您的团队用来有效地协作文档。我们很高兴看到您的加入！"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} 在 {{.Configs.Title}} 邀请了您"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "{{.TplData.Inviter}} 在 {{.Configs.Title}}上为您创建了一个帐户。 \n 您的登录名是 {{.TplData.Login}}{{if .TplData.Password}} ，您的密码是 {{.TplData.Password}}。 您可以在首次登录时更改它{{end}} 。"
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "点击登录"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "登录到 {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} 文件共享平台被 {{.TplData.Inviter}} 团队用来高效率地协作文档。我们很高兴看到您的加入！"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} 将您添加到 {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} 已将您加入了{{.Configs.Title}}上的 {{.TplData.Cell}} ！您可以开始一起分享文件和文件夹并高效地进行合作。"
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "点击打开Cell"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "打开 {{.TplData.Cell}}"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} 正在与您分享一个文件"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} 正在与您分享一个文件。\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}链接将于 {{.TplData.Expire}} 过期{{end}}\n\n{{if .TplData.MaxDownloads}}最大下载量:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "打开 {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "单击以在您的浏览器中预览文件"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} 文件共享平台被 {{.TplData.Inviter}} 团队用于高效率地协作文档。"
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} 正在与您分享一个文件夹"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} 正在与您分享一个文件。\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}链接将于 {{.TplData.Expire}} 过期{{end}}\n\n{{if .TplData.MaxDownloads}}最大下载量:{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "打开 {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "点击以在浏览器中预览您的文档"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} 文件共享平台被 {{.TplData.Inviter}} 团队用于高效率地协作文档。"
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} 正在向您发送测试电子邮件"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "打开Cells"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "点击打开前端"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "团队使用 {{.Configs.Title}} 文件共享平台来高效地协作文档。"
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "邮件服务器"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "默认邮件地址"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "发送电子邮件时使用默认地址。您应该使用适当的支持电子邮件而不是非回复电子邮件。"
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "队列类型"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "存储待处理电子邮件的持久层"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "文件型数据库（Bolt）"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "内存中"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "邮件引擎"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "用于实际发送电子邮件的引擎"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "SMTP 服务器"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "服务器主机名"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "SMTP服务器主机，例如 smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "服务器端口"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "SMTP服务器端口，例如 587（不安全）或 465（TLS）"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "连接的用户"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "连接到 SMTP 服务器所需的用户名"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "连接的密码"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "连接到 SMTP 服务器所需的密码"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "自签名证书"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "如果您的 SMTP 服务器证书是自签名，请禁用证书验证"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "SendGrid 服务"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "Api 密钥"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "连接 SendGrid 的 Api 密钥"
   },
   "Mail.Config.Sendmail.Label": {
-    "other": "Sendmail"
+    "other": "邮件程序"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "警告：默认可执行文件路径是 /usr/bin/sendmail。 如果您需要更改它，请确保在您的 pydio.json 配置文件中设置 'default > sendmail' 键。"
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "可执行文件路径"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "服务器上发送邮件可执行文件的完整路径"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "其它路径 (在 pydio.json 配置文件中手动设置)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "默认发件人显示名称"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "发送电子邮件时显示的默认名称。"
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "要使用的发件人地址和名称"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "定义要使用哪个发件人地址/名称。如果没有配置用户电子邮件地址，所有情况下都会使用默认的 FROM 地址和名称。"
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "发送来自用户的邮件"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "发送邮件给用户"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "总是从默认的 ROM 地址/名称发送"
   }
 }

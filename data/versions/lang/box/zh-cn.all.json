@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "用于复制版本数据的基于事件的作业"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "在版本bucket中创建的版本 {{.Uuid}} "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "{{.Uuid}} 的已创建的版本元数据"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "消除的 {{.Count}} 版本",
+    "other": "消除的 {{.Count}} 版本"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "清理已删除节点的版本文件"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "成功删除了 {{.Count}} 版本",
+    "other": "成功删除了 {{.Count}} 版本."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "策略"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "组名"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "策略名称"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "说明"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "策略说明"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "存储"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "该数据源版本化"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "存储桶"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "在此数据源中使用的存储桶"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "大小限制"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "所有版本保存在此桶中的全局大小"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "限制所需的总大小。如果达到限制，最老的版本将被删除。使用-1表示无限制"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "文件版本的累计大小"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "限制一个文件的所有版本的大小。如果达到限制，最老的版本将被删除。使用 -1 表示无限制"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "忽略大于... 的文件"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "大于此大小的文件不要版本化。使用 -1 表示无限制"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "保留期"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "每个周期保留的版本数"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "周期开始"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "计算周期使用的起点。0 是最后一个版本设置的时间，使用另一个周期来设置限制"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "最大版本数"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "在此周期中保留的最大版本数。使用 -1 保留所有版本，0 删除所有版本。"
   }
 }
