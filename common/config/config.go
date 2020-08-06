@@ -21,18 +21,8 @@
 package config
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
-	"github.com/spf13/cast"
-
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/file"
 	"github.com/pydio/cells/x/configx"
 )
@@ -45,342 +35,342 @@ func SetApplicationConfig(scan configx.Scanner) {
 	scan.Scan(&ApplicationConfig)
 }
 
-// Map structure to store configuration
-type Map map[string]interface{}
+// // Map structure to store configuration
+// type Map map[string]interface{}
 
-type Array []interface{}
+// type Array []interface{}
 
-// Value Represent a value retrieved from the values loaded
-type Value interface {
-	Bool(def bool) bool
-	Int(def int) int
-	Int64(def int64) int64
-	String(def string) string
-	Float64(def float64) float64
-	Duration(def time.Duration) time.Duration
-	StringSlice(def []string) []string
-	StringMap(def map[string]string) map[string]string
-	Scan(val interface{}) error
-	Bytes() []byte
-}
+// // Value Represent a value retrieved from the values loaded
+// type Value interface {
+// 	Bool(def bool) bool
+// 	Int(def int) int
+// 	Int64(def int64) int64
+// 	String(def string) string
+// 	Float64(def float64) float64
+// 	Duration(def time.Duration) time.Duration
+// 	StringSlice(def []string) []string
+// 	StringMap(def map[string]string) map[string]string
+// 	Scan(val interface{}) error
+// 	Bytes() []byte
+// }
 
 // NewMap variable
-func NewMap(ms ...map[string]interface{}) *Map {
-	if len(ms) > 0 {
-		m := new(Map)
-		*m = ms[0]
-		return m
-	}
-	return &Map{}
-}
+// func NewMap(ms ...map[string]interface{}) *Map {
+// 	if len(ms) > 0 {
+// 		m := new(Map)
+// 		*m = ms[0]
+// 		return m
+// 	}
+// 	return &Map{}
+// }
 
 // Get retrieves the first value associated with the given key.
 // If there are no values associated with the key, Get returns
 // the empty string. To access multiple values, use the map
 // directly.
-func (c Map) Get(keys ...string) interface{} {
-	if c == nil {
-		return nil
-	}
+// func (c Map) Get(keys ...string) interface{} {
+// 	if c == nil {
+// 		return nil
+// 	}
 
-	if len(keys) == 0 {
-		return nil
-	}
+// 	if len(keys) == 0 {
+// 		return nil
+// 	}
 
-	k := keys[0]
-	keys = keys[1:]
+// 	k := keys[0]
+// 	keys = keys[1:]
 
-	v, ok := c[k]
-	if !ok {
-		return nil
-	}
+// 	v, ok := c[k]
+// 	if !ok {
+// 		return nil
+// 	}
 
-	if len(keys) == 0 {
-		return v
-	}
+// 	if len(keys) == 0 {
+// 		return v
+// 	}
 
-	m, ok := v.(Map)
-	if !ok {
-		return nil
-	}
+// 	m, ok := v.(Map)
+// 	if !ok {
+// 		return nil
+// 	}
 
-	return m.Get(keys...)
-}
+// 	return m.Get(keys...)
+// }
 
-func (c Map) Map(key string) map[string]interface{} {
-	val := c.Get(key)
+// func (c Map) Map(key string) map[string]interface{} {
+// 	val := c.Get(key)
 
-	if m, ok := val.(map[string]interface{}); ok {
-		return m
-	}
+// 	if m, ok := val.(map[string]interface{}); ok {
+// 		return m
+// 	}
 
-	if s, ok := val.(string); ok {
-		var m map[string]interface{}
-		if err := json.Unmarshal([]byte(s), &m); err == nil {
-			return m
-		}
-	}
+// 	if s, ok := val.(string); ok {
+// 		var m map[string]interface{}
+// 		if err := json.Unmarshal([]byte(s), &m); err == nil {
+// 			return m
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func (c Map) Array(key string) common.Scanner {
-	var a Array
+// func (c Map) Array(key string) common.Scanner {
+// 	var a Array
 
-	val := c.Get(key)
+// 	val := c.Get(key)
 
-	m, ok := val.([]interface{})
-	if !ok {
-		a = []interface{}{}
-	} else {
-		a = m
-	}
+// 	m, ok := val.([]interface{})
+// 	if !ok {
+// 		a = []interface{}{}
+// 	} else {
+// 		a = m
+// 	}
 
-	return a
-}
+// 	return a
+// }
 
-func (c Map) StringMap(key string) map[string]string {
-	return cast.ToStringMapString(c.Get(key))
-}
+// func (c Map) StringMap(key string) map[string]string {
+// 	return cast.ToStringMapString(c.Get(key))
+// }
 
-func (c Map) String(key string, def ...string) string {
-	if q := c.Get(key); q != nil {
-		switch v := q.(type) {
-		case []string:
-			if b, err := json.Marshal(v); err == nil {
-				return string(b)
-			}
+// func (c Map) String(key string, def ...string) string {
+// 	if q := c.Get(key); q != nil {
+// 		switch v := q.(type) {
+// 		case []string:
+// 			if b, err := json.Marshal(v); err == nil {
+// 				return string(b)
+// 			}
 
-			if len(def) > 0 {
-				return "[" + strings.Join(def, ",") + "]"
-			}
+// 			if len(def) > 0 {
+// 				return "[" + strings.Join(def, ",") + "]"
+// 			}
 
-			return "[]"
-		case string:
-			return v
-		}
-	}
+// 			return "[]"
+// 		case string:
+// 			return v
+// 		}
+// 	}
 
-	if len(def) > 1 {
-		return "[" + strings.Join(def, ",") + "]"
-	}
+// 	if len(def) > 1 {
+// 		return "[" + strings.Join(def, ",") + "]"
+// 	}
 
-	if len(def) > 0 {
-		return def[0]
-	}
+// 	if len(def) > 0 {
+// 		return def[0]
+// 	}
 
-	return ""
-}
+// 	return ""
+// }
 
-func (c Map) StringArray(key string, def ...[]string) []string {
-	val := c.Get(key)
+// func (c Map) StringArray(key string, def ...[]string) []string {
+// 	val := c.Get(key)
 
-	switch v := val.(type) {
-	case []string:
-		return v
-	case string:
-		var a []string
-		if err := json.Unmarshal([]byte(v), &a); err == nil {
-			return a
-		}
-	case []interface{}:
-		var a []string
-		for _, d := range v {
-			a = append(a, fmt.Sprintf("%s", d))
-		}
-		return a
-	}
+// 	switch v := val.(type) {
+// 	case []string:
+// 		return v
+// 	case string:
+// 		var a []string
+// 		if err := json.Unmarshal([]byte(v), &a); err == nil {
+// 			return a
+// 		}
+// 	case []interface{}:
+// 		var a []string
+// 		for _, d := range v {
+// 			a = append(a, fmt.Sprintf("%s", d))
+// 		}
+// 		return a
+// 	}
 
-	if len(def) > 0 {
-		return def[0]
-	}
+// 	if len(def) > 0 {
+// 		return def[0]
+// 	}
 
-	return []string{}
-}
+// 	return []string{}
+// }
 
-func (c Map) Duration(key string, def ...string) time.Duration {
-	val := c.String(key, "")
+// func (c Map) Duration(key string, def ...string) time.Duration {
+// 	val := c.String(key, "")
 
-	d, err := time.ParseDuration(val)
-	if err != nil {
-		if len(def) > 0 {
-			d, err := time.ParseDuration(def[0])
-			if err != nil {
-				return 0
-			}
+// 	d, err := time.ParseDuration(val)
+// 	if err != nil {
+// 		if len(def) > 0 {
+// 			d, err := time.ParseDuration(def[0])
+// 			if err != nil {
+// 				return 0
+// 			}
 
-			return d
-		}
-	}
+// 			return d
+// 		}
+// 	}
 
-	return d
-}
+// 	return d
+// }
 
-// Database returns the driver and dsn in that order for the given key
-func (c Map) Database(k string) (string, string) {
-	val := c.Get(k)
+// // Database returns the driver and dsn in that order for the given key
+// func (c Map) Database(k string) (string, string) {
+// 	val := c.Get(k)
 
-	switch v := val.(type) {
-	case string:
-		return GetDatabase(v)
-	default:
-		m := c.StringMap(k)
+// 	switch v := val.(type) {
+// 	case string:
+// 		return GetDatabase(v)
+// 	default:
+// 		m := c.StringMap(k)
 
-		driver, ok := m["driver"]
-		if !ok {
-			return GetDefaultDatabase()
-		}
+// 		driver, ok := m["driver"]
+// 		if !ok {
+// 			return GetDefaultDatabase()
+// 		}
 
-		dsn, ok := m["dsn"]
-		if !ok {
-			return GetDefaultDatabase()
-		}
+// 		dsn, ok := m["dsn"]
+// 		if !ok {
+// 			return GetDefaultDatabase()
+// 		}
 
-		return driver, dsn
-	}
-}
+// 		return driver, dsn
+// 	}
+// }
 
-func (c Map) Bool(key string, def ...bool) bool {
+// func (c Map) Bool(key string, def ...bool) bool {
 
-	if c.Get(key) != nil {
-		if b, ok := c.Get(key).(bool); ok {
-			return b
-		}
-		if s, ok := c.Get(key).(string); ok {
-			if val, e := strconv.ParseBool(s); e == nil {
-				return val
-			}
-		}
-	}
+// 	if c.Get(key) != nil {
+// 		if b, ok := c.Get(key).(bool); ok {
+// 			return b
+// 		}
+// 		if s, ok := c.Get(key).(string); ok {
+// 			if val, e := strconv.ParseBool(s); e == nil {
+// 				return val
+// 			}
+// 		}
+// 	}
 
-	if len(def) > 0 {
-		return def[0]
-	}
-	return false
-}
+// 	if len(def) > 0 {
+// 		return def[0]
+// 	}
+// 	return false
+// }
 
-// Int retrieves the value at the given key if it exists and
-// performs best effort to cast it as an int.
-// If no such key exists or if it cannot be cast as an int,
-// it returns the default value if defined and 0 otherwise.
-func (c Map) Int(key string, def ...int) int {
-	switch v := c.Get(key).(type) {
-	case int:
-		return v
-	case string:
-		if p, err := strconv.Atoi(v); err != nil {
-			break
-		} else {
-			return p
-		}
-	case float64:
-		return int(v)
-	}
+// // Int retrieves the value at the given key if it exists and
+// // performs best effort to cast it as an int.
+// // If no such key exists or if it cannot be cast as an int,
+// // it returns the default value if defined and 0 otherwise.
+// func (c Map) Int(key string, def ...int) int {
+// 	switch v := c.Get(key).(type) {
+// 	case int:
+// 		return v
+// 	case string:
+// 		if p, err := strconv.Atoi(v); err != nil {
+// 			break
+// 		} else {
+// 			return p
+// 		}
+// 	case float64:
+// 		return int(v)
+// 	}
 
-	if len(def) > 0 {
-		return def[0]
-	}
+// 	if len(def) > 0 {
+// 		return def[0]
+// 	}
 
-	return 0
-}
+// 	return 0
+// }
 
-// Int64 retrieves the value at the given key if it exists and
-// performs best effort to cast it as an int64.
-// If no such key exists or if it cannot be cast as an int64,
-// it returns the default value if defined and 0 otherwise.
-func (c Map) Int64(key string, defaultValue ...int64) int64 {
-	switch v := c.Get(key).(type) {
-	case int64:
-		return v
-	case int:
-		return int64(v)
-	case int16:
-		return int64(v)
-	case int32:
-		return int64(v)
-	case string:
-		if p, err := strconv.ParseInt(v, 10, 64); err != nil {
-			break
-		} else {
-			return p
-		}
-	case float64:
-		return int64(v)
-	}
+// // Int64 retrieves the value at the given key if it exists and
+// // performs best effort to cast it as an int64.
+// // If no such key exists or if it cannot be cast as an int64,
+// // it returns the default value if defined and 0 otherwise.
+// func (c Map) Int64(key string, defaultValue ...int64) int64 {
+// 	switch v := c.Get(key).(type) {
+// 	case int64:
+// 		return v
+// 	case int:
+// 		return int64(v)
+// 	case int16:
+// 		return int64(v)
+// 	case int32:
+// 		return int64(v)
+// 	case string:
+// 		if p, err := strconv.ParseInt(v, 10, 64); err != nil {
+// 			break
+// 		} else {
+// 			return p
+// 		}
+// 	case float64:
+// 		return int64(v)
+// 	}
 
-	if len(defaultValue) > 0 {
-		return defaultValue[0]
-	}
-	return int64(0)
-}
+// 	if len(defaultValue) > 0 {
+// 		return defaultValue[0]
+// 	}
+// 	return int64(0)
+// }
 
-func (c Map) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
+// func (c Map) Scan(val interface{}) error {
+// 	jsonStr, err := json.Marshal(c)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	switch v := val.(type) {
-	case proto.Message:
-		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
-	default:
-		err = json.Unmarshal(jsonStr, v)
-	}
+// 	switch v := val.(type) {
+// 	case proto.Message:
+// 		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
+// 	default:
+// 		err = json.Unmarshal(jsonStr, v)
+// 	}
 
-	return err
-}
+// 	return err
+// }
 
-func (c Map) Bytes(key string, def ...[]byte) []byte {
-	str := c.String(key)
-	return []byte(str)
-}
+// func (c Map) Bytes(key string, def ...[]byte) []byte {
+// 	str := c.String(key)
+// 	return []byte(str)
+// }
 
-func (c Map) Values(key string) common.ConfigValues {
-	m, ok := c.Get(key).(map[string]interface{})
-	if !ok {
-		return NewMap()
-	}
+// func (c Map) Values(key string) common.ConfigValues {
+// 	m, ok := c.Get(key).(map[string]interface{})
+// 	if !ok {
+// 		return NewMap()
+// 	}
 
-	var v Map = m
+// 	var v Map = m
 
-	return v
-}
+// 	return v
+// }
 
-func (c Map) IsEmpty() bool {
-	return len(c) > 0
-}
+// func (c Map) IsEmpty() bool {
+// 	return len(c) > 0
+// }
 
-// Set sets the key to value. It replaces any existing
-// values.
-func (c Map) Set(key string, value interface{}) error {
+// // Set sets the key to value. It replaces any existing
+// // values.
+// func (c Map) Set(key string, value interface{}) error {
 
-	c[key] = value
+// 	c[key] = value
 
-	return nil
-}
+// 	return nil
+// }
 
-// Del deletes the values associated with key.
-func (c Map) Del(key string) error {
-	delete(c, key)
+// // Del deletes the values associated with key.
+// func (c Map) Del(key string) error {
+// 	delete(c, key)
 
-	return nil
-}
+// 	return nil
+// }
 
-func (c Array) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
+// func (c Array) Scan(val interface{}) error {
+// 	jsonStr, err := json.Marshal(c)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	switch v := val.(type) {
-	case proto.Message:
-		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
-	default:
-		err = json.Unmarshal(jsonStr, v)
-	}
+// 	switch v := val.(type) {
+// 	case proto.Message:
+// 		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
+// 	default:
+// 		err = json.Unmarshal(jsonStr, v)
+// 	}
 
-	return err
-}
+// 	return err
+// }
 
 // SaveConfigs sends configuration to a local file.
 func Save(ctxUser string, ctxMessage string) error {

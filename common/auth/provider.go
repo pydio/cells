@@ -115,15 +115,15 @@ func (v *configurationProvider) CORSOptions(iface string) cors.Options {
 }
 
 func (v *configurationProvider) DSN() string {
-	drv := v.v.Values("dsn", "drv").Default("#/defaults/database/drv").String()
-	dsn := v.v.Values("dsn", "dsn").Default("#/defaults/database/dsn").String()
+	drv := v.v.Values("dsn", "drv").Default(configx.Reference("#/defaults/database/drv")).String()
+	dsn := v.v.Values("dsn", "dsn").Default(configx.Reference("#/defaults/database/dsn")).String()
 
 	return drv + "://" + dsn
 }
 
 func (v *configurationProvider) DataSourcePlugin() string {
-	drv := v.v.Values("dsn", "drv").Default("#/defaults/database/drv").String()
-	dsn := v.v.Values("dsn", "dsn").Default("#/defaults/database/dsn").String()
+	drv := v.v.Values("dsn", "drv").Default(configx.Reference("#/defaults/database/drv")).String()
+	dsn := v.v.Values("dsn", "dsn").Default(configx.Reference("#/defaults/database/dsn")).String()
 
 	return drv + "://" + dsn
 }
