@@ -61,9 +61,9 @@ func promptAndApplyProxyConfig() (*install.ProxyConfig, error) {
 func loadProxyConf() *install.ProxyConfig {
 	i := &install.ProxyConfig{}
 	// Retrieve already defined URLs and Redirects
-	i.BindURL = config.Get("defaults", "urlInternal").String("")
-	i.ExternalURL = config.Get("defaults", "url").String("")
-	if redir := config.Get("cert", "proxy", "httpRedir").String(""); redir != "" {
+	i.BindURL = config.Get("defaults", "urlInternal").String()
+	i.ExternalURL = config.Get("defaults", "url").String()
+	if redir := config.Get("cert", "proxy", "httpRedir").String(); redir != "" {
 		i.RedirectURLs = append(i.RedirectURLs, redir)
 	}
 	// Retrieve TLS config

@@ -75,9 +75,9 @@ Four modes are currently supported:
 func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 
 	// Load defaults
-	certFile := config.Get("cert", "proxy", "certFile").String("")
-	keyFile := config.Get("cert", "proxy", "keyFile").String("")
-	certEmail := config.Get("cert", "proxy", "email").String("")
+	certFile := config.Get("cert", "proxy", "certFile").String()
+	keyFile := config.Get("cert", "proxy", "keyFile").String()
+	certEmail := config.Get("cert", "proxy", "email").String()
 	enabled = true
 
 	selector := promptui.Select{

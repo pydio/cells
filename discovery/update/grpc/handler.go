@@ -131,7 +131,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				task.Status = jobs.TaskStatus_Finished
 				task.StatusMessage = "Binary package has been successfully verified, you can now restart Cells.\n"
 				// Double check if we are on a protected port and log a hint in such case.
-				intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
+				intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String())
 				port, err := strconv.Atoi(intURL.Port())
 				if err == nil && port < 1024 {
 					task.StatusMessage += "--------- \n"

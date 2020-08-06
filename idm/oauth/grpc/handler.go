@@ -66,7 +66,7 @@ var (
 
 func init() {
 	config.OnInitialized(func() {
-		defaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+		defaultRedirectURI = config.Get("defaults", "url").String() + "/auth/callback"
 	})
 }
 

@@ -94,7 +94,7 @@ func actionDatabaseAdd(c *install.InstallConfig) error {
 	config.Set(connection, "databases", id)
 
 	// Only set the default if the default is not set
-	if config.Get("defaults", "database").String("") == "" {
+	if config.Get("defaults", "database").String() == "" {
 		config.Set(id, "defaults", "database")
 	}
 

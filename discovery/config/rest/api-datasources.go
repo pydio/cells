@@ -191,7 +191,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
 		return
 	}
-	if dsName == config.Get("defaults", "datasource").String("") {
+	if dsName == config.Get("defaults", "datasource").String() {
 		service.RestError500(req, resp, fmt.Errorf("This is the default datasource! Please replace it in your config file before trying to delete."))
 		return
 	}

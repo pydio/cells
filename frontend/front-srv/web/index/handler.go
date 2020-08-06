@@ -55,7 +55,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	registry := pool.RegistryForStatus(ctx, status)
 	bootConf := frontend.ComputeBootConf(pool)
 
-	url := config.Get("defaults", "url").String("")
+	url := config.Get("defaults", "url").String()
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        "ajxp_desktop",
@@ -68,17 +68,17 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplConf := &TplConf{
-		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Cells"),
+		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Cells").String(),
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          frontend.VersionHash(),
-		Debug:            config.Get("frontend", "debug").Bool(false),
+		Debug:            config.Get("frontend", "debug").Bool(),
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}
-	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
+	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
@@ -91,7 +91,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap(map[string]string{}) {
+	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap() {
 		w.Header().Set(hK, hV)
 	}
 	var tpl *template.Template

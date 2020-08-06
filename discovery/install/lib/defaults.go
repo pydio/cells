@@ -50,7 +50,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.FrontendLogin = "admin"
 	c.FrontendPassword = ""
 	c.FrontendRepeatPassword = ""
-	c.InternalUrl = config.Get("internalUrl").String("")
+	c.InternalUrl = config.Get("internalUrl").String()
 	c.CheckResults = []*install.CheckResult{}
 
 	return c

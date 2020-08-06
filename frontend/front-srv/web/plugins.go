@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
@@ -112,7 +112,7 @@ func init() {
 // DropLegacyStatics removes files and references to old PHP data in configuration
 func DropLegacyStatics(ctx context.Context) error {
 
-	frontRoot := config.Get("defaults", "frontRoot").String(filepath.Join(config.ApplicationWorkingDir(), "static", "pydio"))
+	frontRoot := config.Get("defaults", "frontRoot").Default(filepath.Join(config.ApplicationWorkingDir(), "static", "pydio")).String()
 	if frontRoot != "" {
 		if er := os.RemoveAll(frontRoot); er != nil {
 			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))
@@ -126,7 +126,7 @@ func DropLegacyStatics(ctx context.Context) error {
 	config.Del("defaults", "fpm")
 	config.Del("defaults", "fronts")
 	config.Del("services", "pydio.frontends")
-	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("") == "" {
+	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String() == "" {
 		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
 	}
 	if e := config.Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade to 1.2.0"); e == nil {

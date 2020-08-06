@@ -32,7 +32,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 	"github.com/spf13/cobra"
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/config/memory"
 	"github.com/pydio/cells/common/config/remote"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -175,12 +175,11 @@ func newRemoteSource(opts ...config.SourceOption) config.Source {
 	return remote.NewSource(opts...)
 }
 
-func Get(path ...string) reader.Value {
-	return Default().Get(path...)
+func Get(path ...string) configx.Values {
+	return ApplicationConfig.Values(path)
 }
 
 func Set(val interface{}, path ...string) {
-
 	if GetRemoteSource() {
 		remote.UpdateRemote("config", val, path...)
 		return

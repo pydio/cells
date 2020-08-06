@@ -44,7 +44,7 @@ type DexClient struct {
 
 func actionConfigsSet(c *install.InstallConfig) error {
 	save := false
-	url := config.Get("defaults", "url").String("")
+	url := config.Get("defaults", "url").String()
 
 	// OAuth web
 	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH

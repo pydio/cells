@@ -218,10 +218,10 @@ func init() {
 
 				//httpserver.HTTP2 = false
 
-				certEmail := config.Get("cert", "proxy", "email").String("")
+				certEmail := config.Get("cert", "proxy", "email").String()
 				if certEmail != "" {
 					caddytls.Agreed = true
-					caURL := config.Get("cert", "proxy", "caUrl").String("")
+					caURL := config.Get("cert", "proxy", "caUrl").String()
 					log.Logger(ctx).Debug(fmt.Sprintf("Configuring Let's Encrypt - SSL process, CA URL: %s", caURL))
 					caddytls.DefaultCAUrl = caURL
 
@@ -366,7 +366,7 @@ func LoadCaddyConf() error {
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
 
-	u, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
+	u, err := url.Parse(config.Get("defaults", "urlInternal").String())
 	if err != nil {
 		return err
 	}
@@ -376,19 +376,19 @@ func LoadCaddyConf() error {
 	externalSet := external != nil && external.(string) != ""
 
 	protocol := "http://"
-	tls := config.Get("cert", "proxy", "ssl").Bool(false)
+	tls := config.Get("cert", "proxy", "ssl").Bool()
 	if tls {
 		protocol = "https://"
-		if self := config.Get("cert", "proxy", "self").Bool(false); self {
+		if self := config.Get("cert", "proxy", "self").Bool(); self {
 			caddyconf.TLS = "self_signed"
-		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
+		} else if certEmail := config.Get("cert", "proxy", "email").String(); certEmail != "" {
 			caddyconf.TLS = certEmail
 			if !externalSet {
 				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
 			}
 		} else {
-			cert := config.Get("cert", "proxy", "certFile").String("")
-			key := config.Get("cert", "proxy", "keyFile").String("")
+			cert := config.Get("cert", "proxy", "certFile").String()
+			key := config.Get("cert", "proxy", "keyFile").String()
 			if cert != "" && key != "" {
 				caddyconf.TLSCert = cert
 				caddyconf.TLSKey = key
@@ -403,8 +403,8 @@ func LoadCaddyConf() error {
 
 	caddyconf.Bind = protocol + u.Host
 
-	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && (caddyconf.TLS != "" || caddyconf.TLSCert != "" && caddyconf.TLSKey != "") {
-		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
+	if redir := config.Get("cert", "proxy", "httpRedir").Bool(); redir && (caddyconf.TLS != "" || caddyconf.TLSCert != "" && caddyconf.TLSKey != "") {
+		if extUrl := config.Get("defaults", "url").String(); extUrl != "" {
 			var e error
 			if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
 				caddyconf.HTTPRedirectSource, _ = url.Parse("http://" + caddyconf.HTTPRedirectTarget.Hostname())
@@ -414,7 +414,7 @@ func LoadCaddyConf() error {
 		}
 	}
 
-	uExt, err := url.Parse(config.Get("defaults", "url").String(""))
+	uExt, err := url.Parse(config.Get("defaults", "url").String())
 	if err == nil {
 		caddyconf.ExternalHost = uExt.Host
 	}

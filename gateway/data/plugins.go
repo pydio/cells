@@ -67,9 +67,9 @@ func init() {
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
 				var certFile, keyFile string
-				if config.Get("cert", "http", "ssl").Bool(false) {
-					certFile = config.Get("cert", "http", "certFile").String("")
-					keyFile = config.Get("cert", "http", "keyFile").String("")
+				if config.Get("cert", "http", "ssl").Bool() {
+					certFile = config.Get("cert", "http", "certFile").String()
+					keyFile = config.Get("cert", "http", "keyFile").String()
 				}
 
 				return service.RunnerFunc(func() error {

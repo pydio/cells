@@ -20,12 +20,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 type PublicHandler struct {
@@ -42,17 +42,17 @@ func NewPublicHandler() *PublicHandler {
 
 func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (statusCode int, tplConf *TplConf) {
 
-	url := config.Get("defaults", "url").String("")
+	url := config.Get("defaults", "url").String()
 	tplConf = &TplConf{
-		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").String("Pydio Cells"),
+		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").Default("Pydio Cells").String(),
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            config.Get("frontend", "debug").Bool(false),
+		Debug:            config.Get("frontend", "debug").Bool(),
 	}
-	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
+	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
@@ -168,7 +168,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf8")
-	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap(map[string]string{}) {
+	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap() {
 		w.Header().Set(hK, hV)
 	}
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {

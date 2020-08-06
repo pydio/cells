@@ -149,7 +149,7 @@ var installCmd = &cobra.Command{
 		var err error
 
 		// Do this in a better way
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+		micro := config.Get("ports", common.SERVICE_MICRO_API).Int()
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
@@ -261,16 +261,16 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// Manage TLS settings
 	var tls, tlsKey, tlsCert string
-	if config.Get("cert", "proxy", "ssl").Bool(false) {
-		if config.Get("cert", "proxy", "self").Bool(false) {
+	if config.Get("cert", "proxy", "ssl").Bool() {
+		if config.Get("cert", "proxy", "self").Bool() {
 			tls = "self_signed"
-		} else if config.Get("cert", "proxy", "email").String("") != "" {
-			tls = config.Get("cert", "proxy", "email").String("")
+		} else if config.Get("cert", "proxy", "email").String() != "" {
+			tls = config.Get("cert", "proxy", "email").String()
 			caddytls.Agreed = true
-			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
+			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String()
 		} else {
-			cert := config.Get("cert", "proxy", "certFile").String("")
-			key := config.Get("cert", "proxy", "keyFile").String("")
+			cert := config.Get("cert", "proxy", "certFile").String()
+			key := config.Get("cert", "proxy", "keyFile").String()
 			if cert != "" && key != "" {
 				tlsCert = cert
 				tlsKey = key

@@ -257,7 +257,7 @@ func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.
 	}
 
 	dataSourceName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	policyName := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, "VersioningPolicyName").String("")
+	policyName := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, "VersioningPolicyName").String()
 	if policyName == "" {
 		return nil
 	}
