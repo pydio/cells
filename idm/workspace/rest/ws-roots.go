@@ -226,7 +226,7 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 		RoleIDs:      []string{"ROOT_GROUP"},
 	})
 	q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-		Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite},
+		Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite, permissions.AclQuota},
 	})
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
@@ -239,33 +239,45 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 	}
 	defer stream.Close()
 	rightStrings := make(map[string]string, len(uuids))
+	quotaStrings := make(map[string]string, len(uuids))
 	for {
 		r, e := stream.Recv()
 		if e != nil {
 			break
 		}
 		st := ""
-		if s, o := rightStrings[r.ACL.WorkspaceID]; o {
+		wsID := r.ACL.WorkspaceID
+		if s, o := rightStrings[wsID]; o {
 			st = s
 		}
-		if r.ACL.Action.Name == permissions.AclRead.Name {
+		switch r.ACL.Action.Name {
+		case permissions.AclRead.Name:
 			st += "r"
-		}
-		if r.ACL.Action.Name == permissions.AclWrite.Name {
+		case permissions.AclWrite.Name:
 			st += "w"
+		case permissions.AclQuota.Name:
+			quotaStrings[wsID] = r.ACL.Action.Value
 		}
-		rightStrings[r.ACL.WorkspaceID] = st
+		if st != "" {
+			rightStrings[wsID] = st
+		}
 	}
-	for uuid, right := range rightStrings {
-		workspace := wss[uuid]
-		attributes := make(map[string]interface{}, 1)
+	for uuid, workspace := range wss {
+		attributes := make(map[string]interface{})
 		if workspace.Attributes != "" {
 			var atts map[string]interface{}
 			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
 				attributes = atts
 			}
 		}
-		attributes["DEFAULT_RIGHTS"] = right
+		// Apply permission if found
+		if r, o := rightStrings[uuid]; o {
+			attributes["DEFAULT_RIGHTS"] = r
+		}
+		// Apply quota if found
+		if q, o := quotaStrings[uuid]; o {
+			attributes["QUOTA"] = q
+		}
 		jsonAttributes, _ := json.Marshal(attributes)
 		workspace.Attributes = string(jsonAttributes)
 	}
