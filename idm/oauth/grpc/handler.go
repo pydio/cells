@@ -110,8 +110,6 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 		return err
 	}
 
-	fmt.Println("HERE 3")
-
 	client, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.GetClientID())
 	if err != nil {
 		return err
@@ -138,15 +136,11 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 		return errors.WithStack(err)
 	}
 
-	fmt.Println("HERE 4")
-
 	out.Login = &pauth.ID{
 		Challenge: challenge,
 		Verifier:  verifier,
 		CSRF:      csrf,
 	}
-
-	fmt.Println("HERE 5")
 
 	return nil
 }
@@ -198,7 +192,6 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	if err != nil {
 		return err
 	}
-
 	session, err := auth.GetRegistry().ConsentManager().VerifyAndInvalidateLoginRequest(ctx, login.Verifier)
 	if err != nil {
 		return err
