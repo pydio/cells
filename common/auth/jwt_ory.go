@@ -202,8 +202,8 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 	}
 
 	// Accepting consent
-<<<<<<< HEAD
 	if _, err := hydra.AcceptConsent(
+		ctx,
 		consent.Challenge,
 		login.GetRequestedScope(),
 		login.GetRequestedAudience(),
@@ -214,12 +214,6 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 			"authSource": source,
 		},
 	); err != nil {
-=======
-	if _, err := hydra.AcceptConsent(ctx, consent.Challenge, login.GetRequestedScope(), login.GetRequestedAudience(), map[string]string{}, map[string]string{
-		"name":  identity.Username,
-		"email": identity.Email,
-	}); err != nil {
->>>>>>> ef35bb2ea... Replicate hydra config and registries to handle multiple hostname. Extract hostname from context meta.
 		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
 		return "", err
 	}
@@ -322,6 +316,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 	// Accepting consent
 	if _, err := hydra.AcceptConsent(
+		ctx,
 		consent.Challenge,
 		login.GetRequestedScope(),
 		login.GetRequestedAudience(),

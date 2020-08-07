@@ -24,13 +24,7 @@ import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu, Toggle} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 let pydio = window.pydio;
-=======
->>>>>>> a7b6a9331... Prepare front to get rid of the FRONTEND_URL parameter
-=======
->>>>>>> 5e2193f07... Prepare front to get rid of the FRONTEND_URL parameter
 
 const LanguagePicker = () => {
     const items = [];

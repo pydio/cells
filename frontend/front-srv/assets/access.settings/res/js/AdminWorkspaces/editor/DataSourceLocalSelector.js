@@ -303,15 +303,9 @@ class DataSourceLocalSelector extends React.Component{
 
         const {model, pydio} = this.props;
         const {peerAddresses, invalidAddress, invalid, m} = this.state;
-<<<<<<< HEAD
         let pAds = [...peerAddresses];
         pAds = ["ANY", ...pAds];
         if(invalidAddress && invalidAddress !== 'ANY'){
-=======
-        let pAds = peerAddresses || [];
-        pAds = ["ANY", ...pAds];
-        if(invalidAddress){
->>>>>>> aa664f46b... Handle empty PeerAddress for datasources when node is unique or FS is distributed
             pAds = [invalidAddress, ...pAds];
         }
 
@@ -327,15 +321,9 @@ class DataSourceLocalSelector extends React.Component{
                         fullWidth={true}
                     >
                         {pAds.map(address => {
-<<<<<<< HEAD
                             let label = m('selector.peer.any');
                             if(address !== 'ANY') {
                                 label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' ('+m('selector.peer.invalid')+')':'');
-=======
-                            let label = 'Any peer (unique node or distributed FS)';
-                            if(address !== 'ANY') {
-                                label = "Peer : " + address.replace('|', ' | ') + (address === invalidAddress ? " (invalid)":"");
->>>>>>> aa664f46b... Handle empty PeerAddress for datasources when node is unique or FS is distributed
                             }
                             return <MenuItem value={address} primaryText={label}/>
                         })}

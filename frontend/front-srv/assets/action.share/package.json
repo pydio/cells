@@ -1,7 +1,7 @@
 {
   "name": "action.share",
   "description": "",
-  "source_path":"res/react",
+  "source_path": "res/react",
   "main": "index.js",
   "author": "Abstrium SAS",
   "license": "AGPL",

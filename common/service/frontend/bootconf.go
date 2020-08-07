@@ -4,10 +4,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-<<<<<<< HEAD
-	"net/http"
-=======
->>>>>>> 194de14be... Get rid of the FRONTEND_URL parameter
 	"strconv"
 
 	"github.com/micro/go-config/reader"

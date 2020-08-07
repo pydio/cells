@@ -99,7 +99,6 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 	hostName, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHostname)
 	provider := auth.GetConfigurationProvider(hostName)
 	iu := urlx.AppendPaths(provider.IssuerURL(), provider.OAuth2AuthURL())
-
 	sessionID := uuid.New()
 
 	if err := auth.GetRegistry().ConsentManager().CreateLoginSession(ctx, &consent.LoginSession{
@@ -110,6 +109,8 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 	}); err != nil {
 		return err
 	}
+
+	fmt.Println("HERE 3")
 
 	client, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.GetClientID())
 	if err != nil {
@@ -137,11 +138,15 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 		return errors.WithStack(err)
 	}
 
+	fmt.Println("HERE 4")
+
 	out.Login = &pauth.ID{
 		Challenge: challenge,
 		Verifier:  verifier,
 		CSRF:      csrf,
 	}
+
+	fmt.Println("HERE 5")
 
 	return nil
 }

@@ -46,23 +46,13 @@ var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
-var pydio = window.pydio;
-=======
-=======
->>>>>>> 5e2193f07... Prepare front to get rid of the FRONTEND_URL parameter
 var _materialUiStyles = require('material-ui/styles');
 
 var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
-<<<<<<< HEAD
->>>>>>> a7b6a9331... Prepare front to get rid of the FRONTEND_URL parameter
-=======
->>>>>>> 5e2193f07... Prepare front to get rid of the FRONTEND_URL parameter
+
+var pydio = window.pydio;
 
 var LanguagePicker = function LanguagePicker() {
     var items = [];

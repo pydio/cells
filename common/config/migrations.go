@@ -116,25 +116,15 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 
 	oAuthFrontendConfig := map[string]interface{}{
-<<<<<<< HEAD
 		"client_id":                         DefaultOAuthClientID,
 		"client_name":                       "CellsFrontend Application",
 		"revokeRefreshTokenAfterInactivity": "2h",
 		"grant_types":                       []string{"authorization_code", "refresh_token"},
-		"audience":                          []string{external},
-		"redirect_uris":                     []string{external + "/auth/callback"},
-		"post_logout_redirect_uris":         []string{external + "/auth/logout"},
+		"audience":                          []string{"#default_bind#"},
+		"redirect_uris":                     []string{"#default_bind#/auth/callback"},
+		"post_logout_redirect_uris":         []string{"#default_bind#/auth/logout"},
 		"response_types":                    []string{"code", "token", "id_token"},
 		"scope":                             "openid email profile pydio offline",
-=======
-		"client_id":                 DefaultOAuthClientID,
-		"client_name":               "CellsFrontend Application",
-		"grant_types":               []string{"authorization_code", "refresh_token"},
-		"redirect_uris":             []string{"#default_bind#/auth/callback"},
-		"post_logout_redirect_uris": []string{"#default_bind#/auth/logout"},
-		"response_types":            []string{"code", "token", "id_token"},
-		"scope":                     "openid email profile pydio offline",
->>>>>>> 1647ae702... Massive changes for urls management.
 	}
 	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",
