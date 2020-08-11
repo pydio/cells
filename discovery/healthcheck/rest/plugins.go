@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package wopi serves files using the WOPI protocol.
+// Package rest starts a service that exposes a healthcheck.
 package rest
 
 import (
@@ -51,7 +51,7 @@ func init() {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_HEALTHCHECK),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
-			service.Port(fmt.Sprintf("%d", port)),
+			service.Port(fmt.Sprintf("%v", port)),
 			service.Description("Healthcheck for services"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {

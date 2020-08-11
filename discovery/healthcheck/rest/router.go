@@ -45,7 +45,7 @@ type route struct {
 
 type routes []route
 
-// NewRouter creates and configures a new mux router to serve wopi REST requests and enable integration with WOPI clients.
+// NewRouter creates and configures a new mux router to serve the healthcheck.
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range myRoutes {
