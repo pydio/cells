@@ -43,15 +43,15 @@ var (
 func init() {
 	plugins.Register(func() {
 
-		port := viper.Get("healthcheck")
-		if port == "" {
+		port := fmt.Sprintf("%v", viper.Get("healthcheck"))
+		if port == "0" {
 			return
 		}
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_HEALTHCHECK),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
-			service.Port(fmt.Sprintf("%v", port)),
+			service.Port(port),
 			service.Description("Healthcheck for services"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {
