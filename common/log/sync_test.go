@@ -9,8 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/config"
-
 	"github.com/go-openapi/errors"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -23,6 +21,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	plog "github.com/pydio/cells/common/proto/log"
 )
@@ -230,7 +229,7 @@ func (h *Handler) PutLog(ctx context.Context, stream plog.LogRecorder_PutLogStre
 		}
 	}
 
-	return nil
+	// return nil
 }
 
 // ListLogs is a simple gateway from protobuf to the indexer search engine.
