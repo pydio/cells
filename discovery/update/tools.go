@@ -245,7 +245,14 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			}
 			targetPath = exe
 		}
-		backupFile := targetPath + "-rev-" + common.Version().String()
+
+		var backupFile string
+		if runtime.GOOS == "windows" {
+			suffix := filepath.Ext(targetPath)
+			backupFile = fmt.Sprintf("%s-v%s%s", strings.TrimRight(targetPath, suffix), common.Version().String(), suffix)
+		} else {
+			backupFile = fmt.Sprintf("%s-v%s", targetPath, common.Version().String())
+		}
 
 		reader := net.BodyWithProgressMonitor(resp, pgChan, nil)
 
