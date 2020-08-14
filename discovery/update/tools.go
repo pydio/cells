@@ -245,7 +245,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			}
 			targetPath = exe
 		}
-		backupFile := targetPath + "-rev-" + common.BuildStamp
+		backupFile := targetPath + "-rev-" + common.Version().String()
 
 		reader := net.BodyWithProgressMonitor(resp, pgChan, nil)
 
