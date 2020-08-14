@@ -25,7 +25,7 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service"
 )
@@ -68,7 +68,7 @@ func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	if applyRequest.TargetVersion == "" {
-		service.RestError500(req, rsp, fmt.Errorf("please prove a target version"))
+		service.RestError500(req, rsp, fmt.Errorf("please provide a target version"))
 		return
 	}
 
