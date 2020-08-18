@@ -25,13 +25,11 @@ import (
 	"time"
 
 	"github.com/gobwas/glob"
-
-	"github.com/pydio/cells/common/log"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -39,24 +37,25 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 	n := time.Now()
 	defer func() {
-		log.Logger(ctx).Info("Filtering TreePatch took", zap.Duration("time", time.Now().Sub(n)), t.zapSource(), t.zapTarget())
+		duration := time.Now().Sub(n)
+		log.Logger(ctx).Info("Filtering TreePatch took "+duration.String(), zap.Duration("duration", duration), t.zapSource(), t.zapTarget())
 	}()
 	track := func(s string, t time.Time) time.Time {
 		log.Logger(ctx).Debug(s, zap.Duration("time", time.Now().Sub(t)))
 		return time.Now()
 	}
 
-	// FILTER CREATES : tries to detect fast create/delete operations and remove unnecessary creates
+	// FILTER CREATES : tries to detect fast Create/Delete operations and remove unnecessary creates
 	t.filterCreateFiles(ctx)
 	n = track("filter:CreateFiles", n)
 
 	t.filterCreateFolders(ctx)
 	n = track("filter:CreateFolders", n)
 
-	// FILTER MOVES : tries to match Creates / Deletes operation that are in fact Moves
+	// FILTER MOVES : tries to match Create/Delete operations that are in fact Moves
 	var cachedTarget model.PathSyncSource
 	if len(t.deletes) > 20 {
-		// Build a fake patch from the deletes to easily detect top level modified branches
+		// Build a fake patch from the Deletes to easily detect top level modified branches
 		temp := &TreePatch{
 			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target()},
 			TreeNode:      *NewTree(),
@@ -344,10 +343,10 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 func (t *TreePatch) prune(ctx context.Context) {
 	t.Walk(func(n *TreeNode) (prune bool) {
 		if n.PruneIdentityPathOperation() {
-			log.Logger(ctx).Debug("Pruning node operation as it will result to identiy", zap.Any("n", n))
+			log.Logger(ctx).Debug("Pruning node operation as it will result to identity", zap.Any("n", n))
 		}
 		if n.PathOperation != nil && n.PathOperation.Type() == OpDelete && !n.IsLeaf() {
-			log.Logger(ctx).Debug("Delete folder found, remove all branch underneath!", n.ZapPath())
+			log.Logger(ctx).Debug("Delete folder found, remove all branches underneath!", n.ZapPath())
 			prune = true
 		}
 		return
