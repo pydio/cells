@@ -85,7 +85,7 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *
 	resp.User.Password = ""
 
 	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-		Type: idm.ChangeEventType_BIND,
+		Type: idm.ChangeEventType_LOGIN,
 		User: user,
 	}))
 

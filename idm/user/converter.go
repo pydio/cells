@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -242,6 +243,17 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		expressions = append(expressions, goqu.L(attR))
 	}
 
+	if len(q.ConnectedSince) > 0 {
+		if lt, d, e := q.ParseLastConnected(); e == nil {
+			ref := int32(time.Now().Add(-d).Unix())
+			if lt || q.Not {
+				expressions = append(expressions, goqu.I("t.mtime").Lt(ref))
+			} else {
+				expressions = append(expressions, goqu.I("t.mtime").Gt(ref))
+			}
+		}
+	}
+
 	if len(expressions) == 0 {
 		return nil, true
 	}
@@ -291,10 +303,11 @@ func groupToNode(g *idm.User) *tree.Node {
 
 func nodeToUser(t *mtree.TreeNode) *idm.User {
 	u := &idm.User{
-		Uuid:      t.Uuid,
-		Login:     t.Name(),
-		Password:  t.Etag,
-		GroupPath: t.Path,
+		Uuid:          t.Uuid,
+		Login:         t.Name(),
+		Password:      t.Etag,
+		GroupPath:     t.Path,
+		LastConnected: int32(t.MTime),
 	}
 	var gRoles []string
 	t.GetMeta("GroupRoles", &gRoles)

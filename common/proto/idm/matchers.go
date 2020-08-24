@@ -114,7 +114,7 @@ func (m *WorkspaceSingleQuery) ParseLastUpdated() (lt bool, d time.Duration, e e
 		e = fmt.Errorf("please start with < or > character")
 		return
 	}
-	lt = firstChar == "<"
+	lt = firstChar == ">" // Duration bigger than => date lower than
 	ds := strings.TrimSpace(m.LastUpdated[1:])
 	if strings.HasSuffix(ds, "d") {
 		// Parse as number of days
@@ -202,6 +202,17 @@ func (m *UserSingleQuery) matches(user *User) bool {
 		m.AttributeName = UserAttrProfile
 		m.AttributeValue = m.HasProfile
 	}
+	if m.ConnectedSince != "" && user.LastConnected > 0 {
+		if lt, d, e := m.ParseLastConnected(); e == nil {
+			ref := time.Now().Add(-d)
+			userConnected := time.Unix(int64(user.LastConnected), 0)
+			if lt {
+				bb = append(bb, ref.Before(userConnected))
+			} else {
+				bb = append(bb, ref.After(userConnected))
+			}
+		}
+	}
 	if m.AttributeName != "" {
 		if user.Attributes == nil {
 			bb = append(bb, false)
@@ -216,6 +227,28 @@ func (m *UserSingleQuery) matches(user *User) bool {
 		}
 	}
 	return flattenBool(bb, m.Not)
+}
+
+func (m *UserSingleQuery) ParseLastConnected() (lt bool, d time.Duration, e error) {
+	firstChar := m.ConnectedSince[0:1]
+	if firstChar != "<" && firstChar != ">" {
+		e = fmt.Errorf("please start with < or > character")
+		return
+	}
+	lt = firstChar == ">"
+	ds := strings.TrimSpace(m.ConnectedSince[1:])
+	if strings.HasSuffix(ds, "d") {
+		// Parse as number of days
+		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
+		if er != nil {
+			e = er
+			return
+		}
+		d = time.Duration(days) * 24 * time.Hour
+		return
+	}
+	d, e = time.ParseDuration(strings.TrimSpace(m.ConnectedSince[1:]))
+	return
 }
 
 func flattenBool(bb []bool, isNot bool) bool {

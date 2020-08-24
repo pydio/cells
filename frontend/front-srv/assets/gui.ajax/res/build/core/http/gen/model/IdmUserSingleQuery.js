@@ -55,6 +55,7 @@ var IdmUserSingleQuery = (function () {
         this.HasRole = undefined;
         this.NodeType = undefined;
         this.HasProfile = undefined;
+        this.ConnectedSince = undefined;
         this.not = undefined;
     }
 
@@ -105,6 +106,9 @@ var IdmUserSingleQuery = (function () {
             }
             if (data.hasOwnProperty('HasProfile')) {
                 obj['HasProfile'] = _ApiClient2['default'].convertToType(data['HasProfile'], 'String');
+            }
+            if (data.hasOwnProperty('ConnectedSince')) {
+                obj['ConnectedSince'] = _ApiClient2['default'].convertToType(data['ConnectedSince'], 'String');
             }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = _ApiClient2['default'].convertToType(data['not'], 'Boolean');
@@ -164,6 +168,10 @@ module.exports = exports['default'];
 
 /**
 * @member {String} HasProfile
+*/
+
+/**
+* @member {String} ConnectedSince
 */
 
 /**

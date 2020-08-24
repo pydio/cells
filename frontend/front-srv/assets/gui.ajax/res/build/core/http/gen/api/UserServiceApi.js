@@ -112,6 +112,7 @@ var UserServiceApi = (function () {
    * @param {String} opts.oldPassword OldPassword must be set when a user updates her own password.
    * @param {Boolean} opts.isGroup Whether this object is a group or a user.
    * @param {String} opts.groupLabel Label of the group, field is empty for users.
+   * @param {Number} opts.lastConnected Last successful connection timestamp.
    * @param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response
    */
@@ -135,6 +136,7 @@ var UserServiceApi = (function () {
       'OldPassword': opts['oldPassword'],
       'IsGroup': opts['isGroup'],
       'GroupLabel': opts['groupLabel'],
+      'LastConnected': opts['lastConnected'],
       'PoliciesContextEditable': opts['policiesContextEditable']
     };
     var headerParams = {};
@@ -158,6 +160,7 @@ var UserServiceApi = (function () {
    * @param {String} opts.oldPassword OldPassword must be set when a user updates her own password.
    * @param {Boolean} opts.isGroup Whether this object is a group or a user.
    * @param {String} opts.groupLabel Label of the group, field is empty for users.
+   * @param {Number} opts.lastConnected Last successful connection timestamp.
    * @param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}
    */

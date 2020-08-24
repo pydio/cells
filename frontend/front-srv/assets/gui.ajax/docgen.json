@@ -9976,6 +9976,94 @@
         ]
       }
     ],
+    "core/http/PydioStorage.es6": [
+      {
+        "description": "",
+        "displayName": "PydioStorage",
+        "methods": [
+          {
+            "name": "getSessionStorage",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "constructor",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "key",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "nKeyId",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "setItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              },
+              {
+                "name": "sValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "removeItem",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sKey",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "length",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "core/http/PydioUsersApi.es6": [
       {
         "description": "",
@@ -11040,10 +11128,6 @@
             "params": [
               {
                 "name": "authInfo",
-                "type": null
-              },
-              {
-                "name": "reloadRegistry",
                 "type": null
               }
             ],
@@ -16261,7 +16345,7 @@
           },
           {
             "name": "getUserWithHttpInfo",
-            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response",
+            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Number} opts.lastConnected Last successful connection timestamp.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -16289,7 +16373,7 @@
           },
           {
             "name": "getUser",
-            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}",
+            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Number} opts.lastConnected Last successful connection timestamp.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}",
             "modifiers": [],
             "params": [
               {

@@ -93,6 +93,9 @@ export default class IdmUserSingleQuery {
             if (data.hasOwnProperty('HasProfile')) {
                 obj['HasProfile'] = ApiClient.convertToType(data['HasProfile'], 'String');
             }
+            if (data.hasOwnProperty('ConnectedSince')) {
+                obj['ConnectedSince'] = ApiClient.convertToType(data['ConnectedSince'], 'String');
+            }
             if (data.hasOwnProperty('not')) {
                 obj['not'] = ApiClient.convertToType(data['not'], 'Boolean');
             }
@@ -148,6 +151,10 @@ export default class IdmUserSingleQuery {
     * @member {String} HasProfile
     */
     HasProfile = undefined;
+    /**
+    * @member {String} ConnectedSince
+    */
+    ConnectedSince = undefined;
     /**
     * @member {Boolean} not
     */
