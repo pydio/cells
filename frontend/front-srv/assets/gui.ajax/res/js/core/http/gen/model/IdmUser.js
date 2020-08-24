@@ -85,6 +85,9 @@ export default class IdmUser {
             if (data.hasOwnProperty('GroupLabel')) {
                 obj['GroupLabel'] = ApiClient.convertToType(data['GroupLabel'], 'String');
             }
+            if (data.hasOwnProperty('LastConnected')) {
+                obj['LastConnected'] = ApiClient.convertToType(data['LastConnected'], 'Number');
+            }
             if (data.hasOwnProperty('Policies')) {
                 obj['Policies'] = ApiClient.convertToType(data['Policies'], [ServiceResourcePolicy]);
             }
@@ -131,6 +134,10 @@ export default class IdmUser {
     * @member {String} GroupLabel
     */
     GroupLabel = undefined;
+    /**
+    * @member {Number} LastConnected
+    */
+    LastConnected = undefined;
     /**
     * @member {Array.<module:model/ServiceResourcePolicy>} Policies
     */

@@ -163,6 +163,8 @@ message User {
     bool IsGroup = 7;
     // Label of the group, field is empty for users
     string GroupLabel = 8;
+    // Last successful connection timestamp
+    int32 LastConnected = 12;
 
     // Policies securing access to this user
     repeated service.ResourcePolicy Policies = 9;
@@ -199,6 +201,8 @@ message UserSingleQuery {
 
     // Shortcut for pydio:profile attribute
     string HasProfile = 13;
+    // Compare to last connection date, starting with > or <
+    string ConnectedSince = 14;
 
     bool not = 10;
 }
@@ -460,7 +464,7 @@ enum ChangeEventType {
     READ   = 1;
     UPDATE = 2;
     DELETE = 3;
-    BIND   = 4;
+    LOGIN  = 4;
     LOGOUT = 5;
 }
 

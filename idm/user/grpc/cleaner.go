@@ -37,6 +37,10 @@ func (c *RolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
 		return c.Dao.CleanRole(msg.Role.Uuid)
 
+	} else if msg.Type == idm.ChangeEventType_LOGIN && msg.User != nil {
+
+		return c.Dao.TouchUser(msg.User.Uuid)
+
 	}
 
 	return nil

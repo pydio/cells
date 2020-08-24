@@ -2872,6 +2872,14 @@ var SwaggerJson = `{
             "type": "string"
           },
           {
+            "name": "LastConnected",
+            "description": "Last successful connection timestamp.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
             "name": "PoliciesContextEditable",
             "description": "Context-resolved to quickly check if user is editable or not.",
             "in": "query",
@@ -4207,6 +4215,11 @@ var SwaggerJson = `{
           "type": "string",
           "title": "Label of the group, field is empty for users"
         },
+        "LastConnected": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Last successful connection timestamp"
+        },
         "Policies": {
           "type": "array",
           "items": {
@@ -4336,6 +4349,10 @@ var SwaggerJson = `{
         "HasProfile": {
           "type": "string",
           "title": "Shortcut for pydio:profile attribute"
+        },
+        "ConnectedSince": {
+          "type": "string",
+          "title": "Compare to last connection date, starting with \u003e or \u003c"
         },
         "not": {
           "type": "boolean",

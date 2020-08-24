@@ -56,6 +56,7 @@ var IdmUser = (function () {
         this.OldPassword = undefined;
         this.IsGroup = undefined;
         this.GroupLabel = undefined;
+        this.LastConnected = undefined;
         this.Policies = undefined;
         this.PoliciesContextEditable = undefined;
     }
@@ -98,6 +99,9 @@ var IdmUser = (function () {
             }
             if (data.hasOwnProperty('GroupLabel')) {
                 obj['GroupLabel'] = _ApiClient2['default'].convertToType(data['GroupLabel'], 'String');
+            }
+            if (data.hasOwnProperty('LastConnected')) {
+                obj['LastConnected'] = _ApiClient2['default'].convertToType(data['LastConnected'], 'Number');
             }
             if (data.hasOwnProperty('Policies')) {
                 obj['Policies'] = _ApiClient2['default'].convertToType(data['Policies'], [_ServiceResourcePolicy2['default']]);
@@ -148,6 +152,10 @@ module.exports = exports['default'];
 
 /**
 * @member {String} GroupLabel
+*/
+
+/**
+* @member {Number} LastConnected
 */
 
 /**

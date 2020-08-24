@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/golang/protobuf/ptypes"
@@ -61,9 +62,10 @@ var (
 		"AddRole":          `replace into idm_user_roles (uuid, role) values (?, ?)`,
 		"GetRoles":         `select role from idm_user_roles where uuid = ?`,
 		"DeleteUserRoles":  `delete from idm_user_roles where uuid = ?`,
-		//"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
-		"DeleteRoleById": `delete from idm_user_roles where role = ?`,
+		"DeleteRoleById":   `delete from idm_user_roles where role = ?`,
+		"TouchUser":        `update idm_user_idx_tree set mtime = ? where uuid = ?`,
 		//"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
+		//"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
 	}
 
 	unPrepared = map[string]func(...interface{}) string{
@@ -404,6 +406,17 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	}
 
 	return nil, errors.Forbidden(common.SERVICE_USER, "password does not match")
+
+}
+
+func (s *sqlimpl) TouchUser(userUuid string) error {
+
+	st, er := s.GetStmt("TouchUser")
+	if er != nil {
+		return er
+	}
+	_, err := st.Exec(time.Now().Unix(), userUuid)
+	return err
 
 }
 
