@@ -23,47 +23,290 @@ package log
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/scorch"
 	"github.com/blevesearch/bleve/index/store/boltdb"
+	"github.com/pborman/uuid"
 	"github.com/rs/xid"
 
 	"github.com/pydio/cells/common/proto/log"
 )
 
+const (
+	MinRotationSize     = 68 * 1024
+	DefaultRotationSize = 1 * 1024 * 1024
+)
+
 // SyslogServer is the syslog specific implementation of the Log server
 type SyslogServer struct {
-	Index       bleve.Index
-	idgen       xid.ID
-	indexPath   string
-	mappingName string
+	SearchIndex bleve.IndexAlias
 
-	inserts  chan map[string]string
-	done     chan bool
-	crtBatch *bleve.Batch
+	rotationSize int64
+	indexes      []bleve.Index
+	cursor       int
+	indexPath    string
+	mappingName  string
+
+	inserts     chan interface{}
+	insertsDone chan bool
+	crtBatch    *bleve.Batch
+	flushLock   *sync.Mutex
 }
 
 // NewSyslogServer creates and configures a default Bleve instance to store technical logs
-func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ...bool) (*SyslogServer, error) {
-
-	index, err := openIndex(bleveIndexPath, mappingName)
-	if err != nil {
-		return nil, err
+// Setting rotationSize to -1 fully disables rotation
+func NewSyslogServer(indexPath string, mappingName string, rotationSize int64) (*SyslogServer, error) {
+	if rotationSize > -1 && rotationSize < MinRotationSize {
+		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 	server := &SyslogServer{
-		Index:       index,
-		indexPath:   bleveIndexPath,
-		mappingName: mappingName,
-		inserts:     make(chan map[string]string),
-		done:        make(chan bool),
+		rotationSize: rotationSize,
 	}
-	go server.watchInserts()
-	return server, nil
+	er := server.Init(indexPath, mappingName)
+	return server, er
 }
 
-func openIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
+func (s *SyslogServer) Init(indexPath string, mappingName string) error {
+	s.indexPath = indexPath
+	s.mappingName = mappingName
+	s.SearchIndex = bleve.NewIndexAlias()
+	s.indexes = []bleve.Index{}
+	s.flushLock = &sync.Mutex{}
+	existing := s.listIndexes(true)
+	if len(existing) == 0 {
+		index, err := openOneIndex(indexPath, mappingName)
+		if err != nil {
+			return err
+		}
+		s.SearchIndex.Add(index)
+		s.indexes = append(s.indexes, index)
+		s.cursor = 0
+	} else {
+		for _, iName := range existing {
+			iPath := filepath.Join(filepath.Dir(indexPath), iName)
+			if index, err := openOneIndex(iPath, mappingName); err == nil {
+				s.indexes = append(s.indexes, index)
+			} else {
+				fmt.Println("Cannot open index", iPath, err)
+			}
+		}
+		s.SearchIndex.Add(s.indexes...)
+		s.cursor = len(s.indexes) - 1
+	}
+
+	s.inserts = make(chan interface{})
+	s.insertsDone = make(chan bool)
+
+	if indexPath != "" && s.rotationSize > -1 {
+		s.rotateIfNeeded()
+	}
+	go s.watchInserts()
+	return nil
+}
+
+func (s *SyslogServer) getWriteIndex() bleve.Index {
+	return s.indexes[s.cursor]
+}
+
+func (s *SyslogServer) Close() {
+	close(s.insertsDone)
+}
+
+func (s *SyslogServer) listIndexes(renameIfNeeded ...bool) (paths []string) {
+	dirPath, base := filepath.Split(s.indexPath)
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		return
+	}
+
+	for _, file := range files {
+		curBase := filepath.Base(file.Name())
+		if file.IsDir() && strings.HasPrefix(curBase, base) {
+			paths = append(paths, curBase)
+		}
+	}
+	sort.Strings(paths)
+	if len(paths) > 0 && paths[0] != base {
+		// Old files were remove, renumber files
+		for _, p := range paths {
+			src := filepath.Join(dirPath, p)
+			t1 := filepath.Join(dirPath, fmt.Sprintf("%s-rename", p))
+			os.Rename(src, t1)
+		}
+		for i, p := range paths {
+			src := filepath.Join(dirPath, fmt.Sprintf("%s-rename", p))
+			t2 := filepath.Join(dirPath, fmt.Sprintf("%s.%04d", base, i))
+			if i == 0 {
+				t2 = s.indexPath
+			}
+			os.Rename(src, t2)
+		}
+		return s.listIndexes(false)
+	}
+	return
+}
+
+func (s *SyslogServer) watchInserts() {
+	for {
+		select {
+		case in := <-s.inserts:
+			var msg *IndexableLog
+			if m, ok := in.(*IndexableLog); ok {
+				msg = m
+			} else if line, ok := in.(map[string]string); ok {
+				var err error
+				msg, err = MarshallLogMsg(line)
+				if err != nil {
+					fmt.Println("Cannot marshal line", line, err)
+					break
+				}
+			} else {
+				// Unsupported type
+				fmt.Println("Unsupported type (indexableLog or map[string]string)")
+				break
+			}
+			s.flushLock.Lock()
+			if s.crtBatch == nil {
+				s.crtBatch = s.getWriteIndex().NewBatch()
+			}
+			s.crtBatch.Index(xid.New().String(), msg)
+			if s.crtBatch.Size() > 5000 {
+				s.flush()
+			}
+			s.flushLock.Unlock()
+		case <-time.After(3 * time.Second):
+			s.flushLock.Lock()
+			s.flush()
+			s.flushLock.Unlock()
+		case <-s.insertsDone:
+			s.flushLock.Lock()
+			s.flush()
+			s.flushLock.Unlock()
+			s.SearchIndex.Close()
+			for _, i := range s.indexes {
+				i.Close()
+			}
+			return
+		}
+	}
+}
+
+func (s *SyslogServer) rotateIfNeeded() {
+	if s.indexPath == "" || s.rotationSize == -1 {
+		return
+	}
+	checkPath := s.indexPath
+	if s.cursor > 0 {
+		checkPath = fmt.Sprintf("%s.%04d", s.indexPath, s.cursor)
+	}
+	du, e := indexDiskUsage(checkPath)
+	if e != nil {
+		fmt.Println("Cannot compute indexDiskUsage", e.Error())
+		return
+	}
+	if du > s.rotationSize {
+		// Open a new index
+		newPath := fmt.Sprintf("%s.%04d", s.indexPath, len(s.indexes))
+		fmt.Println("Current usage is", du, ", rotating log to", newPath)
+		newIndex, er := openOneIndex(newPath, s.mappingName)
+		if er != nil {
+			fmt.Println("Cannot create new index", er.Error())
+			return
+		}
+		s.indexes = append(s.indexes, newIndex)
+		s.SearchIndex.Add(newIndex)
+		s.cursor = len(s.indexes) - 1
+	}
+}
+
+func (s *SyslogServer) flush() {
+	if s.crtBatch != nil {
+		s.getWriteIndex().Batch(s.crtBatch)
+		s.rotateIfNeeded()
+		s.crtBatch = nil
+	}
+}
+
+// PutLog  adds a new LogMessage in the syslog index.
+func (s *SyslogServer) PutLog(line map[string]string) error {
+	s.inserts <- line
+	return nil
+}
+
+// ListLogs performs a query in the bleve index, based on the passed query string.
+// It returns results as a stream of log.ListLogResponse for each corresponding hit.
+// Results are ordered by descending timestamp rather than by score.
+func (s *SyslogServer) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
+	return BleveListLogs(s.SearchIndex, str, page, size)
+}
+
+// DeleteLogs truncate logs based on a search query
+func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
+	return BleveDeleteLogs(s.getWriteIndex(), query)
+}
+
+// AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
+func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTime int32) (chan log.TimeRangeResponse, error) {
+	return nil, fmt.Errorf("unimplemented method")
+}
+
+// Resync creates a copy of current index. It is used originally used for switching analyze format from bleve to scorch
+func (s *SyslogServer) Resync() error {
+
+	copyDir := filepath.Join(filepath.Dir(s.indexPath), uuid.New())
+	e := os.Mkdir(copyDir, 0777)
+	if e != nil {
+		return e
+	}
+	copyPath := filepath.Join(copyDir, filepath.Base(s.indexPath))
+	dup, er := NewSyslogServer(copyPath, s.mappingName, s.rotationSize)
+	if er != nil {
+		return er
+	}
+	fmt.Println("Listing Index inside new one")
+	if err := BleveDuplicateIndex(s.SearchIndex, dup.inserts); err != nil {
+		return err
+	}
+	s.Close()
+	dup.Close()
+	<-time.After(5 * time.Second) // Make sure original is closed
+
+	fmt.Println("Removing old indexes")
+	for _, ip := range s.listIndexes() {
+		if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
+			return err
+		}
+	}
+	fmt.Println("Moving new indexes")
+	for _, ip := range dup.listIndexes() {
+		src := filepath.Join(copyDir, ip)
+		target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
+		if err := os.Rename(src, target); err != nil {
+			return err
+		}
+	}
+	fmt.Println("Restarting new server")
+	if err := s.Init(s.indexPath, s.mappingName); err != nil {
+		return err
+	}
+	return nil
+
+}
+
+// openOneIndex tries to open an existing index at a given path, or creates a new one
+func openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
 
 	index, err := bleve.Open(bleveIndexPath)
 	if err != nil {
@@ -86,98 +329,32 @@ func openIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
 
 }
 
-func (s *SyslogServer) watchInserts() {
-	for {
-		select {
-		case line := <-s.inserts:
-			if msg, err := MarshallLogMsg(line); err == nil {
-				if s.crtBatch == nil {
-					s.crtBatch = s.Index.NewBatch()
-				}
-				s.crtBatch.Index(xid.New().String(), msg)
-				if s.crtBatch.Size() > 5000 {
-					s.flush()
-				}
+// indexDiskUsage is a simple implementation for computing directory size
+func indexDiskUsage(currPath string) (int64, error) {
+	var size int64
+
+	dir, err := os.Open(currPath)
+	if err != nil {
+		return 0, err
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			s, e := indexDiskUsage(filepath.Join(currPath, file.Name()))
+			if e != nil {
+				return 0, e
 			}
-		case <-time.After(3 * time.Second):
-			s.flush()
-		case <-s.done:
-			s.flush()
-			s.Index.Close()
-			return
+			size += s
+		} else {
+			size += file.Size()
 		}
 	}
-}
 
-func (s *SyslogServer) flush() {
-	if s.crtBatch != nil {
-		s.Index.Batch(s.crtBatch)
-		s.crtBatch = nil
-	}
-}
-
-func (s *SyslogServer) Close() {
-	close(s.done)
-}
-
-// PutLog  adds a new LogMessage in the syslog index.
-func (s *SyslogServer) PutLog(line map[string]string) error {
-	s.inserts <- line
-	return nil
-}
-
-// ListLogs performs a query in the bleve index, based on the passed query string.
-// It returns results as a stream of log.ListLogResponse for each corresponding hit.
-// Results are ordered by descending timestamp rather than by score.
-func (s *SyslogServer) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
-	return BleveListLogs(s.Index, str, page, size)
-}
-
-func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
-	return BleveDeleteLogs(s.Index, query)
-}
-
-// AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
-func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTime int32) (chan log.TimeRangeResponse, error) {
-	return nil, fmt.Errorf("unimplemented method")
-}
-
-func (s *SyslogServer) Resync() error {
-
-	copyPath := s.indexPath + ".copy"
-	indexMapping := bleve.NewIndexMapping()
-	// Create, configure and add a specific document mapping
-	logMapping := bleve.NewDocumentMapping()
-	indexMapping.AddDocumentMapping(s.mappingName, logMapping)
-	// Creates the new index and initializes the server
-	target, err := bleve.NewUsing(copyPath, indexMapping, scorch.Name, boltdb.Name, nil)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Listing Index inside new one")
-	if err = BleveDuplicateIndex(s.Index, target); err != nil {
-		return err
-	}
-	s.Close()
-	target.Close()
-	<-time.After(5 * time.Second) // Make sure original is closed
-	s.done = make(chan bool)
-	fmt.Println("Removing old index")
-	if err = os.RemoveAll(s.indexPath); err != nil {
-		return err
-	}
-	fmt.Println("Replacing with new one")
-	if err = os.Rename(copyPath, s.indexPath); err != nil {
-		return err
-	}
-	fmt.Println("Reopening new index")
-	index, err := openIndex(s.indexPath, s.mappingName)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Finished Reindexation")
-	s.Index = index
-	go s.watchInserts()
-	return nil
-
+	return size, nil
 }

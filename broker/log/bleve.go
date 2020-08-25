@@ -58,7 +58,7 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 	return nil
 }
 
-func BleveDuplicateIndex(from bleve.Index, to bleve.Index) error {
+func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}) error {
 
 	var q query.Query
 	q = bleve.NewMatchAllQuery()
@@ -69,27 +69,17 @@ func BleveDuplicateIndex(from bleve.Index, to bleve.Index) error {
 	for {
 
 		fmt.Printf("Reindexing logs from page %d\n", page)
-		targetBatch := to.NewBatch()
 		req.From = page * req.Size
+		req.Fields = []string{"*"}
 		sr, err := from.Search(req)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
 		for _, hit := range sr.Hits {
-			doc, err := from.Document(hit.ID)
-			if err != nil {
-				continue
-			}
-
-			// create and populate a ListLogResult
 			currMsg := &log.LogMessage{}
-			UnmarshallLogMsgFromDoc(doc, currMsg)
-			indexableLog := &IndexableLog{LogMessage: *currMsg}
-			targetBatch.Index(hit.ID, indexableLog)
-		}
-		if err := to.Batch(targetBatch); err != nil {
-			return err
+			UnmarshallLogMsgFromFields(hit.Fields, currMsg)
+			inserts <- &IndexableLog{LogMessage: *currMsg}
 		}
 		if sr.Total <= uint64((page+1)*req.Size) {
 			break
@@ -116,6 +106,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	req := bleve.NewSearchRequest(q)
 	req.SortBy([]string{"-" + common.KEY_TS, "-" + common.KEY_NANO})
 	req.Size = int(size)
+	req.Fields = []string{"*"}
 	req.From = int(page * size)
 
 	sr, err := idx.Search(req)
@@ -130,15 +121,9 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 		defer close(res)
 
 		for _, hit := range sr.Hits {
-			doc, err := idx.Document(hit.ID)
-			if err != nil {
-				continue
-			}
-
 			// create and populate a ListLogResult
 			currMsg := &log.LogMessage{}
-			UnmarshallLogMsgFromDoc(doc, currMsg)
-
+			UnmarshallLogMsgFromFields(hit.Fields, currMsg)
 			res <- log.ListLogResponse{LogMessage: currMsg}
 		}
 	}()
@@ -270,9 +255,14 @@ func UnmarshallLogMsgFromDoc(doc *document.Document, msg *log.LogMessage) {
 	// fmt.Printf("## [DEBUG] ## unmarshalling index document \n")
 	m := make(map[string]interface{})
 	fromBleveDocToMap(doc, m)
+	UnmarshallLogMsgFromFields(m, msg)
+}
+
+func UnmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
 
 	if val, ok := m["Ts"]; ok {
-		msg.Ts = val.(int32)
+		ts := val.(float64)
+		msg.Ts = int32(ts)
 	}
 
 	if val, ok := m["Level"]; ok {
