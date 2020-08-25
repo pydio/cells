@@ -81,7 +81,7 @@ func init() {
 				if err != nil {
 					return err
 				}
-				logStore, err := log.NewSyslogServer(path.Join(serviceDir, "tasklogs.bleve"), "tasksLog")
+				logStore, err := log.NewSyslogServer(path.Join(serviceDir, "tasklogs.bleve"), "tasksLog", -1)
 				if err != nil {
 					return err
 				}

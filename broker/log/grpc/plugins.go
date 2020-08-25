@@ -47,7 +47,7 @@ func init() {
 				if e != nil {
 					return e
 				}
-				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog")
+				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", log.DefaultRotationSize)
 				if err != nil {
 					return err
 				}

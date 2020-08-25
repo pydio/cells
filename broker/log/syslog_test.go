@@ -23,8 +23,12 @@ package log
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/log"
@@ -38,7 +42,7 @@ var (
 func init() {
 	var err error
 
-	server, err = NewSyslogServer("", "sysLog")
+	server, err = NewSyslogServer("", "sysLog", -1)
 	if err != nil {
 		panic("Failed to create Syslog server")
 	}
@@ -118,6 +122,104 @@ func TestNewBleveEngine(t *testing.T) {
 		// 	}
 		// }
 		So(count, ShouldEqual, 2)
+	})
+}
+
+func TestSizeRotation(t *testing.T) {
+	Convey("Test Rotation", t, func() {
+		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
+		os.MkdirAll(filepath.Dir(p), 0777)
+		fmt.Println("Storing temporary index in", p)
+		s, e := NewSyslogServer(p, "sysLog", 1*1024*1024)
+		So(e, ShouldBeNil)
+		var i, k int
+		for i = 0; i < 10000; i++ {
+			line := map[string]string{
+				"level":  "info",
+				"ts":     time.Now().Format(time.RFC3339),
+				"logger": "pydio.grpc.log",
+				"MsgId":  "1",
+				"msg":    fmt.Sprintf("Message number %d", i),
+			}
+			s.PutLog(line)
+		}
+		fmt.Println("Inserted 10000 logs")
+		<-time.After(5 * time.Second)
+		for k = i; k < i+10000; k++ {
+			line := map[string]string{
+				"level":  "info",
+				"ts":     time.Now().Format(time.RFC3339),
+				"logger": "pydio.grpc.log",
+				"MsgId":  "1",
+				"msg":    fmt.Sprintf("Message number %d", k),
+			}
+			s.PutLog(line)
+		}
+		fmt.Println("Inserted 10000 other logs")
+
+		<-time.After(5 * time.Second)
+
+		indexPaths := s.listIndexes()
+		So(indexPaths, ShouldHaveLength, 5)
+		fmt.Println(indexPaths)
+		dd, e := s.SearchIndex.DocCount()
+		So(e, ShouldBeNil)
+		So(dd, ShouldEqual, 20000)
+
+		s.Close()
+		<-time.After(5 * time.Second)
+
+		// Re-open with same data and carry one feeding with logs
+		s, e = NewSyslogServer(p, "sysLog", 1*1024*1024)
+		So(e, ShouldBeNil)
+		for i = 0; i < 10000; i++ {
+			line := map[string]string{
+				"level":  "info",
+				"ts":     time.Now().Format(time.RFC3339),
+				"logger": "pydio.grpc.log",
+				"MsgId":  "1",
+				"msg":    fmt.Sprintf("Message number %d", i),
+			}
+			s.PutLog(line)
+		}
+		fmt.Println("Inserted 10000 logs")
+		<-time.After(5 * time.Second)
+		fmt.Println("Inserting 10000 other logs")
+		for k = i; k < i+10000; k++ {
+			line := map[string]string{
+				"level":  "info",
+				"ts":     time.Now().Format(time.RFC3339),
+				"logger": "pydio.grpc.log",
+				"MsgId":  "1",
+				"msg":    fmt.Sprintf("Message number %d", k),
+			}
+			s.PutLog(line)
+		}
+
+		<-time.After(5 * time.Second)
+		dd, e = s.SearchIndex.DocCount()
+		So(e, ShouldBeNil)
+		So(dd, ShouldEqual, 40000)
+
+		indexPaths = s.listIndexes()
+		So(indexPaths, ShouldHaveLength, 9)
+		fmt.Println(indexPaths)
+
+		s.Resync()
+		<-time.After(3 * time.Second)
+
+		indexPaths = s.listIndexes()
+		So(indexPaths, ShouldHaveLength, 9)
+		fmt.Println(indexPaths)
+		dd, e = s.SearchIndex.DocCount()
+		So(e, ShouldBeNil)
+		So(dd, ShouldEqual, 40000)
+
+		// Close and Clean
+		s.Close()
+		<-time.After(5 * time.Second)
+		os.RemoveAll(filepath.Dir(p))
+
 	})
 }
 
