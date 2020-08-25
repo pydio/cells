@@ -46,6 +46,10 @@ func (v *value) Set(data interface{}) error {
 		return fmt.Errorf("value doesn't exist")
 	}
 	if m, ok := v.p.(*mymap); ok {
+		if m.v == nil {
+			fmt.Println("YO YO YO")
+		}
+		fmt.Printf("HERE %v\n", m.v)
 		m.v[v.k.(string)] = data
 	}
 	if a, ok := v.p.(*array); ok {
