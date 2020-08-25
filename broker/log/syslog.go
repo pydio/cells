@@ -40,7 +40,7 @@ import (
 
 const (
 	MinRotationSize     = 68 * 1024
-	DefaultRotationSize = 1 * 1024 * 1024
+	DefaultRotationSize = int64(200 * 1024 * 1024)
 )
 
 // SyslogServer is the syslog specific implementation of the Log server
@@ -68,11 +68,11 @@ func NewSyslogServer(indexPath string, mappingName string, rotationSize int64) (
 	server := &SyslogServer{
 		rotationSize: rotationSize,
 	}
-	er := server.Init(indexPath, mappingName)
+	er := server.Open(indexPath, mappingName)
 	return server, er
 }
 
-func (s *SyslogServer) Init(indexPath string, mappingName string) error {
+func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 	s.indexPath = indexPath
 	s.mappingName = mappingName
 	s.SearchIndex = bleve.NewIndexAlias()
@@ -93,7 +93,7 @@ func (s *SyslogServer) Init(indexPath string, mappingName string) error {
 			if index, err := openOneIndex(iPath, mappingName); err == nil {
 				s.indexes = append(s.indexes, index)
 			} else {
-				fmt.Println("Cannot open index", iPath, err)
+				fmt.Println("[pydio.grpc.log] Cannot open bleve index", iPath, err)
 			}
 		}
 		s.SearchIndex.Add(s.indexes...)
@@ -169,12 +169,10 @@ func (s *SyslogServer) watchInserts() {
 				var err error
 				msg, err = MarshallLogMsg(line)
 				if err != nil {
-					fmt.Println("Cannot marshal line", line, err)
 					break
 				}
 			} else {
 				// Unsupported type
-				fmt.Println("Unsupported type (indexableLog or map[string]string)")
 				break
 			}
 			s.flushLock.Lock()
@@ -213,16 +211,15 @@ func (s *SyslogServer) rotateIfNeeded() {
 	}
 	du, e := indexDiskUsage(checkPath)
 	if e != nil {
-		fmt.Println("Cannot compute indexDiskUsage", e.Error())
+		fmt.Println("[pydio.grpc.log] Cannot compute disk usage for bleve index", e.Error())
 		return
 	}
 	if du > s.rotationSize {
 		// Open a new index
 		newPath := fmt.Sprintf("%s.%04d", s.indexPath, len(s.indexes))
-		fmt.Println("Current usage is", du, ", rotating log to", newPath)
 		newIndex, er := openOneIndex(newPath, s.mappingName)
 		if er != nil {
-			fmt.Println("Cannot create new index", er.Error())
+			fmt.Println("[pydio.grpc.log] Cannot create new bleve index", er.Error())
 			return
 		}
 		s.indexes = append(s.indexes, newIndex)
@@ -275,7 +272,7 @@ func (s *SyslogServer) Resync() error {
 	if er != nil {
 		return er
 	}
-	fmt.Println("Listing Index inside new one")
+	fmt.Println("[pydio.grpc.log] Listing Index inside new one")
 	if err := BleveDuplicateIndex(s.SearchIndex, dup.inserts); err != nil {
 		return err
 	}
@@ -283,13 +280,13 @@ func (s *SyslogServer) Resync() error {
 	dup.Close()
 	<-time.After(5 * time.Second) // Make sure original is closed
 
-	fmt.Println("Removing old indexes")
+	fmt.Println("[pydio.grpc.log] Removing old indexes")
 	for _, ip := range s.listIndexes() {
 		if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
 			return err
 		}
 	}
-	fmt.Println("Moving new indexes")
+	fmt.Println("[pydio.grpc.log] Moving new indexes")
 	for _, ip := range dup.listIndexes() {
 		src := filepath.Join(copyDir, ip)
 		target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
@@ -297,12 +294,42 @@ func (s *SyslogServer) Resync() error {
 			return err
 		}
 	}
-	fmt.Println("Restarting new server")
-	if err := s.Init(s.indexPath, s.mappingName); err != nil {
+	fmt.Println("[pydio.grpc.log] Restarting new server")
+	if err := s.Open(s.indexPath, s.mappingName); err != nil {
 		return err
 	}
 	return nil
 
+}
+
+// Truncate gathers size of existing indexes, starting from last. When max is reached
+// it starts deleting all previous indexes.
+func (s *SyslogServer) Truncate(max int64) error {
+	fmt.Println("[pydio.grpc.log] Closing log server, waiting for five seconds")
+	dir := filepath.Dir(s.indexPath)
+	s.Close()
+	<-time.After(5 * time.Second)
+	fmt.Println("[pydio.grpc.log] Start purging old files")
+	indexes := s.listIndexes()
+	var i int
+	var total int64
+	var remove bool
+	for i = len(indexes) - 1; i >= 0; i-- {
+		if remove {
+			e := os.RemoveAll(filepath.Join(dir, indexes[i]))
+			if e != nil {
+				fmt.Println("[pydio.grpc.log] cannot remove index", indexes[i])
+			}
+		} else if u, e := indexDiskUsage(filepath.Join(dir, indexes[i])); e == nil {
+			total += u
+			remove = total > max
+		}
+	}
+	// Now restart - it will renumber files
+	fmt.Println("[pydio.grpc.log] Re-opening log server")
+	s.Open(s.indexPath, s.mappingName)
+	fmt.Println("[pydio.grpc.log] Truncate operation done")
+	return nil
 }
 
 // openOneIndex tries to open an existing index at a given path, or creates a new one

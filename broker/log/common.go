@@ -25,11 +25,8 @@
 package log
 
 import (
-	"reflect"
-	"strconv"
 	"time"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/log"
 )
 
@@ -40,60 +37,7 @@ type MessageRepository interface {
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
 	Resync() error
-}
-
-/* HELPER METHODS */
-
-// FromLogMsgToMap uses reflection to transform a log.LogMessage in a map[string]interface{}.
-// It also converts MsgId to corresponding label and timestamp as second in time.
-func FromLogMsgToMap(doc *log.LogMessage, m map[string]interface{}) {
-	msg := reflect.Indirect(reflect.ValueOf(*doc))
-
-	for i := 0; i < msg.NumField(); i++ {
-		currName := msg.Type().Field(i).Name
-		currValue := msg.Field(i)
-		switch currValue.Kind() {
-		case reflect.String:
-			currStr := currValue.Interface().(string)
-			if currName == common.KEY_MSG_ID {
-				currStr = common.LogEventLabels[currStr]
-			}
-			m[currName] = currStr
-		case reflect.Int32:
-			currInt := currValue.Interface().(int32)
-			if currName == common.KEY_TS {
-				currTs := time.Unix(int64(currInt), 0)
-				m[currName] = currTs
-			} else {
-				m[currName] = strconv.FormatInt(int64(currInt), 10)
-			}
-		}
-		// else: Skip unknown and/or unexpected format
-	}
-}
-
-// FromLogMsgToStringMap uses reflection to transform a log.LogMessage in a map[string]string.
-func FromLogMsgToStringMap(doc *log.LogMessage, m map[string]string) {
-
-	msg := reflect.Indirect(reflect.ValueOf(*doc))
-
-	for i := 0; i < msg.NumField(); i++ {
-		currName := msg.Type().Field(i).Name
-		currValue := msg.Field(i)
-		switch currValue.Kind() {
-		case reflect.String:
-			m[currName] = currValue.Interface().(string)
-		case reflect.Int32:
-			currInt := currValue.Interface().(int32)
-			if currName == common.KEY_TS {
-				currTs := time.Unix(int64(currInt), 0)
-				m[currName] = currTs.Format(time.RFC3339)
-			} else {
-				m[currName] = strconv.FormatInt(int64(currInt), 10)
-			}
-		}
-		// else skip unknown and unexpected format
-	}
+	Truncate(max int64) error
 }
 
 // Single entry point to convert time.Time to Unix timestamps defined as int32

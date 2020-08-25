@@ -24,6 +24,8 @@ package grpc
 import (
 	"path"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
@@ -47,7 +49,11 @@ func init() {
 				if e != nil {
 					return e
 				}
-				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", log.DefaultRotationSize)
+				rotationSize := log.DefaultRotationSize
+				if r := servicecontext.GetConfig(m.Options().Context).Int("bleveRotationSize"); r > 0 {
+					rotationSize = int64(r)
+				}
+				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", rotationSize)
 				if err != nil {
 					return err
 				}

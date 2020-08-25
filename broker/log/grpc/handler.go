@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	"github.com/go-openapi/errors"
 
@@ -94,8 +96,17 @@ func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeReques
 	return errors.NotImplemented("cannot aggregate syslogs")
 }
 
-// TriggerResync implements SyncEndpointHandler interface by reading all logs from index and reconstructing a new index entirely
+// TriggerResync uses the request.Path as parameter. If nothing is passed, it reads all the logs from index and
+// reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
+
+	if strings.HasPrefix(request.Path, "truncate/") {
+		strSize := strings.TrimPrefix(request.Path, "truncate/")
+		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
+			return h.Repo.Truncate(maxSize)
+		}
+		return nil
+	}
 
 	go func() {
 		e := h.Repo.Resync()
