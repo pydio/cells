@@ -8,6 +8,7 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
@@ -23,7 +24,7 @@ import (
 // LoginSuccessWrapper wraps functionalities after user was successfully logged in
 func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
-		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" { // Ignore this middleware
+		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "authorization_code" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
 		// BEFORE MIDDLEWARE
@@ -96,6 +97,11 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KEY_POLICY_REQUEST, policyRequest), zap.Error(err))
 			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
 		}
+
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_LOGIN,
+			User: user,
+		}))
 
 		return nil
 	}
