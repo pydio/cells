@@ -145,7 +145,7 @@ func TestSizeRotation(t *testing.T) {
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
-		for k = i; k < i+10000; k++ {
+		for k = i; k < i+10020; k++ {
 			line := map[string]string{
 				"level":  "info",
 				"ts":     time.Now().Format(time.RFC3339),
@@ -155,7 +155,7 @@ func TestSizeRotation(t *testing.T) {
 			}
 			s.PutLog(line)
 		}
-		fmt.Println("Inserted 10000 other logs")
+		fmt.Println("Inserted 10020 other logs")
 
 		<-time.After(5 * time.Second)
 
@@ -164,7 +164,7 @@ func TestSizeRotation(t *testing.T) {
 		fmt.Println(indexPaths)
 		dd, e := s.SearchIndex.DocCount()
 		So(e, ShouldBeNil)
-		So(dd, ShouldEqual, 20000)
+		So(dd, ShouldEqual, 20020)
 
 		s.Close()
 		<-time.After(5 * time.Second)
@@ -184,8 +184,8 @@ func TestSizeRotation(t *testing.T) {
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
-		fmt.Println("Inserting 10000 other logs")
-		for k = i; k < i+10000; k++ {
+		fmt.Println("Inserting 10020 other logs")
+		for k = i; k < i+10020; k++ {
 			line := map[string]string{
 				"level":  "info",
 				"ts":     time.Now().Format(time.RFC3339),
@@ -199,7 +199,7 @@ func TestSizeRotation(t *testing.T) {
 		<-time.After(5 * time.Second)
 		dd, e = s.SearchIndex.DocCount()
 		So(e, ShouldBeNil)
-		So(dd, ShouldEqual, 40000)
+		So(dd, ShouldEqual, 40040)
 
 		indexPaths = s.listIndexes()
 		So(indexPaths, ShouldHaveLength, 9)
@@ -213,7 +213,7 @@ func TestSizeRotation(t *testing.T) {
 		fmt.Println(indexPaths)
 		dd, e = s.SearchIndex.DocCount()
 		So(e, ShouldBeNil)
-		So(dd, ShouldEqual, 40000)
+		So(dd, ShouldEqual, 40040)
 
 		// Close and Clean
 		s.Close()
