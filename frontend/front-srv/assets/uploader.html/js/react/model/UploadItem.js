@@ -58,6 +58,9 @@ class UploadItem extends StatusItem {
     getSize(){
         return this._file.size;
     }
+    getHumanSize(){
+        return PathUtils.roundFileSize(this._file.size);
+    }
     setProgress(newValue, bytes = null){
         this._progress = newValue;
         this.notify('progress', newValue);
