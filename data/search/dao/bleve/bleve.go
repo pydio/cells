@@ -28,13 +28,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/blevesearch/bleve/registry"
-
-	"github.com/blevesearch/bleve/analysis/analyzer/standard"
-
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
-	_ "github.com/blevesearch/bleve/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/analysis/analyzer/standard"
+	"github.com/blevesearch/bleve/analysis/lang/en"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
+	"github.com/blevesearch/bleve/registry"
+	"github.com/blevesearch/bleve/search/query"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views"
+
 	_ "github.com/blevesearch/bleve/analysis/lang/ar"
 	_ "github.com/blevesearch/bleve/analysis/lang/bg"
 	_ "github.com/blevesearch/bleve/analysis/lang/ca"
@@ -44,7 +51,6 @@ import (
 	_ "github.com/blevesearch/bleve/analysis/lang/da"
 	_ "github.com/blevesearch/bleve/analysis/lang/de"
 	_ "github.com/blevesearch/bleve/analysis/lang/el"
-	"github.com/blevesearch/bleve/analysis/lang/en"
 	_ "github.com/blevesearch/bleve/analysis/lang/es"
 	_ "github.com/blevesearch/bleve/analysis/lang/eu"
 	_ "github.com/blevesearch/bleve/analysis/lang/fa"
@@ -65,14 +71,6 @@ import (
 	_ "github.com/blevesearch/bleve/analysis/lang/ru"
 	_ "github.com/blevesearch/bleve/analysis/lang/sv"
 	_ "github.com/blevesearch/bleve/analysis/lang/tr"
-	"github.com/blevesearch/bleve/index/scorch"
-	"github.com/blevesearch/bleve/index/store/boltdb"
-	"github.com/blevesearch/bleve/search/query"
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
 )
 
 const (
