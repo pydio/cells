@@ -20,9 +20,34 @@
 
 import React from "react";
 import Pydio from "pydio";
-import {Card, CardTitle, CardText, Divider, FlatButton, FontIcon, CardActions} from 'material-ui'
+import {Card, CardTitle, CardText, Divider, FlatButton, FontIcon, IconButton, CardActions} from 'material-ui'
 const {ActionDialogMixin, SubmitButtonProviderMixin, Loader} = Pydio.requireLib('boot');
 import Markdown from "react-markdown";
+
+const mdStyle = `
+.credits-md h4 {
+    padding-top: 0;
+}
+
+.credits-md h5 {
+    font-weight: 500;
+}
+
+.credits-md ul {
+    padding-left: 20px;
+    padding-bottom: 20px;
+}
+
+.credits-md li {
+    list-style-type: square;
+    line-height: 1.6em;
+}
+
+.credits-md a {
+    color: #607D8B;
+    font-weight: 500;
+}
+`;
 
 const SplashDialog = React.createClass({
 
@@ -79,21 +104,26 @@ const SplashDialog = React.createClass({
             credit = <Loader style={{minHeight: 200}}/>;
         }
         credit = (
-            <Card style={{margin:10}}>
+            <Card>
                 <CardTitle
                     title={pydio.Parameters.get('backend')['PackageLabel']}
                     subtitle="Details about version, licensing and how to get help"
                 />
                 <Divider/>
-                <CardActions>
+                <CardActions style={{display:'flex', alignItems:'center'}}>
                     <FlatButton primary={true} icon={<FontIcon className="mdi mdi-book-variant" />} label="Docs" onTouchTap={this.openDocs} />
                     <FlatButton primary={true} icon={<FontIcon className="mdi mdi-slack" />} label="Forums" onTouchTap={this.openForum}/>
                     <FlatButton primary={true} icon={<FontIcon className="mdi mdi-github-box" />} label="Issues" onTouchTap={this.openGithub}/>
+                    <span style={{flex: 1}}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#FF786A'}} iconClassName={"icomoon-cells"} onTouchTap={() => {open('https://pydio.com/?from=cells')} } tooltip={"Pydio.com"}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#3b5998'}} iconClassName={"mdi mdi-facebook-box"} onTouchTap={() => {open('https://facebook.com/Pydio')} } tooltip={"@Pydio"}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#00acee'}} iconClassName={"mdi mdi-twitter-box"} onTouchTap={() => {open('https://twitter.com/pydio')} } tooltip={"@pydio"}/>
                 </CardActions>
                 <Divider/>
-                <CardText>
+                <CardText className={"credits-md"}>
                     {credit}
                 </CardText>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:mdStyle}}/>
             </Card>
         );
         return (

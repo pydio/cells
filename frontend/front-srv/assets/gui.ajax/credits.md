@@ -2,21 +2,24 @@
 
 ##### JavaScript
 
-- ReactJS : reactjs.org  Facebook BSD
-- Modernizr: http://modernizr.com (BSD / MIT)
-- PDFJS library is provided by the Mozilla Foundation (Apache 2): http://mozilla.github.io/pdf.js/
-- See a list of all libraries and licenses used under <u>core/doc/npm-licenses.csv folder</u>.
+- ReactJS : [reactjs.org](https://reactjs.org)  Facebook BSD
+- Modernizr: [http://modernizr.com](http://modernizr.com) (BSD / MIT)
+- PDFJS library is provided by the Mozilla Foundation (Apache 2): [http://mozilla.github.io/pdf.js/](http://mozilla.github.io/pdf.js/)
 
 ##### Graphical Elements
 
-- Material Design is a design specification written by Google (see https://material.io/).
-- Material UI is the JS framework we use to implement Material Design, written by Call-Em-All (MIT License)
-- Material Design Icons : https://materialdesignicons.com/ (SIL Open Font License, Version 1.1.)
-- Font Awesome by Dave Gandy : http://fortawesome.github.com/Font-Awesome/ (SIL Open Font License)
-- Background Photos from https://unsplash.com/ - Brad Neathery, Dustin Lee, Luis Llerena, Tim Gouw, Though Catalog
+- Material Design is a design specification written by Google, see [https://material.io/](https://material.io/)
+- Material UI JS framework is written by Call-Em-All, see [https://material-ui.com/](https://material-ui.com/) (MIT License)
+- Material Design Icons : [https://materialdesignicons.com/](https://materialdesignicons.com/) (SIL Open Font License, Version 1.1.)
+- Font Awesome by Dave Gandy : [https://fontawesome.com/](https://fontawesome.com/) (SIL Open Font License)
+- Background Photos from [https://unsplash.com/](https://unsplash.com/) - Brad Neathery, Dustin Lee, Luis Llerena, Tim Gouw, Though Catalog
 
 ##### Other Plugins
 
-- OpenLayers http://www.openlayers.org (BSD)
-- Video-js http://www.videojs.com/ (LGPL)
-- SoundManager : http://www.schillmania.com/projects/soundmanager2/ (BSD)
+- OpenLayers [http://www.openlayers.org](http://www.openlayers.org) (BSD)
+- Video-js [http://www.videojs.com/](http://www.videojs.com/) (LGPL)
+- SoundManager : [http://www.schillmania.com/projects/soundmanager2/](http://www.schillmania.com/projects/soundmanager2/) (BSD)
+
+##### Golang Librarires
+
+- All libraries are listed in the _pydio/cells_ code repository (see <u>[DEPENDENCIES](https://raw.githubusercontent.com/pydio/cells/master/DEPENDENCIES)</u>).
