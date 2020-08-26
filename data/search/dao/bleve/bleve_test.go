@@ -38,7 +38,7 @@ import (
 func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 	tmpDir, _ := ioutil.TempDir("", "bleve")
 	BleveIndexPath = filepath.Join(tmpDir, "pydio")
-	server, _ := NewBleveEngine(false)
+	server, _ := NewBleveEngine(false, nil)
 
 	if createNodes {
 
@@ -117,14 +117,14 @@ func TestNewBleveEngine(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	Convey("Test create bleve engine then reopen it", t, func() {
-		server, err := NewBleveEngine(false)
+		server, err := NewBleveEngine(false, nil)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
 		e := server.Close()
 		So(e, ShouldBeNil)
 
-		server, err = NewBleveEngine(false)
+		server, err = NewBleveEngine(false, nil)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
