@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {Paper, MenuItem} from 'material-ui'
+import {Paper, MenuItem, CircularProgress} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
 const {GenericCard, GenericLine} = Pydio.requireLib("components");
 
@@ -30,7 +30,7 @@ class CellCard extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {edit: false, model: new CellModel()};
+        this.state = {edit: false, model: new CellModel(), loading:true};
         this._observer = () => {this.forceUpdate()};
         ResourcesManager.loadClassesAndApply(["PydioActivityStreams", "PydioCoreActions"], () => {
             this.setState({extLibs: true})
@@ -62,11 +62,14 @@ class CellCard extends React.Component{
         const {pydio, cellId} = this.props;
         if(pydio.user.activeRepository === cellId) {
             pydio.user.getActiveRepositoryAsCell().then(cell => {
-                this.setState({model: cell});
+                this.setState({model: cell, loading: false});
                 cell.observe('update', this._observer);
             })
         } else {
-            this.state.model.observe('update', ()=>{this.forceUpdate()});
+            this.state.model.observe('update', ()=>{
+                this.setState({loading: false});
+                this.forceUpdate();
+            });
             this.state.model.load(this.props.cellId);
         }
     }
@@ -81,7 +84,7 @@ class CellCard extends React.Component{
 
     render(){
         const {mode, pydio, editorOneColumn} = this.props;
-        const {edit, model, extLibs, rootNodes} = this.state;
+        const {edit, model, extLibs, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
         let rootStyle = {width: 350, minHeight: 270};
@@ -123,13 +126,12 @@ class CellCard extends React.Component{
                 }
             }
             let watchLine, bmButton;
-            if(extLibs && rootNodes) {
-
+            if(extLibs && rootNodes && !loading) {
                 const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
                 watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
                 bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
-
             }
+
             content = (
                 <GenericCard
                     pydio={pydio}
@@ -141,12 +143,13 @@ class CellCard extends React.Component{
                     headerSmall={mode === 'infoPanel'}
                     moreMenuItems={moreMenuItems}
                 >
-                    {model.getDescription() &&
-                        <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>
-                    }
-                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()}/>
-                    <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes}/>
+                    {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
+                    {!loading && <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()}/>}
+                    {!loading && <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes}/>}
                     {watchLine}
+                    {loading &&
+                        <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:120, fontWeight:500, color:'#aaa'}}>{Pydio.getMessages()[466]}</div>
+                    }
                 </GenericCard>
             );
             if(mode === 'infoPanel'){
