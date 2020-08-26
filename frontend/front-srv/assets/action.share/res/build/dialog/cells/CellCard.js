@@ -75,7 +75,7 @@ var CellCard = (function (_React$Component) {
         _classCallCheck(this, CellCard);
 
         _get(Object.getPrototypeOf(CellCard.prototype), 'constructor', this).call(this, props);
-        this.state = { edit: false, model: new _pydioModelCell2['default']() };
+        this.state = { edit: false, model: new _pydioModelCell2['default'](), loading: true };
         this._observer = function () {
             _this.forceUpdate();
         };
@@ -122,11 +122,12 @@ var CellCard = (function (_React$Component) {
 
             if (pydio.user.activeRepository === cellId) {
                 pydio.user.getActiveRepositoryAsCell().then(function (cell) {
-                    _this2.setState({ model: cell });
+                    _this2.setState({ model: cell, loading: false });
                     cell.observe('update', _this2._observer);
                 });
             } else {
                 this.state.model.observe('update', function () {
+                    _this2.setState({ loading: false });
                     _this2.forceUpdate();
                 });
                 this.state.model.load(this.props.cellId);
@@ -156,6 +157,7 @@ var CellCard = (function (_React$Component) {
             var model = _state.model;
             var extLibs = _state.extLibs;
             var rootNodes = _state.rootNodes;
+            var loading = _state.loading;
 
             var m = function m(id) {
                 return pydio.MessageHash['share_center.' + id];
@@ -209,12 +211,12 @@ var CellCard = (function (_React$Component) {
                 }
                 var watchLine = undefined,
                     bmButton = undefined;
-                if (extLibs && rootNodes) {
-
+                if (extLibs && rootNodes && !loading) {
                     var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
                     watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], data: selector, iconStyle: { marginTop: 32 } });
                     bmButton = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });
                 }
+
                 content = _react2['default'].createElement(
                     GenericCard,
                     {
@@ -227,10 +229,15 @@ var CellCard = (function (_React$Component) {
                         headerSmall: mode === 'infoPanel',
                         moreMenuItems: moreMenuItems
                     },
-                    model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
-                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
-                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
-                    watchLine
+                    !loading && model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
+                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
+                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
+                    watchLine,
+                    loading && _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, fontWeight: 500, color: '#aaa' } },
+                        _pydio2['default'].getMessages()[466]
+                    )
                 );
                 if (mode === 'infoPanel') {
                     return content;
