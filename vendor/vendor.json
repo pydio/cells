@@ -452,6 +452,12 @@
 			"revisionTime": "2019-02-27T16:32:57Z"
 		},
 		{
+			"checksumSHA1": "mnNyhSut6FXu4s1nSUH1c0jmH6k=",
+			"path": "github.com/blevesearch/bleve/analysis/char/regexp",
+			"revision": "d72521093e14a38cb92e22042aed18ca7a1e8fd4",
+			"revisionTime": "2019-01-16T19:08:17Z"
+		},
+		{
 			"checksumSHA1": "AjhgMVLe92KHT6lPTWNqXA2EZ00=",
 			"path": "github.com/blevesearch/bleve/analysis/char/zerowidthnonjoiner",
 			"revision": "d72521093e14a38cb92e22042aed18ca7a1e8fd4",
