@@ -44,6 +44,8 @@ var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 var Loader = _Pydio$requireLib.Loader;
 
+var mdStyle = "\n.credits-md h4 {\n    padding-top: 0;\n}\n\n.credits-md h5 {\n    font-weight: 500;\n}\n\n.credits-md ul {\n    padding-left: 20px;\n    padding-bottom: 20px;\n}\n\n.credits-md li {\n    list-style-type: square;\n    line-height: 1.6em;\n}\n\n.credits-md a {\n    color: #607D8B;\n    font-weight: 500;\n}\n";
+
 var SplashDialog = _react2["default"].createClass({
     displayName: "SplashDialog",
 
@@ -101,7 +103,7 @@ var SplashDialog = _react2["default"].createClass({
         }
         credit = _react2["default"].createElement(
             _materialUi.Card,
-            { style: { margin: 10 } },
+            null,
             _react2["default"].createElement(_materialUi.CardTitle, {
                 title: pydio.Parameters.get('backend')['PackageLabel'],
                 subtitle: "Details about version, licensing and how to get help"
@@ -109,17 +111,28 @@ var SplashDialog = _react2["default"].createClass({
             _react2["default"].createElement(_materialUi.Divider, null),
             _react2["default"].createElement(
                 _materialUi.CardActions,
-                null,
+                { style: { display: 'flex', alignItems: 'center' } },
                 _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-book-variant" }), label: "Docs", onTouchTap: this.openDocs }),
                 _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-slack" }), label: "Forums", onTouchTap: this.openForum }),
-                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-github-box" }), label: "Issues", onTouchTap: this.openGithub })
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-github-box" }), label: "Issues", onTouchTap: this.openGithub }),
+                _react2["default"].createElement("span", { style: { flex: 1 } }),
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#FF786A' }, iconClassName: "icomoon-cells", onTouchTap: function () {
+                        open('https://pydio.com/?from=cells');
+                    }, tooltip: "Pydio.com" }),
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#3b5998' }, iconClassName: "mdi mdi-facebook-box", onTouchTap: function () {
+                        open('https://facebook.com/Pydio');
+                    }, tooltip: "@Pydio" }),
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#00acee' }, iconClassName: "mdi mdi-twitter-box", onTouchTap: function () {
+                        open('https://twitter.com/pydio');
+                    }, tooltip: "@pydio" })
             ),
             _react2["default"].createElement(_materialUi.Divider, null),
             _react2["default"].createElement(
                 _materialUi.CardText,
-                null,
+                { className: "credits-md" },
                 credit
-            )
+            ),
+            _react2["default"].createElement("style", { type: "text/css", dangerouslySetInnerHTML: { __html: mdStyle } })
         );
         return _react2["default"].createElement(
             "div",
