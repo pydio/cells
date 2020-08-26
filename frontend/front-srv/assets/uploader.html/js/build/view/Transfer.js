@@ -363,7 +363,7 @@ var Transfer = function (_React$Component) {
             } else {
                 statusLabel = messages['html_uploader.status.' + itemType + '.' + status] || messages['html_uploader.status.' + status] || status;
                 if (item.getSize) {
-                    statusLabel = item.getSize() + 'B' + ' - ' + statusLabel;
+                    statusLabel = item.getHumanSize() + ' - ' + statusLabel;
                 }
             }
 

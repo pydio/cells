@@ -88,6 +88,11 @@ var UploadItem = function (_StatusItem) {
             return this._file.size;
         }
     }, {
+        key: 'getHumanSize',
+        value: function getHumanSize() {
+            return _path2.default.roundFileSize(this._file.size);
+        }
+    }, {
         key: 'setProgress',
         value: function setProgress(newValue) {
             var bytes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
