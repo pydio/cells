@@ -141,7 +141,7 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 			// this license must thus be valid
 			log.Logger(ctx).Info("Saving LicenseKey to file now", zap.String("lic", lic))
 			filePath := filepath.Join(config.ApplicationWorkingDir(), "pydio-license")
-			if err := ioutil.WriteFile(filePath, []byte(lic), 0755); err != nil {
+			if err := ioutil.WriteFile(filePath, []byte(lic), 0644); err != nil {
 				return nil, fmt.Errorf("could not save license file to %s (%s), aborting upgrade", filePath, err.Error())
 			}
 		}
