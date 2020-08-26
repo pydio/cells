@@ -28,8 +28,43 @@ import (
 	"strings"
 	"time"
 
+	"github.com/blevesearch/bleve/registry"
+
+	"github.com/blevesearch/bleve/analysis/analyzer/standard"
+
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
 	_ "github.com/blevesearch/bleve/analysis/analyzer/keyword"
+	_ "github.com/blevesearch/bleve/analysis/lang/ar"
+	_ "github.com/blevesearch/bleve/analysis/lang/bg"
+	_ "github.com/blevesearch/bleve/analysis/lang/ca"
+	_ "github.com/blevesearch/bleve/analysis/lang/cjk"
+	_ "github.com/blevesearch/bleve/analysis/lang/ckb"
+	_ "github.com/blevesearch/bleve/analysis/lang/cs"
+	_ "github.com/blevesearch/bleve/analysis/lang/da"
+	_ "github.com/blevesearch/bleve/analysis/lang/de"
+	_ "github.com/blevesearch/bleve/analysis/lang/el"
+	"github.com/blevesearch/bleve/analysis/lang/en"
+	_ "github.com/blevesearch/bleve/analysis/lang/es"
+	_ "github.com/blevesearch/bleve/analysis/lang/eu"
+	_ "github.com/blevesearch/bleve/analysis/lang/fa"
+	_ "github.com/blevesearch/bleve/analysis/lang/fi"
+	_ "github.com/blevesearch/bleve/analysis/lang/fr"
+	_ "github.com/blevesearch/bleve/analysis/lang/ga"
+	_ "github.com/blevesearch/bleve/analysis/lang/gl"
+	_ "github.com/blevesearch/bleve/analysis/lang/hi"
+	_ "github.com/blevesearch/bleve/analysis/lang/hu"
+	_ "github.com/blevesearch/bleve/analysis/lang/hy"
+	_ "github.com/blevesearch/bleve/analysis/lang/id"
+	_ "github.com/blevesearch/bleve/analysis/lang/in"
+	_ "github.com/blevesearch/bleve/analysis/lang/it"
+	_ "github.com/blevesearch/bleve/analysis/lang/nl"
+	_ "github.com/blevesearch/bleve/analysis/lang/no"
+	_ "github.com/blevesearch/bleve/analysis/lang/pt"
+	_ "github.com/blevesearch/bleve/analysis/lang/ro"
+	_ "github.com/blevesearch/bleve/analysis/lang/ru"
+	_ "github.com/blevesearch/bleve/analysis/lang/sv"
+	_ "github.com/blevesearch/bleve/analysis/lang/tr"
 	"github.com/blevesearch/bleve/index/scorch"
 	"github.com/blevesearch/bleve/index/store/boltdb"
 	"github.com/blevesearch/bleve/search/query"
@@ -38,6 +73,11 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+)
+
+const (
+	defaultBasenameAnalyzer = standard.Name
+	defaultContentAnalyzer  = en.AnalyzerName
 )
 
 var (
@@ -50,6 +90,9 @@ type BleveServer struct {
 	Engine       bleve.Index
 	IndexContent bool
 
+	basenameAnalyzer string
+	contentAnalyzer  string
+
 	batch   *bleve.Batch
 	inserts chan *tree.IndexableNode
 	deletes chan string
@@ -57,29 +100,34 @@ type BleveServer struct {
 	closed  chan bool
 }
 
-func NewBleveEngine(indexContent bool) (*BleveServer, error) {
+func NewBleveEngine(indexContent bool, configs map[string]interface{}) (*BleveServer, error) {
 
 	if BleveIndexPath == "" {
 		return nil, fmt.Errorf("please setup BleveIndexPath before opening engine")
 	}
-
+	bnA, cA, er := extractConfigs(configs)
+	if er != nil {
+		return nil, er
+	}
 	_, e := os.Stat(BleveIndexPath)
 	var index bleve.Index
 	var err error
 	if e == nil {
 		index, err = bleve.Open(BleveIndexPath)
 	} else {
-		index, err = createIndex(BleveIndexPath)
+		index, err = createIndex(BleveIndexPath, bnA, cA)
 	}
 	if err != nil {
 		return nil, err
 	}
 	server := &BleveServer{
-		Engine:       index,
-		IndexContent: indexContent,
-		inserts:      make(chan *tree.IndexableNode),
-		deletes:      make(chan string),
-		done:         make(chan bool, 1),
+		Engine:           index,
+		IndexContent:     indexContent,
+		basenameAnalyzer: bnA,
+		contentAnalyzer:  cA,
+		inserts:          make(chan *tree.IndexableNode),
+		deletes:          make(chan string),
+		done:             make(chan bool, 1),
 	}
 	go server.watchOperations()
 	return server, nil
@@ -109,7 +157,7 @@ func (s *BleveServer) watchOperations() {
 	}
 }
 
-func createIndex(indexPath string) (bleve.Index, error) {
+func createIndex(indexPath string, bnAna, cAna string) (bleve.Index, error) {
 
 	mapping := bleve.NewIndexMapping()
 	nodeMapping := bleve.NewDocumentMapping()
@@ -117,17 +165,21 @@ func createIndex(indexPath string) (bleve.Index, error) {
 
 	// Path to keyword
 	pathFieldMapping := bleve.NewTextFieldMapping()
-	pathFieldMapping.Analyzer = "keyword"
+	pathFieldMapping.Analyzer = keyword.Name
 	nodeMapping.AddFieldMappingsAt("Path", pathFieldMapping)
+
+	bnameFieldMapping := bleve.NewTextFieldMapping()
+	bnameFieldMapping.Analyzer = bnAna //standard.Name
+	nodeMapping.AddFieldMappingsAt("Basename", bnameFieldMapping)
 
 	// Node type to keyword
 	nodeType := bleve.NewTextFieldMapping()
-	nodeType.Analyzer = "keyword"
+	nodeType.Analyzer = keyword.Name
 	nodeMapping.AddFieldMappingsAt("NodeType", nodeType)
 
 	// Extension to keyword
 	extType := bleve.NewTextFieldMapping()
-	extType.Analyzer = "keyword"
+	extType.Analyzer = keyword.Name
 	nodeMapping.AddFieldMappingsAt("Extension", extType)
 
 	// Modification Time as Date
@@ -140,7 +192,7 @@ func createIndex(indexPath string) (bleve.Index, error) {
 
 	// Text Content
 	textContent := bleve.NewTextFieldMapping()
-	textContent.Analyzer = "en" // See detect_lang in the blevesearch/blevex package?
+	textContent.Analyzer = cAna // en.AnalyzerName
 	textContent.Store = false
 	textContent.IncludeInAll = false
 	nodeMapping.AddFieldMappingsAt("TextContent", textContent)
@@ -152,6 +204,46 @@ func createIndex(indexPath string) (bleve.Index, error) {
 func (s *BleveServer) Close() error {
 	close(s.done)
 	return nil
+}
+
+func extractConfigs(conf map[string]interface{}) (basenameAnalyzer, contentAnalyzer string, e error) {
+
+	basenameAnalyzer = defaultBasenameAnalyzer
+	contentAnalyzer = defaultContentAnalyzer
+
+	if conf == nil {
+		return
+	}
+	_, tt := registry.AnalyzerTypesAndInstances()
+
+	if bA, o := conf["basenameAnalyzer"]; o {
+		var found bool
+		for _, t := range tt {
+			if t == bA.(string) {
+				basenameAnalyzer = bA.(string)
+				found = true
+				break
+			}
+		}
+		if !found {
+			e = fmt.Errorf("basename analyzer code %s is not registered", bA)
+		}
+	}
+
+	if cA, o := conf["contentAnalyzer"]; o {
+		var found bool
+		for _, t := range tt {
+			if t == cA.(string) {
+				contentAnalyzer = cA.(string)
+				found = true
+				break
+			}
+		}
+		if !found {
+			e = fmt.Errorf("content analyzer code %s is not registered", cA)
+		}
+	}
+	return
 }
 
 func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
@@ -183,7 +275,7 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	if e := os.RemoveAll(BleveIndexPath); e != nil {
 		return e
 	}
-	index, e := createIndex(BleveIndexPath)
+	index, e := createIndex(BleveIndexPath, s.basenameAnalyzer, s.contentAnalyzer)
 	if e != nil {
 		return e
 	}
@@ -197,9 +289,23 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	boolean := bleve.NewBooleanQuery()
 	// FileName
 	if len(queryObject.GetFileName()) > 0 {
-		wCard := bleve.NewWildcardQuery("*" + strings.Trim(strings.ToLower(queryObject.GetFileName()), "*") + "*")
-		wCard.SetField("Basename")
-		boolean.AddMust(wCard)
+		if s.basenameAnalyzer == defaultBasenameAnalyzer {
+			wCard := bleve.NewWildcardQuery("*" + strings.Trim(strings.ToLower(queryObject.GetFileName()), "*") + "*")
+			wCard.SetField("Basename")
+			boolean.AddMust(wCard)
+		} else {
+			wCard := bleve.NewMatchQuery(queryObject.GetFileName())
+			wCard.Analyzer = s.basenameAnalyzer
+			wCard.SetField("Basename")
+			boolean.AddMust(wCard)
+		}
+	}
+	// TextContent
+	if len(queryObject.GetContent()) > 0 {
+		cQuery := bleve.NewMatchQuery(queryObject.GetContent())
+		cQuery.Analyzer = s.contentAnalyzer
+		cQuery.SetField("TextContent")
+		boolean.AddMust(cQuery)
 	}
 	// File Size Range
 	if queryObject.MinSize > 0 || queryObject.MaxSize > 0 {
@@ -283,6 +389,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		searchRequest.Size = int(size)
 	}
 	searchRequest.From = int(from)
+	searchRequest.Fields = []string{"Uuid", "Path", "NodeType", "Basename"}
 	searchResult, err := s.Engine.SearchInContext(c, searchRequest)
 	if err != nil {
 		doneChan <- true
@@ -290,33 +397,52 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	}
 	log.Logger(c).Info("SearchObjects", zap.Any("total results", searchResult.Total))
 	for _, hit := range searchResult.Hits {
-		doc, docErr := s.Engine.Document(hit.ID)
-		if docErr != nil || doc == nil {
-			continue
-		}
 		node := &tree.Node{}
-		for _, f := range doc.Fields {
-			stringValue := string(f.Value())
-			switch f.Name() {
-			case "Uuid":
-				node.Uuid = stringValue
-				break
-			case "Path":
-				node.Path = stringValue
-				break
-			case "NodeType":
-				if stringValue == "file" {
-					node.Type = 1
-				} else if stringValue == "folder" {
-					node.Type = 2
-				}
-				break
-			case "Basename":
-				node.SetMeta("name", stringValue)
-			default:
-				break
+		if u, ok := hit.Fields["Uuid"]; ok {
+			node.Uuid = u.(string)
+		}
+		if p, ok := hit.Fields["Path"]; ok {
+			node.Path = p.(string)
+		}
+		if b, ok := hit.Fields["Basename"]; ok {
+			node.SetMeta("name", b.(string))
+		}
+		if t, ok := hit.Fields["NodeType"]; ok {
+			if t.(string) == "file" {
+				node.Type = tree.NodeType_LEAF
+			} else if t.(string) == "folder" {
+				node.Type = tree.NodeType_COLLECTION
 			}
 		}
+		/*
+			doc, docErr := s.Engine.Document(hit.ID)
+			if docErr != nil || doc == nil {
+				continue
+			}
+			node := &tree.Node{}
+			for _, f := range doc.Fields {
+				stringValue := string(f.Value())
+				switch f.Name() {
+				case "Uuid":
+					node.Uuid = stringValue
+					break
+				case "Path":
+					node.Path = stringValue
+					break
+				case "NodeType":
+					if stringValue == "file" {
+						node.Type = 1
+					} else if stringValue == "folder" {
+						node.Type = 2
+					}
+					break
+				case "Basename":
+					node.SetMeta("name", stringValue)
+				default:
+					break
+				}
+			}
+		*/
 
 		log.Logger(c).Debug("SearchObjects", zap.Any("node", node))
 
