@@ -128,6 +128,7 @@ class TasksList extends React.Component {
                         job={job}
                         descriptions={descriptions}
                         onRequestClose={()=>{this.setState({taskLogs: null})}}
+                        poll={t.Status === 'Running' ? 1050 : undefined}
                     />
                 );
                 return {...t, expandedRow}

@@ -47,11 +47,20 @@ class TaskActivity extends React.Component{
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        const {poll} = this.props;
+        if(poll){
+            this._interval = window.setInterval(() => {
+                this.loadActivity(this.props);
+            }, poll);
+        }
     }
 
     componentWillUnmount(){
         if(this._loadDebounced){
             JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+        }
+        if(this._interval) {
+            window.clearInterval(this._interval);
         }
     }
 
