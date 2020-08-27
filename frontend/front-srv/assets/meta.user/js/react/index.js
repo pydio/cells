@@ -1,3 +1,3 @@
-import {Renderer, InfoPanel, Callbacks, UserMetaDialog} from './components'
+import {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel} from './components'
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog}
+export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}

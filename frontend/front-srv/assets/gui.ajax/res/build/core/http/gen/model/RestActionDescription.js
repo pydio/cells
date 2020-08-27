@@ -45,6 +45,8 @@ var RestActionDescription = (function () {
         this.Description = undefined;
         this.SummaryTemplate = undefined;
         this.HasForm = undefined;
+        this.FormModule = undefined;
+        this.FormModuleProps = undefined;
         this.Category = undefined;
         this.Tint = undefined;
         this.InputDescription = undefined;
@@ -80,6 +82,12 @@ var RestActionDescription = (function () {
             }
             if (data.hasOwnProperty('HasForm')) {
                 obj['HasForm'] = _ApiClient2['default'].convertToType(data['HasForm'], 'Boolean');
+            }
+            if (data.hasOwnProperty('FormModule')) {
+                obj['FormModule'] = _ApiClient2['default'].convertToType(data['FormModule'], 'String');
+            }
+            if (data.hasOwnProperty('FormModuleProps')) {
+                obj['FormModuleProps'] = _ApiClient2['default'].convertToType(data['FormModuleProps'], 'String');
             }
             if (data.hasOwnProperty('Category')) {
                 obj['Category'] = _ApiClient2['default'].convertToType(data['Category'], 'String');
@@ -124,6 +132,14 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} HasForm
+*/
+
+/**
+* @member {String} FormModule
+*/
+
+/**
+* @member {String} FormModuleProps
 */
 
 /**
