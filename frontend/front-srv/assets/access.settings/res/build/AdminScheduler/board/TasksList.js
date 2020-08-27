@@ -205,7 +205,8 @@ var TasksList = (function (_React$Component) {
                         descriptions: descriptions,
                         onRequestClose: function () {
                             _this3.setState({ taskLogs: null });
-                        }
+                        },
+                        poll: t.Status === 'Running' ? 1050 : undefined
                     });
                     return _extends({}, t, { expandedRow: expandedRow });
                 } else {
