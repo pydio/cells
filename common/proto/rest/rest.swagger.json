@@ -5761,6 +5761,14 @@
           "format": "boolean",
           "title": "Whether this action has a form or not"
         },
+        "FormModule": {
+          "type": "string",
+          "title": "JS module name to be used instead of loading standard form"
+        },
+        "FormModuleProps": {
+          "type": "string",
+          "title": "JSON props used to init the FormModule (optional)"
+        },
         "Category": {
           "type": "string",
           "title": "User-defined category to organize actions list"

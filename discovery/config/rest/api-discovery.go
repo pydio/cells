@@ -210,6 +210,8 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 			InputDescription:  a.InputDescription,
 			OutputDescription: a.OutputDescription,
 			HasForm:           a.HasForm,
+			FormModule:        a.FormModule,
+			FormModuleProps:   a.FormModuleProps,
 		}
 	}
 	rsp.WriteEntity(response)
