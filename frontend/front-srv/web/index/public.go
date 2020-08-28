@@ -34,7 +34,7 @@ type PublicHandler struct {
 
 func NewPublicHandler() *PublicHandler {
 	h := &PublicHandler{}
-	h.tpl, _ = template.New("public").Parse(public)
+	h.tpl, _ = template.New("public").Parse(Public)
 	h.error, _ = template.New("error").Parse(errorTpl)
 	return h
 }
@@ -154,7 +154,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	return
 }
 
-// ServeHTTP serve public link
+// ServeHTTP serve Public link
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	link := mux.Vars(r)["link"]

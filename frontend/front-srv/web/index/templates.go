@@ -54,7 +54,7 @@ func GetLoadingString(lang string) string {
 	}
 }
 
-var loader = `
+var Loader = `
 <div style="position: absolute;display:flex; flex-direction:column ;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center; font-family: Roboto, sans-serif;background-color:#424242; color: white">
 	<svg width="60px" height="79px" viewBox="0 0 213 279" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<defs></defs>
@@ -91,7 +91,7 @@ var loading = `<!DOCTYPE html>
 </html>
 `
 
-var page = `<!DOCTYPE html>
+var Page = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
@@ -115,12 +115,12 @@ var page = `<!DOCTYPE html>
 			startParameters = {{.StartParameters}};
 			window.pydioBootstrap = new PydioBootstrap(startParameters);
 		</script>
-		<div id="{{.StartParameters.MAIN_ELEMENT}}">` + loader + `</div>
+		<div id="{{.StartParameters.MAIN_ELEMENT}}">` + Loader + `</div>
 	</body>
 </html>
 `
 
-var public = `<!DOCTYPE html>
+var Public = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
@@ -145,7 +145,7 @@ var public = `<!DOCTYPE html>
 			startParameters = {{.StartParameters}};
 			window.pydioBootstrap = new PydioBootstrap(startParameters);
 		</script>
-		<div class="vertical_fit vertical_layout" id="{{.StartParameters.MAIN_ELEMENT}}">` + loader + `</div>
+		<div class="vertical_fit vertical_layout" id="{{.StartParameters.MAIN_ELEMENT}}">` + Loader + `</div>
 	</body>
 </html>
 `
