@@ -25,9 +25,12 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/scorch"
@@ -132,14 +135,23 @@ func (s *SyslogServer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 	}
 
 	for _, file := range files {
+		if !file.IsDir() {
+			continue
+		}
 		curBase := filepath.Base(file.Name())
-		if file.IsDir() && strings.HasPrefix(curBase, base) {
+		if curBase == base {
 			paths = append(paths, curBase)
+		} else if strings.HasPrefix(curBase, base) {
+			// Ensure suffix is a number ".0001", ".0002", etc.
+			test := strings.TrimLeft(strings.TrimPrefix(curBase, base+"."), "0")
+			if _, e := strconv.ParseInt(test, 10, 32); e == nil {
+				paths = append(paths, curBase)
+			}
 		}
 	}
 	sort.Strings(paths)
-	if len(paths) > 0 && paths[0] != base {
-		// Old files were remove, renumber files
+	if len(renameIfNeeded) > 0 && renameIfNeeded[0] && len(paths) > 0 && paths[0] != base {
+		// Old files were removed, renumber files
 		for _, p := range paths {
 			src := filepath.Join(dirPath, p)
 			t1 := filepath.Join(dirPath, fmt.Sprintf("%s-rename", p))
@@ -153,7 +165,7 @@ func (s *SyslogServer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 			}
 			os.Rename(src, t2)
 		}
-		return s.listIndexes(false)
+		return s.listIndexes()
 	}
 	return
 }
@@ -260,33 +272,38 @@ func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTim
 }
 
 // Resync creates a copy of current index. It is used originally used for switching analyze format from bleve to scorch
-func (s *SyslogServer) Resync() error {
+func (s *SyslogServer) Resync(logger *zap.Logger) error {
 
 	copyDir := filepath.Join(filepath.Dir(s.indexPath), uuid.New())
 	e := os.Mkdir(copyDir, 0777)
 	if e != nil {
 		return e
 	}
+	defer func() {
+		os.RemoveAll(copyDir)
+	}()
 	copyPath := filepath.Join(copyDir, filepath.Base(s.indexPath))
 	dup, er := NewSyslogServer(copyPath, s.mappingName, s.rotationSize)
 	if er != nil {
 		return er
 	}
-	fmt.Println("[pydio.grpc.log] Listing Index inside new one")
-	if err := BleveDuplicateIndex(s.SearchIndex, dup.inserts); err != nil {
+	logTaskInfo(logger, "Listing Index inside new one", "info")
+	if err := BleveDuplicateIndex(s.SearchIndex, dup.inserts, func(s string) {
+		logTaskInfo(logger, s, "info")
+	}); err != nil {
 		return err
 	}
 	s.Close()
 	dup.Close()
 	<-time.After(5 * time.Second) // Make sure original is closed
 
-	fmt.Println("[pydio.grpc.log] Removing old indexes")
+	logTaskInfo(logger, "Removing old indexes", "info")
 	for _, ip := range s.listIndexes() {
 		if err := os.RemoveAll(filepath.Join(filepath.Dir(s.indexPath), ip)); err != nil {
 			return err
 		}
 	}
-	fmt.Println("[pydio.grpc.log] Moving new indexes")
+	logTaskInfo(logger, "Moving new indexes", "info")
 	for _, ip := range dup.listIndexes() {
 		src := filepath.Join(copyDir, ip)
 		target := filepath.Join(filepath.Join(filepath.Dir(s.indexPath), ip))
@@ -294,22 +311,23 @@ func (s *SyslogServer) Resync() error {
 			return err
 		}
 	}
-	fmt.Println("[pydio.grpc.log] Restarting new server")
+	logTaskInfo(logger, "Restarting new server", "info")
 	if err := s.Open(s.indexPath, s.mappingName); err != nil {
 		return err
 	}
+	logTaskInfo(logger, "Resync operation done", "info")
 	return nil
 
 }
 
 // Truncate gathers size of existing indexes, starting from last. When max is reached
 // it starts deleting all previous indexes.
-func (s *SyslogServer) Truncate(max int64) error {
-	fmt.Println("[pydio.grpc.log] Closing log server, waiting for five seconds")
+func (s *SyslogServer) Truncate(max int64, logger *zap.Logger) error {
+	logTaskInfo(logger, "Closing log server, waiting for five seconds", "info")
 	dir := filepath.Dir(s.indexPath)
 	s.Close()
 	<-time.After(5 * time.Second)
-	fmt.Println("[pydio.grpc.log] Start purging old files")
+	logTaskInfo(logger, "Start purging old files", "info")
 	indexes := s.listIndexes()
 	var i int
 	var total int64
@@ -318,7 +336,7 @@ func (s *SyslogServer) Truncate(max int64) error {
 		if remove {
 			e := os.RemoveAll(filepath.Join(dir, indexes[i]))
 			if e != nil {
-				fmt.Println("[pydio.grpc.log] cannot remove index", indexes[i])
+				logTaskInfo(logger, fmt.Sprintf("cannot remove index %s", indexes[i]), "error")
 			}
 		} else if u, e := indexDiskUsage(filepath.Join(dir, indexes[i])); e == nil {
 			total += u
@@ -326,10 +344,22 @@ func (s *SyslogServer) Truncate(max int64) error {
 		}
 	}
 	// Now restart - it will renumber files
-	fmt.Println("[pydio.grpc.log] Re-opening log server")
+	logTaskInfo(logger, "Re-opening log server", "info")
 	s.Open(s.indexPath, s.mappingName)
-	fmt.Println("[pydio.grpc.log] Truncate operation done")
+	logTaskInfo(logger, "Truncate operation done", "info")
 	return nil
+}
+
+func logTaskInfo(l *zap.Logger, msg string, level string) {
+	if l == nil {
+		fmt.Println("[pydio.grpc.log] " + msg)
+	} else if level == "info" {
+		l.Info(msg)
+	} else if level == "error" {
+		l.Error(msg)
+	} else {
+		l.Debug(msg)
+	}
 }
 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
