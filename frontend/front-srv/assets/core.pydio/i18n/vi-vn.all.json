@@ -1,24 +1,24 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "Phiên bản mới nhất"
   },
   "1": {
-    "other": "Filename"
+    "other": "Tên tập tin"
   },
   "10": {
-    "other": "Text file"
+    "other": "Tập tin văn bản"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "Không thể tìm thấy tập tin "
   },
   "101": {
     "other": "The origin and destination folders are the same!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "Gặp lỗi khi tạo tệp :"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "Không thể tìm thấy thư mục "
   },
   "104": {
     "other": "Go to the given location"
@@ -27,10 +27,10 @@
     "other": "Email an url to access directly to this location."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "Gủi thư"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "Tên và/hoặc email của bạn"
   },
   "108": {
     "other": "The destination email"
@@ -60,10 +60,10 @@
     "other": "The file has been saved successfully"
   },
   "116": {
-    "other": "files"
+    "other": "tập tin"
   },
   "117": {
-    "other": "The folder"
+    "other": "Thư mục"
   },
   "118": {
     "other": "Download Multiple File"
@@ -72,52 +72,52 @@
     "other": "Click on each file to download it."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "Ảnh GIF"
   },
   "120": {
     "other": "You are not allowed to delete the whole arborescence!"
   },
   "121": {
-    "other": "Image File "
+    "other": "Tập tinh hình ảnh "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Thùng rác"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "đã được chuyển đến "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "Ghi đè tập tin hiện có?"
   },
   "125": {
     "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "Hình ảnh thu nhỏ"
   },
   "127": {
-    "other": "Size"
+    "other": "Kích thước"
   },
   "128": {
     "other": "files selected."
   },
   "129": {
-    "other": "View"
+    "other": "Lượt xem"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "Ảnh JPG"
   },
   "130": {
-    "other": "Folders"
+    "other": "Thư mục"
   },
   "131": {
-    "other": "Details"
+    "other": "Thông tin chi tiết"
   },
   "132": {
     "other": "No file or folder"
   },
   "133": {
-    "other": "Name"
+    "other": "Tên"
   },
   "134": {
     "other": "Type"
@@ -228,19 +228,19 @@
     "other": "Log in"
   },
   "164": {
-    "other": "Log out"
+    "other": "Đăng xuất"
   },
   "165": {
-    "other": "Settings"
+    "other": "Cài đặt"
   },
   "166": {
-    "other": "About"
+    "other": "Thông tin"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Thông tin Pydio"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "Kết nối với APPLICATION_TITLE"
   },
   "169": {
     "other": "Disconnect from APPLICATION_TITLE"
@@ -258,10 +258,10 @@
     "other": "Your Selection"
   },
   "173": {
-    "other": "New folder name"
+    "other": "Tên thư mục mới"
   },
   "174": {
-    "other": "New file name"
+    "other": "Tên tập tin mới"
   },
   "175": {
     "other": "Select destination folder"
@@ -276,7 +276,7 @@
     "other": "Previous"
   },
   "179": {
-    "other": "Next"
+    "other": "Tiếp theo"
   },
   "18": {
     "other": "PERL script"
@@ -285,10 +285,10 @@
     "other": "Enter login/password"
   },
   "181": {
-    "other": "Login"
+    "other": "Đăng nhập"
   },
   "182": {
-    "other": "Password"
+    "other": "Mật khẩu"
   },
   "183": {
     "other": "Please select a destination folder different from the origin!"
@@ -297,10 +297,10 @@
     "other": "Search in current folder and sub-folders"
   },
   "185": {
-    "other": "Stop searching"
+    "other": "Dừng tìm kiếm"
   },
   "186": {
-    "other": "Image Preview"
+    "other": "Xem trước hình ảnh"
   },
   "187": {
     "other": "Online Edition - "
@@ -312,19 +312,19 @@
     "other": "ZIP file"
   },
   "190": {
-    "other": "Language"
+    "other": "Ngôn ngữ"
   },
   "191": {
-    "other": "Default Display"
+    "other": "Hiển thị mặc định"
   },
   "192": {
-    "other": "List"
+    "other": "Danh sách"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "Hình ảnh thu nhỏ"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Thay đổi mật khẩu"
   },
   "195": {
     "other": "User Preferences"
@@ -336,16 +336,16 @@
     "other": "Your password change will take effect after you logout."
   },
   "198": {
-    "other": "New"
+    "other": "Mới"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Xác nhận"
   },
   "2": {
-    "other": "Size"
+    "other": "Kích thước"
   },
   "20": {
-    "other": "WAV file"
+    "other": "Tập tin WAV"
   },
   "200": {
     "other": "Switch Repository to..."
@@ -432,7 +432,7 @@
     "other": "Rename bookmark"
   },
   "226": {
-    "other": "Details"
+    "other": "Thông tin chi tiết"
   },
   "227": {
     "other": "Switch to detailed table view"
@@ -444,7 +444,7 @@
     "other": "Switch to thumbnails view"
   },
   "23": {
-    "other": "File"
+    "other": "Tệp tin"
   },
   "230": {
     "other": "Play"
@@ -453,7 +453,7 @@
     "other": "Play Slideshow"
   },
   "232": {
-    "other": "Stop"
+    "other": "Dừng lại"
   },
   "233": {
     "other": "Stop Slideshow"
@@ -465,10 +465,10 @@
     "other": "Fullscreen"
   },
   "236": {
-    "other": "Restore"
+    "other": "Phục hồi"
   },
   "237": {
-    "other": "Old password"
+    "other": "Mật khẩu cũ"
   },
   "238": {
     "other": "Passwords differ!"
@@ -555,19 +555,19 @@
     "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
   },
   "263": {
-    "other": "Overwrite"
+    "other": "Ghi đè"
   },
   "264": {
-    "other": "Skip"
+    "other": "Bỏ qua"
   },
   "265": {
-    "other": "Files"
+    "other": "Tệp tin"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Tạo mới"
   },
   "268": {
     "other": "Create a new table"
@@ -576,7 +576,7 @@
     "other": "Structure"
   },
   "27": {
-    "other": "Upload"
+    "other": "Tải lên"
   },
   "270": {
     "other": "Edit table structure"
@@ -621,13 +621,13 @@
     "other": "Size per File"
   },
   "283": {
-    "other": "Total Size"
+    "other": "Tổng kích thước"
   },
   "284": {
-    "other": "Files Number"
+    "other": "Số tệp tin"
   },
   "285": {
-    "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
+    "other": "Không thể tìm thấy người dùng, vui lòng thử lại. \\n Hãy đảm bảo Caps Lock của bạn chưa được sử dụng!"
   },
   "286": {
     "other": "Your user is out of date with the current version, please use the upgrade procedure."
@@ -636,22 +636,22 @@
     "other": "File Permissions"
   },
   "288": {
-    "other": "User"
+    "other": "Người dùng"
   },
   "289": {
-    "other": "Group"
+    "other": "Nhóm"
   },
   "29": {
-    "other": "Create"
+    "other": "Tạo mới"
   },
   "290": {
-    "other": "All"
+    "other": "Tất cả"
   },
   "291": {
     "other": "Apply recursively?"
   },
   "292": {
-    "other": "Share"
+    "other": "Chia sẻ"
   },
   "293": {
     "other": "Create a public link to this file"
@@ -708,13 +708,13 @@
     "other": "Generate Link"
   },
   "309": {
-    "other": "Generate"
+    "other": "Tạo"
   },
   "31": {
     "other": "You must select a file"
   },
   "310": {
-    "other": "Options"
+    "other": "Tùy chọn"
   },
   "311": {
     "other": "Upload automatically when a file is added"
@@ -723,7 +723,7 @@
     "other": "Uploader Options"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Nén..."
   },
   "314": {
     "other": "Compress selection to zip..."
@@ -732,7 +732,7 @@
     "other": "Compress selection to"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Xem/Chỉnh sửa"
   },
   "317": {
     "other": "Source Editor"
@@ -741,16 +741,16 @@
     "other": "CodePress source code viewer"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "Trình soạn thảo HTML"
   },
   "32": {
-    "other": "Explore"
+    "other": "Khám phá"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "Trình chỉnh sửa WYSIWYG cho HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Chọn"
   },
   "322": {
     "other": "Select the current file"
@@ -816,34 +816,34 @@
     "other": "Alert"
   },
   "341": {
-    "other": "File Info"
+    "other": "Thông tin tệp tin"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Thông tin thư mục"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Thông tin hình ảnh"
   },
   "344": {
-    "other": "Search on"
+    "other": "Tìm kiếm trên"
   },
   "345": {
     "other": "No version information could be retrieved"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Phiên bản của bạn đã được cập nhật"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Đã có phiên bản mới (%s)! Truy cập %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Một không gian làm việc mới đã được chia sẻ."
   },
   "349": {
     "other": "Warning, missing arguments"
   },
   "35": {
-    "other": "has been successfully created in the directory"
+    "other": "đã được tạo thành công trong thư mục"
   },
   "350": {
     "other": "A user that does not belong to you already exists with this name, please choose another name."
@@ -861,19 +861,19 @@
     "other": "Create a new user or choose one of your existing ones from the list."
   },
   "355": {
-    "other": "User Name"
+    "other": "Tên người dùng"
   },
   "356": {
-    "other": "User Pass"
+    "other": "Mật khẩu người dùng"
   },
   "357": {
     "other": "Target Repository"
   },
   "358": {
-    "other": "Choose a name for the shared workspace."
+    "other": "Chọn tên cho không gian làm việc chung."
   },
   "359": {
-    "other": "Label"
+    "other": "Nhãn"
   },
   "36": {
     "other": "It's size is"
@@ -948,22 +948,22 @@
     "other": "Too short"
   },
   "381": {
-    "other": "Very weak"
+    "other": "Rất yếu"
   },
   "382": {
-    "other": "Weak"
+    "other": "Yếu"
   },
   "383": {
-    "other": "Medium"
+    "other": "Trung bình"
   },
   "384": {
-    "other": "Strong"
+    "other": "Mạnh"
   },
   "385": {
-    "other": "Very strong"
+    "other": "Rất mạnh"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Vui lòng chỉ sử dụng các ký tự viết thường cho thông tin đăng nhập"
   },
   "validation.login.format": {
     "other": "Please use alphanumeric characters or valid emails for logins"
@@ -1053,10 +1053,10 @@
     "other": "Open"
   },
   "412": {
-    "other": "Upload only"
+    "other": "Chỉ tải lên"
   },
   "413": {
-    "other": "Shared by"
+    "other": "Chia sẻ bởi"
   },
   "414": {
     "other": "Use arrows to navigate and +/- to change zoom"
@@ -1083,7 +1083,7 @@
     "other": "Please pick a template from the list"
   },
   "421": {
-    "other": "New %s"
+    "other": "Mới %s"
   },
   "422": {
     "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
@@ -1146,16 +1146,16 @@
     "other": "has been deleted"
   },
   "440": {
-    "other": "Yes"
+    "other": "Đồng ý"
   },
   "441": {
-    "other": "No"
+    "other": "Không"
   },
   "442": {
-    "other": "My Account"
+    "other": "Tài khoản của tôi"
   },
   "443": {
-    "other": "Update your personal information"
+    "other": "Cập nhật thông tin các nhân của bạn"
   },
   "444": {
     "other": "Please update your password, you will not be able to log in otherwise."
@@ -1170,7 +1170,7 @@
     "other": "My group"
   },
   "448": {
-    "other": "create user"
+    "other": "tạo người dùng"
   },
   "449": {
     "other": "Creating %s, choose a password"
@@ -1200,10 +1200,10 @@
     "other": "More"
   },
   "457": {
-    "other": "update"
+    "other": "cập nhật"
   },
   "458": {
-    "other": "remove"
+    "other": "loại bỏ"
   },
   "459": {
     "other": "Top folder"
@@ -1212,16 +1212,16 @@
     "other": "file"
   },
   "460": {
-    "other": "List"
+    "other": "Danh sách"
   },
   "461": {
     "other": "Switch to list view"
   },
   "462": {
-    "other": "Preview"
+    "other": "Xem trước"
   },
   "463": {
-    "other": "Download all"
+    "other": "Tải về tất cả"
   },
   "464": {
     "other": "Download all workspace content at once (zipped)"
@@ -1230,7 +1230,7 @@
     "other": "Show alternative URLs (mount workspaces separately)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "Đang tải..."
   },
   "467": {
     "other": "All Shared Elements"
@@ -1245,19 +1245,19 @@
     "other": "Do you really want to delete the"
   },
   "470": {
-    "other": "Created %date"
+    "other": "Ngày tạo %d"
   },
   "471": {
     "other": "Created by %user %date"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "Được chia sẻ bởi %u"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "Được tạo theo ngày %d của người dùng %u"
   },
   "474": {
-    "other": "No description available"
+    "other": "Mô tả không có sẵn"
   },
   "475": {
     "other": "Files shared amongst all users"
