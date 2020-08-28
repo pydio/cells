@@ -39,13 +39,13 @@
     "other": "REST mặc định cho user đã chứng thực"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Danh sách và tìm kiếm theo metadata"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Cập nhật metadata"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Thiết lập Read-access trên dịch vụ frontend"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
     "other": "Write-access to FrontendService except global binaries uploads"
