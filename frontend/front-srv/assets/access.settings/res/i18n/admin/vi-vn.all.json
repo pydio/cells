@@ -117,7 +117,7 @@
     "other": "Thiết lập chính sách phiên bản để giữ lịch sử sửa đổi nội dung tệp. Chú ý rằng nó sẽ sử dụng thêm không gian lưu trữ."
   },
   "ds.editor.storage.legend.encryption": {
-    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+    "other": "Mã hóa ở chế độ ngủ có thể được sử dụng để đảm bảo các tệp không bao giờ được lưu trữ ở định dạng clear format bên trong bộ nhớ. Điều này có thể sẽ hữu ích nếu bạn không tin vao nhà cung cấp dịch vụ lưu trữ."
   },
   "ds.editor.storage.readOnly": {
     "other": "Chế độ chỉ đọc"
@@ -126,13 +126,13 @@
     "other": "Hãy sử dụng chế độ Chỉ đọc nếu bạn yêu cầu Cells không bao giờ viết bất cứ tệp ẩn nào và sử dụng eTags gốc làm checksums( điều này có thể cần thiết cho buckets với các nhóm dữ liệu hiện có rất lớn). Tuy nhiên, vui lòng chú ý rằng bất cứ không gian làm việc nào được tạo trên datasource này phải được đặt là Chỉ đọc, vì tính năng di chuyển có thể hoạt động không được chính xác."
   },
   "ds.editor.storage.checksumMapper": {
-    "other": "Store checksums locally (do not modify objects)"
+    "other": "Lưu trữ tổng kiểm tra cục bộ (không sửa đổi các đối tượng)"
   },
   "ds.editor.storage.nativeEtags": {
     "other": "Sử dụng Native Etags (sẽ tắt đồng bộ máy tính để bàn)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
+    "other": "Để phát hiện thay đổi thích hợp, các tệp checksums(md5) đã được tính toán bởi Cells(hoặc bởi bộ lưu trữ với bản sao tại chỗ, khi có thể) và được đính kèm dưới dạng siêu dữ liệu cho các đối tượng. Để có hiệu suất tốt nhất, hãy sử dụng cờ Native ETags để giữ các giá trị gốc cho bộ nhớ, nhưng hay lưu ý rằng điều này sẽ vô hiệu hóa Desktop Synchronization trên datasource này. Bạn cũng có thể đơn giản ngăn việc sửa đổi đối tượng, trong khi vẫn tính checksums, bằng cách lưu trữ siêu dữ liệu trên máy chủ Cells."
   },
   "ds.editor.new": {
     "other": "Tạo mới DataSource"
@@ -249,7 +249,7 @@
     "other": "Tải lại buckets"
   },
   "ds.editor.storage.buckets.regexp": {
-    "other": "Use regular expression"
+    "other": "Biểu thức chính quy"
   },
   "ds.editor.storage.buckets.regexp.hint": {
     "other": "Regular expression"
@@ -1572,7 +1572,7 @@
     "other": "Cập nhật Metadata"
   },
   "scheduler.trigger.update.user-metadata": {
-    "other": "Update User Metadata"
+    "other": "Cập nhật Metadata người dùng"
   },
   "scheduler.trigger.delete.node": {
     "other": "Xóa node"
@@ -1677,7 +1677,7 @@
     "other": "Xóa tất cả"
   },
   "scheduler.tasks.activity.title": {
-    "other": "Task Activity"
+    "other": "Hoạt động công việc"
   },
   "scheduler.tasks.activity.loading": {
     "other": "Đang tải hoạt động..."

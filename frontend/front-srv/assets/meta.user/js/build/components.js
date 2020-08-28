@@ -1081,3 +1081,4 @@ exports.Renderer = Renderer;
 exports.InfoPanel = InfoPanel;
 exports.Callbacks = Callbacks;
 exports.UserMetaDialog = UserMetaDialog;
+exports.UserMetaPanel = UserMetaPanel;

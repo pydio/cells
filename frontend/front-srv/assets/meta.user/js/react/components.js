@@ -827,4 +827,4 @@ class InfoPanel extends React.Component{
 
 }
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog}
+export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}

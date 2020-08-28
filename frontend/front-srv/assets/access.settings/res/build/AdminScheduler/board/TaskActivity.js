@@ -93,12 +93,22 @@ var TaskActivity = (function (_React$Component) {
                 }
             }, 500);
             JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+            var poll = this.props.poll;
+
+            if (poll) {
+                this._interval = window.setInterval(function () {
+                    _this.loadActivity(_this.props);
+                }, poll);
+            }
         }
     }, {
         key: "componentWillUnmount",
         value: function componentWillUnmount() {
             if (this._loadDebounced) {
                 JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+            }
+            if (this._interval) {
+                window.clearInterval(this._interval);
             }
         }
     }, {

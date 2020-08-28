@@ -174,15 +174,15 @@
     "other": "Lần cập nhật trước"
   },
   "role.id.description": {
-    "other": "Unique ID of this role (cannot be changed)."
+    "other": "ID duy nhất của vai trò này (không thể thay đổi)."
   },
   "role.label.description": {
     "other": "Human-readable label."
   },
   "role.autoapply.description": {
-    "other": "Role is always applied to users with this profile(s)."
+    "other": "Vai trò luôn được áp dụng cho người dùng có (các) hồ sơ này."
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "Vai trò luôn được áp dụng sau các vai trò khác, ngoại trừ vai trò người dùng vẫn sẽ chiếm ưu thế."
   }
 }

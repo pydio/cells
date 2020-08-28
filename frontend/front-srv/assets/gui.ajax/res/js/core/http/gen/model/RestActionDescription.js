@@ -74,6 +74,12 @@ export default class RestActionDescription {
             if (data.hasOwnProperty('HasForm')) {
                 obj['HasForm'] = ApiClient.convertToType(data['HasForm'], 'Boolean');
             }
+            if (data.hasOwnProperty('FormModule')) {
+                obj['FormModule'] = ApiClient.convertToType(data['FormModule'], 'String');
+            }
+            if (data.hasOwnProperty('FormModuleProps')) {
+                obj['FormModuleProps'] = ApiClient.convertToType(data['FormModuleProps'], 'String');
+            }
             if (data.hasOwnProperty('Category')) {
                 obj['Category'] = ApiClient.convertToType(data['Category'], 'String');
             }
@@ -114,6 +120,14 @@ export default class RestActionDescription {
     * @member {Boolean} HasForm
     */
     HasForm = undefined;
+    /**
+    * @member {String} FormModule
+    */
+    FormModule = undefined;
+    /**
+    * @member {String} FormModuleProps
+    */
+    FormModuleProps = undefined;
     /**
     * @member {String} Category
     */

@@ -58,7 +58,7 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 	return nil
 }
 
-func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}) error {
+func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}, logger func(string)) error {
 
 	var q query.Query
 	q = bleve.NewMatchAllQuery()
@@ -68,7 +68,7 @@ func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}) error {
 
 	for {
 
-		fmt.Printf("Reindexing logs from page %d\n", page)
+		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
 		req.From = page * req.Size
 		req.Fields = []string{"*"}
 		sr, err := from.Search(req)

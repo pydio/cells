@@ -71,6 +71,8 @@ type ActionDescription struct {
 	OutputDescription string
 	SummaryTemplate   string
 	HasForm           bool
+	FormModule        string
+	FormModuleProps   string
 }
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
