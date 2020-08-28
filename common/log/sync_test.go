@@ -135,7 +135,7 @@ func TestLogSync(t *testing.T) {
 	Convey("Test goroutine leaks", t, func() {
 		<-time.After(20 * time.Second)
 		runtime.GC()
-		So(runtime.NumGoroutine(), ShouldBeLessThan, 20)
+		So(runtime.NumGoroutine(), ShouldBeLessThan, 25)
 
 		cancel()
 
