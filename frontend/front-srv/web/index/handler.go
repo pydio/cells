@@ -25,7 +25,7 @@ type IndexHandler struct {
 
 func NewIndexHandler() *IndexHandler {
 	h := &IndexHandler{}
-	h.tpl, _ = template.New("index").Parse(page)
+	h.tpl, _ = template.New("index").Parse(Page)
 	h.loadingTpl, _ = template.New("loading").Parse(loading)
 	return h
 }
