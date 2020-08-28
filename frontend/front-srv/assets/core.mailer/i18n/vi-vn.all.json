@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "Email đã được gửi thành công đến %s người dùng"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "Không tìm thấy địa chỉ để gửi email!"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "Không có thư nào được cấu hình để gửi đi, hãy liên lạc với quản trị viên"
   },
   "4": {
-    "other": "From"
+    "other": "Từ"
   },
   "5": {
-    "other": "To"
+    "other": "Đến"
   },
   "6": {
-    "other": "Subject"
+    "other": "Tiêu đề"
   },
   "7": {
-    "other": "Message"
+    "other": "Tin nhắn"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "Chọn người dùng hoặc nhập địa chỉ"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Phân loại thông báo"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "Không thể gửi email một cách chính xác!"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Cảnh báo, một số mục nhập đã bị bỏ qua, chỉ những người dùng đã đặt đúng địa chỉ email của họ mới nhận được lời mời. Đội ngũ và nhóm cũng không được xử lý."
   }
 }

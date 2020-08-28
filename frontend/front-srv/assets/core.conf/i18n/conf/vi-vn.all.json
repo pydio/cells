@@ -129,19 +129,19 @@
     "other": "Maximum number of shared users per user"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "Số lượng người dùng tối đa được hiển thị trong trình tìm kiếm"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "Số ký tự tối thiểu để kích hoạt tính năng tự động hoàn thành"
   },
   "Name": {
-    "other": "Name"
+    "other": "Tên"
   },
   "Preferences Saving": {
-    "other": "Preferences Saving"
+    "other": "Lưu tùy chọn"
   },
   "Remember guest preferences": {
-    "other": "Remember guest preferences"
+    "other": "Ghi nhớ tùy chọn của khách"
   },
   "Role Label": {
     "other": "Role Label"
@@ -153,19 +153,19 @@
     "other": "Danh sách thư mục Roles/Nhóm"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "Kết nối SQL"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "Xem người dùng hiện tại"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
     "other": "Đặt cách lưu trữ dữ liệu lõi ứng dụng (users,roles, v.v.)."
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "Chia sẻ với người dùng hiện tại từ tất cả các nhóm"
   },
   "Shared users limit": {
-    "other": "Shared users limit"
+    "other": "Giới hạn người dùng được chia sẻ"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
     "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
