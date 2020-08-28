@@ -27,6 +27,9 @@ import (
 	"strconv"
 	"strings"
 
+	log2 "github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+
 	"github.com/go-openapi/errors"
 
 	"github.com/pydio/cells/broker/log"
@@ -100,18 +103,27 @@ func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeReques
 // reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
 
+	var l *zap.Logger
+	if request.Task != nil {
+		l = log2.Logger(ctx)
+	}
+
 	if strings.HasPrefix(request.Path, "truncate/") {
 		strSize := strings.TrimPrefix(request.Path, "truncate/")
 		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
-			return h.Repo.Truncate(maxSize)
+			return h.Repo.Truncate(maxSize, l)
 		}
 		return nil
 	}
 
 	go func() {
-		e := h.Repo.Resync()
+		e := h.Repo.Resync(l)
 		if e != nil {
-			fmt.Println("Error while resyncing: " + e.Error())
+			if l != nil {
+				l.Error("Error while resyncing: ", zap.Error(e))
+			} else {
+				fmt.Println("Error while resyncing: " + e.Error())
+			}
 		}
 	}()
 
