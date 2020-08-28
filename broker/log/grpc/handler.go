@@ -26,13 +26,17 @@ import (
 	"io"
 	"strconv"
 	"strings"
-
-	log2 "github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
+	"time"
 
 	"github.com/go-openapi/errors"
+	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/broker/log"
+	"github.com/pydio/cells/common"
+	log2 "github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/jobs"
 	proto "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/proto/sync"
 )
@@ -104,16 +108,40 @@ func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeReques
 func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
 
 	var l *zap.Logger
+	var closeTask func(e error)
 	if request.Task != nil {
-		l = log2.Logger(ctx)
+		l = log2.TasksLogger(ctx)
+		theTask := request.Task
+		theTask.StartTime = int32(time.Now().Unix())
+		closeTask = func(e error) {
+			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
+			theTask.EndTime = int32(time.Now().Unix())
+			if e != nil {
+				theTask.StatusMessage = "Error " + e.Error()
+				theTask.Status = jobs.TaskStatus_Error
+			} else {
+				theTask.StatusMessage = "Done"
+				theTask.Status = jobs.TaskStatus_Finished
+			}
+			_, err := taskClient.PutTask(context.Background(), &jobs.PutTaskRequest{Task: theTask})
+			if err != nil {
+				fmt.Println("Cannot post task!", err)
+			}
+		}
+	} else {
+		closeTask = func(e error) {}
 	}
 
 	if strings.HasPrefix(request.Path, "truncate/") {
 		strSize := strings.TrimPrefix(request.Path, "truncate/")
+		var er error
 		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
-			return h.Repo.Truncate(maxSize, l)
+			er = h.Repo.Truncate(maxSize, l)
+		} else {
+			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
-		return nil
+		closeTask(er)
+		return er
 	}
 
 	go func() {
@@ -125,6 +153,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 				fmt.Println("Error while resyncing: " + e.Error())
 			}
 		}
+		closeTask(e)
 	}()
 
 	return nil
