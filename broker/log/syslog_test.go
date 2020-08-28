@@ -205,7 +205,7 @@ func TestSizeRotation(t *testing.T) {
 		So(indexPaths, ShouldHaveLength, 9)
 		fmt.Println(indexPaths)
 
-		s.Resync()
+		s.Resync(nil)
 		<-time.After(3 * time.Second)
 
 		indexPaths = s.listIndexes()
