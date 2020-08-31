@@ -36,16 +36,16 @@
     "other": "Busca ahora"
   },
   "package.version": {
-    "other": "Version"
+    "other": "Versión"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Etiqueta"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Detalles"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Mostrar Historial de Cambios"
   },
   "start.update": {
     "other": "Iniciar Upgrade"

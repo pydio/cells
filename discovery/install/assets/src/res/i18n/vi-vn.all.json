@@ -210,7 +210,7 @@
     "other": "Buckets prefix"
   },
   "form.s3BucketsPrefix.legend": {
-    "other": "A unique prefix for creating the 6 default buckets"
+    "other": "Một tiền tố duy nhất để tạo 6 buckets mặc định"
   },
   "form.bucketList.found": {
     "other": "Bucket(s) đã tồn tại"

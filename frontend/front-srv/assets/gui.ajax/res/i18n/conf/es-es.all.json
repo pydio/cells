@@ -261,10 +261,10 @@
     "other": "Sesión Web"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "Auto-cierre de sesión de la interfaz web tras inactividad"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "Por seguridad, desconecte el usuario si no ha habido actividad. Defina también la expiración por defecto de la cookie."
   },
   "Welcome Message": {
     "other": "Mensaje de bienvenida"
@@ -282,9 +282,9 @@
     "other": "Advertencia antes de que expire de la sesión"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "Encabezado HTML personalizado"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "HTML personalizado que desea que se incluya en el encabezado de las páginas. Tenga cuidado, asegúrese de poner HTML válido."
   }
 }

@@ -132,24 +132,24 @@
     "other": "Sẽ được hiển thị cho user khi đăng nhập"
   },
   "Security": {
-    "other": "Security"
+    "other": "Bảo mật"
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
-    "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
+    "other": "Hành động kích vào khi nhấp vào Quên Mật Khẩu. Có thể được thay đổi để kích hoạt một hành động tùy chỉnh nếu bạn dựa vào hệ thống xác thực bên ngoài."
   },
   "Let user create new cells": {
-    "other": "Let user create new cells"
+    "other": "Cho phép người dùng tạo cells mới"
   },
   "Whether users can create their own cells or not": {
-    "other": "Whether users can create their own cells or not"
+    "other": "Người dùng có thể tạo cells riêng của họ hay không"
   },
   "Delegation": {
-    "other": "Delegation"
+    "other": "Sự ủy thác"
   },
   "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+    "other": "Tìm kiếm thư mục đang tìm các nhãn 'bắt đầu bằng' chuỗi tìm kiếm. Bật tùy chọn này sẽ thêm ký tự đại diện để tìm kiếm các nhãn 'chứa' chuỗi."
   },
   "Auto-wildcard search": {
-    "other": "Auto-wildcard search"
+    "other": "Tự động tìm kiếm ký tự đại diện"
   }
 }

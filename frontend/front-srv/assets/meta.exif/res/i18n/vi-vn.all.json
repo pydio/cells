@@ -1,11 +1,11 @@
 {
   "1": {
-    "other": "GeoLocation"
+    "other": "Định vị địa lý"
   },
   "2": {
-    "other": "Locate"
+    "other": "Định vị"
   },
   "3": {
-    "other": "EXIF Data"
+    "other": "Dữ liệu EXIF"
   }
 }
