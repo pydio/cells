@@ -144,7 +144,7 @@
     "other": "Para Workspaces \"por usuario\" (como Mis Archivos), utilice la ubicación existente de la plantilla \"personal\" o cree nuevas rutas de plantillas para la nueva ubicación."
   },
   "step.prereq.ds.tpl.home": {
-    "other": "Para Workspaces \"por usuario\" (como Mis Archivos), asegúrese de colocar los datos dentro de la ubicación existente de la Ruta de Plantillas \"personal\" de Cells."
+    "other": "Para Workspaces \"por usuario\" (como Mis Archivos), asegúrese de colocar los datos dentro de la ubicación existente de la plantilla \"personal\" de Cells."
   },
   "step.prereq.ds.done": {
     "other": "Una vez que las DataSources están correctamente indexadas, se puede iniciar el proceso de migración. El asistente le ayudará a asociar los Workspaces de Pydio 8 a los nuevos Workspaces."
@@ -216,7 +216,7 @@
     "other": "Mostrar Datasources"
   },
   "step.mapper.p8.tpl.show": {
-    "other": "Mostrar las rutas de plantillas"
+    "other": "Mostrar las plantillas predefinidas"
   },
   "step.mapper.cells.title": {
     "other": "Datasources Cells"
