@@ -91,13 +91,12 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
 	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
 
-	cfg := config.Default()
 	rolesConfigs := user.FlattenedRolesConfigs()
 
 	status := frontend.RequestStatus{
-		Config:        cfg,
-		AclParameters: rolesConfigs.Get("parameters").(*config.Map),
-		AclActions:    rolesConfigs.Get("actions").(*config.Map),
+		Config:        config.Get(),
+		AclParameters: rolesConfigs.Val("parameters"),
+		AclActions:    rolesConfigs.Val("actions"),
 		WsScopes:      user.GetActiveScopes(),
 		User:          user,
 		NoClaims:      !user.Logged,

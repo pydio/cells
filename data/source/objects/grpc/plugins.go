@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
 )
 
@@ -63,6 +63,7 @@ func init() {
 						if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
 							return err
 						}
+
 						if ip, e := net.GetExternalIP(); e != nil {
 							conf.RunningHost = "127.0.0.1"
 						} else {

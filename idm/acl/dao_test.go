@@ -28,10 +28,10 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 
 	// Run tests against SQLite
 	_ "github.com/mattn/go-sqlite3"
@@ -41,7 +41,7 @@ import (
 var (
 	mockDAO DAO
 
-	options config.Map
+	options = configx.NewMap()
 
 	wg sync.WaitGroup
 )

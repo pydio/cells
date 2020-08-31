@@ -29,11 +29,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/role"
 )
@@ -74,7 +74,7 @@ func InitRoles(ctx context.Context) error {
 
 	<-time.After(3 * time.Second)
 
-	lang := config.Default().Get("defaults", "language").String("en-us")
+	lang := config.Get("defaults", "language").Default("en-us").String()
 	langJ, _ := json.Marshal(lang)
 
 	insertRoles := []*insertRole{

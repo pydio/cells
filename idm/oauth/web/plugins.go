@@ -115,7 +115,7 @@ func initialize(s service.Service) error {
 	ctx := s.Options().Context
 
 	// Configuration
-	auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+	auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 
 	// Registry
 	auth.InitRegistry(servicecontext.GetDAO(ctx).(sql.DAO))

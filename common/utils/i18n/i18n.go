@@ -29,10 +29,10 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 
 	"github.com/emicklei/go-restful"
-	"github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -79,18 +79,18 @@ var (
 )
 
 // GetDefaultLanguage reads default language from config
-func GetDefaultLanguage(conf config.Config) string {
-	if l := conf.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String(""); l != "" {
+func GetDefaultLanguage(conf configx.Values) string {
+	if l := conf.Val("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("").String(); l != "" {
 		return l
 	} else {
-		return conf.Get("defaults", "lang").String("en")
+		return conf.Val("defaults", "lang").Default("en").String()
 	}
 }
 
 // UserLanguagesFromRestRequest tries to find user language from various sources:
 // X-Pydio-Language header, user language inside the system (set via roles), or Accept-Language
 // standard header.
-func UserLanguagesFromRestRequest(req *restful.Request, conf config.Config) []string {
+func UserLanguagesFromRestRequest(req *restful.Request, conf configx.Values) []string {
 	pydioLang := req.HeaderParameter("X-Pydio-Language")
 	if pydioLang != "" {
 		return []string{pydioLang}
@@ -108,7 +108,7 @@ func UserLanguagesFromRestRequest(req *restful.Request, conf config.Config) []st
 
 // UserLanguageFromContext tries to find Claims in context and get the language for the corresponding user.
 // If nothing is found, if returnDefault is true it returns the global default language, otherwise it returns an empty string.
-func UserLanguageFromContext(ctx context.Context, conf config.Config, returnDefault bool) string {
+func UserLanguageFromContext(ctx context.Context, conf configx.Values, returnDefault bool) string {
 	if claimVal := ctx.Value(claim.ContextKey); claimVal != nil {
 		claims := claimVal.(claim.Claims)
 		u := &idm.User{Login: claims.Name}
@@ -127,7 +127,7 @@ func UserLanguageFromContext(ctx context.Context, conf config.Config, returnDefa
 // UserLanguage looks for the user roles and check if a language
 // parameter is set (starting from the last). Otherwise returns the
 // default language from config
-func UserLanguage(ctx context.Context, user *idm.User, conf config.Config) string {
+func UserLanguage(ctx context.Context, user *idm.User, conf configx.Values) string {
 
 	var defaultLanguage = GetDefaultLanguage(conf)
 

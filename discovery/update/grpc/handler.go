@@ -51,7 +51,7 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
 		return e
 	}
-	response.Channel = configs.String("channel")
+	response.Channel = configs.Val("channel").String()
 	response.AvailableBinaries = binaries
 
 	return nil

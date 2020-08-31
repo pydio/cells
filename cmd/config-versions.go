@@ -34,7 +34,7 @@ import (
 	"github.com/yudai/gojsondiff/formatter"
 
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/x/filex"
 )
 
 var (
@@ -56,11 +56,10 @@ and the user originating this call.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var store file.VersionsStore
+		var store filex.VersionsStore
 		if configVersionDb != "" {
-			store = &file.BoltStore{FileName: configVersionDb}
+			store = &filex.BoltStore{FileName: configVersionDb}
 		} else {
-			config.Default()
 			store = config.VersionsStore
 		}
 
@@ -93,7 +92,7 @@ and the user originating this call.
 				if e != nil {
 					log.Fatal("Cannot retrieve this version")
 				}
-				var previousVersion *file.Version
+				var previousVersion *filex.Version
 				if targetVersionDiff != "" {
 					targetId, e := strconv.ParseUint(targetVersionDiff, 10, 64)
 					if e != nil {

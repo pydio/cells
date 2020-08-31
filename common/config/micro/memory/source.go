@@ -20,7 +20,6 @@ type memorySource struct {
 
 // Loads ChangeSet from the source
 func (m *memorySource) Read() (*config.ChangeSet, error) {
-
 	h := md5.New()
 	h.Write(m.data)
 	checksum := fmt.Sprintf("%x", h.Sum(nil))

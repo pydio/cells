@@ -32,16 +32,16 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/filesystem"
+	"github.com/pydio/cells/x/configx"
 )
 
-func NewTreeHandler(conf common.ConfigValues) *TreeHandler {
+func NewTreeHandler(conf configx.Values) *TreeHandler {
 	t := &TreeHandler{}
 	t.FS = afero.NewOsFs()
-	restrict := conf.String("allowedLocalDsFolder")
+	restrict := conf.Val("allowedLocalDsFolder").String()
 	if t.hasRootRef = restrict != ""; t.hasRootRef {
 		f := restrict
 		t.FS = afero.NewBasePathFs(t.FS, f)

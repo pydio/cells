@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -52,7 +53,7 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
-			if sec := GetSecret(conf.ApiSecret).String(""); sec != "" {
+			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
 				conf.ApiSecret = sec
 			}
 		}
@@ -75,17 +76,12 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesForDataServices(dataSrvType string) []string {
-	var res []string
-	var cfgMap Map
-	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType).Scan(&cfgMap); err == nil {
-		return SourceNamesFromDataConfigs(cfgMap)
-	}
-	return res
+	return SourceNamesFromDataConfigs(Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType))
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
-func SourceNamesFromDataConfigs(cfgMap common.ConfigValues) []string {
-	names := cfgMap.StringArray("sources")
+func SourceNamesFromDataConfigs(values configx.Values) []string {
+	names := values.Val("sources").StringArray()
 	return SourceNamesFiltered(names)
 }
 

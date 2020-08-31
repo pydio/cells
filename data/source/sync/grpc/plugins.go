@@ -173,7 +173,7 @@ func init() {
 }
 
 func WithStorage(source string) service.ServiceOption {
-	mapperType := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+source, "StorageConfiguration", "checksumMapper").String("")
+	mapperType := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
 		prefix := "data_sync_" + source

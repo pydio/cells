@@ -34,10 +34,10 @@ import (
 	"go.uber.org/zap"
 	goqu "gopkg.in/doug-martin/goqu.v4"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -61,7 +61,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(options common.ConfigValues) error {
+func (dao *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	dao.DAO.Init(options)
@@ -79,7 +79,7 @@ func (dao *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := dao.Prepare(key, query); err != nil {
 				return err

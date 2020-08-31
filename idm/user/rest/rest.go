@@ -414,7 +414,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	if h, o := inputUser.Attributes["hidden"]; o && h == "true" {
 		isHidden = true
 	}
-	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Bool(true) && ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && !isHidden {
+	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && !isHidden {
 		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
 		return
 	}

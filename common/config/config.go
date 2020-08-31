@@ -21,380 +21,70 @@
 package config
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
+	"path/filepath"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
-	"github.com/spf13/cast"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/x/filex"
 )
 
-// Map structure to store configuration
-type Map map[string]interface{}
+var (
+	std = New(micro.NewLocalSource(filepath.Join(PydioConfigDir, PydioConfigFile)))
+)
 
-type Array []interface{}
-
-// Value Represent a value retrieved from the values loaded
-type Value interface {
-	Bool(def bool) bool
-	Int(def int) int
-	Int64(def int64) int64
-	String(def string) string
-	Float64(def float64) float64
-	Duration(def time.Duration) time.Duration
-	StringSlice(def []string) []string
-	StringMap(def map[string]string) map[string]string
-	Scan(val interface{}) error
-	Bytes() []byte
+func Register(store Store) {
+	std = store
 }
 
-// NewMap variable
-func NewMap(ms ...map[string]interface{}) *Map {
-	if len(ms) > 0 {
-		m := new(Map)
-		*m = ms[0]
-		return m
-	}
-	return &Map{}
+type Store interface {
+	configx.Entrypoint
+
+	configx.Watcher
+
+	// Save with context
+	Save(string, string) error // Should we not do it in a function ?
 }
 
-// Get retrieves the first value associated with the given key.
-// If there are no values associated with the key, Get returns
-// the empty string. To access multiple values, use the map
-// directly.
-func (c Map) Get(keys ...string) interface{} {
-	if c == nil {
-		return nil
+// New creates a configuration provider with in-memory access
+func New(store configx.KVStore) Store {
+	im := configx.NewMap()
+
+	v := store.Get()
+
+	// we initialise the store and save it in memory for easy access
+	if v != nil {
+		v.Scan(&im)
 	}
 
-	if len(keys) == 0 {
-		return nil
-	}
-
-	k := keys[0]
-	keys = keys[1:]
-
-	v, ok := c[k]
-	if !ok {
-		return nil
-	}
-
-	if len(keys) == 0 {
-		return v
-	}
-
-	m, ok := v.(Map)
-	if !ok {
-		return nil
-	}
-
-	return m.Get(keys...)
-}
-
-func (c Map) Map(key string) map[string]interface{} {
-	val := c.Get(key)
-
-	if m, ok := val.(map[string]interface{}); ok {
-		return m
-	}
-
-	if s, ok := val.(string); ok {
-		var m map[string]interface{}
-		if err := json.Unmarshal([]byte(s), &m); err == nil {
-			return m
-		}
-	}
-
-	return nil
-}
-
-func (c Map) Array(key string) common.Scanner {
-	var a Array
-
-	val := c.Get(key)
-
-	m, ok := val.([]interface{})
-	if !ok {
-		a = []interface{}{}
-	} else {
-		a = m
-	}
-
-	return a
-}
-
-func (c Map) StringMap(key string) map[string]string {
-	return cast.ToStringMapString(c.Get(key))
-}
-
-func (c Map) String(key string, def ...string) string {
-	if q := c.Get(key); q != nil {
-		switch v := q.(type) {
-		case []string:
-			if b, err := json.Marshal(v); err == nil {
-				return string(b)
-			}
-
-			if len(def) > 0 {
-				return "[" + strings.Join(def, ",") + "]"
-			}
-
-			return "[]"
-		case string:
-			return v
-		}
-	}
-
-	if len(def) > 1 {
-		return "[" + strings.Join(def, ",") + "]"
-	}
-
-	if len(def) > 0 {
-		return def[0]
-	}
-
-	return ""
-}
-
-func (c Map) StringArray(key string, def ...[]string) []string {
-	val := c.Get(key)
-
-	switch v := val.(type) {
-	case []string:
-		return v
-	case string:
-		var a []string
-		if err := json.Unmarshal([]byte(v), &a); err == nil {
-			return a
-		}
-	case []interface{}:
-		var a []string
-		for _, d := range v {
-			a = append(a, fmt.Sprintf("%s", d))
-		}
-		return a
-	}
-
-	if len(def) > 0 {
-		return def[0]
-	}
-
-	return []string{}
-}
-
-func (c Map) Duration(key string, def ...string) time.Duration {
-	val := c.String(key, "")
-
-	d, err := time.ParseDuration(val)
-	if err != nil {
-		if len(def) > 0 {
-			d, err := time.ParseDuration(def[0])
-			if err != nil {
-				return 0
-			}
-
-			return d
-		}
-	}
-
-	return d
-}
-
-// Database returns the driver and dsn in that order for the given key
-func (c Map) Database(k string) (string, string) {
-	val := c.Get(k)
-
-	switch v := val.(type) {
-	case string:
-		return GetDatabase(v)
-	default:
-		m := c.StringMap(k)
-
-		driver, ok := m["driver"]
-		if !ok {
-			return GetDefaultDatabase()
-		}
-
-		dsn, ok := m["dsn"]
-		if !ok {
-			return GetDefaultDatabase()
-		}
-
-		return driver, dsn
+	return &config{
+		im:    im,
+		store: store,
 	}
 }
 
-func (c Map) Bool(key string, def ...bool) bool {
-
-	if c.Get(key) != nil {
-		if b, ok := c.Get(key).(bool); ok {
-			return b
-		}
-		if s, ok := c.Get(key).(string); ok {
-			if val, e := strconv.ParseBool(s); e == nil {
-				return val
-			}
-		}
-	}
-
-	if len(def) > 0 {
-		return def[0]
-	}
-	return false
+// Config holds the main structure of a configuration
+type config struct {
+	im    configx.Values  // in-memory data
+	store configx.KVStore // underlying storage
 }
 
-// Int retrieves the value at the given key if it exists and
-// performs best effort to cast it as an int.
-// If no such key exists or if it cannot be cast as an int,
-// it returns the default value if defined and 0 otherwise.
-func (c Map) Int(key string, def ...int) int {
-	switch v := c.Get(key).(type) {
-	case int:
-		return v
-	case string:
-		if p, err := strconv.Atoi(v); err != nil {
-			break
-		} else {
-			return p
-		}
-	case float64:
-		return int(v)
-	}
+// Save the config in the underlying storage
+func (c *config) Save(ctxUser string, ctxMessage string) error {
+	// if GetRemoteSource() {
+	// 	return nil
+	// }
 
-	if len(def) > 0 {
-		return def[0]
-	}
+	data := c.im.Map()
 
-	return 0
-}
-
-// Int64 retrieves the value at the given key if it exists and
-// performs best effort to cast it as an int64.
-// If no such key exists or if it cannot be cast as an int64,
-// it returns the default value if defined and 0 otherwise.
-func (c Map) Int64(key string, defaultValue ...int64) int64 {
-	switch v := c.Get(key).(type) {
-	case int64:
-		return v
-	case int:
-		return int64(v)
-	case int16:
-		return int64(v)
-	case int32:
-		return int64(v)
-	case string:
-		if p, err := strconv.ParseInt(v, 10, 64); err != nil {
-			break
-		} else {
-			return p
-		}
-	case float64:
-		return int64(v)
-	}
-
-	if len(defaultValue) > 0 {
-		return defaultValue[0]
-	}
-	return int64(0)
-}
-
-func (c Map) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-
-	switch v := val.(type) {
-	case proto.Message:
-		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
-	default:
-		err = json.Unmarshal(jsonStr, v)
-	}
-
-	return err
-}
-
-func (c Map) Bytes(key string, def ...[]byte) []byte {
-	str := c.String(key)
-	return []byte(str)
-}
-
-func (c Map) Values(key string) common.ConfigValues {
-	m, ok := c.Get(key).(map[string]interface{})
-	if !ok {
-		return NewMap()
-	}
-
-	var v Map = m
-
-	return v
-}
-
-func (c Map) IsEmpty() bool {
-	return len(c) > 0
-}
-
-// Set sets the key to value. It replaces any existing
-// values.
-func (c Map) Set(key string, value interface{}) error {
-
-	c[key] = value
-
-	return nil
-}
-
-// Del deletes the values associated with key.
-func (c Map) Del(key string) error {
-	delete(c, key)
-
-	return nil
-}
-
-func (c Array) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-
-	switch v := val.(type) {
-	case proto.Message:
-		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
-	default:
-		err = json.Unmarshal(jsonStr, v)
-	}
-
-	return err
-}
-
-// SaveConfigs sends configuration to a local file.
-func Save(ctxUser string, ctxMessage string) error {
-	if GetRemoteSource() {
-		return nil
-	}
-	return saveConfig(defaultConfig, ctxUser, ctxMessage)
-}
-
-func saveConfig(config *Config, ctxUser string, ctxMessage string) error {
-
-	var data map[string]interface{}
-	err := config.Unmarshal(&data)
-	if err != nil {
-		return err
-	}
-
-	if err := file.Save(GetJsonPath(), data); err != nil {
+	// We'll see what we do about that
+	if err := c.store.Set(data); err != nil {
 		return err
 	}
 
 	if VersionsStore != nil {
-		if err := VersionsStore.Put(&file.Version{
+		if err := VersionsStore.Put(&filex.Version{
 			Date: time.Now(),
 			User: ctxUser,
 			Log:  ctxMessage,
@@ -405,4 +95,107 @@ func saveConfig(config *Config, ctxUser string, ctxMessage string) error {
 	}
 
 	return nil
+}
+
+// Watch for config changes for a specific path or underneath
+func (c *config) Watch(path ...string) (configx.Receiver, error) {
+	watcher, ok := c.store.(configx.Watcher)
+	if !ok {
+		return nil, fmt.Errorf("no watchers")
+	}
+
+	return watcher.Watch(path...)
+}
+
+// Get access to the underlying structure at a certain path
+func (c *config) Get() configx.Value {
+	return c.im.Get()
+}
+
+// Set new values at a certain path
+func (c *config) Set(v interface{}) error {
+	// tmpConfig := Config{Config: config.NewConfig(config.WithSource(memory.NewSource(Default().Bytes())))}
+	// tmpConfig.Set(val, path...)
+
+	// // Make sure to init vault
+	// Vault()
+
+	// // Filter values
+	// hasFilter := false
+	// for _, p := range registeredVaultKeys {
+	// 	savedUuid := Default().Get(p...).String("")
+	// 	newConfig := tmpConfig.Get(p...).String("")
+	// 	if newConfig != savedUuid {
+	// 		hasFilter = true
+	// 		if savedUuid != "" {
+	// 			vaultSource.Delete(savedUuid, true)
+	// 		}
+	// 		if newConfig != "" {
+	// 			// Replace value with a secret Uuid
+	// 			fmt.Println("Replacing config value with a secret UUID", strings.Join(p, "/"))
+	// 			newUuid := NewKeyForSecret()
+	// 			e := vaultSource.Set(newUuid, newConfig, true)
+	// 			if e != nil {
+	// 				fmt.Println("Something went wrong when saving file!", e.Error())
+	// 			}
+	// 			tmpConfig.Set(newUuid, p...)
+	// 		}
+	// 	}
+	// }
+
+	// if hasFilter {
+	// 	// Replace fully from tmp
+	// 	// Does not work probably due to a bug in the underlying TP library
+	// 	// Default().Set(tmpConfig.Get())
+
+	// 	// Rather explicitly replace all values.
+	// 	var all map[string]interface{}
+	// 	json.Unmarshal(tmpConfig.Bytes(), &all)
+	// 	for k, v := range all {
+	// 		ApplicationConfig.Val(k).Set(v)
+	// 	}
+	// } else {
+	// Just update default config
+	return c.im.Set(v)
+	// }
+}
+
+// Del value at a certain path
+func (c *config) Del() error {
+	// if GetRemoteSource() {
+	// 	remote.DeleteRemote("config", path...)
+	// 	return
+	// }
+	return c.im.Del()
+}
+
+func (c *config) Val(k ...configx.Key) configx.Values {
+	return c.im.Val(k...)
+}
+
+// These fonctions use the standard config
+
+// Save the config in the hard store
+func Save(ctxUser string, ctxMessage string) error {
+	return std.Save(ctxUser, ctxMessage)
+}
+
+// Watch for config changes for a specific path or underneath
+func Watch(path ...string) (configx.Receiver, error) {
+	return std.Watch(path...)
+}
+
+// Get access to the underlying structure at a certain path
+func Get(path ...string) configx.Values {
+	return std.Val(path)
+}
+
+// Set new values at a certain path
+func Set(val interface{}, path ...string) {
+	std.Val(path).Set(val)
+}
+
+// Del value at a certain path
+func Del(path ...string) {
+	std.Val(path).Del()
 }

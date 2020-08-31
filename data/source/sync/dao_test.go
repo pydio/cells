@@ -7,8 +7,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	var options config.Map
+	options := configx.NewMap()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {

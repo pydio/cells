@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"strconv"
 
 	"github.com/pkg/errors"
 
@@ -34,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Smtp struct {
@@ -44,48 +44,44 @@ type Smtp struct {
 	InsecureSkipVerify bool
 }
 
-func (gm *Smtp) Configure(ctx context.Context, conf config.Map) error {
+func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 
-	val := conf.Get("user")
-	if val == nil {
+	gm.User = conf.Val("user").String()
+	if gm.User == "" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory user name")
 	}
-	gm.User = val.(string)
 
-	if clear := conf.Get("clearPass"); clear != nil {
-		// Used by tests
-		gm.Password = clear.(string)
-	} else {
-		val = conf.Get("password")
-		if val == nil {
-			return fmt.Errorf("cannot configure mailer: missing compulsory password")
-		}
-		passwordSecret := val.(string)
-		gm.Password = config.GetSecret(passwordSecret).String("")
+	gm.Password = conf.Val("clearPass").Default("NOT_SET").String()
+	if gm.Password == "NOT_SET" {
+		gm.Password = config.GetSecret(conf.Val("password").String()).Default("NOT_SET").String()
 	}
 
-	val = conf.Get("host")
-	if val == nil {
+	if gm.Password == "NOT_SET" {
+		return fmt.Errorf("cannot configure mailer: missing compulsory password")
+	}
+
+	fmt.Println("There 3")
+
+	gm.Host = conf.Val("host").String()
+	if gm.Host == "" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory host address")
 	}
-	gm.Host = val.(string)
 
-	portConf := conf.Get("port")
-	if portConf == nil {
+	gm.Port = conf.Val("port").Int()
+	if gm.Port == 0 {
 		return fmt.Errorf("cannot configure mailer: missing compulsory port")
 	}
 
-	if sConf, ok := portConf.(string); ok && sConf != "" {
-		parsed, _ := strconv.ParseInt(sConf, 10, 64)
-		gm.Port = int(parsed)
-	} else {
-		gm.Port = int(portConf.(float64))
-	}
-	// Set defaul to be false.
-	gm.InsecureSkipVerify = false
-	if conf.Get("insecureSkipVerify") != nil {
-		gm.InsecureSkipVerify = conf.Get("insecureSkipVerify").(bool)
-	}
+	// if sConf, ok := portConf.(string); ok && sConf != "" {
+	// 	parsed, _ := strconv.ParseInt(sConf, 10, 64)
+	// 	gm.Port = int(parsed)
+	// } else {
+	// 	gm.Port = int(portConf.(float64))
+	// }
+
+	// Set default to be false.
+	gm.InsecureSkipVerify = conf.Val("insecureSkipVerify").Bool()
+
 	log.Logger(ctx).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 
 	return nil

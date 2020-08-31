@@ -140,12 +140,15 @@ You can customize the various storage locations with the following ENV variables
 func init() {
 	cobra.OnInitialize(
 		initLogLevel,
+		initConfig,
 	)
 
 	viper.SetEnvPrefix("pydio")
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
+
+	flags.String("config", "etcd", "Config")
 
 	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
 	flags.String("registry_address", ":4222", "Registry connection address")
@@ -166,6 +169,8 @@ func init() {
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
+
+	viper.BindPFlag("config", flags.Lookup("config"))
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
 	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
@@ -202,6 +207,16 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func initConfig() {
+	// case "etcd":
+	// 	config.Register(
+	// 		config.New(etcd.NewSource(clientv3.Config{
+	// 			Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
+	// 			DialTimeout: 5 * time.Second,
+	// 		})))
+	// }
 }
 
 func initLogLevel() {

@@ -26,9 +26,8 @@ import (
 
 	"github.com/micro/go-micro/registry"
 	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
-
 	"github.com/pydio/cells/common/config"
+	"github.com/spf13/cobra"
 )
 
 // configDatabaseListCmd lists all database connections.
@@ -40,18 +39,12 @@ This command lists all databases connections from all servers registered with ce
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		cfg := config.Default().(*config.Config)
-
-		var m map[string]interface{}
-		if err := cfg.UnmarshalKey("databases", &m); err != nil {
-			cmd.Println(err)
-			os.Exit(1)
-		}
+		m := config.Get("databases").Map()
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"DSN", "Driver", "Services"})
 
-		defaultDatabaseID := cfg.Get("defaults", "database").String("")
+		defaultDatabaseID := config.Get("defaults", "database").String()
 		defaultDatabase, ok := m[defaultDatabaseID].(map[string]interface{})
 
 		if !ok {

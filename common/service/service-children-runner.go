@@ -35,7 +35,6 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/x/configx"
 )
 
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
@@ -106,7 +106,7 @@ func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) 
 }
 
 // StartFromInitialConf list the sources keys and start them
-func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.ConfigValues) {
+func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg configx.Values) {
 	sources := config.SourceNamesFromDataConfigs(cfg)
 	c.initialCtx = ctx
 	log.Logger(ctx).Info("Starting umbrella service "+c.childPrefix+" with sources", zap.Any("sources", sources))
@@ -206,7 +206,7 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
-	watcher, err := config.Default().Watch("services", c.parentName, "sources")
+	watcher, err := config.Watch("services", c.parentName, "sources")
 	if err != nil {
 		return err
 	}

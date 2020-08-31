@@ -50,7 +50,7 @@ func init() {
 					return e
 				}
 				rotationSize := log.DefaultRotationSize
-				if r := servicecontext.GetConfig(m.Options().Context).Int("bleveRotationSize"); r > 0 {
+				if r := servicecontext.GetConfig(m.Options().Context).Val("bleveRotationSize").Int(); r > 0 {
 					rotationSize = int64(r)
 				}
 				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", rotationSize)

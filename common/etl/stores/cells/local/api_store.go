@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-config/source"
 	"github.com/micro/go-micro/errors"
 	protoconfig "github.com/pydio/config-srv/proto/config"
-	"github.com/pydio/go-os/config/proto"
+	go_micro_os_config "github.com/pydio/go-os/config/proto"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -19,12 +19,12 @@ import (
 	"github.com/pydio/cells/common/etl/models"
 	"github.com/pydio/cells/common/etl/stores"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/share"
@@ -58,7 +58,7 @@ func NewAPIStore() *ApiStore {
 // Configuration
 func (apiStore *ApiStore) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
 	return &source.ChangeSet{
-		Data: config.Default().Get("services").Bytes(),
+		Data: config.Get("services").Bytes(),
 	}, nil
 }
 

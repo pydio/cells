@@ -33,11 +33,11 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	"github.com/pydio/cells/data/source/sync"
+	"github.com/pydio/cells/x/configx"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	config2 "github.com/pydio/go-os/config"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
@@ -74,7 +74,7 @@ type Handler struct {
 	SyncConfig   *object.DataSource
 	ObjectConfig *object.MinioConfig
 
-	watcher    config2.Watcher
+	watcher    configx.Receiver
 	reloadChan chan bool
 	stop       chan bool
 }
@@ -90,7 +90,7 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 	if err := servicecontext.ScanConfig(ctx, &syncConfig); err != nil {
 		return nil, err
 	}
-	if sec := config.GetSecret(syncConfig.ApiSecret).String(""); sec != "" {
+	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 		syncConfig.ApiSecret = sec
 	}
 	e := h.initSync(syncConfig)
@@ -166,7 +166,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				return err
 			}
 			minioConfig = resp.MinioConfig
-			if sec := config.GetSecret(minioConfig.ApiSecret).String(""); sec != "" {
+			if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
 				minioConfig.ApiSecret = sec
 			}
 			mc, e := minio.NewCore(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
@@ -347,7 +347,7 @@ func (s *Handler) watchDisconnection() {
 			if err := servicecontext.ScanConfig(s.globalCtx, &syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
-			if sec := config.GetSecret(syncConfig.ApiSecret).String(""); sec != "" {
+			if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 				syncConfig.ApiSecret = sec
 			}
 			if e := s.initSync(syncConfig); e != nil {
@@ -399,7 +399,7 @@ func (s *Handler) watchErrors() {
 
 func (s *Handler) watchConfigs() {
 	serviceName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + s.dsName
-	watcher, e := config.Default().Watch("services", serviceName)
+	watcher, e := config.Watch("services", serviceName)
 	if e != nil {
 		return
 	}

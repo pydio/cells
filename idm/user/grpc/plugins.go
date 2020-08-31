@@ -34,11 +34,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/user"
 	"github.com/pydio/cells/scheduler/actions"
@@ -94,7 +94,7 @@ func InitDefaults(ctx context.Context) error {
 		pwd = os.Getenv(ENV_PYDIO_ADMIN_USER_PASSWORD)
 	}
 
-	if rootConfig := config.Get("defaults", "root").String(""); rootConfig != "" {
+	if rootConfig := config.Get("defaults", "root").String(); rootConfig != "" {
 		sDec, _ := base64.StdEncoding.DecodeString(rootConfig)
 		parts := strings.Split(string(sDec), "||||")
 		login = parts[0]

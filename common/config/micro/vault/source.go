@@ -12,8 +12,8 @@ import (
 	"os"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config/file"
 	"github.com/pydio/cells/common/crypto"
+	"github.com/pydio/cells/x/filex"
 	"github.com/pydio/go-os/config"
 )
 
@@ -142,7 +142,7 @@ func (v *VaultSource) save() error {
 		}
 		data[k] = enc
 	}
-	return file.Save(v.storePath, data)
+	return filex.Save(v.storePath, data)
 }
 
 func (v *VaultSource) initMasterPassword() {

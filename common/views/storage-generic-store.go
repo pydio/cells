@@ -24,11 +24,10 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
 
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/object"
 )
 
@@ -70,21 +69,10 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 		break
 	}
 
-	var cfg config2.Map
+	c := config.Get("services", configKey)
 
-	if err := config2.Default().Get("services", configKey).Scan(&cfg); err != nil {
-		return "", "", err
-	}
-	if cfg == nil {
-		return "", "", errors.NotFound(VIEWS_LIBRARY_NAME, "Cannot find default config for services")
-	}
-
-	dataSource = cfg.Get("datasource").(string)
-	if dataSource == "default" {
-		dataSource = config2.Default().Get("defaults", "datasource").String("default")
-	}
-
-	bucket = cfg.Get("bucket").(string)
+	dataSource = c.Val("datasource").Default("#/defaults/datasource").String()
+	bucket = c.Val("bucket").String()
 
 	return dataSource, bucket, nil
 }

@@ -29,13 +29,13 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 	"github.com/pydio/cells/idm/meta/namespace"
+	"github.com/pydio/cells/x/configx"
 	"gopkg.in/doug-martin/goqu.v4"
 )
 
@@ -62,7 +62,7 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	s.DAO.Init(options)
@@ -87,7 +87,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				return err

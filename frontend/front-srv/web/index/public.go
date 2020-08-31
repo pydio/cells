@@ -44,14 +44,14 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	ctx := req.Context()
 
 	tplConf = &TplConf{
-		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").String("Pydio Cells"),
+		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").Default("Pydio Cells").String(),
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            config.Get("frontend", "debug").Bool(false),
+		Debug:            config.Get("frontend", "debug").Bool(),
 	}
-	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(""); customHeader != "" {
+	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
 	}
 
@@ -166,7 +166,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf8")
-	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap(map[string]string{}) {
+	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap() {
 		w.Header().Set(hK, hV)
 	}
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {

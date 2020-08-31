@@ -27,9 +27,9 @@ import (
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 // SendGrid is a passerelle to Sendgrid API. It holds the application API Key.
@@ -38,13 +38,12 @@ type SendGrid struct {
 }
 
 // Configure expects a valid sendgrid API key.
-func (s *SendGrid) Configure(ctx context.Context, config config.Map) error {
+func (s *SendGrid) Configure(ctx context.Context, config configx.Values) error {
+	s.ApiKey = config.Val("apiKey").String()
 
-	apiKey := config.Get("apiKey").(string)
-	if apiKey == "" {
+	if s.ApiKey == "" {
 		return fmt.Errorf("cannot send mail via sendgrid without a valid API key")
 	}
-	s.ApiKey = apiKey
 
 	log.Logger(ctx).Debug("SendGrid Configured")
 

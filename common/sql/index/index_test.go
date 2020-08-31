@@ -5,15 +5,15 @@ import (
 	"fmt"
 
 	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 )
 
 var (
-	options config.Map
+	options configx.Values
 
 	mockNode   *mtree.TreeNode
 	updateNode *mtree.TreeNode

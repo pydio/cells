@@ -16,6 +16,7 @@ import (
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/x/configx"
 )
 
 type User struct {
@@ -140,41 +141,31 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := i18n.GetDefaultLanguage(config.Default())
+	lang := i18n.GetDefaultLanguage(config.Get())
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}
 	return lang
 }
 
-func (u *User) FlattenedRolesConfigs() *config.Map {
+func (u *User) FlattenedRolesConfigs() configx.Values {
 	if u.Logged {
 		return u.FlattenedFrontValues()
 	} else {
-		c := config.NewMap()
-		c.Set("actions", config.NewMap())
-		c.Set("parameters", config.NewMap())
+		c := configx.NewMap()
+		// c.Set("actions", configx.NewMap())
+		// c.Set("parameters", configx.NewMap())
 		return c
 	}
 }
 
 func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
-	value := ""
-	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
-	if c := configs.Get(pluginId); c != nil {
-		if p := c.(*config.Map).Get(name); p != nil {
-			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
-				value = v
-			}
-		}
-	}
-	return value
+	return u.FlattenedRolesConfigs().Val("parameters", pluginId, name, "PYDIO_REPO_SCOPE_ALL").String()
 }
 
-// FlattenedFrontValues generates a config.Map with frontend actions/parameters configs
-func (u *User) FlattenedFrontValues() *config.Map {
-	actions := config.NewMap()
-	parameters := config.NewMap()
+// FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
+func (u *User) FlattenedFrontValues() configx.Values {
+	output := configx.NewMap()
 	a := u.AccessList
 	for _, role := range a.OrderedRoles {
 		for _, acl := range a.FrontPluginsValues {
@@ -193,35 +184,15 @@ func (u *User) FlattenedFrontValues() *config.Map {
 			t := parts[0]
 			p := parts[1]
 			n := parts[2]
-			var plugins *config.Map
+
 			if t == "action" {
-				plugins = actions
+				output.Val("actions", p, n, scope).Set(iVal)
 			} else {
-				plugins = parameters
-			}
-			if plugs := plugins.Get(p); plugs != nil {
-				plugins = plugs.(*config.Map)
-			} else {
-				plugins = config.NewMap()
-			}
-			var param *config.Map
-			if sc := plugins.Get(n); sc != nil {
-				param = sc.(*config.Map)
-			} else {
-				param = config.NewMap()
-			}
-			param.Set(scope, iVal)
-			plugins.Set(n, param)
-			if t == "action" {
-				actions.Set(p, plugins)
-			} else {
-				parameters.Set(p, plugins)
+				output.Val("parameters", p, n, scope).Set(iVal)
 			}
 		}
 	}
-	output := config.NewMap()
-	output.Set("actions", actions)
-	output.Set("parameters", parameters)
+
 	return output
 }
 

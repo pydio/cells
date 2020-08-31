@@ -147,7 +147,7 @@ var installCmd = &cobra.Command{
 		var err error
 
 		// Do this in a better way
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+		micro := config.Get("ports", common.SERVICE_MICRO_API).Int()
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)

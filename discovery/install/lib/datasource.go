@@ -101,7 +101,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	}
 
 	// Set main dsName as default
-	if config.Get("defaults", "datasource").String("") == "" {
+	if config.Get("defaults", "datasource").String() == "" {
 		config.Set(conf.Name, "defaults", "datasource")
 	}
 
