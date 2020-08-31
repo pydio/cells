@@ -80,10 +80,10 @@ var (
 
 // GetDefaultLanguage reads default language from config
 func GetDefaultLanguage(conf configx.Values) string {
-	if l := conf.Values("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("").String(); l != "" {
+	if l := conf.Val("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("").String(); l != "" {
 		return l
 	} else {
-		return conf.Values("defaults", "lang").Default("en").String()
+		return conf.Val("defaults", "lang").Default("en").String()
 	}
 }
 

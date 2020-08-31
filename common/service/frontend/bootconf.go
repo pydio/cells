@@ -65,7 +65,7 @@ func VersionHash() string {
 		return versionHash
 	}
 	// Create version seed
-	vSeed := config.ApplicationConfig.Values("frontend", "versionSeed").Default("").String()
+	vSeed := config.Get("frontend", "versionSeed").Default("").String()
 	if vSeed == "" {
 		vSeed = uuid.New()
 		config.Set(vSeed, "frontend", "versionSeed")
@@ -91,12 +91,12 @@ func VersionHash() string {
 
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
-	url := config.ApplicationConfig.Values("defaults", "url").Default("").String()
+	url := config.Get("defaults", "url").Default("").String()
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
-	lang := config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
-	clientSession := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
-	timeoutWarn := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
+	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	clientSession := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
+	timeoutWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
 
 	vHash := VersionHash()
 	vDate := ""
@@ -125,11 +125,11 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		ValidMailer:                  config.ApplicationConfig.Values("services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
+		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
+			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: i18n.AvailableLanguages,
@@ -144,7 +144,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		},
 	}
 
-	if icBinary := config.ApplicationConfig.Values("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
+	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
 		b.CustomWording.IconBinary = icBinary
 	}
 

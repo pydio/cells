@@ -186,7 +186,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithIgnore(), nil // Ignore
 	}
 	sourceNode := input.Nodes[0]
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.ApplicationConfig, true))
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Get(), true))
 
 	targetNode := &tree.Node{
 		Path: jobs.EvaluateFieldStr(ctx, input, c.TargetPlaceholder),

@@ -247,7 +247,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
-	languages := i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	output := &rest.DeleteNodesResponse{}
 	router := h.GetRouter()
@@ -484,7 +484,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
-	languages := i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	moveLabel := T("Jobs.User.DirMove")
 

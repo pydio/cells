@@ -50,7 +50,7 @@ func init() {
 func InsertPruningJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.ApplicationConfig))
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	return service.Retry(func() error {
 
@@ -108,7 +108,7 @@ func (c *PruneTokensAction) Init(job *jobs.Job, cl client.Client, action *jobs.A
 // Run the actual action code
 func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.ApplicationConfig))
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	output := input
 

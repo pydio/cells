@@ -35,7 +35,7 @@ import (
 
 func getDefaultJobs() []*jobs.Job {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.ApplicationConfig))
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Type: tree.NodeType_LEAF,
 	})

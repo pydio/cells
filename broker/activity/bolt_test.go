@@ -44,7 +44,7 @@ func init() {
 	// Define parameters to shorten tests launch
 	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
 	conf = configx.NewMap()
-	conf.Values("InboxMaxSize").Set(int64(10))
+	conf.Val("InboxMaxSize").Set(int64(10))
 }
 
 func TestEmptyDao(t *testing.T) {

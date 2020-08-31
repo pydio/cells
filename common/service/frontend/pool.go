@@ -14,9 +14,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/x/configx"
 )
 
 type PluginsPool struct {
@@ -163,7 +163,7 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 		}
 	}
 	emptyStatus := RequestStatus{
-		Config:        config.ApplicationConfig,
+		Config:        config.Get(),
 		Lang:          lang,
 		NoClaims:      true,
 		AclParameters: configx.NewMap(),
@@ -313,7 +313,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
-	appTitle := config.ApplicationConfig.Values("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
+	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
 		content, _ := ioutil.ReadAll(f)
 		var data map[string]Translation

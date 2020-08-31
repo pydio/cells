@@ -115,7 +115,7 @@ class ResourcesManager{
 			}.bind(this) );
 		}
         if(this.resources.js){
-            let it = this.resources.js.values();
+            let it = this.resources.js.Val();
             let cb = function(){
                 let object = it.next();
                 if(object.value){

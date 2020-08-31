@@ -190,7 +190,7 @@ func CreateAuthCode(consent *auth.ID, clientID, redirectURI string) (string, err
 func get(flow string, challenge string, res interface{}) error {
 	cli := &http.Client{}
 
-	hydraAdminURL := config.ApplicationConfig.Values("defaults", "urlInternal").String() + "/oidc-admin"
+	hydraAdminURL := config.Get("defaults", "urlInternal").String() + "/oidc-admin"
 
 	req, err := http.NewRequest("GET", hydraAdminURL+"/oauth2/auth/requests/"+flow, nil)
 
@@ -218,7 +218,7 @@ func put(flow string, action string, challenge string, body interface{}, res int
 		return err
 	}
 
-	hydraAdminURL := config.ApplicationConfig.Values("defaults", "urlInternal").String() + "/oidc-admin"
+	hydraAdminURL := config.Get("defaults", "urlInternal").String() + "/oidc-admin"
 
 	req, err := http.NewRequest("PUT", hydraAdminURL+"/oauth2/auth/requests/"+flow+"/"+action, bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")

@@ -219,11 +219,11 @@ func (plugin *Cplugin) Translate(messages I18nMessages) {
 
 func (plugin *Cplugin) PluginEnabled(status RequestStatus) bool {
 
-	enabled := status.Config.Values("frontend", "plugin", plugin.GetId(), "PYDIO_PLUGIN_ENABLED").Default(plugin.DefaultEnabled()).Bool()
+	enabled := status.Config.Val("frontend", "plugin", plugin.GetId(), "PYDIO_PLUGIN_ENABLED").Default(plugin.DefaultEnabled()).Bool()
 
-	values := status.AclParameters.Values(plugin.GetId(), "PYDIO_PLUGIN_ENABLED")
+	values := status.AclParameters.Val(plugin.GetId(), "PYDIO_PLUGIN_ENABLED")
 	for _, scope := range status.WsScopes {
-		enabled = values.Values(scope).Default(enabled).Bool() // Take last value
+		enabled = values.Val(scope).Default(enabled).Bool() // Take last value
 	}
 
 	return enabled
@@ -235,10 +235,10 @@ func (plugin *Cplugin) FilterActions(status RequestStatus, pool *PluginsPool, ac
 		actionName := action.Attrname
 		aclValue := true
 
-		values := status.AclActions.Values(plugin.GetId(), actionName)
+		values := status.AclActions.Val(plugin.GetId(), actionName)
 
 		for _, scope := range status.WsScopes {
-			aclValue = values.Values(scope).Default(aclValue).Bool() // Take last value
+			aclValue = values.Val(scope).Default(aclValue).Bool() // Take last value
 		}
 
 		if !aclValue {
@@ -291,11 +291,11 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		}
 
 		// First we look in the main config
-		val = status.Config.Values("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Bool()
+		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Bool()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Values(plugin.GetId(), scope).Default(val).Bool()
+			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).Bool()
 		}
 	case "integer":
 		var e error
@@ -305,21 +305,21 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		}
 
 		// First we look in the main config
-		val = status.Config.Values("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Int()
+		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).Int()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Values(plugin.GetId(), scope).Default(val).Int()
+			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).Int()
 		}
 	default:
 		val = param.Attrdefault
 
 		// First we look in the main config
-		val = status.Config.Values("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).String()
+		val = status.Config.Val("frontend", "plugin", plugin.GetId(), param.Attrname).Default(val).String()
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Values(plugin.GetId(), scope).Default(val).String()
+			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).String()
 		}
 	}
 

@@ -141,7 +141,7 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := i18n.GetDefaultLanguage(config.ApplicationConfig)
+	lang := i18n.GetDefaultLanguage(config.Get())
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}
@@ -160,7 +160,7 @@ func (u *User) FlattenedRolesConfigs() configx.Values {
 }
 
 func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
-	return u.FlattenedRolesConfigs().Values("parameters", pluginId, name, "PYDIO_REPO_SCOPE_ALL").String()
+	return u.FlattenedRolesConfigs().Val("parameters", pluginId, name, "PYDIO_REPO_SCOPE_ALL").String()
 }
 
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
@@ -186,9 +186,9 @@ func (u *User) FlattenedFrontValues() configx.Values {
 			n := parts[2]
 
 			if t == "action" {
-				output.Values("actions", p, n, scope).Set(iVal)
+				output.Val("actions", p, n, scope).Set(iVal)
 			} else {
-				output.Values("parameters", p, n, scope).Set(iVal)
+				output.Val("parameters", p, n, scope).Set(iVal)
 			}
 		}
 	}

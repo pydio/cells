@@ -34,7 +34,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
@@ -149,6 +148,8 @@ func init() {
 
 	flags := RootCmd.PersistentFlags()
 
+	flags.String("config", "etcd", "Config")
+
 	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
 	flags.String("registry_address", ":4222", "Registry connection address")
 	flags.String("registry_cluster_address", ":5222", "Registry cluster address")
@@ -168,6 +169,8 @@ func init() {
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
+
+	viper.BindPFlag("config", flags.Lookup("config"))
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
 	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
@@ -207,24 +210,13 @@ func Execute() {
 }
 
 func initConfig() {
-	config.SetApplicationConfig(config.Default().Get())
-
-	go func() {
-		w, err := config.Watch()
-		if err != nil {
-			return
-		}
-
-		for {
-			ch, err := w.Next()
-			if err != nil {
-				break
-			}
-
-			config.SetApplicationConfig(ch)
-		}
-	}()
-
+	// case "etcd":
+	// 	config.Register(
+	// 		config.New(etcd.NewSource(clientv3.Config{
+	// 			Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
+	// 			DialTimeout: 5 * time.Second,
+	// 		})))
+	// }
 }
 
 func initLogLevel() {

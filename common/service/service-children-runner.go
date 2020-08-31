@@ -206,7 +206,7 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
-	watcher, err := config.Default().Watch("services", c.parentName, "sources")
+	watcher, err := config.Watch("services", c.parentName, "sources")
 	if err != nil {
 		return err
 	}

@@ -52,7 +52,7 @@ func init() {
 			service.RouterDependencies(),
 			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
-				indexContent := servicecontext.GetConfig(m.Options().Context).Values("indexContent").Bool()
+				indexContent := servicecontext.GetConfig(m.Options().Context).Val("indexContent").Bool()
 
 				dir, _ := config.ServiceDataDir(Name)
 				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")

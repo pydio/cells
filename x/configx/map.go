@@ -23,8 +23,6 @@ package configx
 import (
 	"bytes"
 	"encoding/json"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -39,33 +37,10 @@ type mymap struct {
 	k interface{} // Reference to key for re-assignment
 }
 
-func keysToString(k ...Key) []string {
-	var r []string
-
-	for _, kk := range k {
-		switch v := kk.(type) {
-		case int:
-			r = append(r, strconv.Itoa(v))
-		case string:
-			v = strings.Replace(v, "[", "/", -1)
-			v = strings.Replace(v, "]", "/", -1)
-			v = strings.Replace(v, "//", "/", -1)
-			v = strings.Trim(v, "/")
-			r = append(r, strings.Split(v, "/")...)
-		case []string:
-			for _, vv := range v {
-				r = append(r, keysToString(vv)...)
-			}
-		}
-	}
-
-	return r
-}
-
 func (c *mymap) Get() Value {
 	// Checking if we have a pointer
 	if ref, ok := c.v["$ref"]; ok {
-		return c.Values(ref).Get()
+		return c.Val(ref).Get()
 	}
 	return &def{c.v}
 }
@@ -121,7 +96,7 @@ func (c *mymap) Scan(val interface{}) error {
 	return err
 }
 
-func (c *mymap) Values(k ...Key) Values {
+func (c *mymap) Val(k ...Key) Values {
 	keys := keysToString(k...)
 
 	if len(keys) == 0 {
@@ -133,30 +108,30 @@ func (c *mymap) Values(k ...Key) Values {
 	if idx == "#" {
 		if c.p != nil {
 			if v, ok := c.p.(Values); ok {
-				return v.Values(keys)
+				return v.Val(keys)
 			}
 		}
-		return c.Values(keys[1:])
+		return c.Val(keys[1:])
 	}
 
 	v, ok := c.v[idx]
 	if !ok {
-		return (&value{nil, c, keys[0]}).Values(keys[1:])
+		return (&value{nil, c, keys[0]}).Val(keys[1:])
 	}
 
 	if m, err := cast.ToStringMapE(v); err == nil {
-		return (&mymap{m, c, idx}).Values(keys[1:])
+		return (&mymap{m, c, idx}).Val(keys[1:])
 	}
 
 	if m, ok := v.(*mymap); ok {
-		return m.Values(keys[1:])
+		return m.Val(keys[1:])
 	}
 
 	if a, err := cast.ToSliceE(v); err == nil {
-		return (&array{a, c, idx}).Values(keys[1:])
+		return (&array{a, c, idx}).Val(keys[1:])
 	}
 
-	return (&value{v, c, idx}).Values(keys[1:])
+	return (&value{v, c, idx}).Val(keys[1:])
 }
 
 func (c *mymap) IsEmpty() bool {
@@ -183,11 +158,13 @@ func (c *mymap) Duration() time.Duration {
 	return c.Default(0 * time.Second).Duration()
 }
 func (c *mymap) String() string {
+	if len(c.v) == 0 {
+		return ""
+	}
 	b, err := json.Marshal(c.v)
 	if err != nil {
 		return "cannot marshal"
 	}
-
 	return string(b)
 }
 func (c *mymap) StringMap() map[string]string {

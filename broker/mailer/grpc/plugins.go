@@ -27,17 +27,17 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/x/configx"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	wconfig "github.com/pydio/go-os/config"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 var (
@@ -88,8 +88,8 @@ func init() {
 	})
 }
 
-func watchConfigChanges(ctx context.Context, handler *Handler) (wconfig.Watcher, error) {
-	watcher, err := config.Default().Watch("services", Name)
+func watchConfigChanges(ctx context.Context, handler *Handler) (configx.Receiver, error) {
+	watcher, err := config.Watch("services", Name)
 	if err != nil {
 		return nil, err
 	}

@@ -31,12 +31,12 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	cache "github.com/patrickmn/go-cache"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/x/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 	// SQLite Driver
@@ -67,7 +67,7 @@ func TestMain(m *testing.M) {
 	}
 
 	mockDAO := user.NewDAO(sqlDao)
-	var options config.Map
+	var options = configx.NewMap()
 	if err := mockDAO.Init(options); err != nil {
 		log.Fatal("could not start test: unable to initialise DAO, error: ", err)
 		return

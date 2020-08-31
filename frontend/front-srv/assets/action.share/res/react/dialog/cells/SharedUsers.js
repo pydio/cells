@@ -116,7 +116,7 @@ let SharedUsers = React.createClass({
             );
         }
         if(!this.props.isReadonly() && !this.props.readonly){
-            const excludes = Object.values(cellAcls).map(a => {
+            const excludes = Object.Val(cellAcls).map(a => {
                 if(a.User) {
                     return a.User.Login;
                 } else if(a.Group) {

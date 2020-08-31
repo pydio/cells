@@ -26,8 +26,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 const (
@@ -48,8 +48,8 @@ func TestSendgrid_Send(t *testing.T) {
 			return
 		}
 
-		conf := config.NewMap()
-		conf.Set("apiKey", sendgridTestConfig_apiKey)
+		conf := configx.NewMap()
+		conf.Val("apiKey").Set(sendgridTestConfig_apiKey)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
@@ -67,7 +67,7 @@ func TestSendgrid_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		sendGrid := &SendGrid{}
-		err := sendGrid.Configure(context.Background(), *conf)
+		err := sendGrid.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
 
 		err = sendGrid.Send(email)

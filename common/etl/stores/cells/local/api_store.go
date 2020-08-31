@@ -58,7 +58,7 @@ func NewAPIStore() *ApiStore {
 // Configuration
 func (apiStore *ApiStore) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
 	return &source.ChangeSet{
-		Data: config.ApplicationConfig.Values("services").Bytes(),
+		Data: config.Get("services").Bytes(),
 	}, nil
 }
 

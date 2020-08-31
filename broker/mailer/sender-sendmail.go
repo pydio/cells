@@ -38,7 +38,7 @@ type Sendmail struct {
 }
 
 func (s *Sendmail) Configure(ctx context.Context, conf configx.Values) error {
-	s.BinPath = conf.Values("defaults", "sendmail").Default("/usr/bin/mail").String()
+	s.BinPath = conf.Val("defaults", "sendmail").Default("/usr/bin/mail").String()
 	return nil
 }
 

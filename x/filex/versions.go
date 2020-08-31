@@ -1,4 +1,4 @@
-package file
+package filex
 
 import (
 	"path/filepath"

@@ -94,9 +94,9 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	rolesConfigs := user.FlattenedRolesConfigs()
 
 	status := frontend.RequestStatus{
-		Config:        config.ApplicationConfig,
-		AclParameters: rolesConfigs.Values("parameters"),
-		AclActions:    rolesConfigs.Values("actions"),
+		Config:        config.Get(),
+		AclParameters: rolesConfigs.Val("parameters"),
+		AclActions:    rolesConfigs.Val("actions"),
 		WsScopes:      user.GetActiveScopes(),
 		User:          user,
 		NoClaims:      !user.Logged,

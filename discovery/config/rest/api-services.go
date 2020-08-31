@@ -327,7 +327,7 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		controllable = false
 	}
 	configAddress := ""
-	c := config.Default().Get("defaults", "url").String("")
+	c := config.Get("defaults", "url").String()
 	if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
 		configAddress = c
 	}

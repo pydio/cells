@@ -85,7 +85,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 		inputReq.BoxName = "outbox"
 	}
 	if inputReq.Language == "" {
-		inputReq.Language = i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)[0]
+		inputReq.Language = i18n.UserLanguagesFromRestRequest(req, config.Get())[0]
 	}
 	client := a.getClient()
 

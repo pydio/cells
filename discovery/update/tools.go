@@ -61,7 +61,7 @@ import (
 // updates available
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
 
-	urlConf := conf.Values("updateUrl").Default("#/defaults/update/updateUrl").String()
+	urlConf := conf.Val("updateUrl").Default("#/defaults/update/updateUrl").String()
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
 	}
@@ -73,7 +73,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 		parsed.Path = "/a/update-server"
 	}
 
-	channel := conf.Values("channel").Default("#/defaults/update/channel").Default("stable").String()
+	channel := conf.Val("channel").Default("#/defaults/update/channel").Default("stable").String()
 
 	// Set default values
 	if request.PackageName == "" {
@@ -219,7 +219,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 			return
 		}
 
-		pKey := conf.Values("publicKey").Default("#/defaults/update/publicKey").String()
+		pKey := conf.Val("publicKey").Default("#/defaults/update/publicKey").String()
 		if pKey == "" {
 			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
 			return

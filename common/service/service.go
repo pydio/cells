@@ -149,7 +149,7 @@ func NewService(opts ...ServiceOption) Service {
 	name := s.Options().Name
 
 	// Checking that the service is not bound to a certain IP
-	peerAddress := config.ApplicationConfig.Values("services", name, "PeerAddress").String()
+	peerAddress := config.Get("services", name, "PeerAddress").String()
 
 	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
 		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", name), zap.String("ip", peerAddress))
@@ -204,7 +204,7 @@ var mandatoryOptions = []ServiceOption{
 		// 	cfg.Set("port", p)
 		// }
 
-		ctx = servicecontext.WithConfig(ctx, config.ApplicationConfig.Values("services", s.Name()))
+		ctx = servicecontext.WithConfig(ctx, config.Get("services", s.Name()))
 
 		s.Init(Context(ctx))
 
@@ -647,19 +647,19 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
 	ctx := s.Options().Context
-	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Values("autostart").Bool()
+	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Val("autostart").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
-	return s.Options().Fork || servicecontext.GetConfig(ctx).Values("fork").Bool()
+	return s.Options().Fork || servicecontext.GetConfig(ctx).Val("fork").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
 	ctx := s.Options().Context
-	return s.Options().Unique || servicecontext.GetConfig(ctx).Values("unique").Bool()
+	return s.Options().Unique || servicecontext.GetConfig(ctx).Val("unique").Bool()
 }
 
 func (s *service) Client() (string, client.Client) {

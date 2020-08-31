@@ -76,17 +76,16 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		endpointResponse.BuildRevision = common.BuildRevision
 	}
 
-	cfg := config.Default()
 	httpProtocol := "http"
 	wsProtocol := "ws"
 
-	mainUrl := cfg.Get("defaults", "url").String("")
+	mainUrl := config.Get("defaults", "url").String()
 	if !strings.HasPrefix(mainUrl, "http") {
 		mainUrl = "http://" + mainUrl
 	}
 	urlParsed, _ := url.Parse(mainUrl)
 
-	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
+	ssl := config.Get("cert", "proxy", "ssl").Bool()
 	if ssl {
 		httpProtocol = "https"
 		wsProtocol = "wss"
@@ -125,8 +124,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
-	cfg := config.Default()
-	u := cfg.Get("defaults", "url").String("")
+	u := config.Get("defaults", "url").String()
 	p, _ := url.Parse(u)
 
 	jsonSpec := service.SwaggerSpec()
@@ -188,7 +186,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
 	return
 
 }
@@ -196,7 +194,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 // SchedulerActionsDiscovery lists all registered actions
 func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
 	actionManager := actions.GetActionsManager()
-	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...)
+	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	response := &rest.SchedulerActionsResponse{
 		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
 	}
@@ -322,5 +320,5 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	if form == nil {
 		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
 }

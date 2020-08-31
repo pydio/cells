@@ -95,7 +95,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	userLogin := req.PathParameter("UserLogin")
 	ctx := req.Request.Context()
 	response := &rest.ResetPasswordTokenResponse{}
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 
 	// Search for user by login
 	u, e := permissions.SearchUniqueUser(ctx, userLogin, "")
@@ -113,7 +113,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		response.Message = T("ResetPassword.Err.EmailNotFound")
 		return
 	}
-	uLang := i18n.UserLanguage(ctx, u, config.ApplicationConfig)
+	uLang := i18n.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().GetTranslationFunc(uLang)
 
 	// Create token and store as document
@@ -172,7 +172,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		service.RestError500(req, resp, e)
 		return
 	}
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.ApplicationConfig)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
@@ -213,7 +213,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = T("ResetPassword.Err.UserNotFound")
 		return
 	}
-	uLang := i18n.UserLanguage(ctx, u, config.ApplicationConfig)
+	uLang := i18n.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().GetTranslationFunc(uLang)
 	u.Password = input.NewPassword
 	userClient := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))

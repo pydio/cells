@@ -39,7 +39,7 @@ type SendGrid struct {
 
 // Configure expects a valid sendgrid API key.
 func (s *SendGrid) Configure(ctx context.Context, config configx.Values) error {
-	s.ApiKey = config.Values("apiKey").String()
+	s.ApiKey = config.Val("apiKey").String()
 
 	if s.ApiKey == "" {
 		return fmt.Errorf("cannot send mail via sendgrid without a valid API key")

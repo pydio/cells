@@ -51,13 +51,7 @@ This command lets you assign a different database connection to a service. Use d
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
 
-		cfg := config.Default().(*config.Config)
-
-		var m map[string]interface{}
-		if err := cfg.UnmarshalKey("databases", &m); err != nil {
-			cmd.Println(err)
-			os.Exit(1)
-		}
+		m := config.Get("databases").Map()
 
 		var ids []string
 		var items []string

@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	config2 "github.com/pydio/go-os/config"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -63,7 +63,7 @@ type ClientsPool struct {
 	genericClient client.Client
 	configMutex   *sync.Mutex
 	watcher       registry.Watcher
-	confWatcher   config2.Watcher
+	confWatcher   configx.Receiver
 }
 
 // NewSource instantiates a LoadedSource with a minio client
@@ -126,7 +126,7 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
 
 	if dsName == "default" {
-		dsName = config.ApplicationConfig.Values("defaults", "datasource").Default("default").String()
+		dsName = config.Get("defaults", "datasource").Default("default").String()
 	}
 
 	if cl, ok := p.Sources[dsName]; ok {
@@ -265,7 +265,7 @@ func (p *ClientsPool) watchRegistry() {
 
 func (p *ClientsPool) watchConfigChanges() {
 
-	watcher, err := config.Default().Watch("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
+	watcher, err := config.Watch("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
 	if err != nil {
 		return
 	}

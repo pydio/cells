@@ -1,15 +1,21 @@
 package configx
 
-import "time"
+import (
+	"time"
+)
 
 type Scanner interface {
-	Scan(val interface{}) error
+	Scan(interface{}) error
 }
 
-// TODO
-// type Watcher interface {
-// 	Watch() (config.Watcher, error)
-// }
+type Watcher interface {
+	Watch(...string) (Receiver, error)
+}
+
+type Receiver interface {
+	Next() (Values, error)
+	Stop()
+}
 
 type Key interface{}
 
@@ -26,21 +32,35 @@ type Value interface {
 	StringArray() []string
 	Slice() []interface{}
 	Map() map[string]interface{}
-}
-
-type Values interface {
-	Get() Value
-	Set(value interface{}) error
-	Del() error
-	Values(key ...Key) Values
-
-	Value
 
 	Scanner
 }
 
+// KVStore
+type KVStore interface {
+	Get() Value
+	Set(value interface{}) error
+	Del() error
+}
+
+// Entrypoint
+type Entrypoint interface {
+	KVStore
+	Val(key ...Key) Values
+}
+
+type Values interface {
+	Entrypoint
+	Value
+}
+
 type Ref interface {
 	Get() string
+}
+
+type Source interface {
+	Entrypoint
+	Watch(...string) (Receiver, error)
 }
 
 // NewMap returns a config value parsable as a map

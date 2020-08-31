@@ -55,7 +55,7 @@ class GraphPanel extends Component{
             )
         }
         if(graph.cells){
-            const cells = Object.values(graph.cells).filter((cell) => {
+            const cells = Object.Val(graph.cells).filter((cell) => {
                 return cell.Scope === "ROOM";
             });
             if(cells.length){

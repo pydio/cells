@@ -69,10 +69,10 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 		break
 	}
 
-	c := config.ApplicationConfig.Values("services", configKey)
+	c := config.Get("services", configKey)
 
-	dataSource = c.Values("datasource").Default("#/defaults/datasource").String()
-	bucket = c.Values("bucket").String()
+	dataSource = c.Val("datasource").Default("#/defaults/datasource").String()
+	bucket = c.Val("bucket").String()
 
 	return dataSource, bucket, nil
 }

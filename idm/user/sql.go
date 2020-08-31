@@ -141,7 +141,7 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	}
 
 	// Preparing the db statements
-	if options.Values("prepare").Default(true).Bool() {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				return fmt.Errorf("unable to prepare query[%s]: %s - error: %v", key, query, err)

@@ -30,10 +30,10 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 
 	// Run tests against SQLite
 	_ "github.com/mattn/go-sqlite3"
@@ -48,7 +48,7 @@ var (
 
 func TestMain(m *testing.M) {
 
-	var options config.Map
+	var options = configx.NewMap()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if dao == nil {

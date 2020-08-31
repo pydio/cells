@@ -75,14 +75,14 @@ func (h *Handler) Read(ctx context.Context, request *proto.ReadRequest, response
 		if request.Path != "" {
 			value = config.Get(strings.Split(request.Path, "/")...).Bytes()
 		} else {
-			value = config.Default().Bytes()
+			value = config.Get().Bytes()
 		}
-	} else if request.Id == "vault" {
-		if request.Path != "" {
-			value = config.Vault().Get(strings.Split(request.Path, "/")...).Bytes()
-		} else {
-			value = config.Vault().Bytes()
-		}
+		// } else if request.Id == "vault" {
+		// 	if request.Path != "" {
+		// 		value = config.Vault().Get(strings.Split(request.Path, "/")...).Bytes()
+		// 	} else {
+		// 		value = config.Vault().Bytes()
+		// 	}
 	} else {
 		return errors.BadRequest("config.read", "config ID not supported, please use config or vault")
 	}

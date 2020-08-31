@@ -31,13 +31,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	commonsql "github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/role"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -71,11 +71,11 @@ func TestMain(m *testing.M) {
 	// Instantiate and initialise the role DAO Mock
 	sqlDao := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
 	roleDAO = role.NewDAO(sqlDao).(role.DAO)
-	options := config.NewMap()
-	options.Set("database", roleDAO)
-	options.Set("exclusive", true)
-	options.Set("prepare", true)
-	err := (roleDAO.(dao.DAO)).Init(*options)
+	options := configx.NewMap()
+	options.Val("database").Set(roleDAO)
+	options.Val("exclusive").Set(true)
+	options.Val("prepare").Set(true)
+	err := (roleDAO.(dao.DAO)).Init(options)
 	if err != nil {
 		fmt.Print("could not start test ", err)
 		return

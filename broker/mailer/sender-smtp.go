@@ -46,25 +46,28 @@ type Smtp struct {
 
 func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 
-	gm.User = conf.Values("user").String()
+	gm.User = conf.Val("user").String()
 	if gm.User == "" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory user name")
 	}
 
-	gm.Password = conf.Values("clearPass").String()
-	if gm.Password == "" {
-		gm.Password = config.GetSecret(conf.Values("password").String()).String("")
+	gm.Password = conf.Val("clearPass").Default("NOT_SET").String()
+	if gm.Password == "NOT_SET" {
+		gm.Password = config.GetSecret(conf.Val("password").String()).Default("NOT_SET").String()
 	}
-	if gm.Password == "" {
+
+	if gm.Password == "NOT_SET" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory password")
 	}
 
-	gm.Host = conf.Values("host").String()
+	fmt.Println("There 3")
+
+	gm.Host = conf.Val("host").String()
 	if gm.Host == "" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory host address")
 	}
 
-	gm.Port = conf.Values("port").Int()
+	gm.Port = conf.Val("port").Int()
 	if gm.Port == 0 {
 		return fmt.Errorf("cannot configure mailer: missing compulsory port")
 	}
@@ -77,7 +80,7 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 	// }
 
 	// Set default to be false.
-	gm.InsecureSkipVerify = conf.Values("insecureSkipVerify").Bool()
+	gm.InsecureSkipVerify = conf.Val("insecureSkipVerify").Bool()
 
 	log.Logger(ctx).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 

@@ -69,7 +69,7 @@ func (c *array) Del() error {
 	return nil
 }
 
-func (c *array) Values(k ...Key) Values {
+func (c *array) Val(k ...Key) Values {
 	keys := keysToString(k...)
 
 	if len(keys) == 0 {
@@ -80,10 +80,10 @@ func (c *array) Values(k ...Key) Values {
 	if keys[0] == "#" {
 		if c.p != nil {
 			if v, ok := c.p.(Values); ok {
-				return v.Values(keys)
+				return v.Val(keys)
 			}
 		}
-		return c.Values(keys[1:])
+		return c.Val(keys[1:])
 	}
 
 	idx, err := cast.ToIntE(keys[0])
@@ -100,10 +100,10 @@ func (c *array) Values(k ...Key) Values {
 	keys = keys[1:]
 
 	if m, err := cast.ToStringMapE(v); err == nil {
-		return (&mymap{m, c, idx}).Values(keys)
+		return (&mymap{m, c, idx}).Val(keys)
 	}
 
-	return (&value{v, c, idx}).Values(keys)
+	return (&value{v, c, idx}).Val(keys)
 }
 
 func (c *array) Scan(val interface{}) error {

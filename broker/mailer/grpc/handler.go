@@ -196,20 +196,20 @@ func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig 
 	// Defaults
 	queueName = "boltdb"
 	senderName = "sendmail"
-	senderConfig = conf.Values("sender")
-	queueConfig = conf.Values("queue")
+	senderConfig = conf.Val("sender")
+	queueConfig = conf.Val("queue")
 
-	queueName = queueConfig.Values("@value").Default("boltdb").String()
-	senderName = senderConfig.Values("@value").Default("sendmail").String()
+	queueName = queueConfig.Val("@value").Default("boltdb").String()
+	senderName = senderConfig.Val("@value").Default("sendmail").String()
 
-	log.Logger(context.Background()).Debug("Parsed config for mailer", zap.String("c", senderConfig.Get().String()))
+	log.Logger(context.Background()).Debug("Parsed config for mailer", zap.String("c", senderConfig.String()))
 
 	return
 }
 
 func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check bool) (e error) {
 
-	initialConfig := conf.Values("valid").Bool()
+	initialConfig := conf.Val("valid").Bool()
 	defer func() {
 		var newConfig bool
 		if e != nil {
@@ -218,7 +218,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 			newConfig = true
 		}
 		if newConfig != initialConfig {
-			config.Default().Set(true, "services", servicecontext.GetServiceName(ctx), "valid")
+			config.Get("services", servicecontext.GetServiceName(ctx), "valid").Set(true)
 			config.Save(common.PYDIO_SYSTEM_USERNAME, "Update mailer valid config")
 		}
 	}()
@@ -256,7 +256,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
-	cfg := config.ApplicationConfig.Values("services", servicecontext.GetServiceName(ctx))
+	cfg := config.Get("services", servicecontext.GetServiceName(ctx))
 	queueName, _, senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)

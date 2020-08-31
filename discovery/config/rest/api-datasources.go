@@ -85,7 +85,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	// Replace uuid secret if it exists
 	var secretUuid string
-	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
 		secretUuid = ds.ApiSecret
 		ds.ApiSecret = sec
 	}
@@ -104,7 +104,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			return
 		}
 		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
-		rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+		rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
@@ -274,7 +274,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	u, _ := url.Parse(endpoint)
 	host := u.Host
 	secure := u.Scheme == "https"
-	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
 		ds.ApiSecret = sec
 	}
 	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
@@ -342,7 +342,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	if ds.StorageConfiguration != nil {
 		if folder, ok := ds.StorageConfiguration["folder"]; ok {
-			rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+			rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}

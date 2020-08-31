@@ -62,7 +62,7 @@ func init() {
 		)
 
 		// load configuration
-		auth.InitConfiguration(config.ApplicationConfig.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 
 		// And watch to know when we need to reload
 		// watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
@@ -78,7 +78,7 @@ func init() {
 		// 			break
 		// 		}
 
-		// 		auth.InitConfiguration(config.ApplicationConfig.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		// 		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 		// 	}
 		// }()
 

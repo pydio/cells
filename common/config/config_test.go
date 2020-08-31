@@ -21,33 +21,23 @@
 package config
 
 import (
-	"os"
 	"testing"
 
+	"github.com/pydio/cells/common/config/micro"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestTreeNode(t *testing.T) {
+var (
+	data []byte
+)
 
-	PydioConfigDir = os.TempDir()
+func init() {
+	std = New(micro.NewMemorySource(data))
+}
 
-	// For the time being, we do not use env variable as option backend,
-	// so the below test would fail.
-
-	// Convey("Test Get env", t, func() {
-	// 	os.Setenv("PYDIO_URL", "http://localhost:2015")
-	// 	So(Get("url").String(""), ShouldEqual, "http://localhost:2015")
-	// })
-
+func TestConfig(t *testing.T) {
 	Convey("Test Set", t, func() {
-
-		initConfig()
-		Set("whatever", "url")
-		So(Get("url").String(""), ShouldEqual, "whatever")
-
+		Set("my-test-config-value", "test")
+		So(Get("test").Default("").String(), ShouldEqual, "my-test-config-value")
 	})
-
-	// Convey("Test Del", t, func() {
-	// 	Del()
-	// })
 }

@@ -53,7 +53,7 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
-			if sec := GetSecret(conf.ApiSecret).String(""); sec != "" {
+			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
 				conf.ApiSecret = sec
 			}
 		}
@@ -76,12 +76,12 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesForDataServices(dataSrvType string) []string {
-	return SourceNamesFromDataConfigs(ApplicationConfig.Values("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType))
+	return SourceNamesFromDataConfigs(Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType))
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesFromDataConfigs(values configx.Values) []string {
-	names := values.Values("sources").StringArray()
+	names := values.Val("sources").StringArray()
 	return SourceNamesFiltered(names)
 }
 

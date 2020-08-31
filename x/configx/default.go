@@ -1,9 +1,12 @@
 package configx
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/json"
 	"time"
 
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
 	"github.com/spf13/cast"
 )
 
@@ -48,7 +51,21 @@ func (d *def) Slice() []interface{} {
 	return cast.ToSlice(d.v)
 }
 func (d *def) Map() map[string]interface{} {
-	r, e := cast.ToStringMapE(d.v)
-	fmt.Println(e)
+	r, _ := cast.ToStringMapE(d.v)
 	return r
+}
+func (d *def) Scan(val interface{}) error {
+	jsonStr, err := json.Marshal(d.v)
+	if err != nil {
+		return err
+	}
+
+	switch v := val.(type) {
+	case proto.Message:
+		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
+	default:
+		err = json.Unmarshal(jsonStr, v)
+	}
+
+	return err
 }

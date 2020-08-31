@@ -55,10 +55,10 @@ type ApplicationConfigs struct {
 
 func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	T := lang.Bundle().GetTranslationFunc(languages...)
-	url := config.ApplicationConfig.Values("defaults", "url").Default("URL NOT SET").String()
-	from := config.ApplicationConfig.Values("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
-	fromName := config.ApplicationConfig.Values("services", "pydio.grpc.mailer", "fromName").Default("").String()
-	fromCtl := config.ApplicationConfig.Values("services", "pydio.grpc.mailer", "fromCtl", "@value").Default("user").String()
+	url := config.Get("defaults", "url").Default("URL NOT SET").String()
+	from := config.Get("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
+	fromName := config.Get("services", "pydio.grpc.mailer", "fromName").Default("").String()
+	fromCtl := config.Get("services", "pydio.grpc.mailer", "fromCtl", "@value").Default("user").String()
 
 	if fromName == "" {
 		fromName = "Pydio"

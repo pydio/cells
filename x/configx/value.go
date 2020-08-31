@@ -31,7 +31,7 @@ func (v *value) Default(i interface{}) Value {
 	if vv == nil {
 		// First check if we have a reference
 		if ref, ok := i.(Ref); ok {
-			return v.Values(ref.Get())
+			return v.Val(ref.Get())
 		}
 
 		return (&def{nil}).Default(i)
@@ -47,9 +47,8 @@ func (v *value) Set(data interface{}) error {
 	}
 	if m, ok := v.p.(*mymap); ok {
 		if m.v == nil {
-			fmt.Println("YO YO YO")
+			m.v = make(map[string]interface{})
 		}
-		fmt.Printf("HERE %v\n", m.v)
 		m.v[v.k.(string)] = data
 	}
 	if a, ok := v.p.(*array); ok {
@@ -58,7 +57,20 @@ func (v *value) Set(data interface{}) error {
 		a.Set(old)
 	}
 
+	if pp, ok := v.p.(*value); ok {
+		switch k := v.k.(type) {
+		case string:
+			return pp.Set(map[string]interface{}{
+				k: data,
+			})
+		case int:
+			// TODO
+		}
+
+	}
+
 	v.v = data
+
 	return nil
 }
 
@@ -81,7 +93,7 @@ func (v *value) Del() error {
 }
 
 // values cannot retrieve lower values as it is final
-func (v *value) Values(k ...Key) Values {
+func (v *value) Val(k ...Key) Values {
 	keys := keysToString(k...)
 
 	// A value arriving there with another key below if of the wrong type
@@ -90,12 +102,14 @@ func (v *value) Values(k ...Key) Values {
 		if keys[0] == "#" {
 			if v.p != nil {
 				if v, ok := v.p.(Values); ok {
-					return v.Values(keys)
+					return v.Val(keys)
 				}
 			}
 		}
 
-		return (*value)(nil)
+		// The parent doesn't actually exist here, we fake it in case we need to set it later
+		p := &value{nil, v.p, v.k}
+		return (*value)(&value{nil, p, keys[0]}).Val(keys[1:])
 	}
 
 	return v

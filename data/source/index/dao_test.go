@@ -34,11 +34,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 )
 
 // FIXME: FAILING TEST
@@ -46,7 +46,7 @@ import (
 
 var (
 	ctx       context.Context
-	options   config.Map
+	options   = configx.NewMap()
 	mockNode  *mtree.TreeNode
 	mockNode2 *mtree.TreeNode
 

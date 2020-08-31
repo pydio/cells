@@ -62,7 +62,7 @@ func (s *ResourcesSQL) Init(options configx.Values) error {
 		return err
 	}
 
-	if options.Values("prepare").Default(true).Bool() {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				fmt.Println(err)
