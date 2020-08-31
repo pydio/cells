@@ -132,24 +132,24 @@
     "other": "Se mostrará al usuario al inicio de sesión"
   },
   "Security": {
-    "other": "Security"
+    "other": "Seguridad"
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
-    "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
+    "other": "Acción a ejecutar al hacer clic en Olvidar Contraseña. Se puede cambiar para ejecutar una acción personalizada si se confía en el sistema de autenticación externa."
   },
   "Let user create new cells": {
-    "other": "Let user create new cells"
+    "other": "Permitir al usuario crear nuevas cells"
   },
   "Whether users can create their own cells or not": {
-    "other": "Whether users can create their own cells or not"
+    "other": "Si los usuarios pueden crear sus propias cells o no"
   },
   "Delegation": {
-    "other": "Delegation"
+    "other": "Delegación"
   },
   "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+    "other": "La búsqueda de directorios está buscando etiquetas 'que comienzan con' la cadena de búsqueda. Activar esta opción habilitará un comodín para buscar etiquetas 'que contienen' esa cadena."
   },
   "Auto-wildcard search": {
-    "other": "Auto-wildcard search"
+    "other": "Búsqueda automática de comodín"
   }
 }

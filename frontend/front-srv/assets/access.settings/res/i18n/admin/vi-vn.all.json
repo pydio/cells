@@ -252,7 +252,7 @@
     "other": "Biểu thức chính quy"
   },
   "ds.editor.storage.buckets.regexp.hint": {
-    "other": "Regular expression"
+    "other": "Biểu thức chính quy"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
     "other": "Thiết lập lưu trữ để tại buckets"
@@ -264,7 +264,7 @@
     "other": "Không tìm thấy buckets"
   },
   "ds.editor.storage.s3.legend.tags": {
-    "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
+    "other": "Đồng bộ hóa thẻ S3 từ buckets hoặc objects (sử dụng danh sách các mẫu được phân tách bằng dấu phẩy để khớp). Hãy chú ý rằng điều này sẽ thực hiện các yêu cầu bổ sung đối với bộ nhớ và có thể làm chậm quá trình đồng bộ hóa. Các thẻ gốc sẽ được chỉ đến pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME."
   },
   "ds.editor.storage.s3.bucketsTags": {
     "other": "Buckets Tags (multiple buckets enabled)"
@@ -1398,7 +1398,7 @@
     "other": "Nếu mọi người được kết nối với workspace này, tác vụ đồng bộ hóa của họ sẽ không còn hoạt động nữa! Bạn có chắc chắn muốn thay đổi điều đó?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
+    "other": "Disk Usage Quota (bằng 0 để không giới hạn). Quota được tính toán trên tất các tập của không gian làm việc này. Đối với không gian làm việc dành riêng cho người dùng(như là tệp cá nhân), bạn có thể thay đổi các giá trị trên cơ sở mỗi người user/group/role."
   },
   "ws.editor.other.quota.noquota": {
     "other": "No Quota set"

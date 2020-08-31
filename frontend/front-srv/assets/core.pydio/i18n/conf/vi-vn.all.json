@@ -1,60 +1,60 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Mục trên mỗi trang"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Icon for representing the template"
+    "other": "Biểu tượng 16X16 để đại diện cho mẫu"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "A user-defined description of the content of this workspace"
+    "other": "Mô tả do người dùng xác định về nội dung của không gian làm việc này"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
+    "other": "API endpoint - Được sử dụng để khởi chạy cửa sổ cho phép người dùng xác thực và chấp nhận các điều khoản của ứng dụng"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
+    "other": "API endpoint - Được sử dụng để làm mới hoặc xác thực mã thông báo được truy xuất trong phần xác thực"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API setting - Redirect URL for the OAuth Application"
+    "other": "API setting - URL chuyển hướng cho ứng dụng OAuth"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Đường dẫn tuyệt đối đến thư mục chung, nơi các liên kết tải xuống tạm thời sẽ được tạo. Điều này được sử dụng cho mục đích kế thừa, các liên kết mới được tạo không sử dụng nó nữa mà sử dụng Base URI thay thế."
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "Đăng nhập Admin"
   },
   "Admin email": {
     "other": "Admin email"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "Email quản trị viên, hiện không được sử dụng"
   },
   "Alias": {
-    "other": "Alias"
+    "other": "Tên đại diện"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "Tên đại diện để thay thế id duy nhất đã tạo của không gian làm việc"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Allow group administrators to create a repository from this template."
+    "other": "Cho phép quản trị viên nhóm tạo kho lưu trữ từ mẫu này."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Allow non-admin users to create a workspace from this template."
+    "other": "Cho phép người dùng không phải là quản trị viên tạo workspace từ mẫu này."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Cho phép người dùng chọn một người dùng hiện có khi chia sẻ một thư mục"
   },
   "Allow to group admins": {
-    "other": "Allow to group admins"
+    "other": "Cho phép nhóm quản trị viên"
   },
   "Allow to user": {
-    "other": "Allow to user"
+    "other": "Cho phép người dùng"
   },
   "App Title": {
-    "other": "Application Title"
+    "other": "Tên Ứng Dụng"
   },
   "Ascending": {
-    "other": "Ascending"
+    "other": "Tăng dần"
   },
   "Auth Driver Commons": {
     "other": "Auth Driver Commons"
@@ -63,55 +63,55 @@
     "other": "Auth URL"
   },
   "Auto Create User": {
-    "other": "Auto Create User"
+    "other": "Tự động tạo người dùng"
   },
   "Auto apply role": {
     "other": "Tự động áp dụng role"
   },
   "Big Icon": {
-    "other": "Big Icon"
+    "other": "Biểu tượng lớn"
   },
   "Big Icon for representing the template": {
-    "other": "Big Icon for representing the template"
+    "other": "Biểu tượng lớn để đại diện cho mẫu"
   },
   "Browser Access": {
-    "other": "Browser Access"
+    "other": "Quyền truy cập trình duyệt"
   },
   "Character Encoding": {
-    "other": "Character Encoding"
+    "other": "Mã hóa ký tự"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "ID Máy khách"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "Máy khách bí mật"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
+    "other": "Danh sách các plugins meta và metastore được phân tách bằng dấu phẩy, sẽ tự động được áp dụng cho tất cả các workspaces được tạo bằng trình điều khiển này"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
+    "other": "Danh sách các tiện ích mở rộng được phân tách bằng dấu phẩy để ẩn. Các tiện ích mở rộng, tệp và thư mục bị ẩn cũng bị cấm truy cập."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Comma-separated list of specific files to hide"
+    "other": "Danh sách các tệp cụ thể được phân tách bằng dấu phẩy để ẩn"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "Danh sách các thư mục cụ thể được phân tách bằng dấu phẩy để ẩn"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "Dòng lệnh"
   },
   "Command-line Active": {
-    "other": "Command-line Active"
+    "other": "Dòng lệnh hoạt động"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "Dòng lệnh PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
+    "other": "URI chung để truy cập các chia sẻ. Vui lòng ĐỌC TÀI LIỆU để sử dụng an toàn tính năng này."
   },
   "Compression Features": {
-    "other": "Compression Features"
+    "other": "Tính năng nén"
   },
   "Core Connexion": {
     "other": "Core Connexion"
@@ -129,7 +129,7 @@
     "other": "Tệp tin Database"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "Tên cơ sở dữ liệu"
   },
   "Database server": {
     "other": "Database server"
@@ -147,13 +147,13 @@
     "other": "Default Rights"
   },
   "Default field to sort on": {
-    "other": "Default field to sort on"
+    "other": "Phạm vi mặc định để sắp xếp"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Default language when a user does not have set his/her own."
+    "other": "Ngôn ngữ mặc định khi người dùng không đặt ngôn ngữ của riêng mình."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
+    "other": "Realm mặc định cho xác thực. Vui lòng ĐỌC TÀI LIỆU để sử dụng an toàn tính năng này."
   },
   "Default sorting direction": {
     "other": "Default sorting direction"
@@ -162,16 +162,16 @@
     "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
   },
   "Descending": {
-    "other": "Descending"
+    "other": "Giảm dần"
   },
   "Description": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "Digest Realm": {
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "Tắt WebDAV"
   },
   "Disable Zip browsing": {
     "other": "Disable Zip browsing"
@@ -180,7 +180,7 @@
     "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
   },
   "Display the list of files and folder when accessing through the browser": {
-    "other": "Display the list of files and folder when accessing through the browser"
+    "other": "Hiển thị danh sách các tệp và thư mục khi truy cập qua trình duyệt"
   },
   "Download Delegation": {
     "other": "Download Delegation"
@@ -189,43 +189,43 @@
     "other": "Download Folder (Legacy)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "URL tải về"
   },
   "Driver": {
     "other": "Driver"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "Kiểu Driver(Không được chạm vào)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "Bật WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "Bật WebDAV cho tất cả người dùng theo mặc định. Nếu được đặt thành false, người dùng sẽ phải bật WebDAV theo cách thủ công thông qua bảng tùy chọn của họ."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Bật cho tất cả các người dùng"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
+    "other": "Bật hỗ trợ webDAV. Vui lòng ĐỌC TÀI LIỆU để sử dụng an toàn tính năng này."
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "Người dùng hiện có"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Explicitly disable WebDAV access for this repository."
+    "other": "Vô hiệu hóa quyền truy cập WebDAV cho kho lưu trữ này."
   },
   "File": {
-    "other": "File"
+    "other": "Tệp tin"
   },
   "File Type": {
-    "other": "File Type"
+    "other": "Loại tập tin"
   },
   "File size": {
-    "other": "File size"
+    "other": "Kích thước tập tin"
   },
   "Filename length": {
-    "other": "Filename length"
+    "other": "Độ dài tên tệp"
   },
   "Filesystem Commons": {
     "other": "Filesystem Commons"
@@ -243,121 +243,121 @@
     "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
   },
   "Group Path": {
-    "other": "Group Path"
+    "other": "Đường dẫn nhóm"
   },
   "Gzip Download": {
-    "other": "Gzip Download"
+    "other": "Tải xuống Gzip"
   },
   "Gzip Limit": {
-    "other": "Gzip Limit"
+    "other": "Giới hạn Gzip"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
     "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
   },
   "Hide extensions": {
-    "other": "Hide extensions"
+    "other": "Ẩn tiện ích mở rộng"
   },
   "Hide files": {
-    "other": "Hide files"
+    "other": "Ẩn tập tin"
   },
   "Hide folders": {
-    "other": "Hide folders"
+    "other": "Ẩn thư mục"
   },
   "Hide recycle bin": {
-    "other": "Hide recycle bin"
+    "other": "Ẩn Thùng rác"
   },
   "Host": {
     "other": "Host"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
+    "other": "Máy chủ được sử dụng trong giao thức webDAV. Nên được phát hiện theo mặc định. Vui lòng ĐỌC TÀI LIỆU để sử dụng an toàn tính năng này."
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "If activated, a default limit should be set above when files are no more compressed."
+    "other": "Nếu được kích hoạt, giới hạn mặc định sẽ được đặt ở trên khi tệp không được nén nữa."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
     "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "Nếu được đặt thành một URL nhất định, hành động đăng nhập sẽ không kích hoạt hiển thị màn hình đăng nhập mà chuyển hướng đến URL này."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
+    "other": "Nếu bạn gặp sự cố với việc tạo zip trực tuyến hoặc tải xuống nhiều tệp, bạn có thể tắt tính năng này."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
+    "other": "Nếu bạn có rất nhiều workspaces (không được khuyến khích), việc đăng nhập của người dùng quản trị có thể mất nhiều thời gian trong khi cập nhật quyền truy cập quản trị vào tất cả các bộ lưu trữ. Sử dụng tùy chọn này để tắt bước này, quản trị viên sẽ luôn có quyền truy cập vào Cài Đặt."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
+    "other": "Nếu máy chủ của bạn không đặt chính xác bộ ký tự của nó, bạn có thể chỉ định nó ở đây theo cách thủ công."
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Leave empty if you do not want to use a recycle bin."
+    "other": "Để trống nếu bạn không muốn sử dụng thùng rác."
   },
   "Login Redirect": {
-    "other": "Login Redirect"
+    "other": "Chuyển hướng đăng nhập"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "Các tùy chọn chính"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
+    "other": "Vùng chứa chính cho cài đặt Pydio cốt lõi (tiêu đề ứng dụng, chia sẻ, cấu hình máy chủ webdav, v. v.)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Maximum characters length of new files or folders"
+    "other": "Độ dài ký tự tối đa của tệp tin hoặc thư mục mới"
   },
   "Metadata and indexation": {
     "other": "Metadata and indexation"
   },
   "Miscellaneous": {
-    "other": "Miscellaneous"
+    "other": "Hỗn hợp"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "Ngày sửa đổi"
   },
   "Name": {
-    "other": "Name"
+    "other": "Tên"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
-    "other": "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line."
+    "other": "Trên Windows chạy IIS, đặt tùy chọn là true nếu phần mở rộng COM được tải, điều này có thể cho phép sử dụng trên dòng lệnh php."
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "On specific hosts, you may have to use a specific path to access the php command line"
+    "other": "Trên các máy chủ cụ thể, bạn có thể phải sử dụng một đường dẫn cụ thể để truy cập vào dòng lệnh php"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Khi ở chế độ đánh số trang, số mục sẽ hiển thị trên mỗi trang."
   },
   "Pagination Threshold": {
-    "other": "Pagination Threshold"
+    "other": "Giới hạn phân trang"
   },
   "Password": {
-    "other": "Password"
+    "other": "Mật khẩu"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
+    "other": "Đã điền sẵn nhãn trong workspace mới, bạn có thể sử dụng từ khóa PYDIO_USER trong đó."
   },
   "Public Base URI": {
     "other": "Public Base URI"
   },
   "Pydio Main Options": {
-    "other": "Pydio Main Options"
+    "other": "Tùy chọn chính Pydio"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "Chỉ đọc"
   },
   "Read and Write": {
-    "other": "Read and Write"
+    "other": "Đọc và Viết"
   },
   "Recycle Bin Folder": {
-    "other": "Recycle Bin Folder"
+    "other": "Thư mục thùng rác"
   },
   "Redirect URL": {
-    "other": "Redirect URL"
+    "other": "URL chuyển tiếp"
   },
   "Remote Sorting": {
-    "other": "Remote Sorting"
+    "other": "Phân loại từ xa"
   },
   "Remote Sorting Default Direction": {
     "other": "Remote Sorting Default Direction"
@@ -372,16 +372,16 @@
     "other": "Repository Slug"
   },
   "Scope": {
-    "other": "Scope"
+    "other": "Phạm vi"
   },
   "Server URL": {
-    "other": "Server URL"
+    "other": "URL máy chủ"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
-    "other": "Server URL used to build share links and notifications. It will be detected if empty."
+    "other": "URL máy chủ được sử dụng để tạo liên kết chia sẻ và thông báo. Nó sẽ được phát hiện nếu trống."
   },
   "Session credentials": {
-    "other": "Session credentials"
+    "other": "Thông tin phiên đăng nhập"
   },
   "Set this repository group owner : only users of this group will see it": {
     "other": "Set this repository group owner : only users of this group will see it"
@@ -390,31 +390,31 @@
     "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
   },
   "Shares Host": {
-    "other": "Shares Host"
+    "other": "Chia sẻ Host"
   },
   "Shares URI": {
-    "other": "Shares URI"
+    "other": "Chia sẻ URI"
   },
   "Sharing": {
-    "other": "Sharing"
+    "other": "Chia sẻ"
   },
   "Show files beginning with a .": {
-    "other": "Show files beginning with a ."
+    "other": "Hiện thị các tệp bắt đầu với a."
   },
   "Show hidden files": {
-    "other": "Show hidden files"
+    "other": "Hiển thị tập tin ẩn"
   },
   "Skip auto-update admin rights": {
-    "other": "Skip auto-update admin rights"
+    "other": "Bỏ qua quyền quản trị tự động cập nhật"
   },
   "Small Icon": {
-    "other": "Small Icon"
+    "other": "Biểu tượng nhỏ"
   },
   "Template Options": {
-    "other": "Template Options"
+    "other": "Tùy chọn mẫu"
   },
   "Temporary Folder": {
-    "other": "Temporary Folder"
+    "other": "Thư mục tạm thời"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
     "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
@@ -432,49 +432,49 @@
     "other": "Transmit Clear Pass"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!"
+    "other": "Cố gắng sử dụng thông tin đăng nhập người dùng Pydio hiện tại để kết nối. Cảnh báo, cấu hình PYDIO_SESSION_SET_CREDENTIALS phải được đặt thành true!"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "URI nơi cung cấp các liên kết công khai"
   },
   "Use COM class": {
     "other": "Use COM class"
   },
   "Use MySQLi": {
-    "other": "Use MySQLi"
+    "other": "Sử dụng MySQLi"
   },
   "Use PHP MySQLi extension": {
-    "other": "Use PHP MySQLi extension"
+    "other": "Sử dụng phần mở rộng PHP MySQLi"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
-    "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
+    "other": "Sử dụng framework Pydio thông qua dòng lệnh, cho phép các công việc CRONTAB hoặc các hoạt động chạy nền."
   },
   "User": {
-    "other": "User"
+    "other": "Người dùng"
   },
   "User Credentials": {
-    "other": "User Credentials"
+    "other": "Thông tin xác thực người dùng"
   },
   "User name": {
-    "other": "User name"
+    "other": "Tên người dùng"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
+    "other": "Tên người dùng - Có thể được ghi đè trên cơ sở mỗi người dùng (xem tab 'Dữ liệu Cá nhân' của người dùng)"
   },
   "User password": {
-    "other": "User password"
+    "other": "Mật khẩu người dùng"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "User password - Can be overriden on a per-user basis."
+    "other": "Mật khẩu người dùng - Có thể được ghi đè trên cơ sở mỗi người dùng."
   },
   "WebDAV Server": {
-    "other": "WebDAV Server"
+    "other": "Máy chủ WebDAV"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."
+    "other": "Khi một thư mục chứa nhiều mục hơn con số này, màn hình sẽ chuyển sang chế độ phân trang để có hiệu suất tốt hơn."
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems."
+    "other": "Khi được đặt thành true, đối tượng người dùng được tạo tự động nếu xác thực thành công. Được sử dụng bởi hệ thống xác thực từ xa."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
     "other": "Whether the password will be transmitted clear or encoded between the client and the server"
@@ -483,15 +483,15 @@
     "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
   },
   "Write Only (upload)": {
-    "other": "Write Only (upload)"
+    "other": "Chỉ ghi (tải lên)"
   },
   "Your application title": {
     "other": "This title will appear as the window title, in the splash screen."
   },
   "Zip Creation": {
-    "other": "Zip Creation"
+    "other": "Tạo Zip"
   },
   "Zip Encoding": {
-    "other": "Zip Encoding"
+    "other": "Mã hóa Zip"
   }
 }

@@ -12,7 +12,7 @@
     "other": "Không thể tìm thấy tập tin "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "Thư mục gốc và thư mục cuối giống nhau!"
   },
   "102": {
     "other": "Gặp lỗi khi tạo tệp :"
@@ -21,10 +21,10 @@
     "other": "Không thể tìm thấy thư mục "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "Đi đến vị trí nhất định"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "Gửi Url qua email để truy cập trực tiếp vị trí này."
   },
   "106": {
     "other": "Gủi thư"
@@ -36,28 +36,28 @@
     "other": "The destination email"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "URL có thể nhấn"
   },
   "11": {
     "other": "Javascript"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "Thêm một bình luận"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "Email sau đã được gửi đi :"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "Gửi email không thành công : "
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "Lựa chọn trống!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "Đã xảy ra lỗi trong quá trình sao chép!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "Tệp tin được lưu thành công"
   },
   "116": {
     "other": "tập tin"
@@ -66,10 +66,10 @@
     "other": "Thư mục"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "Tải xuống nhiều tệp"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "Nhấn vào từng tệp để tải xuống."
   },
   "12": {
     "other": "Ảnh GIF"
@@ -99,7 +99,7 @@
     "other": "Kích thước"
   },
   "128": {
-    "other": "files selected."
+    "other": "tệp tin được chọn."
   },
   "129": {
     "other": "Lượt xem"
@@ -114,34 +114,34 @@
     "other": "Thông tin chi tiết"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Không có tệp tin hay thư mục nào"
   },
   "133": {
     "other": "Tên"
   },
   "134": {
-    "other": "Type"
+    "other": "Kiểu"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "Kích thước"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "Xem ảnh lớn hơn"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "Lần sửa đổi cuối."
   },
   "139": {
     "other": "Edit Online"
   },
   "14": {
-    "other": "HTML page"
+    "other": "Trang HTML"
   },
   "140": {
     "other": "Play whole folder"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "Đang đọc thư mục"
   },
   "142": {
     "other": "Logged as "
@@ -153,79 +153,79 @@
     "other": "Not logged in."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Dấu trang của tôi"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Xoá dấu trang"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Đánh dấu"
   },
   "148": {
     "other": "Parent"
   },
   "149": {
-    "other": "Reload"
+    "other": "Tải lại"
   },
   "15": {
-    "other": "HTML page"
+    "other": "Trang HTML"
   },
   "150": {
-    "other": "Display"
+    "other": "Hiển thị"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "Chuyển chế độ hiện thị..."
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "Bật tắt Bookmark"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "Thêm/loại bỏ mục ở danh sách yêu thích"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Dấu trang"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Thêm mục vào danh sách yêu thích"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Loại bỏ dấu trang"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Loại bỏ mục từ Danh sách yêu thích"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Thư mục mới"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "Tạo thư mục mới"
   },
   "156": {
-    "other": "New empty file"
+    "other": "Tệp trống mới"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "Tạo tệp rỗng mới"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "Đổi tên tệp hoặc thư mục đã chọn"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "Sao chép lựa chọn đến..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "Tệp tin REAL"
   },
   "160": {
-    "other": "Move selected files to ..."
+    "other": "Chuyển tệp tin được chọn đến..."
   },
   "161": {
-    "other": "Delete selected files."
+    "other": "Xóa tệp tin được chọn."
   },
   "162": {
     "other": "Edit text files online."
   },
   "163": {
-    "other": "Log in"
+    "other": "Đăng nhập"
   },
   "164": {
     "other": "Đăng xuất"
@@ -243,19 +243,19 @@
     "other": "Kết nối với APPLICATION_TITLE"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "Ngắt kết nối khỏi APPLICATION_TITLE"
   },
   "17": {
-    "other": "REAL file"
+    "other": "Tệp tin REAL"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "Thư mục hiện tại"
   },
   "171": {
-    "other": "Browse"
+    "other": "Duyệt"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "Lựa chọn của bạn"
   },
   "173": {
     "other": "Tên thư mục mới"
@@ -282,7 +282,7 @@
     "other": "PERL script"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "Nhập thông tin đăng nhâp/mật khẩu"
   },
   "181": {
     "other": "Đăng nhập"
@@ -309,7 +309,7 @@
     "other": "Edit My Preferences"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "Tệp ZIP"
   },
   "190": {
     "other": "Ngôn ngữ"
@@ -330,10 +330,10 @@
     "other": "User Preferences"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "Ngôn ngữ của bạn khác với ngôn ngữ hiện tại! \\n Bạn có muốn tải lại trang để chuyển đổi ngôn ngữ không?"
   },
   "197": {
-    "other": "Your password change will take effect after you logout."
+    "other": "Thay đổi mật khẩu của bạn sẽ có hiệu lực sau khi bạn đăng xuất."
   },
   "198": {
     "other": "Mới"
@@ -360,7 +360,7 @@
     "other": "Destintation folder is the same as original folder!"
   },
   "204": {
-    "other": "The file \""
+    "other": "Tệp tin \""
   },
   "205": {
     "other": "\" exceeds size limit ("
@@ -372,58 +372,58 @@
     "other": "You have no write permission on this folder"
   },
   "208": {
-    "other": "You have no read permission on this folder"
+    "other": "Bạn không có quyền đọc trên thư mục này"
   },
   "209": {
-    "other": "Internal server error, please contact Administrator!"
+    "other": "Lỗi máy chủ nội bộ, vui lòng liên lạc quản trị viên!"
   },
   "21": {
     "other": "PHP script"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "Tải lên không thành công"
   },
   "211": {
-    "other": "The file is too big! Please contact your administrator or use the desktop sync client."
+    "other": "Tệp tin quá lớn! Vui lòng liên lạc với quản trị viên hoặc sử dụng máy khách để đồng bộ hóa."
   },
   "212": {
-    "other": "No file found on server!"
+    "other": "Không tìm thấy tệp tin nào trên máy chủ!"
   },
   "213": {
-    "other": "Error while copying file to current folder"
+    "other": "Gặp lỗi khi sao chép tệp tin vào thư mục hiện tại"
   },
   "214": {
-    "other": "Browse"
+    "other": "Duyệt"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "Bắt đầu tải lên"
   },
   "216": {
-    "other": "Clear"
+    "other": "Xóa"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "Xoá thành công"
   },
   "218": {
-    "other": "Remove from queue"
+    "other": "Xóa khỏi hàng đợi"
   },
   "219": {
-    "other": "Completed"
+    "other": "Đã hoàn thành"
   },
   "22": {
     "other": "PHP script"
   },
   "220": {
-    "other": "Empty"
+    "other": "Trống"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "Thùng rác trống"
   },
   "222": {
-    "other": "Restore"
+    "other": "Phục hồi"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "Khôi phục tệp tin về vị trí ban đầu"
   },
   "224": {
     "other": "Go to"
@@ -435,7 +435,7 @@
     "other": "Thông tin chi tiết"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "Chuyển sang chế độ xem bảng chi tiết"
   },
   "228": {
     "other": "Thumbs"
@@ -450,19 +450,19 @@
     "other": "Play"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "Chạy trình chiếu"
   },
   "232": {
     "other": "Dừng lại"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "Dừng trình chiếu"
   },
   "234": {
     "other": "View selected images"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "Toàn màn hình"
   },
   "236": {
     "other": "Phục hồi"
@@ -471,43 +471,43 @@
     "other": "Mật khẩu cũ"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "Mật khẩu không giống nhau!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "Vui lòng điền mật khẩu hiện tại của bạn"
   },
   "24": {
     "other": "Parent directory"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "Bạn đã nhập sai mật khẩu!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "Tùy chọn của bạn đã được lưu thành công!"
   },
   "242": {
     "other": "Svn Log"
   },
   "243": {
-    "other": "Revision"
+    "other": "Xem lại"
   },
   "244": {
-    "other": "Author"
+    "other": "Tác giả"
   },
   "245": {
-    "other": "Date"
+    "other": "Ngày"
   },
   "246": {
-    "other": "Message"
+    "other": "Tin nhắn"
   },
   "247": {
-    "other": "Extract"
+    "other": "Giải nén"
   },
   "248": {
-    "other": "Extract selection from zip to..."
+    "other": "Giải nén lựa chọn từ zip sang..."
   },
   "249": {
-    "other": "Users"
+    "other": "Người dùng"
   },
   "25": {
     "other": "Upload one or more files (max. %s in the directory : "
@@ -522,7 +522,7 @@
     "other": "The total file size limit has been reached."
   },
   "253": {
-    "other": "There has been an HTTP Error:"
+    "other": "Đã xảy ra lỗi HTTP:"
   },
   "254": {
     "other": "There has been an IO Error:"
@@ -534,13 +534,13 @@
     "other": "Uploaded"
   },
   "257": {
-    "other": "Remove"
+    "other": "Loại bỏ"
   },
   "258": {
-    "other": "File count :"
+    "other": "Số lượng tệp tin :"
   },
   "259": {
-    "other": "Total size :"
+    "other": "Tổng kích thước :"
   },
   "26": {
     "other": "Create a new directory in : "
@@ -549,10 +549,10 @@
     "other": "bytes"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Ghi nhớ đăng nhập"
   },
   "262": {
-    "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
+    "other": "Một hoặc nhiều tệp hiện đã tồn tại \\n đã có trong thư mục đính. \\n Bạn muốn làm gì?"
   },
   "263": {
     "other": "Ghi đè"
@@ -570,55 +570,55 @@
     "other": "Tạo mới"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "Tạo một bảng mới"
   },
   "269": {
-    "other": "Structure"
+    "other": "Cấu trúc"
   },
   "27": {
     "other": "Tải lên"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "Chỉnh sửa cấu trúc bảng"
   },
   "271": {
-    "other": "Drop"
+    "other": "Bỏ"
   },
   "272": {
     "other": "Drop open table"
   },
   "273": {
-    "other": "Insert"
+    "other": "Chèn"
   },
   "274": {
-    "other": "Insert a new record"
+    "other": "Chèn bản ghi mới"
   },
   "275": {
-    "other": "Are you sure you want to drop the selected table(s)?"
+    "other": "Bạn có chắc chắn muốn bỏ (các) bảng đã chọn không?"
   },
   "276": {
-    "other": "Edit selected record"
+    "other": "Chỉnh sửa bản ghi đã chọn"
   },
   "277": {
-    "other": "Delete selected records"
+    "other": "Xóa bản ghi được chọn"
   },
   "278": {
-    "other": "Are you sure you want to delete the selected record(s)?"
+    "other": "Bạn có chắc bạn muốn xóa (các) bản ghi được chọn?"
   },
   "279": {
-    "other": "Tables"
+    "other": "Bảng"
   },
   "28": {
-    "other": "Create a new file in : "
+    "other": "Tạo tệp tin mới trong : "
   },
   "280": {
-    "other": "Records"
+    "other": "Bản ghi"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "Giới hạn tải lên"
   },
   "282": {
-    "other": "Size per File"
+    "other": "Kích thước mỗi tệp tin"
   },
   "283": {
     "other": "Tổng kích thước"
@@ -663,73 +663,73 @@
     "other": "Expiration"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "Sao chép URL dưới đây:"
   },
   "297": {
-    "other": "New User"
+    "other": "Người dùng mới"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "Tạo người dùng mới"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "Không gian làm việc"
   },
   "3": {
-    "other": "Type"
+    "other": "Kiểu"
   },
   "30": {
-    "other": "Write a name for the directory then click on &quot;Create&quot;"
+    "other": "Viết tên cho thư mục rồi nhấp vào &quot; Tạo &quot;"
   },
   "300": {
-    "other": "Create a new workspace"
+    "other": "Tạo một không gian làm việc mới"
   },
   "301": {
-    "other": "Edit configuration"
+    "other": "Chỉnh sửa cấu hình"
   },
   "302": {
-    "other": "Copy as Text"
+    "other": "Sao chép dưới dạng văn bản"
   },
   "303": {
-    "other": "Copy selection as tab-separated text."
+    "other": "Sao chép lựa chọn dưới dạng văn bản được cách nhau bằng tab."
   },
   "304": {
-    "other": "Back"
+    "other": "Quay lại"
   },
   "305": {
-    "other": "Go back to main page"
+    "other": "Quay lại trang chính"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Quá nhiều thứ"
   },
   "307": {
     "other": "Fill optional fields"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Tạo liên kết"
   },
   "309": {
     "other": "Tạo"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Bạn phải chọn một tệp tin"
   },
   "310": {
     "other": "Tùy chọn"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Tự động tải lên khi một tệp tin được thêm vào"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Tùy chọn trình tải lên"
   },
   "313": {
     "other": "Nén..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Nén mục lựa chọn thành zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Nén mục lựa chọn thành"
   },
   "316": {
     "other": "Xem/Chỉnh sửa"
@@ -753,19 +753,19 @@
     "other": "Chọn"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Chọn tệp tin hiện tại"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Gửi email cho URL này"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Không có trình chỉnh sửa nào"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "Phù hợp nhất"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Không phù hợp"
   },
   "327": {
     "other": "100%"
@@ -774,46 +774,46 @@
     "other": "Document Reader"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Xem trực tuyến pdf,svg, tif,.."
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Lỗi tải lên tập tin !"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Vui lòng đợi khi các trang được hiện thỉ..."
   },
   "331": {
-    "other": "Page"
+    "other": "Trang"
   },
   "332": {
-    "other": "of"
+    "other": "của"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Trình chỉnh sửa ảnh Pixlr"
   },
   "334": {
-    "other": "more"
+    "other": "thêm"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Vui lòng nhập số trang từ 1 đến "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Xin lỗi bạn không thể bỏ các thư mục, chỉ bỏ các tệp tin!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Bắt đầu tải lên tự động"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Đóng bảng điều khiển khi quá trình tải lên kết thúc"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Tập tin đã tồn tại"
   },
   "34": {
-    "other": "The file"
+    "other": "Tệp tin"
   },
   "340": {
-    "other": "Alert"
+    "other": "Cảnh báo"
   },
   "341": {
     "other": "Thông tin tệp tin"
@@ -846,19 +846,19 @@
     "other": "đã được tạo thành công trong thư mục"
   },
   "350": {
-    "other": "A user that does not belong to you already exists with this name, please choose another name."
+    "other": "Tên này đã có người dùng, vui lòng chọn tên khác."
   },
   "351": {
     "other": "You are not allowed to share elements to the public."
   },
   "352": {
-    "other": "A workspace with the same name already exists, please choose another name."
+    "other": "Tên workspace này đã tồn tại, vui lòng chọn tên khác."
   },
   "353": {
     "other": "Target User"
   },
   "354": {
-    "other": "Create a new user or choose one of your existing ones from the list."
+    "other": "Tạo người dùng mới hoặc chọn một trong những người dùng hiện có của bạn từ danh sách."
   },
   "355": {
     "other": "Tên người dùng"
@@ -882,70 +882,70 @@
     "other": "Rights"
   },
   "361": {
-    "other": "Read"
+    "other": "Đọc"
   },
   "362": {
-    "other": "Write"
+    "other": "Ghi"
   },
   "363": {
-    "other": "Shared"
+    "other": "Đã chia sẻ"
   },
   "364": {
-    "other": "You do not have the rights to perform this operation"
+    "other": "Bạn không có quyền thực hiện thao tác này"
   },
   "365": {
-    "other": "You are not allowed to upload more than %s files at once."
+    "other": "Bạn không được phép tải lên nhiều hơn %s tệp cùng một lúc."
   },
   "366": {
-    "other": "This user does not have any active workspace."
+    "other": "Người dùng này không có không gian làm việc nào đang hoạt động."
   },
   "367": {
-    "other": "You are not allowed to upload this type of file. Please choose among the following extensions : "
+    "other": "Bạn không được phép tải lên các loại tệp tin này. Vui lòng chọn trong số các phần mở rộng sau : "
   },
   "368": {
-    "other": "Selection successfully extracted from archive %s to folder %s"
+    "other": "Đã giải nén thành công lựa chọn từ kho lưu trữ %s đến thư mục %s"
   },
   "369": {
     "other": "Shortcut"
   },
   "37": {
-    "other": "You must write a valid name"
+    "other": "Phải phải viết một tên hợp lệ"
   },
   "370": {
     "other": "APPLICATION_TITLE Public Download"
   },
   "371": {
-    "other": "A password is required for this download"
+    "other": "Yêu cầu mật khẩu để tải xuống"
   },
   "372": {
-    "other": "Current Workspace"
+    "other": "Không gian làm việc hiện tại"
   },
   "373": {
     "other": "Destination"
   },
   "374": {
-    "other": "You cannot copy folders across workspaces"
+    "other": "Bạn không thể sao chép thư mục trên không gian làm việc"
   },
   "375": {
-    "other": "We have detected that you were inactive since more than __IDLE__. For the safety of your data you will be logged out in __LOGOUT__"
+    "other": "Chúng tôi đã phát hiện bạn không hoạt động kể từ __IDLE__. Để đảm bảo an toàn cho dữ liệu của bạn, bạn sẽ được đang xuất trong __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Bạn còn đó không?"
   },
   "376": {
-    "other": "Click anywhere to resume your session"
+    "other": "Nhấp vào bất kỳ đâu để tiếp tục phiên bản của bạn"
   },
   "378": {
-    "other": "Warning, password is empty or too short!"
+    "other": "Cảnh báo, mật khẩu bị bỏ trống hoặc quá ngắn!"
   },
   "379": {
-    "other": "Unsafe word!"
+    "other": "Từ không an toàn!"
   },
   "38": {
     "other": "The directory"
   },
   "380": {
-    "other": "Too short"
+    "other": "Quá ngắn"
   },
   "381": {
     "other": "Rất yếu"
@@ -966,28 +966,28 @@
     "other": "Vui lòng chỉ sử dụng các ký tự viết thường cho thông tin đăng nhập"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Vui lòng sử dụng ký tự chữ và số hoặc email hợp lệ để đăng nhập"
   },
   "386": {
-    "other": "You have failed logging in for 3 times.\\nFor your security, please fill the code that appear in the image."
+    "other": "Bạn đăng nhập không thành công 3 lần.\\nĐể đảm bảo tính bảo mật, vui lòng nhập mã xuất hiện trong hình ảnh."
   },
   "389": {
-    "other": "Please read the code below :"
+    "other": "Vui lòng đọc đoạn code bên dưới :"
   },
   "39": {
-    "other": "has been created in"
+    "other": "đã được tạo trong"
   },
   "390": {
     "other": "Code"
   },
   "391": {
-    "other": "No Repository"
+    "other": "Không có kho lưu trữ"
   },
   "392": {
-    "other": "Warning, APPLICATION_TITLE version has changed (now %s), please clear your browser cache and refresh the page to be sure that everything is functionnal!"
+    "other": "Cảnh báo, phiên bản APPLICATION_TITLE đã thay đổi (bây giờ là %s), vui lòng xóa bộ nhớ cache của trình duyệt và làm mới trang để đảm bảo rằng mọi thứ đều hoạt động bình thường!"
   },
   "393": {
-    "other": "Warning, the names length must be under %s, this file's name will be truncated!"
+    "other": "Cảnh báo, độ dài tên phải dưới %s, tên của tệp này sẽ bị cắt ngắn!"
   },
   "394": {
     "other": "Sorry, at the moment folder sharing is not possible using the current auth driver (users are not editable). File sharing is still possible though."
@@ -1008,10 +1008,10 @@
     "other": "Enter the number of pieces you want to download, then click the button and click on each file to download them."
   },
   "4": {
-    "other": "Modified"
+    "other": "Đã sửa đổi"
   },
   "40": {
-    "other": "This directory already exists (names are case insensitive)"
+    "other": "Thư mục đã tồn tại (tên không biệt chữ hoa hay chữ thường)"
   },
   "400": {
     "other": "Number of pieces :"
@@ -1032,25 +1032,25 @@
     "other": "Any WebDAV client will ask you for an adress, a login and a password. Use the URL below along with your standard name and password."
   },
   "406": {
-    "other": "Activate WebDAV shares"
+    "other": "Kích hoạt chia sẻ WebDAV"
   },
   "407": {
-    "other": "Enter your password if it's the first time that you are activating webDAV shares, or if you want to re-type a new password :"
+    "other": "Nhập mật khẩu của bạn nếu như đây là lần đầu tiên bạn kích hoạt chia sẻ webDAV, hoặc nếu bạn muốn nhập lại một mật khẩu mới :"
   },
   "408": {
-    "other": "Activated WebDav shares successfully"
+    "other": "Đã kích hoạt chia sẻ WebDev thành công"
   },
   "409": {
-    "other": "De-activated WebDav shares successfully"
+    "other": "Đã hủy kích hoạt chia sẻ WebDev thành công"
   },
   "41": {
     "other": "has been renamed to"
   },
   "410": {
-    "other": "Updated webDav password successfully"
+    "other": "Cập nhật mật khẩu webDav thành công"
   },
   "411": {
-    "other": "Open"
+    "other": "Mở"
   },
   "412": {
     "other": "Chỉ tải lên"
@@ -1068,13 +1068,13 @@
     "other": "Left Pane"
   },
   "417": {
-    "other": "Create a cell..."
+    "other": "Tạo một cell..."
   },
   "418": {
-    "other": "Create a cell"
+    "other": "Tạo một cell"
   },
   "419": {
-    "other": "Loading templates..."
+    "other": "Đang tải mẫu..."
   },
   "42": {
     "other": "to"
@@ -1089,22 +1089,22 @@
     "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "Xóa không gian làm việc"
   },
   "424": {
-    "other": "Are you sure you want to delete this workspace? The operation is irreversible."
+    "other": "Bạn có chắc chắn muốn xóa không gian làm việc này? Quá trình này không thể đảo ngược."
   },
   "425": {
-    "other": "The workspace is now created, it is added to your workspace list, if you want to remove it, make sure to switch to another workspace, then click on the red cross beside the workspace name."
+    "other": "Không gian làm việc hiện đã được tạo, nó được thêm vào danh sách không gian làm việc của bạn, nếu bạn muốn xóa nó, hãy đảm bảo chuyển sang không gian làm việc khác, sau đó nhấp vào dấu thập đỏ bên cạnh tên không gian làm việc."
   },
   "426": {
-    "other": "There was an error while creating the workspace"
+    "other": "Đã có lỗi khi tạo không gian làm việc"
   },
   "427": {
-    "other": "There was an error while deleting the workspace"
+    "other": "Đã có lỗi khi xóa không gian làm việc"
   },
   "428": {
-    "other": "The workspace was successfully deleted"
+    "other": "Không gian làm việc được xóa thành công"
   },
   "429": {
     "other": "This is how the workspace will appear in your list."
@@ -1119,31 +1119,31 @@
     "other": "Sample Template"
   },
   "432": {
-    "other": "My Files"
+    "other": "Tệp tin của tôi"
   },
   "433": {
-    "other": "ready"
+    "other": "sẵn sàng"
   },
   "434": {
-    "other": "sending"
+    "other": "đang gửi"
   },
   "435": {
-    "other": "done"
+    "other": "xong"
   },
   "436": {
-    "other": "error"
+    "other": "lỗi"
   },
   "437": {
-    "other": "Ooops, it seems that your security token has expired! Please %s by hitting refresh or F5 in your browser!"
+    "other": "Rất tiếc, có vẻ như mã thông báo bảo mật của bạn đã hết hạn! Vui lòng %s bằng cách nhấn tải lại hoặc F5 trong trình duyệt của bạn!"
   },
   "438": {
-    "other": "reload the page"
+    "other": "tải lại trang"
   },
   "439": {
-    "other": "Main Options"
+    "other": "Các tùy chọn chính"
   },
   "44": {
-    "other": "has been deleted"
+    "other": "đã bị xóa"
   },
   "440": {
     "other": "Đồng ý"
@@ -1158,16 +1158,16 @@
     "other": "Cập nhật thông tin các nhân của bạn"
   },
   "444": {
-    "other": "Please update your password, you will not be able to log in otherwise."
+    "other": "Vui lòng cập nhật mật khẩu của bạn, nếu không bạn sẽ không thể đăng nhập."
   },
   "445": {
-    "other": "You will now be logged out, please log back using your new password, thank you!"
+    "other": "Bạn sẽ được đang xuất ngay bây giờ, vui lòng nhập lại mật khẩu mới của bạn, cám ơn!"
   },
   "446": {
-    "other": "Presentation"
+    "other": "Trình bày"
   },
   "447": {
-    "other": "My group"
+    "other": "Nhóm của tôi"
   },
   "448": {
     "other": "tạo người dùng"
@@ -1191,13 +1191,13 @@
     "other": "Set thumbnails size"
   },
   "454": {
-    "other": "Select files on your computer"
+    "other": "Chọn tập tin trên máy tính của bạn"
   },
   "455": {
-    "other": "Workspaces"
+    "other": "Không gian làm việc"
   },
   "456": {
-    "other": "More"
+    "other": "Thêm"
   },
   "457": {
     "other": "cập nhật"
@@ -1209,13 +1209,13 @@
     "other": "Top folder"
   },
   "46": {
-    "other": "file"
+    "other": "tệp tin"
   },
   "460": {
     "other": "Danh sách"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "Chuyển sang dạng xem danh sách"
   },
   "462": {
     "other": "Xem trước"
@@ -1224,7 +1224,7 @@
     "other": "Tải về tất cả"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "Tải xuống tất cả các nội dung không gian làm việc cùng một lúc (zipped)"
   },
   "465": {
     "other": "Show alternative URLs (mount workspaces separately)"
@@ -1233,16 +1233,16 @@
     "other": "Đang tải..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "Tất các các yếu tố được chia sẻ"
   },
   "468": {
-    "other": "Workspaces"
+    "other": "Không gian làm việc"
   },
   "469": {
     "other": "Cells"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "Bạn có thực sự muốn xóa"
   },
   "470": {
     "other": "Ngày tạo %d"
@@ -1260,103 +1260,103 @@
     "other": "Mô tả không có sẵn"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "Tệp được chia sẻ giữa tất cả các người dùng"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "Không gian làm việc cá nhân"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "Chọn tệp tin hoặc thư mục để xem chi tiết tại đây"
   },
   "478": {
-    "other": "No results found"
+    "other": "Không có kết quả nào được tìm thấy"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Quên mật khẩu?"
   },
   "48": {
     "other": "OK"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "Duyệt qua tất cả các thư mục của không gian làm việc hiện tại."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Tất cả các tệp tin và thư mục được chia sẻ của bạn"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "Truy cập nhanh vào các mục đã đánh dấu của bạn"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "Bạn không được phép tạo thêm người dùng!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Tạo người dùng"
   },
   "485": {
     "other": "Create a shared user"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Tuỳ chọn nâng cao"
   },
   "487": {
     "other": "Basic"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Bộ lọc nâng cao"
   },
   "489": {
     "other": "Metadata"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "HỦY"
   },
   "490": {
     "other": "Date range"
   },
   "491": {
-    "other": "After"
+    "other": "Sau"
   },
   "492": {
-    "other": "until"
+    "other": "cho đến khi"
   },
   "493": {
-    "other": "Today"
+    "other": "Hôm nay"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Hôm qua"
   },
   "495": {
-    "other": "Last week"
+    "other": "Tuần trước"
   },
   "496": {
-    "other": "Last month"
+    "other": "Tháng trước"
   },
   "497": {
-    "other": "Last year"
+    "other": "Năm trước"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Thuộc tính tài liệu"
   },
   "499": {
-    "other": "File"
+    "other": "Tệp tin"
   },
   "5": {
-    "other": "Actions"
+    "other": "Các hành động"
   },
   "50": {
     "other": "Exe file"
   },
   "500": {
-    "other": "Extension"
+    "other": "Phần mở rộng"
   },
   "501": {
-    "other": "or"
+    "other": "hoặc"
   },
   "502": {
     "other": "Folders only"
   },
   "503": {
-    "other": "Size"
+    "other": "Kích thước"
   },
   "504": {
     "other": "1k,1M,1G"
@@ -1365,217 +1365,217 @@
     "other": "to"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Thông số ứng dụng(người dùng, không gian làm việc, cấu hình)"
   },
   "507": {
     "other": "Welcome on %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Tôi vừa tạo một tài khoản cho bạn trên %s. Để kết nối, vui lòng nhấn vào liên kết sau %li và sử dụng các thông tin đăng nhập sau: <br><br> Đăng nhập:%u <br><br> Mật khẩu: %p"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Lưu lại thành một nhóm"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Soạn thảo văn bản"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Vui lòng nhập một nhãn nhóm"
   },
   "511": {
     "other": "My %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Toàn màn hình máy tính"
   },
   "513": {
-    "other": "show"
+    "other": "hiện"
   },
   "514": {
-    "other": "hide"
+    "other": "ẩn"
   },
   "515": {
     "other": "No bookmarks - Drop files or folders here for quick access."
   },
   "516": {
-    "other": "expand"
+    "other": "mở rộng"
   },
   "517": {
-    "other": "collapse"
+    "other": "thu lại"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Ngoài ra, bạn có thể vào <a class='create_file_alt_link'> tạo tệp tin trống mới </a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Cập nhật người dùng"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Đang chỉnh sửa tập tin"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Cập nhật dữ liệu người dùng và mật khẩu"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Người dùng đã được cập nhật thành công"
   },
   "522": {
-    "other": "User ID"
+    "other": "ID người dùng"
   },
   "523": {
-    "other": "Password"
+    "other": "Mật khẩu"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Cập nhật mật khẩu"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Hiển thị hình ảnh gốc"
   },
   "526": {
     "other": "Low-resolution version"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Đã chia sẻ với"
   },
   "528": {
-    "other": "Internal users"
+    "other": "Người dùng nội bộ"
   },
   "53": {
-    "other": "Save"
+    "other": "Lưu"
   },
   "530": {
-    "other": "External users"
+    "other": "Người dùng khách"
   },
   "531": {
-    "other": "Users"
+    "other": "Người dùng"
   },
   "532": {
-    "other": "Groups"
+    "other": "Nhóm"
   },
   "533": {
-    "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
+    "other": "ID được sử dụng để đăng nhập, vui lòng sử dụng ký tự chữ và số hoặc chữ thường email."
   },
   "534": {
-    "other": "Password used to login"
+    "other": "Mật khẩu được sử dụng để đăng nhập"
   },
   "535": {
-    "other": "Send password by email"
+    "other": "Gửi mật khẩu qua email"
   },
   "536": {
-    "other": "Send a welcome email including the password to the new user"
+    "other": "Gửi email chào mừng bao gồm mật khẩu cho người dùng mới"
   },
   "537": {
-    "other": "File is too large! Maximum authorized size is %i"
+    "other": "Tệp tin quá lớn! Kích thước tối đa là %i"
   },
   "538": {
-    "other": "Upload error: no file found on server!"
+    "other": "Tải lên xảy ra lỗi: không tìm thấy tệp tin trên máy chủ!"
   },
   "539": {
     "other": "Upload error: file is partial"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Huỷ"
   },
   "540": {
-    "other": "Upload error: cannot find the temporary directory"
+    "other": "Tải lên xảy ra lỗi: không thể tìm thấy thư mục mẫu"
   },
   "541": {
-    "other": "Upload error: cannot write into the temporary directory"
+    "other": "Tải lên xảy ra lỗi: không thể ghi vào thư mục mẫu"
   },
   "542": {
-    "other": "Upload error: a PHP extension stopped the upload process."
+    "other": "Tải lên xảy ra lỗi: một tiện ích mở rộng PHP đã dừng hoạt hoạt động quá trình tải lên."
   },
   "543": {
-    "other": "Results limited to %s."
+    "other": "Kết quả giới hạn trong %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Hiển thị thêm"
   },
   "545": {
-    "other": "Remote Share"
+    "other": "Chia sẻ từ xa"
   },
   "546": {
     "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
   },
   "547": {
-    "other": "Accept"
+    "other": "Đồng ý"
   },
   "548": {
-    "other": "Decline"
+    "other": "Từ chối"
   },
   "549": {
     "other": "You have previously accepted this item that was shared with you by %%OWNER%% from a remote location. Do you want to reject it now?"
   },
   "55": {
-    "other": "has been modified"
+    "other": "đã được sửa đổi"
   },
   "550": {
-    "other": "Reject this share"
+    "other": "Từ chối chia sẻ này"
   },
   "551": {
-    "other": "Reject"
+    "other": "Từ chối"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Vui lòng cung cấp mật khẩu."
   },
   "553": {
     "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
   },
   "554": {
-    "other": "%s result(s) in Recycle Bin"
+    "other": "%s kết quả trong Thùng rác"
   },
   "556": {
-    "other": "Launching task %s in background"
+    "other": "Khởi chạy nhiệm vụ %s chạy nền"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Thông tin cần thiết"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Vui lòng cung cấp mật khẩu để vào không gian làm việc này."
   },
   "559": {
     "other": "Authentication failed for this workspace."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "Ảnh BMP"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Yêu cầu xác thực"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Chúng tôi sẽ chuyển hướng bạn đến trang xác thực của nhà cung cấp. Nếu bạn không được chuyển hướng tự động, hãy nhấn OK để thử lại..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Thư mục này rỗng!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Không gian làm việc này trống!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "Thùng rác rỗng."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Bắt đầu thêm tệp hoặc thư mục bằng cách chọn chúng hoặc kéo trực tiếp từ màn hình của bạn"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Bạn không được phép thêm tệp vào đây"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Duyệt qua thùng rác"
   },
   "568": {
-    "other": "Teams"
+    "other": "Nhóm"
   },
   "569": {
-    "other": "New Team"
+    "other": "Nhóm mới"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "Ảnh PNG"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Xóa nhóm"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Chưa có nhóm nào được tạo"
   },
   "572": {
     "other": "Create your own teams in order to easily share data between multiple users"
@@ -1596,97 +1596,97 @@
     "other": "Add user to team"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Xóa khỏi nhóm"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Thành viên nhóm"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s thành viên"
   },
   "577": {
-    "other": "No members"
+    "other": "Không thành viên"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Nhãn nhóm"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Tạo nhóm"
   },
   "58": {
-    "other": "CSS File"
+    "other": "Tệp tin CSS"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Chỉnh sửa nhãn nhóm"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Người dùng thuộc (các) nhóm %s"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Xóa người dùng"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Tìm kiếm thư mục"
   },
   "584": {
-    "other": "Directory"
+    "other": "Thư mục"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Không có người dùng khách nào"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Tạo người dùng của riêng bạn và chia sẻ tệp tin hoặc thư mục từ không gian làm việc của bạn với họ."
   },
   "587": {
-    "other": "No results"
+    "other": "Không có kết quả"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Nhập vào hộp tìm kiếm để tìm kiếm người dùng"
   },
   "589": {
-    "other": "External user"
+    "other": "Người dùng khách"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "Tệp tin MP3"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Người dùng nội bộ"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Chọn tên cho nhóm, và bạn có thể thêm người dùng sau khi tạo."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Sổ địa chỉ"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "Người dùng được chia sẻ"
   },
   "594": {
     "other": "Trusted Servers"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Tìm kiếm người dùng..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Máy chủ '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "tất cả"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Gửi tin nhắn"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Thêm người dùng"
   },
   "6": {
-    "other": "Rename"
+    "other": "Đổi tên"
   },
   "60": {
-    "other": "RAR File"
+    "other": "Tệp tin RAR"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Chỉnh sửa người dùng"
   },
   "601": {
     "other": "One shared cell"
@@ -1695,13 +1695,13 @@
     "other": "%1 shared cells"
   },
   "603": {
-    "other": "Team"
+    "other": "Nhóm"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Người dùng từ xa"
   },
   "605": {
-    "other": "More search options"
+    "other": "Các tùy chọn tìm kiếm khác"
   },
   "606": {
     "other": "Less search options"
@@ -1710,19 +1710,19 @@
     "other": "Your recent activity - Type in to search files inside all workspaces"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Thư mục hiện tại"
   },
   "609": {
     "other": "Whole workspace"
   },
   "61": {
-    "other": "GZ File"
+    "other": "Tệp tin GZ"
   },
   "610": {
     "other": "All worskpaces"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Nhập để tìm kiếm"
   },
   "612": {
     "other": "Custom range"
@@ -1734,16 +1734,16 @@
     "other": "Smaller than..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Thực hiện"
   },
   "616": {
     "other": "Mask"
   },
   "617": {
-    "other": "Enter"
+    "other": "Nhập"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Chuyển đổi ngôn ngữ..."
   },
   "619": {
     "other": "Search limited to current folder and its children"
@@ -1761,28 +1761,28 @@
     "other": "Error Stack"
   },
   "623": {
-    "other": "Copy"
+    "other": "Sao chép"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Đã sao chép!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Thư"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Tệp tin được chia sẻ với tôi"
   },
   "627": {
     "other": "Shares from remote servers"
   },
   "628": {
-    "other": "Revert"
+    "other": "Phục hồi"
   },
   "629": {
     "other": "No records yet"
   },
   "63": {
-    "other": "Log out"
+    "other": "Đăng xuất"
   },
   "630": {
     "other": "Folders shared with me"
@@ -1797,10 +1797,10 @@
     "other": "Cells are spaces shared with others to collaborate on documents"
   },
   "634": {
-    "other": "You"
+    "other": "Bạn"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Nhóm của bạn"
   },
   "634c": {
     "other": "All users"
@@ -1845,19 +1845,19 @@
     "other": "Copy"
   },
   "67": {
-    "other": "Selected file"
+    "other": "Tệp đã chọn"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Dán vào"
   },
   "69": {
     "other": "Or select another directory"
   },
   "7": {
-    "other": "Delete"
+    "other": "Xóa"
   },
   "70": {
-    "other": "Move"
+    "other": "Di chuyển"
   },
   "71": {
     "other": "This file already exists (names are case insensitive)"
@@ -1875,46 +1875,46 @@
     "other": "The file users.txt is not in the directory prive"
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "Tệp tin này đã bị xóa"
   },
   "77": {
-    "other": "Send"
+    "other": "Gửi"
   },
   "78": {
     "other": "Pass"
   },
   "79": {
-    "other": "PDF File"
+    "other": "Tệp PDF"
   },
   "8": {
     "other": "Directory"
   },
   "80": {
-    "other": "MOV File"
+    "other": "Tệp tin MOV"
   },
   "81": {
-    "other": "AVI File"
+    "other": "Tệp tin AVI"
   },
   "82": {
-    "other": "MPG File"
+    "other": "Tệp tin MPE"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "Tệp tin MPEG"
   },
   "84": {
-    "other": "Help"
+    "other": "Trợ giúp"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Làm mới"
   },
   "86": {
-    "other": "Close"
+    "other": "Đóng"
   },
   "87": {
-    "other": "Search"
+    "other": "Tìm kiếm"
   },
   "88": {
-    "other": "Download"
+    "other": "Tải về"
   },
   "89": {
     "other": "Unable to open file"
@@ -1929,16 +1929,16 @@
     "other": "FLASH File"
   },
   "92": {
-    "other": "Language"
+    "other": "Ngôn ngữ"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Để chọn ngôn ngữ của bạn, trình duyệt của bạn phải chấp nhận cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Đăng nhập"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Chọn ngôn ngữ của bạn :"
   },
   "96": {
     "other": "Please select the destination folder in the tree : "
@@ -1947,7 +1947,7 @@
     "other": "Upload File"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Nhấn vào bất kỳ đâu trên hộp này để đóng nó."
   },
   "99": {
     "other": "is not writeable. There might be a permission problem, please check with your administrator."
@@ -1983,7 +1983,7 @@
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s ngày trước"
   },
   "date_relative_days_ahead": {
     "other": "in %s days"
@@ -2025,7 +2025,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Tiếng Anh"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2097,7 +2097,7 @@
     "other": "Implementations of a simple PUB/SUB server"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Các tính năng bảo mật nâng cao"
   },
   "plugtype.desc.shorten": {
     "other": "Webservices bridges for shortening public links"
@@ -2118,19 +2118,19 @@
     "other": "Authentication Frontends"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Bộ tải"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Bộ nhớ đệm máy chủ"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Cấu hình bộ nhớ"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Công cụ mã hóa"
   },
   "plugtype.title.editor": {
-    "other": "Editors"
+    "other": "Trình chỉnh sửa"
   },
   "plugtype.title.feed": {
     "other": "Events Feed Storage"
@@ -2139,7 +2139,7 @@
     "other": "Graphical User Interface"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Người giúp đỡ"
   },
   "plugtype.title.index": {
     "other": "Indexing"
@@ -2148,7 +2148,7 @@
     "other": "Loggers"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Người gửi thư"
   },
   "plugtype.title.meta": {
     "other": "Workspace Meta Aspects"
@@ -2157,22 +2157,22 @@
     "other": "Metadata Storage"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Tin nhắn tức thời"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Bảo mật"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Rút gọn URL"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Trình tải lên"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "thư mục chính"
   },
   "react.2": {
     "other": "bulk actions"
@@ -2202,7 +2202,7 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Truy cập công khai"
   },
   "background.move.file": {
     "other": "Moving file in background ..."
@@ -2214,10 +2214,10 @@
     "other": "Copying selection in background ..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Tập tin đã bị khóa"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Thư mục đã bị khóa"
   },
   "overlay.watch.file": {
     "other": "Currently watching this file"
@@ -2226,22 +2226,22 @@
     "other": "Currently watching this folder"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Tệp tin được chia sẻ, nhấn để chỉnh sửa"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Thư mục được chia sẻ, nhấn để chỉnh sửa"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Tệp tin được đánh dấu"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Thư mục được đánh dấu"
   },
   "bookmark.button.tip.add": {
     "other": "Bookmark this element"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Xóa dấu trang này"
   },
   "bookmark.button.tip.mixed": {
     "other": "Mixed values, click to bookmark all"
@@ -2250,16 +2250,16 @@
     "other": "Saving bookmark status"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Bên trong"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Tệp tin rỗng"
   },
   "mkfile.untitled.document": {
     "other": "Untitled Document"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Không được sử dụng / trong tên tệp!"
   },
   "rename.newvalue.error.similar": {
     "other": "Please use a different value for renaming!"
@@ -2268,78 +2268,78 @@
     "other": "Renaming %1 to %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Bộ lọc Cells"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Bộ lọc không gian làm việc"
   },
   "visibility.panel.title": {
     "other": "Visibility"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Lượt xem"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Chỉnh sửa"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Người dùng"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Nhóm của bạn"
   },
   "visibility.panel.edit": {
     "other": "Change visibility"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Lưu thay đổi"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Hoàn nguyên những thay đổi"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Đã xảy ra lỗi"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Chọn người dùng..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Đặt hiển thị thành..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Tính năng nâng cao này cho phép bạn quyết định xem những người dùng bạn tạo trong sổ địa chỉ của mình có thể được nhìn thấy và/hoặc chỉnh sửa bởi những người dùng khác hay không. Theo mặc định, người dùng của bạn chỉ hiển thị với bạn."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Không xác định"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Chọn nhóm"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Xác nhận"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Đừng cảnh báo tôi vào lần sau"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Số dòng trên mỗi trang"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "của"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Vui lòng chỉ sử dụng ảnh (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Thiết lập lại"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Bạn có muốn xóa ảnh hiện tại không?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Vui lòng sử dụng ảnh nhỏ hơn 5MB"
   }
 }

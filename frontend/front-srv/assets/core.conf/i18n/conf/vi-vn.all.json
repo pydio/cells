@@ -1,66 +1,66 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "Địa chỉ được sử dụng cho thông báo"
   },
   "All roles": {
     "other": "Tất cả roles"
   },
   "Allow Group Listing": {
-    "other": "Allow Group Listing"
+    "other": "Cho phép danh sách nhóm"
   },
   "Allow Role Listing": {
     "other": "Cho phép danh sách Role"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "Cho phép người dùng tạo người dùng mới khi chia sẻ thư mục"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Cho phép người dùng chọn một người dùng hiện có khi chia sẻ một thư mục"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "Cho phép người dùng tìm kiếm từ các nhóm khác thông qua trình tự động hoàn thành(có thể hữu ích nếu tùy chọn trước đó được đặt thành false) và chia sẻ không gian làm việc với họ"
   },
   "Always Override": {
-    "other": "Always Override"
+    "other": "Luôn luôn ghi đè"
   },
   "Always override other roles, included group roles.": {
     "other": "Luôn ghi đè các roles khác, bao gồm các roles nhóm."
   },
   "Avatar": {
-    "other": "Avatar"
+    "other": "Hình đại diện"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Chọn cấu hình plugin"
   },
   "Configuration Store Instance": {
-    "other": "Configuration Store Instance"
+    "other": "Cấu hình phiên bản cửa hàng"
   },
   "Configurations Management": {
-    "other": "Configurations Management"
+    "other": "Quản lý cấu hình"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connection"
+    "other": "Kết nối Core SQL"
   },
   "Country": {
-    "other": "Country"
+    "other": "Quốc gia"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "Tạo người dùng khách"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "Workspace mặc định"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "Không gian làm việc mặc định hiển thị sau khi đăng nhập. 'Trang chủ' là trang chào mừng với hoạt động và công cụ tìm kiếm."
   },
   "Display roles and/or groups": {
     "other": "Hiển thị roles và/hoặc nhóm"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "Không hiện thị thông tin đăng nhập trong ngoặc đơn"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "Không tải nhóm và danh sách người dùng nếu không có biểu thức chính quy nào được nhập. Tránh gửi tìm kiếm lớn trên LDAP."
   },
   "Email": {
     "other": "Email"
@@ -69,64 +69,64 @@
     "other": "Loại trừ Roles"
   },
   "External Users Creation": {
-    "other": "External Users Creation"
+    "other": "Tạo người dùng khách"
   },
   "External users parameters": {
-    "other": "External users parameters"
+    "other": "Thông số người dùng khách"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "Tên đầy đủ được hiển thị cho người khác"
   },
   "Generic Conf Features": {
-    "other": "Generic Conf Features"
+    "other": "Tính năng cấu hình chung"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "Ẩn thông tin đăng nhập"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "Nếu tùy chọn trước đó được đặt thành True, trực tiếp hiển thị danh sách đầy đủ người dùng từ tất cả các nhóm"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "Nếu được đặt, hành động này sẽ tự động được kích hoạt khi người dùng đăng nhập. Có thể đăng xuất (để khóa người dùng), thay đổi mật khẩu (để buộc thay đổi mật khẩu) hoặc bất kỳ thứ gì khác"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "Nếu người dùng 'khách' được bật, hãy nhớ tùy chọn qua các phiên."
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "Hình ảnh hiển thị bên cạnh tên người dùng"
   },
   "Included Roles": {
     "other": "Bao gồm các Role"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "Phiên bản"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "Người dùng nội bộ / khách"
   },
   "Language": {
-    "other": "Language"
+    "other": "Ngôn ngữ"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "Cho phép người dùng tạo không gian làm việc"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "Cho phép người dùng tạo kho từ các mẫu"
   },
   "List Roles By": {
     "other": "Danh sách các Role bởi"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "Danh sách hiện có từ tất các các nhóm"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "Danh sách các thông số cần chỉnh sửa khi tạo người dùng chia sẻ mới."
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "Đặt biểu thức chính quy bắt buộc"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "Số lượng user tối đa mà người dùng có thể tạo"
   },
   "Maximum number of users displayed in the users autocompleter": {
     "other": "Số lượng người dùng tối đa được hiển thị trong trình tìm kiếm"
@@ -168,10 +168,10 @@
     "other": "Giới hạn người dùng được chia sẻ"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "Định nghĩa kết nối SQL đơn giản có thể được sử dụng bởi sql-based plugins khác"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "Bỏ qua tùy chọn giao diện"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
     "other": "Một số roles nên bị từ chối trong danh sách. danh sách được phân tách bằng ',' hoặc bắt đầu bằng 'preg:' cho regex."
@@ -180,34 +180,34 @@
     "other": "Một số roles nên bị từ chối trong danh sách. danh sách được phân tách bằng ',' hoặc bắt đầu bằng 'preg:' cho regex."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "Sử dụng tùy chọn này để tránh tự động tải lại trạng thái giao diện (thư mục cuối cùng, các tab đã mở, v. v.)"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "Ngôn ngữ người dùng"
   },
   "User roles only": {
     "other": "Chỉ user roles"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "Danh sách thư mục người dùng"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "Hành động khóa người dùng"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "Người dùng hoàn thành giới hạn"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "Người dùng hoàn thành các ký tự tối thiểu"
   },
   "Users only (do not list groups nor roles)": {
     "other": "Chỉ Users (không liệt kê các nhóm cũng như roles)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "Người dùng có thể tạo kho lưu trữ của riêng mình hay không, dựa trên các mẫu được xác định trước."
   },
   "Worskpace creation delegation": {
-    "other": "Worskpace creation delegation"
+    "other": "Cho phép tạo không gian làm việc"
   },
   "role prefix": {
     "other": "Role prefix"
