@@ -42,7 +42,7 @@
     "other": "Cambie a Carga múltiple para archivos mayores de este valor (en bytes)"
   },
   "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
-    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
+    "other": "El Chunk Size usado para subidas multipart debe ser mayor de 5MB (5242800B)"
   },
   "Queue Size": {
     "other": "Tamaño de cola"

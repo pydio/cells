@@ -54,22 +54,22 @@
     "other": "{{.Object}} ha sido modificado por {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Metadatos Modificados por {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Metadatos sobre {{.Object}} modificados"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} modificó metadatos sobre {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Comentado por {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Objeto comentado: {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} publicó un nuevo comentario sobre {{.Object}}"
   },
   "MovedBy": {
     "other": "Cambiado de lugar por {{.Actor}}"

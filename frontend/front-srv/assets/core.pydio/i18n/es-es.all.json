@@ -183,16 +183,16 @@
     "other": "Añadir/eliminar elemento a Mis favoritos"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Marcador"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Añadir a Favoritos"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Eliminar Marcador"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Eliminar de Favoritos"
   },
   "154": {
     "other": "Nueva Carpeta"
@@ -2238,19 +2238,19 @@
     "other": "La carpeta está marcada"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Añadir este elemento a favoritos"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Eliminar este marcador"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Valores Mixtos, haga clic para añadirlos a favoritos"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Guardando el estatus de marcadores"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Dentro"
   },
   "mkfile.empty.template.label": {
     "other": "Archivo vacío"
@@ -2271,7 +2271,7 @@
     "other": "Filtrar celdas"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtrar Workspaces"
   },
   "visibility.panel.title": {
     "other": "Visibilidad"
@@ -2313,33 +2313,33 @@
     "other": "Desconocido"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Seleccionar grupo"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Confirmar"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Está a punto de eliminar"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "No avisar la próxima vez"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Filas por página"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "de"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Utilice sólo imágenes (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Reiniciar"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "¿Desea eliminar la imagen actual?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Por favor, utilice imágenes de menos de 5MB"
   }
 }
