@@ -1044,13 +1044,13 @@
     "other": "Etiqueta para la Plantilla"
   },
   "virtual.legend.1": {
-    "other": "Las Rutas de Plantillas se procesan dinámicamente dependiendo del contexto. Pueden utilizarse como raíces para espacios de trabajo que para sustituir rutas de origen de datos fijas. Se utilizan por defecto para crear el espacio de trabajo de Archivos Personales que apunta a un directorio diferente para cada usuario, y para procesar la ubicación de los directorios de los directorios de los usuarios de Cells."
+    "other": "Las plantillas predefinidas se procesan dinámicamente dependiendo del contexto. Pueden utilizarse como raíces para espacios de trabajo que para sustituir rutas de origen de datos fijas. Se utilizan por defecto para crear el espacio de trabajo de Archivos Personales que apunta a un directorio diferente para cada usuario, y para procesar la ubicación de los directorios de los directorios de los usuarios de Cells."
   },
   "virtual.legend.2": {
     "other": "Use Ctrl+Space dentro del editor para obtener información sobre los valores posibles. Los valores actuales soportados son: User.Name (resuelto dinámicamente al conectarse el usuario) y DataSources (para elegir una fuente de datos dinámicamente)."
   },
   "virtual.title": {
-    "other": "Ruta de plantillas"
+    "other": "Plantillas predefinidas"
   },
   "virtual.save": {
     "other": "Guardar plantilla"
@@ -1314,19 +1314,19 @@
     "other": "DataSources y directorios"
   },
   "ws.complete.label": {
-    "other": "Seleccione un directorio o una ruta de plantillas predefinida"
+    "other": "Seleccione un directorio o una plantilla predefinida"
   },
   "ws.complete.resolves": {
     "other": "Resuelve a"
   },
   "ws.complete.templates": {
-    "other": "Rutas de Plantillas Preconfiguradas"
+    "other": "Plantillas predefinidas"
   },
   "ws.dashboard": {
     "other": "Los workspaces definen el punto de acceso principal a sus datos por parte de los usuarios. Asegúrese de definir al menos un datasource para que se pueda crear un workspace, que apuntará a la ruta de ese datasource."
   },
   "ws.editor.data.legend": {
-    "other": "El workspace presenta al usuario una o varias 'raíces': elija una o más rutas de cualquier Datasource o una ruta de plantillas que se resolverán automáticamente en tiempo de ejecución."
+    "other": "El workspace presenta al usuario una o varias 'raíces': elija una o más rutas de cualquier Datasource o una plantilla que se resolverán automáticamente en tiempo de ejecución."
   },
   "ws.editor.data.title": {
     "other": "Acceso a datos"
@@ -1407,7 +1407,7 @@
     "other": "Ruta de la Carpeta"
   },
   "ws.editor.path.template": {
-    "other": "Ruta de Plantillas"
+    "other": "Plantilla predefinida"
   },
   "ws.editor.slug.legend": {
     "other": "Nombre técnico utilizado, por ejemplo, en URLs, se calcula automáticamente, pero puede personalizarlo."
