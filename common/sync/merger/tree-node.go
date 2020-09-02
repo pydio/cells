@@ -73,15 +73,17 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 	dirs := map[string]*TreeNode{".": rootNode}
 	crtRoot := rootNode
 	// Create branch for root
-	for _, part := range strings.Split(strings.Trim(root, "/"), "/") {
-		f := NewTreeNode(&tree.Node{
-			Path: path.Join(strings.TrimLeft(crtRoot.Path, "/"), part),
-			Etag: "-1",
-			Type: tree.NodeType_COLLECTION,
-		})
-		crtRoot.AddChild(f)
-		dirs[f.Path] = f
-		crtRoot = f
+	if len(strings.Trim(root, "/")) > 0 {
+		for _, part := range strings.Split(strings.Trim(root, "/"), "/") {
+			f := NewTreeNode(&tree.Node{
+				Path: path.Join(strings.TrimLeft(crtRoot.Path, "/"), part),
+				Etag: "-1",
+				Type: tree.NodeType_COLLECTION,
+			})
+			crtRoot.AddChild(f)
+			dirs[f.Path] = f
+			crtRoot = f
+		}
 	}
 	wg := &sync.WaitGroup{}
 	throttle := make(chan struct{}, 15)
@@ -311,6 +313,21 @@ func (t *TreeNode) Walk(cb func(n *TreeNode) bool) {
 	for _, c := range t.SortedChildren() {
 		c.Walk(cb)
 	}
+}
+
+func (t *TreeNode) ChildByPath(p string) *TreeNode {
+	if p == "" {
+		p = "/"
+	}
+	if p == t.Path {
+		return t
+	}
+	for _, c := range t.SortedChildren() {
+		if strings.HasPrefix(p, c.Path) {
+			return c.ChildByPath(p)
+		}
+	}
+	return nil
 }
 
 // ChildrenCursor provides a Nexter for browsing a node children

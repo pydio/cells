@@ -99,10 +99,9 @@ type EndpointRootStat struct {
 	HasChildrenInfo bool
 	HasSizeInfo     bool
 
-	Size     int64
-	Children int64
-	Folders  int64
-	Files    int64
+	Size    int64
+	Folders int64
+	Files   int64
 
 	PgSize     int64 `json:"-"`
 	PgChildren int64 `json:"-"`
@@ -110,6 +109,14 @@ type EndpointRootStat struct {
 	PgFiles    int64 `json:"-"`
 
 	LastPg float64 `json:"-"`
+}
+
+func (e *EndpointRootStat) Children() int64 {
+	return e.Folders + e.Files
+}
+
+func (e *EndpointRootStat) IsEmpty() bool {
+	return e.HasChildrenInfo && (e.Folders+e.Files == 0) || e.HasSizeInfo && e.Size <= 36 // Size is just one folder...
 }
 
 // Endpoint is the most basic interface for representing an endpoint for synchronization. It is just able to

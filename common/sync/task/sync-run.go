@@ -100,7 +100,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	// Compute Diff
 	diff := merger.NewDiff(ctx, source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
-	if e := diff.Compute(rootPath, lock, s.Ignores...); e != nil {
+	if e := diff.Compute(rootPath, lock, rootsInfo, s.Ignores...); e != nil {
 		return patch.SetPatchError(e)
 	}
 
@@ -172,7 +172,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(ctx, source, targetAsSource)
-			if e := diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), s.Ignores...); e != nil {
+			if e := diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
 				return bb.SetPatchError(e)
 			}
 			if dryRun {
@@ -233,7 +233,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
 		diff := merger.NewDiff(ctx, source, snap)
-		er = diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), s.Ignores...)
+		er = diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...)
 		if er != nil {
 			return nil, nil, er
 		}
@@ -322,7 +322,7 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 		pg = float64(rootInfo.PgSize) / float64(rootInfo.Size)
 	} else {
 		// Compute progress based on ChildrenInfo
-		pg = float64(rootInfo.PgChildren) / float64(rootInfo.Children)
+		pg = float64(rootInfo.PgChildren) / float64(rootInfo.Children())
 	}
 	if pg-rootInfo.LastPg > 0.05 {
 		emit = true

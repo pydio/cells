@@ -553,6 +553,6 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 		return nil, e
 	}
 	diff := newTreeDiff(testCtx, left, right)
-	e = diff.Compute("/", nil)
+	e = diff.Compute("/", nil, nil)
 	return diff, e
 }
