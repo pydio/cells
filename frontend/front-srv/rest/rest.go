@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
 	exifremove "github.com/scottleedavis/go-exif-remove"
@@ -129,6 +130,11 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 
 // FrontPlugins dumps a full list of available frontend plugins
 func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) {
+
+	if req.Request.Header.Get("x-pydio-plugins-reload") != "" {
+		frontend.HotReload()
+		defaults.Broker().Publish(common.TOPIC_ASSETS_RELOAD, &broker.Message{Body: []byte("reload")})
+	}
 
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
