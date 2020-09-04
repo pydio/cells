@@ -30,12 +30,14 @@ var (
 	loadedPool *PluginsPool
 )
 
+// PluginBox exposes web assets
 type PluginBox struct {
-	Box     packr.Box
-	Exposes []string
-	ExposeFunc func()[]string
+	Box        packr.Box
+	Exposes    []string
+	ExposeFunc func() []string
 }
 
+// RegisterPluginBoxes adds a PluginBox to registry
 func RegisterPluginBoxes(boxes ...PluginBox) {
 
 	if registry == nil {
@@ -46,6 +48,7 @@ func RegisterPluginBoxes(boxes ...PluginBox) {
 
 }
 
+// GetRegisteredPluginBoxes lists all registered PluginBox
 func GetRegisteredPluginBoxes() []PluginBox {
 
 	if registry == nil {
@@ -56,6 +59,7 @@ func GetRegisteredPluginBoxes() []PluginBox {
 
 }
 
+// GetPluginsFS builds an HttpFs out of all the registered plugins boxes
 func GetPluginsFS() *UnionHttpFs {
 	if loadedFs == nil {
 		loadedFs = NewUnionHttpFs(GetRegisteredPluginBoxes()...)
@@ -63,6 +67,7 @@ func GetPluginsFS() *UnionHttpFs {
 	return loadedFs
 }
 
+// GetPluginsPool builds the pool out of all the registered plugins boxes
 func GetPluginsPool() (*PluginsPool, error) {
 	if loadedPool == nil {
 		pool := NewPluginsPool()
@@ -73,4 +78,11 @@ func GetPluginsPool() (*PluginsPool, error) {
 		}
 	}
 	return loadedPool, nil
+}
+
+// HotReload empties internal fs and pool to trigger a reload at next call
+// of GetPluginsFS or GetPluginsPool
+func HotReload() {
+	loadedFs = nil
+	loadedPool = nil
 }
