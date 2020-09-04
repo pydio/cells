@@ -144,7 +144,7 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, rootStats map[string]
 
 	// Additional check before creating diff
 	if rootStats != nil {
-		if lStat, o := rootStats[diff.left.GetEndpointInfo().URI]; o {
+		if lStat, o := rootStats[diff.left.GetEndpointInfo().URI]; o && lStat.IsKnown() {
 			lCompare := lTree.ChildByPath(strings.TrimLeft(root, "/"))
 			if (lCompare == nil || len(lCompare.SortedChildren()) == 0) && !lStat.IsEmpty() {
 				fmt.Println("==> left stats :", lStat)
@@ -153,7 +153,7 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, rootStats map[string]
 				return fmt.Errorf("unexpected error : endpoints stat and collected children discrepancy")
 			}
 		}
-		if rStat, o := rootStats[diff.right.GetEndpointInfo().URI]; o {
+		if rStat, o := rootStats[diff.right.GetEndpointInfo().URI]; o && rStat.IsKnown() {
 			rCompare := rTree.ChildByPath(strings.TrimLeft(root, "/"))
 			if (rCompare == nil || len(rCompare.SortedChildren()) == 0) && !rStat.IsEmpty() {
 				fmt.Println("==> right stats :", rStat)
