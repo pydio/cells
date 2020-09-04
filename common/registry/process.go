@@ -62,8 +62,8 @@ func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName st
 	if !ok {
 		return
 	}
-	p.processeslock.RLock()
-	defer p.processeslock.RUnlock()
+	p.processeslock.Lock()
+	defer p.processeslock.Unlock()
 	if proc, e := p.processes[pid]; e {
 		proc.sLock.Lock()
 		defer proc.sLock.Unlock()
