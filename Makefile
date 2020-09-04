@@ -1,4 +1,4 @@
-DEV_VERSION=2.1.0-dev
+DEV_VERSION=2.1.6-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
