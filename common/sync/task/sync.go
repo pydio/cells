@@ -118,7 +118,6 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 		s.echoFilter.Start()
 	}
 
-	s.watch = withWatches
 	if withWatches {
 		s.startWatchers(ctx)
 	} else if s.watchConn != nil {
@@ -139,16 +138,12 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 // Pause should pause the sync
 func (s *Sync) Pause(ctx context.Context) {
-	if s.watch {
-		s.stopWatchers()
-	}
+	s.stopWatchers()
 }
 
 // Resume should resume the sync
 func (s *Sync) Resume(ctx context.Context) {
-	if s.watch {
-		s.startWatchers(ctx)
-	}
+	s.startWatchers(ctx)
 }
 
 // Shutdown closes channels
@@ -157,9 +152,7 @@ func (s *Sync) Shutdown() {
 		// ignore 'close on closed channel'
 		recover()
 	}()
-	if s.watch {
-		s.stopWatchers()
-	}
+	s.stopWatchers()
 	if s.watchConn != nil {
 		close(s.watchConn)
 		s.watchConn = nil
