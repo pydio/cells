@@ -940,3 +940,24 @@ func TestMoveNodeTree(t *testing.T) {
 
 	})
 }
+
+func TestUnderscoreIssue(t *testing.T) {
+	Convey("", t, func() {
+		dao := getDAO(ctxNoCache)
+		arborescence := []string{
+			"Test Folder",
+			"Test Folder/.pydio",
+		}
+
+		for _, path := range arborescence {
+			dao.Path(path, true)
+		}
+		dao.Flush(true)
+
+		mp, _, _ := getDAO(ctxNoCache).Path("Test_Folder", false)
+		So(mp, ShouldBeNil)
+
+		mp, _, _ = getDAO(ctxNoCache).Path("Test%Folder", false)
+		So(mp, ShouldBeNil)
+	})
+}
