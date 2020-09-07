@@ -22,8 +22,11 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/memory"
+	"github.com/pydio/go-os/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -32,7 +35,15 @@ var (
 )
 
 func TestVault(t *testing.T) {
-	vault := NewVault(std, New(micro.NewMemorySource(vaultdata)))
+	stdvault := New(micro.New(
+		config.NewConfig(
+			config.WithSource(
+				memory.NewSource(memory.WithJSON(vaultdata)),
+			),
+			config.PollInterval(1*time.Second),
+		),
+	))
+	vault := NewVault(std, stdvault)
 	RegisterVaultKey("protectedValue")
 	Convey("Test Set", t, func() {
 		vault.Val("protectedValue").Set("my-secret-data")

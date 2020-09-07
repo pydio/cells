@@ -59,12 +59,9 @@ func init() {
 				dir, _ := config.ServiceDataDir(Name)
 				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
 				bleveConfs := make(map[string]interface{})
-				if bA := cfg.Val("basenameAnalyzer"); bA != nil {
-					bleveConfs["basenameAnalyzer"] = bA.String()
-				}
-				if cA := cfg.Val("contentAnalyzer"); cA != nil {
-					bleveConfs["contentAnalyzer"] = cA.String()
-				}
+				bleveConfs["basenameAnalyzer"] = cfg.Val("basenameAnalyzer").String()
+				bleveConfs["contentAnalyzer"] = cfg.Val("contentAnalyzer").String()
+
 				bleveEngine, err := bleve.NewBleveEngine(indexContent, bleveConfs)
 				if err != nil {
 					return err

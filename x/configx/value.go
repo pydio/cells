@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -45,6 +46,23 @@ func (v *value) Set(data interface{}) error {
 	if v == nil {
 		return fmt.Errorf("value doesn't exist")
 	}
+
+	switch vv := data.(type) {
+	case bool, int, string, []string, []int, []bool, []interface{}:
+	default:
+		var m map[string]interface{}
+		b, err := json.Marshal(vv)
+		if err != nil {
+			return err
+		}
+
+		if err := json.Unmarshal(b, &m); err != nil {
+			return err
+		}
+
+		data = m
+	}
+
 	if m, ok := v.p.(*mymap); ok {
 		if m.v == nil {
 			m.v = make(map[string]interface{})
@@ -56,7 +74,6 @@ func (v *value) Set(data interface{}) error {
 		old[v.k.(int)] = data
 		a.Set(old)
 	}
-
 	if pp, ok := v.p.(*value); ok {
 		switch k := v.k.(type) {
 		case string:
@@ -66,7 +83,6 @@ func (v *value) Set(data interface{}) error {
 		case int:
 			// TODO
 		}
-
 	}
 
 	v.v = data
@@ -93,8 +109,8 @@ func (v *value) Del() error {
 }
 
 // values cannot retrieve lower values as it is final
-func (v *value) Val(k ...Key) Values {
-	keys := keysToString(k...)
+func (v *value) Val(s ...string) Values {
+	keys := StringToKeys(s...)
 
 	// A value arriving there with another key below if of the wrong type
 	if len(keys) > 0 {
@@ -102,14 +118,14 @@ func (v *value) Val(k ...Key) Values {
 		if keys[0] == "#" {
 			if v.p != nil {
 				if v, ok := v.p.(Values); ok {
-					return v.Val(keys)
+					return v.Val(strings.Join(keys, "/"))
 				}
 			}
 		}
 
 		// The parent doesn't actually exist here, we fake it in case we need to set it later
 		p := &value{nil, v.p, v.k}
-		return (*value)(&value{nil, p, keys[0]}).Val(keys[1:])
+		return (*value)(&value{nil, p, keys[0]}).Val(strings.Join(keys[1:], "/"))
 	}
 
 	return v

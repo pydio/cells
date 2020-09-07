@@ -45,13 +45,13 @@ func TestStd(t *testing.T) {
 		So(m.Val("fakeservice").Get(), ShouldBeNil)
 
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "fakeval").Get(), ShouldBeNil)
+		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/fakeval").Get(), ShouldBeNil)
 
-		So(m.Val("service", "array"), ShouldNotBeNil)
-		So(m.Val("service", "array", "1").Get().Int(), ShouldEqual, 2)
-		So(m.Val("service", "array", 1).Get().Int(), ShouldEqual, 2)
-		So(m.Val("service", "array", 5).Get(), ShouldBeNil)
+		So(m.Val("service/array"), ShouldNotBeNil)
+		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
+		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
+		So(m.Val("service/array[5]").Get(), ShouldBeNil)
 
 		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
 		So(m.Val("service/array[1][2]").Get(), ShouldBeNil)
@@ -74,13 +74,13 @@ func TestStd(t *testing.T) {
 		So(m.Val("fakeservice").Get(), ShouldBeNil)
 
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "fakeval").Get(), ShouldBeNil)
+		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/fakeval").Get(), ShouldBeNil)
 
-		So(m.Val("service", "array"), ShouldNotBeNil)
-		So(m.Val("service", "array", "1").Get().Int(), ShouldEqual, 2)
-		So(m.Val("service", "array", 1).Get().Int(), ShouldEqual, 2)
-		So(m.Val("service", "array", 1, 2).Get(), ShouldBeNil)
+		So(m.Val("service/array"), ShouldNotBeNil)
+		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
+		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
+		So(m.Val("service/array[1][2]").Get(), ShouldBeNil)
 
 		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
 		So(m.Val("service/array[1][2]").Get(), ShouldBeNil)
@@ -98,33 +98,45 @@ func TestStd(t *testing.T) {
 		m.Set(data)
 
 		// Replacing a value
-		err := m.Val("service", "map").Set(map[string]interface{}{
+		err := m.Val("service/map").Set(map[string]interface{}{
 			"val2": "test2",
 		})
 		So(err, ShouldBeNil)
 
-		So(m.Val("service", "fakemap", "val").Set("test"), ShouldBeNil) // Should not throw an error
-		So(m.Val("service", "fakemap", "val").Get().String(), ShouldEqual, "test")
+		type service struct {
+			Servicebool bool `json:"bool,omitempty"`
+		}
 
-		So(m.Val("service", "fakemap2", "fakemap2map", "val").Set("test"), ShouldBeNil) // Should not throw an error
-		So(m.Val("service", "fakemap2", "fakemap2map", "val").Get().String(), ShouldEqual, "test")
+		m.Val("service/struct").Set(&service{Servicebool: true})
+		So(m.Val("service/struct/bool").Bool(), ShouldBeTrue)
 
-		So(m.Val("service", "map", "val2").Set("test3"), ShouldBeNil) // Should not throw an error
-		So(m.Val("service", "map", "val2").Get().String(), ShouldEqual, "test3")
+		m.Val("service/struct").Set(&service{})
+		So(m.Val("service/struct/bool").Bool(), ShouldBeFalse)
 
-		So(m.Val("service", "map2").Set(make(map[string]interface{})), ShouldBeNil)
-		So(m.Val("service", "map2", "val").Set("test"), ShouldBeNil)
-		So(m.Val("service", "map2", "val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "array2").Set(make([]interface{}, 2)), ShouldBeNil)
-		So(m.Val("service", "array2", "val").Set("test"), ShouldNotBeNil) // Array should have int index
-		So(m.Val("service", "array2", "0").Set("test"), ShouldBeNil)      // Array should have int index
-		So(m.Val("service", "array2", "0").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "array2", "1").Set(map[string]interface{}{
+		So(m.Val("service/fakemap/val").Set("test"), ShouldBeNil) // Should not throw an error
+		So(m.Val("service/fakemap/val").Get().String(), ShouldEqual, "test")
+
+		So(m.Val("service/fakemap2/fakemap2map/val").Set("test"), ShouldBeNil) // Should not throw an error
+		So(m.Val("service/fakemap2/fakemap2map/val").Get().String(), ShouldEqual, "test")
+
+		So(m.Val("service/map/val2").Set("test3"), ShouldBeNil) // Should not throw an error
+		So(m.Val("service/map/val2").Get().String(), ShouldEqual, "test3")
+
+		So(m.Val("service/map2").Set(make(map[string]interface{})), ShouldBeNil)
+		So(m.Val("service/map2/val").Set("test"), ShouldBeNil)
+		So(m.Val("service/map2/val").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/array2").Set(make([]interface{}, 2)), ShouldBeNil)
+		So(m.Val("service/array2[val]").Set("test"), ShouldNotBeNil) // Array should have int index
+		So(m.Val("service/array2[0]").Set("test"), ShouldBeNil)      // Array should have int index
+		So(m.Val("service/array2[0]").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/array2[1]").Set(map[string]interface{}{
 			"val": "test",
 		}), ShouldBeNil)
-		So(m.Val("service", "array2", "1", "val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "array2", "1", "val2").Set("test2"), ShouldBeNil)
-		So(m.Val("service", "array2", "1", "val2").Get().String(), ShouldEqual, "test2")
+		So(m.Val("service/array2[1]/val").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/array2[1]/val2").Set("test2"), ShouldBeNil)
+		So(m.Val("service/array2[1]/val2").Get().String(), ShouldEqual, "test2")
+		So(m.Val("service/array2").Set([]string{"test", "whatever"}), ShouldBeNil)
+		So(m.Val("service/array2").StringArray(), ShouldResemble, []string{"test", "whatever"})
 	})
 
 	Convey("Testing default get", t, func() {

@@ -9,7 +9,7 @@ type Scanner interface {
 }
 
 type Watcher interface {
-	Watch(...string) (Receiver, error)
+	Watch(path ...string) (Receiver, error)
 }
 
 type Receiver interface {
@@ -46,7 +46,7 @@ type KVStore interface {
 // Entrypoint
 type Entrypoint interface {
 	KVStore
-	Val(key ...Key) Values
+	Val(path ...string) Values
 }
 
 type Values interface {
@@ -60,10 +60,31 @@ type Ref interface {
 
 type Source interface {
 	Entrypoint
-	Watch(...string) (Receiver, error)
+	Watcher
 }
 
 // NewMap returns a config value parsable as a map
 func NewMap() Values {
 	return &mymap{}
+}
+
+func NewArray() Values {
+	return &array{}
+}
+
+func NewValue() Values {
+	return &value{}
+}
+
+func NewFrom(i interface{}) Values {
+	switch v := i.(type) {
+	case map[string]interface{}:
+		return &mymap{v: v}
+	case []interface{}:
+		return &array{v: v}
+	default:
+		return &value{v: v}
+	}
+
+	return nil
 }

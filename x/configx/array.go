@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -32,7 +33,7 @@ import (
 )
 
 type array struct {
-	v []interface{}
+	v interface{}
 	p interface{} // Reference to parent for assignment
 	k interface{} // Reference to key for re-assignment
 }
@@ -53,7 +54,8 @@ func (c *array) Set(v interface{}) error {
 		m.v[c.k.(string)] = v
 	}
 
-	c.v = v.([]interface{})
+	c.v = v
+
 	return nil
 }
 
@@ -69,8 +71,8 @@ func (c *array) Del() error {
 	return nil
 }
 
-func (c *array) Val(k ...Key) Values {
-	keys := keysToString(k...)
+func (c *array) Val(s ...string) Values {
+	keys := StringToKeys(s...)
 
 	if len(keys) == 0 {
 		return c
@@ -80,10 +82,10 @@ func (c *array) Val(k ...Key) Values {
 	if keys[0] == "#" {
 		if c.p != nil {
 			if v, ok := c.p.(Values); ok {
-				return v.Val(keys)
+				return v.Val(strings.Join(keys, "/"))
 			}
 		}
-		return c.Val(keys[1:])
+		return c.Val(strings.Join(keys[1:], "/"))
 	}
 
 	idx, err := cast.ToIntE(keys[0])
@@ -91,19 +93,34 @@ func (c *array) Val(k ...Key) Values {
 		return (*value)(nil)
 	}
 
-	if len(c.v) <= idx {
+	var v interface{}
+	switch vv := c.v.(type) {
+	case []int:
+		if len(vv) <= idx {
+			return (*value)(nil)
+		}
+		v = vv[idx]
+	case []string:
+		if len(vv) <= idx {
+			return (*value)(nil)
+		}
+		v = vv[idx]
+	case []interface{}:
+		if len(vv) <= idx {
+			return (*value)(nil)
+		}
+		v = vv[idx]
+	default:
 		return (*value)(nil)
 	}
-
-	v := c.v[idx]
 
 	keys = keys[1:]
 
 	if m, err := cast.ToStringMapE(v); err == nil {
-		return (&mymap{m, c, idx}).Val(keys)
+		return (&mymap{m, c, idx}).Val(strings.Join(keys, "/"))
 	}
 
-	return (&value{v, c, idx}).Val(keys)
+	return (&value{v, c, idx}).Val(strings.Join(keys, "/"))
 }
 
 func (c *array) Scan(val interface{}) error {

@@ -21,7 +21,6 @@
 package tree
 
 import (
-	fmt "fmt"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -38,13 +37,9 @@ func TestTreeProtoMessage(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(b, ShouldNotBeEmpty)
 
-		fmt.Println(string(b))
-
 		newMsg := new(WrappingStreamerResponse)
 		err2 := proto.Unmarshal(b, newMsg)
 		So(err2, ShouldBeNil)
-
-		fmt.Println(newMsg)
 	})
 
 }

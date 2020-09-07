@@ -22,6 +22,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pydio/cells/x/configx"
@@ -64,14 +65,14 @@ func (v *vault) Set(val interface{}) error {
 	return fmt.Errorf("not implemented")
 }
 
-func (v *vault) Val(k ...configx.Key) configx.Values {
+func (v *vault) Val(s ...string) configx.Values {
 	for _, p := range registeredVaultKeys {
-		if configx.Keys(k).String() == configx.Keys(p).String() {
-			return &vaultvalues{v.config.Val(k...), v.vault.Val()}
+		if strings.Join(s, "/") == p {
+			return &vaultvalues{v.config.Val(s...), v.vault.Val()}
 		}
 	}
 
-	return v.config.Val(k...)
+	return v.config.Val(s...)
 }
 
 func (v *vault) Watch(k ...string) (configx.Receiver, error) {
@@ -100,8 +101,9 @@ func (v *vaultvalues) Set(val interface{}) error {
 	}
 
 	err := v.Values.Set(uuid)
-
-	fmt.Println(v.Values.String(), err)
+	if err != nil {
+		return err
+	}
 
 	// Do we need to set a new key each time it changes ?
 	v.vault.Val(uuid).Set(val)

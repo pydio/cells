@@ -25,6 +25,8 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"path/filepath"
+	"time"
 
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
@@ -34,10 +36,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
+	"github.com/pydio/cells/x/filex"
 
 	// All brokers
 	httpbroker "github.com/pydio/cells/common/micro/broker/http"
@@ -49,6 +55,9 @@ import (
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/service/metrics"
+
+	//
+	microconfig "github.com/pydio/go-os/config"
 )
 
 var (
@@ -210,6 +219,58 @@ func Execute() {
 }
 
 func initConfig() {
+	// TODO - do something about that
+	// VersionsStore = filex.NewStore(PydioConfigDir)
+	// written, err := filex.WriteIfNotExists(filepath.Join(PydioConfigDir, PydioConfigFile), SampleConfig)
+	// if err != nil {
+	// 	fmt.Println("Error while trying to create default config file")
+	// 	os.Exit(1)
+	// }
+	// if written && VersionsStore != nil {
+	// 	var data interface{}
+	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+	// 		VersionsStore.Put(&filex.Version{
+	// 			User: "cli",
+	// 			Date: time.Now(),
+	// 			Log:  "Initialize with sample config",
+	// 			Data: data,
+	// 		})
+	// 	}
+	// }
+
+	if _, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig); err != nil {
+		fmt.Println("Error while trying to create default config file")
+		os.Exit(1)
+	}
+
+	defaultConfig := config.New(micro.New(
+		microconfig.NewConfig(
+			microconfig.WithSource(
+				file.NewSource(
+					microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+				),
+			),
+			microconfig.PollInterval(10*time.Second),
+		),
+	))
+
+	// Need to do something for the versions
+	config.UpgradeConfigsIfRequired(defaultConfig)
+	config.Register(defaultConfig)
+
+	//if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
+	// 				e2 := Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+	// 				if e2 != nil {
+	// 					fmt.Println("[Configs] Error while saving upgraded configs")
+	// 				} else {
+	// 					fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
+	// 				}
+	// 				// Reload fully from source to make sure it's in sync with JSON
+	// 				defaultConfig = &Config{config.NewConfig(
+	// 					config.WithSource(newLocalSource()),
+	// 					config.PollInterval(10*time.Second),
+	// 				)}
+	// 			} else if e != nil {
 	// case "etcd":
 	// 	config.Register(
 	// 		config.New(etcd.NewSource(clientv3.Config{

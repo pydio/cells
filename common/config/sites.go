@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/pkg/errors"
 	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -44,7 +45,7 @@ func GetSitesAllowedHostnames() map[string]string {
 func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 
 	var sites []*install.ProxyConfig
-	if e := Get("defaults", "sites").Scan(&sites); e != nil {
+	if e := Get(configx.FormatPath("defaults", "sites")).Scan(&sites); e != nil {
 		return nil, errors.WithMessage(e, "error while parsing sites from config ")
 	}
 	if len(configOnly) > 0 && configOnly[0] {
@@ -62,7 +63,7 @@ func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 // SaveSites saves a list of sites inside configuration
 func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
-	Set(sites, "defaults", "sites")
+	Set(sites, configx.FormatPath("defaults", "sites"))
 	e := Save(user, msg)
 	if e != nil {
 		return e

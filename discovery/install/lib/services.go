@@ -22,7 +22,6 @@ package lib
 
 import (
 	"path/filepath"
-	"strings"
 
 	"github.com/ory/hydra/x"
 
@@ -66,11 +65,10 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	}
 
 	for path, def := range configKeys {
-		paths := strings.Split(path, "/")
-		val := config.Get(paths...)
+		val := config.Get(path)
 		var data interface{}
 		if val.Scan(&data); data != def {
-			config.Set(def, paths...)
+			val.Set(def)
 			save = true
 		}
 	}

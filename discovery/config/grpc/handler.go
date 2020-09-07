@@ -37,7 +37,7 @@ func (h *Handler) Update(ctx context.Context, request *proto.UpdateRequest, resp
 	}
 	if request.Change.Id == "config" {
 		log.Logger(ctx).Info("Updating config remotely")
-		config.Set(data, strings.Split(request.Change.Path, "/")...)
+		config.Set(data, request.Change.Path)
 		config.Save(common.PYDIO_SYSTEM_USERNAME, "Updated config remotely")
 	} else if request.Change.Id == "vault" {
 		log.Logger(ctx).Info("Updating vault remotely")
@@ -52,7 +52,7 @@ func (h *Handler) Update(ctx context.Context, request *proto.UpdateRequest, resp
 func (h *Handler) Delete(ctx context.Context, request *proto.DeleteRequest, response *proto.DeleteResponse) error {
 	if request.Change.Id == "config" {
 		log.Logger(ctx).Info("Updating config remotely")
-		config.Del(strings.Split(request.Change.Path, "/")...)
+		config.Del(request.Change.Path)
 		config.Save(common.PYDIO_SYSTEM_USERNAME, "Updated config remotely")
 	} else if request.Change.Id == "vault" {
 		log.Logger(ctx).Info("Updating vault remotely")

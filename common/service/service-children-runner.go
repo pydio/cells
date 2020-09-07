@@ -23,7 +23,6 @@ package service
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -218,16 +217,9 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 			if err != nil {
 				return
 			}
-			var sourceString string
-			if err := res.Scan(&sourceString); err != nil {
-				log.Logger(ctx).Error("Cannot read sources", zap.Error(err))
-				continue
-			}
-			var arr []string
-			if err := json.Unmarshal([]byte(sourceString), &arr); err != nil {
-				log.Logger(ctx).Error("Invalid sources", zap.Error(err))
-				continue
-			}
+
+			arr := res.StringArray()
+
 			sources := config.SourceNamesFiltered(arr)
 			log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
 			log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Any("new sources", sources))

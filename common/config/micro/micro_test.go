@@ -18,15 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package config
+package micro
 
 import (
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/memory"
+	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/go-os/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -35,26 +35,24 @@ var (
 	data []byte
 )
 
-func init() {
-	std = New(micro.New(
+func TestConfig(t *testing.T) {
+	source := memory.NewSource(memory.WithJSON(data))
+	conf := New(
 		config.NewConfig(
 			config.WithSource(
-				memory.NewSource(memory.WithJSON(data)),
+				source,
 			),
 			config.PollInterval(1*time.Second),
 		),
-	))
-}
+	)
 
-func TestConfig(t *testing.T) {
 	Convey("Test Set", t, func() {
-		err := Set("my-test-config-value", "test")
+		err := conf.Val("my-val").Set([]string{"test"})
 		So(err, ShouldBeNil)
-		So(Get("test").Default("").String(), ShouldEqual, "my-test-config-value")
 	})
 
 	Convey("Test Watch", t, func() {
-		w, err := Watch("watch", "val")
+		w, err := conf.(configx.Watcher).Watch("my-val")
 		So(err, ShouldBeNil)
 
 		wg := &sync.WaitGroup{}
@@ -62,13 +60,11 @@ func TestConfig(t *testing.T) {
 		go func() {
 			for {
 				w.Next()
-
 				wg.Done()
 			}
 		}()
 
-		Set("test", "watch", "val")
-
+		conf.Val("my-val").Set([]string{"test2"})
 		wg.Wait()
 	})
 }

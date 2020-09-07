@@ -83,6 +83,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+
 	// Replace uuid secret if it exists
 	var secretUuid string
 	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
@@ -146,9 +147,14 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
 	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
-	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
+	fmt.Println("Updating sync ", ds)
+	err := config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
+	fmt.Println(err)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
+
+	fmt.Println("Configuration for sync is now ? ")
+	fmt.Println(config.Get("services", "pydio.grpc.data.sync."+dsName))
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
 	config.SourceNamesToConfig(currentSources)
@@ -179,6 +185,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		}
 
 	} else {
+		fmt.Println("Error is ", err)
 		service.RestError500(req, resp, err)
 	}
 

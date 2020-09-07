@@ -2,10 +2,13 @@ package config
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/go-os/config"
 )
 
 var (
@@ -13,11 +16,20 @@ var (
 	//vaultSource *vault.VaultSource
 	//vaultOnce sync.Once
 
-	registeredVaultKeys [][]configx.Key
+	registeredVaultKeys []string
 )
 
 var (
-	stdvault = New(micro.NewLocalSource(filepath.Join(PydioConfigDir, "pydio-vault.json")))
+	stdvault = New(micro.New(
+		config.NewConfig(
+			config.WithSource(
+				file.NewSource(
+					config.SourceName(filepath.Join(PydioConfigDir, "pydio-vault.json")),
+				),
+			),
+			config.PollInterval(10*time.Second),
+		),
+	))
 )
 
 // Vault Config with initialisation
@@ -54,8 +66,8 @@ var (
 // 	return vaultConfig
 // }
 
-func RegisterVaultKey(k ...configx.Key) {
-	registeredVaultKeys = append(registeredVaultKeys, k)
+func RegisterVaultKey(s ...string) {
+	registeredVaultKeys = append(registeredVaultKeys, configx.FormatPath(s))
 }
 
 func NewKeyForSecret() string {

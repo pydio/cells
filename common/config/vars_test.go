@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -26,8 +27,8 @@ func TestGetSet(t *testing.T) {
 
 		Convey("Simple GetSet Works", func() {
 			testVal := "This is a test"
-			Set(testVal, "test", "val1")
-			retVal := Get("test", "val1").String()
+			Set(testVal, configx.FormatPath("test", "val1"))
+			retVal := Get(configx.FormatPath("test", "val1")).String()
 			So(retVal, ShouldEqual, testVal)
 		})
 
@@ -36,25 +37,25 @@ func TestGetSet(t *testing.T) {
 			certEmail := "test@example.com"
 			caUrl := "https://acme-staging.api.example.com/directory"
 
-			Set(certEmail, "cert", "proxy", "email")
-			Set(caUrl, "cert", "proxy", "caUrl")
+			Set(certEmail, configx.FormatPath("cert", "proxy", "email"))
+			Set(caUrl, configx.FormatPath("cert", "proxy", "caUrl"))
 
-			resCe := Get("cert", "proxy", "email").String()
-			resCa := Get("cert", "proxy", "caUrl").String()
+			resCe := Get(configx.FormatPath("cert", "proxy", "email")).String()
+			resCa := Get(configx.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe, ShouldEqual, certEmail)
 			So(resCa, ShouldEqual, caUrl)
 
-			Set(true, "cert", "proxy", "httpRedir")
+			Set(true, configx.FormatPath("cert", "proxy", "httpRedir"))
 
-			resCe2 := Get("cert", "proxy", "email").String()
-			resCa2 := Get("cert", "proxy", "caUrl").String()
+			resCe2 := Get(configx.FormatPath("cert", "proxy", "email")).String()
+			resCa2 := Get(configx.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe2, ShouldEqual, certEmail)
 			So(resCa2, ShouldEqual, caUrl)
 
-			Del("cert", "proxy", "httpRedir")
+			Del(configx.FormatPath("cert", "proxy", "httpRedir"))
 
-			resCe2 = Get("cert", "proxy", "email").String()
-			resCa2 = Get("cert", "proxy", "caUrl").String()
+			resCe2 = Get(configx.FormatPath("cert", "proxy", "email")).String()
+			resCa2 = Get(configx.FormatPath("cert", "proxy", "caUrl")).String()
 			So(resCe2, ShouldEqual, certEmail)
 			So(resCa2, ShouldEqual, caUrl)
 
@@ -64,16 +65,16 @@ func TestGetSet(t *testing.T) {
 
 			pwd := "This is a p@$$w0rd"
 
-			Set(pwd, "services", "pydio.grpc.mailer", "sender", "password")
-			So(Get("services", "pydio.grpc.mailer", "sender", "password").String(), ShouldEqual, pwd)
-			Del("services", "pydio.grpc.mailer", "sender", "password")
-			So(Get("services", "pydio.grpc.mailer", "sender", "password").String(), ShouldEqual, "")
+			Set(pwd, configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
+			So(Get(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, pwd)
+			Del(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
+			So(Get(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, "")
 
-			RegisterVaultKey("services", "pydio.grpc.mailer", "sender", "password")
+			RegisterVaultKey(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
 
-			Set(pwd, "services", "pydio.grpc.mailer", "sender", "password")
+			Set(pwd, configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password"))
 
-			resPwd := Get("services", "pydio.grpc.mailer", "sender", "password").String()
+			resPwd := Get(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String()
 			So(resPwd, ShouldNotEqual, pwd)
 			So(resPwd, ShouldNotEqual, "")
 		})

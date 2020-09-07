@@ -11,10 +11,11 @@ import (
 	"github.com/ory/hydra/x"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/x/configx"
 )
 
 type (
-	configMigration func(config *Config) (bool, error)
+	configMigration func(config configx.Entrypoint) (bool, error)
 )
 
 var (
@@ -57,7 +58,7 @@ func init() {
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
 // Returns true if there was a change and save is required, error if something nasty happened
-func UpgradeConfigsIfRequired(config *Config) (bool, error) {
+func UpgradeConfigsIfRequired(config configx.Entrypoint) (bool, error) {
 	var save bool
 	for _, m := range configsMigrations {
 		s, e := m(config)
@@ -71,38 +72,36 @@ func UpgradeConfigsIfRequired(config *Config) (bool, error) {
 	return save, nil
 }
 
-func renameServices1(config *Config) (bool, error) {
+func renameServices1(config configx.Entrypoint) (bool, error) {
 	var save bool
 	for oldPath, newPath := range configKeysRenames {
-		oldPaths := strings.Split(oldPath, "/")
-		val := config.Get(oldPaths...)
+		oldVal := config.Val(oldPath)
 		var data interface{}
-		if e := val.Scan(&data); e == nil && data != nil {
+		if e := oldVal.Scan(&data); e == nil && data != nil {
 			fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
-			config.Set(val, strings.Split(newPath, "/")...)
-			config.Del(oldPaths...)
+			config.Val(newPath).Set(data)
+			oldVal.Del()
 			save = true
 		}
 	}
 	return save, nil
 }
 
-func deleteConfigKeys(config *Config) (bool, error) {
+func deleteConfigKeys(config configx.Entrypoint) (bool, error) {
 	var save bool
 	for _, oldPath := range configKeysDeletes {
-		oldPaths := strings.Split(oldPath, "/")
-		val := config.Get(oldPaths...)
+		oldVal := config.Val(oldPath)
 		var data interface{}
-		if e := val.Scan(&data); e == nil && data != nil {
+		if e := oldVal.Scan(&data); e == nil && data != nil {
 			fmt.Printf("[Configs] Upgrading: deleting key %s\n", oldPath)
-			config.Del(oldPaths...)
+			oldVal.Del()
 			save = true
 		}
 	}
 	return save, nil
 }
 
-func setDefaultConfig(config *Config) (bool, error) {
+func setDefaultConfig(config configx.Entrypoint) (bool, error) {
 	var save bool
 
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
@@ -173,12 +172,11 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 
 	for path, def := range configKeys {
-		paths := strings.Split(path, "/")
-		val := config.Get(paths...)
+		val := config.Val(path)
 		var data interface{}
 		if e := val.Scan(&data); e == nil && data == nil {
 			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
-			config.Set(def, paths...)
+			val.Set(def)
 			save = true
 		}
 	}
@@ -187,14 +185,13 @@ func setDefaultConfig(config *Config) (bool, error) {
 }
 
 // updateLeCaURL changes the URL of acme API endpoint for Let's Encrypt certificate generation to v2 if it is used.
-func updateLeCaURL(config *Config) (bool, error) {
+func updateLeCaURL(config configx.Entrypoint) (bool, error) {
 
 	caURLKey := "cert/proxy/caUrl"
 	caURLOldValue := "https://acme-v01.api.letsencrypt.org/directory"
 	caURLNewValue := "https://acme-v02.api.letsencrypt.org/directory"
 
-	paths := strings.Split(caURLKey, "/")
-	val := config.Get(paths...)
+	val := config.Val(caURLKey)
 
 	var data interface{}
 	save := false
@@ -202,7 +199,7 @@ func updateLeCaURL(config *Config) (bool, error) {
 		ov := data.(string)
 		if ov == caURLOldValue {
 			fmt.Printf("[Configs] Upgrading: rather use acme v2 API to generate Let's Encrypt certificates\n")
-			config.Set(caURLNewValue, paths...)
+			val.Set(caURLNewValue)
 			save = true
 		}
 	}
@@ -230,23 +227,23 @@ func compare(a []string, b []string) bool {
 	return true
 }
 
-func forceDefaultConfig(config *Config) (bool, error) {
+func forceDefaultConfig(config configx.Entrypoint) (bool, error) {
 	// TODO : WAS UPDATING ALL CLIENTS
 	return false, nil
 }
 
 // dsnRemoveAllowNativePassword removes this part from default DSN
-func dsnRemoveAllowNativePassword(config *Config) (bool, error) {
+func dsnRemoveAllowNativePassword(config configx.Entrypoint) (bool, error) {
 	testFile := filepath.Join(ApplicationWorkingDir(ApplicationDirServices), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, "version")
 	if data, e := ioutil.ReadFile(testFile); e == nil && len(data) > 0 {
 		ref, _ := version.NewVersion("1.4.1")
 		if v, e2 := version.NewVersion(strings.TrimSpace(string(data))); e2 == nil && v.LessThan(ref) {
-			dbId := config.Get("defaults", "database").String("")
+			dbId := config.Val("defaults", "database").String()
 			if dbId != "" {
-				if dsn := config.Get("databases", dbId, "dsn").String(""); dsn != "" && strings.Contains(dsn, "allowNativePasswords=false\u0026") {
+				if dsn := config.Val("databases", dbId, "dsn").String(); dsn != "" && strings.Contains(dsn, "allowNativePasswords=false\u0026") {
 					dsn = strings.Replace(dsn, "allowNativePasswords=false\u0026", "", 1)
 					fmt.Println("[Configs] Upgrading DSN to support new MySQL authentication plugin")
-					config.Set(dsn, "databases", dbId, "dsn")
+					config.Val("databases", dbId, "dsn").Set(dsn)
 					return true, nil
 				}
 			}
@@ -257,7 +254,7 @@ func dsnRemoveAllowNativePassword(config *Config) (bool, error) {
 
 // Do not append to the standard migration, it is called directly inside the
 // Vault/once.Do() routine, otherwise it locks config
-func migrateVault(vault *Config, defaultConfig *Config) bool {
+func migrateVault(vault configx.Entrypoint, defaultConfig configx.Entrypoint) bool {
 	var save bool
 
 	// for _, path := range registeredVaultKeys {
@@ -274,14 +271,13 @@ func migrateVault(vault *Config, defaultConfig *Config) bool {
 	return save
 }
 
-func movePydioConnectors(config *Config) (bool, error) {
+func movePydioConnectors(config configx.Entrypoint) (bool, error) {
 
 	var connectors []map[string]interface{}
 
 	key := "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors"
-	path := strings.Split(key, "/")
 
-	err := config.Get(path...).Scan(&connectors)
+	err := config.Val(key).Scan(&connectors)
 	if err != nil {
 		return false, err
 	}
@@ -330,19 +326,19 @@ func movePydioConnectors(config *Config) (bool, error) {
 		return false, nil
 	}
 
-	config.Set(connectors, path...)
+	config.Val(key).Set(connectors)
 
 	return true, nil
 }
 
-func missingRefreshTokenInactivity(config *Config) (bool, error) {
+func missingRefreshTokenInactivity(config configx.Entrypoint) (bool, error) {
 
 	var clients []map[string]interface{}
-	if config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients").Scan(&clients) == nil {
+	if config.Val("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients").Scan(&clients) == nil {
 		for _, c := range clients {
 			if _, o := c["revokeRefreshTokenAfterInactivity"]; !o && c["client_id"].(string) == DefaultOAuthClientID {
 				c["revokeRefreshTokenAfterInactivity"] = "2h"
-				config.Set(clients, "services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients")
+				config.Val("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH, "staticClients").Set(clients)
 				return true, nil
 			}
 		}

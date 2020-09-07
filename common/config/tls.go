@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/mholt/caddy/caddytls"
+	"github.com/pydio/cells/x/configx"
 	"github.com/spf13/cobra"
 )
 
@@ -82,11 +83,11 @@ func GetTLSClientConfig(t string) *tls.Config {
 }
 
 func getTLSServerConfig(t string) {
-	ssl := Get("cert", t, "ssl").Default(false).Bool()
-	selfSigned := Get("cert", t, "self").Default(false).Bool()
-	certFile := Get("cert", t, "certFile").String()
-	keyFile := Get("cert", t, "keyFile").String()
-	caUrl := Get("cert", t, "caUrl").String()
+	ssl := Get(configx.FormatPath("cert", t, "ssl")).Default(false).Bool()
+	selfSigned := Get(configx.FormatPath("cert", t, "self")).Default(false).Bool()
+	certFile := Get(configx.FormatPath("cert", t, "certFile")).String()
+	keyFile := Get(configx.FormatPath("cert", t, "keyFile")).String()
+	caUrl := Get(configx.FormatPath("cert", t, "caUrl")).String()
 
 	if !ssl {
 		return
@@ -115,7 +116,7 @@ func getTLSServerConfig(t string) {
 		}
 	} else if caUrl != "" {
 		// Auto-cert (let's encrypt)
-		u, _ := url.Parse(Get("defaults", "url").String())
+		u, _ := url.Parse(Get(configx.FormatPath("defaults", "url")).String())
 		p, e := url.Parse(caUrl)
 		if e != nil {
 			fmt.Println("[TLS] Cannot parse caUrl")
@@ -141,9 +142,9 @@ func getTLSServerConfig(t string) {
 }
 
 func getTLSClientConfig(t string) {
-	ssl := Get("cert", t, "ssl").Default(false).Bool()
-	selfSigned := Get("cert", t, "self").Default(false).Bool()
-	certFile := Get("cert", t, "certFile").String()
+	ssl := Get(configx.FormatPath("cert", t, "ssl")).Default(false).Bool()
+	selfSigned := Get(configx.FormatPath("cert", t, "self")).Default(false).Bool()
+	certFile := Get(configx.FormatPath("cert", t, "certFile")).String()
 
 	if !ssl {
 		return

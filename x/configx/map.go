@@ -23,6 +23,7 @@ package configx
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -40,7 +41,7 @@ type mymap struct {
 func (c *mymap) Get() Value {
 	// Checking if we have a pointer
 	if ref, ok := c.v["$ref"]; ok {
-		return c.Val(ref).Get()
+		return c.Val(ref.(string)).Get()
 	}
 	return &def{c.v}
 }
@@ -54,16 +55,28 @@ func (c *mymap) Default(i interface{}) Value {
 }
 
 func (c *mymap) Set(data interface{}) error {
+	for k := range c.v {
+		delete(c.v, k)
+	}
 
 	switch v := data.(type) {
 	case []byte:
-		return json.Unmarshal(v, &c)
-	case map[string]interface{}:
-		for k := range c.v {
-			delete(c.v, k)
+		if err := json.Unmarshal(v, &c); err != nil {
+			return err
 		}
+	case map[string]interface{}:
+
 		for k, vv := range v {
 			c.v[k] = vv
+		}
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		if err := json.Unmarshal(b, &c.v); err != nil {
+			return err
 		}
 	}
 
@@ -96,8 +109,8 @@ func (c *mymap) Scan(val interface{}) error {
 	return err
 }
 
-func (c *mymap) Val(k ...Key) Values {
-	keys := keysToString(k...)
+func (c *mymap) Val(s ...string) Values {
+	keys := StringToKeys(s...)
 
 	if len(keys) == 0 {
 		return c
@@ -108,30 +121,30 @@ func (c *mymap) Val(k ...Key) Values {
 	if idx == "#" {
 		if c.p != nil {
 			if v, ok := c.p.(Values); ok {
-				return v.Val(keys)
+				return v.Val(strings.Join(keys, "/"))
 			}
 		}
-		return c.Val(keys[1:])
+		return c.Val(strings.Join(keys[1:], "/"))
 	}
 
 	v, ok := c.v[idx]
 	if !ok {
-		return (&value{nil, c, keys[0]}).Val(keys[1:])
+		return (&value{nil, c, keys[0]}).Val(strings.Join(keys[1:], "/"))
 	}
 
 	if m, err := cast.ToStringMapE(v); err == nil {
-		return (&mymap{m, c, idx}).Val(keys[1:])
+		return (&mymap{m, c, idx}).Val(strings.Join(keys[1:], "/"))
 	}
 
 	if m, ok := v.(*mymap); ok {
-		return m.Val(keys[1:])
+		return m.Val(strings.Join(keys[1:], "/"))
 	}
 
 	if a, err := cast.ToSliceE(v); err == nil {
-		return (&array{a, c, idx}).Val(keys[1:])
+		return (&array{a, c, idx}).Val(strings.Join(keys[1:], "/"))
 	}
 
-	return (&value{v, c, idx}).Val(keys[1:])
+	return (&value{v, c, idx}).Val(strings.Join(keys[1:], "/"))
 }
 
 func (c *mymap) IsEmpty() bool {

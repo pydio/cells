@@ -410,7 +410,7 @@ func (s *Handler) watchConfigs() {
 			continue
 		}
 		var cfg object.DataSource
-		if event.Scan(&cfg) == nil {
+		if err := event.Scan(&cfg); err == nil {
 			log.Logger(s.globalCtx).Debug("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
 			if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 				// @TODO - Object service must be restarted before restarting sync
@@ -423,6 +423,8 @@ func (s *Handler) watchConfigs() {
 				<-time.After(2 * time.Second)
 				config.TouchSourceNamesForDataServices(common.SERVICE_DATA_SYNC)
 			}
+		} else {
+			log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))
 		}
 	}
 }
