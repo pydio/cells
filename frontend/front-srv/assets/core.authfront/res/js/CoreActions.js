@@ -124,6 +124,10 @@ let LoginPasswordDialog = React.createClass({
         return true;
     },
 
+    dialogBodyStyle(){
+        return {minHeight: 250};
+    },
+
     getButtons(){
         const pydio = Pydio.getInstance();
         const passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
