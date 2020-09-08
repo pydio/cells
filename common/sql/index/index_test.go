@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	options configx.Values
+	options configx.Values = configx.NewMap()
 
 	mockNode   *mtree.TreeNode
 	updateNode *mtree.TreeNode

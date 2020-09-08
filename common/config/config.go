@@ -24,12 +24,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/memory"
 	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/cells/x/filex"
+	"github.com/pydio/go-os/config"
 )
 
 var (
-	std Store
+	std Store = New(micro.New(config.NewConfig(config.WithSource(memory.NewSource(memory.WithJSON([]byte{}))))))
 )
 
 func Register(store Store) {

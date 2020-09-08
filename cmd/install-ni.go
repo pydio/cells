@@ -60,55 +60,55 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
-	bindURL, err := guessSchemeAndParseBaseURL(niBindUrl, true)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse provided bind URL %s: %s", niBindUrl, err.Error())
-	}
-
-	parts := strings.Split(bindURL.Host, ":")
-	if len(parts) != 2 {
+	if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
 		return nil, fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", niBindUrl)
 	}
 
-	scheme := "https"
+	proxyConfig.Binds = []string{niBindUrl}
+
 	if niNoTls { // NO TLS
-		scheme = "http"
-	} else if niCertFile != "" && niKeyFile != "" {
 
-		tlsConf := &install.ProxyConfig_Certificate{
-			Certificate: &install.TLSCertificate{
-				CertFile: niCertFile,
-				KeyFile:  niKeyFile,
-			}}
-		proxyConfig.TLSConfig = tlsConf
-
-	} else if niLeEmailContact != "" {
-
-		if !niLeAcceptEula {
-			return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
-		}
-
-		tlsConf := &install.ProxyConfig_LetsEncrypt{
-			LetsEncrypt: &install.TLSLetsEncrypt{
-				Email:      niLeEmailContact,
-				AcceptEULA: niLeAcceptEula,
-				StagingCA:  niLeUseStagingCA,
-			},
-		}
-		proxyConfig.TLSConfig = tlsConf
 	} else {
+		if niCertFile != "" && niKeyFile != "" {
 
-		tlsConf := &install.ProxyConfig_SelfSigned{
-			SelfSigned: &install.TLSSelfSigned{
-				Hostnames: []string{bindURL.Hostname()},
-			},
+			tlsConf := &install.ProxyConfig_Certificate{
+				Certificate: &install.TLSCertificate{
+					CertFile: niCertFile,
+					KeyFile:  niKeyFile,
+				}}
+			proxyConfig.TLSConfig = tlsConf
+
+		} else if niLeEmailContact != "" {
+
+			if !niLeAcceptEula {
+				return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
+			}
+
+			tlsConf := &install.ProxyConfig_LetsEncrypt{
+				LetsEncrypt: &install.TLSLetsEncrypt{
+					Email:      niLeEmailContact,
+					AcceptEULA: niLeAcceptEula,
+					StagingCA:  niLeUseStagingCA,
+				},
+			}
+			proxyConfig.TLSConfig = tlsConf
+		} else {
+
+			tlsConf := &install.ProxyConfig_SelfSigned{
+				SelfSigned: &install.TLSSelfSigned{
+					Hostnames: []string{niBindUrl},
+				},
+			}
+			proxyConfig.TLSConfig = tlsConf
 		}
-		proxyConfig.TLSConfig = tlsConf
 	}
 
-	bindURL.Scheme = scheme
+	extURL, err := guessSchemeAndParseBaseURL(niExtUrl, true)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse provided URL %s: %s", niExtUrl, err.Error())
+	}
 
-	proxyConfig.Binds = []string{bindURL.String()}
+	proxyConfig.ReverseProxyURL = extURL.String()
 
 	return proxyConfig, nil
 }

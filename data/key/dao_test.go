@@ -38,7 +38,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	var options configx.Values
+	options := configx.NewMap()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {

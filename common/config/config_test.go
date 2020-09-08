@@ -23,28 +23,9 @@ package config
 import (
 	"sync"
 	"testing"
-	"time"
 
-	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/memory"
-	"github.com/pydio/go-os/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
-
-var (
-	data []byte
-)
-
-func init() {
-	std = New(micro.New(
-		config.NewConfig(
-			config.WithSource(
-				memory.NewSource(memory.WithJSON(data)),
-			),
-			config.PollInterval(1*time.Second),
-		),
-	))
-}
 
 func TestConfig(t *testing.T) {
 	Convey("Test Set", t, func() {

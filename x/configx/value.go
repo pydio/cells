@@ -47,8 +47,9 @@ func (v *value) Set(data interface{}) error {
 		return fmt.Errorf("value doesn't exist")
 	}
 
+	// THIS IS NOT OPTIMAL, should be rethought
 	switch vv := data.(type) {
-	case bool, int, string, []string, []int, []bool, []interface{}:
+	case bool, int, int32, int64, uint, uint32, uint64, float32, float64, string, []string, []int, []bool, []interface{}:
 	default:
 		var m map[string]interface{}
 		b, err := json.Marshal(vv)

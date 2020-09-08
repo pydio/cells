@@ -259,7 +259,7 @@ func TestInstallFlags(t *testing.T) {
 			niExtUrl = "https://localhost"
 			pconf, err := proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetBindURLs(), ShouldResemble, "https://"+niBindUrl)
+			So(pconf.GetBindURLs(), ShouldResemble, []string{"https://" + niBindUrl})
 			So(pconf.GetReverseProxyURL(), ShouldEqual, niExtUrl)
 			So(pconf.GetTLSConfig(), ShouldNotBeNil)
 

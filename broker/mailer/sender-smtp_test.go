@@ -22,7 +22,6 @@ package mailer
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -48,13 +47,9 @@ func TestSmtp_Send(t *testing.T) {
 		conf.Val("host").Set("smtp.gmail.com")
 		conf.Val("port").Set(float64(587))
 
-		fmt.Println("Yo")
-
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
 		conf.Val("user").Set(test_username)
 		conf.Val("clearPass").Set(test_pwd)
-
-		fmt.Println("Yo2")
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
@@ -69,17 +64,11 @@ func TestSmtp_Send(t *testing.T) {
 		email.Subject = "Test Email Sent from Go w. SMTP"
 		email.ContentPlain = "Hey, how are you ? This is now a success test."
 
-		fmt.Println("Yo3 ")
-
 		buildFromWelcomeTemplate(email, email.To[0])
-
-		fmt.Println("Yo 4")
 
 		smtp := &Smtp{}
 		err := smtp.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
-
-		fmt.Println("Yo 5")
 
 		err = smtp.Send(email)
 		if test_pwd == "" { // usual case when not in dev mode
