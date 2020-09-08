@@ -1,7 +1,7 @@
 {
     "ProxyConfig": {
-        "BindURL": "https://localhost:443",
-        "ExternalURL": "https://localhost",
+        "Binds": ["localhost:443"],
+        "ReverseProxyURL": "https://localhost",
         "RedirectURLs": [
             "http://localhost"
         ],

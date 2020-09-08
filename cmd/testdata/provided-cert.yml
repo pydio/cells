@@ -1,6 +1,7 @@
 proxyconfig:
-  bindurl: https://localhost:443
-  externalurl: https://localhost
+  binds:
+    - localhost:443
+  reverseproxyurl: https://localhost
   redirecturls:
   - http://localhost
   tlsconfig:

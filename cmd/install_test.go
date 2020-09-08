@@ -36,16 +36,15 @@ import (
 var (
 	testInstallNoTLS = &install.InstallConfig{
 		ProxyConfig: &install.ProxyConfig{
-			BindURL:     "http://localhost:80",
-			ExternalURL: "http://localhost",
+			Binds:           []string{"http://localhost:80"},
+			ReverseProxyURL: "http://localhost",
 		},
 	}
 
 	testInstallSelf = &install.InstallConfig{
 		ProxyConfig: &install.ProxyConfig{
-			BindURL:      "https://localhost:443",
-			ExternalURL:  "https://localhost",
-			RedirectURLs: []string{"http://localhost"},
+			Binds:           []string{"https://localhost:443"},
+			ReverseProxyURL: "https://localhost",
 			TLSConfig: &install.ProxyConfig_SelfSigned{
 				&install.TLSSelfSigned{
 					Hostnames: []string{"localhost"},
@@ -56,9 +55,8 @@ var (
 
 	testInstallLE = &install.InstallConfig{
 		ProxyConfig: &install.ProxyConfig{
-			BindURL:      "https://localhost:443",
-			ExternalURL:  "https://localhost",
-			RedirectURLs: []string{"http://localhost"},
+			Binds:           []string{"https://localhost:443"},
+			ReverseProxyURL: "https://localhost",
 			TLSConfig: &install.ProxyConfig_LetsEncrypt{
 				&install.TLSLetsEncrypt{
 					Email:      "sofia@example.com",
@@ -71,9 +69,8 @@ var (
 
 	testInstallCert = &install.InstallConfig{
 		ProxyConfig: &install.ProxyConfig{
-			BindURL:      "https://localhost:443",
-			ExternalURL:  "https://localhost",
-			RedirectURLs: []string{"http://localhost"},
+			Binds:           []string{"https://localhost:443"},
+			ReverseProxyURL: "https://localhost",
 			TLSConfig: &install.ProxyConfig_Certificate{
 				&install.TLSCertificate{
 					CertFile: "/var/cells/certs/cert.pem",
@@ -119,8 +116,8 @@ func TestUnmarshallConf(t *testing.T) {
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 				So(installConf.GetProxyConfig(), ShouldNotBeNil)
-				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:80")
-				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost")
+				So(installConf.GetProxyConfig().GetBindURLs(), ShouldResemble, []string{"http://localhost:80"})
+				So(installConf.GetProxyConfig().GetReverseProxyURL(), ShouldEqual, "http://localhost")
 				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
 				niYamlFile = ""
 			})
@@ -133,8 +130,8 @@ func TestUnmarshallConf(t *testing.T) {
 				pc := installConf.GetProxyConfig()
 
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:8080")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost:8080")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:8080"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost:8080")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldNotBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
@@ -149,8 +146,8 @@ func TestUnmarshallConf(t *testing.T) {
 
 				pc := installConf.GetProxyConfig()
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:443")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:443"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldNotBeNil)
@@ -168,8 +165,8 @@ func TestUnmarshallConf(t *testing.T) {
 
 				pc := installConf.GetProxyConfig()
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:443")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:443"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
@@ -188,8 +185,8 @@ func TestUnmarshallConf(t *testing.T) {
 				installConf, err := unmarshallConf()
 				So(err, ShouldBeNil)
 				So(installConf.GetProxyConfig(), ShouldNotBeNil)
-				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:8080")
-				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost:8080")
+				So(installConf.GetProxyConfig().GetBindURLs(), ShouldResemble, []string{"http://localhost:8080"})
+				So(installConf.GetProxyConfig().GetReverseProxyURL(), ShouldEqual, "http://localhost:8080")
 				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
 				niJsonFile = ""
 			})
@@ -202,8 +199,8 @@ func TestUnmarshallConf(t *testing.T) {
 				pc := installConf.GetProxyConfig()
 
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:8080")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost:8080")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:8080"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost:8080")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldNotBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
@@ -218,8 +215,8 @@ func TestUnmarshallConf(t *testing.T) {
 
 				pc := installConf.GetProxyConfig()
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:443")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:443"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldNotBeNil)
@@ -237,8 +234,8 @@ func TestUnmarshallConf(t *testing.T) {
 
 				pc := installConf.GetProxyConfig()
 				So(pc, ShouldNotBeNil)
-				So(pc.GetBindURL(), ShouldEqual, "https://localhost:443")
-				So(pc.GetExternalURL(), ShouldEqual, "https://localhost")
+				So(pc.GetBindURLs(), ShouldResemble, []string{"https://localhost:443"})
+				So(pc.GetReverseProxyURL(), ShouldEqual, "https://localhost")
 				So(pc.GetTLSConfig(), ShouldNotBeNil)
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
@@ -262,8 +259,8 @@ func TestInstallFlags(t *testing.T) {
 			niExtUrl = "https://localhost"
 			pconf, err := proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
-			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+			So(pconf.GetBindURLs(), ShouldResemble, "https://"+niBindUrl)
+			So(pconf.GetReverseProxyURL(), ShouldEqual, niExtUrl)
 			So(pconf.GetTLSConfig(), ShouldNotBeNil)
 
 			niBindUrl = "localhost"
@@ -274,12 +271,12 @@ func TestInstallFlags(t *testing.T) {
 			niExtUrl = "localhost"
 			pconf, err = proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetExternalURL(), ShouldEqual, "https://localhost")
+			So(pconf.GetReverseProxyURL(), ShouldEqual, "https://localhost")
 
 			niExtUrl = "localhost:8080"
 			pconf, err = proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetExternalURL(), ShouldEqual, "https://localhost:8080")
+			So(pconf.GetReverseProxyURL(), ShouldEqual, "https://localhost:8080")
 
 			niExtUrl = "htps://localhost:8080"
 			pconf, err = proxyConfigFromArgs()

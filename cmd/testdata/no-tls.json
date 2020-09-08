@@ -1,6 +1,6 @@
 {
     "ProxyConfig": {
-        "BindURL": "http://localhost:8080",
-        "ExternalURL": "http://localhost:8080"
+        "Binds": ["localhost:8080"],
+        "ReverseProxyURL": "http://localhost:8080"
     }
 }
