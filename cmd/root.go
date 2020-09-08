@@ -161,7 +161,7 @@ func init() {
 
 	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
 	flags.String("registry_address", ":4222", "Registry connection address")
-	flags.String("registry_cluster_address", ":5222", "Registry cluster address")
+	flags.String("registry_cluster_address", "", "Registry cluster address")
 	flags.String("registry_cluster_routes", "", "Registry cluster routes")
 
 	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
