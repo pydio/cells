@@ -22,7 +22,8 @@ const React = require('react')
 import AsyncComponent from '../AsyncComponent'
 import PydioContextConsumer from '../PydioContextConsumer'
 const {FlatButton, Dialog} = require('material-ui')
-import CSSBlurBackground from './CSSBlurBackground'
+import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
+
 
 /**
  * Specific AsyncComponent for Modal Dialog
@@ -78,7 +79,8 @@ let AsyncModal = React.createClass({
         },
         dialogBody:{
             color: 'rgba(255,255,255,0.9)',
-            paddingTop: 24
+            paddingTop: 24,
+            minHeight: 250
         }
     },
 
@@ -235,6 +237,9 @@ let AsyncModal = React.createClass({
         }else{
             prepareState({blur: false});
         }
+        if(component.dialogBodyStyle){
+            prepareState({dialogBodyStyle: component.dialogBodyStyle()});
+        }
 
         if(returnState) return state;
         else this.setState(state);
@@ -253,29 +258,9 @@ let AsyncModal = React.createClass({
 
         let oThis = this;
         backgroundImage.onload = function() {
-            const width = this.width;
-            const height = this.height;
-
-            const screenWidth = DOMUtils.getViewportWidth();
-            const screenHeight = DOMUtils.getViewportHeight();
-
-            const imageRatio = width/height;
-            const coverRatio = screenWidth/screenHeight;
-
-            let coverHeight, scale, coverWidth;
-            if (imageRatio >= coverRatio) {
-                coverHeight = screenHeight;
-                scale = (coverHeight / height);
-                coverWidth = width * scale;
-            } else {
-                coverWidth = screenWidth;
-                scale = (coverWidth / width);
-                coverHeight = height * scale;
-            }
-            let cover = coverWidth + 'px ' + coverHeight + 'px';
             oThis.setState({
                 backgroundImage: url,
-                backgroundSize: cover
+                backgroundSize: bgCoverFromScreenRatio(this.width, this.height)
             });
         };
     },
@@ -285,7 +270,7 @@ let AsyncModal = React.createClass({
         var modalContent;
 
         const { state, sizes, styles, blurStyles } = this
-        const { async, componentData, title, actions, modal, open, dialogWidth, padding, scrollBody, blur } = state
+        const { async, componentData, title, actions, modal, open, dialogWidth, padding, scrollBody, blur, dialogBodyStyle } = state
         let { className } = state;
 
         if (componentData) {
@@ -341,6 +326,9 @@ let AsyncModal = React.createClass({
 
             modalContent = <span><CSSBlurBackground/>{modalContent}</span>
 
+        }
+        if(dialogBodyStyle){
+            dialogBody = {...dialogBody, ...dialogBodyStyle};
         }
 
         return (

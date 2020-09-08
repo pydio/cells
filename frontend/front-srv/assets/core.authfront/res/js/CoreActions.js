@@ -120,6 +120,10 @@ let LoginPasswordDialog = React.createClass({
         return true;
     },
 
+    dialogBodyStyle(){
+        return {minHeight: 250};
+    },
+
     getButtons(){
         const passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         const secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');

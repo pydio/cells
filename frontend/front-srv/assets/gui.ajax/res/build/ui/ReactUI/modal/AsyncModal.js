@@ -96,7 +96,8 @@ var AsyncModal = React.createClass({
         },
         dialogBody: {
             color: 'rgba(255,255,255,0.9)',
-            paddingTop: 24
+            paddingTop: 24,
+            minHeight: 250
         }
     },
 
@@ -263,6 +264,9 @@ var AsyncModal = React.createClass({
         } else {
             prepareState({ blur: false });
         }
+        if (component.dialogBodyStyle) {
+            prepareState({ dialogBodyStyle: component.dialogBodyStyle() });
+        }
 
         if (returnState) return state;else this.setState(state);
     },
@@ -280,31 +284,9 @@ var AsyncModal = React.createClass({
 
         var oThis = this;
         backgroundImage.onload = function () {
-            var width = this.width;
-            var height = this.height;
-
-            var screenWidth = DOMUtils.getViewportWidth();
-            var screenHeight = DOMUtils.getViewportHeight();
-
-            var imageRatio = width / height;
-            var coverRatio = screenWidth / screenHeight;
-
-            var coverHeight = undefined,
-                scale = undefined,
-                coverWidth = undefined;
-            if (imageRatio >= coverRatio) {
-                coverHeight = screenHeight;
-                scale = coverHeight / height;
-                coverWidth = width * scale;
-            } else {
-                coverWidth = screenWidth;
-                scale = coverWidth / width;
-                coverHeight = height * scale;
-            }
-            var cover = coverWidth + 'px ' + coverHeight + 'px';
             oThis.setState({
                 backgroundImage: url,
-                backgroundSize: cover
+                backgroundSize: _CSSBlurBackground.bgCoverFromScreenRatio(this.width, this.height)
             });
         };
     },
@@ -327,6 +309,7 @@ var AsyncModal = React.createClass({
         var padding = state.padding;
         var scrollBody = state.scrollBody;
         var blur = state.blur;
+        var dialogBodyStyle = state.dialogBodyStyle;
         var className = state.className;
 
         if (componentData) {
@@ -384,6 +367,9 @@ var AsyncModal = React.createClass({
                 React.createElement(_CSSBlurBackground2['default'], null),
                 modalContent
             );
+        }
+        if (dialogBodyStyle) {
+            dialogBody = _extends({}, dialogBody, dialogBodyStyle);
         }
 
         return React.createElement(
