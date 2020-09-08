@@ -23,7 +23,7 @@ import AsyncComponent from '../AsyncComponent'
 import PydioContextConsumer from '../PydioContextConsumer'
 const {FlatButton, Dialog} = require('material-ui')
 import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
-
+import DOMUtils from "pydio/util/dom";
 
 /**
  * Specific AsyncComponent for Modal Dialog
@@ -151,7 +151,7 @@ let AsyncModal = React.createClass({
         this.setState({actions: actions});
     },
 
-    initModalFromComponent: function(component, returnState = false) {
+    initModalFromComponent(component, returnState = false) {
         let state = {};
         const prepareState = (s) => { state = {...state, ...s} };
 
@@ -241,8 +241,11 @@ let AsyncModal = React.createClass({
             prepareState({dialogBodyStyle: component.dialogBodyStyle()});
         }
 
-        if(returnState) return state;
-        else this.setState(state);
+        if(returnState) {
+            return state;
+        } else {
+            this.setState(state);
+        }
     },
 
     computeBackgroundData: function(){
@@ -267,9 +270,9 @@ let AsyncModal = React.createClass({
 
     render: function() {
 
-        var modalContent;
+        let modalContent;
 
-        const { state, sizes, styles, blurStyles } = this
+        const { state, styles, blurStyles } = this
         const { async, componentData, title, actions, modal, open, dialogWidth, padding, scrollBody, blur, dialogBodyStyle } = state
         let { className } = state;
 
