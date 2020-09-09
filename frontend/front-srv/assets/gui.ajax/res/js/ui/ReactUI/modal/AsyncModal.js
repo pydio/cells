@@ -79,8 +79,7 @@ let AsyncModal = React.createClass({
         },
         dialogBody:{
             color: 'rgba(255,255,255,0.9)',
-            paddingTop: 24,
-            minHeight: 250
+            paddingTop: 24
         }
     },
 
@@ -239,6 +238,8 @@ let AsyncModal = React.createClass({
         }
         if(component.dialogBodyStyle){
             prepareState({dialogBodyStyle: component.dialogBodyStyle()});
+        } else {
+            prepareState({dialogBodyStyle: null});
         }
 
         if(returnState) {
