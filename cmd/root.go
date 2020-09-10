@@ -238,21 +238,37 @@ func initConfig() {
 	// 	}
 	// }
 
+	versionsStore := filex.NewStore(config.PydioConfigDir)
+
 	if _, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig); err != nil {
 		fmt.Println("Error while trying to create default config file")
 		os.Exit(1)
 	}
 
-	defaultConfig := config.New(micro.New(
-		microconfig.NewConfig(
-			microconfig.WithSource(
-				file.NewSource(
-					microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+	// if written && VersionsStore != nil {
+	// 	var data interface{}
+	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+	// 		VersionsStore.Put(&filex.Version{
+	// 			User: "cli",
+	// 			Date: time.Now(),
+	// 			Log:  "Initialize with sample config",
+	// 			Data: data,
+	// 		})
+	// 	}
+	// }
+
+	defaultConfig := config.New(
+		config.NewVersionStore(versionsStore, micro.New(
+			microconfig.NewConfig(
+				microconfig.WithSource(
+					file.NewSource(
+						microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+					),
 				),
+				microconfig.PollInterval(10*time.Second),
 			),
-			microconfig.PollInterval(10*time.Second),
 		),
-	))
+		))
 
 	// Need to do something for the versions
 	config.UpgradeConfigsIfRequired(defaultConfig)

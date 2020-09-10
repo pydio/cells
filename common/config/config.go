@@ -73,26 +73,17 @@ type cacheconfig struct {
 
 // Save the config in the underlying storage
 func (c *cacheconfig) Save(ctxUser string, ctxMessage string) error {
-	// if GetRemoteSource() {
-	// 	return nil
-	// }
-
+	// Retrieving the value in the map
 	data := c.im.Map()
 
-	// We'll see what we do about that
-	if err := c.store.Set(data); err != nil {
+	// And saving it to the store
+	if err := c.store.Set(&filex.Version{
+		Date: time.Now(),
+		User: ctxUser,
+		Log:  ctxMessage,
+		Data: data,
+	}); err != nil {
 		return err
-	}
-
-	if VersionsStore != nil {
-		if err := VersionsStore.Put(&filex.Version{
-			Date: time.Now(),
-			User: ctxUser,
-			Log:  ctxMessage,
-			Data: data,
-		}); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -146,7 +137,6 @@ func Get(path ...string) configx.Values {
 
 // Set new values at a certain path
 func Set(val interface{}, path ...string) error {
-	fmt.Println("Setting value ", path, val)
 	return std.Val(path...).Set(val)
 }
 

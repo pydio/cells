@@ -56,6 +56,7 @@ func init() {
 }
 
 func initConfig() {
+	initVersionStore()
 	// close(configLoaded)
 }
 
