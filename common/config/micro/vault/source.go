@@ -12,12 +12,14 @@ import (
 	"os"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/x/filex"
 	"github.com/pydio/go-os/config"
 )
 
 type VaultSource struct {
+	config.Source
 	opts         config.SourceOptions
 	skipKeyring  bool
 	storePath    string
@@ -29,7 +31,11 @@ type VaultSource struct {
 	dataLock *sync.Mutex
 }
 
-func NewVaultSource(storePath string, keyPath string, skipKeyring bool, opts ...config.SourceOption) *VaultSource {
+type Writer interface {
+	Write(cs *config.ChangeSet) error
+}
+
+func NewVaultSource(storePath string, keyPath string, skipKeyring bool, opts ...config.SourceOption) config.Source {
 
 	var options config.SourceOptions
 	for _, o := range opts {
@@ -41,6 +47,7 @@ func NewVaultSource(storePath string, keyPath string, skipKeyring bool, opts ...
 	}
 
 	v := &VaultSource{
+		Source:       file.NewSource(config.SourceName(storePath)),
 		opts:         options,
 		storePath:    storePath,
 		vaultKeyPath: keyPath,
@@ -103,7 +110,25 @@ func (v *VaultSource) String() string {
 	return "vault"
 }
 
-// additional methods for Setters
+func (v *VaultSource) Write(cs *config.ChangeSet) error {
+	data := make(map[string]string)
+
+	err := json.Unmarshal(cs.Data, &data)
+	if err != nil {
+		return err
+	}
+	for k, val := range data {
+		if k == "masterPassword" {
+			continue
+		}
+		enc, e := v.encrypt([]byte(val))
+		if e != nil {
+			return e
+		}
+		data[k] = enc
+	}
+	return filex.Save(v.storePath, data)
+}
 
 // Set sets a key/value in memory (not encrypted)
 func (v *VaultSource) Set(key string, value string, save bool) error {

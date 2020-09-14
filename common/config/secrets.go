@@ -6,7 +6,7 @@ import (
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/file"
+	mvault "github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/go-os/config"
 )
@@ -23,8 +23,10 @@ var (
 	stdvault = New(micro.New(
 		config.NewConfig(
 			config.WithSource(
-				file.NewSource(
-					config.SourceName(filepath.Join(PydioConfigDir, "pydio-vault.json")),
+				mvault.NewVaultSource(
+					filepath.Join(PydioConfigDir, "pydio-vault.json"),
+					filepath.Join(PydioConfigDir, "cells-vault-key"),
+					true,
 				),
 			),
 			config.PollInterval(10*time.Second),
@@ -83,6 +85,7 @@ func SetSecret(uuid string, val string) {
 	// 	remote.UpdateRemote("vault", val, uuid)
 	// 	return
 	// }
+
 	stdvault.Val(uuid).Set(val)
 	// vaultSource.Set(uuid, val, true)
 }
