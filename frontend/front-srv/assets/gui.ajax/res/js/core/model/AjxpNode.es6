@@ -176,7 +176,7 @@ export default class AjxpNode extends Observable{
 
     getFirstChildIfExists(){
         if(this._children.size){
-            return this._children.Val().next().value;
+            return this._children.values().next().value;
         }
         return null;
     }

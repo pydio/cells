@@ -151,7 +151,7 @@ var ResourcesManager = (function () {
         }
         if (this.resources.js) {
             (function () {
-                var it = _this.resources.js.Val();
+                var it = _this.resources.js.values();
                 var cb = (function () {
                     var object = it.next();
                     if (object.value) {
