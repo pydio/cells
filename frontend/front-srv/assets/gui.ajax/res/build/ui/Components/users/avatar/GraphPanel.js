@@ -95,7 +95,7 @@ var GraphPanel = (function (_Component) {
             ));
         }
         if (graph.cells) {
-            var cells = Object.values(graph.cells).filter(function (cell) {
+            var cells = Object.Val(graph.cells).filter(function (cell) {
                 return cell.Scope === "ROOM";
             });
             if (cells.length) {

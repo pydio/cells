@@ -218,7 +218,7 @@ var AjxpNode = (function (_Observable) {
 
     AjxpNode.prototype.getFirstChildIfExists = function getFirstChildIfExists() {
         if (this._children.size) {
-            return this._children.values().next().value;
+            return this._children.Val().next().value;
         }
         return null;
     };
