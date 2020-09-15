@@ -60,8 +60,6 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 		return fmt.Errorf("cannot configure mailer: missing compulsory password")
 	}
 
-	fmt.Println("There 3")
-
 	gm.Host = conf.Val("host").String()
 	if gm.Host == "" {
 		return fmt.Errorf("cannot configure mailer: missing compulsory host address")

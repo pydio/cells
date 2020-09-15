@@ -67,7 +67,6 @@ func CreateLogin(ctx context.Context, clientID string, scopes, audiences []strin
 		Scopes:    scopes,
 		Audiences: audiences,
 	})
-
 	if err != nil {
 		return nil, err
 	}

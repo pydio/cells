@@ -28,8 +28,9 @@ import (
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -62,6 +63,7 @@ func init() {
 					SynchronousTasks: true,
 				})
 				handler := newHandler(s.Options().Context, davRouter)
+				handler = servicecontext.HttpMetaExtractorWrapper(handler)
 				err := srv.Handle(srv.NewHandler(handler))
 				if err != nil {
 					return nil, err

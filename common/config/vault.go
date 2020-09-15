@@ -28,8 +28,8 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
-func Vault() configx.Values {
-	return configx.NewMap()
+func Vault() configx.Entrypoint {
+	return stdvault
 }
 
 // Config holds the main structure of a configuration

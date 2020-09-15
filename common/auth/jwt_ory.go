@@ -244,7 +244,6 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 }
 
 func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName string, password string) (*goauth.Token, error) {
-
 	// Getting or creating challenge
 	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
 	if err != nil {

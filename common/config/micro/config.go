@@ -1,6 +1,8 @@
 package micro
 
-import "github.com/pydio/go-os/config"
+import (
+	"github.com/pydio/go-os/config"
+)
 
 // wrapper around micro config that rewrites to the source if possible
 type writableConfig struct {
