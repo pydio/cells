@@ -233,9 +233,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	node.SetMeta(METADATA_COMPAT_IMAGE_WIDTH, width)
 	node.SetMeta(METADATA_COMPAT_IMAGE_READABLE_DIMENSIONS, fmt.Sprintf("%dpx X %dpx", width, height))
 
-	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
-
-	if err != nil {
+	if _, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); err != nil {
 		return errors.Wrap(err, errPath)
 	}
 
@@ -252,6 +250,9 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
+			// Remove processing state from Metadata
+			node.SetMeta(METADATA_THUMBNAILS, nil)
+			t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 			return errors.Wrap(err, errPath)
 		}
 		displayMemStat(ctx, "AFTER WRITE SIZE FROM SRC")
