@@ -1275,7 +1275,6 @@
   font-weight: 500;
   border-radius: 2px;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   position: relative;
@@ -1405,7 +1404,6 @@
   font-size: 24px;
   display: inline-block;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
 }
@@ -1733,7 +1731,6 @@
 }
 .react-mui-context .mui-menu-item * {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
 }
@@ -1936,7 +1933,6 @@
   margin: 0;
   padding: 0 16px;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   line-height: 36px;
@@ -2047,7 +2043,6 @@
 }
 .react-mui-context .react-draggable-dragging {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
 }
@@ -2225,7 +2220,6 @@
   width: 24px;
   display: inline-block;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
 }
@@ -2549,7 +2543,6 @@
   top: -10000px;
   border-radius: 2px;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   opacity: 0;

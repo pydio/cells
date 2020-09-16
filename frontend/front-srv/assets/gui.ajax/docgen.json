@@ -4750,6 +4750,143 @@
         }
       }
     ],
+    "AdminWorkspaces/editor/DataSourceLocalSelector.js": [
+      {
+        "description": "",
+        "displayName": "AutocompleteTree",
+        "methods": [
+          {
+            "name": "handleUpdateInput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "searchText",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleNewRequest",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "chosenValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadValues",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "createFolder",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newName",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "renderNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "showCreateDialog",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "DataSourceLocalSelector",
+        "methods": [
+          {
+            "name": "compareAddresses",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "a1",
+                "type": null
+              },
+              {
+                "name": "a2",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "baseIsInvalid",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "path",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onPathChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "exists",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onPeerChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminWorkspaces/editor/DsStorageSelector.js": [
       {
         "description": "",
@@ -6917,6 +7054,20 @@
             "returns": null
           }
         ]
+      }
+    ]
+  },
+  "core.authfront": {
+    "CoreActions.js": [
+      {
+        "description": "",
+        "displayName": "LanguagePicker",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "DarkThemeContainer",
+        "methods": []
       }
     ]
   },
