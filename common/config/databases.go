@@ -20,13 +20,15 @@
 
 package config
 
-import (
-	"github.com/pydio/cells/x/configx"
-)
-
 // GetDatabase retrieves the database data from the config
 func GetDatabase(key string) (string, string) {
 	defaultKey := Get("#/defaults/database").String()
-	c := Get("#/databases/" + key).Default(configx.Reference("#/databases/" + defaultKey)).StringMap()
+	c := Get("#/databases/" + key).StringMap()
+
+	_, ok := c["driver"]
+	if !ok {
+		c = Get("#/databases/" + defaultKey).StringMap()
+	}
+
 	return c["driver"], c["dsn"]
 }

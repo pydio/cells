@@ -22,6 +22,7 @@ package config
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -30,6 +31,10 @@ import (
 
 func Vault() configx.Entrypoint {
 	return stdvault
+}
+
+func RegisterVault(store Store) {
+	stdvault = store
 }
 
 // Config holds the main structure of a configuration
@@ -66,17 +71,11 @@ func (v *vault) Set(val interface{}) error {
 }
 
 func (v *vault) Val(s ...string) configx.Values {
-	for _, p := range registeredVaultKeys {
-		if strings.Join(s, "/") == p {
-			return &vaultvalues{v.config.Val(s...), v.vault.Val()}
-		}
-	}
-
-	return v.config.Val(s...)
+	return &vaultvalues{strings.Join(s, "/"), v.config.Val(s...), v.vault.Val()}
 }
 
 func (v *vault) Watch(k ...string) (configx.Receiver, error) {
-	return nil, nil
+	return v.config.Watch(k...)
 }
 
 // Del value at a certain path
@@ -85,30 +84,71 @@ func (v *vault) Del() error {
 }
 
 type vaultvalues struct {
+	path string
 	configx.Values
 	vault configx.Values
 }
 
 func (v *vaultvalues) Get() configx.Value {
-	uuid := v.Values.String()
-	return v.vault.Val(uuid).Get()
+	for _, p := range registeredVaultKeys {
+		if v.path == p {
+			uuid := v.Values.String()
+			fmt.Println("uuid ? ", uuid)
+			return v.vault.Val(uuid).Get()
+		}
+	}
+
+	return v.Values.Default("")
 }
 
-func (v *vaultvalues) Set(val interface{}) error {
+func (v *vaultvalues) set(val interface{}) error {
 	uuid := v.Values.String()
 	if uuid == "" {
 		uuid = NewKeyForSecret()
 	}
 
+	fmt.Println("v.Values ", reflect.TypeOf(v.Values), v.Values.String())
 	err := v.Values.Set(uuid)
 	if err != nil {
 		return err
 	}
 
 	// Do we need to set a new key each time it changes ?
-	v.vault.Val(uuid).Set(val)
+	return v.vault.Val(uuid).Set(val)
+}
 
-	return nil
+func (v *vaultvalues) Set(val interface{}) error {
+	// Checking we have a registered value
+	for _, p := range registeredVaultKeys {
+
+		if v.path == p {
+			fmt.Println(v.path, p)
+			return v.set(val)
+		}
+
+		if strings.HasPrefix(p, v.path) {
+			// Need to loop through all below
+			switch m := val.(type) {
+			case map[string]string:
+				for mm, vv := range m {
+					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault.Val()}).Set(vv); err != nil {
+						return err
+					}
+				}
+				return nil
+			case map[string]interface{}:
+				for mm, vv := range m {
+					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault.Val()}).Set(vv); err != nil {
+						return err
+					}
+				}
+				return nil
+			}
+		}
+	}
+
+	fmt.Println("Setting val anyway ", v.path, val, reflect.TypeOf(v.Values))
+	return v.Values.Set(val)
 }
 
 func (v *vaultvalues) Default(i interface{}) configx.Value {
@@ -130,7 +170,7 @@ func (v *vaultvalues) Duration() time.Duration {
 	return v.Get().Duration()
 }
 func (v *vaultvalues) String() string {
-	return v.Get().String()
+	return v.Get().Default("").String()
 }
 func (v *vaultvalues) StringMap() map[string]string {
 	return v.Get().StringMap()

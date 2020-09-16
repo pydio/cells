@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -73,15 +74,21 @@ func InitRegistry(dao sql.DAO) {
 			}
 		}
 
+		fmt.Println("Create schema 1 ", defaultConf)
+
 		if _, err := r.ConsentManager().(*consent.SQLManager).CreateSchemas(dao.Driver()); err != nil {
 			log.Warn("Failed to create consent schemas", zap.Error(err))
 			return
 		}
 
+		fmt.Println("Create schema 2")
+
 		store := oauth2.NewFositeSQLStore(db, r, defaultConf)
 		if _, err := store.CreateSchemas(dao.Driver()); err != nil {
 			log.Warn("Failed to create fosite sql store schemas", zap.Error(err))
 		}
+
+		fmt.Println("Create schema 3")
 
 		RegisterOryProvider(r.OAuth2Provider())
 	})

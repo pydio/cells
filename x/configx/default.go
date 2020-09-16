@@ -22,6 +22,10 @@ func (d *def) Default(i interface{}) Value {
 	return d
 }
 
+func (d *def) Nil() bool {
+	return d.v == nil
+}
+
 func (d *def) Bool() bool {
 	return cast.ToBool(d.v)
 }

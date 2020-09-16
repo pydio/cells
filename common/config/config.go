@@ -50,7 +50,7 @@ type Store interface {
 
 // New creates a configuration provider with in-memory access
 func New(store configx.Entrypoint) Store {
-	im := configx.NewMap()
+	im := configx.New(configx.WithJSON())
 
 	v := store.Get()
 
@@ -58,6 +58,27 @@ func New(store configx.Entrypoint) Store {
 	if v != nil {
 		v.Scan(&im)
 	}
+
+	go func() {
+		watcher, ok := store.(configx.Watcher)
+		if !ok {
+			return
+		}
+
+		w, err := watcher.Watch()
+		if err != nil {
+			return
+		}
+
+		for {
+			resp, err := w.Next()
+			if err != nil {
+				continue
+			}
+
+			resp.Scan(&im)
+		}
+	}()
 
 	return &cacheconfig{
 		im:    im,
@@ -137,6 +158,7 @@ func Get(path ...string) configx.Values {
 
 // Set new values at a certain path
 func Set(val interface{}, path ...string) error {
+	fmt.Println(path, val)
 	return std.Val(path...).Set(val)
 }
 

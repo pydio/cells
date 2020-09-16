@@ -38,6 +38,10 @@ type array struct {
 	k interface{} // Reference to key for re-assignment
 }
 
+func (c *array) Nil() bool {
+	return c.v == nil
+}
+
 func (c *array) Get() Value {
 	return &def{c.v}
 }

@@ -166,8 +166,8 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 		Config:        config.Get(),
 		Lang:          lang,
 		NoClaims:      true,
-		AclParameters: configx.NewMap(),
-		AclActions:    configx.NewMap(),
+		AclParameters: configx.New(),
+		AclActions:    configx.New(),
 	}
 
 	for _, plugin := range p.Plugins {

@@ -23,6 +23,7 @@ package configx
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -36,6 +37,10 @@ type mymap struct {
 	v map[string]interface{}
 	p interface{} // Reference to parent for assignment
 	k interface{} // Reference to key for re-assignment
+}
+
+func (c *mymap) Nil() bool {
+	return c.v == nil
 }
 
 func (c *mymap) Get() Value {
@@ -55,6 +60,7 @@ func (c *mymap) Default(i interface{}) Value {
 }
 
 func (c *mymap) Set(data interface{}) error {
+	fmt.Println("Setting ? ", data)
 	for k := range c.v {
 		delete(c.v, k)
 	}
@@ -65,7 +71,6 @@ func (c *mymap) Set(data interface{}) error {
 			return err
 		}
 	case map[string]interface{}:
-
 		for k, vv := range v {
 			c.v[k] = vv
 		}
@@ -129,7 +134,7 @@ func (c *mymap) Val(s ...string) Values {
 
 	v, ok := c.v[idx]
 	if !ok {
-		return (&value{nil, c, keys[0]}).Val(strings.Join(keys[1:], "/"))
+		return (&mymap{nil, c, keys[0]}).Val(strings.Join(keys[1:], "/"))
 	}
 
 	if m, err := cast.ToStringMapE(v); err == nil {

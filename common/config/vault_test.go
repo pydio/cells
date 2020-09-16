@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -43,13 +44,29 @@ func TestVault(t *testing.T) {
 			config.PollInterval(1*time.Second),
 		),
 	))
+
 	vault := NewVault(std, stdvault)
+
 	RegisterVaultKey("protectedValue")
+	RegisterVaultKey("my-protected-map/my-protected-value")
+
 	Convey("Test Set", t, func() {
 		vault.Val("protectedValue").Set("my-secret-data")
 		So(vault.Val("protectedValue").Default("").String(), ShouldEqual, "my-secret-data")
 
 		vault.Val("unprotectedValue").Set("my-test-config-value")
 		So(vault.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
+	})
+
+	Convey("Test Setting a map", t, func() {
+		vault.Val("my-protected-map").Set(map[string]string{
+			"my-protected-value":   "test",
+			"my-unprotected-value": "test",
+		})
+
+		fmt.Println(vault.Val().Map())
+
+		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldEqual, "test")
+
 	})
 }

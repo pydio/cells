@@ -202,7 +202,7 @@ func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig 
 	queueName = queueConfig.Val("@value").Default("boltdb").String()
 	senderName = senderConfig.Val("@value").Default("sendmail").String()
 
-	log.Logger(context.Background()).Debug("Parsed config for mailer", zap.String("c", senderConfig.String()))
+	log.Logger(context.Background()).Info("Parsed config for mailer", zap.String("c", senderConfig.String()))
 
 	return
 }
@@ -237,9 +237,11 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 	sender, err := mailer.GetSender(senderName, senderConfig)
 	if err != nil {
+		fmt.Println("Error is here ", err)
 		e = err
 		return
 	}
+
 	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
 	h.sender = sender
 	h.queueName = queueName

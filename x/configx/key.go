@@ -19,10 +19,14 @@ func FormatPath(ii ...interface{}) string {
 			r += "/" + strconv.Itoa(v)
 		case string:
 			r += "/" + v
+		case []string:
+			for _, vv := range v {
+				r += FormatPath(vv)
+			}
 		}
 	}
 
-	return r
+	return strings.TrimPrefix(r, "/")
 }
 
 func StringToKeys(s ...string) []string {
