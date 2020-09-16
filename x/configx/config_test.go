@@ -56,6 +56,8 @@ func TestStd(t *testing.T) {
 
 		So(m.Val("service").Val("val").Default("").String(), ShouldEqual, "test")
 
+		So(m.Val("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int(), ShouldEqual, 24)
+
 		So(m.Val("service/array"), ShouldNotBeNil)
 		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
 		So(m.Val("service/array[1]").Get().Int(), ShouldEqual, 2)
@@ -192,5 +194,16 @@ func TestReference(t *testing.T) {
 		So(m.Val("service/pointerMap/val2").Default(Reference("#/defaults/val2")).String(), ShouldEqual, "test2")
 
 		So(m.Val("#/databases/wrongdefault").Default(Reference("#/databases/default")).StringMap(), ShouldEqual, "test2")
+	})
+}
+
+func TestString(t *testing.T) {
+	Convey("Testing reference", t, func() {
+		m := New(WithJSON())
+
+		err := m.Set(data)
+		So(err, ShouldBeNil)
+
+		So(m.String(), ShouldNotEqual, "")
 	})
 }

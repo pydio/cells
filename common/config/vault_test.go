@@ -21,7 +21,6 @@
 package config
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -52,7 +51,7 @@ func TestVault(t *testing.T) {
 
 	Convey("Test Set", t, func() {
 		vault.Val("protectedValue").Set("my-secret-data")
-		So(vault.Val("protectedValue").Default("").String(), ShouldEqual, "my-secret-data")
+		So(vault.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
 
 		vault.Val("unprotectedValue").Set("my-test-config-value")
 		So(vault.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
@@ -64,9 +63,11 @@ func TestVault(t *testing.T) {
 			"my-unprotected-value": "test",
 		})
 
-		fmt.Println(vault.Val().Map())
+		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "")
+		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "")
 
-		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldEqual, "test")
-
+		So(vault.Val("my-protected-map/my-protected-value").Set("testing the test"), ShouldBeNil)
 	})
 }

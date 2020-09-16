@@ -22,7 +22,6 @@ package config
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
@@ -89,25 +88,37 @@ type vaultvalues struct {
 	vault configx.Values
 }
 
-func (v *vaultvalues) Get() configx.Value {
-	for _, p := range registeredVaultKeys {
-		if v.path == p {
-			uuid := v.Values.String()
-			fmt.Println("uuid ? ", uuid)
-			return v.vault.Val(uuid).Get()
-		}
-	}
+func (v *vaultvalues) Val(s ...string) configx.Values {
+	return &vaultvalues{v.path + "/" + strings.Join(s, "/"), v.Values.Val(s...), v.vault.Val()}
+}
 
-	return v.Values.Default("")
+// Get retrieves the value as saved in the config. Data will need to be retrieved from the vault via other means
+func (v *vaultvalues) Get() configx.Value {
+	// for _, p := range registeredVaultKeys {
+	// 	if v.path == p {
+	// 		uuid := v.Values.String()
+	// 		return v.vault.Val(uuid).Get()
+	// 	}
+	// }
+	return v.Values
 }
 
 func (v *vaultvalues) set(val interface{}) error {
 	uuid := v.Values.String()
-	if uuid == "" {
-		uuid = NewKeyForSecret()
+
+	// Get the current value
+	current := v.vault.Val(uuid).Default("").String()
+	if current == val.(string) {
+		// already set
+		return nil
 	}
 
-	fmt.Println("v.Values ", reflect.TypeOf(v.Values), v.Values.String())
+	if err := v.vault.Val(uuid).Del(); err != nil {
+		return err
+	}
+
+	uuid = NewKeyForSecret()
+
 	err := v.Values.Set(uuid)
 	if err != nil {
 		return err
@@ -117,12 +128,11 @@ func (v *vaultvalues) set(val interface{}) error {
 	return v.vault.Val(uuid).Set(val)
 }
 
+// Set ensures that the keys that have been target are saved encrypted in the vault
 func (v *vaultvalues) Set(val interface{}) error {
 	// Checking we have a registered value
 	for _, p := range registeredVaultKeys {
-
 		if v.path == p {
-			fmt.Println(v.path, p)
 			return v.set(val)
 		}
 
@@ -147,7 +157,6 @@ func (v *vaultvalues) Set(val interface{}) error {
 		}
 	}
 
-	fmt.Println("Setting val anyway ", v.path, val, reflect.TypeOf(v.Values))
 	return v.Values.Set(val)
 }
 

@@ -22,7 +22,6 @@
 package grpc
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/micro/go-micro"
@@ -62,7 +61,6 @@ func init() {
 			service.BeforeStart(initialize),
 		)
 
-		fmt.Println(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH).Map())
 		// load configuration
 		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 

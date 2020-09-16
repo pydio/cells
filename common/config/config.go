@@ -158,7 +158,6 @@ func Get(path ...string) configx.Values {
 
 // Set new values at a certain path
 func Set(val interface{}, path ...string) error {
-	fmt.Println(path, val)
 	return std.Val(path...).Set(val)
 }
 
@@ -173,9 +172,12 @@ type cacheValues struct {
 	path  []string
 }
 
+func (c *cacheValues) Val(s ...string) configx.Values {
+	return &cacheValues{c.Values.Val(s...), c.store, append(c.path, s...)}
+}
+
 // We store it in the cache and in the store
 func (c *cacheValues) Set(v interface{}) error {
-
 	err := c.Values.Set(v)
 	if err != nil {
 		return err
