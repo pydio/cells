@@ -657,11 +657,15 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 		Unsorted: true,
 		Callback: func(osPathname string, directoryEntry *godirwalk.Dirent) error {
 			if !directoryEntry.IsRegular() {
-				folders++
+				if osPathname != realPath {
+					folders++
+				}
 			} else {
-				files++
 				if i, e := os.Stat(osPathname); e == nil {
 					totalSize += i.Size()
+				}
+				if directoryEntry.Name() != common.PYDIO_SYNC_HIDDEN_FILE_META {
+					files++
 				}
 			}
 			return nil

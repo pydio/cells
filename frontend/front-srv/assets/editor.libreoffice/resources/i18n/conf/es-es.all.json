@@ -9,7 +9,7 @@
     "other": "Libre Office SSL"
   },
   "Libre Office uses ssl": {
-    "other": "Libre Office uses ssl"
+    "other": "Libre Office utiliza ssl"
   },
   "Libre Office Host": {
     "other": "Libre Office Host"
@@ -18,9 +18,9 @@
     "other": "Libre Office Host"
   },
   "Host for Libre Office": {
-    "other": "Host for Libre Office"
+    "other": "Host para Libre Office"
   },
   "Port for Libre Office": {
-    "other": "Port for Libre Office"
+    "other": "Puerto para Libre Office"
   }
 }

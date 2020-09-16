@@ -22,7 +22,8 @@ const React = require('react')
 import AsyncComponent from '../AsyncComponent'
 import PydioContextConsumer from '../PydioContextConsumer'
 const {FlatButton, Dialog} = require('material-ui')
-import CSSBlurBackground from './CSSBlurBackground'
+import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
+import DOMUtils from "pydio/util/dom";
 
 /**
  * Specific AsyncComponent for Modal Dialog
@@ -149,7 +150,7 @@ let AsyncModal = React.createClass({
         this.setState({actions: actions});
     },
 
-    initModalFromComponent: function(component, returnState = false) {
+    initModalFromComponent(component, returnState = false) {
         let state = {};
         const prepareState = (s) => { state = {...state, ...s} };
 
@@ -235,9 +236,17 @@ let AsyncModal = React.createClass({
         }else{
             prepareState({blur: false});
         }
+        if(component.dialogBodyStyle){
+            prepareState({dialogBodyStyle: component.dialogBodyStyle()});
+        } else {
+            prepareState({dialogBodyStyle: null});
+        }
 
-        if(returnState) return state;
-        else this.setState(state);
+        if(returnState) {
+            return state;
+        } else {
+            this.setState(state);
+        }
     },
 
     computeBackgroundData: function(){
@@ -253,39 +262,19 @@ let AsyncModal = React.createClass({
 
         let oThis = this;
         backgroundImage.onload = function() {
-            const width = this.width;
-            const height = this.height;
-
-            const screenWidth = DOMUtils.getViewportWidth();
-            const screenHeight = DOMUtils.getViewportHeight();
-
-            const imageRatio = width/height;
-            const coverRatio = screenWidth/screenHeight;
-
-            let coverHeight, scale, coverWidth;
-            if (imageRatio >= coverRatio) {
-                coverHeight = screenHeight;
-                scale = (coverHeight / height);
-                coverWidth = width * scale;
-            } else {
-                coverWidth = screenWidth;
-                scale = (coverWidth / width);
-                coverHeight = height * scale;
-            }
-            let cover = coverWidth + 'px ' + coverHeight + 'px';
             oThis.setState({
                 backgroundImage: url,
-                backgroundSize: cover
+                backgroundSize: bgCoverFromScreenRatio(this.width, this.height)
             });
         };
     },
 
     render: function() {
 
-        var modalContent;
+        let modalContent;
 
-        const { state, sizes, styles, blurStyles } = this
-        const { async, componentData, title, actions, modal, open, dialogWidth, padding, scrollBody, blur } = state
+        const { state, styles, blurStyles } = this
+        const { async, componentData, title, actions, modal, open, dialogWidth, padding, scrollBody, blur, dialogBodyStyle } = state
         let { className } = state;
 
         if (componentData) {
@@ -341,6 +330,9 @@ let AsyncModal = React.createClass({
 
             modalContent = <span><CSSBlurBackground/>{modalContent}</span>
 
+        }
+        if(dialogBodyStyle){
+            dialogBody = {...dialogBody, ...dialogBodyStyle};
         }
 
         return (

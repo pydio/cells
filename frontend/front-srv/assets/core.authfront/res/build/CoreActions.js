@@ -155,6 +155,10 @@ var LoginPasswordDialog = React.createClass({
         return true;
     },
 
+    dialogBodyStyle: function dialogBodyStyle() {
+        return { minHeight: 250 };
+    },
+
     getButtons: function getButtons() {
         var _this2 = this;
 

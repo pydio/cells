@@ -20,6 +20,26 @@
 
 const {Component, PropTypes} = require('react')
 
+export function bgCoverFromScreenRatio(width, height){
+    const screenWidth = DOMUtils.getViewportWidth();
+    const screenHeight = DOMUtils.getViewportHeight();
+
+    const imageRatio = width/height;
+    const coverRatio = screenWidth/screenHeight;
+
+    let coverHeight, scale, coverWidth;
+    if (imageRatio >= coverRatio) {
+        coverHeight = screenHeight;
+        scale = (coverHeight / height);
+        coverWidth = width * scale;
+    } else {
+        coverWidth = screenWidth;
+        scale = (coverWidth / width);
+        coverHeight = height * scale;
+    }
+    return coverWidth + 'px ' + coverHeight + 'px';
+}
+
 class CSSBlurBackground extends Component{
 
     constructor(props, context){
@@ -84,27 +104,9 @@ class CSSBlurBackground extends Component{
     computeRatio(){
 
         const {width, height, url} = this.backgroundImageData;
-
-        const screenWidth = DOMUtils.getViewportWidth();
-        const screenHeight = DOMUtils.getViewportHeight();
-
-        const imageRatio = width/height;
-        const coverRatio = screenWidth/screenHeight;
-
-        let coverHeight, scale, coverWidth;
-        if (imageRatio >= coverRatio) {
-            coverHeight = screenHeight;
-            scale = (coverHeight / height);
-            coverWidth = width * scale;
-        } else {
-            coverWidth = screenWidth;
-            scale = (coverWidth / width);
-            coverHeight = height * scale;
-        }
-        let cover = coverWidth + 'px ' + coverHeight + 'px';
         this.setState({
             backgroundImage: url,
-            backgroundSize: cover
+            backgroundSize: bgCoverFromScreenRatio(width, height)
         });
 
     }

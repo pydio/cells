@@ -31,6 +31,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -95,6 +96,17 @@ func init() {
 					15*time.Second,
 					"There was a timeout while serving the request...",
 				)
+
+				// Adding subscriber
+				if _, err := defaults.Broker().Subscribe(common.TOPIC_ASSETS_RELOAD, func(p broker.Publication) error {
+					// Reload FS
+					log.Logger(s.Options().Context).Info("Reloading PluginFS")
+					frontend.HotReload()
+					httpFs = frontend.GetPluginsFS()
+					return nil
+				}); err != nil {
+					return nil, err
+				}
 
 				hd := srv.NewHandler(routerWithTimeout)
 

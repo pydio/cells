@@ -6,7 +6,7 @@
     "other": "Actividad"
   },
   "loading": {
-    "other": "Loading..."
+    "other": "Cargando..."
   },
   "ds.board.ds.legend": {
     "other": "Las fuentes de datos son ubicaciones de almacenamiento específicas que Pydio agrega a un árbol global. Pueden ser distribuidas en tantos nodos de almacenamiento como sea necesario."
@@ -27,13 +27,13 @@
     "other": "Políticas de Realización de Versiones"
   },
   "ds.board.wsfromds.title": {
-    "other": "Create Workspace"
+    "other": "Crear Workspace"
   },
   "ds.board.wsfromds.legend": {
-    "other": "Create a new workspace at the root of datasource %s"
+    "other": "Crear un nuevo workspace en la raíz del datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Etiqueta"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -114,31 +114,31 @@
     "other": "Explora los datos de un bucket de almacenamiento Google Cloud."
   },
   "ds.editor.storage.legend.versioning": {
-    "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
+    "other": "Configurar la política de versiones para mantener el historial de modificaciones de contenidos de archivos. Tenga en cuenta que utilizará espacio de almacenamiento adicional."
   },
   "ds.editor.storage.legend.encryption": {
-    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+    "other": "Utilizando métodos de \"encryption-at-rest\", se asegura de que los archivos nunca se almacenan en un formato limpio dentro del almacenamiento. Esto puede ser útil si no confía en el proveedor de almacenamiento."
   },
   "ds.editor.storage.readOnly": {
     "other": "Modo de sólo lectura"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+    "other": "Utilice el modo de solo-lectura si quiere que Cells no escriba nunca en archivos ocultos y que use eTags nativos como checksums (esto puede ser necesario para buckets con una gran cantidad de datos). Sin embargo, tenga en cuenta que cualquier workspace creado en este datasource debe configurarse como solo-lectura, ya que la funcionalidad \"mover\" no puede funcionar correctamente."
   },
   "ds.editor.storage.checksumMapper": {
-    "other": "Store checksums locally (do not modify objects)"
+    "other": "Almacenar checksums localmente (no modificar objetos)"
   },
   "ds.editor.storage.nativeEtags": {
-    "other": "Use Native Etags (will disable Desktop Sync)"
+    "other": "Utilizar Etags Nativas (esto deshabilitará Desktop Sync)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
+    "other": "Para la detección de cambios adecuados, los checksums de archivos (md5) son procesados por Cells (o por el almacenamiento con una copia \"in-place\", cuando sea posible) y añadidos como metadatos a objetos. Para conseguir un mejor rendimiento, utilice Native ETags para mantener los valores originales del sistema de almacenamiento, pero tenga en cuenta que esto desactivará la sincronización de escritorio en este datasource. También puede simplemente impedir la modificación de objetos, mientras se procesan los checksums, almacenando metadatos localmente."
   },
   "ds.editor.new": {
     "other": "Nueva Fuente de Datos"
   },
   "ds.editor.name.inuse": {
-    "other": "This name is already in use, make sure to pick another one!"
+    "other": "Este nombre ya está en uso. Por favor, elija otro."
   },
   "ds.editor.options": {
     "other": "Opciones Principales"
@@ -168,7 +168,7 @@
     "other": "Asegúrese de seleccionar un directorio con dos niveles de profundidad. El almacenamiento de objetos comenzará en el directorio raíz."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
+    "other": "El directorio se muestra como un bucket S3 y debe cumplir con los requisitos de los nombres DNS (minúsculas, sin espacio ni caracteres especiales)."
   },
   "ds.editor.selector.folder": {
     "other": "Directorio Local"
@@ -180,22 +180,22 @@
     "other": "Peer Address"
   },
   "ds.editor.selector.peer.any": {
-    "other": "Any peer (unique node or distributed FS)"
+    "other": "Cualquier par (nodo único o distribuido FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Peer"
+    "other": "Par"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "invalid"
+    "other": "inválido"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "Crear Directorio"
   },
   "ds.editor.selector.mkdir.legend": {
-    "other": "Create a new folder under %s"
+    "other": "Crear un nuevo directorio bajo %s"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
+    "other": "Nombre del directorio"
   },
   "ds.editor.storage.fs.macos": {
     "other": "El sistema operativo es MacOSX"
@@ -225,7 +225,7 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "S3-Compatible Storage"
+    "other": "Almacenamiento compatible con S3"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL Personalizada"
@@ -234,7 +234,7 @@
     "other": "Dejar vacío para Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Api Region"
+    "other": "Región de Api S3"
   },
   "ds.editor.storage.s3.path": {
     "other": "Ruta Interna"
@@ -249,10 +249,10 @@
     "other": "Recargar cubos"
   },
   "ds.editor.storage.buckets.regexp": {
-    "other": "Use regular expression"
+    "other": "Utilizar una expresión común"
   },
   "ds.editor.storage.buckets.regexp.hint": {
-    "other": "Regular expression"
+    "other": "Expresión común"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
     "other": "Configuración de almacenamiento para cargar cubos"
@@ -264,7 +264,7 @@
     "other": "No se encontraron cubos"
   },
   "ds.editor.storage.s3.legend.tags": {
-    "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
+    "other": "Sincronizar etiquetas S3 de buckets u objetos (usar una lista de patrones separados por comas para hacerlos coincidir). Tenga en cuenta que esto realizará peticiones adicionales al almacenamiento y puede ralentizar el proceso de sincronización. Las etiquetas originales se mapearán a pydio:s3-bucket-tag-NAME y pydio:s3-object-tag-NAME internamente."
   },
   "ds.editor.storage.s3.bucketsTags": {
     "other": "Etiquetas de Cubos (múltiples cubos habilitados)"
@@ -768,25 +768,25 @@
     "other": "Nombre de la Política"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "# Reglas"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "Mostrar reglas de políticas"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "Editar reglas de políticas"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Editar etiquetas"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Guardar Cambios"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "Eliminar Política"
   },
   "policies.policy.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+    "other": "¿Está seguro que desea eliminar esta política? ¡Asegúrese de que no vulnera la seguridad de la aplicación!"
   },
   "policies.policy.new": {
     "other": "+ Nueva política"
@@ -795,13 +795,13 @@
     "other": "Tipo de Política"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Crear nueva regla"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Eliminar Regla"
   },
   "policies.rule.delete.confirm": {
-    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
+    "other": "¿Está seguro de que desea eliminar esta regla de seguridad? ¡Esto podría poner en riesgo el modelo de seguridad de la aplicación!"
   },
   "policies.type.acl.legend": {
     "other": "Estas políticas se utilizan para proporcionar dinámicamente acceso de lectura/escritura a espacios de trabajo o nodos basados en el contexto de solicitud y/o de los metadatos de nodo. Se definen aquí y se utilizan en el Panel de Control de Acceso de los usuarios y roles."
@@ -1035,40 +1035,40 @@
     "other": "Etiqueta"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "ID de la Plantilla"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "Código de la Plantilla"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "Etiqueta para la Plantilla"
   },
   "virtual.legend.1": {
-    "other": "Las Rutas de Plantillas se procesan dinámicamente dependiendo del contexto. Pueden utilizarse como raíces para espacios de trabajo que para sustituir rutas de origen de datos fijas. Se utilizan por defecto para crear el espacio de trabajo de Archivos Personales que apunta a un directorio diferente para cada usuario, y para procesar la ubicación de los directorios de los directorios de los usuarios de Cells."
+    "other": "Las plantillas predefinidas se procesan dinámicamente dependiendo del contexto. Pueden utilizarse como raíces para espacios de trabajo que para sustituir rutas de origen de datos fijas. Se utilizan por defecto para crear el espacio de trabajo de Archivos Personales que apunta a un directorio diferente para cada usuario, y para procesar la ubicación de los directorios de los directorios de los usuarios de Cells."
   },
   "virtual.legend.2": {
     "other": "Use Ctrl+Space dentro del editor para obtener información sobre los valores posibles. Los valores actuales soportados son: User.Name (resuelto dinámicamente al conectarse el usuario) y DataSources (para elegir una fuente de datos dinámicamente)."
   },
   "virtual.title": {
-    "other": "Ruta de plantillas"
+    "other": "Plantillas predefinidas"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Guardar plantilla"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Eliminar plantilla"
   },
   "virtual.delete.confirm": {
-    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+    "other": "¿Está seguro que desea eliminar esta ruta de plantilla? ¡La operación no es reversible!"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "Código de la plantilla"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "Mostrar el código"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Editar el código"
   },
   "ws.1": {
     "other": "Gestionar DataSources"
@@ -1314,19 +1314,19 @@
     "other": "DataSources y directorios"
   },
   "ws.complete.label": {
-    "other": "Seleccione un directorio o una ruta de plantillas predefinida"
+    "other": "Seleccione un directorio o una plantilla predefinida"
   },
   "ws.complete.resolves": {
     "other": "Resuelve a"
   },
   "ws.complete.templates": {
-    "other": "Rutas de Plantillas Preconfiguradas"
+    "other": "Plantillas predefinidas"
   },
   "ws.dashboard": {
     "other": "Los workspaces definen el punto de acceso principal a sus datos por parte de los usuarios. Asegúrese de definir al menos un datasource para que se pueda crear un workspace, que apuntará a la ruta de ese datasource."
   },
   "ws.editor.data.legend": {
-    "other": "El workspace presenta al usuario una o varias 'raíces': elija una o más rutas de cualquier Datasource o una ruta de plantillas que se resolverán automáticamente en tiempo de ejecución."
+    "other": "El workspace presenta al usuario una o varias 'raíces': elija una o más rutas de cualquier Datasource o una plantilla que se resolverán automáticamente en tiempo de ejecución."
   },
   "ws.editor.data.title": {
     "other": "Acceso a datos"
@@ -1407,7 +1407,7 @@
     "other": "Ruta de la Carpeta"
   },
   "ws.editor.path.template": {
-    "other": "Ruta de Plantillas"
+    "other": "Plantilla predefinida"
   },
   "ws.editor.slug.legend": {
     "other": "Nombre técnico utilizado, por ejemplo, en URLs, se calcula automáticamente, pero puede personalizarlo."
@@ -1554,7 +1554,7 @@
     "other": "¿Está seguro de que desea eliminar este trabajo? ¡Esta operación no se puede revertir!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this job?"
+    "other": "¿Está seguro de que desea eliminar todas las tareas de este trabajo?"
   },
   "scheduler.trigger.create.node": {
     "other": "Crear Nodo"
@@ -1677,13 +1677,13 @@
     "other": "Limpiar Todo"
   },
   "scheduler.tasks.activity.title": {
-    "other": "Task Activity"
+    "other": "Actividad de la Tarea"
   },
   "scheduler.tasks.activity.loading": {
-    "other": "Loading activity..."
+    "other": "Cargando actividad..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "No se encontraron registros"
   },
   "scheduler.schedule.monthly": {
     "other": "El día %1 de cada mes a las %2"

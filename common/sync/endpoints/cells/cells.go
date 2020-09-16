@@ -230,7 +230,9 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 					obj.EventInfoChan <- event
 				}
 			case er := <-finished:
-				log.Logger(c.globalCtx).Info("Connection finished " + er.Error())
+				if !strings.Contains(er.Error(), "DeadlineExceeded") {
+					log.Logger(c.globalCtx).Info("Connection finished " + er.Error())
+				}
 				if c.watchConn != nil {
 					c.watchConn <- model.WatchDisconnected
 				}
@@ -347,6 +349,7 @@ func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		}
 		return
 	}
+	defer streamer.Close()
 	if c.watchConn != nil {
 		c.watchConn <- model.WatchConnected
 	}

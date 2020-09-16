@@ -190,7 +190,7 @@ type Diff interface {
 	model.StatusProvider
 
 	// Compute performs the actual Diff operation
-	Compute(root string, lock chan bool, ignores ...glob.Glob) error
+	Compute(root string, lock chan bool, rootStats map[string]*model.EndpointRootStat, ignores ...glob.Glob) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType, patch Patch) (err error)
 	// ToBidirectionalPatch transforms current diff into a bidirectional patch of operations

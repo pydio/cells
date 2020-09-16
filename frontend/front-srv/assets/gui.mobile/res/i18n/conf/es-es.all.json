@@ -36,21 +36,21 @@
     "other": "No mostrar un \"smart banner\" al abrir una interfaz web en un terminal móvil."
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "Icono de Aplicación iOS"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "ID de Aplicación iOS"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "ID de Aplicación iOS en la tienda"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "ID de Aplicación Android"
   },
   "Android App ID": {
-    "other": "Android App ID"
+    "other": "ID de App Android"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Icono de Aplicación Android"
   }
 }

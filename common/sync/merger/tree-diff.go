@@ -86,7 +86,7 @@ func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 }
 
 // Compute performs the actual diff between left and right
-func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob) error {
+func (diff *TreeDiff) Compute(root string, lock chan bool, rootStats map[string]*model.EndpointRootStat, ignores ...glob.Glob) error {
 	defer func() {
 		diff.Done(true)
 		// Wait that monitor has finished its messaging before returning function
@@ -141,6 +141,29 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 
 	// fmt.Println(lTree.PrintTree())
 	// fmt.Println(rTree.PrintTree())
+
+	// Additional check before creating diff
+	if rootStats != nil {
+		if lStat, o := rootStats[diff.left.GetEndpointInfo().URI]; o && lStat.IsKnown() {
+			lCompare := lTree.ChildByPath(strings.TrimLeft(root, "/"))
+			if (lCompare == nil || len(lCompare.SortedChildren()) == 0) && !lStat.IsEmpty() {
+				fmt.Println("==> left stats :", lStat)
+				fmt.Println("==> left tree :")
+				lTree.PrintTree()
+				return fmt.Errorf("unexpected error : endpoints stat and collected children discrepancy")
+			}
+		}
+		if rStat, o := rootStats[diff.right.GetEndpointInfo().URI]; o && rStat.IsKnown() {
+			rCompare := rTree.ChildByPath(strings.TrimLeft(root, "/"))
+			if (rCompare == nil || len(rCompare.SortedChildren()) == 0) && !rStat.IsEmpty() {
+				fmt.Println("==> right stats :", rStat)
+				fmt.Println("==> right tree :")
+				rTree.PrintTree()
+				return fmt.Errorf("unexpected error : endpoints stat and collected children discrepancy")
+			}
+		}
+	}
+
 	diff.mergeNodes(lTree, rTree)
 	log.Logger(diff.ctx).Info("Diff Stats", zap.Any("s", diff.Stats()))
 

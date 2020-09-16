@@ -21,6 +21,7 @@
 'use strict';
 
 exports.__esModule = true;
+exports.bgCoverFromScreenRatio = bgCoverFromScreenRatio;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -30,6 +31,28 @@ var _require = require('react');
 
 var Component = _require.Component;
 var PropTypes = _require.PropTypes;
+
+function bgCoverFromScreenRatio(width, height) {
+    var screenWidth = DOMUtils.getViewportWidth();
+    var screenHeight = DOMUtils.getViewportHeight();
+
+    var imageRatio = width / height;
+    var coverRatio = screenWidth / screenHeight;
+
+    var coverHeight = undefined,
+        scale = undefined,
+        coverWidth = undefined;
+    if (imageRatio >= coverRatio) {
+        coverHeight = screenHeight;
+        scale = coverHeight / height;
+        coverWidth = width * scale;
+    } else {
+        coverWidth = screenWidth;
+        scale = coverWidth / width;
+        coverHeight = height * scale;
+    }
+    return coverWidth + 'px ' + coverHeight + 'px';
+}
 
 var CSSBlurBackground = (function (_Component) {
     _inherits(CSSBlurBackground, _Component);
@@ -104,28 +127,9 @@ var CSSBlurBackground = (function (_Component) {
         var height = _backgroundImageData.height;
         var url = _backgroundImageData.url;
 
-        var screenWidth = DOMUtils.getViewportWidth();
-        var screenHeight = DOMUtils.getViewportHeight();
-
-        var imageRatio = width / height;
-        var coverRatio = screenWidth / screenHeight;
-
-        var coverHeight = undefined,
-            scale = undefined,
-            coverWidth = undefined;
-        if (imageRatio >= coverRatio) {
-            coverHeight = screenHeight;
-            scale = coverHeight / height;
-            coverWidth = width * scale;
-        } else {
-            coverWidth = screenWidth;
-            scale = coverWidth / width;
-            coverHeight = height * scale;
-        }
-        var cover = coverWidth + 'px ' + coverHeight + 'px';
         this.setState({
             backgroundImage: url,
-            backgroundSize: cover
+            backgroundSize: bgCoverFromScreenRatio(width, height)
         });
     };
 
@@ -144,4 +148,3 @@ var CSSBlurBackground = (function (_Component) {
 })(Component);
 
 exports['default'] = CSSBlurBackground;
-module.exports = exports['default'];

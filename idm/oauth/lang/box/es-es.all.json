@@ -11,27 +11,27 @@
     "other": "{{.DeletionCount}} tokens de contraseña de reseteo caducados han sido eliminados"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "No se puede encontrar la dirección de correo correspondiente"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Se ha enviado un correo electrónico a su cuenta con más instrucciones"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Vaya, ha fallado - Por favor, vuelva a iniciar el proceso de restablecimiento de contraseña"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "El token ha caducado. Realice de nuevo el proceso de restablecimiento de contraseña."
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "¡El token no se corresponde con este identificador de usuario!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "¡No se puede encontrar el usuario correspondiente!"
   },
   "ResetPassword.Err.ResetFailed": {
     "other": "¡Ocurrió un error al intentar establecer una nueva contraseña!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "Su contraseña se ha restablecido con éxito, ¡ahora puede volver a la página de inicio de sesión!"
   }
 }

@@ -38,6 +38,10 @@ var _CSSBlurBackground = require('./CSSBlurBackground');
 
 var _CSSBlurBackground2 = _interopRequireDefault(_CSSBlurBackground);
 
+var _pydioUtilDom = require("pydio/util/dom");
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 /**
  * Specific AsyncComponent for Modal Dialog
  */
@@ -117,7 +121,7 @@ var AsyncModal = React.createClass({
     componentWillUnmount: function componentWillUnmount() {
         this.deactivateResizeObserver();
         if (this._crtPercentSizeObserver) {
-            DOMUtils.stopObservingWindowResize(this._crtPercentSizeObserver);
+            _pydioUtilDom2['default'].stopObservingWindowResize(this._crtPercentSizeObserver);
             this._crtPercentSizeObserver = null;
         }
     },
@@ -131,7 +135,7 @@ var AsyncModal = React.createClass({
         this._resizeObserver = function () {
             _this.computeBackgroundData();
         };
-        DOMUtils.observeWindowResize(this._resizeObserver);
+        _pydioUtilDom2['default'].observeWindowResize(this._resizeObserver);
         this.computeBackgroundData();
     },
 
@@ -139,7 +143,7 @@ var AsyncModal = React.createClass({
         return;
 
         if (this._resizeObserver) {
-            DOMUtils.stopObservingWindowResize(this._resizeObserver);
+            _pydioUtilDom2['default'].stopObservingWindowResize(this._resizeObserver);
             this._resizeObserver = null;
         }
     },
@@ -222,7 +226,7 @@ var AsyncModal = React.createClass({
         if (component.getSize) {
             var size = component.getSize();
             if (this._crtPercentSizeObserver) {
-                DOMUtils.stopObservingWindowResize(this._crtPercentSizeObserver);
+                _pydioUtilDom2['default'].stopObservingWindowResize(this._crtPercentSizeObserver);
                 this._crtPercentSizeObserver = null;
             }
             var width = this.sizes[size].width;
@@ -231,11 +235,11 @@ var AsyncModal = React.createClass({
                     var percent = parseInt(width.replace('%', ''));
                     _this2._crtPercentSizeObserver = function () {
                         prepareState({
-                            dialogWidth: DOMUtils.getViewportWidth() * percent / 100,
-                            dialogHeight: DOMUtils.getViewportHeight() * percent / 100
+                            dialogWidth: _pydioUtilDom2['default'].getViewportWidth() * percent / 100,
+                            dialogHeight: _pydioUtilDom2['default'].getViewportHeight() * percent / 100
                         });
                     };
-                    DOMUtils.observeWindowResize(_this2._crtPercentSizeObserver);
+                    _pydioUtilDom2['default'].observeWindowResize(_this2._crtPercentSizeObserver);
                     _this2._crtPercentSizeObserver();
                 })();
             } else {
@@ -263,8 +267,17 @@ var AsyncModal = React.createClass({
         } else {
             prepareState({ blur: false });
         }
+        if (component.dialogBodyStyle) {
+            prepareState({ dialogBodyStyle: component.dialogBodyStyle() });
+        } else {
+            prepareState({ dialogBodyStyle: null });
+        }
 
-        if (returnState) return state;else this.setState(state);
+        if (returnState) {
+            return state;
+        } else {
+            this.setState(state);
+        }
     },
 
     computeBackgroundData: function computeBackgroundData() {
@@ -280,41 +293,18 @@ var AsyncModal = React.createClass({
 
         var oThis = this;
         backgroundImage.onload = function () {
-            var width = this.width;
-            var height = this.height;
-
-            var screenWidth = DOMUtils.getViewportWidth();
-            var screenHeight = DOMUtils.getViewportHeight();
-
-            var imageRatio = width / height;
-            var coverRatio = screenWidth / screenHeight;
-
-            var coverHeight = undefined,
-                scale = undefined,
-                coverWidth = undefined;
-            if (imageRatio >= coverRatio) {
-                coverHeight = screenHeight;
-                scale = coverHeight / height;
-                coverWidth = width * scale;
-            } else {
-                coverWidth = screenWidth;
-                scale = coverWidth / width;
-                coverHeight = height * scale;
-            }
-            var cover = coverWidth + 'px ' + coverHeight + 'px';
             oThis.setState({
                 backgroundImage: url,
-                backgroundSize: cover
+                backgroundSize: _CSSBlurBackground.bgCoverFromScreenRatio(this.width, this.height)
             });
         };
     },
 
     render: function render() {
 
-        var modalContent;
+        var modalContent = undefined;
 
         var state = this.state;
-        var sizes = this.sizes;
         var styles = this.styles;
         var blurStyles = this.blurStyles;
         var async = state.async;
@@ -327,6 +317,7 @@ var AsyncModal = React.createClass({
         var padding = state.padding;
         var scrollBody = state.scrollBody;
         var blur = state.blur;
+        var dialogBodyStyle = state.dialogBodyStyle;
         var className = state.className;
 
         if (componentData) {
@@ -384,6 +375,9 @@ var AsyncModal = React.createClass({
                 React.createElement(_CSSBlurBackground2['default'], null),
                 modalContent
             );
+        }
+        if (dialogBodyStyle) {
+            dialogBody = _extends({}, dialogBody, dialogBodyStyle);
         }
 
         return React.createElement(

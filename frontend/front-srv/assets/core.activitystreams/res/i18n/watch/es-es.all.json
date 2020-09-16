@@ -66,10 +66,10 @@
     "other": "El contenido ha sido modificado"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "Se ha accedido a este contenido o ha sido modificado"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "Valores Mixtos"
   },
   "selector.saving": {
     "other": "Estado de memoria"

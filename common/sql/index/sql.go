@@ -868,6 +868,9 @@ func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.T
 	mpath := node.MPath
 
 	if stmt, args, e := dao.GetStmtWithArgs("child", mpath.String()); e == nil {
+		// Escape for LIKE query
+		reqName = strings.ReplaceAll(reqName, "_", "\\_")
+		reqName = strings.ReplaceAll(reqName, "%", "\\%")
 		row := stmt.QueryRow(append(args, len(reqPath)+1, reqName)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {

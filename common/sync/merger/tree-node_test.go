@@ -56,4 +56,31 @@ func TestOpNodePaths(t *testing.T) {
 		})
 		t.Log(root.PrintTree())
 	})
+	Convey("Test ChildByPath", t, func() {
+		root := NewTreeNode(&tree.Node{Path: "/", Uuid: "ROOT"})
+		root.AddChild(NewTreeNode(&tree.Node{Path: "a"}))
+		root.AddChild(NewTreeNode(&tree.Node{Path: "b", Uuid: "BNODE"}))
+		cNode := NewTreeNode(&tree.Node{Path: "c"})
+		root.AddChild(cNode)
+		root.AddChild(NewTreeNode(&tree.Node{Path: "d"}))
+
+		cNode.AddChild(NewTreeNode(&tree.Node{Path: "c/i"}))
+		cNode.AddChild(NewTreeNode(&tree.Node{Path: "c/j"}))
+		cNode.AddChild(NewTreeNode(&tree.Node{Path: "c/k", Uuid: "KNODE"}))
+
+		r := root.ChildByPath("")
+		So(r, ShouldNotBeNil)
+		So(r.Uuid, ShouldEqual, "ROOT")
+
+		i := root.ChildByPath("b")
+		So(i, ShouldNotBeNil)
+		So(i.Uuid, ShouldEqual, "BNODE")
+
+		f := root.ChildByPath("c/k")
+		So(f, ShouldNotBeNil)
+		So(f.Uuid, ShouldEqual, "KNODE")
+
+		w := root.ChildByPath("other/path")
+		So(w, ShouldBeNil)
+	})
 }

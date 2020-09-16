@@ -6,24 +6,24 @@
     "other": "Formato de descarga por defecto"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "Al descargar una carpeta o una selección múltiple, crear automáticamente un archivo usando este formato"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Ruta de la carpeta en el servidor"
   },
   "Gateway": {
     "other": "Gateway"
   },
   "Pydio S3 Gateway": {
-    "other": "Pydio S3 Gateway"
+    "other": "Gateway Pydio S3"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Ruta absoluta a uno o más nodos raíz"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Items por página"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Una vez en modo de paginación, número de items a mostrar por página."
   }
 }

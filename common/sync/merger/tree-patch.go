@@ -299,6 +299,9 @@ func (t *TreePatch) MarshalJSON() ([]byte, error) {
 		"Root":  &t.TreeNode,
 		"Stats": t.Stats(),
 	}
+	if t.patchError != nil {
+		data["Error"] = t.patchError.Error()
+	}
 	return json.Marshal(data)
 }
 

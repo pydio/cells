@@ -1,15 +1,15 @@
 {
   "Allowed Extensions": {
-    "other": "Allowed Extensions"
+    "other": "Các phần mở rộng được cho phép"
   },
   "Ext. Label": {
-    "other": "Ext. Label"
+    "other": "Nhãn Ext."
   },
   "Extensions List": {
-    "other": "Extensions List"
+    "other": "Danh sách tiện ích mở rộng"
   },
   "File Size": {
-    "other": "File Size"
+    "other": "Kích thước tệp tin"
   },
   "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
     "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
@@ -18,19 +18,19 @@
     "other": "Limitations"
   },
   "Maximum size per file allowed to upload.": {
-    "other": "Maximum size per file allowed to upload."
+    "other": "Kích thước tối đa cho mỗi tệp tin được phép tải lên."
   },
   "Options shared by all uploaders plugins": {
     "other": "Options shared by all uploaders plugins"
   },
   "Uploaders Options": {
-    "other": "Uploaders Options"
+    "other": "Tùy chọn trình tải lên"
   },
   "User readable label for the list of allowed extensions (images, all files, etc).": {
-    "other": "User readable label for the list of allowed extensions (images, all files, etc)."
+    "other": "Người dùng có thể đọc nhãn cho danh sách các tiện ích mở rộng được cho phép (hình ảnh, tất cả các tệp, v. v.)."
   },
   "Multipart Uploads": {
-    "other": "Multipart Uploads"
+    "other": "Tải lên nhiều phần"
   },
   "Multipart Parts Size": {
     "other": "Multipart Parts Size"
@@ -51,7 +51,7 @@
     "other": "Number of concurrent uploads (maximum 6, due to browsers limitations)"
   },
   "Timeout": {
-    "other": "Timeout"
+    "other": "Thời gian chờ"
   },
   "Request Timeout (in minutes) for each concurrent part upload": {
     "other": "Request Timeout (in minutes) for each concurrent part upload"
