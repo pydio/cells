@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import ValidLogin from '../fields/ValidLogin'
+import AltText from "../fields/AltText";
 const XMLUtils = require('pydio/util/xml');
 const InputBoolean = require('./../fields/InputBoolean');
 const InputText = require('./../fields/TextField');
@@ -111,9 +113,14 @@ export default class Manager{
 
     static createFormElement(props){
         let value;
-        switch(props.attributes['type']){
+        const {attributes, onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip} = props;
+        const switchProps = {onAltTextSwitch, altTip: altTextSwitchTip, altIconText: altTextSwitchIcon}
+        switch(attributes['type']){
             case 'boolean':
-                value = <InputBoolean {...props}/>;
+                value = <InputBoolean {...props}/>
+                if(onAltTextSwitch){
+                    value = <AltText {...props} {...switchProps} altIcon={"mdi mdi-toggle-switch"}>{value}</AltText>;
+                }
                 break;
             case 'string':
             case 'textarea':
@@ -128,6 +135,9 @@ export default class Manager{
                 break;
             case 'integer':
                 value = <InputInteger {...props}/>;
+                if(onAltTextSwitch){
+                    value = <AltText {...props}  {...switchProps} altIcon={"mdi mdi-number"}>{value}</AltText>;
+                }
                 break;
             case 'button':
                 value = <InputButton {...props}/>;
@@ -140,6 +150,9 @@ export default class Manager{
                 break;
             case 'select':
                 value = <SelectBox {...props}/>;
+                if(onAltTextSwitch){
+                    value = <AltText {...props}  {...switchProps} altIcon={"mdi mdi-view-list"}>{value}</AltText>;
+                }
                 break;
             case 'autocomplete':
                 value = <AutocompleteBox {...props}/>;
