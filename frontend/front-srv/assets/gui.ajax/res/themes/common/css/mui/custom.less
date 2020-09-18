@@ -357,10 +357,11 @@
 
     .form-legend {
       display: block;
-      color: rgba(0, 0, 0, 0.23);
-      margin-bottom: 16px;
+      color: rgba(0, 0, 0, 0.33);
+      margin-bottom: -4px;
+      margin-top: 6px;
       font-size: 12px;
-      font-weight: 400;
+      font-weight: 500;
       padding-left: 3px;
       .icon-question-sign {
         display: inline-block;
@@ -373,8 +374,12 @@
       &.warning-message{
         //color: lighten(@primary-color, 0.1);
       }
+      &.mandatory-missing {
+        opacity: 0;
+      }
     }
 
+    /*
     .form-entry-string .form-legend,
     .form-entry-boolean .form-legend,
     .form-entry-integer .form-legend,
@@ -387,10 +392,7 @@
         opacity: 0;
       }
     }
-
-    .form-entry-select .form-legend{
-      /*margin-top: -10px;*/
-    }
+     */
 
     .form-entry-button {
       display: inline-block;
