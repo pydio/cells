@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/x/configx"
 )
 
 func GetGenericStoreClient(ctx context.Context, storeNamespace string, microClient client.Client) (client *minio.Core, bucket string, e error) {
@@ -71,7 +72,7 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 
 	c := config.Get("services", configKey)
 
-	dataSource = c.Val("datasource").Default("#/defaults/datasource").String()
+	dataSource = c.Val("datasource").Default(configx.Reference("#/defaults/datasource")).String()
 	bucket = c.Val("bucket").String()
 
 	return dataSource, bucket, nil

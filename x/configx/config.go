@@ -104,14 +104,21 @@ func (v *config) Get() Value {
 	}
 
 	if v.v != nil {
+		useDefault := false
 		switch vv := v.v.(type) {
 		case map[string]interface{}:
 			if ref, ok := vv["$ref"]; ok {
 				return v.r.Val(ref.(string)).Get()
 			}
+		case string:
+			if vv == "default" {
+				useDefault = true
+			}
 		}
 
-		return &def{v.v}
+		if !useDefault {
+			return &def{v.v}
+		}
 	}
 
 	if v.d != nil {
@@ -275,6 +282,10 @@ func (c *config) String() string {
 		}
 
 		return string(data)
+	case string:
+		if v == "default" {
+			c.v = nil
+		}
 	}
 
 	return c.Default("").String()
