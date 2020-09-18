@@ -39,16 +39,16 @@
     "other": "Accesso REST predefinito per l'utente registrato"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "List and search user-defined metadata"
+    "other": "Elenca e cerca i metadati definiti dall'utente"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Update user-defined metadata"
+    "other": "Aggiorna i metadati definiti dall'utente"
   },
   "PolicyGroup.LoggedUsers.Rule5": {
-    "other": "Read-access to all FrontendService"
+    "other": "Accesso in lettura a tutti i FrontendService"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Accesso in scrittura ai FrontendService con l'eccezione dell'upload dei binari globali"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Operazioni OpenIdConnect"

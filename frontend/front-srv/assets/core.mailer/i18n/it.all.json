@@ -30,6 +30,6 @@
     "other": "Impossibile inviare l'email correttamente!"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Attenzione, alcune voci sono state ignorate, solo gli utenti che hanno impostato correttamente il loro indirizzo email riceveranno gli inviti. Neanche i team e i gruppi vengono elaborati."
   }
 }

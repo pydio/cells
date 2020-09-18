@@ -174,15 +174,15 @@
     "other": "Ultimo aggiornamento"
   },
   "role.id.description": {
-    "other": "Unique ID of this role (cannot be changed)."
+    "other": "ID univoco di questo ruolo (non può essere modificato)."
   },
   "role.label.description": {
-    "other": "Human-readable label."
+    "other": "Etichetta human-readable."
   },
   "role.autoapply.description": {
-    "other": "Role is always applied to users with this profile(s)."
+    "other": "Il ruolo viene applicato sempre agli utenti con questo profilo."
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "Il ruolo viene sempre applicato dopo tutti gli altri ruoli, a eccezione del ruolo utente che è ancora prevalente."
   }
 }

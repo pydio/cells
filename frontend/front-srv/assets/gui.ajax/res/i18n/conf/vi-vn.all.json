@@ -1,12 +1,12 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "Thêm JS frameworks"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "Danh sách các đường dẫn đến tệp JS được phân tách bằng dấu phẩy, sẽ được tải TRƯỚC KHI tải Pydio framework chính. Việc sử dụng các plugin khai báo tài nguyên được ưu tiên. Tải lên tệp JS chỉ nên được sử dụng cho các trường hợp cụ thể."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "Một thông báo bổ sung hiển thị trong màn hình khởi động"
   },
   "Analytics Domain": {
     "other": "Analytics Domain"
@@ -18,94 +18,94 @@
     "other": "Analytics ID"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "Thêm tiêu đề vào hình ảnh logo"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Tên Ứng Dụng"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "Các thuộc tính của hình ảnh được sử dụng làm nền"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "Thuộc tính nền(1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "Thuộc tính nền(2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "Thuộc tính nền(3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "Thuộc tính nền(4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "Thuộc tính nền(5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "Thuộc tính nền(6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "Thuộc tính nền(Độ phân giải thấp)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "Giao diện trình duyệt. Chứa cài đặt cho chủ đề, tin nhắn chào mừng tùy chỉnh, v. v."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "Căn giữa (không lặp lại)"
   },
   "Client Plugin": {
     "other": "Client Plugin"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "Cấu hình phiên khách hàng"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "Thời gian hết hạn của máy khách"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "Nền tùy chỉnh (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "Nền tùy chỉnh (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "Nền tùy chỉnh (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "Nền tùy chỉnh (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "Nền tùy chỉnh (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "Nền tùy chỉnh (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "Biểu tượng tùy chỉnh"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Đã phát hiện mã hóa"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Đã phát hiện đường dẫn máy chủ"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "Hiển thị công cụ thương hiệu"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Bật chuyến tham quan chào mừng"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Cho phép kích hoạt chuyến tham quan chào mừng ngắn trong lần ghé thăm đầu tiên"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "Fetch Window (không nhắc lại)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "Fetch Window (lặp lại theo chiều dọc)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "Kích thước phông chữ được sử dụng cho tiêu đề màn hình khởi động"
   },
   "Google Analytics": {
     "other": "Google Analytics"
@@ -120,171 +120,171 @@
     "other": "Google Analytics Analytics ID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "Chiều cao của biểu tượng tùy chỉnh (tính bằng px)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "Chiều cao biểu tượng"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "Chỉ biểu tượng"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "Đường dẫn biểu tượng (Cũ)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "Chiều rộng biểu tượng"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "ID tài khoản GA của bạn, chẳng hạn như UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "Hình ảnh được sử dụng làm nền"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "Trang đang nhập"
   },
   "Logo": {
     "other": "Logo"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Chiều cao của logo"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "Logo bên trái"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "Logo trên cùng"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "Chiều rộng của Logo"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "Hình nền độ phân giải thấp"
   },
   "Main Options": {
-    "other": "Main Options"
+    "other": "Các tùy chọn chính"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "Đảm bảo hình nền có độ phân giải thấp để tránh tải chậm trên điện thoại di động."
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "Đặt độ lệch trái theo cách thủ công"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "Điều chỉnh chiều cao logo theo cách thủ công"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "Điều chỉnh chiều rộng logo theo cách thủ công"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "Đặt độ lệch trên theo cách thủ công"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Trang nhỏ"
   },
   "Minisite Logo": {
     "other": "Minisite Logo"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "Số phút trước khi phiên hết hạn để thông báo cho người dùng"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "Ghi đè các kiểu và màu mặc định bằng những kiểu được xác định trong công cụ kiểu. Tải lại giao diện sau khi kích hoạt tùy chọn này."
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "Hình nền trang"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "Thay thế logo được hiển thị trong trang chào mừng"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "Thay thế logo trên cùng bên trái trong thanh công cụ trên cùng"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Đặt miền cho các báo cáo phân tích của bạn (không bắt buộc!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Đặt miền cho các báo cáo phân tích của bạn (không bắt buộc!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "Cấu hình các thông số của một số ứng dụng. Nếu bạn bật Email, hãy sử dụng nút Kiểm tra để kiểm tra cấu hình Php."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "Hiển thị bảng màu để thay đổi màu sắc của giao diện và logo. Tải lại giao diện sau khi kích hoạt tùy chọn này."
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "Bỏ qua tiêu đề, chỉ hiển thị một hình ảnh"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "Màn hình khởi động"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "Thời lượng phiên của khách hàng tính bằng GIÂY. Theo mặc định, thời lượng phiên máy chủ được sao chép. Trong hầu hết các cài đặt PHP, nó là 1440 giây (24 phút). Bạn có thể đặt nó thành 0, đây là phiên PHP luôn hoạt động của máy khách. Cái sau không được khuyến khích vì lý do bảo mật."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "Giao diện"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "Chủ đề được sử dụng để hiển thị"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "Bố cục nền (lặp lại theo cả hai hướng)"
   },
   "Title": {
-    "other": "Title"
+    "other": "Tiêu đề"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "Kích thước phông chữ tiêu đề"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "Thanh công cụ trên cùng"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "Logo phía trên bên phải hiển thị trên trang minisite"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "URI cho một hình ảnh tùy chỉnh được sử dụng làm logo khởi động"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "Sử dụng nhật ký sự kiện, thử nghiệm, chỉ được triển khai trong các bản tải xuống"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "Sử dụng thương hiệu đã định cấu hình"
   },
   "User Home Logo": {
     "other": "User Home Logo"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "Cảnh báo trước khi phiên hết hạn"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Phiên web"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "Tự động đăng xuất khỏi giao diện web sau khi không hoạt động"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "Để đảm bảo an toàn, hãy ngắt kết nối người dùng nếu không có hoạt động nào. Đồng thời xác định thời hạn mặc định của cookie."
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "Tin nhắn chào mừng"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Trang chào mừng"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "Chiều rộng của hình ảnh tùy chỉnh (Mặc định 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Cảnh báo người dùng rằng phiên web sắp hết hạn. Số phút trước khi phiên hết hạn"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Cảnh báo trước khi phiên hết hạn"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "Tiêu đề HTML tùy chỉnh"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "Tùy chỉnh HTML mà bạn muốn đưa vào tiêu đề của trang. Hãy cẩn thận, đảm bảo rằng bạn đặt HTML hợp lệ!"
   }
 }

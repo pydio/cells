@@ -1,290 +1,290 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "额外的JS框架"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "以逗号分隔的 JS 文件路径列表，这些文件必须先于 Pydio 主框架加载。 首选方式应该是使用插件资源声明。 在页面开头加载JS文件只是在某些情况下的备选方案。"
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "在启动屏幕上显示的附加消息"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "分析域"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "分析事件"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "分析ID"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "添加标题到图像上"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "应用程序标题"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "作为背景使用的图像属性"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "背景属性 (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "背景属性 (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "背景属性 (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "背景属性(4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "背景属性 (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "背景属性 (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "背景属性 (低分辨率)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "基于浏览器的接口。包括配置主题，自定义欢迎消息等。"
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "在页面中居中 (无重复)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "客户端插件"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "客户端会话配置"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "客户端超时"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "自定义背景(1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "自定义背景 (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "自定义背景 (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "自定义背景(4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "自定义背景 (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "自定义背景 (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "自定义图标"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "检测到的编码"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "检测到的服务器路径"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "显示品牌"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "启用欢迎教程"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "启用首次访问时触发小教程"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "获取窗口 (无重复)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "获取窗口 (垂直重复)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "初始屏幕上标题使用的字体大小"
   },
   "Google Analytics": {
-    "other": "Google Analytics"
+    "other": "谷歌分析"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "谷歌分析域"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "谷歌分析事件"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "谷歌分析ID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "自定义图标的高度 (采用px)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "图标高度"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "仅图标"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "图标路径(传统)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "图标宽度"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "您的谷歌分析帐户ID，类似UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "图像用作背景"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "登录页面"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "徽标"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "徽标高度"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "徽标左"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "徽标上"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "徽标宽度"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "低分辨率背景"
   },
   "Main Options": {
-    "other": "Main Options"
+    "other": "主选项"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "确保使用较小的分辨率图像，否则移动端加载将非常缓慢。"
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "手动设置左偏移"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "手动设置徽标高度"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "手动设置徽标宽度"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "手动设置顶部偏移"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "迷你站点"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "迷你站点徽标"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "会话到期前MINUTES 分钟向用户发出警报"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "用品牌工具中定义的选项覆盖默认样式和颜色。如果您切换此选项，请确保重新加载接口。"
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "页面背景图像"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "替换欢迎页面中显示的徽标"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "替换顶部工具栏中左上角的标志"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "设置您的分析报告域名(非强制性!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "设置您的分析报告域名(非强制性!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "设置一些应用程序参数。如果您启用电子邮件，请使用测试按钮检查您的php是否正确配置。"
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "在界面上显示调色板以更改界面的颜色和标志。如果您切换此选项，请确保重新加载接口。"
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "跳过标题，只显示图像"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "开始界面"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
     "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "主题"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "用于显示的主题"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "平铺(重复两个方向)"
   },
   "Title": {
-    "other": "Title"
+    "other": "标题"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "标题字体大小"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "顶部工具栏"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "迷你站点页面右上角的徽标"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "用于启动标志的自定义图像的 URI"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
     "other": "Use Events Logging, experimental only implemented on download action in Pydio"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "使用已配置的品牌标记"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "用户主页徽标"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "会话到期前警告"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Web 会话"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "不活动后自动注销"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "为了安全起见，如果没有活动则断开用户连接。默认设置为 cookie 过期。"
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "欢迎消息"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "欢迎页面"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "自定义图像的宽度 (默认 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "提醒用户网络会话即将过期。会话到期前的分钟数"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "会话到期前警告"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "自定义 HTML 头部"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "自定义你想要包含在页面头部的HTML。请确保将有效的 HTML 放在这里！"
   }
 }

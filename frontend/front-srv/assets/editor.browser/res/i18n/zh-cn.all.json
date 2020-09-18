@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "External window"
+    "other": "新窗口"
   },
   "2": {
-    "other": "External browser window"
+    "other": "外部浏览器窗口"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "在外部窗口中打开文件，请稍候，此窗口会自动关闭。"
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "新建 URL 书签"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "或者，您可以 <a>创建一个此URL的新书签</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "输入以 http/https 开头的 URL"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "URL 书签"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "输入此书签的标签"
   }
 }

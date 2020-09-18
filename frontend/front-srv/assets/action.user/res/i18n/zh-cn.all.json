@@ -1,233 +1,233 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "地址簿"
   },
   "10": {
-    "other": "Associated workspaces"
+    "other": "关联的工作区"
   },
   "11": {
-    "other": "Are you sure that you want to delete the selected element(s)?"
+    "other": "你确定要删除已有的项目么?"
   },
   "12": {
-    "other": "You don't have the permission to delete this element."
+    "other": "您没有删除此元素的权限。"
   },
   "13": {
-    "other": "Successfully deleted public file."
+    "other": "成功删除公共文件。"
   },
   "14": {
-    "other": "Integrity"
+    "other": "完整性"
   },
   "15": {
-    "other": "Ok"
+    "other": "确定"
   },
   "16": {
-    "other": "Broken"
+    "other": "损坏"
   },
   "17": {
-    "other": "Download URL"
+    "other": "下载链接"
   },
   "18": {
-    "other": "Copy URL"
+    "other": "复制 URL"
   },
   "19": {
-    "other": "Copy url to send by email."
+    "other": "通过电子邮件发送复制的URL。"
   },
   "2": {
-    "other": "Shared folders"
+    "other": "共享文件夹"
   },
   "20": {
-    "other": "Downloads"
+    "other": "下载"
   },
   "21": {
-    "other": "Yes"
+    "other": "是"
   },
   "22": {
-    "other": "No"
+    "other": "否"
   },
   "23": {
-    "other": "Successfully deleted %s files."
+    "other": "成功删除 %s 个文件。"
   },
   "24": {
-    "other": "Nothing to delete."
+    "other": "没有要删除的内容。"
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "清除过期的"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "删除过期的共享文件。"
   },
   "27": {
-    "other": "Owner"
+    "other": "所有者"
   },
   "28": {
-    "other": "Files shared for direct download, either protected by a password or not."
+    "other": "用于直接下载的文件共享，要么受密码保护，要么不受保护。"
   },
   "29": {
-    "other": "Delegates workspaces created by users."
+    "other": "用户创建的代理工作区。"
   },
   "3": {
-    "other": "Shared files"
+    "other": "共享的文件"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "为访问代理工作区而创建的用户。"
   },
   "31": {
-    "other": "Description"
+    "other": "描述"
   },
   "32": {
-    "other": "Reset"
+    "other": "重置"
   },
   "33": {
-    "other": "Reset download counter"
+    "other": "重置下载计数器"
   },
   "34": {
-    "other": "My Shares"
+    "other": "我的共享"
   },
   "35": {
-    "other": "All my shared items (files and folders)"
+    "other": "我所有共享的项目 (文件和文件夹)"
   },
   "36": {
-    "other": "Parameters"
+    "other": "参数"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "我的个人资料和应用程序设置"
   },
   "38": {
-    "other": "Notifications"
+    "other": "通知"
   },
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "下面是您可以访问的工作区列表。它们可以是个人的，也可以是与其他用户共享的。"
   },
   "4": {
-    "other": "File Path"
+    "other": "文件路径"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "欢迎，%s！ "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "作为默认工作区"
   },
   "42": {
-    "other": "Enter"
+    "other": "进入"
   },
   "43": {
-    "other": "My Profile"
+    "other": "我的个人资料"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "我的所有个人数据"
   },
   "44": {
-    "other": "My Account"
+    "other": "我的帐户"
   },
   "45": {
-    "other": "Personal data"
+    "other": "个人数据"
   },
   "46": {
-    "other": "Address Book"
+    "other": "地址簿"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "您创建的用户和团队"
   },
   "48": {
-    "other": "My Users"
+    "other": "我的用户"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "您创建的外部用户"
   },
   "5": {
-    "other": "Repository"
+    "other": "存储库"
   },
   "50": {
-    "other": "My Teams"
+    "other": "我的团队"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "共享时用作快捷方式的团队用户"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "您确定要删除此团队吗？这将不会删除任何用户。"
   },
   "53": {
-    "other": "Back to my workspaces"
+    "other": "返回我的工作区"
   },
   "54": {
-    "other": "Update Members"
+    "other": "更新成员"
   },
   "55": {
-    "other": "Add/Remove users from this team"
+    "other": "添加/删除此团队中的用户"
   },
   "56": {
-    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+    "other": "每行添加一个用户，输入文本以查看自动完成列表显示。"
   },
   "57": {
-    "other": "Create a Team"
+    "other": "创建团队"
   },
   "58": {
-    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+    "other": "团队被用作快捷键，快速与预定义的用户共享文件夹"
   },
   "59": {
-    "other": "Team Label"
+    "other": "团队标签"
   },
   "6": {
-    "other": "Password"
+    "other": "密码"
   },
   "60": {
-    "other": "Team Users"
+    "other": "团队用户"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "电子邮件首选项"
   },
   "62": {
-    "other": "Send emails every X minutes"
+    "other": "每隔X分钟发送电子邮件"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "每 Y 小时发送电子邮件"
   },
   "64": {
-    "other": "Choose the hour of the day"
+    "other": "选择一天的时间"
   },
   "65": {
-    "other": "Choose the first hour of the day"
+    "other": "选择一天的第一小时"
   },
   "66": {
-    "other": "Choose the second hour of the day"
+    "other": "选择当天的第二小时"
   },
   "67": {
-    "other": "Pick a day of the week"
+    "other": "选择一周中的一天"
   },
   "68": {
-    "other": "Monday"
+    "other": "周一"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "周二"
   },
   "7": {
-    "other": "Expiration"
+    "other": "过期时间"
   },
   "70": {
-    "other": "Wednesday"
+    "other": "周三"
   },
   "71": {
-    "other": "Thursday"
+    "other": "周四"
   },
   "72": {
-    "other": "Friday"
+    "other": "周五"
   },
   "73": {
-    "other": "Saturday"
+    "other": "周六"
   },
   "74": {
-    "other": "Sunday"
+    "other": "周日"
   },
   "8": {
-    "other": "Elements"
+    "other": "元素"
   },
   "9": {
-    "other": "Associated users"
+    "other": "关联用户"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "管理我的账户首选项、我的地址簿、共享等。"
   },
   "title": {
-    "other": "My Account"
+    "other": "我的帐户"
   }
 }

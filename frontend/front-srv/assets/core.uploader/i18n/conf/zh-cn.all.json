@@ -1,59 +1,59 @@
 {
   "Allowed Extensions": {
-    "other": "Allowed Extensions"
+    "other": "允许的扩展名"
   },
   "Ext. Label": {
-    "other": "Ext. Label"
+    "other": "扩展名标签"
   },
   "Extensions List": {
-    "other": "Extensions List"
+    "other": "扩展名列表"
   },
   "File Size": {
-    "other": "File Size"
+    "other": "文件大小"
   },
   "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
-    "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
+    "other": "通过扩展名过滤允许上传的文件。使用逗号分隔的列表。"
   },
   "Limitations": {
-    "other": "Limitations"
+    "other": "限制"
   },
   "Maximum size per file allowed to upload.": {
-    "other": "Maximum size per file allowed to upload."
+    "other": "每个文件允许上传的最大尺寸。"
   },
   "Options shared by all uploaders plugins": {
-    "other": "Options shared by all uploaders plugins"
+    "other": "所有上传插件共享的选项"
   },
   "Uploaders Options": {
-    "other": "Uploaders Options"
+    "other": "上传选项"
   },
   "User readable label for the list of allowed extensions (images, all files, etc).": {
-    "other": "User readable label for the list of allowed extensions (images, all files, etc)."
+    "other": "允许扩展名列表的用户可读标签 (图像、所有文件等)。"
   },
   "Multipart Uploads": {
-    "other": "Multipart Uploads"
+    "other": "多部分上传"
   },
   "Multipart Parts Size": {
-    "other": "Multipart Parts Size"
+    "other": "多部分的分块大小"
   },
   "Multipart Threshold": {
-    "other": "Multipart Threshold"
+    "other": "多部分的分块阈值"
   },
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
-    "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
+    "other": "大于此值的文件切换到多部分上传模式(字节)"
   },
   "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
-    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
+    "other": "用于多部分上传的区块大小，必须大于 5MB (5242800B)"
   },
   "Queue Size": {
-    "other": "Queue Size"
+    "other": "队列大小"
   },
   "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
-    "other": "Number of concurrent uploads (maximum 6, due to browsers limitations)"
+    "other": "并行上传数 (浏览器限制为最多6个)"
   },
   "Timeout": {
-    "other": "Timeout"
+    "other": "超时"
   },
   "Request Timeout (in minutes) for each concurrent part upload": {
-    "other": "Request Timeout (in minutes) for each concurrent part upload"
+    "other": "每个并行多部分上传请求超时时间(分钟)"
   }
 }

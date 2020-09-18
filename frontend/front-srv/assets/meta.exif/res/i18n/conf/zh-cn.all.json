@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "相关的标签列表, 一定要定义尽可能多的字段!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "逗号分隔的字段列表, 使用语法'EXIF_SECTION.ExifName'。"
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Exif 元数据"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "提取一个 JPG 图像的 EXIF 元数据。与editor.exif 一起使用"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "信息面板字段"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "信息面板标签"
   }
 }

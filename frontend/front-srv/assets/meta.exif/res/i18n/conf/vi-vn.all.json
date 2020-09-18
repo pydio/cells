@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "Danh sách các thẻ được liên kết, hãy nhớ xác định càng nhiều trường càng tốt!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "Danh sách các trường được phân tách bằng dấu phẩy, sử dụng cú pháp 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
     "other": "Exif Metadata"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "Trích xuất siêu dữ liệu EXIF ​​từ ảnh JPG. Nó được sử dụng cùng với trình soạn thảo.exif"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "Trường bảng thông tin"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "Bảng nhãn thông tin"
   }
 }

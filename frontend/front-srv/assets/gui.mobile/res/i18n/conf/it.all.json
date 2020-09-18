@@ -30,27 +30,27 @@
     "other": "Template che estende 'gui.ajax' ai terminali con piccoli schermi."
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "Disabilita questa funzione"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "Non visualizzare uno smart banner quando si apre l'interfaccia web su un terminale mobile."
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "Icona Applicazione iOS"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "ID Applicazione iOS"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "ID dell'applicazione iOS nello store"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "ID Applicazione Android"
   },
   "Android App ID": {
-    "other": "Android App ID"
+    "other": "ID App Android"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Icona Applicazione Android"
   }
 }

@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "Заблокировать"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "Заблокировать выбранный элемент"
   },
   "3": {
-    "other": "Unlock"
+    "other": "Разблокировать"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "Снять блокировку"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "Этот файл заблокирован другим пользователем, он в настоящее время редактируется, вы не можете его изменить."
   }
 }

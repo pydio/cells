@@ -1,98 +1,98 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "关注我们"
   },
   "cont.btn.github": {
-    "other": "Github Star"
+    "other": "Github 加星"
   },
   "cont.btn.tw": {
-    "other": "Twitter"
+    "other": "推特"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "代码可在 Github上公开查阅。 您想修复一个 bug，或帮助论坛中的其他人或推送下一个杀手级功能吗？立即参与！\n                            或在社交网络上显示您的好评！"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells 是免费的开源软件。提出您的反馈吧！"
   },
   "cont.title": {
-    "other": "Pay it forward!"
+    "other": "付款！"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "我实现了一个新功能：向 github 推送代码"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "我想我发现了一个漏洞！在论坛上发帖。"
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "我的 bug 是合格的：打开一个 github 问题。"
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "如何创建或完善语言翻译？"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "高级管理员面板"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "用于实时监测平台使用情况的唯一管理员面板。"
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "联系销售人员"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "了解更多"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "面向企业的功能"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "面向企业的功能：AD/LDAP连接器，审计日志，简易传输器..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "更多特性 - 符合GDPR - 创建品牌"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "支助和维护"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "直接从核心团队获得安装帮助"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "探索 Pydio Cells 企业版"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "立即升级！"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "在应用内升级到 Cells 企业版（需要许可文件）"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "高级版"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "关于参数"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "入门教程"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "用户"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "如果你不知道从哪里开始，管理员指南肯定是一本好教材！"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "这是管理Pydio的仪表盘。 使用左侧菜单，您可以创建 <a class=\"doc-link\" data-path=\"/data/workspaces\">工作区</a> 和 <a class=\"doc-link\" data-path=\"/idm/users\">用户</a>,\n                            查看平台上发生的所有 <a class=\"doc-link\" data-path=\"/admin/logs\">事件</a> 并管理 <a class=\"doc-link\" data-path=\"/parameters/core\">配置</a> 和 <a class=\"doc-link\" data-path=\"/plugins/manager\">插件</a>."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "如果您正在运行 Pydio 8 安装， 请注意， <u>Pydio 8 将在2019年底终止更新</u>。 您可以使用 <a class=\"doc-link\" data-path=\"/data/migration\">导入工具</a> 将所有数据迁移到 Pydio Cells。"
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "管理和监控您的平台活动的地方"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "欢迎使用 Pydio Cells v2"
   }
 }

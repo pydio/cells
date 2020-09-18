@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "评论限制"
   },
   "Comments Feed": {
-    "other": "Comments Feed"
+    "other": "评论源"
   },
   "Display a chat-like feed on every nodes": {
-    "other": "Display a chat-like feed on every nodes"
+    "other": "在每个节点上显示类似聊天的订阅源"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "每个评论的最大字符数"
   }
 }

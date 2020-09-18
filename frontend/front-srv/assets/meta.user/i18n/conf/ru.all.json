@@ -1,80 +1,80 @@
 {
   "Files Metadata": {
-    "other": "Files Metadata"
+    "other": "Метаданные файлов"
   },
   "User Metadata implementation": {
-    "other": "User Metadata implementation"
+    "other": "Реализация метаданных пользователя"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "Доп. информация"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Цветовые метки"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "Видимость столбцов"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "Создано..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "В зависимости от типа поля. Используется только для выбора"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "ID поля"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Тип поля"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Скрытое"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "Скрытый файл, используемый внутри папок для сохранения метаданных"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "ID полей, используйте стандартные символы здесь."
   },
   "Label": {
-    "other": "Label"
+    "other": "Метка"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "Метка поля, понятная человеку"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "Последний изменивший"
   },
   "Long text": {
-    "other": "Long text"
+    "other": "Длинный текст"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "Мета-файл"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "Выбор (задать выбор в доп. информации)"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "Установить видимость по умолчанию."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Короткий тест"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "Простая реализация метаданных с сохранением в скрытом файле."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Рейтинг"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "Теги (расширенные наборы значений)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "Метаданные текста"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Тип поля"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "Видимый"
   }
 }

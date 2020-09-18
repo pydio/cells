@@ -1,27 +1,27 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Avvia"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Pausa"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Elimina tutto"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Cancella lista..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Uploads Completati"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Upload Non Riusciti"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Tutti I Trasferimenti"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d di più - mostra tutto"
   },
   "options.existing": {
     "other": "Se esiste un file con lo stesso nome:"
@@ -39,84 +39,84 @@
     "other": "Sovrascrivere il file esistente senza avvertire"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Rinomina le cartelle, e poi i file in conflitto"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Rinomina solo i file (unisci cartelle)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Unisci cartelle e sovrascrivi i file"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Salva la scelta per i successivi upload"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Opzioni di upload"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Non sei autorizzato a caricare questo file qui"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Caricamento dei file sul server..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Sembra che il tuo browser non supporti il rilascio delle cartelle"
   },
   "analyze.step": {
     "other": "Preparazione di file e cartelle per il caricamento..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Trascina i file qui"
   },
   "drop-or": {
-    "other": "or"
+    "other": "o"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "sfoglia i file"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "sfoglia le cartelle"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "Trasferimenti"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "In sospeso"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Si è verificato un errore"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "In pausa"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "Analisi in corso"
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Creazione della cartella"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Upload del file"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Cartella creata"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "File caricato"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Segmento caricato"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Caricamento segmento"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Completamento del segmento corrente prima della pausa"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Impossibile mettere in pausa questo trasferimento"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Impossibile mettere in pausa il trasferimento del segmento"
   }
 }

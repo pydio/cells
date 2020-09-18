@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "Giới hạn nhận xét"
   },
   "Comments Feed": {
     "other": "Comments Feed"
   },
   "Display a chat-like feed on every nodes": {
-    "other": "Display a chat-like feed on every nodes"
+    "other": "Hiển thị cửa sổ nhận xét giống như trò chuyện trên tất cả các nút"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "Số ký tự tối đa cho mỗi nhận xét"
   }
 }

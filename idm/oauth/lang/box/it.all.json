@@ -11,27 +11,27 @@
     "other": "Eliminate {{.DeletionCount}} chiavi di reimpostazione delle password scadute"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "Impossibile trovare l'indirizzo email corrispondente"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Ti è stata inviata un'email con ulteriori istruzioni"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Ops, si è verificato un errore. Si prega di rilanciare il processo di ripristino della password"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "Il token è scaduto, si prega di seguire nuovamente il processo di ripristino della password!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "Il token non corrisponde a questo identificativo utente!"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "Impossibile trovare l'utente corrispondente!"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "Si è verificato un errore durante il tentativo di impostare la nuova password!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "La password è stata reimpostata con successo, ora puoi tornare alla pagina di login!"
   }
 }

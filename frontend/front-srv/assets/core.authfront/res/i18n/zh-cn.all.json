@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "重设密码"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "设置新密码"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "请输入您的登录或电子邮件地址，重置密码将通过电子邮件发送给您。"
   },
   "4": {
-    "other": "Your login or email"
+    "other": "您的登录名或电子邮件"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "重置密码请求已发送到您帐户注册的电子邮件。点击电子邮件中的链接重新创建密码。"
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "谢谢您，请重新加载以登录！"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "已请求重置此电子邮件地址关联的帐户上的密码。 如果您不是此请求的作者，您可以安全地忽略此电子邮件。否则请点击以下链接重置您的密码："
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "使用下面的表单重置您的密码。请输入您的登录名和新密码两次。"
   }
 }

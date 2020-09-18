@@ -18,21 +18,21 @@
     "other": "Hành vi mặc định"
   },
   "Default value for automatically closing the dialog after upload or not": {
-    "other": "Default value for automatically closing the dialog after upload or not"
+    "other": "Giá trị mặc định để tự động đóng hộp thoại sau khi tải lên hoặc không"
   },
   "Default value for automatically starting upload or not": {
-    "other": "Default value for automatically starting upload or not"
+    "other": "Giá trị mặc định để tự động bắt đầu tải lên hoặc không"
   },
   "Existing Files": {
-    "other": "Existing Files"
+    "other": "Tập tin đã tồn tại"
   },
   "HTML Uploader": {
     "other": "Tiêu chuẩn"
   },
   "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
-    "other": "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)"
+    "other": "Thông báo cho người dùng hoặc không nếu tệp đã tồn tại (hành vi mặc định, người dùng sẽ có thể thay đổi tùy chọn này)"
   },
   "Prompt user": {
-    "other": "Prompt user"
+    "other": "Hỏi người dùng"
   }
 }

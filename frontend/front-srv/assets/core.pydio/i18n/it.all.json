@@ -186,13 +186,13 @@
     "other": "Bookmark"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Aggiungi elemento a MyBookmarks"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Rimuovi bookmark"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Rimuovi elemento da MyBookmarks"
   },
   "154": {
     "other": "Nuova cartella"
@@ -1581,16 +1581,16 @@
     "other": "Crea i tuoi team per condividere facilmente i dati tra più utenti"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Nessun team disponibile"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Non sei autorizzato a creare team, ma alcuni utenti autorizzati possono condividere team con te"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Crea e modifica i Team"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Consenti agli utenti di creare e modificare i propri team"
   },
   "573": {
     "other": "Aggiungi utente al team"
@@ -2238,19 +2238,19 @@
     "other": "La cartella è stata aggiunta ai preferiti"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Aggiungi questo link ai preferiti"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Rimuovi questo bookmark"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Valori misti, fare clic per aggiungerli tutti ai bookmark"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Salvataggio dello stato dei bookmark"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "All'interno"
   },
   "mkfile.empty.template.label": {
     "other": "File vuoto"
@@ -2271,7 +2271,7 @@
     "other": "Filtra celle"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtra Workspace"
   },
   "visibility.panel.title": {
     "other": "Visibilità"
@@ -2313,33 +2313,33 @@
     "other": "Sconosciuto/a"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Seleziona gruppo"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Conferma"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Stai per eliminare"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Non avvisarmi la prossima volta"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Righe per pagina"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "di"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Utilizzare solo immagini (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Ripristina"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Vuoi rimuovere l'immagine corrente?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Per favore usa immagini più piccole di 5MB"
   }
 }

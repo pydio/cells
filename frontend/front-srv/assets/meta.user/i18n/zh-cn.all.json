@@ -1,47 +1,47 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "元数据"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "使用现有标签或新标签"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "没有设置元数据，点击添加"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "多选:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "确认您想要更新的字段，值将应用于所有选定的文件"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "编辑元数据"
   },
   "15": {
-    "other": "Save meta"
+    "other": "保存元数据"
   },
   "2": {
-    "other": "No Label"
+    "other": "无标签"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "删除评分"
   },
   "4": {
-    "other": "Low"
+    "other": "低"
   },
   "5": {
-    "other": "Todo"
+    "other": "待办"
   },
   "6": {
-    "other": "Personal"
+    "other": "个人"
   },
   "7": {
-    "other": "Work"
+    "other": "工作"
   },
   "8": {
-    "other": "Important"
+    "other": "重要"
   },
   "9": {
-    "other": "No Value"
+    "other": "无值"
   }
 }
