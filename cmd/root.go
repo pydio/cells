@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/vault"
+	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
@@ -158,7 +159,7 @@ func init() {
 
 	flags := RootCmd.PersistentFlags()
 
-	flags.String("config", "etcd", "Config")
+	flags.String("config", "local", "Config")
 
 	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
 	flags.String("registry_address", ":4222", "Registry connection address")
@@ -246,6 +247,49 @@ func initConfig() {
 		os.Exit(1)
 	}
 
+	var vaultConfig config.Store
+	var defaultConfig config.Store
+
+	switch viper.GetString("config") {
+	case "mysql":
+		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
+		defaultConfig = config.NewVault(
+			config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
+			vaultConfig,
+		)
+	default:
+		vaultConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(
+						vault.NewVaultSource(
+							filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
+							filepath.Join(config.PydioConfigDir, "cells-vault-key"),
+							true,
+						),
+					),
+					microconfig.PollInterval(10*time.Second),
+				),
+			))
+
+		defaultConfig =
+			config.NewVault(
+				config.New(
+					config.NewVersionStore(versionsStore, micro.New(
+						microconfig.NewConfig(
+							microconfig.WithSource(
+								file.NewSource(
+									microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+								),
+							),
+							microconfig.PollInterval(10*time.Second),
+						),
+					),
+					)),
+				vaultConfig,
+			)
+	}
+
 	// if written && VersionsStore != nil {
 	// 	var data interface{}
 	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
@@ -257,37 +301,6 @@ func initConfig() {
 	// 		})
 	// 	}
 	// }
-
-	vaultConfig := config.New(
-		micro.New(
-			microconfig.NewConfig(
-				microconfig.WithSource(
-					vault.NewVaultSource(
-						filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
-						filepath.Join(config.PydioConfigDir, "cells-vault-key"),
-						true,
-					),
-				),
-				microconfig.PollInterval(10*time.Second),
-			),
-		))
-
-	defaultConfig :=
-		config.NewVault(
-			config.New(
-				config.NewVersionStore(versionsStore, micro.New(
-					microconfig.NewConfig(
-						microconfig.WithSource(
-							file.NewSource(
-								microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-							),
-						),
-						microconfig.PollInterval(10*time.Second),
-					),
-				),
-				)),
-			vaultConfig,
-		)
 
 	// Need to do something for the versions
 	config.UpgradeConfigsIfRequired(defaultConfig)

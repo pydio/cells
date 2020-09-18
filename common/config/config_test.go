@@ -52,4 +52,23 @@ func TestConfig(t *testing.T) {
 
 		wg.Wait()
 	})
+
+	Convey("Test Scan", t, func() {
+		w, err := Watch("watch", "val")
+		So(err, ShouldBeNil)
+
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			for {
+				w.Next()
+
+				wg.Done()
+			}
+		}()
+
+		Set("test", "watch", "val")
+
+		wg.Wait()
+	})
 }

@@ -207,3 +207,14 @@ func TestString(t *testing.T) {
 		So(m.String(), ShouldNotEqual, "")
 	})
 }
+
+func TestScan(t *testing.T) {
+	Convey("Testing reference", t, func() {
+		m := New(WithJSON())
+
+		i := New(WithJSON())
+
+		err := m.Scan(&i)
+		So(err, ShouldBeNil)
+	})
+}

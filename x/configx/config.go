@@ -232,6 +232,10 @@ func (v *config) Val(s ...string) Values {
 
 // Scan to interface
 func (v *config) Scan(val interface{}) error {
+	if (v.v) == nil {
+		return nil
+	}
+
 	jsonStr, err := json.Marshal(v.v)
 	if err != nil {
 		return err

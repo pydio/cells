@@ -60,8 +60,7 @@ import (
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
-
-	urlConf := conf.Val("updateUrl").Default("#/defaults/update/updateUrl").String()
+	urlConf := conf.Val("updateUrl").Default(configx.Reference("#/defaults/update/updateUrl")).String()
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
 	}
@@ -73,7 +72,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 		parsed.Path = "/a/update-server"
 	}
 
-	channel := conf.Val("channel").Default("#/defaults/update/channel").Default("stable").String()
+	channel := conf.Val("channel").Default(configx.Reference("#/defaults/update/channel")).Default("stable").String()
 
 	// Set default values
 	if request.PackageName == "" {

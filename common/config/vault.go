@@ -92,21 +92,15 @@ func (v *vaultvalues) Val(s ...string) configx.Values {
 	return &vaultvalues{v.path + "/" + strings.Join(s, "/"), v.Values.Val(s...), v.vault.Val()}
 }
 
-// Get retrieves the value as saved in the config. Data will need to be retrieved from the vault via other means
+// Get retrieves the value as saved in the config (meaning the uuid if it is a registered key). Data will need to be retrieved from the vault via other means
 func (v *vaultvalues) Get() configx.Value {
-	// for _, p := range registeredVaultKeys {
-	// 	if v.path == p {
-	// 		uuid := v.Values.String()
-	// 		return v.vault.Val(uuid).Get()
-	// 	}
-	// }
 	return v.Values
 }
 
 func (v *vaultvalues) set(val interface{}) error {
 	uuid := v.Values.String()
 
-	// Get the current value
+	// Get the current value and do nothing it it hasn't change
 	current := v.vault.Val(uuid).Default("").String()
 	if current == val.(string) {
 		// already set
