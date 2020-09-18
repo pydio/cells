@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/file"
+	"github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
@@ -257,22 +258,41 @@ func initConfig() {
 	// 	}
 	// }
 
-	defaultConfig := config.New(
-		config.NewVersionStore(versionsStore, micro.New(
+	vaultConfig := config.New(
+		micro.New(
 			microconfig.NewConfig(
 				microconfig.WithSource(
-					file.NewSource(
-						microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+					vault.NewVaultSource(
+						filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
+						filepath.Join(config.PydioConfigDir, "cells-vault-key"),
+						true,
 					),
 				),
 				microconfig.PollInterval(10*time.Second),
 			),
-		),
 		))
+
+	defaultConfig :=
+		config.NewVault(
+			config.New(
+				config.NewVersionStore(versionsStore, micro.New(
+					microconfig.NewConfig(
+						microconfig.WithSource(
+							file.NewSource(
+								microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+							),
+						),
+						microconfig.PollInterval(10*time.Second),
+					),
+				),
+				)),
+			vaultConfig,
+		)
 
 	// Need to do something for the versions
 	config.UpgradeConfigsIfRequired(defaultConfig)
 	config.Register(defaultConfig)
+	config.RegisterVault(vaultConfig)
 
 	//if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
 	// 				e2 := Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")

@@ -152,7 +152,7 @@ func (u *User) FlattenedRolesConfigs() configx.Values {
 	if u.Logged {
 		return u.FlattenedFrontValues()
 	} else {
-		c := configx.NewMap()
+		c := configx.New()
 		// c.Set("actions", configx.NewMap())
 		// c.Set("parameters", configx.NewMap())
 		return c
@@ -165,7 +165,7 @@ func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
 
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
 func (u *User) FlattenedFrontValues() configx.Values {
-	output := configx.NewMap()
+	output := configx.New()
 	a := u.AccessList
 	for _, role := range a.OrderedRoles {
 		for _, acl := range a.FrontPluginsValues {

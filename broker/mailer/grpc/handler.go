@@ -72,6 +72,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		log.Logger(ctx).Error("cannot process mail to send: empty body", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
+
 	h.checkConfigChange(ctx, false)
 
 	for _, to := range mail.To {
@@ -202,7 +203,7 @@ func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig 
 	queueName = queueConfig.Val("@value").Default("boltdb").String()
 	senderName = senderConfig.Val("@value").Default("sendmail").String()
 
-	log.Logger(context.Background()).Debug("Parsed config for mailer", zap.String("c", senderConfig.String()))
+	log.Logger(context.Background()).Info("Parsed config for mailer")
 
 	return
 }
@@ -237,9 +238,11 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 	sender, err := mailer.GetSender(senderName, senderConfig)
 	if err != nil {
+		fmt.Println("Error is here ", err)
 		e = err
 		return
 	}
+
 	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
 	h.sender = sender
 	h.queueName = queueName
@@ -260,6 +263,9 @@ func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 	queueName, _, senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)
+
+	fmt.Println(m1, m2)
+
 	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
 		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")
 		return h.initFromConf(ctx, cfg, check)

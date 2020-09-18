@@ -48,7 +48,7 @@ func TestSendgrid_Send(t *testing.T) {
 			return
 		}
 
-		conf := configx.NewMap()
+		conf := configx.New()
 		conf.Val("apiKey").Set(sendgridTestConfig_apiKey)
 
 		email := &mailer.Mail{}

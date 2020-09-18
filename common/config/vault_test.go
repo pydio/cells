@@ -43,13 +43,31 @@ func TestVault(t *testing.T) {
 			config.PollInterval(1*time.Second),
 		),
 	))
+
 	vault := NewVault(std, stdvault)
+
 	RegisterVaultKey("protectedValue")
+	RegisterVaultKey("my-protected-map/my-protected-value")
+
 	Convey("Test Set", t, func() {
 		vault.Val("protectedValue").Set("my-secret-data")
-		So(vault.Val("protectedValue").Default("").String(), ShouldEqual, "my-secret-data")
+		So(vault.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
 
 		vault.Val("unprotectedValue").Set("my-test-config-value")
 		So(vault.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
+	})
+
+	Convey("Test Setting a map", t, func() {
+		vault.Val("my-protected-map").Set(map[string]string{
+			"my-protected-value":   "test",
+			"my-unprotected-value": "test",
+		})
+
+		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "")
+		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "")
+
+		So(vault.Val("my-protected-map/my-protected-value").Set("testing the test"), ShouldBeNil)
 	})
 }

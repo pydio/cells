@@ -113,6 +113,8 @@ func (v *VaultSource) String() string {
 func (v *VaultSource) Write(cs *config.ChangeSet) error {
 	data := make(map[string]string)
 
+	fmt.Println("Writing data to vault ", string(cs.Data))
+
 	err := json.Unmarshal(cs.Data, &data)
 	if err != nil {
 		return err

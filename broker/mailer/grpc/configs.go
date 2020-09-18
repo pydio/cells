@@ -27,7 +27,7 @@ import (
 )
 
 func init() {
-	config.RegisterVaultKey("services", Name, "sender", "password")
+	config.RegisterVaultKey("services/" + Name + "/sender/password")
 }
 
 var ExposedConfigs = &forms.Form{

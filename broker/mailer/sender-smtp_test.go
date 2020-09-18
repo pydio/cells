@@ -43,7 +43,7 @@ const (
 func TestSmtp_Send(t *testing.T) {
 	Convey("Test Sending w/ SMTP over gmail", t, func() {
 
-		conf := configx.NewMap()
+		conf := configx.New()
 		conf.Val("host").Set("smtp.gmail.com")
 		conf.Val("port").Set(float64(587))
 

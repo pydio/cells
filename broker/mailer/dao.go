@@ -26,6 +26,7 @@ package mailer
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/micro/go-micro/errors"
@@ -86,6 +87,7 @@ func GetSender(t string, conf configx.Values) (Sender, error) {
 
 	err := sender.Configure(nil, conf)
 	if err != nil {
+		fmt.Println(err)
 		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure sender for type %s", t)
 	}
 

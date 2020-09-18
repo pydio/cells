@@ -50,7 +50,7 @@ type Store interface {
 
 // New creates a configuration provider with in-memory access
 func New(store configx.Entrypoint) Store {
-	im := configx.NewMap()
+	im := configx.New(configx.WithJSON())
 
 	v := store.Get()
 
@@ -58,6 +58,27 @@ func New(store configx.Entrypoint) Store {
 	if v != nil {
 		v.Scan(&im)
 	}
+
+	go func() {
+		watcher, ok := store.(configx.Watcher)
+		if !ok {
+			return
+		}
+
+		w, err := watcher.Watch()
+		if err != nil {
+			return
+		}
+
+		for {
+			resp, err := w.Next()
+			if err != nil {
+				continue
+			}
+
+			resp.Scan(&im)
+		}
+	}()
 
 	return &cacheconfig{
 		im:    im,
@@ -151,9 +172,12 @@ type cacheValues struct {
 	path  []string
 }
 
+func (c *cacheValues) Val(s ...string) configx.Values {
+	return &cacheValues{c.Values.Val(s...), c.store, append(c.path, s...)}
+}
+
 // We store it in the cache and in the store
 func (c *cacheValues) Set(v interface{}) error {
-
 	err := c.Values.Set(v)
 	if err != nil {
 		return err

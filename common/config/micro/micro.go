@@ -34,7 +34,7 @@ func (m *mem) Val(path ...string) configx.Values {
 }
 
 func (m *mem) Get() configx.Value {
-	v := configx.NewMap()
+	v := configx.New(configx.WithJSON())
 
 	m.config.Get().Scan(&v)
 
