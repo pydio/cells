@@ -185,6 +185,11 @@ exports['default'] = React.createClass({
                 null,
                 values[paramName]
             );
+            var _props = this.props;
+            var onAltTextSwitch = _props.onAltTextSwitch;
+            var altTextSwitchIcon = _props.altTextSwitchIcon;
+            var altTextSwitchTip = _props.altTextSwitchTip;
+
             subForm = React.createElement(_FormPanel2['default'], {
                 onParameterChange: this.props.onParameterChange,
                 applyButtonAction: this.props.applyButtonAction,
@@ -199,7 +204,10 @@ exports['default'] = React.createClass({
                 checkHasHelper: this.props.checkHasHelper,
                 setHelperData: this.props.setHelperData,
                 helperTestFor: values[paramName],
-                accordionizeIfGroupsMoreThan: 5
+                accordionizeIfGroupsMoreThan: 5,
+                onAltTextSwitch: onAltTextSwitch,
+                altTextSwitchIcon: altTextSwitchIcon,
+                altTextSwitchTip: altTextSwitchTip
             });
         }
         return React.createElement(

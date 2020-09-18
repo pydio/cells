@@ -165,6 +165,7 @@ export default React.createClass({
             subFormHeader = (
                 <h4>{values[paramName]}</h4>
             );
+            const {onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip} = this.props;
             subForm = (
                 <FormPanel
                     onParameterChange={this.props.onParameterChange}
@@ -181,6 +182,9 @@ export default React.createClass({
                     setHelperData={this.props.setHelperData}
                     helperTestFor={values[paramName]}
                     accordionizeIfGroupsMoreThan={5}
+                    onAltTextSwitch={onAltTextSwitch}
+                    altTextSwitchIcon={altTextSwitchIcon}
+                    altTextSwitchTip={altTextSwitchTip}
                 />
             );
         }
