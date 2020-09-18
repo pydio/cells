@@ -1,65 +1,65 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "版本"
   },
   "10": {
-    "other": "Date"
+    "other": "日期"
   },
   "11": {
-    "other": "Author"
+    "other": "作者"
   },
   "12": {
-    "other": "Modification"
+    "other": "修改"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "您确定要这样做吗？ 恢复到旧版本将会在当前所选版本上创建一个新版本的文档。"
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "未找到以前的版本"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "更新文件内容时创建版本"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "'%s '的先前版本"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "文档先前的版本"
   },
   "3": {
-    "other": "Download"
+    "other": "下载"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "将选中的版本下载到您的计算机"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "预览 (browser)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "在浏览器窗口中打开选中的版本"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "还原到..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "将文件恢复到服务器上选定的版本"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "文件已创建"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "文件已删除"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "内容已修改"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "文件已移动"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "文件已重命名"
   }
 }

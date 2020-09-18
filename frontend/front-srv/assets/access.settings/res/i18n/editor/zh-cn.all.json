@@ -78,7 +78,7 @@
     "other": "Specific profile. May imply some roles automatically applied."
   },
   "33": {
-    "other": "Close"
+    "other": "关闭"
   },
   "34": {
     "other": "Access Controls"
@@ -138,7 +138,7 @@
     "other": "With this user"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "此用户创建的资料库和公共链接"
   },
   "53": {
     "other": "Shared by %1 from within workspace %2"
@@ -168,10 +168,10 @@
     "other": "Add for ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "所有工作区"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "仅共享资料库"
   },
   "parameters.scope.workspace": {
     "other": "Workspace %s"
@@ -192,12 +192,12 @@
     "other": "Admin Console"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Pydio Cells 管理员面板"
   },
   "acls.rights.policy.manual": {
     "other": "Rights set manually"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "整个工作区"
   }
 }

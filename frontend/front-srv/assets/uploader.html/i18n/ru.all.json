@@ -1,122 +1,122 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Пуск"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Пауза"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Очистить"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Очистить список..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Завершенные загрузки"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Ошибки при загрузке"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Все загрузки"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d больше - показать все"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Если файл с таким именем существует:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Остановить загрузку и оповестить меня"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Переименовать папки, а затем файлы"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Переименовать только файлы (объединить папки)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Перезаписать существующий файл без запроса"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Переименовать папки, а затем конфликтующие файлы"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Переименовать только файлы (объединить папки)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Объединить папки и перезаписать файлы"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Сохранить выбор для следующих загрузок"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Настройки загрузки"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Вы не можете загружать этот файл здесь"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Загрузка файлов на сервер..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Похоже, ваш браузер не поддерживает перетаскивание папок"
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Подготовка файлов и папок для загрузки..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Перетащите файлы сюда"
   },
   "drop-or": {
-    "other": "or"
+    "other": "или"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "обзор файлов"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "обзор папок"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "Загрузки"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "Ожидают"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Произошла ошибка"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "Приостановлено"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "Анализ..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Создание папки"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Загрузка файла"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Папка создана"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Файл загружен"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Часть загружена"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Загрузка части"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Завершение текущей части перед паузой"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Невозможно приостановить эту загрузку"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Невозможно приостановить загрузку части"
   }
 }

@@ -1,6 +1,6 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "用于接收通知的地址"
   },
   "All roles": {
     "other": "All roles"
@@ -63,7 +63,7 @@
     "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
   },
   "Email": {
-    "other": "Email"
+    "other": "电子邮件"
   },
   "Excluded Roles": {
     "other": "Excluded Roles"
@@ -75,7 +75,7 @@
     "other": "External users parameters"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "显示给他人看的全名"
   },
   "Generic Conf Features": {
     "other": "Generic Conf Features"
@@ -183,7 +183,7 @@
     "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "用户语言"
   },
   "User roles only": {
     "other": "User roles only"

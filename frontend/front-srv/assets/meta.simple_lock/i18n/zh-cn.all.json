@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "锁定"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "锁定选中项目"
   },
   "3": {
-    "other": "Unlock"
+    "other": "解锁​​​​"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "解锁"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "此文件已被其他用户锁定，可能正在编辑中，不允许修改。"
   }
 }

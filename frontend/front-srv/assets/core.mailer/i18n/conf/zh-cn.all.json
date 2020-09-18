@@ -1,113 +1,113 @@
 {
   "Core component for sending emails": {
-    "other": "Core component for sending emails"
+    "other": "发送电子邮件的核心组件"
   },
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "活动队列"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "通过电子邮件激活通知"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "发件人的地址"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "正文布局"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "选择您的邮件频率(例如9:00或9:00,14:00或星期三)"
   },
   "Content": {
-    "other": "Content"
+    "other": "内容"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "发送电子邮件的核心配置"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "在此详细说明您的频率"
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "电子邮件发送频率"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "每 X 小时"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "每 X 分钟"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "每天在 "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "从本地化文件提取主布局。将会在先前的参数上出现，请确保布局文件中有 PYDIO_MAIL_BODY 。"
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "强制所有邮件由此地址发送，而不是用户的地址"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "在 HTML 中获取电子邮件"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "布局文件夹"
   },
   "Mailer Plugin": {
-    "other": "Mailer Plugin"
+    "other": "邮件插件"
   },
   "Mailers": {
-    "other": "Mailers"
+    "other": "邮件服务器"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "电子邮件主体的主布局，使用 HTML 发送一封漂亮的邮件，使用PYDIO_MAIL_BODY 关键字来替换实际内容。"
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "发件人姓名"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "一周一次"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "通过电子邮件接收通知"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "选择要激活的插件用于发送电子邮件"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "以 HTML 格式发送"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "发送电子邮件给..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "发件人"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "发件人电子邮件"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "发件人名称"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "将电子邮件存储在队列和并做批处理。用户可以选择发送频率。 如果您使用此选项，请确保在consume_mail_queue动作上设置一个 CRON。"
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "在邮件主题开头自动添加的字符串"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "在邮件主题末尾自动添加的字符串"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "主题后缀"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "主题前缀"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "每天两次(每天)"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "唯一的发件人"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "您可以添加通过逗号分隔添加许多电子邮件"
   }
 }

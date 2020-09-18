@@ -42,10 +42,10 @@
     "other": "Quella che segue è la sintesi di tutte le notifiche ricevute su {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} ti ha inviato un messaggio!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} ti ha inviato un messaggio usando l'applicazione {{.Configs.Title}}: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
     "other": "Benvenuto su {{.Configs.Title}}"
@@ -207,7 +207,7 @@
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "ATTENZIONE: Il percorso eseguibile predefinito è /usr/bin/sendmail. Se devi cambiarlo, assicurati di impostare la chiave 'defaults > sendmail' nel tuo file di configurazione pydio.json."
   },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Percorso dell'eseguibile"

@@ -1,107 +1,107 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "开始添加新文件或文件夹到当前工作区。"
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "添加文件"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "此工具栏允许您更改显示方式：根据您的用法，切换到缩略图或详细模式，并按名称、日期等分类文件..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "显示选项"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "使用此搜索表单在任何工作区和资料库中查找文件或文件夹。 仅显示前5个结果，输入工作区名称以获得更多结果，以及更多搜索选项。"
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "当没有输入搜索内容时，将会使用您最近访问过的文件和文件夹的历史来显示。"
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "全局搜索"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "在这里，您可以找到许多关于当前所选文件的信息：文件信息，共享状态，用户定义的元数据等。"
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "您可以使用显示工具栏中的信息按钮关闭此面板"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "文件"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "文件夹"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "搜索​​​​"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "信息面板"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "后退"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "关闭"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "完成"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "下一步"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "跳过"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "首次连接时，您的历史可能是空的。输入一个工作区或资料库来开始添加文件。"
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "打开工作区"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "平台的所有用户都可访问的目录。创建您自己的用户，组成可以用于共享资源的团队"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "当与您分享了的资源被用户访问时，警报面板会通知您。 它们可以直接通过电子邮件发送给您。"
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "使用此按钮返回欢迎面板"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "访问其他选项：管理您的个人资料和安全功能，浏览您共享的所有资源，退出平台。"
   },
   "tour.uwidget.title": {
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "跳过"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "开始游览"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "拖放您的最佳照片用于个人资料！这次快速游览将引导您进入网页界面。"
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "欢迎使用 APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "您可以在这里添加或删除小部件。您也可以通过简单地拖动小部件来重新排序它们。"
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "小部件"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "工作区是帮助您组织数据的顶级文件夹。它们只能由您访问或共享给其他用户。"
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "资料库是您可以与其他用户共享的协作空间。 基于文件夹、团队用户或任何相关主题创建您自己的资料库。"
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "工作区和资料库"
   },
   "background.jobs.title": {
-    "other": "Jobs running"
+    "other": "任务运行中"
   }
 }

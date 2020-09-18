@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "电子邮件已成功发送至 %s 用户(s)"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "未找到发送电子邮件的地址！"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "没有配置发送电子邮件的程序，请联系您的管理员"
   },
   "4": {
-    "other": "From"
+    "other": "来自"
   },
   "5": {
-    "other": "To"
+    "other": "至"
   },
   "6": {
-    "other": "Subject"
+    "other": "主题"
   },
   "7": {
-    "other": "Message"
+    "other": "信息"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "选择用户或输入地址"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "通知摘要"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "无法正确发送电子邮件！"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "警告，某些条目被忽略，只有正确设置其电子邮件地址的用户才会收到邀请。团队和组没有被处理。"
   }
 }

@@ -1,80 +1,80 @@
 {
   "Files Metadata": {
-    "other": "Files Metadata"
+    "other": "Tệp Metadata"
   },
   "User Metadata implementation": {
     "other": "User Metadata implementation"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "Thêm thông tin"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Màu nhãn"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "Hiển thị cột"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "Được tạo bởi..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "Tùy thuộc vào loại trường. Chỉ được sử dụng để lựa chọn"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "ID trường"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Loại trường"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Ẩn"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "Tệp ẩn được sử dụng bên trong các thư mục để lưu dữ liệu meta"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "Id của các trường, sử dụng các ký tự tiêu chuẩn ở đây."
   },
   "Label": {
-    "other": "Label"
+    "other": "Nhãn"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "Nhãn trường, thân thiện với người dùng"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "Lần cập nhật cuối bởi..."
   },
   "Long text": {
-    "other": "Long text"
+    "other": "Văn bản dài"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "Tệp tin meta"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "Lựa chọn (đặt các tùy chọn trong thông tin bổ sung)"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "Đặt chế độ hiển thị mặc định."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Văn bản ngắn"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "Triển khai metadata đơn giản được lưu trữ trong một tệp ẩn."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Đánh giá sao"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "Nhãn (bộ giá trị có thể mở rộng)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "Văn bản metadata"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Loại trường"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "Hiển thị"
   }
 }

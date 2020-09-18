@@ -3,13 +3,13 @@
     "other": "Collabora Online"
   },
   "Collabora Online Editor for office documents": {
-    "other": "Collabora Online Editor for office documents"
+    "other": "Trình chỉnh sửa Collabora Online cho tài liệu văn phòng"
   },
   "Libre Office SSL": {
     "other": "Libre Office SSL"
   },
   "Libre Office uses ssl": {
-    "other": "Libre Office uses ssl"
+    "other": "Libre Office sử dụng ssl"
   },
   "Libre Office Host": {
     "other": "Libre Office Host"
@@ -18,9 +18,9 @@
     "other": "Libre Office Host"
   },
   "Host for Libre Office": {
-    "other": "Host for Libre Office"
+    "other": "Máy chủ cho Libre Office"
   },
   "Port for Libre Office": {
-    "other": "Port for Libre Office"
+    "other": "Cổng cho Libre Office"
   }
 }

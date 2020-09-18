@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "Khóa"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "Khóa mục được chọn"
   },
   "3": {
-    "other": "Unlock"
+    "other": "Mở khoá"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "Bỏ khóa"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "Tệp này đã bị khóa bởi người dùng khác, hiện có thể đang được chỉnh sửa, bạn không được phép sửa đổi."
   }
 }

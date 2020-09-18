@@ -1,8 +1,8 @@
 {
   "Authentication FrontEnd": {
-    "other": "Authentication FrontEnd"
+    "other": "身份验证前端"
   },
   "Actual way to authenticate users (via credentials, certificates, http, etc)": {
-    "other": "Actual way to authenticate users (via credentials, certificates, http, etc)"
+    "other": "验证用户的实际方法 (通过凭据、证书、http等)"
   }
 }

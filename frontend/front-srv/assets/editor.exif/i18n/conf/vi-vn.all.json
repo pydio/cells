@@ -1,6 +1,6 @@
 {
   "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data.": {
-    "other": "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data."
+    "other": "Hiển thị EXIF metadata ​​có trong các tệp JPEG. Bạn có thể xác định vị trí một hình ảnh trên bản đồ nếu nó chứa dữ liệu định vị địa lý."
   },
   "EXIF Extractor": {
     "other": "EXIF Extractor"

@@ -1,8 +1,8 @@
 {
   "Manual Locking mechanism to avoid concurrent edition": {
-    "other": "Manual Locking mechanism to avoid concurrent edition"
+    "other": "Cơ chế khóa thủ công ngăn chỉnh sửa đồng thời"
   },
   "Simple Lock": {
-    "other": "Simple Lock"
+    "other": "Khóa đơn giản"
   }
 }

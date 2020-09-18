@@ -1,47 +1,47 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "Dữ liệu Meta"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Thẻ hiện có hoặc thẻ mới"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Không có metadata, hãy nhấp để thêm"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Nhiều lựa chọn:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "kiểm tra các trường mà bạn muốn cập nhật, giá trị sẽ được áp dụng cho tất cả các tệp đã chọn"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Chỉnh sửa meta"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Lưu meta"
   },
   "2": {
-    "other": "No Label"
+    "other": "Không nhãn"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "Xóa xếp hạng"
   },
   "4": {
-    "other": "Low"
+    "other": "Thấp"
   },
   "5": {
-    "other": "Todo"
+    "other": "Làm"
   },
   "6": {
-    "other": "Personal"
+    "other": "Cá nhân"
   },
   "7": {
-    "other": "Work"
+    "other": "Công việc"
   },
   "8": {
-    "other": "Important"
+    "other": "Quan trọng"
   },
   "9": {
-    "other": "No Value"
+    "other": "Không có giá trị"
   }
 }

@@ -1,33 +1,33 @@
 {
   "Action to trigger when clicking on Forgot Password": {
-    "other": "Action to trigger when clicking on Forgot Password"
+    "other": "点击忘记密码时触发动作"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "Activate the users management system to protect your Pydio installation."
+    "other": "激活用户管理系统以保护您的 Pydio。"
   },
   "Add a Forgot Password link at the bottom of the login form": {
-    "other": "Add a Forgot Password link at the bottom of the login form"
+    "other": "在登录表单底部添加忘记密码链接"
   },
   "Authentication": {
-    "other": "Authentication"
+    "other": "身份验证"
   },
   "Both": {
-    "other": "Both"
+    "other": "两者都是"
   },
   "Cache master users": {
-    "other": "Cache master users"
+    "other": "缓存主用户"
   },
   "Case Sensitive": {
-    "other": "Case Sensitive"
+    "other": "区分大小写"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "选择配置插件"
   },
   "Create a local copy (at login time) of master users inside slave base": {
     "other": "Create a local copy (at login time) of master users inside slave base"
   },
   "Disable Brute Force Check (Captcha)": {
-    "other": "Disable Brute Force Check (Captcha)"
+    "other": "禁用布鲁特强制检查 (验证码)"
   },
   "Disable the check of failed login attempts, will disable the Captcha display": {
     "other": "Disable the check of failed login attempts, will disable the Captcha display"
@@ -138,10 +138,10 @@
     "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
   },
   "Let user create new cells": {
-    "other": "Let user create new cells"
+    "other": "允许用户创建新资料库"
   },
   "Whether users can create their own cells or not": {
-    "other": "Whether users can create their own cells or not"
+    "other": "用户是否可以创建自己的资料库"
   },
   "Delegation": {
     "other": "Delegation"

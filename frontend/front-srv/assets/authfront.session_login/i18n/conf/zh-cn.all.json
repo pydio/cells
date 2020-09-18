@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "显示标准的用户/密码登录屏幕"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "基于协议自动启用/禁用"
   },
   "Order": {
-    "other": "Order"
+    "other": "顺序"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "将此插件与其他认证前端排序"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "协议类型"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "仅限REST"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "基于会话或REST"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "仅会话"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "标准登录屏幕"
   }
 }

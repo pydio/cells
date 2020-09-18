@@ -1,56 +1,56 @@
 {
   "1.android": {
-    "other": "There is a native APPLICATION_TITLE client available for accessing %s on Android OS."
+    "other": "Có một ứng dụng khách APPLICATION_TITLE gốc có sẵn để truy cập %s trên Hệ điều hành Android."
   },
   "1.ios": {
-    "other": "There is a native application available for accessing %s through iPhone/iPad!"
+    "other": "Có một ứng dụng gốc có sẵn để truy cập %s qua iPhone / iPad!"
   },
   "2.android": {
-    "other": "I have it already, open it and add this server to my preconfigured remote servers"
+    "other": "Tôi đã có nó, hãy mở và thêm máy chủ này vào các máy chủ từ xa được định cấu hình trước của tôi"
   },
   "2.ios": {
-    "other": "I have it already, open it and add this server to my remote servers"
+    "other": "Tôi đã có nó, hãy mở nó và thêm máy chủ này vào các máy chủ từ xa của tôi"
   },
   "3.android": {
-    "other": "I don't have it, send me to the Play Store now!"
+    "other": "Tôi không có, hãy truy cập Play Store ngay bây giờ!"
   },
   "3.ios": {
-    "other": "I don't have it, send me to the App Store now!"
+    "other": "Tôi không có, hãy truy cập App Store ngay bây giờ!"
   },
   "4.android": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Tôi không quan tâm, hãy để tôi sử dụng phiên bản web %s."
   },
   "4.ios": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Tôi không quan tâm, hãy để tôi sử dụng phiên bản web %s."
   },
   "Mobile": {
-    "other": "Mobile"
+    "other": "Di động"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Template extending gui.ajax for small screen terminals."
+    "other": "Mẫu để mở rộng gui.ajax cho các thiết bị đầu cuối có màn hình nhỏ."
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "Tắt tính năng này"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "Không hiển thị biểu ngữ thông minh khi mở giao diện web trên thiết bị đầu cuối di động."
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "biểu tượng ứng dụng iOS"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "ID ứng dụng iOS"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "ID ứng dụng iOS trên cửa hàng"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "ID ứng dụng Android"
   },
   "Android App ID": {
-    "other": "Android App ID"
+    "other": "ID ứng dụng Android"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Biểu tượng ứng dụng Android"
   }
 }

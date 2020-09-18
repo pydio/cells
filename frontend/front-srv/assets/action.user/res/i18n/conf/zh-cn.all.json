@@ -1,20 +1,20 @@
 {
   "User Account Panel": {
-    "other": "User Account Panel"
+    "other": "用户帐户面板"
   },
   "User account panel for managing settings and opening address book": {
-    "other": "User account panel for managing settings and opening address book"
+    "other": "管理设置和打开地址簿的用户帐户面板"
   },
   "Disable Address Book": {
-    "other": "Disable Address Book"
+    "other": "禁用地址簿"
   },
   "Do not display address book in user account panel.": {
-    "other": "Do not display address book in user account panel."
+    "other": "不在用户帐户面板中显示地址簿。"
   },
   "User Dashboard": {
-    "other": "User Dashboard"
+    "other": "用户仪表盘"
   },
   "User home dashboard, can be displayed before accessing to workspaces": {
-    "other": "User home dashboard, can be displayed before accessing to workspaces"
+    "other": "用户主页面板，可以在访问工作区前显示"
   }
 }

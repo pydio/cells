@@ -18,7 +18,7 @@
     "other": "Limitazioni"
   },
   "Maximum size per file allowed to upload.": {
-    "other": "Maximum size per file allowed to upload."
+    "other": "Dimensione massima consentita per l'upload di un file."
   },
   "Options shared by all uploaders plugins": {
     "other": "Opzioni condivise da tutti i plugin per l'upload"
@@ -30,30 +30,30 @@
     "other": "Etichetta leggibile dall'utente per l'elenco delle estensioni consentite (immagini, tutti i file, ecc)."
   },
   "Multipart Uploads": {
-    "other": "Multipart Uploads"
+    "other": "Upload Multipart"
   },
   "Multipart Parts Size": {
-    "other": "Multipart Parts Size"
+    "other": "Dimensioni delle Parti Multipart"
   },
   "Multipart Threshold": {
-    "other": "Multipart Threshold"
+    "other": "Soglia Multipart"
   },
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
-    "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
+    "other": "Passa all'Upload Multipart per i file più grandi di questo valore (in byte)"
   },
   "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
-    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
+    "other": "La dimensione del segmento usata per gli upload multipart deve essere maggiore di 5MB (5242800B)"
   },
   "Queue Size": {
-    "other": "Queue Size"
+    "other": "Dimensione Coda"
   },
   "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
-    "other": "Number of concurrent uploads (maximum 6, due to browsers limitations)"
+    "other": "Numero degli upload simultanei (massimo 6, a causa di limitazioni del browser)"
   },
   "Timeout": {
     "other": "Timeout"
   },
   "Request Timeout (in minutes) for each concurrent part upload": {
-    "other": "Request Timeout (in minutes) for each concurrent part upload"
+    "other": "Richiesta del Timeout (in minuti) per ogni upload simultaneo di una parte"
   }
 }

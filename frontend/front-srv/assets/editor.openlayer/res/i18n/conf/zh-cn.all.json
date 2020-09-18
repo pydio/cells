@@ -1,8 +1,8 @@
 {
   "Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers": {
-    "other": "Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers"
+    "other": "使用地理定位功能显示WMS图层，或照片的拍摄地点。需要 OpenLayers"
   },
   "Map viewer": {
-    "other": "Map viewer"
+    "other": "地图查看器"
   }
 }

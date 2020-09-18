@@ -1,122 +1,122 @@
 {
   "start": {
-    "other": "Start"
+    "other": "开始"
   },
   "pause": {
-    "other": "Pause"
+    "other": "暂停"
   },
   "clear": {
-    "other": "Clear"
+    "other": "清空"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "清空列表..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "上传完成"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "上传失败"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "所有传输"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d 个更多 - 显示所有"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "存在具有相同名称的文件："
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "停止上传并提醒我"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "重命名文件夹，然后重命名文件"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "仅重命名文件(合并文件夹)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "静默覆盖现有文件"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "重命名文件夹，然后是冲突的文件"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "仅重命名文件(合并文件夹)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "合并文件夹并覆盖文件"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "下次上传默认采用该选择"
   },
   "options": {
-    "other": "Upload options"
+    "other": "上传选项"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "您无权在此上传此文件"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "正在向服务器上传文件..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "您的浏览器似乎不支持拖放文件夹"
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "正在准备要上传的文件和文件夹..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "将文件拖放到这里"
   },
   "drop-or": {
-    "other": "or"
+    "other": "或"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "浏览文件"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "浏览文件夹"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "传输"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "待处理"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "发生错误"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "暂停"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "正在分析..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "正在创建文件夹"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "正在上传文件"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "文件夹已创建"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "文件已上传"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "片块已上传"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "正在上传片块"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "暂停前正在完成当前片块的上传"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "无法暂停此传输"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "无法暂停片块传输"
   }
 }

@@ -1,42 +1,42 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Exif 旋转"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "生成或不生成缩略图"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "图像查看器"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "图像查看器，用于预览图像并采用幻灯片预览。生成图像的缩略图。"
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "低分辨率大小"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "质量"
   },
   "Remote Wrappers": {
-    "other": "Remote Wrappers"
+    "other": "远程包装器"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "使用 exif 旋转图像"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "大小阈值"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "阈值"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "低分辨率图像的阈值"
   },
   "Thumbnails": {
-    "other": "Thumbnails"
+    "other": "缩略图"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "缩略图质量"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
     "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."

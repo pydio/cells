@@ -1,27 +1,27 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Bắt đầu"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Tạm dừng"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Xóa"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Xoá danh sách..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Tải lên thành công"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Tải lên không thành công"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Tất cả các lần chuyển"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d nhiều hơn - hiển thị tất cả"
   },
   "options.existing": {
     "other": "Nếu một tệp có cùng tên tồn tại:"
@@ -39,84 +39,84 @@
     "other": "Mặc định ghi đè tập tin nếu đã tồn tại"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Đổi tên các thư mục, sau đó đổi tên các tệp xung đột"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Chỉ đổi tên tệp (hợp nhất thư mục)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Hợp nhất các thư mục và ghi đè tệp tin"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Lưu sự lựa chọn cho lần tải lên tiếp theo"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Tùy chọn tải lên"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Bạn không được phép tải lên tập tin này ở đây"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Đang tải tệp lên máy chủ..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Có vẻ như trình duyệt của bạn không hỗ trợ kéo thả thư mục"
   },
   "analyze.step": {
     "other": "Chuẩn bị tập tin và thư mục để tải lên..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Thả các tập tin ở đây"
   },
   "drop-or": {
-    "other": "or"
+    "other": "hoặc"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "duyệt các tệp tin"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "duyệt các thư mục"
   },
   "dialog.title": {
     "other": "Transfers"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "Đang chờ"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Đã xảy ra lỗi"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "Đã tạm dừng"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "Đang phân tích..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Đang tạo thư mục"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Đang tải lên tập tin"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Thư mục đã tạo"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Tệp tin đã được tải lên"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Đoạn tệp đã tải lên"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Đang tải phân đoạn tệp lên"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Chấm dứt phân đoạn tệp hiện tại trước khi tạm dừng"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Không thể tạm dừng chuyển giao này"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Không thể tạm dừng chuyển đoạn này"
   }
 }
