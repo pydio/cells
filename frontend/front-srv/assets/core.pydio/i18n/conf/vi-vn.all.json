@@ -156,10 +156,10 @@
     "other": "Realm mặc định cho xác thực. Vui lòng ĐỌC TÀI LIỆU để sử dụng an toàn tính năng này."
   },
   "Default sorting direction": {
-    "other": "Default sorting direction"
+    "other": "Hướng mặc định để sắp xếp"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Ủy quyền các hoạt động tải xuống cho một tác nhân thay thế, một máy chủ web hoặc một tác nhân pydio. Hãy cẩn thận, điều này yêu cầu các mô-đun khách phải được cài đặt. Khi sử dụng XSendFile / XaccelRedirect, bạn phải thêm thủ công các thư mục nơi tệp sẽ được tải xuống trong cài đặt mô-đun"
   },
   "Descending": {
     "other": "Giảm dần"
@@ -174,19 +174,19 @@
     "other": "Tắt WebDAV"
   },
   "Disable Zip browsing": {
-    "other": "Disable Zip browsing"
+    "other": "Tắt duyệt Zip"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
-    "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
+    "other": "Tắt duyệt trong tệp Zip. Điều này có thể cần thiết nếu bạn thường lưu các tệp Zip lớn - nó có thể có tác động đáng kể đến hiệu suất."
   },
   "Display the list of files and folder when accessing through the browser": {
     "other": "Hiển thị danh sách các tệp và thư mục khi truy cập qua trình duyệt"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "Ủy quyền tải xuống"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Tải xuống thư mục (Kế thừa)"
   },
   "Download URL": {
     "other": "URL tải về"
@@ -231,16 +231,16 @@
     "other": "Filesystem Commons"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
+    "other": "Đối với một số trình điều khiển xác thực, một ID người dùng sẽ được coi là quản trị viên theo mặc định."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
     "other": "Để xác thực nhiều lần, hãy áp dụng role này cho users được xác thực qua trình điều khiển này"
   },
   "Force Basic Auth": {
-    "other": "Force Basic Auth"
+    "other": "Buộc xác thực cơ bản"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
-    "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
+    "other": "Buộc phân loại từ xa khi ở chế độ phân trang. Chú ý, tùy chọn này có thể làm giảm hiệu suất."
   },
   "Group Path": {
     "other": "Đường dẫn nhóm"
@@ -252,7 +252,7 @@
     "other": "Giới hạn Gzip"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
+    "other": "Nén tệp (Gzip) trong thời gian thực trước khi tải xuống. Tự động tắt, tính năng này thường chỉ hữu ích với các tệp nhỏ và làm giảm hiệu suất với các tệp lớn. Nó không liên quan gì đến tính năng Zip Creation, nó chỉ là một nén thời gian thực được áp dụng cho một tệp duy nhất tại thời điểm tải xuống."
   },
   "Hide extensions": {
     "other": "Ẩn tiện ích mở rộng"
@@ -276,7 +276,7 @@
     "other": "Nếu được kích hoạt, giới hạn mặc định sẽ được đặt ở trên khi tệp không được nén nữa."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Nếu nó không được suy ra trực tiếp từ URL pydio hiện tại cộng với URI cơ sở công khai, thì hãy thay thế URL truy cập công khai tại đây."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "Nếu được đặt thành một URL nhất định, hành động đăng nhập sẽ không kích hoạt hiển thị màn hình đăng nhập mà chuyển hướng đến URL này."
@@ -360,13 +360,13 @@
     "other": "Phân loại từ xa"
   },
   "Remote Sorting Default Direction": {
-    "other": "Remote Sorting Default Direction"
+    "other": "Địa chỉ sắp xếp từ xa mặc định"
   },
   "Remote Sorting Default Field": {
-    "other": "Remote Sorting Default Field"
+    "other": "Phạm vi mặc định sắp xếp từ xa"
   },
   "Repository Commons": {
-    "other": "Repository Commons"
+    "other": "Kho lưu trữ"
   },
   "Repository Slug": {
     "other": "Repository Slug"
@@ -384,10 +384,10 @@
     "other": "Thông tin phiên đăng nhập"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Set this repository group owner : only users of this group will see it"
+    "other": "Đặt chủ sở hữu nhóm kho lưu trữ này: chỉ người dùng của nhóm này mới thấy nó"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
-    "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
+    "other": "Thiết lập mã hóa cụ thể (thử IBM850 hoặc CP437) cho tên tệp để khắc phục sự cố ký tự trong quá trình tạo Zip. Điều này có thể tạo ra các tệp không tương thích với một số hệ điều hành (Win / Mac). Nếu vẫn gặp sự cố, bạn có thể thêm // TRANSLIT sau khi mã hóa để buộc chuyển ngữ các ký tự không xác định (ví dụ: CP437 // TRANSLIT)."
   },
   "Shares Host": {
     "other": "Chia sẻ Host"
@@ -417,19 +417,19 @@
     "other": "Thư mục tạm thời"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
-    "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
+    "other": "Cơ chế xác thực này kém an toàn hơn, nhưng sẽ tránh được việc người dùng phải nhập lại mật khẩu trong một số trường hợp."
   },
   "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder": {
-    "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
+    "other": "Điều này chỉ cần thiết nếu có lỗi truy cập hoặc ghi khi truy cập thư mục tạm thời: chúng có thể là do chế độ an toàn của PHP (nó sẽ biến mất trong php6) hoặc các hạn chế OPEN_BASEDIR khác nhau. Trong trường hợp đó, hãy tạo và định cấu hình một thư mục tạm thời ở đâu đó trên máy chủ của bạn (trên web /, www / hoặc http / nếu có thể!) Và nhập đường dẫn đầy đủ tại đây"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "This right pattern (empty, r, or rw) will be applied at user creation for this workspace."
+    "other": "Mẫu bên phải này (trống, r hoặc rw) sẽ được áp dụng khi người dùng tạo cho không gian làm việc này."
   },
   "Token URL": {
     "other": "Token URL"
   },
   "Transmit Clear Pass": {
-    "other": "Transmit Clear Pass"
+    "other": "Truyền mật khẩu mà không cần mã hóa"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
     "other": "Cố gắng sử dụng thông tin đăng nhập người dùng Pydio hiện tại để kết nối. Cảnh báo, cấu hình PYDIO_SESSION_SET_CREDENTIALS phải được đặt thành true!"
@@ -477,16 +477,16 @@
     "other": "Khi được đặt thành true, đối tượng người dùng được tạo tự động nếu xác thực thành công. Được sử dụng bởi hệ thống xác thực từ xa."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
-    "other": "Whether the password will be transmitted clear or encoded between the client and the server"
+    "other": "Truyền mật khẩu ở dạng được mã hóa hoặc không được mã hóa giữa máy khách và máy chủ"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
+    "other": "Hiển thị hoặc ẩn thùng rác. Không phụ thuộc vào tùy chọn này, thư mục có thể bị ẩn nhưng vẫn có thể ghi được."
   },
   "Write Only (upload)": {
     "other": "Chỉ ghi (tải lên)"
   },
   "Your application title": {
-    "other": "This title will appear as the window title, in the splash screen."
+    "other": "Tiêu đề này xuất hiện dưới dạng tiêu đề cửa sổ, trên màn hình ban đầu."
   },
   "Zip Creation": {
     "other": "Tạo Zip"

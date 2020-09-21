@@ -1,107 +1,107 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Bắt đầu thêm tệp hoặc thư mục mới vào workspace hiện tại."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Thêm tập tin"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Thanh công cụ này cho phép bạn thay đổi cách hiển thị: chuyển sang chế độ hình thu nhỏ hoặc chế độ chi tiết tùy thuộc vào cách sử dụng của bạn và sắp xếp các tệp theo tên, ngày, v. v..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Tùy chọn hiển thị"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Sử dụng biểu mẫu tìm kiếm này để tìm tệp hoặc thư mục trong bất kỳ workspace và cells nào. Chỉ 5 kết quả đầu tiên được hiển thị, hãy nhập một workspace để nhận được nhiều kết quả hơn và nhiều tùy chọn tìm kiếm hơn."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Khi không có tìm kiếm nào được nhập, lịch sử của các tệp và thư mục đã truy cập gần đây của bạn sẽ được hiển thị."
   },
   "tour.globsearch.title": {
     "other": "Global Search"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Tại đây, bạn sẽ tìm thấy nhiều thông tin về lựa chọn hiện tại: thông tin tệp, trạng thái chia sẻ, metadata do người dùng xác định, v. v."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Bạn có thể đóng bảng điều khiển này bằng cách sử dụng nút thông tin trên thanh công cụ hiển thị"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Tệp tin"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Thư mục"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Tìm kiếm"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Bảng thông tin"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Quay lại"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Đóng"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Kết thúc"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Tiếp theo"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Bỏ qua"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "Ở lần kết nối đầu tiên, lịch sử của bạn có thể trống. Nhập một workspace hoặc cell để bắt đầu thêm tệp."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Mở một workspace"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Thư mục của tất cả người dùng có quyền truy cập vào nền tảng. Tạo người dùng và nhóm của riêng bạn để chia sẻ tài nguyên"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "Bảng cảnh báo sẽ thông báo cho bạn khi người dùng mà bạn đã chia sẻ tài nguyên truy cập vào nó. Bạn có thể gửi email trực tiếp cho họ."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Quay lại bảng chào mừng bằng nút này"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Truy cập vào các tùy chọn khác: quản lý hồ sơ và các tùy chọn bảo mật, khám phá tài nguyên được chia sẻ, thoát khỏi nền tảng."
   },
   "tour.uwidget.title": {
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Bỏ qua"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Bắt đầu chuyến thăm quan"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Kéo và thả ảnh cho hồ sơ của bạn! Chúng tôi sẽ thực hiện một chuyến tham quan có hướng dẫn nhanh để bạn làm quen với giao diện web."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Chào mừng bạn đến với APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Bạn có thể thêm hoặc bớt các widget tại đây. Bạn cũng có thể sắp xếp lại chúng chỉ bằng cách kéo chúng."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Tiện ích"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "Workspaces là những thư mục hàng đầu giúp bạn sắp xếp dữ liệu của mình. Bạn có thể có quyền truy cập độc quyền hoặc chia sẻ chúng với những người khác."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Cells là không gian cộng tác mà bạn có thể chia sẻ với những người dùng khác. Tạo các cell của riêng bạn dựa trên một thư mục, một nhóm người dùng hoặc bất kỳ chủ đề nào có liên quan."
   },
   "tour.workspaces.title": {
     "other": "Workspaces & Cells"
   },
   "background.jobs.title": {
-    "other": "Jobs running"
+    "other": "Công việc đang chạy"
   }
 }

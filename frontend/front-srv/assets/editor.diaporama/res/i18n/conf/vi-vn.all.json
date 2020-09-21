@@ -1,44 +1,44 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Xoay Exif"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "Tạo hình thu nhỏ hoặc không"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "Xem hình ảnh"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "Trình xem hình ảnh, được sử dụng để xem trước hình ảnh và duyệt trình chiếu. Tạo hình thu nhỏ của hình ảnh."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "Kích thước độ phân giải thấp"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "Chất lượng"
   },
   "Remote Wrappers": {
     "other": "Remote Wrappers"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "Xoay hình ảnh bằng cách xoay exif"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "Giới hạn kích thước"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "Giới hạn"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "Giới hạn cho các phiên bản hình ảnh có độ phân giải thấp"
   },
   "Thumbnails": {
-    "other": "Thumbnails"
+    "other": "Hình ảnh thu nhỏ"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "Chất lượng của hình thu nhỏ"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "Khi kết nối với máy chủ từ xa, việc trích xuất dữ liệu có thể mất nhiều thời gian do các tệp được sao chép cục bộ. Các tệp trong trình bao bọc xác định, lớn hơn giới hạn, với định dạng hình ảnh và kích thước nhất định sẽ bị loại trừ."
   }
 }

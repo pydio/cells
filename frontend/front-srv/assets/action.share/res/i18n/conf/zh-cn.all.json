@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "允许用户在文件上生成公共链接"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "允许用户在文件夹中生成公共链接"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "允许用户手动为生成的链接设置哈希值"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "身份验证"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "避免标签重复"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "背景色"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "创建二维码"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "创建并显示共享链接的二维码"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "禁用文件夹共享"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "如果工作区已经存在同一个标签，禁止用户创建共享文件夹"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "不允许用户创建公共链接，只允许私有链接 (密码保护)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "下载按钮"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "下载文本"
   },
   "Download text w/ Pass": {
     "other": "Download text w/ Pass"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "启用文件夹共享"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "启用文件夹共享 (工作区和迷你站点)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "启用内部文件共享 (与现有或临时用户共享)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "启用内部文件夹共享 (与现有或临时用户共享)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "启用为文件生成公共链接"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "为文件启用公共链接"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "文件：启用内部共享"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "文件：启用公共链接"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "文件夹共享"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "文件夹：启用内部共享"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "文件夹：启用公共链接"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "强制使用外部邮件程序"
   },
   "Fork Events Forwarding": {
     "other": "Fork Events Forwarding"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "哈希最小长度"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "可编辑哈希值"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
     "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "作为下载文件的按钮使用的图像"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "内部共享"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "链接生成"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "创建临时用户的固定前缀"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "文件的最大下载限制, 0 = 无限制"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "最大文件下载限制"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "最大文件过期限制"
   },
   "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file, 0 = unlimited"
+    "other": "文件的最大共享过期限制, 0 = 无限制"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "生成的哈希最小长度"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "迷你站点"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "迷你站点和工作区"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "仅迷你站点"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "页面标题"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "设置密码为必填项"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "分享中心的动作和钩子"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "分享页面的背景颜色。"
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "分享页面的文本颜色。"
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "分享页面的文本阴影颜色。"
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "共享用户配置"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "分享功能"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "文本颜色"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "文本阴影"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "临时用户的前缀"
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "使用重写规则"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "使用外部邮件发送邀请"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "使用 web 服务器的 RewriteEngine 机制生成美观的URL"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "链接页面"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "仅工作区"
   }
 }

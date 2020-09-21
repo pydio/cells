@@ -1,65 +1,65 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Phiên bản"
   },
   "10": {
-    "other": "Date"
+    "other": "Ngày"
   },
   "11": {
-    "other": "Author"
+    "other": "Tác giả"
   },
   "12": {
-    "other": "Modification"
+    "other": "Sửa đổi"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Bạn có chắc chắn muốn làm điều này? Quay lại phiên bản cũ bây giờ sẽ tạo một phiên bản mới của tài liệu với bản sửa đổi được chọn."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Không tìm thấy phiên bản trước"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Các phiên bản được tạo khi bạn cập nhật nội dung tệp"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Phiên bản cũ hơn cho '%s'"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Các phiên bản trước của tài liệu"
   },
   "3": {
-    "other": "Download"
+    "other": "Tải về"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Tải phiên bản đã chọn xuống máy tính của bạn"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Xem trước (trình duyệt)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Mở phiên bản đã chọn trong cửa sổ trình duyệt"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Trở lại..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Hoàn nguyên tệp về phiên bản đã chọn trên máy chủ"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Tệp tin đã tạo"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Tệp tin đã xóa"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Nội dung đã sửa đổi"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Tệp tin đã di chuyển"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Tệp tin đã đổi tên"
   }
 }

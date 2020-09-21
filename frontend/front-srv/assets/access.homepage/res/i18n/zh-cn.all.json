@@ -123,25 +123,25 @@
     "other": "选择目标工作区"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 共享文件和文件夹</h2>\n            本教程向您展示如何共享文件和文件夹，包括对内及对外\n            <ul>\n                <li>为外部人员创建共享链接</li>\n                <li>与内部协作者共享文件和文件夹</li>\n                <li>将文件夹共享为工作空间</li>\n                <li>共享文件夹的布局选项</li>\n                <li>创建一个拖放文件夹</li>\n                <li>管理用户和共享权限</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 共享：安全功能</h2>\n            此视频会演示各种共享设置帮助您保护您的共享\n            <ul>\n                <li>密码保护</li>\n                <li>过期日期</li>\n                <li>限制下载次数</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] 自定义您的共享链接</h2>\n            看看您如何能够自定义您共享链接的URL，使它们更加易用。\n            "
   },
   "82": {
-    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 共享链接自定义权</h2>\n            此视频向您展示如何管理添加权限到您的共享中\n            <ul>\n                <li>预览</li>\n                <li>下载</li>\n                <li>上传/编辑</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] 语言</h2>\n            APPLICATION_TITLE 有28种语言。此视频向您展示了如何更改APPLICATION_TITLE 中的语言。\n            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] 警报</h2>\n            学习如何设置文件警报，以便查看文件何时被修改或查询。\n            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] 协同编辑</h2>\n            此视频向您展示如何在办公文档上进行协作， 感谢Collabora在线办公套件\n            <ul>\n                <li>在文本文档，幻灯片，电子表格上工作</li>\n                <li>实时合作编辑文档</li>\n                <li>直接从您的浏览器创建新文档</li>\n            </ul>\n            "
   },
   "86": {
     "other": "播放视频"

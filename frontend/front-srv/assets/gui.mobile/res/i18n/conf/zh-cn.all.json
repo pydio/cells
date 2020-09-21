@@ -1,56 +1,56 @@
 {
   "1.android": {
-    "other": "There is a native APPLICATION_TITLE client available for accessing %s on Android OS."
+    "other": "在安卓操作系统上有原生应用APPLICATION_TITLE可用来访问 %s。"
   },
   "1.ios": {
-    "other": "There is a native application available for accessing %s through iPhone/iPad!"
+    "other": "在iPhone/iPad上有原生应用可访问 %s！"
   },
   "2.android": {
-    "other": "I have it already, open it and add this server to my preconfigured remote servers"
+    "other": "我已经有了，打开它并将此服务器添加到预配置的远程服务器中"
   },
   "2.ios": {
-    "other": "I have it already, open it and add this server to my remote servers"
+    "other": "我已经有了，打开它并将此服务器添加到我的远程服务器中"
   },
   "3.android": {
-    "other": "I don't have it, send me to the Play Store now!"
+    "other": "我还没有，让我跳转到Play商店！"
   },
   "3.ios": {
-    "other": "I don't have it, send me to the App Store now!"
+    "other": "我还没有，让我跳到App Store！"
   },
   "4.android": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "无所谓，请允许我使用 %s 的Web版本。"
   },
   "4.ios": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "无所谓，请允许我使用 %s 的Web版本。"
   },
   "Mobile": {
-    "other": "Mobile"
+    "other": "移动客户端"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Template extending gui.ajax for small screen terminals."
+    "other": "为小屏幕终端扩展 gui.ajax 模板。"
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "禁用此功能"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "在移动终端打开网页界面时不要显示横幅。"
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "iOS 应用程序图标"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "iOS 应用程序 ID"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "商店上的 iOS 应用程序 ID"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "Android 应用程序 ID"
   },
   "Android App ID": {
     "other": "Android App ID"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Android 应用程序图标"
   }
 }

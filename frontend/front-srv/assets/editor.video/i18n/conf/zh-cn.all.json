@@ -1,8 +1,8 @@
 {
   "Inserts a video player in the info panel, either HTML5 or Flash depending on the format.": {
-    "other": "Inserts a video player in the info panel, either HTML5 or Flash depending on the format."
+    "other": "根据格式，在信息面板中插入视频播放器，可能是HTML5或者Flash 。"
   },
   "Video Player": {
-    "other": "Video Player"
+    "other": "视频播放器"
   }
 }

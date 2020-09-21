@@ -1,77 +1,77 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "监控..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "监控..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "任何人打开该文件"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "任何人浏览该目录"
   },
   "11": {
-    "other": "Modification"
+    "other": "修改"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "任何人修改该文件"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "任何人修改此目录中文件"
   },
   "13": {
-    "other": "Both"
+    "other": "同时"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "任何打开或写入文件的人"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "任何人浏览或修改文件夹内容"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "访问此文件夹时需要通知"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "停止监控"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "停止监视此文件夹的访问"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "监控..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "监控这个文件的修改"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "停止监控"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "停止监控这个文件的修改"
   },
   "9": {
-    "other": "Consultation"
+    "other": "咨询"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "发生下列活动时收到通知..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "永远不通知"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "被访问时"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "被修改时"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "访问或修改时"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "混合值"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "保存状态"
   }
 }

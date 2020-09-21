@@ -48,7 +48,7 @@
     "other": "Thiết lập Read-access trên dịch vụ frontend"
   },
   "PolicyGroup.LoggedUsers.Rule6": {
-    "other": "Write-access to FrontendService except global binaries uploads"
+    "other": "Cấp quyền ghi vào FrontendService ngoại trừ tải lên nhị phân toàn cầu"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"

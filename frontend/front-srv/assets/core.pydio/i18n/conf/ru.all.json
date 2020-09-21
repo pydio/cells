@@ -12,7 +12,7 @@
     "other": "Конечная точка API - Используется для запуска окна, позволяющего пользователю пройти проверку подлинности и принять условия приложения"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
+    "other": "API endpoint - Используется для обновления или проверки токена, полученного во время аутентификации"
   },
   "API setting - Redirect URL for the OAuth Application": {
     "other": "Настройка API - Перенаправление URL для OAuth приложения"
@@ -57,61 +57,61 @@
     "other": "По возрастанию"
   },
   "Auth Driver Commons": {
-    "other": "Auth Driver Commons"
+    "other": "Общие драйверы авторизации"
   },
   "Auth URL": {
-    "other": "Auth URL"
+    "other": "URL аутентификации"
   },
   "Auto Create User": {
-    "other": "Auto Create User"
+    "other": "Автоматически создавать пользователя"
   },
   "Auto apply role": {
-    "other": "Auto apply role"
+    "other": "Автоматически применять роль"
   },
   "Big Icon": {
-    "other": "Big Icon"
+    "other": "Большая иконка"
   },
   "Big Icon for representing the template": {
-    "other": "Big Icon for representing the template"
+    "other": "Большая иконка для представления шаблона"
   },
   "Browser Access": {
-    "other": "Browser Access"
+    "other": "Доступ из браузера"
   },
   "Character Encoding": {
-    "other": "Character Encoding"
+    "other": "Кодировка символов"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "ID клиента"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "Секрет клиента"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
+    "other": "Разделенный запятыми список мета-хранилищ и мета-плагинов, которые будут автоматически применяться ко всем рабочим областям, созданным этим драйвером"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
+    "other": "Разделенный запятыми список расширений для сокрытия. Расширения, файлы и папки, которые скрыты, также запрещены."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Comma-separated list of specific files to hide"
+    "other": "Список файлов, разделённых запятыми для сокрытия"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "Разделённый запятыми список папок для сокрытия"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "Командная строка"
   },
   "Command-line Active": {
-    "other": "Command-line Active"
+    "other": "Доступ к командной строке"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "Командная строка PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
+    "other": "Общий URI для доступа к общим ресурсам. Пожалуйста, прочтите документацию, чтобы безопасно использовать эту функцию."
   },
   "Compression Features": {
-    "other": "Compression Features"
+    "other": "Функции сжатия"
   },
   "Core Connexion": {
     "other": "Core Connexion"
@@ -120,160 +120,160 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "Имя источника данных"
   },
   "Database": {
-    "other": "Database"
+    "other": "База данных"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "Файл базы данных"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "Имя базы данных"
   },
   "Database server": {
-    "other": "Database server"
+    "other": "Сервер базы данных"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "Метка по умолчанию"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "Язык по умолчанию"
   },
   "Default Metasources": {
-    "other": "Default Metasources"
+    "other": "Мета-источники по умолчанию"
   },
   "Default Rights": {
-    "other": "Default Rights"
+    "other": "Права по умолчанию"
   },
   "Default field to sort on": {
-    "other": "Default field to sort on"
+    "other": "Поле сортировки по умолчанию"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Default language when a user does not have set his/her own."
+    "other": "Язык по умолчанию, когда пользователь не установил свой собственный."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
+    "other": "Область аутентификации по умолчанию. Пожалуйста, прочтите документацию, чтобы безопасно использовать эту функцию."
   },
   "Default sorting direction": {
-    "other": "Default sorting direction"
+    "other": "Порядок сортировки по умолчанию"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Делегирует операции загрузки альтернативному агенту, веб-серверу или агенту pydio. Внимание, это требует установки внешних модулей. При использовании XSendFile/XaccelRedirect, вы должны в настройках модуля вручную добавить папки, куда будут загружены файлы"
   },
   "Descending": {
-    "other": "Descending"
+    "other": "По убыванию"
   },
   "Description": {
-    "other": "Description"
+    "other": "Описание"
   },
   "Digest Realm": {
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "Отключить WebDAV"
   },
   "Disable Zip browsing": {
-    "other": "Disable Zip browsing"
+    "other": "Отключить просмотр Zip"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
-    "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
+    "other": "Отключить просмотр Zip файлов. Это может быть необходимо, если вы всегда храните огромные zip-архивы: это может повлиять на производительность."
   },
   "Display the list of files and folder when accessing through the browser": {
-    "other": "Display the list of files and folder when accessing through the browser"
+    "other": "Отображение списка файлов и папок при доступе через браузер"
   },
   "Download Delegation": {
     "other": "Download Delegation"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Папка загрузок (Устаревшее)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "URL для скачивания"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "Драйвер"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "Тип драйвера (не трогать)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "Включить WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "Включить WebDAV для всех пользователей по умолчанию. Если установлено значение false, пользователи должны вручную включить WebDAV через панель настроек."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Включить для всех"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
+    "other": "Включить поддержку webDAV. Пожалуйста, прочитайте документацию, чтобы безопасно использовать эту функцию."
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "Существующие пользователи"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Explicitly disable WebDAV access for this repository."
+    "other": "Отключить доступ по WebDAV для этого репозитория."
   },
   "File": {
-    "other": "File"
+    "other": "Файл"
   },
   "File Type": {
-    "other": "File Type"
+    "other": "Тип файла"
   },
   "File size": {
-    "other": "File size"
+    "other": "Размер"
   },
   "Filename length": {
-    "other": "Filename length"
+    "other": "Длина имени файла"
   },
   "Filesystem Commons": {
     "other": "Filesystem Commons"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
+    "other": "Для нестандартных драйверов аутентификации, имя пользователя которое будет считаться администратором."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
-    "other": "For multiple authentication, apply this role to users authenticated via this driver"
+    "other": "Для множественной аутентификации, применить эту роль к пользователям, авторизованным через этот драйвер"
   },
   "Force Basic Auth": {
-    "other": "Force Basic Auth"
+    "other": "Принудительно включить Basic Auth"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
     "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
   },
   "Group Path": {
-    "other": "Group Path"
+    "other": "Путь группы"
   },
   "Gzip Download": {
-    "other": "Gzip Download"
+    "other": "Скачать Gzip"
   },
   "Gzip Limit": {
-    "other": "Gzip Limit"
+    "other": "Ограничение Gzip"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
+    "other": "Сжимать файлы на лету в Gzip перед загрузкой. По умолчанию отключено, т.к. это в основном полезно для маленьких файлов и снижает производительность на больших файлах. Это никак не связано с функцией создания Zip архива, это просто сжатие на лету для конкретного файла при загрузке."
   },
   "Hide extensions": {
-    "other": "Hide extensions"
+    "other": "Скрыть расширения"
   },
   "Hide files": {
-    "other": "Hide files"
+    "other": "Скрыть файлы"
   },
   "Hide folders": {
-    "other": "Hide folders"
+    "other": "Скрыть папки"
   },
   "Hide recycle bin": {
-    "other": "Hide recycle bin"
+    "other": "Скрыть корзину"
   },
   "Host": {
-    "other": "Host"
+    "other": "Хост"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
+    "other": "Хост, используемый в протоколе webDAV. Может быть обнаружен по умолчанию. Пожалуйста, прочитайте документацию, чтобы безопасно использовать эту функцию."
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "If activated, a default limit should be set above when files are no more compressed."
+    "other": "Если включено, выше должен быть установлен лимит по умолчанию, когда файлы более не будут сжаты."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
     "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."

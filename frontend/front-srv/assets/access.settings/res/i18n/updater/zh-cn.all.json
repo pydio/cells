@@ -1,125 +1,125 @@
 {
   "title": {
-    "other": "Software Updates"
+    "other": "软件更新"
   },
   "legend": {
-    "other": "In-app binary updates"
+    "other": "应用内二进制更新"
   },
   "current.version": {
-    "other": "Current Version"
+    "other": "当前版本"
   },
   "confirm.update": {
-    "other": "Are you sure that you want to perform the update?"
+    "other": "您确定要执行更新吗？"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "以下软件包可供更新"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "正在检查可用的更新..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "未检测到必要的更新：点击执行新的检查。"
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "请选择至少一个软件包！"
   },
   "package.released": {
-    "other": "Released"
+    "other": "已发布"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "修订"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "点击查看新更新"
   },
   "check.button": {
-    "other": "Check now"
+    "other": "立即检查"
   },
   "package.version": {
-    "other": "Version"
+    "other": "版本"
   },
   "package.label": {
-    "other": "Label"
+    "other": "标签"
   },
   "package.details": {
-    "other": "Details"
+    "other": "详细信息"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "显示更新日志"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "开始升级"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "保存设置"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "升级到Cells企业版"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "下一步"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "开始"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "取消"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "立即安装"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "关闭"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "请接受最终用户许可协议"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "因此我接受这个EULA"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "输入一个有效的许可证密钥(由 Pydio 销售代表提供)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "如果您没有，可以通过使用下面的按钮联系销售或直接通过以下方式接收试用密钥 "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "在此粘贴提供的密钥..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "寻找最接近的Cells企业版本"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "无法加载Cells 企业版的可用版本！"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "错误"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "准备安装 %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "已发布"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "架构"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "描述"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "点击下一步将下载新版本并替换您当前的Cells文件。 如果您需要恢复上一个版本，可在Cells的配置目录 (在%s) 中找到备份文件。"
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "无法找到类似的Cells企业版"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "为了避免混合升级和更新，我们建议在同一版本中将Cells家庭版升级为企业版。"
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "请先更新您当前的版本为以下其中一个，然后再重新尝试升级为企业版。"
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "正在安装升级，请稍候..."
   }
 }

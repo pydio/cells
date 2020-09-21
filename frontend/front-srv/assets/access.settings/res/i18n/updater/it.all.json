@@ -36,16 +36,16 @@
     "other": "Controlla"
   },
   "package.version": {
-    "other": "Version"
+    "other": "Versione"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Etichetta"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Dettagli"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Mostra il registro delle modifiche"
   },
   "start.update": {
     "other": "Inizia l'aggiornamento"

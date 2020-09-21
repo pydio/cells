@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "External window"
+    "other": "Cửa sổ bên ngoài"
   },
   "2": {
-    "other": "External browser window"
+    "other": "Cửa sổ trình duyệt bên ngoài"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "Đang mở tệp ở cửa sổ bên ngoài, vui lòng đợi, cửa sổ này sẽ tự động đóng."
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "Dấu trang URL mới"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "Ngoài ra, bạn có thể <a> tạo dấu trang mới cho một URL </a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "Nhập URL bắt đầu bằng http/https"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "Danh sách URL yêu thích"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "Nhập nhãn cho dấu trang này"
   }
 }

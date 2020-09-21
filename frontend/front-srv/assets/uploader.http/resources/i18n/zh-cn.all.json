@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Remote DL"
+    "other": "远程下载"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "下载到 APPLCATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "下载到 %s"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "下载到 %s"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "下载到 %s"
   },
   "10d": {
-    "other": "AjXp Download (%s)"
+    "other": "AjXp 下载 (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "拖动以下链接到您的书签栏： "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "触发远程文件下载"
   },
   "13": {
-    "other": "From computer"
+    "other": "从计算机"
   },
   "14": {
-    "other": "From remote server"
+    "other": "从远程服务器"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "或者手动创建一个书签，并使用下面的代码作为链接地址： "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "将我拖动到您的书签栏！"
   },
   "17": {
-    "other": "Download file"
+    "other": "下载文件"
   },
   "18": {
-    "other": "Partial file"
+    "other": "部分文件"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "从远程服务器下载文件"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "输入至少一个URL，指向您想直接从外部 HTTP 服务器下载到当前文件夹的文件。 此操作将被发送到后台，您将能够在下载过程中继续使用 APPLICATION_TITLE"
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "正在下载"
   },
   "7": {
-    "other": "to server"
+    "other": "到服务器"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "文件已下载，重新加载客户端！"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "生成书签"
   }
 }

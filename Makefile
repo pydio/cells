@@ -1,4 +1,4 @@
-DEV_VERSION=2.1.6-dev
+DEV_VERSION=2.1.7-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -21,7 +21,7 @@ generate:
 	grep -ri --exclude-dir=vendor/* --exclude-dir=frontend/front-srv/assets/* -l "packr.NewBox" */* | while read -r line; do if ! [ "$$line" = "vendor/github.com/ory/x/dbal/migrate.go" ]; then cd `dirname "$$line"`; echo "Run packr for $$line"; ${GOPATH}/bin/packr --compress --input=. ; cd -;  fi; done;
 
 main:
-	go build -a\
+	go build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\

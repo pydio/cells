@@ -1,8 +1,8 @@
 {
   "Manual Locking mechanism to avoid concurrent edition": {
-    "other": "Manual Locking mechanism to avoid concurrent edition"
+    "other": "Механизм ручной блокировки чтобы избежать одновременного изменения"
   },
   "Simple Lock": {
-    "other": "Simple Lock"
+    "other": "Простая блокировка"
   }
 }

@@ -1,8 +1,8 @@
 {
   "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data.": {
-    "other": "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data."
+    "other": "显示 JPG 文件中包含的 Exif 元数据。如果它包含地理定位数据，可以在地图上找到图像。"
   },
   "EXIF Extractor": {
-    "other": "EXIF Extractor"
+    "other": "EXIF 提取器"
   }
 }
