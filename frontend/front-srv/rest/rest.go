@@ -153,6 +153,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	if lang == "" {
 		lang = "en-us"
 	}
+
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
 	rsp.WriteAsXml(plugins)
 }

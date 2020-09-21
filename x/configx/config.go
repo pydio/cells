@@ -283,7 +283,7 @@ func (c *config) String() string {
 
 		return string(data)
 	case string:
-		if v == "default" {
+		if v == "default" || v == "" {
 			c.v = nil
 		}
 	}

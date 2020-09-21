@@ -114,7 +114,11 @@ var PluginsLoader = (function () {
             // Load initial config
 
             api.getConfig(fullPath).then(function (response) {
-                var currentData = JSON.parse(response.Data) || {};
+                return response.Data;
+            }).then(function () {
+                var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
+
+                var currentData = JSON.parse(data) || {};
                 currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
                 var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
@@ -132,7 +136,11 @@ var PluginsLoader = (function () {
             var fullPath = "frontend/plugin/" + pluginId;
             return new Promise(function (resolve, reject) {
                 api.getConfig(fullPath).then(function (response) {
-                    var currentData = JSON.parse(response.Data) || {};
+                    return response.Data;
+                }).then(function () {
+                    var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
+
+                    var currentData = JSON.parse(data) || {};
                     resolve(currentData);
                 })['catch'](function (e) {
                     reject(e);
@@ -147,6 +155,10 @@ var PluginsLoader = (function () {
             var fullPath = "frontend/plugin/" + pluginId;
 
             api.getConfig(fullPath).then(function (response) {
+                return response.Data;
+            }).then(function () {
+                var data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
                 var currentData = JSON.parse(response.Data) || {};
                 var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
                 var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({

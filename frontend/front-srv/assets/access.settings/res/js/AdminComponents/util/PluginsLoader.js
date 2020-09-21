@@ -78,8 +78,8 @@ class PluginsLoader {
         const fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
         // Load initial config
 
-        api.getConfig(fullPath).then((response) => {
-            const currentData = JSON.parse(response.Data) || {};
+        api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
+            const currentData = JSON.parse(data) || {};
             currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
             const config = RestConfiguration.constructFromObject({
                 FullPath: fullPath,
@@ -95,8 +95,8 @@ class PluginsLoader {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const fullPath = "frontend/plugin/" + pluginId;
         return new Promise((resolve, reject) => {
-            api.getConfig(fullPath).then((response) => {
-                const currentData = JSON.parse(response.Data) || {};
+            api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
+                const currentData = JSON.parse(data) || {};
                 resolve(currentData);
             }).catch(e => {
                 reject(e);
@@ -109,7 +109,7 @@ class PluginsLoader {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const fullPath = "frontend/plugin/" + pluginId;
 
-        api.getConfig(fullPath).then((response) => {
+        api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
             const currentData = JSON.parse(response.Data) || {};
             const newData = LangUtils.mergeObjectsRecursive(currentData, values);
             const config = RestConfiguration.constructFromObject({
