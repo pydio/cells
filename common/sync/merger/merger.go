@@ -236,7 +236,7 @@ type Patch interface {
 	// SkipTargetChecks set a flag to skip FilterToTarget
 	SkipFilterToTarget(bool)
 	// PostFilter gets or sets a callback to be triggered after filtering
-	PostFilter(...func()) func()
+	PostFilter(...func() error) []func() error
 	// Validate browses target to verify all changes are correctly reflected (and indexed)
 	Validate(ctx context.Context) error
 

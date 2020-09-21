@@ -92,8 +92,11 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		return // Errors while filtering, stop now
 	}
 
-	if f := patch.PostFilter(); f != nil {
-		f()
+	for _, f := range patch.PostFilter() {
+		if e := f(); e != nil {
+			patch.SetPatchError(e)
+			return
+		}
 	}
 
 	if patch.Size() == 0 {
