@@ -21,6 +21,7 @@
 package index
 
 import (
+	"context"
 	"crypto/md5"
 	"database/sql"
 	"errors"
@@ -33,7 +34,10 @@ import (
 	"github.com/pydio/cells/common/utils/mtree"
 
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsql "github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
@@ -535,6 +539,10 @@ func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 		// Resetting potentialNodes
 		potentialNodes = newPotentialNodes
 		newPotentialNodes = []*mtree.TreeNode{}
+	}
+
+	if len(potentialNodes) > 1 {
+		log.Logger(context.Background()).Error("Duplicate node", zap.Any("potentialNodes", potentialNodes))
 	}
 
 	return nil, fmt.Errorf("Cache:GetNodeByPath "+logPath+" : potentialNodes not reduced to 1 value (potential:%d, newPotential:%d", len(potentialNodes), len(newPotentialNodes))
