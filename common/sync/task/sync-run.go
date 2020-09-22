@@ -113,8 +113,13 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	// Additional failsafe filter for massive deletions
 	if s.FailsafeDeletes {
 		patch.PostFilter(func() error {
-			ops := patch.OperationsByType([]merger.OperationType{merger.OpDelete}, false)
-			if len(ops) > 10 {
+			var ops []merger.Operation
+			patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(operation merger.Operation) {
+				if operation.GetNode() != nil && !operation.GetNode().IsLeaf() {
+					ops = append(ops, operation)
+				}
+			})
+			if len(ops) > 50 {
 				// Recheck deleted resources
 				for _, op := range ops {
 					log.Logger(ctx).Debug("Failsafe : rechecking deletion operation is real on " + op.GetRefPath())
