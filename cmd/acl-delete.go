@@ -83,5 +83,5 @@ func init() {
 	deleteAclCmd.Flags().StringArrayVarP(&workspaceIDs, "workspace_id", "w", []string{}, "WorkspaceIDs")
 	deleteAclCmd.Flags().StringArrayVarP(&nodeIDs, "node_id", "n", []string{}, "NodeIDs")
 
-	aclCmd.AddCommand(deleteAclCmd)
+	AclCmd.AddCommand(deleteAclCmd)
 }

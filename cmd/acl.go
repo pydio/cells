@@ -36,8 +36,8 @@ var (
 	nodeIDs      []string
 )
 
-// aclCmd represents the acl command
-var aclCmd = &cobra.Command{
+// AclCmd represents the acl command
+var AclCmd = &cobra.Command{
 	Use:   "acl",
 	Short: "Manage access control lists",
 	Long: `ACLs are managed in a dedicated micro-service.
@@ -51,5 +51,5 @@ ACLs are used to grant permissions to a given node Uuid for a given Role.
 }
 
 func init() {
-	RootCmd.AddCommand(aclCmd)
+	RootCmd.AddCommand(AclCmd)
 }

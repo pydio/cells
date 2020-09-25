@@ -35,7 +35,7 @@ var (
 // DENY  = &idm.ACLAction{Name: "deny", Value: "1"}
 )
 
-var dataCmd = &cobra.Command{
+var DataCmd = &cobra.Command{
 	Use:   "data",
 	Short: "Directly interact with a datasource",
 	Long: `Commands for managing indexed data.
@@ -49,5 +49,5 @@ the tree service. This command allows you among others to launch a full re-synch
 }
 
 func init() {
-	RootCmd.AddCommand(dataCmd)
+	RootCmd.AddCommand(DataCmd)
 }

@@ -115,5 +115,5 @@ func init() {
 	userSetPwdCmd.Flags().StringVarP(&userPwdLogin, "username", "u", "", "Login of the user to update")
 	userSetPwdCmd.Flags().StringVarP(&userPwd, "password", "p", "", "New password")
 
-	userCmd.AddCommand(userSetPwdCmd)
+	UserCmd.AddCommand(userSetPwdCmd)
 }

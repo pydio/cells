@@ -72,5 +72,5 @@ $ ` + os.Args[0] + ` config delete micro.web port
 }
 
 func init() {
-	configCmd.AddCommand(delCmd)
+	ConfigCmd.AddCommand(delCmd)
 }

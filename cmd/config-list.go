@@ -73,5 +73,5 @@ Configurations are listed as truple [serviceName, configName, configValue], wher
 }
 
 func init() {
-	configCmd.AddCommand(listCmd)
+	ConfigCmd.AddCommand(listCmd)
 }

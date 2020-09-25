@@ -75,5 +75,5 @@ func confirmDeletion(cmd *cobra.Command, login string) bool {
 func init() {
 	userDeleteCmd.Flags().StringVarP(&userLogin, "username", "u", "", "Login(s) of the group(s) or user(s) to delete")
 
-	userCmd.AddCommand(userDeleteCmd)
+	UserCmd.AddCommand(userDeleteCmd)
 }

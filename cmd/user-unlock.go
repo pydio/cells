@@ -85,5 +85,5 @@ $ %s user unlock -u LOGIN
 
 func init() {
 	userUnlockCmd.Flags().StringVarP(&userUnlockLogin, "username", "u", "", "Login of the user to unlock")
-	userCmd.AddCommand(userUnlockCmd)
+	UserCmd.AddCommand(userUnlockCmd)
 }

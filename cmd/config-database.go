@@ -34,5 +34,5 @@ var configDatabaseCmd = &cobra.Command{
 }
 
 func init() {
-	configCmd.AddCommand(configDatabaseCmd)
+	ConfigCmd.AddCommand(configDatabaseCmd)
 }

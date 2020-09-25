@@ -113,5 +113,5 @@ func init() {
 	userCreateCmd.Flags().StringVarP(&userCreateLogin, "username", "u", "", "Login of the new user")
 	userCreateCmd.Flags().StringVarP(&userCreatePassword, "password", "p", "", "Password of the new user")
 
-	userCmd.AddCommand(userCreateCmd)
+	UserCmd.AddCommand(userCreateCmd)
 }

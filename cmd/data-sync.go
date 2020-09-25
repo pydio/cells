@@ -81,5 +81,5 @@ func init() {
 	dataSyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
-	dataCmd.AddCommand(dataSyncCmd)
+	DataCmd.AddCommand(dataSyncCmd)
 }
