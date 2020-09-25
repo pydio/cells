@@ -384,9 +384,9 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
-			go func() {
-				j.DeleteLogsFor(bgContext, jId, tasks...)
-			}()
+			go func(jI string, tt ...string) {
+				j.DeleteLogsFor(bgContext, jI, tt...)
+			}(jId, tasks...)
 		}
 		return nil
 
