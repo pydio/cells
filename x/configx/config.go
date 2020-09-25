@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/spf13/cast"
 )
 
 type Scanner interface {
@@ -97,14 +98,14 @@ func New(opts ...Option) Values {
 	}
 }
 
-// Get retrieve interface
-func (v *config) Get() Value {
+func (v *config) get() interface{} {
 	if v == nil {
 		return nil
 	}
 
 	if v.v != nil {
 		useDefault := false
+
 		switch vv := v.v.(type) {
 		case map[string]interface{}:
 			if ref, ok := vv["$ref"]; ok {
@@ -117,7 +118,7 @@ func (v *config) Get() Value {
 		}
 
 		if !useDefault {
-			return &def{v.v}
+			return v.v
 		}
 	}
 
@@ -126,16 +127,39 @@ func (v *config) Get() Value {
 		case *ref:
 			return v.r.Val(vv.Get()).Get()
 		}
-		return &def{v.d}
+		return v.d
 	}
 
 	return nil
+}
+
+// Get retrieve interface
+func (v *config) Get() Value {
+	if v.v == nil && v.d == nil {
+		return nil
+	}
+
+	switch vv := v.v.(type) {
+	case map[string]interface{}:
+		if ref, ok := vv["$ref"]; ok {
+			return v.r.Val(ref.(string)).Get()
+		}
+	}
+
+	return v
 }
 
 // Default value set
 func (v *config) Default(i interface{}) Value {
 	if v.d == nil {
 		v.d = i
+	}
+
+	switch vv := v.v.(type) {
+	case string:
+		if vv == "default" {
+			v.v = nil
+		}
 	}
 
 	return v.Get()
@@ -259,48 +283,88 @@ func (v *config) Scan(val interface{}) error {
 }
 
 func (c *config) Bool() bool {
-	return c.Default(false).Bool()
+	v := c.get()
+	if v == nil {
+		return false
+	}
+	return cast.ToBool(v)
 }
 func (c *config) Bytes() []byte {
-	return []byte(c.String())
+	v := c.get()
+	if v == nil {
+		return []byte{}
+	}
+	return []byte(cast.ToString(v))
 }
 func (c *config) Int() int {
-	return c.Default(0).Int()
+	v := c.get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt(v)
 }
 func (c *config) Int64() int64 {
-	return c.Default(0).Int64()
+	v := c.get()
+	if v == nil {
+		return 0
+	}
+	return cast.ToInt64(v)
 }
 func (c *config) Duration() time.Duration {
-	return c.Default(0 * time.Second).Duration()
+	v := c.get()
+	if v == nil {
+		return 0 * time.Second
+	}
+	return cast.ToDuration(v)
 }
 func (c *config) String() string {
+	v := c.get()
+
 	switch v := c.v.(type) {
 	case []interface{}, map[string]interface{}:
 		data, err := json.Marshal(v)
 		if err != nil {
-			return c.Default("").String()
+			return ""
 		}
 
 		return string(data)
 	case string:
-		if v == "default" || v == "" {
+		// Need to handle it differently
+		if v == "default" {
 			c.v = nil
 		}
 	}
 
-	return c.Default("").String()
+	return cast.ToString(v)
 }
 func (c *config) StringMap() map[string]string {
-	return c.Default(map[string]string{}).StringMap()
+	v := c.get()
+	if v == nil {
+		return map[string]string{}
+	}
+	return cast.ToStringMapString(c.get())
 }
 func (c *config) StringArray() []string {
-	return c.Default([]string{}).StringArray()
+	v := c.get()
+	if v == nil {
+		return []string{}
+	}
+	return cast.ToStringSlice(c.get())
 }
 func (c *config) Slice() []interface{} {
-	return c.Default([]interface{}{}).Slice()
+	v := c.get()
+	if v == nil {
+		return []interface{}{}
+	}
+	return cast.ToSlice(c.get())
 }
 func (c *config) Map() map[string]interface{} {
-	return c.Default(map[string]interface{}{}).Map()
+	v := c.get()
+	if v == nil {
+		return map[string]interface{}{}
+	}
+	r, _ := cast.ToStringMapE(v)
+	return r
 }
 func (c *config) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}

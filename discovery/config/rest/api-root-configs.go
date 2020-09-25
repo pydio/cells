@@ -83,11 +83,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 
 	path := strings.Split(strings.Trim(fullPath, "/"), "/")
 
-	var data string
-	err := config.Get(path...).Scan(&data)
-	if err != nil {
-		data = ""
-	}
+	data := config.Get(path...).String()
 
 	output := &rest.Configuration{
 		FullPath: fullPath,

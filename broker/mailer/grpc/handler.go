@@ -238,7 +238,6 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 	sender, err := mailer.GetSender(senderName, senderConfig)
 	if err != nil {
-		fmt.Println("Error is here ", err)
 		e = err
 		return
 	}
@@ -263,8 +262,6 @@ func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 	queueName, _, senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)
-
-	fmt.Println(m1, m2)
 
 	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
 		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")

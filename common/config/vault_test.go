@@ -54,6 +54,7 @@ func TestVault(t *testing.T) {
 		So(vault.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
 
 		vault.Val("unprotectedValue").Set("my-test-config-value")
+
 		So(vault.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
 	})
 
