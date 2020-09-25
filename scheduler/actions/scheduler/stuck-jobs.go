@@ -85,12 +85,12 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 			jobs.TaskStatus_Finished,
 			jobs.TaskStatus_Interrupted,
 		},
-		PruneLimit: 400,
+		PruneLimit: 50,
 	})
 	if e != nil {
 		return input.WithError(e), e
 	}
-	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned number of tasks to 1000 for each job (deleted %d tasks)", len(resp2.Deleted)))
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned number of tasks to 100 for each job (deleted %d tasks)", len(resp2.Deleted)))
 
 	// Prune cleanable jobs
 	resp3, e := cli.DeleteJob(ctx, &jobs.DeleteJobRequest{CleanableJobs: true})
