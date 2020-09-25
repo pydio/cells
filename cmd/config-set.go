@@ -77,5 +77,5 @@ $ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value
 }
 
 func init() {
-	configCmd.AddCommand(updateCmd)
+	ConfigCmd.AddCommand(updateCmd)
 }

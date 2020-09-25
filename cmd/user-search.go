@@ -140,5 +140,5 @@ $ ` + os.Args[0] + ` user search -u "*"
 
 func init() {
 	userSearchCmd.Flags().StringVarP(&userSearchLogin, "login", "l", "", "Select a user by login (will list all users and groups if empty)")
-	userCmd.AddCommand(userSearchCmd)
+	UserCmd.AddCommand(userSearchCmd)
 }

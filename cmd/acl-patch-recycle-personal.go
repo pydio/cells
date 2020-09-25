@@ -79,5 +79,5 @@ var patchRecyclePersonalCmd = &cobra.Command{
 
 func init() {
 	patchRecyclePersonalCmd.Flags().StringVar(&patchRecycleRoot, "path", "personal", "Full path to browse. All existing children will be flagged with the recycle_root ACL.")
-	aclCmd.AddCommand(patchRecyclePersonalCmd)
+	AclCmd.AddCommand(patchRecyclePersonalCmd)
 }

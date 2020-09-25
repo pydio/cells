@@ -126,5 +126,5 @@ func init() {
 	userSetProfileCmd.Flags().StringVarP(&userProfileLogin, "username", "u", "", "Login of the user to update")
 	userSetProfileCmd.Flags().StringVarP(&userTargetProfile, "profile", "p", "", "New profile")
 
-	userCmd.AddCommand(userSetProfileCmd)
+	UserCmd.AddCommand(userSetProfileCmd)
 }

@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// configCmd represents the config command
-var configCmd = &cobra.Command{
+// ConfigCmd represents the config command
+var ConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configuration manager",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -34,5 +34,5 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(configCmd)
+	RootCmd.AddCommand(ConfigCmd)
 }

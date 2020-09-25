@@ -63,5 +63,5 @@ func listDeps(service registry.Service, sep string) {
 }
 
 func init() {
-	docCmd.AddCommand(docDepsCmd)
+	DocCmd.AddCommand(docDepsCmd)
 }

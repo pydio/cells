@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var metaCmd = &cobra.Command{
+var MetaCmd = &cobra.Command{
 	Use:   "meta",
 	Short: "Directly manage metadata on the nodes",
 	Long: `Manage metadata that enrich some of the nodes.
@@ -37,5 +37,5 @@ Metadata are stored as simple key/values and attached to a node UUID.
 }
 
 func init() {
-	RootCmd.AddCommand(metaCmd)
+	RootCmd.AddCommand(MetaCmd)
 }

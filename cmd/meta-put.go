@@ -75,5 +75,5 @@ func init() {
 	metaPutCmd.Flags().StringVarP(&metaPutKey, "key", "k", "", "Name of the metadata")
 	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "Json-encoded string representing the value")
 
-	metaCmd.AddCommand(metaPutCmd)
+	MetaCmd.AddCommand(metaPutCmd)
 }

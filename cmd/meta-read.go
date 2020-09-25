@@ -102,5 +102,5 @@ $ ` + os.Args[0] + ` meta read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
 func init() {
 	metaReadCmd.Flags().StringVarP(&metaReadUUID, "uuid", "u", "", "Uuid of the node")
 
-	metaCmd.AddCommand(metaReadCmd)
+	MetaCmd.AddCommand(metaReadCmd)
 }
