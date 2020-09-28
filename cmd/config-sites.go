@@ -84,5 +84,5 @@ var sitesCmd = &cobra.Command{
 }
 
 func init() {
-	configCmd.AddCommand(sitesCmd)
+	ConfigCmd.AddCommand(sitesCmd)
 }
