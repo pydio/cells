@@ -56,8 +56,8 @@ var Sorter = (function () {
 
         this.state = _extends({}, state);
         if (!state.sortCol && defaultCol) {
-            state.sortCol = defaultCol;
-            state.sortDir = defaultDir || 'asc';
+            this.state.sortCol = defaultCol;
+            this.state.sortDir = defaultDir || 'asc';
         }
         this.onSort = onSort;
     }
@@ -229,15 +229,19 @@ var MaterialTable = (function (_React$Component) {
         });
         if (withSorter.length) {
             var defaultSortColumn = withSorter[0].name;
+            var defaultSortDir = undefined;
             var defaultSorter = withSorter.filter(function (c) {
                 return c.sorter['default'];
             });
             if (defaultSorter.length) {
                 defaultSortColumn = defaultSorter[0].name;
+                if (defaultSorter[0].sorter.defaultDir) {
+                    defaultSortDir = defaultSorter[0].sorter.defaultDir;
+                }
             }
             sorter = new Sorter(this.state, function (sortCol, sortDir) {
                 _this3.setState({ sortCol: sortCol, sortDir: sortDir });
-            }, defaultSortColumn);
+            }, defaultSortColumn, defaultSortDir);
             sorter.setData(columns, data);
         }
         return sorter;

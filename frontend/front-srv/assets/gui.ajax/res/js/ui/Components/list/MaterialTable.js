@@ -28,8 +28,8 @@ class Sorter {
     constructor(state, onSort, defaultCol = null, defaultDir = null){
         this.state = {...state};
         if(!state.sortCol && defaultCol){
-            state.sortCol = defaultCol;
-            state.sortDir = defaultDir || 'asc'
+            this.state.sortCol = defaultCol;
+            this.state.sortDir = defaultDir || 'asc'
         }
         this.onSort = onSort;
     }
@@ -147,13 +147,17 @@ class MaterialTable extends React.Component{
         const withSorter = columns.filter(c => c.sorter);
         if(withSorter.length) {
             let defaultSortColumn = withSorter[0].name;
+            let defaultSortDir;
             const defaultSorter = withSorter.filter(c => c.sorter.default);
             if (defaultSorter.length) {
                 defaultSortColumn = defaultSorter[0].name;
+                if(defaultSorter[0].sorter.defaultDir){
+                    defaultSortDir = defaultSorter[0].sorter.defaultDir;
+                }
             }
             sorter = new Sorter(this.state, (sortCol, sortDir) => {
                 this.setState({sortCol, sortDir})
-            }, defaultSortColumn);
+            }, defaultSortColumn, defaultSortDir);
             sorter.setData(columns, data);
         }
         return sorter

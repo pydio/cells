@@ -104,8 +104,8 @@ class JobBoard extends React.Component {
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <AdminComponents.Header
-                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
-                    backButtonAction={onRequestClose}
+                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={() => onRequestClose(true)}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
+                    backButtonAction={() => onRequestClose(true)}
                     actions={actions}
                     loading={loading}
                 />
