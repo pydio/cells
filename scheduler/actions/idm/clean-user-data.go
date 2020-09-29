@@ -42,7 +42,7 @@ func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "targetParent",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Data copy destination",
 					Description: "Where to copy or move original files (sibling folder by default)",
 					Mandatory:   false,

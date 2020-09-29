@@ -104,7 +104,7 @@ func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "ThumbSizes",
-					Type:        "string",
+					Type:        forms.ParamTextarea,
 					Label:       "Sizes",
 					Description: "A JSON map describing each thumbnail to be created",
 					Default:     "",
@@ -123,14 +123,6 @@ func (t *ThumbnailExtractor) GetName() string {
 
 // Init passes parameters to the action.
 func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	// Todo : get sizes from parameters
-	/*
-		t.Router = views.NewStandardRouter(views.RouterOptions{
-			AdminView:     true,
-			WatchRegistry: false,
-		})
-	*/
-
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {

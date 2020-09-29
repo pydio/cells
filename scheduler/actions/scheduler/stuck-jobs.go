@@ -38,7 +38,9 @@ var (
 	pruneJobsActionName = "actions.internal.prune-jobs"
 )
 
-type PruneJobsAction struct{}
+type PruneJobsAction struct{
+	maxTasksParam string
+}
 
 func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
@@ -48,12 +50,26 @@ func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescripti
 		Category:        actions.ActionCategoryScheduler,
 		Description:     "Delete finished scheduler jobs marked as AutoClean",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (c *PruneJobsAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "number",
+					Type:        forms.ParamInteger,
+					Label:       "Maximum tasks",
+					Description: "Maximum number of tasks to keep",
+					Default:     50,
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier
@@ -63,12 +79,21 @@ func (c *PruneJobsAction) GetName() string {
 
 // Init passes parameters to the action
 func (c *PruneJobsAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+	if n,o := action.Parameters["number"]; o {
+		c.maxTasksParam = n
+	} else {
+		c.maxTasksParam= "50";
+	}
 	return nil
 }
 
 // Run the actual action code
 func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
+	pruneLimit, e := jobs.EvaluateFieldInt(ctx, input, c.maxTasksParam)
+	if e != nil {
+		return input.WithError(e), e
+	}
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
@@ -85,12 +110,12 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 			jobs.TaskStatus_Finished,
 			jobs.TaskStatus_Interrupted,
 		},
-		PruneLimit: 50,
+		PruneLimit: int32(pruneLimit),
 	})
 	if e != nil {
 		return input.WithError(e), e
 	}
-	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned number of tasks to 100 for each job (deleted %d tasks)", len(resp2.Deleted)))
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned number of tasks to %d for each job (deleted %d tasks)", pruneLimit, len(resp2.Deleted)))
 
 	// Prune cleanable jobs
 	resp3, e := cli.DeleteJob(ctx, &jobs.DeleteJobRequest{CleanableJobs: true})
