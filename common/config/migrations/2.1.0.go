@@ -28,9 +28,7 @@ func movePydioConnectors(config configx.Values) (bool, error) {
 	var c interface{}
 	var connectors []map[string]interface{}
 
-	fmt.Println(config)
-
-	err := config.Values("services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors").Scan(&c)
+	err := config.Val("services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors").Scan(&c)
 	if err != nil {
 		return false, err
 	}
@@ -80,7 +78,7 @@ func movePydioConnectors(config configx.Values) (bool, error) {
 	}
 
 	d, f := path.Split("services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors")
-	config.Values(d).Set(f, connectors)
+	config.Val(d, f).Set(connectors)
 
 	return true, nil
 }

@@ -53,11 +53,11 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 		return false, err
 	}
 
+	fmt.Println("Versions are ", lastVersion, common.Version())
+
 	if !lastVersion.LessThan(common.Version()) {
 		return false, nil
 	}
-
-	fmt.Println(lastVersion, common.Version())
 
 	var mm []*migrations.Migration
 	for _, m := range configMigrations {
@@ -87,13 +87,12 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 func UpdateKeys(config configx.Values, m map[string]string) (bool, error) {
 	var save bool
 	for oldPath, newPath := range m {
-		val := config.Val(oldPath)
-		if val != nil {
+		oldVal := config.Val(oldPath)
+		newVal := config.Val(newPath)
+		if oldVal != nil && newVal == nil {
 			fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
-			nd, nf := path.Split(newPath)
-			od, of := path.Split(oldPath)
-			config.Val(nd, nf).Set(val.Get())
-			config.Val(od, of).Del()
+			newVal.Set(oldVal)
+			oldVal.Del()
 			save = true
 		}
 	}

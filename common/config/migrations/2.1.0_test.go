@@ -3,7 +3,6 @@ package migrations
 import (
 	"testing"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/utils/std"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/memory"
@@ -39,7 +38,7 @@ var (
 
 func TestMigration2_1_0(t *testing.T) {
 
-	common.VersionNumber = "2.1.0"
+	common.version = "2.1.0"
 
 	memorySource := memory.NewSource(
 		memory.WithJSON(data),

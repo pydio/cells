@@ -95,6 +95,7 @@ func setDefaultConfig(config configx.Values) (bool, error) {
 		if e := val.Scan(&data); e == nil && data == nil {
 			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", p, def)
 			d, f := path.Split(p)
+			fmt.Println(d, f, def)
 			config.Val(d, f).Set(def)
 			save = true
 		}

@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/vault"
+	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
@@ -303,7 +304,7 @@ func initConfig() {
 	// }
 
 	// Need to do something for the versions
-	config.UpgradeConfigsIfRequired(defaultConfig)
+	migrations.UpgradeConfigsIfRequired(defaultConfig.Val())
 	config.Register(defaultConfig)
 	config.RegisterVault(vaultConfig)
 
