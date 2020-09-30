@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/x/configx"
 )
 
 type dependency struct {
@@ -97,7 +98,7 @@ type ServiceOptions struct {
 	webHandlerWraps []func(http.Handler) http.Handler
 
 	// Watcher
-	Watchers []func(common.ConfigValues)
+	Watchers []func(configx.Values)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -276,7 +277,7 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
-func Watch(fn func(common.ConfigValues)) ServiceOption {
+func Watch(fn func(configx.Values)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Watchers = append(o.Watchers, fn)
 	}

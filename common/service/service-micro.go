@@ -67,6 +67,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if s.Options().Source != "" {
 				meta["source"] = s.Options().Source
 			}
+
 			// context is always added last - so that there is no override
 			s.Options().Micro.Init(
 				micro.Context(ctx),
