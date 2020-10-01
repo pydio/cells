@@ -53,8 +53,6 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 		return false, err
 	}
 
-	fmt.Println("Versions are ", lastVersion, common.Version())
-
 	if !lastVersion.LessThan(common.Version()) {
 		return false, nil
 	}

@@ -24,10 +24,6 @@ func FirstRun() *version.Version {
 // current version is 0.0.0 (first run), it only applies first run migration (if any) and returns target version.
 func Apply(ctx context.Context, current *version.Version, target *version.Version, migrations []*Migration) (*version.Version, error) {
 
-	if target.Equal(current) {
-		return nil, nil
-	}
-
 	if migrations == nil {
 		return target, nil
 	}

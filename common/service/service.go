@@ -400,7 +400,7 @@ func (s *service) Start() {
 		}
 	}
 
-	if s.Options().Micro != nil {
+	if s.Options().MicroInit != nil {
 		go func() {
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
@@ -653,11 +653,11 @@ func (s *service) DAO() interface{} {
 }
 
 func (s *service) IsGeneric() bool {
-	return (s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
+	return (s.Options().MicroInit != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
 }
 
 func (s *service) IsGRPC() bool {
-	return s.Options().Micro != nil && strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
+	return s.Options().MicroInit != nil && strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
 }
 
 func (s *service) IsREST() bool {
