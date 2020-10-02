@@ -30,6 +30,8 @@ import (
 	sync2 "sync"
 	"time"
 
+	"github.com/pydio/cells/common/sync/merger"
+
 	"github.com/golang/protobuf/proto"
 
 	"github.com/pydio/cells/data/source/sync"
@@ -328,6 +330,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.ObjectConfig = minioConfig
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
 	s.syncTask.SkipTargetChecks = true
+	s.syncTask.FailsafeDeletes = true
 
 	return nil
 
@@ -476,14 +479,24 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 						log.TasksLogger(c).Info(status.String())
 					}
 					taskChan <- ta
-				case <-doneChan:
+				case data := <-doneChan:
 					ta := proto.Clone(theTask).(*jobs.Task)
 					ta.HasProgress = true
 					ta.Progress = 1
 					ta.StatusMessage = "Complete"
 					ta.EndTime = int32(time.Now().Unix())
 					ta.Status = jobs.TaskStatus_Finished
-					log.TasksLogger(c).Info("Sync completed")
+					if patch, ok := data.(merger.Patch); ok {
+						if errs, has := patch.HasErrors(); has {
+							ta.StatusMessage = "Error: " + errs[0].Error()
+							ta.Status = jobs.TaskStatus_Error
+							log.TasksLogger(c).Info("Sync finished on error : " + errs[0].Error())
+						} else {
+							log.TasksLogger(c).Info("Sync completed")
+						}
+					} else {
+						log.TasksLogger(c).Info("Sync completed")
+					}
 					taskChan <- ta
 					return
 				}

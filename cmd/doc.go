@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var docCmd = &cobra.Command{
+var DocCmd = &cobra.Command{
 	Use:   "doc",
 	Short: "Manage documentation about Cells and this CLI tool",
 	Long:  ``,
@@ -34,5 +34,5 @@ var docCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(docCmd)
+	RootCmd.AddCommand(DocCmd)
 }

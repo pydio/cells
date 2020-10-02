@@ -248,12 +248,13 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession st
 
 	}
 
-	patch.PostFilter(func() {
+	patch.PostFilter(func() error {
 		if updater, ok := patch.Source().(model.SnapshotUpdater); ok && patch.Size() > 0 {
 			log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot")
 			updater.PatchUpdateSnapshot(ev.globalContext, patch)
 			log.Logger(ev.globalContext).Info("[batcher] PatchUpdating Snapshot - Done")
 		}
+		return nil
 	})
 
 	ev.patches <- patch

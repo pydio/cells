@@ -47,7 +47,7 @@ type AbstractPatch struct {
 	lockSession                string
 
 	skipFilterToTarget bool
-	postFilter         func()
+	postFilter         []func() error
 
 	statusChan chan model.Status
 	doneChan   chan interface{}
@@ -185,9 +185,9 @@ func (b *AbstractPatch) SkipFilterToTarget(skip bool) {
 }
 
 // PostFilter gets or sets a callback to be triggered after filtering
-func (b *AbstractPatch) PostFilter(f ...func()) func() {
+func (b *AbstractPatch) PostFilter(f ...func() error) []func() error {
 	if len(f) > 0 {
-		b.postFilter = f[0]
+		b.postFilter = append(b.postFilter, f...)
 	}
 	return b.postFilter
 }

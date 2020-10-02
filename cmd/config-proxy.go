@@ -211,5 +211,5 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 }
 
 func init() {
-	configCmd.AddCommand(proxyCmd)
+	ConfigCmd.AddCommand(proxyCmd)
 }

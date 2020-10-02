@@ -74,5 +74,5 @@ func init() {
 	createAclCmd.Flags().StringVarP(&workspaceID, "workspace_id", "w", "", "WorkspaceIDs")
 	createAclCmd.Flags().StringVarP(&nodeID, "node_id", "n", "", "NodeIDs")
 
-	aclCmd.AddCommand(createAclCmd)
+	AclCmd.AddCommand(createAclCmd)
 }

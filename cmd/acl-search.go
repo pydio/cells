@@ -100,5 +100,5 @@ func init() {
 	searchAclCmd.Flags().StringArrayVarP(&workspaceIDs, "workspace_id", "w", []string{}, "WorkspaceIDs")
 	searchAclCmd.Flags().StringArrayVarP(&nodeIDs, "node_id", "n", []string{}, "NodeIDs")
 
-	aclCmd.AddCommand(searchAclCmd)
+	AclCmd.AddCommand(searchAclCmd)
 }

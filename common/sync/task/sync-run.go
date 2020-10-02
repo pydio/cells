@@ -110,6 +110,34 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 		return err
 	}
 
+	// Additional failsafe filter for massive deletions
+	if s.FailsafeDeletes {
+		patch.PostFilter(func() error {
+			var ops []merger.Operation
+			patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(operation merger.Operation) {
+				if operation.GetNode() != nil && !operation.GetNode().IsLeaf() {
+					ops = append(ops, operation)
+				}
+			})
+			if len(ops) > 50 {
+				// Recheck deleted resources
+				for _, op := range ops {
+					log.Logger(ctx).Debug("Failsafe : rechecking deletion operation is real on " + op.GetRefPath())
+					ep := op.Source()
+					if s.Direction == model.DirectionLeft {
+						ep = op.Target().(model.PathSyncSource)
+					}
+					n, er := ep.LoadNode(ctx, op.GetRefPath())
+					if er == nil || n != nil {
+						// This is not normal - this node should not exist
+						return fmt.Errorf("detected delete of existing node " + op.GetRefPath())
+					}
+				}
+			}
+			return nil
+		})
+	}
+
 	return nil
 }
 

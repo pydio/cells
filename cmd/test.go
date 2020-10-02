@@ -36,7 +36,7 @@ var (
 	conformanceTestServiceName string
 )
 
-// configCmd represents the config command
+// ConfigCmd represents the config command
 var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Run conformance tests",

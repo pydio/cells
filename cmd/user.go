@@ -35,7 +35,7 @@ import (
 	service2 "github.com/pydio/cells/common/service/proto"
 )
 
-var userCmd = &cobra.Command{
+var UserCmd = &cobra.Command{
 	Use:   "user",
 	Short: "Manage users",
 	Long: `Manage users from command line by calling the dedicated services.
@@ -47,7 +47,7 @@ var userCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(userCmd)
+	RootCmd.AddCommand(UserCmd)
 }
 
 /* Package protected utility methods that are used by the various user subcommands */

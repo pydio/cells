@@ -50,6 +50,7 @@ type Sync struct {
 	Roots            []string
 	Ignores          []glob.Glob
 	SkipTargetChecks bool
+	FailsafeDeletes  bool
 
 	snapshotFactory model.SnapshotFactory
 	echoFilter      *filters.EchoFilter

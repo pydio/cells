@@ -34,5 +34,5 @@ var i18n = &cobra.Command{
 }
 
 func init() {
-	docCmd.AddCommand(i18n)
+	DocCmd.AddCommand(i18n)
 }
