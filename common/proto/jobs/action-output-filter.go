@@ -23,7 +23,10 @@ package jobs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
+
+	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -32,26 +35,60 @@ import (
 	service "github.com/pydio/cells/common/service/proto"
 )
 
+type MessageMatcher struct {
+	*ActionOutputSingleQuery
+}
+
+func (m *MessageMatcher) Matches(object interface{}) bool {
+	if in, ok := object.(*ActionOutput); ok {
+		return match(m.ActionOutputSingleQuery, in)
+	} else {
+		return false
+	}
+}
+
 func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 
-	var results []bool
-
-	for _, q := range n.GetQuery().GetSubQueries() {
-
-		var outputQuery ActionOutputSingleQuery
-		err := ptypes.UnmarshalAny(q, &outputQuery)
-		if err == nil && input.GetLastOutput() != nil {
-			pass := n.match(n.cloneEval(ctx, input, &outputQuery), input.GetLastOutput())
-			if outputQuery.Not {
-				pass = !pass
-			}
-			results = append(results, pass)
-		}
-
-	}
-	// Copy and return
 	output := input
-	return output, service.ReduceQueryBooleans(results, n.Query.Operation)
+	if n.Query == nil || len(n.Query.SubQueries) == 0 {
+		return output, true
+	}
+	if input.GetLastOutput() == nil {
+		return output, true
+	}
+
+	multi := &service.MultiMatcher{}
+	if er := multi.Parse(n.Query, func(o *any.Any) (service.Matcher, error) {
+		target := &ActionOutputSingleQuery{}
+		if e := ptypes.UnmarshalAny(o, target); e != nil {
+			return nil, e
+		}
+		return &MessageMatcher{ActionOutputSingleQuery: n.cloneEval(ctx, input, target)}, nil
+	}); er != nil {
+		fmt.Println("Error while parsing query", er)
+		return output, false
+	}
+	return output, multi.Matches(input.GetLastOutput())
+	/*
+		var results []bool
+
+		for _, q := range n.GetQuery().GetSubQueries() {
+
+			var outputQuery ActionOutputSingleQuery
+			err := ptypes.UnmarshalAny(q, &outputQuery)
+			if err == nil && input.GetLastOutput() != nil {
+				pass := match(n.cloneEval(ctx, input, &outputQuery), input.GetLastOutput())
+				if outputQuery.Not {
+					pass = !pass
+				}
+				results = append(results, pass)
+			}
+
+		}
+		// Copy and return
+		output := input
+		return output, service.ReduceQueryBooleans(results, n.Query.Operation)
+	*/
 }
 
 func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {
@@ -66,7 +103,7 @@ func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage,
 	return res
 }
 
-func (n *ActionOutputFilter) match(query *ActionOutputSingleQuery, output *ActionOutput) bool {
+func match(query *ActionOutputSingleQuery, output *ActionOutput) bool {
 
 	if query.IsSuccess && !output.Success {
 		return false

@@ -22,6 +22,8 @@ package jobs
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common/registry"
@@ -140,7 +142,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 	if m.All && (m.Query == nil || len(m.Query.SubQueries) == 0) {
 		return input, nil, true
 	}
-	var matchers []idm.Matcher
+	multi := &service.MultiMatcher{}
 	var pass bool
 
 	switch m.Type {
@@ -148,19 +150,20 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Users) == 0 {
 			return input, nil, false // break!
 		}
-		for _, an := range m.Query.SubQueries {
+		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
 			target := &idm.UserSingleQuery{}
-			if e := ptypes.UnmarshalAny(an, target); e != nil {
-				input.Users = []*idm.User{}
-				return input, nil, false
-			} else {
-				matchers = append(matchers, m.evaluate(ctx, input, target))
+			if e := ptypes.UnmarshalAny(o, target); e != nil {
+				return nil, e
 			}
+			return m.evaluate(ctx, input, target), nil
+		}); er != nil {
+			fmt.Println("Error", er)
+			input.Users = []*idm.User{}
+			break
 		}
-		var uu []*idm.User
-		var xx []*idm.User
+		var uu, xx []*idm.User
 		for _, u := range input.Users {
-			if m.matchQueries(u, matchers) {
+			if multi.Matches(u) {
 				uu = append(uu, u)
 			} else {
 				xx = append(xx, u)
@@ -178,19 +181,20 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Roles) == 0 {
 			return input, nil, false
 		}
-		for _, an := range m.Query.SubQueries {
+		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
 			target := &idm.RoleSingleQuery{}
-			if e := ptypes.UnmarshalAny(an, target); e != nil {
-				input.Roles = []*idm.Role{}
-				return input, nil, false
-			} else {
-				matchers = append(matchers, m.evaluate(ctx, input, target))
+			if e := ptypes.UnmarshalAny(o, target); e != nil {
+				return nil, e
 			}
+			return m.evaluate(ctx, input, target), nil
+		}); er != nil {
+			fmt.Println("Error", er)
+			input.Roles = []*idm.Role{}
+			break
 		}
-		var rr []*idm.Role
-		var xx []*idm.Role
+		var rr, xx []*idm.Role
 		for _, r := range input.Roles {
-			if m.matchQueries(r, matchers) {
+			if multi.Matches(r) {
 				rr = append(rr, r)
 			} else {
 				xx = append(xx, r)
@@ -214,19 +218,20 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 				return input, nil, false
 			}
 		}
-		for _, an := range m.Query.SubQueries {
+		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
 			target := &idm.WorkspaceSingleQuery{}
-			if e := ptypes.UnmarshalAny(an, target); e != nil {
-				input.Workspaces = []*idm.Workspace{}
-				return input, nil, false
-			} else {
-				matchers = append(matchers, m.evaluate(ctx, input, target))
+			if e := ptypes.UnmarshalAny(o, target); e != nil {
+				return nil, e
 			}
+			return m.evaluate(ctx, input, target), nil
+		}); er != nil {
+			fmt.Println("Error", er)
+			input.Workspaces = []*idm.Workspace{}
+			break
 		}
-		var ww []*idm.Workspace
-		var xx []*idm.Workspace
+		var ww, xx []*idm.Workspace
 		for _, w := range srcWW {
-			if m.matchQueries(w, matchers) {
+			if multi.Matches(w) {
 				ww = append(ww, w)
 			} else {
 				xx = append(xx, w)
@@ -244,19 +249,20 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Acls) == 0 {
 			return input, nil, false
 		}
-		for _, an := range m.Query.SubQueries {
+		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
 			target := &idm.ACLSingleQuery{}
-			if e := ptypes.UnmarshalAny(an, target); e != nil {
-				input.Acls = []*idm.ACL{}
-				return input, nil, false
-			} else {
-				matchers = append(matchers, m.evaluate(ctx, input, target))
+			if e := ptypes.UnmarshalAny(o, target); e != nil {
+				return nil, e
 			}
+			return m.evaluate(ctx, input, target), nil
+		}); er != nil {
+			fmt.Println("Error", er)
+			input.Acls = []*idm.ACL{}
+			break
 		}
-		var aa []*idm.ACL
-		var xx []*idm.ACL
+		var aa, xx []*idm.ACL
 		for _, a := range input.Acls {
-			if m.matchQueries(a, matchers) {
+			if multi.Matches(a) {
 				aa = append(aa, a)
 			} else {
 				xx = append(xx, a)
@@ -274,16 +280,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		break
 	}
 
-
 	return input, opposite, pass
-}
-
-func (m *IdmSelector) matchQueries(object interface{}, matchers []idm.Matcher) bool {
-	var bb []bool
-	for _, matcher := range matchers {
-		bb = append(bb, matcher.Matches(object))
-	}
-	return service.ReduceQueryBooleans(bb, m.Query.Operation)
 }
 
 func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, query *service.Query) *service.Query {
@@ -296,20 +293,20 @@ func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, q
 		r := &idm.RoleSingleQuery{}
 		ws := &idm.WorkspaceSingleQuery{}
 		a := &idm.ACLSingleQuery{}
-		if e:= ptypes.UnmarshalAny(sub, ws); e == nil {
+		if e := ptypes.UnmarshalAny(sub, ws); e == nil {
 			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, ws).(*idm.WorkspaceSingleQuery))
-		} else if e:= ptypes.UnmarshalAny(sub, r); e == nil {
+		} else if e := ptypes.UnmarshalAny(sub, r); e == nil {
 			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, r).(*idm.RoleSingleQuery))
-		}else if e:= ptypes.UnmarshalAny(sub, u); e == nil {
+		} else if e := ptypes.UnmarshalAny(sub, u); e == nil {
 			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, u).(*idm.UserSingleQuery))
-		}else if e:= ptypes.UnmarshalAny(sub, a); e == nil {
+		} else if e := ptypes.UnmarshalAny(sub, a); e == nil {
 			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, a).(*idm.ACLSingleQuery))
 		}
 	}
 	return q
 }
 
-func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQuery interface{}) idm.Matcher {
+func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQuery interface{}) service.Matcher {
 	if uQ, o := singleQuery.(*idm.UserSingleQuery); o {
 		uQ.Uuid = EvaluateFieldStr(ctx, input, uQ.Uuid)
 		uQ.Login = EvaluateFieldStr(ctx, input, uQ.Login)
@@ -339,21 +336,21 @@ func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQ
 		}
 		return aQ
 	}
-	return singleQuery.(idm.Matcher)
+	return singleQuery.(service.Matcher)
 }
 
 func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
-	ctxMeta, has := metadata.FromContext(ctx);
+	ctxMeta, has := metadata.FromContext(ctx)
 	if !has {
 		return nil, false
 	}
-	wsUuid, o := ctxMeta[servicecontext.CtxWorkspaceUuid];
+	wsUuid, o := ctxMeta[servicecontext.CtxWorkspaceUuid]
 	if !o {
 		return nil, false
 	}
 	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid:wsUuid})
-	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query:&service.Query{SubQueries:[]*any.Any{q}}})
+	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
+	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {
 		return nil, false
 	}
