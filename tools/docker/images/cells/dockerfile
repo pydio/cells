@@ -1,4 +1,4 @@
-# handle certificate and downloads in another stage to reduce image size
+# Handle certificate and download in a distinct stage to reduce image size
 FROM alpine as certs
 ARG version
 
@@ -9,7 +9,7 @@ WORKDIR /pydio
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
 RUN chmod +x /pydio/cells
 
-# Creates the final image
+# Create the target image
 FROM busybox:glibc
 ARG version
 

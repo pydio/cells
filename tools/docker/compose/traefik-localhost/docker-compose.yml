@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  reverse:
+    image: traefik:2.3
+    ports: [80:80]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --providers.docker
+      - --api
+      - --entrypoints.web.address=:80
+    labels:
+      - traefik.http.routers.reverse.service=api@internal
+      - traefik.http.routers.reverse.rule=PathPrefix(`/api`)||PathPrefix(`/dashboard`)
+      - traefik.http.routers.reverse.entrypoints=web
+
+  cells:
+    image: pydio/cells:latest
+    expose: [8080]
+    environment:
+      - CELLS_BIND=0.0.0.0:8080
+      - CELLS_EXTERNAL=http://localhost
+      - CELLS_NO_TLS=1
+    labels:
+      - traefik.http.routers.cells.rule=Host(`localhost`)
+      - traefik.http.routers.cells.entrypoints=web
+
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment: [MYSQL_DATABASE=cells, MYSQL_USER=pydio, MYSQL_ROOT_PASSWORD=cells, MYSQL_PASSWORD=cells]
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]

@@ -1,17 +1,11 @@
-version: "3"
+version: "3.7"
 
 services:
   reverse-proxy:
-    # The official v2.0 Traefik docker image
-    image: traefik:v2.0
+    image: traefik:2.3
     restart: always
-    # Enables the web UI and tells Traefik to listen to docker
+    ports: [443:443]
     command: --api.insecure=true --providers.docker
-    ports:
-      # The HTTP port
-      - "80:80"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
     volumes:
       # Configuration file for traefik
       - ./install/traefik.yml:/etc/traefik/traefik.yml
@@ -23,14 +17,14 @@ services:
       - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
       - "traefik.http.routers.api.service=api@internal"
     # environment:
-    #networks:
+    # networks:
     #  - internal
     #  - web
 
   cells:
     image: pydio/cells:latest
-    restart: always
-    ports: ["8000:80"]
+    restart: unless-stopped
+    expose: [8080]
     environment:
       - CELLS_WORKING_DIR=/var/cells
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
@@ -55,7 +49,7 @@ services:
 
   mysql:
     image: mysql:5.7
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: P@ssw0rd
       MYSQL_DATABASE: cells
@@ -63,12 +57,7 @@ services:
       MYSQL_PASSWORD: pydio
     volumes:
       - "mysqldir:/var/lib/mysql"
-    command:
-      [
-        mysqld,
-        --character-set-server=utf8mb4,
-        --collation-server=utf8mb4_unicode_ci,
-      ]
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
 
 volumes:
   workingdir: {}
