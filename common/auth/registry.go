@@ -46,7 +46,9 @@ func InitRegistry(dao sql.DAO) {
 
 		reg = driver.NewRegistrySQL().WithConfig(defaultConf).WithLogger(l)
 		r := reg.(*driver.RegistrySQL).WithDB(db)
-		r.Init()
+		if err := r.Init(); err != nil {
+			log.Error("Error registering oauth registry", zap.Error(err))
+		}
 
 		sql.LockMigratePackage()
 		defer func() {

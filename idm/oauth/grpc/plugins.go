@@ -94,6 +94,7 @@ func initialize(s service.Service) error {
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
 	auth.OnConfigurationInit(func(scanner common.Scanner) {
+
 		var m []struct {
 			ID   string
 			Name string

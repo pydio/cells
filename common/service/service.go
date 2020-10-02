@@ -58,6 +58,7 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	net2 "github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Service interface {
@@ -178,13 +179,32 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
+		Watch(func(v configx.Values) {
+			// Setting context
+			ctx, cancel := context.WithCancel(context.Background())
+			ctx = servicecontext.WithServiceName(ctx, name)
 
-		// TODO - WATCH THIS
-		// Watch(func(v configx.Values) {
-		// 	ctx = servicecontext.WithConfig(s.Options().Context, v)
+			if s.IsGRPC() {
+				ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
+			} else if s.IsREST() {
+				ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
 
-		// 	s.Init(Context(ctx))
-		// }),
+				// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+				if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
+					s.Init(WithWebAuth())
+				}
+			} else {
+				ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
+			}
+			ctx = servicecontext.WithConfig(ctx, v)
+
+			s.Stop()
+			s.Init(
+				Context(ctx),
+				Cancel(cancel),
+			)
+			s.Start()
+		}),
 	)
 
 	// Finally, register on the main app registry
@@ -213,14 +233,14 @@ var mandatoryOptions = []ServiceOption{
 
 	// Setting config watchers
 	// TODO - WATCH THIS
-	// AfterInit(func(s Service) error {
-	// 	watchers := s.Options().Watchers
-	// 	if len(watchers) == 0 {
-	// 		return nil
-	// 	}
-	// 	registerWatchers(s.Name(), watchers)
-	// 	return nil
-	// }),
+	AfterInit(func(s Service) error {
+		watchers := s.Options().Watchers
+		if len(watchers) == 0 {
+			return nil
+		}
+		registerWatchers(s.Name(), watchers)
+		return nil
+	}),
 
 	// Adding a check before starting the service to ensure only one is started if unique
 	BeforeStart(func(s Service) error {
@@ -380,7 +400,7 @@ func (s *service) Start() {
 		}
 	}
 
-	if s.Options().Micro != nil {
+	if s.Options().MicroInit != nil {
 		go func() {
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
@@ -633,11 +653,11 @@ func (s *service) DAO() interface{} {
 }
 
 func (s *service) IsGeneric() bool {
-	return (s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
+	return (s.Options().MicroInit != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
 }
 
 func (s *service) IsGRPC() bool {
-	return s.Options().Micro != nil && strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
+	return s.Options().MicroInit != nil && strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
 }
 
 func (s *service) IsREST() bool {

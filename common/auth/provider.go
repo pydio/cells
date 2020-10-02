@@ -133,12 +133,12 @@ func (v *configurationProvider) DefaultClientScope() []string {
 }
 
 func (v *configurationProvider) CORSEnabled(iface string) bool {
-	return v.v.Val("cors", iface).Bool()
+	return v.v.Val("cors", iface) != nil
 }
 
 func (v *configurationProvider) CORSOptions(iface string) cors.Options {
 	vals := v.v.Val("cors", iface)
-	return cors.Options{
+	opts := cors.Options{
 		AllowedOrigins:     vals.Val("allowedOrigins").StringArray(),
 		AllowedMethods:     vals.Val("allowedMethods").StringArray(),
 		AllowedHeaders:     vals.Val("allowedHeaders").StringArray(),
@@ -148,20 +148,20 @@ func (v *configurationProvider) CORSOptions(iface string) cors.Options {
 		MaxAge:             vals.Val("maxAge").Int(),
 		Debug:              vals.Val("debug").Bool(),
 	}
+
+	return opts
 }
 
 func (v *configurationProvider) DSN() string {
-	drv := v.v.Val("dsn", "drv").Default(configx.Reference("#/defaults/database/drv")).String()
-	dsn := v.v.Val("dsn", "dsn").Default(configx.Reference("#/defaults/database/dsn")).String()
+	db := v.v.Val("dsn").Default(configx.Reference("#/defaults/database")).StringMap()
 
-	return drv + "://" + dsn
+	return db["driver"] + "://" + db["dsn"]
 }
 
 func (v *configurationProvider) DataSourcePlugin() string {
-	drv := v.v.Val("dsn", "drv").Default(configx.Reference("#/defaults/database/drv")).String()
-	dsn := v.v.Val("dsn", "dsn").Default(configx.Reference("#/defaults/database/dsn")).String()
+	db := v.v.Val("dsn").Default(configx.Reference("#/defaults/database")).StringMap()
 
-	return drv + "://" + dsn
+	return db["driver"] + "://" + db["dsn"]
 }
 
 func (v *configurationProvider) BCryptCost() int {

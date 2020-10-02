@@ -21,6 +21,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/micro/go-micro"
@@ -33,15 +34,23 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/x/configx"
 )
+
+func Micro(m micro.Service) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Micro = m
+	}
+}
 
 // WithMicro adds a micro service handler to the current service
 func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
-		o.Micro = micro.NewService()
+		// o.Micro = micro.NewService()
 
 		o.MicroInit = func(s Service) error {
+			svc := micro.NewService()
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
@@ -53,7 +62,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
 			srv := defaults.NewServer(srvOpts...)
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
@@ -67,8 +76,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if s.Options().Source != "" {
 				meta["source"] = s.Options().Source
 			}
+
 			// context is always added last - so that there is no override
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
@@ -76,7 +86,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
 				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
-					return f(s.Options().Micro)
+					return f(svc)
 				}),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
@@ -94,17 +104,47 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			)
 
 			// newTracer(name, &options)
-			servicecontext.NewMetricsWrapper(s.Options().Micro)
-			newBackoffer(s.Options().Micro)
-			newConfigProvider(s.Options().Micro)
-			newDBProvider(s.Options().Micro)
-			newLogProvider(s.Options().Micro)
+			servicecontext.NewMetricsWrapper(svc)
+			newBackoffer(svc)
+			newConfigProvider(svc)
+			newDBProvider(svc)
+			newLogProvider(svc)
 			// newTraceProvider(s.Options().Micro) // DISABLED FOR NOW DUE TO CONFLICT WITH THE MICRO GO OS
-			newClaimsProvider(s.Options().Micro)
+			newClaimsProvider(svc)
 
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
+			proto.RegisterServiceHandler(srv, &StatusHandler{s.Address()})
 
-			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
+			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, srv, &StopHandler{s})
+
+			s.Init(
+				Micro(svc),
+				Watch(func(v configx.Values) {
+					// Setting context
+					ctx, cancel := context.WithCancel(context.Background())
+					ctx = servicecontext.WithServiceName(ctx, name)
+
+					if s.IsGRPC() {
+						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
+					} else if s.IsREST() {
+						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
+
+						// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+						if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
+							s.Init(WithWebAuth())
+						}
+					} else {
+						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
+					}
+					ctx = servicecontext.WithConfig(ctx, v)
+
+					s.Stop()
+					s.Init(
+						Context(ctx),
+						Cancel(cancel),
+					)
+					s.Start()
+				}),
+			)
 
 			return nil
 		}

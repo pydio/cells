@@ -92,6 +92,7 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			reg := defaults.Registry()
 			cm := cmd.NewCmd(cmd.Registry(&reg))
+
 			s.Options().Web.Init(
 				web.Cmd(cm),
 				web.Id(uuid.NewUUID().String()),

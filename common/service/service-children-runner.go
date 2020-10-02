@@ -45,7 +45,6 @@ import (
 )
 
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
-
 	return WithMicro(func(m micro.Service) error {
 		runner := NewChildrenRunner(m, parentName, childrenPrefix)
 		m.Init(

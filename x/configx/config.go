@@ -109,7 +109,13 @@ func (v *config) get() interface{} {
 		switch vv := v.v.(type) {
 		case map[string]interface{}:
 			if ref, ok := vv["$ref"]; ok {
-				return v.r.Val(ref.(string)).Get()
+				vvv := v.r.Val(ref.(string)).Get()
+				switch vvvv := vvv.(type) {
+				case *config:
+					return vvvv.get()
+				default:
+					return vvvv
+				}
 			}
 		case string:
 			if vv == "default" {
@@ -124,8 +130,24 @@ func (v *config) get() interface{} {
 
 	if v.d != nil {
 		switch vv := v.d.(type) {
+		case map[string]interface{}:
+			if ref, ok := vv["$ref"]; ok {
+				vvv := v.r.Val(ref.(string)).Get()
+				switch vvvv := vvv.(type) {
+				case *config:
+					return vvvv.get()
+				default:
+					return vvvv
+				}
+			}
 		case *ref:
-			return v.r.Val(vv.Get()).Get()
+			vvv := v.r.Val(vv.Get()).Get()
+			switch vvvv := vvv.(type) {
+			case *config:
+				return vvvv.get()
+			default:
+				return vvvv
+			}
 		}
 		return v.d
 	}
@@ -342,7 +364,7 @@ func (c *config) StringMap() map[string]string {
 	if v == nil {
 		return map[string]string{}
 	}
-	return cast.ToStringMapString(c.get())
+	return cast.ToStringMapString(v)
 }
 func (c *config) StringArray() []string {
 	v := c.get()

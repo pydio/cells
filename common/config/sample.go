@@ -23,6 +23,7 @@ package config
 import "github.com/pydio/cells/common"
 
 var SampleConfig = `{
+	"version": "` + common.Version().String() + `",
 	"defaults": {
 		"update": {
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",

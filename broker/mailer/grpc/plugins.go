@@ -71,16 +71,7 @@ func init() {
 					return err
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
-				watcher, err := watchConfigChanges(ctx, handler)
-				if err != nil {
-					log.Logger(ctx).Error("Cannot start watcher - still starting service", zap.Error(err))
-				} else {
-					m.Init(micro.BeforeStop(func() error {
-						log.Logger(ctx).Info("Stopping configs watcher")
-						watcher.Stop()
-						return nil
-					}))
-				}
+
 				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
 				return nil
 			}),

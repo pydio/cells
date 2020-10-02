@@ -34,6 +34,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -94,8 +95,10 @@ func actionDatabaseAdd(c *install.InstallConfig) error {
 	config.Set(connection, "databases", id)
 
 	// Only set the default if the default is not set
+
+	fmt.Println("HERE WE ARE ", configx.Reference("#/databases/"+id))
 	if config.Get("defaults", "database").String() == "" {
-		config.Set(id, "defaults", "database")
+		config.Set(configx.Reference("#/databases/"+id), "defaults", "database")
 	}
 
 	config.Save("cli", "Install / Setting Databases")
