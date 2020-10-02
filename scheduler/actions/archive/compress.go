@@ -96,7 +96,7 @@ func (c *CompressAction) GetParametersForm() *forms.Form {
 					Description: "Compression format of the archive",
 					Mandatory:   true,
 					Editable:    true,
-					Default: 	 detectFormat,
+					Default:     detectFormat,
 					ChoicePresetList: []map[string]string{
 						{detectFormat: "Detect (file extension)"},
 						{zipFormat: "Zip"},
@@ -139,8 +139,15 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
-		Router:      c.Router,
-		NodesFilter: c.filter, // may be nil
+		Router: c.Router,
+	}
+	if c.filter != nil {
+		compressor.WalkFilter = func(ctx context.Context, node *tree.Node) bool {
+			in := jobs.ActionMessage{}
+			in = in.WithNode(node)
+			_, _, pass := c.filter.Filter(ctx, in)
+			return pass
+		}
 	}
 
 	dir := path.Dir(nodes[0].Path)
