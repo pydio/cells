@@ -36941,6 +36941,14 @@
         }
       }
     ],
+    "Form/fields/AltText.js": [
+      {
+        "description": "",
+        "displayName": "AltText",
+        "methods": [],
+        "require": "const {AltText} = require('pydio').requireLib('form')"
+      }
+    ],
     "Form/fields/AutocompleteBox.js": [
       {
         "description": "",

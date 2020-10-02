@@ -75,6 +75,7 @@ var JobsJob = (function () {
         this.Label = undefined;
         this.Owner = undefined;
         this.Inactive = undefined;
+        this.Custom = undefined;
         this.Languages = undefined;
         this.EventNames = undefined;
         this.Schedule = undefined;
@@ -114,6 +115,9 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('Inactive')) {
                 obj['Inactive'] = _ApiClient2['default'].convertToType(data['Inactive'], 'Boolean');
+            }
+            if (data.hasOwnProperty('Custom')) {
+                obj['Custom'] = _ApiClient2['default'].convertToType(data['Custom'], 'Boolean');
             }
             if (data.hasOwnProperty('Languages')) {
                 obj['Languages'] = _ApiClient2['default'].convertToType(data['Languages'], ['String']);
@@ -180,6 +184,10 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Inactive
+*/
+
+/**
+* @member {Boolean} Custom
 */
 
 /**
