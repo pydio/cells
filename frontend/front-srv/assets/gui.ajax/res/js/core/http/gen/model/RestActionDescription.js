@@ -92,6 +92,9 @@ export default class RestActionDescription {
             if (data.hasOwnProperty('OutputDescription')) {
                 obj['OutputDescription'] = ApiClient.convertToType(data['OutputDescription'], 'String');
             }
+            if (data.hasOwnProperty('IsInternal')) {
+                obj['IsInternal'] = ApiClient.convertToType(data['IsInternal'], 'Boolean');
+            }
         }
         return obj;
     }
@@ -144,6 +147,11 @@ export default class RestActionDescription {
     * @member {String} OutputDescription
     */
     OutputDescription = undefined;
+    /**
+    * If action is declared internal, it is hidden to avoid polluting the list.
+    * @member {Boolean} IsInternal
+    */
+    IsInternal = undefined;
 
 
 

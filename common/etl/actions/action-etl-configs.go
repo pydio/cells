@@ -20,6 +20,7 @@ type SyncConfigAction struct {
 func (c *SyncConfigAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncConfigActionName,
+		IsInternal:      true,
 		Label:           "Sync. Configs",
 		Icon:            "",
 		Description:     "Diff and merge two configuration stores",

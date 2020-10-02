@@ -138,8 +138,10 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	} else if cmd.Cmd == jobs.Command_RunOnce {
 
 		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
-			JobID:  cmd.JobId,
-			RunNow: true,
+			JobID:         cmd.JobId,
+			RunNow:        true,
+			RunTaskId:     cmd.TaskId,
+			RunParameters: cmd.RunParameters,
 		}))
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {

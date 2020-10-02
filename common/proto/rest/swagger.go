@@ -4655,17 +4655,16 @@ var SwaggerJson = `{
     "installProxyConfig": {
       "type": "object",
       "properties": {
-        "BindURL": {
-          "type": "string"
-        },
-        "ExternalURL": {
-          "type": "string"
-        },
-        "RedirectURLs": {
+        "Binds": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "A list of [host]:port to bind to"
+        },
+        "ReverseProxyURL": {
+          "type": "string",
+          "title": "Optional URL of reverse proxy exposing this site"
         },
         "SelfSigned": {
           "$ref": "#/definitions/installTLSSelfSigned"
@@ -4675,6 +4674,11 @@ var SwaggerJson = `{
         },
         "Certificate": {
           "$ref": "#/definitions/installTLSCertificate"
+        },
+        "SSLRedirect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If TLS is set, whether to automatically redirect each http://host:port to https://host:port"
         }
       },
       "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy"
@@ -4686,6 +4690,9 @@ var SwaggerJson = `{
           "type": "string"
         },
         "KeyFile": {
+          "type": "string"
+        },
+        "CellsRootCA": {
           "type": "string"
         }
       },
@@ -4734,6 +4741,16 @@ var SwaggerJson = `{
         "Description": {
           "type": "string",
           "title": "User-defined comment for this action"
+        },
+        "Bypass": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Bypass this action (forward input to output and do nothing)"
+        },
+        "BreakAfter": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Stop full chain now : do not carry on executing next actions"
         },
         "NodesSelector": {
           "$ref": "#/definitions/jobsNodesSelector",
@@ -4966,8 +4983,16 @@ var SwaggerJson = `{
         "OwnerId": {
           "type": "string",
           "title": "Owner of the job"
+        },
+        "RunParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Parameters used for RunOnce command"
         }
-      }
+      },
+      "title": "Command sent to control a job or a task"
     },
     "jobsCtrlCommandResponse": {
       "type": "object",
@@ -4975,7 +5000,8 @@ var SwaggerJson = `{
         "Msg": {
           "type": "string"
         }
-      }
+      },
+      "title": "Response to the CtrlCommand"
     },
     "jobsDeleteTasksRequest": {
       "type": "object",
@@ -5070,6 +5096,11 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Admin can temporarily disable this job"
+        },
+        "Custom": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Job created by application or by administrator"
         },
         "Languages": {
           "type": "array",
@@ -5785,6 +5816,11 @@ var SwaggerJson = `{
         "OutputDescription": {
           "type": "string",
           "title": "Additional description describing the action output"
+        },
+        "IsInternal": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "If action is declared internal, it is hidden to avoid polluting the list."
         }
       }
     },

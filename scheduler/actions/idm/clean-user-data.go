@@ -26,6 +26,7 @@ type CleanUserDataAction struct {
 func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:               cleanUserDataName,
+		IsInternal:       true,
 		Label:            "User-data clean up",
 		Icon:             "account",
 		Description:      "Clean user data on deletion. Personal resources are moved to folder suffixed with the user UUID.",

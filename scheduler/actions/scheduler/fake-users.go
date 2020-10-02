@@ -55,6 +55,7 @@ type FakeUsersAction struct {
 func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              fakeUserCreationActionName,
+		IsInternal:      true,
 		Label:           "Fake Users",
 		Icon:            "account-multiple-plus",
 		Category:        actions.ActionCategoryIDM,

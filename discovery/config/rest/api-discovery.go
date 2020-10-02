@@ -203,6 +203,7 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 			Name:              a.ID,
 			Icon:              a.Icon,
 			Label:             a.Label,
+			IsInternal:        a.IsInternal,
 			Tint:              t,
 			Description:       a.Description,
 			SummaryTemplate:   a.SummaryTemplate,

@@ -101,6 +101,11 @@ message Action {
     // User-defined comment for this action
     string Description = 14;
 
+    // Bypass this action (forward input to output and do nothing)
+    bool Bypass = 15;
+    // Stop full chain now : do not carry on executing next actions
+    bool BreakAfter = 16;
+
     // Nodes Selector
     NodesSelector NodesSelector = 2;
     // Users Selector (deprecated in favor of IdmSelector)
@@ -142,6 +147,8 @@ message Job {
     string Owner = 3;
     // Admin can temporarily disable this job
     bool Inactive = 4;
+    // Job created by application or by administrator
+    bool Custom = 20;
     // Optional list of languages detected in the context at launch time
     repeated string Languages = 10;
 
@@ -364,6 +371,7 @@ enum Command {
     Active  = 7;
 }
 
+// Command sent to control a job or a task
 message CtrlCommand {
     // Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)
     Command Cmd = 1;
@@ -373,8 +381,11 @@ message CtrlCommand {
     string TaskId = 3;
     // Owner of the job
     string OwnerId = 4;
+    // Parameters used for RunOnce command
+    map<string,string> RunParameters = 5;
 }
 
+// Response to the CtrlCommand
 message CtrlCommandResponse {
     string Msg = 1;
 }
@@ -386,12 +397,19 @@ message ActionLog {
 }
 
 
-// Simple Event sent by the Timer Service
-// to trigger a JobID at a given time
+// Simple Event sent by the timer service to trigger a JobID at a given time
+// or to trigger a run now, with optional parameters
 message JobTriggerEvent {
+    // Id of the Job
     string JobID = 1;
+    // Schedule
     Schedule Schedule = 2;
+    // Start job now
     bool RunNow = 3;
+    // Impose the task unique ID for this run
+    string RunTaskId = 4;
+    // Use specific parameters values for this run
+    map<string,string> RunParameters = 5;
 }
 
 // Standard output of an action. Success value is required

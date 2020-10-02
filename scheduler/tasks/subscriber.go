@@ -51,7 +51,7 @@ const (
 )
 
 var (
-	PubSub *pubsub.PubSub
+	PubSub                  *pubsub.PubSub
 	ContextJobParametersKey = struct{}{}
 )
 
@@ -220,7 +220,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	return nil
 }
 
-func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool) context.Context {
+func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool, eventParameters ...map[string]string) context.Context {
 
 	// Add System User if necessary
 	if addSystemUser {
@@ -235,10 +235,18 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
 	// Inject evaluated job parameters
-	if len(job.Parameters) > 0{
+	if len(job.Parameters) > 0 {
 		params := make(map[string]string, len(job.Parameters))
 		for _, p := range job.Parameters {
 			params[p.Name] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, p.Value)
+		}
+		if len(eventParameters) > 0 {
+			// Replace job parameters with values passed through TriggerEvent
+			for k, v := range eventParameters[0] {
+				if _, o := params[k]; o {
+					params[k] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, v)
+				}
+			}
 		}
 		ctx = context.WithValue(ctx, ContextJobParametersKey, params)
 	}
@@ -265,9 +273,16 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	if j.Inactive {
 		return nil
 	}
-	ctx = s.prepareTaskContext(ctx, j, true)
-
-	log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
+	if event.GetRunNow() && event.GetRunParameters() != nil {
+		ctx = s.prepareTaskContext(ctx, j, true, event.GetRunParameters())
+	} else {
+		ctx = s.prepareTaskContext(ctx, j, true)
+	}
+	if event.GetRunNow() {
+		log.Logger(ctx).Info("Run Job " + jobId + " on demand")
+	} else {
+		log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
+	}
 	task := NewTaskFromEvent(ctx, j, event)
 	go task.EnqueueRunnables(s.Client, s.MainQueue)
 
@@ -332,7 +347,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 
 	s.jobsLock.Lock()
 	defer s.jobsLock.Unlock()
-	
+
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
 			continue

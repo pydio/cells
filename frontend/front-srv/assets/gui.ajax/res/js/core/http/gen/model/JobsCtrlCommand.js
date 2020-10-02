@@ -69,6 +69,9 @@ export default class JobsCtrlCommand {
             if (data.hasOwnProperty('OwnerId')) {
                 obj['OwnerId'] = ApiClient.convertToType(data['OwnerId'], 'String');
             }
+            if (data.hasOwnProperty('RunParameters')) {
+                obj['RunParameters'] = ApiClient.convertToType(data['RunParameters'], {'String': 'String'});
+            }
         }
         return obj;
     }
@@ -89,6 +92,10 @@ export default class JobsCtrlCommand {
     * @member {String} OwnerId
     */
     OwnerId = undefined;
+    /**
+    * @member {Object.<String, String>} RunParameters
+    */
+    RunParameters = undefined;
 
 
 

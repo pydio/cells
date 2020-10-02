@@ -64,6 +64,7 @@ type ActionDescription struct {
 	ID                string
 	Label             string
 	Icon              string
+	IsInternal        bool
 	Description       string
 	Category          string
 	Tint              string

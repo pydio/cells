@@ -50,6 +50,7 @@ var (
 func (c *MigrateGlobalMetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              MigrateGlobalMetaName,
+		IsInternal:      true,
 		Label:           "Global meta from P8",
 		Icon:            "",
 		Description:     "Pydio 8 migration specific task (do not use manually).",

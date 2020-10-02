@@ -59,14 +59,11 @@ export default class InstallProxyConfig {
             
             
 
-            if (data.hasOwnProperty('BindURL')) {
-                obj['BindURL'] = ApiClient.convertToType(data['BindURL'], 'String');
+            if (data.hasOwnProperty('Binds')) {
+                obj['Binds'] = ApiClient.convertToType(data['Binds'], ['String']);
             }
-            if (data.hasOwnProperty('ExternalURL')) {
-                obj['ExternalURL'] = ApiClient.convertToType(data['ExternalURL'], 'String');
-            }
-            if (data.hasOwnProperty('RedirectURLs')) {
-                obj['RedirectURLs'] = ApiClient.convertToType(data['RedirectURLs'], ['String']);
+            if (data.hasOwnProperty('ReverseProxyURL')) {
+                obj['ReverseProxyURL'] = ApiClient.convertToType(data['ReverseProxyURL'], 'String');
             }
             if (data.hasOwnProperty('SelfSigned')) {
                 obj['SelfSigned'] = InstallTLSSelfSigned.constructFromObject(data['SelfSigned']);
@@ -77,22 +74,21 @@ export default class InstallProxyConfig {
             if (data.hasOwnProperty('Certificate')) {
                 obj['Certificate'] = InstallTLSCertificate.constructFromObject(data['Certificate']);
             }
+            if (data.hasOwnProperty('SSLRedirect')) {
+                obj['SSLRedirect'] = ApiClient.convertToType(data['SSLRedirect'], 'Boolean');
+            }
         }
         return obj;
     }
 
     /**
-    * @member {String} BindURL
+    * @member {Array.<String>} Binds
     */
-    BindURL = undefined;
+    Binds = undefined;
     /**
-    * @member {String} ExternalURL
+    * @member {String} ReverseProxyURL
     */
-    ExternalURL = undefined;
-    /**
-    * @member {Array.<String>} RedirectURLs
-    */
-    RedirectURLs = undefined;
+    ReverseProxyURL = undefined;
     /**
     * @member {module:model/InstallTLSSelfSigned} SelfSigned
     */
@@ -105,6 +101,10 @@ export default class InstallProxyConfig {
     * @member {module:model/InstallTLSCertificate} Certificate
     */
     Certificate = undefined;
+    /**
+    * @member {Boolean} SSLRedirect
+    */
+    SSLRedirect = undefined;
 
 
 

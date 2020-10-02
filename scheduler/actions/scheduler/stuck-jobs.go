@@ -38,13 +38,14 @@ var (
 	pruneJobsActionName = "actions.internal.prune-jobs"
 )
 
-type PruneJobsAction struct{
+type PruneJobsAction struct {
 	maxTasksParam string
 }
 
 func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              pruneJobsActionName,
+		IsInternal:      true,
 		Label:           "Prune Jobs",
 		Icon:            "delete-sweep",
 		Category:        actions.ActionCategoryScheduler,
@@ -79,10 +80,10 @@ func (c *PruneJobsAction) GetName() string {
 
 // Init passes parameters to the action
 func (c *PruneJobsAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	if n,o := action.Parameters["number"]; o {
+	if n, o := action.Parameters["number"]; o {
 		c.maxTasksParam = n
 	} else {
-		c.maxTasksParam= "50";
+		c.maxTasksParam = "50"
 	}
 	return nil
 }
