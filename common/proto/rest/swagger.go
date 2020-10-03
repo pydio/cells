@@ -4925,6 +4925,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Query built from ActionOutputSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "ActionOutputFilter can be used to filter last message output"
@@ -4953,6 +4961,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Can be built with ContextMetaSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "PolicyContextFilter can be used to filter request metadata"
@@ -5062,6 +5078,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Pass a slice of objects to one action, or trigger all actions in parallel"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Generic container for select/filter idm objects"
@@ -5271,7 +5295,15 @@ var SwaggerJson = `{
         "Collect": {
           "type": "boolean",
           "format": "boolean",
-          "title": "Wether to trigger one action per node or one action\nwith all nodes as selection"
+          "title": "Whether to trigger one action per node or one action\nwith all nodes as selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////"
@@ -5383,6 +5415,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Wether to trigger one action per user or one action\nwith all user as a selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Select or filter users - should be replaced by more generic IdmSelector"

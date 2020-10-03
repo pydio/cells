@@ -60,6 +60,12 @@ export default class JobsActionOutputFilter {
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = ServiceQuery.constructFromObject(data['Query']);
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
+            }
         }
         return obj;
     }
@@ -68,6 +74,14 @@ export default class JobsActionOutputFilter {
     * @member {module:model/ServiceQuery} Query
     */
     Query = undefined;
+    /**
+    * @member {String} Label
+    */
+    Label = undefined;
+    /**
+    * @member {String} Description
+    */
+    Description = undefined;
 
 
 
