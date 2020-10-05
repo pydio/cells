@@ -54,6 +54,7 @@ func getDefaultJobs() []*jobs.Job {
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 		},
 		NodeEventFilter: &jobs.NodesSelector{
+			Label: "Images Only",
 			Query: &service.Query{
 				SubQueries: []*any.Any{imagesQuery},
 			},
@@ -66,6 +67,7 @@ func getDefaultJobs() []*jobs.Job {
 			{
 				ID: "actions.images.exif",
 				NodesFilter: &jobs.NodesSelector{
+					Label: "Jpg only",
 					Query: &service.Query{
 						SubQueries: []*any.Any{exifQuery},
 					},
@@ -85,6 +87,7 @@ func getDefaultJobs() []*jobs.Job {
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 		},
 		NodeEventFilter: &jobs.NodesSelector{
+			Label: "Images Only",
 			Query: &service.Query{
 				SubQueries: []*any.Any{imagesQuery},
 			},
@@ -92,11 +95,6 @@ func getDefaultJobs() []*jobs.Job {
 		Actions: []*jobs.Action{
 			{
 				ID: "actions.images.clean",
-				NodesFilter: &jobs.NodesSelector{
-					Query: &service.Query{
-						SubQueries: []*any.Any{imagesQuery},
-					},
-				},
 			},
 		},
 	}
