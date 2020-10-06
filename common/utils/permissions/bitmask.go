@@ -93,10 +93,11 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 		}
 		// Check all parents, break if check is false (not allowed).
 		for _, ctxNode := range ctxNodes {
-			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" {
-				continue
+			polNode := ctxNode
+			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" { // Do not check nodes meta but check generic context
+				polNode = nil
 			}
-			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], ctxNode); !c {
+			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], polNode); !c {
 				log.Logger(ctx).Debug("Found forbidden access on node", ctxNode.ZapPath())
 				return false
 			}
