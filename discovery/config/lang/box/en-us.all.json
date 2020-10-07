@@ -113,6 +113,18 @@
   "contextMetaCondition.StringPairsEqualCondition": {
     "other": "StringPairs equals"
   },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "String does not match"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Date period"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Office Hours"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Date after"
+  },
   "contextMetaField.ContentType": {
     "other": "Content Type"
   },

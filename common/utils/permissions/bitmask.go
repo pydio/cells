@@ -94,7 +94,7 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 		// Check all parents, break if check is false (not allowed).
 		for _, ctxNode := range ctxNodes {
 			polNode := ctxNode
-			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" { // Do not check nodes meta but check generic context
+			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" { // Do not try to check nodes meta on root
 				polNode = nil
 			}
 			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], polNode); !c {

@@ -268,21 +268,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
 			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
-		case "jobs.ContextMetaSingleQuery":
-			form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
-			// Select Choices
-			selectChoices := []map[string]string{
-				{servicecontext.HttpMetaRemoteAddress: "contextMetaField." + servicecontext.HttpMetaRemoteAddress},
-				{servicecontext.HttpMetaUserAgent: "contextMetaField." + servicecontext.HttpMetaUserAgent},
-				{servicecontext.HttpMetaContentType: "contextMetaField." + servicecontext.HttpMetaContentType},
-				{servicecontext.HttpMetaProtocol: "contextMetaField." + servicecontext.HttpMetaProtocol},
-				{servicecontext.HttpMetaHostname: "contextMetaField." + servicecontext.HttpMetaHostname},
-				{servicecontext.HttpMetaRequestMethod: "contextMetaField." + servicecontext.HttpMetaRequestMethod},
-				{servicecontext.HttpMetaRequestURI: "contextMetaField." + servicecontext.HttpMetaRequestURI},
-				{servicecontext.HttpMetaCookiesString: "contextMetaField." + servicecontext.HttpMetaCookiesString},
-				//{servicecontext.ClientTime: servicecontext.ClientTime},
-				{servicecontext.ServerTime: "contextMetaField." + servicecontext.ServerTime},
-			}
+		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{
 				Name:        "Condition",
@@ -292,22 +278,46 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			for name, f := range ladon.ConditionFactories {
 				condition := f()
 				condForm := protos.GenerateProtoToForm("condition"+condition.GetName(), condition, false)
-				condField.Values = append(condField.Values, &forms.SwitchValue{
-					Name:   name,
-					Value:  name,
-					Label:  "contextMetaCondition." + name,
-					Fields: condForm.Groups[0].Fields,
-				})
+				// Do not enqueue conditions with zero fields: they are not usable
+				if len(condForm.Groups[0].Fields) > 0 {
+					condField.Values = append(condField.Values, &forms.SwitchValue{
+						Name:   name,
+						Value:  name,
+						Label:  "contextMetaCondition." + name,
+						Fields: condForm.Groups[0].Fields,
+					})
+				}
 			}
-			if asSwitch {
-				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
-				sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+			if protoName == "policy.Conditions" {
+				// Specific case to just build Conditions form
+				form = &forms.Form{Groups: []*forms.Group{{
+					Fields: []forms.Field{condField},
+				}}}
 			} else {
-				form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				// Build FieldName / Condition Form
+				form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
+				selectChoices := []map[string]string{
+					{servicecontext.HttpMetaRemoteAddress: "contextMetaField." + servicecontext.HttpMetaRemoteAddress},
+					{servicecontext.HttpMetaUserAgent: "contextMetaField." + servicecontext.HttpMetaUserAgent},
+					{servicecontext.HttpMetaContentType: "contextMetaField." + servicecontext.HttpMetaContentType},
+					{servicecontext.HttpMetaProtocol: "contextMetaField." + servicecontext.HttpMetaProtocol},
+					{servicecontext.HttpMetaHostname: "contextMetaField." + servicecontext.HttpMetaHostname},
+					{servicecontext.HttpMetaRequestMethod: "contextMetaField." + servicecontext.HttpMetaRequestMethod},
+					{servicecontext.HttpMetaRequestURI: "contextMetaField." + servicecontext.HttpMetaRequestURI},
+					{servicecontext.HttpMetaCookiesString: "contextMetaField." + servicecontext.HttpMetaCookiesString},
+					//{servicecontext.ClientTime: servicecontext.ClientTime},
+					{servicecontext.ServerTime: "contextMetaField." + servicecontext.ServerTime},
+				}
+				if asSwitch {
+					sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+					sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+				} else {
+					form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				}
 			}
 		}
 	} else {
