@@ -35,7 +35,6 @@ services:
         - traefik.http.routers.redirs.middlewares=redirect-to-https
         - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
         # Expose the traefik dashboard on the reserved sub path, TLS is provided by the Let's Encrypt cert provider.
-        - traefik.enable=true
         - traefik.http.routers.reverse.service=api@internal
         - traefik.http.routers.reverse.rule=PathPrefix(`/api`)||PathPrefix(`/dashboard`)
         - traefik.http.routers.reverse.entrypoints=websecure
