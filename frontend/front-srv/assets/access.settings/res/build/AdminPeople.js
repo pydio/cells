@@ -1880,11 +1880,12 @@ var RolesDashboard = _react2['default'].createClass({
     deleteAction: function deleteAction(roleId) {
         var _this3 = this;
 
+        var roleLabel = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
         var pydio = this.props.pydio;
 
         pydio.UI.openConfirmDialog({
             message: pydio.MessageHash['settings.126'],
-            destructive: [roleId],
+            destructive: [roleLabel || roleId],
             validCallback: function validCallback() {
                 _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(roleId).then(function () {
                     _this3.load();
@@ -1997,7 +1998,7 @@ var RolesDashboard = _react2['default'].createClass({
                 iconClassName: "mdi mdi-delete",
                 tooltip: 'Delete',
                 onTouchTap: function onTouchTap(row) {
-                    _this5.deleteAction(row.role.Uuid);
+                    _this5.deleteAction(row.role.Uuid, row.role.Label);
                 },
                 disable: function disable(row) {
                     return !row.role.PoliciesContextEditable;
