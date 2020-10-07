@@ -183,11 +183,12 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	go func() {
 		defer writer.Close()
-		if c.Format == "zip" {
+		switch format {
+		case "zip":
 			written, err = compressor.ZipSelection(ctx, writer, input.Nodes, channels.StatusMsg)
-		} else if c.Format == "tar" {
+		case "tar":
 			written, err = compressor.TarSelection(ctx, writer, false, input.Nodes, channels.StatusMsg)
-		} else if c.Format == "tar.gz" {
+		case "tar.gz":
 			written, err = compressor.TarSelection(ctx, writer, true, input.Nodes, channels.StatusMsg)
 		}
 	}()
