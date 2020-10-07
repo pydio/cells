@@ -78,7 +78,6 @@ export default function (PydioComponent){
                             sorter.push({id:repository.getId(), label:repository.getLabel()});
                         }
                     });
-                    console.log(sorter);
                     sorter.sort((a,b)=> a.label.localeCompare(b.label, undefined, {numeric: true}));
                     sorter.push(...pages);
                     sorter.forEach(d => output.set(d.id, d.label));

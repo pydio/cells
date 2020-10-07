@@ -40,11 +40,18 @@ export default React.createClass({
     },
 
     getInitialState(){
-        return {details: false, filter:'', peers:[], peerFilter:''}
+        const details = localStorage.getItem('console.services.details')
+        return {
+            details: details && details === 'true',
+            filter:'',
+            peers:[],
+            peerFilter:''
+        }
     },
 
     onDetailsChange(event, value){
         this.setState({details: value});
+        localStorage.setItem('console.services.details', value?'true':'false')
     },
 
     onFilterChange(event, index, value){

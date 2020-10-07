@@ -17885,9 +17885,16 @@ var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
 
 var _materialUiStyles = require('material-ui/styles');
 
+var _lodash = require('lodash');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("boot");
+
+var JobsStore = _Pydio$requireLib2.JobsStore;
+var moment = _Pydio$requireLib2.moment;
 
 var DataSourcesBoard = (function (_React$Component) {
     _inherits(DataSourcesBoard, _React$Component);
@@ -17898,6 +17905,7 @@ var DataSourcesBoard = (function (_React$Component) {
         _get(Object.getPrototypeOf(DataSourcesBoard.prototype), 'constructor', this).call(this, props);
         this.state = {
             dataSources: [],
+            resyncJobs: {},
             versioningPolicies: [],
             dsLoaded: false,
             versionsLoaded: false,
@@ -17928,12 +17936,18 @@ var DataSourcesBoard = (function (_React$Component) {
                     _this.setState({ peerAddresses: res.PeerAddresses || [] });
                 });
             }, 2500);
+            setTimeout(function () {
+                _this.syncPoller = setInterval(function () {
+                    _this.syncStatuses();
+                }, 2500);
+            }, 1250);
             this.load();
         }
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
             clearInterval(this.statusPoller);
+            clearInterval(this.syncPoller);
         }
     }, {
         key: 'load',
@@ -17948,7 +17962,9 @@ var DataSourcesBoard = (function (_React$Component) {
                 newDsName: newDsName
             });
             _modelDataSource2['default'].loadDatasources().then(function (data) {
-                _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true });
+                _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true }, function () {
+                    _this2.syncStatuses();
+                });
             });
             _modelDataSource2['default'].loadVersioningPolicies().then(function (data) {
                 _this2.setState({ versioningPolicies: data.Policies || [], versionsLoaded: true });
@@ -17959,6 +17975,28 @@ var DataSourcesBoard = (function (_React$Component) {
             if (this.refs && this.refs.encKeys) {
                 this.refs.encKeys.load();
             }
+        }
+    }, {
+        key: 'syncStatuses',
+        value: function syncStatuses() {
+            var _this3 = this;
+
+            var dataSources = this.state.dataSources;
+
+            if (!dataSources || !dataSources.length) {
+                return;
+            }
+            JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(function (d) {
+                return 'resync-ds-' + d.Name;
+            }), 1).then(function (response) {
+                var resyncJobs = {};
+                response.Jobs.forEach(function (job) {
+                    if (job.Tasks && job.Tasks.length) {
+                        resyncJobs[job.ID.replace('resync-ds-', '')] = job;
+                    }
+                });
+                _this3.setState({ resyncJobs: resyncJobs });
+            });
         }
     }, {
         key: 'closeEditor',
@@ -17992,9 +18030,39 @@ var DataSourcesBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'makeStatusLabel',
+        value: function makeStatusLabel(level, message) {
+            switch (level) {
+                case 'error':
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#e53935' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                        ' ',
+                        message
+                    );
+                case 'running':
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#ef6c00' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
+                        ' ',
+                        message
+                    );
+                default:
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#1b5e20' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-check" }),
+                        ' ',
+                        message
+                    );
+            }
+        }
+    }, {
         key: 'computeStatus',
         value: function computeStatus(dataSource) {
-            var _this3 = this;
+            var _this4 = this;
 
             var asNumber = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
@@ -18025,30 +18093,18 @@ var DataSourcesBoard = (function (_React$Component) {
             if (index && sync && object) {
                 if (newDsName && dataSource.Name === newDsName) {
                     setTimeout(function () {
-                        _this3.setState({ newDsName: null });
+                        _this4.setState({ newDsName: null });
                     }, 100);
                 }
                 if (asNumber) {
                     return 0;
                 }
-                return _react2['default'].createElement(
-                    'span',
-                    { style: { color: '#1b5e20' } },
-                    _react2['default'].createElement('span', { className: "mdi mdi-check" }),
-                    ' ',
-                    m('status.ok')
-                );
+                return this.makeStatusLabel('ok', m('status.ok'));
             } else if (newDsName && dataSource.Name === newDsName) {
                 if (asNumber) {
                     return 1;
                 }
-                return _react2['default'].createElement(
-                    'span',
-                    { style: { color: '#ef6c00' } },
-                    _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
-                    ' ',
-                    m('status.starting')
-                );
+                return this.makeStatusLabel('running', m('status.starting'));
             } else if (!index && !sync && !object) {
                 var koMessage = m('status.ko');
                 if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
@@ -18057,13 +18113,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 if (asNumber) {
                     return 2;
                 }
-                return _react2['default'].createElement(
-                    'span',
-                    { style: { color: '#e53935' } },
-                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
-                    ' ',
-                    koMessage
-                );
+                return this.makeStatusLabel('error', koMessage);
             } else {
                 var services = [];
                 if (!index) {
@@ -18078,14 +18128,26 @@ var DataSourcesBoard = (function (_React$Component) {
                 if (asNumber) {
                     return 3;
                 }
-                return _react2['default'].createElement(
-                    'span',
-                    { style: { color: '#e53935' } },
-                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
-                    ' ',
-                    services.join(' - ')
-                );
+                return this.makeStatusLabel('error', services.join(' - '));
             }
+        }
+    }, {
+        key: 'computeJobStatus',
+        value: function computeJobStatus(job) {
+            var task = job.Tasks[0];
+            switch (task.Status) {
+                case 'Finished':
+                    return this.makeStatusLabel('ok', moment(new Date(parseInt(task.EndTime) * 1000)).fromNow());
+                case 'Running':
+                    return this.makeStatusLabel('running', task.StatusMessage || 'Running...');
+                case 'Error':
+                    return this.makeStatusLabel('error', task.StatusMessage);
+                case 'Queued':
+                    return this.makeStatusLabel('running', task.StatusMessage);
+                default:
+                    break;
+            }
+            return this.makeStatusLabel('ok', task.StatusMessage);
         }
     }, {
         key: 'openVersionPolicy',
@@ -18132,7 +18194,7 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'deleteVersionPolicy',
         value: function deleteVersionPolicy(policy) {
-            var _this4 = this;
+            var _this5 = this;
 
             var pydio = this.props.pydio;
 
@@ -18143,7 +18205,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                         var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
-                            _this4.load();
+                            _this5.load();
                         });
                     });
                 }
@@ -18187,14 +18249,14 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'deleteDataSource',
         value: function deleteDataSource(pydio, m, row) {
-            var _this5 = this;
+            var _this6 = this;
 
             pydio.UI.openConfirmDialog({
                 message: m('editor.delete.warning'),
                 validCallback: function validCallback() {
                     var ds = new _modelDataSource2['default'](row);
                     ds.deleteSource().then(function () {
-                        _this5.load();
+                        _this6.load();
                     });
                 },
                 destructive: [row.Name]
@@ -18229,10 +18291,11 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var _state2 = this.state;
             var dataSources = _state2.dataSources;
+            var resyncJobs = _state2.resyncJobs;
             var versioningPolicies = _state2.versioningPolicies;
             var m = _state2.m;
 
@@ -18252,7 +18315,7 @@ var DataSourcesBoard = (function (_React$Component) {
             var versioningReadonly = _props4.versioningReadonly;
             var accessByName = _props4.accessByName;
 
-            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' }, sorter: { type: 'string', 'default': true } }, { name: 'Status', label: m('status'),
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '15%' }, headerStyle: { width: '15%' }, sorter: { type: 'string', 'default': true } }, { name: 'Status', label: m('status'),
                 renderCell: function renderCell(row) {
                     return row.Disabled ? _react2['default'].createElement(
                         'span',
@@ -18260,12 +18323,19 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
                         ' ',
                         m('status.disabled')
-                    ) : _this6.computeStatus(row);
+                    ) : _this7.computeStatus(row);
                 },
                 sorter: { type: 'number', value: function value(row) {
-                        return _this6.computeStatus(row, true);
+                        return _this7.computeStatus(row, true);
                     } }
-            }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
+            }, { name: 'SyncStatus', label: m('syncStatus'),
+                renderCell: function renderCell(row) {
+                    return resyncJobs && resyncJobs[row.Name] ? _this7.computeJobStatus(resyncJobs[row.Name]) : 'n/a';
+                },
+                sorter: { type: 'string', value: function value(row) {
+                        return resyncJobs && resyncJobs[row.Name] ? resyncJobs[row.Name].Tasks[0].Status : 'zzzzzz';
+                    } }
+            }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '15%' }, headerStyle: { width: '15%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
                     switch (row.StorageType) {
                         case "S3":
@@ -18281,7 +18351,7 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                }, sorter: { type: 'string' } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true, renderCell: function renderCell(row) {
+                }, sorter: { type: 'string' } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -18294,8 +18364,8 @@ var DataSourcesBoard = (function (_React$Component) {
                 name: 'EncryptionMode',
                 label: m('encryption'),
                 hideSmall: true,
-                style: { width: '10%', textAlign: 'center' },
-                headerStyle: { width: '10%' },
+                style: { width: '8%', textAlign: 'center' },
+                headerStyle: { width: '8%' },
                 renderCell: function renderCell(row) {
                     return row['EncryptionMode'] === 'MASTER' ? _react2['default'].createElement('span', { className: "mdi mdi-check" }) : '-';
                 },
@@ -18311,7 +18381,7 @@ var DataSourcesBoard = (function (_React$Component) {
             var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
             if (versioningEditable) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
-                        _this6.openVersionPolicy();
+                        _this7.openVersionPolicy();
                     } }, adminStyles.props.header.flatButton)));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 }, sorter: { type: 'string', 'default': true } }, { name: 'Description', label: m('versioning.description'), sorter: { type: 'string' } }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
@@ -18324,7 +18394,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: 'Edit datasource',
                     onTouchTap: function onTouchTap(row) {
-                        _this6.openDataSource([row]);
+                        _this7.openDataSource([row]);
                     }
                 });
             }
@@ -18332,14 +18402,14 @@ var DataSourcesBoard = (function (_React$Component) {
                 iconClassName: 'mdi mdi-sync',
                 tooltip: m('editor.legend.resync.button'),
                 onTouchTap: function onTouchTap(row) {
-                    return _this6.resyncDataSource(pydio, m, row);
+                    return _this7.resyncDataSource(pydio, m, row);
                 }
             });
             dsActions.push({
                 iconClassName: 'mdi mdi-folder-plus',
                 tooltip: 'Create workspace here',
                 onTouchTap: function onTouchTap(row) {
-                    return _this6.createWorkspaceFromDatasource(pydio, m, row);
+                    return _this7.createWorkspaceFromDatasource(pydio, m, row);
                 }
             });
             if (accessByName('CreateDatasource')) {
@@ -18347,7 +18417,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('editor.legend.delete.button'),
                     onTouchTap: function onTouchTap(row) {
-                        return _this6.deleteDataSource(pydio, m, row);
+                        return _this7.deleteDataSource(pydio, m, row);
                     }
                 });
             }
@@ -18357,7 +18427,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
                 tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
                 onTouchTap: function onTouchTap(row) {
-                    _this6.openVersionPolicy([row]);
+                    _this7.openVersionPolicy([row]);
                 }
             });
             if (versioningEditable) {
@@ -18366,7 +18436,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     tooltip: 'Delete policy',
                     destructive: true,
                     onTouchTap: function onTouchTap(row) {
-                        return _this6.deleteVersionPolicy(row);
+                        return _this7.deleteVersionPolicy(row);
                     }
                 });
             }
@@ -18398,8 +18468,9 @@ var DataSourcesBoard = (function (_React$Component) {
                                 onSelectRows: this.openDataSource.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No datasources created yet",
-                                masterStyles: tableMaster
+                                emptyStateString: m('ds.emptyState'),
+                                masterStyles: tableMaster,
+                                storageKey: 'console.datasources.list'
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
@@ -18413,7 +18484,8 @@ var DataSourcesBoard = (function (_React$Component) {
                                 onSelectRows: this.openVersionPolicy.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                masterStyles: tableMaster
+                                masterStyles: tableMaster,
+                                storageKey: 'console.versioning.policies.list'
                             })
                         ),
                         _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
@@ -18443,7 +18515,7 @@ exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(Da
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"../model/Ws":33,"./EncryptionKeys":13,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
+},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"../model/Ws":33,"./EncryptionKeys":13,"lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18779,7 +18851,8 @@ var EncryptionKeys = (function (_React$Component) {
                         onSelectRows: function () {},
                         showCheckboxes: false,
                         emptyStateString: m('key.emptyState'),
-                        masterStyles: tableMaster
+                        masterStyles: tableMaster,
+                        storageKey: 'console.encryption-keys.list'
                     })
                 ),
                 accessByName('CreateEncryption') && _react2['default'].createElement(
@@ -19043,7 +19116,8 @@ var MetadataBoard = (function (_React$Component) {
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
                                 emptyStateString: m('empty'),
-                                masterStyles: adminStyle.body.tableMaster
+                                masterStyles: adminStyle.body.tableMaster,
+                                storageKey: 'console.metadata.list'
                             })
                         )
                     )
@@ -19337,7 +19411,8 @@ var VirtualNodes = (function (_React$Component) {
                             actions: actions,
                             deselectOnClickAway: true,
                             showCheckboxes: false,
-                            masterStyles: adminStyles.body.tableMaster
+                            masterStyles: adminStyles.body.tableMaster,
+                            storageKey: 'console.templatepaths.list'
                         })
                     ),
                     (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
@@ -19608,7 +19683,8 @@ exports['default'] = _react2['default'].createClass({
             emptyStateString: loading ? m('loading') : m('ws.board.empty'),
             masterStyles: tableStyles,
             paginate: [10, 25, 50, 100],
-            defaultPageSize: 25
+            defaultPageSize: 25,
+            storageKey: 'console.workspaces.list'
         });
     }
 

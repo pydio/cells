@@ -274,7 +274,8 @@ var VirtualNodes = (function (_React$Component) {
                             actions: actions,
                             deselectOnClickAway: true,
                             showCheckboxes: false,
-                            masterStyles: adminStyles.body.tableMaster
+                            masterStyles: adminStyles.body.tableMaster,
+                            storageKey: 'console.templatepaths.list'
                         })
                     ),
                     (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(

@@ -55371,7 +55371,8 @@ var PluginsList = React.createClass({
             columns: columns,
             deselectOnClickAway: true,
             showCheckboxes: false,
-            masterStyles: adminStyles.body.tableMaster
+            masterStyles: adminStyles.body.tableMaster,
+            storageKey: 'console.plugins.list'
         });
     }
 

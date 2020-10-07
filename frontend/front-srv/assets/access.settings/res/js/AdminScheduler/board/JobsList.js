@@ -191,6 +191,7 @@ class JobsList extends React.Component {
                         showCheckboxes={false}
                         emptyStateString={loading ? Pydio.getInstance().MessageHash[466] : m('system.empty')}
                         masterStyles={adminStyles.body.tableMaster}
+                        storageKey={'console.scheduler.jobs.list'}
                     />
                 </Paper>
                 <AdminComponents.SubHeader

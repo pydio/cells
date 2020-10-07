@@ -216,12 +216,52 @@ var MaterialTable = (function (_React$Component) {
         }
     };
 
+    MaterialTable.prototype.loadStoredValue = function loadStoredValue() {
+        var _props2 = this.props;
+        var storageKey = _props2.storageKey;
+        var columns = _props2.columns;
+
+        if (!storageKey) {
+            return null;
+        }
+        var data = localStorage.getItem(storageKey + '.sort');
+        if (!data) {
+            return null;
+        }
+        try {
+            var _ret2 = (function () {
+                var _JSON$parse = JSON.parse(localStorage.getItem(storageKey + '.sort'));
+
+                var col = _JSON$parse.col;
+                var dir = _JSON$parse.dir;
+
+                // Check colname exists
+                if (columns.filter(function (c) {
+                    return c.name === col;
+                }).length === 0) {
+                    return {
+                        v: null
+                    };
+                }
+                if (['asc', 'desc', ''].indexOf(dir) === -1) {}
+                return {
+                    v: { col: col, dir: dir }
+                };
+            })();
+
+            if (typeof _ret2 === 'object') return _ret2.v;
+        } catch (e) {
+            return null;
+        }
+    };
+
     MaterialTable.prototype.computeSorter = function computeSorter() {
         var _this3 = this;
 
-        var _props2 = this.props;
-        var columns = _props2.columns;
-        var data = _props2.data;
+        var _props3 = this.props;
+        var columns = _props3.columns;
+        var data = _props3.data;
+        var storageKey = _props3.storageKey;
 
         var sorter = undefined;
         var withSorter = columns.filter(function (c) {
@@ -233,7 +273,14 @@ var MaterialTable = (function (_React$Component) {
             var defaultSorter = withSorter.filter(function (c) {
                 return c.sorter['default'];
             });
-            if (defaultSorter.length) {
+            var storedValue = this.loadStoredValue();
+            if (storedValue) {
+                var col = storedValue.col;
+                var dir = storedValue.dir;
+
+                defaultSortColumn = col;
+                defaultSortDir = dir;
+            } else if (defaultSorter.length) {
                 defaultSortColumn = defaultSorter[0].name;
                 if (defaultSorter[0].sorter.defaultDir) {
                     defaultSortDir = defaultSorter[0].sorter.defaultDir;
@@ -241,6 +288,9 @@ var MaterialTable = (function (_React$Component) {
             }
             sorter = new Sorter(this.state, function (sortCol, sortDir) {
                 _this3.setState({ sortCol: sortCol, sortDir: sortDir });
+                if (storageKey) {
+                    localStorage.setItem(storageKey + '.sort', JSON.stringify({ col: sortCol, dir: sortDir }));
+                }
             }, defaultSortColumn, defaultSortDir);
             sorter.setData(columns, data);
         }
@@ -248,11 +298,11 @@ var MaterialTable = (function (_React$Component) {
     };
 
     MaterialTable.prototype.computePagination = function computePagination() {
-        var _props3 = this.props;
-        var data = _props3.data;
-        var paginate = _props3.paginate;
-        var defaultPageSize = _props3.defaultPageSize;
-        var pagination = _props3.pagination;
+        var _props4 = this.props;
+        var data = _props4.data;
+        var paginate = _props4.paginate;
+        var defaultPageSize = _props4.defaultPageSize;
+        var pagination = _props4.pagination;
 
         if (pagination) {
             // externally managed
@@ -355,19 +405,19 @@ var MaterialTable = (function (_React$Component) {
     };
 
     MaterialTable.prototype.render = function render() {
-        var _props4 = this.props;
-        var columns = _props4.columns;
-        var deselectOnClickAway = _props4.deselectOnClickAway;
-        var emptyStateString = _props4.emptyStateString;
-        var _props4$masterStyles = _props4.masterStyles;
-        var masterStyles = _props4$masterStyles === undefined ? {} : _props4$masterStyles;
-        var emptyStateStyle = _props4.emptyStateStyle;
-        var onSelectRows = _props4.onSelectRows;
-        var computeRowStyle = _props4.computeRowStyle;
-        var actions = this.props.actions;
         var _props5 = this.props;
-        var data = _props5.data;
-        var showCheckboxes = _props5.showCheckboxes;
+        var columns = _props5.columns;
+        var deselectOnClickAway = _props5.deselectOnClickAway;
+        var emptyStateString = _props5.emptyStateString;
+        var _props5$masterStyles = _props5.masterStyles;
+        var masterStyles = _props5$masterStyles === undefined ? {} : _props5$masterStyles;
+        var emptyStateStyle = _props5.emptyStateStyle;
+        var onSelectRows = _props5.onSelectRows;
+        var computeRowStyle = _props5.computeRowStyle;
+        var actions = this.props.actions;
+        var _props6 = this.props;
+        var data = _props6.data;
+        var showCheckboxes = _props6.showCheckboxes;
 
         var actionsColor = masterStyles.actionsColor || 'rgba(0,0,0,.33)';
 

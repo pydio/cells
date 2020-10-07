@@ -302,7 +302,8 @@ var RolesDashboard = _react2['default'].createClass({
                         deselectOnClickAway: true,
                         showCheckboxes: false,
                         masterStyles: tableMaster,
-                        paginate: [10, 25, 50, 100]
+                        paginate: [10, 25, 50, 100],
+                        storageKey: 'console.roles.list'
                     })
                 )
             )

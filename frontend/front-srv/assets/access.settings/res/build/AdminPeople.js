@@ -1542,7 +1542,8 @@ var PoliciesBoard = _react2['default'].createClass({
         this.setState({
             policies: policies,
             popoverOpen: false,
-            newPolicyId: newId
+            newPolicyId: newId,
+            selectedPolicy: newId
         });
     },
 
@@ -1570,6 +1571,16 @@ var PoliciesBoard = _react2['default'].createClass({
 
     handleChangePolicyType: function handleChangePolicyType(event, index, value) {
         this.setState({ newPolicyType: value });
+    },
+
+    selectRows: function selectRows(rows) {
+        if (!rows.length) {
+            return;
+        }
+        var policy = rows[0];
+        var selectedPolicy = this.state.selectedPolicy;
+
+        this.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
     },
 
     render: function render() {
@@ -1655,9 +1666,13 @@ var PoliciesBoard = _react2['default'].createClass({
                         data: dd,
                         columns: columns,
                         actions: actions,
+                        onSelectRows: function (rr) {
+                            return _this5.selectRows(rr);
+                        },
                         deselectOnClickAway: true,
                         showCheckboxes: false,
-                        masterStyles: adminStyles.body.tableMaster
+                        masterStyles: adminStyles.body.tableMaster,
+                        storageKey: 'console.policies.' + k + '.list'
                     })
                 )
             );
@@ -2043,7 +2058,8 @@ var RolesDashboard = _react2['default'].createClass({
                         deselectOnClickAway: true,
                         showCheckboxes: false,
                         masterStyles: tableMaster,
-                        paginate: [10, 25, 50, 100]
+                        paginate: [10, 25, 50, 100],
+                        storageKey: 'console.roles.list'
                     })
                 )
             )

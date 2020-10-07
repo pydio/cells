@@ -141,15 +141,44 @@ class MaterialTable extends React.Component{
         }
     }
 
+    loadStoredValue(){
+        const {storageKey, columns} = this.props;
+        if(!storageKey){
+            return null;
+        }
+        const data = localStorage.getItem(storageKey + '.sort');
+        if(!data){
+            return null
+        }
+        try{
+            let {col,dir} = JSON.parse(localStorage.getItem(storageKey + '.sort'));
+            // Check colname exists
+            if(columns.filter(c => c.name === col).length === 0) {
+                return null;
+            }
+            if(['asc', 'desc', ''].indexOf(dir) === -1){
+                return null;
+            }
+            return {col, dir};
+        } catch(e){
+            return null
+        }
+    }
+
     computeSorter(){
-        const {columns, data} = this.props;
+        const {columns, data, storageKey} = this.props;
         let sorter;
         const withSorter = columns.filter(c => c.sorter);
         if(withSorter.length) {
             let defaultSortColumn = withSorter[0].name;
             let defaultSortDir;
             const defaultSorter = withSorter.filter(c => c.sorter.default);
-            if (defaultSorter.length) {
+            const storedValue = this.loadStoredValue();
+            if(storedValue){
+                const{col,dir} = storedValue;
+                defaultSortColumn = col;
+                defaultSortDir = dir;
+            } else if (defaultSorter.length) {
                 defaultSortColumn = defaultSorter[0].name;
                 if(defaultSorter[0].sorter.defaultDir){
                     defaultSortDir = defaultSorter[0].sorter.defaultDir;
@@ -157,6 +186,9 @@ class MaterialTable extends React.Component{
             }
             sorter = new Sorter(this.state, (sortCol, sortDir) => {
                 this.setState({sortCol, sortDir})
+                if(storageKey){
+                    localStorage.setItem(storageKey + '.sort', JSON.stringify({col:sortCol, dir:sortDir}));
+                }
             }, defaultSortColumn, defaultSortDir);
             sorter.setData(columns, data);
         }

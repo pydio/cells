@@ -151,6 +151,7 @@ let PoliciesBoard = React.createClass({
             policies,
             popoverOpen: false,
             newPolicyId: newId,
+            selectedPolicy: newId,
         });
 
     },
@@ -174,6 +175,15 @@ let PoliciesBoard = React.createClass({
 
     handleChangePolicyType(event, index, value){
         this.setState({newPolicyType: value});
+    },
+
+    selectRows(rows){
+        if(!rows.length){
+            return;
+        }
+        const policy = rows[0];
+        const {selectedPolicy} = this.state;
+        this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
     },
 
     render(){
@@ -243,9 +253,11 @@ let PoliciesBoard = React.createClass({
                             data={dd}
                             columns={columns}
                             actions={actions}
+                            onSelectRows={(rr) => this.selectRows(rr)}
                             deselectOnClickAway={true}
                             showCheckboxes={false}
                             masterStyles={adminStyles.body.tableMaster}
+                            storageKey={'console.policies.' + k + '.list'}
                         />
                     </Paper>
                 </div>

@@ -227,6 +227,7 @@ let RolesDashboard = React.createClass({
                             showCheckboxes={false}
                             masterStyles={tableMaster}
                             paginate={[10,25, 50, 100]}
+                            storageKey={'console.roles.list'}
                         />
                     </Paper>
                 </div>

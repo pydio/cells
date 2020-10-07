@@ -242,7 +242,8 @@ exports['default'] = _react2['default'].createClass({
             emptyStateString: loading ? m('loading') : m('ws.board.empty'),
             masterStyles: tableStyles,
             paginate: [10, 25, 50, 100],
-            defaultPageSize: 25
+            defaultPageSize: 25,
+            storageKey: 'console.workspaces.list'
         });
     }
 

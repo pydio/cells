@@ -42,7 +42,6 @@ const test = (Component) => {
     class wrapped extends React.Component{
 
         render() {
-            console.log(this.props);
             const {
                 attributes,
                 altIcon="mdi mdi-toggle-switch",

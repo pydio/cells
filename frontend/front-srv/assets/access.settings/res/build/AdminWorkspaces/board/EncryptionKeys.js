@@ -333,7 +333,8 @@ var EncryptionKeys = (function (_React$Component) {
                         onSelectRows: function () {},
                         showCheckboxes: false,
                         emptyStateString: m('key.emptyState'),
-                        masterStyles: tableMaster
+                        masterStyles: tableMaster,
+                        storageKey: 'console.encryption-keys.list'
                     })
                 ),
                 accessByName('CreateEncryption') && _react2['default'].createElement(
