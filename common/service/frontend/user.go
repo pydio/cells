@@ -153,8 +153,8 @@ func (u *User) FlattenedRolesConfigs() configx.Values {
 		return u.FlattenedFrontValues()
 	} else {
 		c := configx.New()
-		// c.Set("actions", configx.NewMap())
-		// c.Set("parameters", configx.NewMap())
+		// c.Set("actions", configx.New())
+		// c.Set("parameters", configx.New())
 		return c
 	}
 }

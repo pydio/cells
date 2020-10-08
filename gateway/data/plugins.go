@@ -56,10 +56,11 @@ func (l *logger) Audit(entry interface{}) {
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		port := net.GetAvailablePort()
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_DATA),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
 			service.RouterDependencies(),
 			service.Description("S3 Gateway to tree service"),

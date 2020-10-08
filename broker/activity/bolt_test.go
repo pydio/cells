@@ -43,7 +43,7 @@ var (
 func init() {
 	// Define parameters to shorten tests launch
 	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
-	conf = configx.NewMap()
+	conf = configx.New()
 	conf.Val("InboxMaxSize").Set(int64(10))
 }
 

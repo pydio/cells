@@ -24,13 +24,11 @@ package rest
 import (
 	"context"
 	"fmt"
+	"net/http"
 
-	micro "github.com/micro/go-micro"
-	"github.com/micro/go-micro/server"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
@@ -41,7 +39,7 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		port := fmt.Sprintf("%v", viper.Get("healthcheck"))
 		if port == "0" {
@@ -50,29 +48,12 @@ func init() {
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_HEALTHCHECK),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.Port(port),
 			service.Description("Healthcheck for services"),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
-			}, func(s service.Service) (micro.Option, error) {
-				srv := defaults.NewHTTPServer(server.Address(":" + s.Options().Port))
-
-				router := NewRouter()
-				hd := srv.NewHandler(router)
-
-				err := srv.Handle(hd)
-				if err != nil {
-					return nil, err
-				}
-
-				return micro.Server(srv), nil
+			service.WithHTTP(func() http.Handler {
+				return NewRouter()
 			}),
 		)
 	})

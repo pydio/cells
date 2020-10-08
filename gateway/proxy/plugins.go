@@ -233,9 +233,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func (ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_PROXY),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {

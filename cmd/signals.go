@@ -12,10 +12,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/micro/go-micro/broker"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/registry"
 
-	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -25,12 +25,18 @@ func handleSignals() {
 	c := make(chan os.Signal, 1)
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
-	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM)
+	// signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGSTOP)
+	signal.Notify(c)
 
 	go func() {
 		for sig := range c {
 			switch sig {
+			case syscall.SIGTERM:
+				fallthrough
 			case syscall.SIGINT:
+				// Stopping the main context will trigger the stop of all services
+				log.Info("Cancelling main context")
+				cancel()
 
 				log.Info("Disconnecting broker")
 				// Disconnecting the broker so that we are not flooded with messages
@@ -44,13 +50,9 @@ func handleSignals() {
 						// Signal will be passed along and the fork will stop by itself.
 						continue
 					}
+
 					service.Stop()
 				}
-
-				log.Info("Exiting")
-				<-time.After(2 * time.Second)
-				os.Exit(0)
-
 			case syscall.SIGUSR1:
 
 				if !profiling {
@@ -107,20 +109,17 @@ func handleSignals() {
 			case syscall.SIGHUP:
 				// Stop all services
 				for _, service := range allServices {
-					if service.Name() == "nats" {
+					if service.RequiresFork() && !IsFork {
+						// Stopping here would kill the command and prevent proper de-registering of service
+						// Signal will be passed along and the fork will stop by itself.
 						continue
 					}
+
+					log.Info("Stopping ", zap.String("service", service.Name()))
 					service.Stop()
-				}
 
-				initServices()
-
-				// Start all services
-				for _, service := range allServices {
-					if service.Name() == "nats" {
-						continue
-					}
-					service.Start()
+					log.Info("Restarting ", zap.String("service", service.Name()))
+					service.Start(ctx)
 				}
 			}
 		}

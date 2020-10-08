@@ -30,7 +30,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
-	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
@@ -52,9 +51,10 @@ Disallow: /`
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_FRONTEND),
 			service.Description("WEB service for serving statics"),
 			service.Migrations([]*service.Migration{
@@ -63,17 +63,7 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
-			}, func(s service.Service) (micro.Option, error) {
-				srv := defaults.NewHTTPServer()
-
+			service.WithHTTP(func() http.Handler {
 				httpFs := frontend.GetPluginsFS()
 				fs := gzipped.FileServer(httpFs)
 
@@ -100,22 +90,15 @@ func init() {
 				// Adding subscriber
 				if _, err := defaults.Broker().Subscribe(common.TOPIC_ASSETS_RELOAD, func(p broker.Publication) error {
 					// Reload FS
-					log.Logger(s.Options().Context).Info("Reloading PluginFS")
+					log.Info("Reloading PluginFS")
 					frontend.HotReload()
 					httpFs = frontend.GetPluginsFS()
 					return nil
 				}); err != nil {
-					return nil, err
+					return nil
 				}
 
-				hd := srv.NewHandler(routerWithTimeout)
-
-				err := srv.Handle(hd)
-				if err != nil {
-					return nil, err
-				}
-
-				return micro.Server(srv), nil
+				return routerWithTimeout
 			}),
 		)
 	})

@@ -22,6 +22,8 @@
 package rest
 
 import (
+	"context"
+
 	"github.com/jcuga/golongpoll"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -34,9 +36,10 @@ var (
 )
 
 func init() {
-	plugins.RegisterInstall(func() {
+	plugins.RegisterInstall(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.Description("RESTful Installation server"),
 			service.WithWeb(func() service.WebHandler {

@@ -41,9 +41,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Generic document store"),
 			service.Unique(true),

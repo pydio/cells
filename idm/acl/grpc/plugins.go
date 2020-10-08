@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -34,9 +36,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("Access Control List service"),
 			service.WithStorage(acl.NewDAO, "idm_acl"),

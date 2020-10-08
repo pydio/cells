@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -36,7 +38,7 @@ import (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_OBJECTS)
 
@@ -44,6 +46,7 @@ func init() {
 
 			service.NewService(
 				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
+				service.Context(ctx),
 				service.Tag(common.SERVICE_TAG_DATASOURCE),
 				service.Description("S3 Object service for a given datasource"),
 				service.Source(datasource),

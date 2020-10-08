@@ -50,7 +50,7 @@ func GetDAO(t *testing.T) DAO {
 		log.Println(err)
 	}
 
-	var options = configx.NewMap()
+	var options = configx.New()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_key_test")
 

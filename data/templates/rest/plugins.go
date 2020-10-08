@@ -21,6 +21,8 @@
 package rest
 
 import (
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
@@ -28,9 +30,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_TEMPLATES),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("RESTful Gateway to list templates"),
 			service.RouterDependencies(),

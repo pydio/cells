@@ -22,6 +22,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	log2 "log"
 	"os"
@@ -64,6 +65,8 @@ import (
 )
 
 var (
+	ctx             context.Context
+	cancel          context.CancelFunc
 	allServices     []registry.Service
 	runningServices []*microregistry.Service
 
@@ -215,7 +218,10 @@ func Execute() {
 	nats.Init()
 	metrics.Init()
 
-	if err := RootCmd.Execute(); err != nil {
+	ctx, cancel = context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := RootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

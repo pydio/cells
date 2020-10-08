@@ -26,7 +26,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/micro/go-micro"
 	"github.com/micro/go-web"
 	"github.com/spf13/pflag"
 
@@ -40,6 +39,10 @@ import (
 type dependency struct {
 	Name string
 	Tag  []string
+}
+
+type Runnable interface {
+	Run() error
 }
 
 // ServiceOptions stores all options for a pydio service
@@ -61,7 +64,7 @@ type ServiceOptions struct {
 	Port      string
 	TLSConfig *tls.Config
 
-	Micro micro.Service
+	Micro Runnable
 	Web   web.Service
 
 	Dependencies []*dependency
@@ -91,14 +94,15 @@ type ServiceOptions struct {
 	OnRegexpMatch func(Service, []string) error
 
 	// Micro init
-	MicroInit func(Service) error
+	MicroInit   func(Service) error
+	MicroCancel context.CancelFunc
 
 	// Web init
 	WebInit         func(Service) error
 	webHandlerWraps []func(http.Handler) http.Handler
 
 	// Watcher
-	Watchers []func(configx.Values)
+	Watchers []func(Service, configx.Values)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -277,7 +281,7 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
-func Watch(fn func(configx.Values)) ServiceOption {
+func Watch(fn func(Service, configx.Values)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Watchers = append(o.Watchers, fn)
 	}

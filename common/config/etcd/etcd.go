@@ -19,7 +19,7 @@ func NewSource(config clientv3.Config) configx.KVStore {
 }
 
 func (m *etcd) Get() configx.Value {
-	v := configx.NewMap()
+	v := configx.New()
 
 	cli, err := clientv3.New(m.Config)
 	if err != nil {

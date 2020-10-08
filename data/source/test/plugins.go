@@ -21,6 +21,8 @@
 package test
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
@@ -31,9 +33,10 @@ import (
 var name = common.SERVICE_TEST_NAMESPACE_ + "objects"
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, []string{}),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, []string{}),

@@ -24,6 +24,7 @@
 package grpc
 
 import (
+	"context"
 	"strings"
 
 	"github.com/micro/go-micro"
@@ -39,7 +40,7 @@ import (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
 
@@ -49,6 +50,7 @@ func init() {
 
 			service.NewService(
 				service.Name(common.SERVICE_GRPC_NAMESPACE_+name),
+				service.Context(ctx),
 				service.Tag(common.SERVICE_TAG_DATASOURCE),
 				service.Description("Datasource indexation service"),
 				service.Source(source),

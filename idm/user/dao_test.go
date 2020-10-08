@@ -33,7 +33,7 @@ type server struct{}
 
 func TestMain(m *testing.M) {
 
-	var options = configx.NewMap()
+	var options = configx.New()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if dao == nil {

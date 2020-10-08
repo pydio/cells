@@ -100,7 +100,7 @@ $ ` + os.Args[0] + ` ps -t=broker
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		plugins.Init()
+		plugins.Init(cmd.Context())
 
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()
