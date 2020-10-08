@@ -1,8 +1,10 @@
 {
   "FrontendLogin": "admin",
-  "FrontendPassword": "password",
+  "FrontendPassword": "admin",
   "ProxyConfig": {
-    "Binds": ["0.0.0.0:9191"],
-    "ReverseProxyURL": "http://0.0.0.0:9191"
+    "Binds": ["0.0.0.0:8080"],
+    "TLSConfig": {
+      "SelfSigned": {}
+    }
   }
 }
