@@ -151,7 +151,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 			}
 		}
 		if existConfirm != "" {
-			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue?", IsConfirm: true}
+			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue", IsConfirm: true}
 			if _, e := confirm.Run(); e != nil {
 				return promptDB(c)
 			}

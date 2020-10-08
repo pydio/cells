@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"strings"
 	"time"
 
@@ -60,55 +61,66 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
-	if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
+	if niBindUrl == "default" {
+		def := *config.DefaultBindingSite
+		proxyConfig = &def
+	} else if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
 		return nil, fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", niBindUrl)
+	} else {
+		if p[0] == "" {
+			// Only port is set - use DefaultBindSite host
+			pp := strings.Split(config.DefaultBindingSite.Binds[0], ":")
+			niBindUrl = pp[0] + ":" + p[1]
+		}
+		proxyConfig.Binds = []string{niBindUrl}
 	}
 
-	proxyConfig.Binds = []string{niBindUrl}
+	if niNoTls {
 
-	if niNoTls { // NO TLS
+		proxyConfig.TLSConfig = nil
+
+	} else if niCertFile != "" && niKeyFile != "" {
+
+		tlsConf := &install.ProxyConfig_Certificate{
+			Certificate: &install.TLSCertificate{
+				CertFile: niCertFile,
+				KeyFile:  niKeyFile,
+			}}
+		proxyConfig.TLSConfig = tlsConf
+
+	} else if niLeEmailContact != "" {
+
+		if !niLeAcceptEula {
+			return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
+		}
+
+		tlsConf := &install.ProxyConfig_LetsEncrypt{
+			LetsEncrypt: &install.TLSLetsEncrypt{
+				Email:      niLeEmailContact,
+				AcceptEULA: niLeAcceptEula,
+				StagingCA:  niLeUseStagingCA,
+			},
+		}
+		proxyConfig.TLSConfig = tlsConf
 
 	} else {
-		if niCertFile != "" && niKeyFile != "" {
 
-			tlsConf := &install.ProxyConfig_Certificate{
-				Certificate: &install.TLSCertificate{
-					CertFile: niCertFile,
-					KeyFile:  niKeyFile,
-				}}
-			proxyConfig.TLSConfig = tlsConf
-
-		} else if niLeEmailContact != "" {
-
-			if !niLeAcceptEula {
-				return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
-			}
-
-			tlsConf := &install.ProxyConfig_LetsEncrypt{
-				LetsEncrypt: &install.TLSLetsEncrypt{
-					Email:      niLeEmailContact,
-					AcceptEULA: niLeAcceptEula,
-					StagingCA:  niLeUseStagingCA,
-				},
-			}
-			proxyConfig.TLSConfig = tlsConf
-		} else {
-
-			tlsConf := &install.ProxyConfig_SelfSigned{
-				SelfSigned: &install.TLSSelfSigned{
-					Hostnames: []string{niBindUrl},
-				},
-			}
-			proxyConfig.TLSConfig = tlsConf
+		tlsConf := &install.ProxyConfig_SelfSigned{
+			SelfSigned: &install.TLSSelfSigned{
+				Hostnames: []string{niBindUrl},
+			},
 		}
+		proxyConfig.TLSConfig = tlsConf
+
 	}
 
-	extURL, err := guessSchemeAndParseBaseURL(niExtUrl, true)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse provided URL %s: %s", niExtUrl, err.Error())
+	if niExtUrl != "" {
+		extURL, err := guessSchemeAndParseBaseURL(niExtUrl, true)
+		if err != nil {
+			return nil, fmt.Errorf("could not parse provided URL %s: %s", niExtUrl, err.Error())
+		}
+		proxyConfig.ReverseProxyURL = extURL.String()
 	}
-
-	proxyConfig.ReverseProxyURL = extURL.String()
 
 	return proxyConfig, nil
 }
@@ -128,9 +140,16 @@ func installFromConf() (*install.InstallConfig, error) {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
 	}
 
-	if installConf.InternalUrl == "" {
+	if installConf.FrontendLogin == "" {
 		// only proxy conf => return and launch browser install server
+		fmt.Println("FrontendLogin not specified in conf, starting browser-based installation")
 		return installConf, nil
+	}
+
+	// Merge with GetDefaults()
+	err = lib.MergeWithDefaultConfig(installConf)
+	if err != nil {
+		log.Fatal("Could not merge conf with defaults", err)
 	}
 
 	// Check if pre-configured DB is up and running

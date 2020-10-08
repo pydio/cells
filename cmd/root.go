@@ -26,7 +26,10 @@ import (
 	log2 "log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+
+	"github.com/spf13/pflag"
 
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
@@ -70,7 +73,9 @@ var (
 	profiling bool
 	profile   *os.File
 
-	IsFork bool
+	IsFork       bool
+	EnvPrefixOld = "pydio"
+	EnvPrefixNew = "cells"
 )
 
 const startTagUnique = "unique"
@@ -154,8 +159,8 @@ func init() {
 		initLogLevel,
 		initConfig,
 	)
-
-	viper.SetEnvPrefix("pydio")
+	initEnvPrefixes()
+	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
@@ -182,27 +187,19 @@ func init() {
 	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
 
-	viper.BindPFlag("config", flags.Lookup("config"))
+	replaceKeys := map[string]string{
+		"log":  "logs_level",
+		"fork": "is_fork",
+	}
+	flags.VisitAll(func(flag *pflag.Flag) {
+		key := flag.Name
+		if replace, ok := replaceKeys[flag.Name]; ok {
+			key = replace
+		}
+		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+		viper.BindPFlag(key, flag)
+	})
 
-	viper.BindPFlag("registry", flags.Lookup("registry"))
-	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
-	viper.BindPFlag("registry_cluster_address", flags.Lookup("registry_cluster_address"))
-	viper.BindPFlag("registry_cluster_routes", flags.Lookup("registry_cluster_routes"))
-
-	viper.BindPFlag("broker", flags.Lookup("broker"))
-	viper.BindPFlag("broker_address", flags.Lookup("broker_address"))
-
-	viper.BindPFlag("transport", flags.Lookup("transport"))
-	viper.BindPFlag("transport_address", flags.Lookup("transport_address"))
-
-	viper.BindPFlag("logs_level", flags.Lookup("log"))
-	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
-	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
-	viper.BindPFlag("grpc_external", flags.Lookup("grpc_external"))
-
-	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
-	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
-	viper.BindPFlag("is_fork", flags.Lookup("fork"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -340,7 +337,7 @@ func initLogLevel() {
 	logLevel := viper.GetString("logs_level")
 
 	// Making sure the log level is passed everywhere (fork processes for example)
-	os.Setenv("PYDIO_LOGS_LEVEL", logLevel)
+	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
 
 	if logLevel == "production" {
 		common.LogConfig = common.LogConfigProduction
@@ -409,5 +406,19 @@ func handleTransport() {
 		grpctransport.Enable()
 	default:
 		log.Fatal("transport not supported")
+	}
+}
+
+func initEnvPrefixes() {
+	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
+	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
+	for _, pair := range os.Environ() {
+		if strings.HasPrefix(pair, prefOld) {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				//fmt.Println("Setting", pair, prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+			}
+		}
 	}
 }
