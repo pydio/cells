@@ -308,9 +308,9 @@ func initConfig() {
 
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {
-		fmt.Println("SAving ?")
-		err := config.Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
-		fmt.Println(err)
+		if err := config.Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied"); err != nil {
+			log.Fatal("Could not save config migrations", zap.Error(err))
+		}
 	}
 	config.Register(defaultConfig)
 	config.RegisterVault(vaultConfig)
