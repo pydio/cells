@@ -2982,7 +2982,7 @@
 .react-mui-context .pydio-form-panel .form-entry-boolean {
   overflow: hidden;
 }
-.react-mui-context .pydio-form-panel .form-entry-image > div:first-child {
+.react-mui-context .pydio-form-panel .form-entry-image > div:last-child {
   background-color: whitesmoke;
   border-radius: 5px;
   padding: 10px;
@@ -2992,6 +2992,8 @@
       flex-direction: column;
   -ms-flex-align: center;
       align-items: center;
+  margin-top: 6px;
+  margin-bottom: 16px;
 }
 .react-mui-context .pydio-form-panel .form-entry-image .binary-remove-button {
   color: #ABABAB;
