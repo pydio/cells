@@ -543,8 +543,8 @@ var DataSourcesBoard = (function (_React$Component) {
                 renderCell: function renderCell(row) {
                     return resyncJobs && resyncJobs[row.Name] ? _this7.computeJobStatus(resyncJobs[row.Name]) : 'n/a';
                 },
-                sorter: { type: 'string', value: function value(row) {
-                        return resyncJobs && resyncJobs[row.Name] ? resyncJobs[row.Name].Tasks[0].Status : 'zzzzzz';
+                sorter: { type: 'number', value: function value(row) {
+                        return resyncJobs && resyncJobs[row.Name] ? resyncJobs[row.Name].Tasks[0].EndTime : 0;
                     } }
             }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '15%' }, headerStyle: { width: '15%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';

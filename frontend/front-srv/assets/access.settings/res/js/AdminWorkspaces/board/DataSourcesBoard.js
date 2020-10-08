@@ -367,7 +367,7 @@ class DataSourcesBoard extends React.Component {
             },
             {name: 'SyncStatus', label:m('syncStatus'),
                 renderCell:(row)=> (resyncJobs && resyncJobs[row.Name]) ? this.computeJobStatus(resyncJobs[row.Name]) : 'n/a',
-                sorter:{type:'string', value:(row) => resyncJobs && resyncJobs[row.Name]?resyncJobs[row.Name].Tasks[0].Status:'zzzzzz'}
+                sorter:{type:'number', value:(row) => resyncJobs && resyncJobs[row.Name]?resyncJobs[row.Name].Tasks[0].EndTime:0}
             },
             {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'15%'}, headerStyle:{width:'15%'}, renderCell:(row)=>{
                 let s = 'storage.fs';
