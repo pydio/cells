@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -32,9 +34,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_SCHEDULER),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),

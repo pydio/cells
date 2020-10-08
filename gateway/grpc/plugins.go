@@ -44,7 +44,7 @@ func init() {
 			return nil
 		}),
 	}
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		ss, _ := config.LoadSites()
 		if len(ss) == 1 && !ss[0].HasTLS() {
 			// This is a simple config without TLS - Access will be direct not through proxy
@@ -62,6 +62,7 @@ func init() {
 				opts = append(opts, service.WithTLSConfig(tls))
 			}
 		}
+		opts = append(opts, service.Context(ctx))
 		service.NewService(opts...)
 	})
 

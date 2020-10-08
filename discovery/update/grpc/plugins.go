@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -32,11 +34,12 @@ import (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		config.RegisterExposedConfigs(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, ExposedConfigs)
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.Description("Update checker service"),
 			service.WithMicro(func(m micro.Service) error {

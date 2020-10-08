@@ -21,7 +21,6 @@
 package service
 
 import (
-	"context"
 	"time"
 
 	"github.com/micro/go-micro"
@@ -47,7 +46,13 @@ func Micro(m micro.Service) ServiceOption {
 func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
-		// o.Micro = micro.NewService()
+
+		o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
+			// Restarting the service
+			s.Stop()
+
+			s.Start(s.Options().Context)
+		})
 
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService()
@@ -113,37 +118,10 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			newClaimsProvider(svc)
 
 			proto.RegisterServiceHandler(srv, &StatusHandler{s.Address()})
-
 			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, srv, &StopHandler{s})
 
 			s.Init(
 				Micro(svc),
-				Watch(func(v configx.Values) {
-					// Setting context
-					ctx, cancel := context.WithCancel(context.Background())
-					ctx = servicecontext.WithServiceName(ctx, name)
-
-					if s.IsGRPC() {
-						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
-					} else if s.IsREST() {
-						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
-
-						// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
-						if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
-							s.Init(WithWebAuth())
-						}
-					} else {
-						ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
-					}
-					ctx = servicecontext.WithConfig(ctx, v)
-
-					s.Stop()
-					s.Init(
-						Context(ctx),
-						Cancel(cancel),
-					)
-					s.Start()
-				}),
 			)
 
 			return nil

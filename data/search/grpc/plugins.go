@@ -24,6 +24,7 @@
 package grpc
 
 import (
+	"context"
 	"path/filepath"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -44,9 +45,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Search Engine"),
 			service.RouterDependencies(),
@@ -75,6 +77,10 @@ func init() {
 
 				tree.RegisterSearcherHandler(m.Options().Server, server)
 				sync.RegisterSyncEndpointHandler(m.Options().Server, server)
+
+				m.Init(
+					micro.BeforeStop(bleveEngine.Close),
+				)
 
 				// Register Subscribers
 				if err := m.Options().Server.Subscribe(

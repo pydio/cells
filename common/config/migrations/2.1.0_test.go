@@ -3,9 +3,7 @@ package migrations
 import (
 	"testing"
 
-	"github.com/pydio/cells/common/utils/std"
-	"github.com/pydio/go-os/config"
-	"github.com/pydio/go-os/config/source/memory"
+	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -38,28 +36,22 @@ var (
 
 func TestMigration2_1_0(t *testing.T) {
 
-	common.version = "2.1.0"
-
-	memorySource := memory.NewSource(
-		memory.WithJSON(data),
-	)
+	// common.version = "2.1.0"
 
 	// Create new config
-	c := config.NewConfig(config.WithSource(memorySource))
-
-	var conf std.Map
-	c.Get().Scan(&conf)
+	conf := configx.New(configx.WithJSON())
+	conf.Set(data)
 
 	Convey("Testing initial upgrade of config", t, func() {
 
-		PrettyPrint(conf)
+		PrettyPrint(conf.Map())
 
 		_, err := UpgradeConfigsIfRequired(conf)
 		So(err, ShouldBeNil)
 
-		PrettyPrint(c)
-		So(conf.IsEmpty(), ShouldBeFalse)
+		PrettyPrint(conf.Map())
+		So(conf, ShouldNotBeNil)
 
-		So(conf.Get("services/pydio.api.websocket"), ShouldBeNil)
+		So(conf.Val("services/pydio.api.websocket").Get(), ShouldBeNil)
 	})
 }

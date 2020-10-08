@@ -133,7 +133,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		plugins.InstallInit()
+		plugins.InstallInit(cmd.Context())
 
 		initServices()
 
@@ -234,7 +234,7 @@ var installCmd = &cobra.Command{
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		cmd.Println("")
 
-		plugins.Init()
+		plugins.Init(cmd.Context())
 
 		initServices()
 
@@ -266,9 +266,9 @@ var installCmd = &cobra.Command{
 					if !service.AutoStart() {
 						continue
 					}
-					go service.ForkStart()
+					go service.ForkStart(cmd.Context())
 				} else {
-					go service.Start()
+					go service.Start(cmd.Context())
 				}
 			}
 		}
@@ -297,7 +297,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
-	micro.Start()
+	micro.Start(cmd.Context())
 
 	// starting the installation REST service
 	regService := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
@@ -315,7 +315,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
 	// Starting service install
-	regService.Start()
+	regService.Start(cmd.Context())
 
 	// Creating temporary caddy file
 	sites, err := config.LoadSites()

@@ -2,6 +2,7 @@ package modifiers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"net/url"
@@ -49,7 +50,7 @@ type EditorLibreOffice struct {
 }
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		caddy.RegisterPluginTemplate(
 			caddy.TemplateFunc(play),
 			[]string{"frontend", "plugin", "editor.libreoffice"},

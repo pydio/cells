@@ -85,7 +85,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			}
 		}
 
-		plugins.Init()
+		plugins.Init(cmd.Context())
 
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -168,7 +168,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		//Pre-check that pydio.json is properly configured
+		// Pre-check that pydio.json is properly configured
 		if a, _ := config.GetDatabase("default"); a == "" {
 			var crtUser string
 			if u, er := user.Current(); er == nil {
@@ -198,14 +198,13 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 				if !service.AutoStart() {
 					continue
 				}
-				go service.ForkStart()
+				go service.ForkStart(cmd.Context())
 			} else {
-				go service.Start()
+				go service.Start(cmd.Context())
 			}
 		}
 
-		wg.Add(1)
-		wg.Wait()
+		<-cmd.Context().Done()
 	},
 }
 

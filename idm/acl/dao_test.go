@@ -41,7 +41,7 @@ import (
 var (
 	mockDAO DAO
 
-	options = configx.NewMap()
+	options = configx.New()
 
 	wg sync.WaitGroup
 )

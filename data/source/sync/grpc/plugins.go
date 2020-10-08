@@ -52,7 +52,7 @@ var (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_SYNC)
 
@@ -61,6 +61,7 @@ func init() {
 			var sOptions []service.ServiceOption
 			sOptions = append(sOptions,
 				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+datasource),
+				service.Context(ctx),
 				service.Tag(common.SERVICE_TAG_DATASOURCE),
 				service.Description("Synchronization service between objects and index for a given datasource"),
 				service.Source(datasource),

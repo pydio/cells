@@ -26,7 +26,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/micro/go-micro"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/driver"
 	"github.com/ory/hydra/jwk"
@@ -37,7 +36,6 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -46,68 +44,49 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
-			},
-				serve,
-			),
+			service.WithHTTP(func() http.Handler {
+				router := mux.NewRouter()
+
+				hh := config.GetSitesAllowedHostnames()
+				for h := range hh {
+					r := router.Host(h).Subrouter()
+
+					conf := auth.GetConfigurationProvider(h)
+					reg := auth.DuplicateRegistryForConf(conf)
+
+					admin := x.NewRouterAdmin()
+					public := x.NewRouterPublic()
+
+					oauth2Handler := oauth2.NewHandler(reg, conf)
+					oauth2Handler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
+
+					consentHandler := consent.NewHandler(reg, conf)
+					consentHandler.SetRoutes(admin)
+
+					keyHandler := jwk.NewHandler(reg, conf)
+					keyHandler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
+
+					if conf.CORSEnabled("admin") {
+						r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(servicecontext.HttpMetaExtractorWrapper(admin))))
+					} else {
+						r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", servicecontext.HttpMetaExtractorWrapper(admin)))
+					}
+
+					r.PathPrefix("/oidc/").Handler(http.StripPrefix("/oidc", servicecontext.HttpMetaExtractorWrapper(public)))
+				}
+
+				return router
+			}),
 			service.BeforeStart(initialize),
 		)
 	})
-}
-
-func serve(s service.Service) (micro.Option, error) {
-	srv := defaults.NewHTTPServer()
-
-	router := mux.NewRouter()
-
-	hh := config.GetSitesAllowedHostnames()
-	for h, _ := range hh {
-		r := router.Host(h).Subrouter()
-
-		conf := auth.GetConfigurationProvider(h)
-		reg := auth.DuplicateRegistryForConf(conf)
-
-		admin := x.NewRouterAdmin()
-		public := x.NewRouterPublic()
-
-		oauth2Handler := oauth2.NewHandler(reg, conf)
-		oauth2Handler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
-
-		consentHandler := consent.NewHandler(reg, conf)
-		consentHandler.SetRoutes(admin)
-
-		keyHandler := jwk.NewHandler(reg, conf)
-		keyHandler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
-
-		if conf.CORSEnabled("admin") {
-			r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(servicecontext.HttpMetaExtractorWrapper(admin))))
-		} else {
-			r.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", servicecontext.HttpMetaExtractorWrapper(admin)))
-		}
-
-		r.PathPrefix("/oidc/").Handler(http.StripPrefix("/oidc", servicecontext.HttpMetaExtractorWrapper(public)))
-	}
-
-	hd := srv.NewHandler(router)
-
-	if err := srv.Handle(hd); err != nil {
-		return nil, err
-	}
-
-	return micro.Server(srv), nil
 }
 
 func initialize(s service.Service) error {

@@ -23,11 +23,14 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/server"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -45,11 +48,13 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 
 		o.MicroInit = func(s Service) error {
 
+			svc := micro.NewService()
+
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			o.Version = common.Version().String()
 
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(defaults.NewServer()),
 				micro.Registry(defaults.Registry()),
@@ -62,12 +67,12 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 					log.Fatal("failed to init micro service ", zap.Error(err))
 				}
 
-				s.Options().Micro.Init(
+				svc.Init(
 					o,
 				)
 			}
 
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.Metadata(registry.BuildServiceMeta()),
@@ -134,11 +139,70 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			)
 
 			// newTracer(name, &options)
-			newConfigProvider(s.Options().Micro)
-			newLogProvider(s.Options().Micro)
+			newConfigProvider(svc)
+			newLogProvider(svc)
 
 			// We should actually offer that possibility
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
+			proto.RegisterServiceHandler(svc.Server(), &StatusHandler{s.Address()})
+
+			s.Init(Micro(svc))
+
+			return nil
+		}
+	}
+}
+
+// WithGeneric adds a generic micro service handler to the current service
+func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.MicroInit = func(s Service) error {
+			svc := micro.NewService()
+
+			name := s.Name()
+			ctx := servicecontext.WithServiceName(s.Options().Context, name)
+			o.Version = common.Version().String()
+
+			srv := defaults.NewHTTPServer(
+				server.Name(name),
+				server.Id(uuid.New().String()),
+			)
+
+			hd := srv.NewHandler(handlerFunc())
+
+			err := srv.Handle(hd)
+			if err != nil {
+				return err
+			}
+
+			svc.Init(
+				micro.Registry(defaults.Registry()),
+				micro.Context(ctx),
+				micro.Name(name),
+				micro.Metadata(registry.BuildServiceMeta()),
+				micro.AfterStart(func() error {
+					log.Logger(ctx).Info("started")
+
+					return nil
+				}),
+				micro.BeforeStop(func() error {
+					log.Logger(ctx).Info("stopping")
+
+					return nil
+				}),
+				micro.AfterStart(func() error {
+					return UpdateServiceVersion(s)
+				}),
+				micro.Server(srv),
+			)
+
+			// newTracer(name, &options)
+			newConfigProvider(svc)
+			newLogProvider(svc)
+
+			// We should actually offer that possibility
+			proto.RegisterServiceHandler(svc.Server(), &StatusHandler{s.Address()})
+
+			s.Init(Micro(svc))
 
 			return nil
 		}

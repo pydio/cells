@@ -40,9 +40,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Starter for different sources objects"),
 			service.WithMicro(func(m micro.Service) error {

@@ -46,7 +46,7 @@ import (
 
 var (
 	ctx       context.Context
-	options   = configx.NewMap()
+	options   = configx.New()
 	mockNode  *mtree.TreeNode
 	mockNode2 *mtree.TreeNode
 

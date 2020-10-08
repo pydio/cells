@@ -67,7 +67,7 @@ func TestMain(m *testing.M) {
 	}
 
 	mockDAO := user.NewDAO(sqlDao)
-	var options = configx.NewMap()
+	var options = configx.New()
 	if err := mockDAO.Init(options); err != nil {
 		log.Fatal("could not start test: unable to initialise DAO, error: ", err)
 		return

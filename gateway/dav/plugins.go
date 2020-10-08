@@ -23,12 +23,11 @@ package dav
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
@@ -39,37 +38,25 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_DAV),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
 			service.RouterDependencies(),
 			service.Description("DAV Gateway to tree service"),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
-			}, func(s service.Service) (micro.Option, error) {
-
-				srv := defaults.NewHTTPServer()
+			service.WithHTTP(func() http.Handler {
 				davRouter = views.NewStandardRouter(views.RouterOptions{
 					WatchRegistry:    true,
 					AuditEvent:       true,
 					SynchronousCache: true,
 					SynchronousTasks: true,
 				})
-				handler := newHandler(s.Options().Context, davRouter)
+				// handler := newHandler(s.Options().Context, davRouter)
+				handler := newHandler(context.TODO(), davRouter)
 				handler = servicecontext.HttpMetaExtractorWrapper(handler)
-				err := srv.Handle(srv.NewHandler(handler))
-				if err != nil {
-					return nil, err
-				}
 
-				return micro.Server(srv), nil
+				return handler
 			}),
 		)
 	})

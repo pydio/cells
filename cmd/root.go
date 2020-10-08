@@ -22,6 +22,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	log2 "log"
 	"os"
@@ -67,6 +68,8 @@ import (
 )
 
 var (
+	ctx             context.Context
+	cancel          context.CancelFunc
 	allServices     []registry.Service
 	runningServices []*microregistry.Service
 
@@ -212,7 +215,10 @@ func Execute() {
 	nats.Init()
 	metrics.Init()
 
-	if err := RootCmd.Execute(); err != nil {
+	ctx, cancel = context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := RootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -302,9 +308,9 @@ func initConfig() {
 
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {
-		fmt.Println("SAving ?")
-		err := config.Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
-		fmt.Println(err)
+		if err := config.Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied"); err != nil {
+			log.Fatal("Could not save config migrations", zap.Error(err))
+		}
 	}
 	config.Register(defaultConfig)
 	config.RegisterVault(vaultConfig)

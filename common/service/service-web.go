@@ -25,17 +25,17 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-web"
-	"github.com/pborman/uuid"
 	"github.com/rs/cors"
 
-	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -69,44 +69,35 @@ type WebHandler interface {
 func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
-		o.Web = web.NewService()
 
-		// Strip some flag to avoid panic on re-registering a flag twice
-		flags := o.Web.Options().Cmd.App().Flags
-		var newFlags []cli.Flag
-		for _, f := range flags {
-			if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-				continue
-			}
-			newFlags = append(newFlags, f)
-		}
-		o.Web.Options().Cmd.App().Flags = newFlags
-		o.Web.Init(web.Metadata(registry.BuildServiceMeta()))
+		o.Micro = micro.NewService(
+			micro.Name(o.Name),
+			micro.Metadata(registry.BuildServiceMeta()),
+		)
 
-		o.WebInit = func(s Service) error {
-			return nil
-		}
-
-		o.BeforeStart = append(o.BeforeStart, func(s Service) error {
+		o.MicroInit = func(s Service) error {
+			svc := micro.NewService()
 			name := s.Options().Name
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
-			reg := defaults.Registry()
-			cm := cmd.NewCmd(cmd.Registry(&reg))
+			srv := defaults.NewHTTPServer(
+				server.Name(name),
+			)
 
-			s.Options().Web.Init(
-				web.Cmd(cm),
-				web.Id(uuid.NewUUID().String()),
-				web.Registry(defaults.Registry()),
-				web.Name(name),
-				web.Context(ctx),
-				web.AfterStart(func() error {
+			svc.Init(
+				micro.Name(name),
+				micro.Server(srv),
+				micro.Registry(defaults.Registry()),
+				micro.RegisterTTL(time.Second*30),
+				micro.RegisterInterval(time.Second*10),
+				micro.Context(ctx),
+				micro.AfterStart(func() error {
 					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
 				}),
-				web.AfterStart(func() error {
+				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 					return nil
 				}),
-				web.BeforeStop(func() error {
+				micro.BeforeStop(func() error {
 					log.Logger(ctx).Info("stopping")
 					return nil
 				}),
@@ -183,10 +174,14 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 
 			wrapped = cors.Default().Handler(wrapped)
 
-			s.Options().Web.Handle("/", wrapped)
+			hd := srv.NewHandler(wrapped)
 
-			return nil
-		})
+			s.Init(
+				Micro(svc),
+			)
+
+			return srv.Handle(hd)
+		}
 		o.AfterStart = append(o.AfterStart, func(service Service) error {
 			return UpdateServiceVersion(service)
 		})
