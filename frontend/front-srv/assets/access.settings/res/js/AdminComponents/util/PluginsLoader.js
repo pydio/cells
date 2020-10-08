@@ -110,7 +110,7 @@ class PluginsLoader {
         const fullPath = "frontend/plugin/" + pluginId;
 
         api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
-            const currentData = JSON.parse(response.Data) || {};
+            const currentData = JSON.parse(data) || {};
             const newData = LangUtils.mergeObjectsRecursive(currentData, values);
             const config = RestConfiguration.constructFromObject({
                 FullPath: fullPath,

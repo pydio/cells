@@ -159,7 +159,7 @@ var PluginsLoader = (function () {
             }).then(function () {
                 var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
 
-                var currentData = JSON.parse(response.Data) || {};
+                var currentData = JSON.parse(data) || {};
                 var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
                 var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
