@@ -22,12 +22,14 @@ package jobs
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/search/query"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/protobuf/ptypes"
 	"go.uber.org/zap"
@@ -39,28 +41,21 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 )
 
-func contains(slice []string, value string, prefix bool, lower bool) bool {
-	if lower {
-		value = strings.ToLower(value)
+type NodeMatcher struct {
+	*tree.Query
+}
+
+func (n *NodeMatcher) Matches(object interface{}) bool {
+	if node, ok := object.(*tree.Node); ok {
+		return evaluateSingleQuery(n.Query, node)
+	} else {
+		return false
 	}
-	for _, v := range slice {
-		if lower {
-			v = strings.ToLower(v)
-		}
-		if prefix && strings.HasPrefix(value, v) {
-			return true
-		} else if !prefix && value == v {
-			return true
-		}
-	}
-	return false
 }
 
 func (n *NodesSelector) MultipleSelection() bool {
 	return n.Collect
 }
-
-/* ENRICH NodesSelector METHODS */
 
 func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
@@ -75,7 +70,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 	} else {
 		q := &tree.Query{}
-		if selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0 {
+		if !selector.All && (selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0) {
 			return nil
 		}
 
@@ -156,39 +151,34 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 	selector := n.evaluatedClone(ctx, input)
 
 	var newNodes []*tree.Node
+	var multi *service.MultiMatcher
+	if selector.Query != nil && len(selector.Query.SubQueries) > 0 {
+		multi = &service.MultiMatcher{}
+		if er := multi.Parse(selector.Query, func(o *any.Any) (service.Matcher, error) {
+			target := &tree.Query{}
+			if e := ptypes.UnmarshalAny(o, target); e != nil {
+				return nil, e
+			}
+			return &NodeMatcher{Query: target}, nil
+		}); er != nil {
+			fmt.Println("Error while parsing query", er)
+		}
+	}
 
 	for _, node := range input.Nodes {
-
 		if len(selector.Pathes) > 0 {
 			if !contains(selector.Pathes, node.Path, false, false) {
 				excluded = append(excluded, node)
 				continue
 			}
 		}
-		if selector.Query != nil && len(selector.Query.SubQueries) > 0 {
-			// Parse only first level for the moment
-			// TODO : WE MAY HAVE TO RELOAD NODE CORE PROPERTIES AND/OR METADATA
-			var results []bool
-			for _, q := range selector.Query.SubQueries {
-				singleQuery := &tree.Query{}
-				e := ptypes.UnmarshalAny(q, singleQuery)
-				if e != nil {
-					// LOG ERROR!
-					continue
-				}
-				res := selector.evaluateSingleQuery(singleQuery, node)
-				if singleQuery.Not {
-					res = !res
-				}
-				results = append(results, res)
-			}
-			if !service.ReduceQueryBooleans(results, selector.Query.Operation) {
+		if multi != nil {
+			if multi.Matches(node) {
+				newNodes = append(newNodes, node)
+			} else {
 				excluded = append(excluded, node)
-				continue
 			}
 		}
-
-		newNodes = append(newNodes, node)
 	}
 	output := input
 	output.Nodes = newNodes
@@ -202,7 +192,57 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 
 }
 
-func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool {
+func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage) *NodesSelector {
+	if len(GetFieldEvaluators()) == 0 {
+		return n
+	}
+	c := proto.Clone(n).(*NodesSelector)
+	for i, p := range c.Pathes {
+		c.Pathes[i] = EvaluateFieldStr(ctx, input, p)
+	}
+	if c.Query != nil && len(c.Query.SubQueries) > 0 {
+		for i, q := range c.Query.SubQueries {
+			singleQuery := &tree.Query{}
+			if e := ptypes.UnmarshalAny(q, singleQuery); e != nil {
+				continue
+			}
+			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
+			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
+			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
+			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
+			singleQuery.Paths = EvaluateFieldStrSlice(ctx, input, singleQuery.Paths)
+			singleQuery.UUIDs = EvaluateFieldStrSlice(ctx, input, singleQuery.UUIDs)
+			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
+		}
+	}
+	return c
+}
+
+func contains(slice []string, value string, prefix bool, lower bool) bool {
+	if lower {
+		value = strings.ToLower(value)
+	}
+	for _, v := range slice {
+		if lower {
+			v = strings.ToLower(v)
+		}
+		if prefix && strings.HasPrefix(value, v) {
+			return true
+		} else if !prefix && value == v {
+			return true
+		}
+	}
+	return false
+}
+
+func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
+
+	defer func() {
+		// Invert result if q.Not
+		if q.Not {
+			result = !result
+		}
+	}()
 
 	if len(q.Paths) > 0 {
 		if !contains(q.Paths, node.Path, false, false) {
@@ -376,30 +416,4 @@ func getMemBleveIndex() bleve.Index {
 
 	memBleveIndex, _ = bleve.NewMemOnly(mapping)
 	return memBleveIndex
-}
-
-func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage) *NodesSelector {
-	if len(GetFieldEvaluators()) == 0 {
-		return n
-	}
-	c := proto.Clone(n).(*NodesSelector)
-	for i, p := range c.Pathes {
-		c.Pathes[i] = EvaluateFieldStr(ctx, input, p)
-	}
-	if c.Query != nil && len(c.Query.SubQueries) > 0 {
-		for i, q := range c.Query.SubQueries {
-			singleQuery := &tree.Query{}
-			if e := ptypes.UnmarshalAny(q, singleQuery); e != nil {
-				continue
-			}
-			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
-			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
-			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
-			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
-			singleQuery.Paths = EvaluateFieldStrSlice(ctx, input, singleQuery.Paths)
-			singleQuery.UUIDs = EvaluateFieldStrSlice(ctx, input, singleQuery.UUIDs)
-			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
-		}
-	}
-	return c
 }

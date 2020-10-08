@@ -27,17 +27,15 @@ import (
 	"io"
 	"path"
 	"strings"
-	"time"
 
 	"github.com/micro/go-micro/client"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+	"go.uber.org/zap"
 )
 
 var (
@@ -45,9 +43,10 @@ var (
 )
 
 const (
-	zipFormat   = "zip"
-	tarFormat   = "tar"
-	tarGzFormat = "tar.gz"
+	detectFormat = "detect"
+	zipFormat    = "zip"
+	tarFormat    = "tar"
+	tarGzFormat  = "tar.gz"
 )
 
 // CompressAction implements compression. Currently, it supports zip, tar and tar.gz formats.
@@ -55,7 +54,6 @@ type CompressAction struct {
 	Router     *views.Router
 	Format     string
 	TargetName string
-	Date       string
 
 	filter *jobs.NodesSelector
 }
@@ -84,19 +82,6 @@ func (c *CompressAction) GetParametersForm() *forms.Form {
 		{
 			Fields: []forms.Field{
 				&forms.FormField{
-					Name:        "format",
-					Type:        forms.ParamSelect,
-					Label:       "Archive format",
-					Description: "The format of the archive",
-					Mandatory:   true,
-					Editable:    true,
-					ChoicePresetList: []map[string]string{
-						{zipFormat: "Zip"},
-						{tarFormat: "Tar"},
-						{tarGzFormat: "TarGz"},
-					},
-				},
-				&forms.FormField{
 					Name:        "target",
 					Type:        forms.ParamString,
 					Label:       "Archive path",
@@ -105,13 +90,19 @@ func (c *CompressAction) GetParametersForm() *forms.Form {
 					Editable:    true,
 				},
 				&forms.FormField{
-					Name:        "date",
-					Type:        forms.ParamBool,
-					Label:       "Date",
-					Description: "Append date to Archive name",
-					Default:     nil,
-					Mandatory:   false,
+					Name:        "format",
+					Type:        forms.ParamSelect,
+					Label:       "Archive format",
+					Description: "Compression format of the archive",
+					Mandatory:   true,
 					Editable:    true,
+					Default:     detectFormat,
+					ChoicePresetList: []map[string]string{
+						{detectFormat: "Detect (file extension)"},
+						{zipFormat: "Zip"},
+						{tarFormat: "Tar"},
+						{tarGzFormat: "TarGz"},
+					},
 				},
 			},
 		},
@@ -134,10 +125,6 @@ func (c *CompressAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	if target, ok := action.Parameters["target"]; ok {
 		c.TargetName = target
 	}
-	if action.Parameters["date"] == "true" {
-		//Format is YYYY-MM-DD
-		c.Date = time.Now().Format("2006-01-02")
-	}
 	return nil
 }
 
@@ -152,8 +139,15 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
-		Router:      c.Router,
-		NodesFilter: c.filter, // may be nil
+		Router: c.Router,
+	}
+	if c.filter != nil {
+		compressor.WalkFilter = func(ctx context.Context, node *tree.Node) bool {
+			in := jobs.ActionMessage{}
+			in = in.WithNode(node)
+			_, _, pass := c.filter.Filter(ctx, in)
+			return pass
+		}
 	}
 
 	dir := path.Dir(nodes[0].Path)
@@ -163,13 +157,24 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	if c.TargetName != "" {
 		dir, base = path.Split(jobs.EvaluateFieldStr(ctx, input, c.TargetName))
-		if c.Date != "" {
-			base = strings.Join([]string{base, c.Date}, "-")
-		}
-		base = strings.TrimRight(base, path.Ext(base))
 	}
-
-	targetFile := computeTargetName(ctx, c.Router, dir, base, c.Format)
+	format := jobs.EvaluateFieldStr(ctx, input, c.Format)
+	if format == detectFormat {
+		switch strings.ToLower(path.Ext(base)) {
+		case ".zip":
+			format = zipFormat
+		case ".tar":
+			format = tarFormat
+		case ".tar.gz":
+			format = tarGzFormat
+		default:
+			e := fmt.Errorf("could not detect archive format from file name " + base)
+			return input.WithError(e), e
+		}
+	}
+	// Remove extension
+	base = strings.TrimRight(base, path.Ext(base))
+	targetFile := computeTargetName(ctx, c.Router, dir, base, format)
 
 	reader, writer := io.Pipe()
 
@@ -178,11 +183,12 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	go func() {
 		defer writer.Close()
-		if c.Format == "zip" {
+		switch format {
+		case "zip":
 			written, err = compressor.ZipSelection(ctx, writer, input.Nodes, channels.StatusMsg)
-		} else if c.Format == "tar" {
+		case "tar":
 			written, err = compressor.TarSelection(ctx, writer, false, input.Nodes, channels.StatusMsg)
-		} else if c.Format == "tar.gz" {
+		case "tar.gz":
 			written, err = compressor.TarSelection(ctx, writer, true, input.Nodes, channels.StatusMsg)
 		}
 	}()

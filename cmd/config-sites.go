@@ -5,11 +5,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pydio/cells/common"
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/manifoldco/promptui"
-	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/proto/install"
 )
 
 var sitesCmd = &cobra.Command{
@@ -18,7 +21,7 @@ var sitesCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)
-		fatalIfError(cmd, e)
+		fatalQuitIfError(cmd, e)
 		if len(sites) == 0 {
 			fmt.Println("No site is currently configured. Cells exposes automatically the following URLs : ")
 			ss, _ := config.LoadSites()
@@ -34,10 +37,8 @@ var sitesCmd = &cobra.Command{
 				sitesAdd.Run(cmd, args)
 			}
 		} else {
-			fmt.Println("The following sites are already defined in configurations : ")
-			for i, s := range sites {
-				fmt.Printf(" - [%d] %s\n", i, strings.Join(s.GetBindURLs(), ", "))
-			}
+			fmt.Println("The following sites are currently defined:")
+			listSites(cmd, sites)
 			actionP := promptui.Prompt{
 				Label: "What do you want to do? Type " + promptui.IconSelect + "[A] to add a new site, " + promptui.IconSelect + "[E] to edit an existing one, " + promptui.IconSelect + "[D] to delete a site, or " + promptui.IconSelect + "[Q] to quit",
 				Validate: func(s string) error {
@@ -49,7 +50,7 @@ var sitesCmd = &cobra.Command{
 				},
 			}
 			action, e := actionP.Run()
-			fatalIfError(cmd, e)
+			fatalQuitIfError(cmd, e)
 			action = strings.ToLower(action)
 			switch action {
 			case "q":
@@ -64,9 +65,9 @@ var sitesCmd = &cobra.Command{
 					return
 				} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
 					e := promptSite(sites[int(idx)], true)
-					fatalIfError(cmd, e)
-					e = config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
-					fatalIfError(cmd, e)
+					fatalQuitIfError(cmd, e)
+					e = confirmAndSave(cmd, sites)
+					fatalQuitIfError(cmd, e)
 				}
 			case "d":
 				p := &promptui.Prompt{
@@ -81,6 +82,59 @@ var sitesCmd = &cobra.Command{
 			cmd.Run(cmd, args)
 		}
 	},
+}
+
+func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
+
+	table := tablewriter.NewWriter(cmd.OutOrStdout())
+	table.SetRowLine(true)
+	table.SetHeader([]string{"#", "Bind(s)", "TLS", "External URL"})
+
+	for i, s := range sites {
+		tlsString := "No Tls"
+		if s.TLSConfig != nil {
+			// TLSConfig
+			switch s.TLSConfig.(type) {
+			case *install.ProxyConfig_SelfSigned:
+				tlsString = "Self-signed"
+			case *install.ProxyConfig_LetsEncrypt:
+				tlsString = "Lets Encrypt"
+			case *install.ProxyConfig_Certificate:
+				tlsString = "Custom Certificate"
+			}
+		}
+		table.Append([]string{fmt.Sprintf("%d", i), strings.Join(s.GetBindURLs(), ", "), tlsString, s.ReverseProxyURL})
+	}
+
+	table.Render()
+}
+
+func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
+	// Reprint before saving
+	cmd.Println("*************************************************")
+	cmd.Println("  Please review your parameters before saving     ")
+	cmd.Println("*************************************************")
+	listSites(cmd, sites)
+
+	confirm := promptui.Prompt{Label: "Do you want to save this configuration", IsConfirm: true}
+	if _, e := confirm.Run(); e == nil {
+		e = config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
+		if e != nil {
+			cmd.Println("***********************************************")
+			cmd.Println("[ERROR] Could not save config : " + e.Error())
+			cmd.Println("***********************************************")
+			return e
+		} else {
+			cmd.Println("***********************************************")
+			cmd.Println(" Config has been updated, please restart now!  ")
+			cmd.Println("***********************************************")
+		}
+	} else {
+		cmd.Println("***********************************************")
+		cmd.Println(" Operation aborted, nothing has been saved     ")
+		cmd.Println("***********************************************")
+	}
+	return nil
 }
 
 func init() {

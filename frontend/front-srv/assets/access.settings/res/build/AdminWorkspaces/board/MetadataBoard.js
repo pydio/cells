@@ -234,7 +234,8 @@ var MetadataBoard = (function (_React$Component) {
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
                                 emptyStateString: m('empty'),
-                                masterStyles: adminStyle.body.tableMaster
+                                masterStyles: adminStyle.body.tableMaster,
+                                storageKey: 'console.metadata.list'
                             })
                         )
                     )

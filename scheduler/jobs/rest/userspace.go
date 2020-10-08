@@ -88,6 +88,13 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 		}
 
 		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Any("pathes", selectedPathes))
+		params := map[string]string{
+			"format": format,
+			"target": targetNodePath,
+		}
+		if e := disallowTemplate(params); e != nil {
+			return e
+		}
 
 		job := &jobs.Job{
 			ID:             jobUuid,
@@ -101,10 +108,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			Actions: []*jobs.Action{
 				{
 					ID: "actions.archive.compress",
-					Parameters: map[string]string{
-						"format": format,
-						"target": targetNodePath,
-					},
+					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Collect: true,
 						Pathes:  selectedPathes,
@@ -163,6 +167,14 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			return err
 		}
 
+		params := map[string]string{
+			"format": format,
+			"target": targetPath,
+		}
+		if e := disallowTemplate(params); e != nil {
+			return e
+		}
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -175,10 +187,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			Actions: []*jobs.Action{
 				{
 					ID: "actions.archive.extract",
-					Parameters: map[string]string{
-						"format": format,
-						"target": targetPath,
-					},
+					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Pathes: []string{archiveNode},
 					},
@@ -304,6 +313,14 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			}
 		}
 
+		if e := disallowTemplate(map[string]string{
+			"type":         taskType,
+			"target":       targetNodePath,
+			"targetParent": targetParent,
+		}); e != nil {
+			return e
+		}
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -347,12 +364,16 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 	jobUuid := "resync-ds-" + dsName
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
-
 		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
 			RunNow: true,
 		}))
 		return jobUuid, nil
+	}
+	if e := disallowTemplate(map[string]string{
+		"dsName":         dsName,
+	}); e != nil {
+		return "", e
 	}
 
 	job := &jobs.Job{
@@ -473,7 +494,9 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 		}); err != nil {
 			return jobUuids, err
 		}
-
+		if e := disallowTemplate(params); e != nil {
+			return nil, e
+		}
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -564,4 +587,13 @@ func hostListCheck(list []string, u *url.URL) bool {
 		}
 	}
 	return false
+}
+
+func disallowTemplate(params map[string]string) error {
+	for _, v := range params {
+		if v != jobs.EvaluateFieldStr(context.Background(), jobs.ActionMessage{}, v) {
+			return errors.New("format.invalid", "invalid format detected", 403)
+		}
+	}
+	return nil
 }

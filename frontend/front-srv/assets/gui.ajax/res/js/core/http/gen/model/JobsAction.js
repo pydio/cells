@@ -70,6 +70,12 @@ export default class JobsAction {
             if (data.hasOwnProperty('Description')) {
                 obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
             }
+            if (data.hasOwnProperty('Bypass')) {
+                obj['Bypass'] = ApiClient.convertToType(data['Bypass'], 'Boolean');
+            }
+            if (data.hasOwnProperty('BreakAfter')) {
+                obj['BreakAfter'] = ApiClient.convertToType(data['BreakAfter'], 'Boolean');
+            }
             if (data.hasOwnProperty('NodesSelector')) {
                 obj['NodesSelector'] = JobsNodesSelector.constructFromObject(data['NodesSelector']);
             }
@@ -119,6 +125,14 @@ export default class JobsAction {
     * @member {String} Description
     */
     Description = undefined;
+    /**
+    * @member {Boolean} Bypass
+    */
+    Bypass = undefined;
+    /**
+    * @member {Boolean} BreakAfter
+    */
+    BreakAfter = undefined;
     /**
     * @member {module:model/JobsNodesSelector} NodesSelector
     */

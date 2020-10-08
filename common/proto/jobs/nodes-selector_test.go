@@ -171,7 +171,6 @@ func TestNodesSelector_Filter(t *testing.T) {
 
 func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
-	n := &NodesSelector{}
 	node := &tree.Node{
 		Path:  "/root/node/filename.jpg",
 		Size:  3500,
@@ -181,24 +180,24 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
 	Convey("Empty Query", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{}, node)
+		res := evaluateSingleQuery(&tree.Query{}, node)
 		So(res, ShouldBeTrue)
 
 	})
 
 	Convey("PathPrefixes", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			PathPrefix: []string{"/root/node"},
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			PathPrefix: []string{"/root/anothernode"},
 		}, node)
 		So(res2, ShouldBeFalse)
 
-		res3 := n.evaluateSingleQuery(&tree.Query{
+		res3 := evaluateSingleQuery(&tree.Query{
 			PathPrefix: []string{"/root/anothernode", "/root/node"},
 		}, node)
 		So(res3, ShouldBeTrue)
@@ -207,12 +206,12 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
 	Convey("NodeType", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			Type: tree.NodeType_LEAF,
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			Type: tree.NodeType_COLLECTION,
 		}, node)
 		So(res2, ShouldBeFalse)
@@ -221,17 +220,17 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
 	Convey("Extension", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			Extension: "jpg",
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res3 := n.evaluateSingleQuery(&tree.Query{
+		res3 := evaluateSingleQuery(&tree.Query{
 			Extension: "jpg,gif",
 		}, node)
 		So(res3, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			Extension: "gif",
 		}, node)
 		So(res2, ShouldBeFalse)
@@ -240,42 +239,42 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
 	Convey("FileName", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			FileName: "filename.jpg",
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			FileName: "filename",
 		}, node)
 		So(res2, ShouldBeFalse)
 
-		res3 := n.evaluateSingleQuery(&tree.Query{
+		res3 := evaluateSingleQuery(&tree.Query{
 			FileName: "filenam*",
 		}, node)
 		So(res3, ShouldBeTrue)
 
-		res4 := n.evaluateSingleQuery(&tree.Query{
+		res4 := evaluateSingleQuery(&tree.Query{
 			FileName: "*nam*",
 		}, node)
 		So(res4, ShouldBeTrue)
 
-		res4 = n.evaluateSingleQuery(&tree.Query{
+		res4 = evaluateSingleQuery(&tree.Query{
 			FileName: "*anything*",
 		}, node)
 		So(res4, ShouldBeFalse)
 
-		res5 := n.evaluateSingleQuery(&tree.Query{
+		res5 := evaluateSingleQuery(&tree.Query{
 			FileName: "*.jpg",
 		}, node)
 		So(res5, ShouldBeTrue)
 
-		res5 = n.evaluateSingleQuery(&tree.Query{
+		res5 = evaluateSingleQuery(&tree.Query{
 			FileName: "*zobi",
 		}, node)
 		So(res5, ShouldBeFalse)
 
-		res6 := n.evaluateSingleQuery(&tree.Query{
+		res6 := evaluateSingleQuery(&tree.Query{
 			FileName: "*.java",
 		}, node)
 		So(res6, ShouldBeFalse)
@@ -284,22 +283,22 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 
 	Convey("Size", t, func() {
 
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			MinSize: 500,
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			MinSize: 5000,
 		}, node)
 		So(res2, ShouldBeFalse)
 
-		res3 := n.evaluateSingleQuery(&tree.Query{
+		res3 := evaluateSingleQuery(&tree.Query{
 			MaxSize: 5000,
 		}, node)
 		So(res3, ShouldBeTrue)
 
-		res4 := n.evaluateSingleQuery(&tree.Query{
+		res4 := evaluateSingleQuery(&tree.Query{
 			MaxSize: 3000,
 		}, node)
 		So(res4, ShouldBeFalse)
@@ -309,22 +308,22 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 	Convey("Date", t, func() {
 
 		ref := int64(1505470065)
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			MinDate: ref - 10,
 		}, node)
 		So(res, ShouldBeTrue)
 
-		res2 := n.evaluateSingleQuery(&tree.Query{
+		res2 := evaluateSingleQuery(&tree.Query{
 			MinDate: ref + 10,
 		}, node)
 		So(res2, ShouldBeFalse)
 
-		res3 := n.evaluateSingleQuery(&tree.Query{
+		res3 := evaluateSingleQuery(&tree.Query{
 			MaxDate: ref + 10,
 		}, node)
 		So(res3, ShouldBeTrue)
 
-		res4 := n.evaluateSingleQuery(&tree.Query{
+		res4 := evaluateSingleQuery(&tree.Query{
 			MaxDate: ref - 10,
 		}, node)
 		So(res4, ShouldBeFalse)
@@ -334,7 +333,7 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 	Convey("Multiple", t, func() {
 
 		ref := int64(1505470065)
-		res := n.evaluateSingleQuery(&tree.Query{
+		res := evaluateSingleQuery(&tree.Query{
 			FileName:   "file*",
 			Extension:  "jpg,gif",
 			Type:       tree.NodeType_LEAF,
@@ -347,7 +346,7 @@ func TestNodesSelector_EvaluateQuery(t *testing.T) {
 		So(res, ShouldBeTrue)
 
 		// One is wrong
-		res = n.evaluateSingleQuery(&tree.Query{
+		res = evaluateSingleQuery(&tree.Query{
 			FileName:   "wrongname*",
 			Extension:  "jpg,gif",
 			Type:       tree.NodeType_LEAF,

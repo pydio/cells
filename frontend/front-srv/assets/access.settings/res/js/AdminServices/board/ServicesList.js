@@ -117,8 +117,10 @@ export default React.createClass({
     load(){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         Pydio.startLoading();
+        this.setState({loading:true});
         api.listServices().then((servicesCollection) => {
             Pydio.endLoading();
+            this.setState({loading:false});
             this.setState({services: servicesCollection.Services});
             if(this.props.onUpdatePeers){
                 const peers = extractPeers(servicesCollection.Services);
@@ -126,6 +128,7 @@ export default React.createClass({
             }
         }).catch(()=>{
             Pydio.endLoading();
+            this.setState({loading:false});
         });
     },
     /**
@@ -174,7 +177,7 @@ export default React.createClass({
 
     render(){
         const {pydio, details} = this.props;
-        const {services} = this.state;
+        const {services, loading} = this.state;
         const blockStyle = {
             margin:16,
             display:'flex',
@@ -263,7 +266,7 @@ export default React.createClass({
                             columns={tableColumns}
                             deselectOnClickAway={true}
                             showCheckboxes={false}
-                            emptyStateString={"Loading Services..."}
+                            emptyStateString={pydio.MessageHash['ajxp_admin.services.empty.' + (loading?'loading':'noservice')]}
                             masterStyles={tableMaster}
                         />
                     </Paper>

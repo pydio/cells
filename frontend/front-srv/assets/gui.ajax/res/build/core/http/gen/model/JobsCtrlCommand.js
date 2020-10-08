@@ -47,6 +47,7 @@ var JobsCtrlCommand = (function () {
         this.JobId = undefined;
         this.TaskId = undefined;
         this.OwnerId = undefined;
+        this.RunParameters = undefined;
     }
 
     /**
@@ -73,6 +74,9 @@ var JobsCtrlCommand = (function () {
             if (data.hasOwnProperty('OwnerId')) {
                 obj['OwnerId'] = _ApiClient2['default'].convertToType(data['OwnerId'], 'String');
             }
+            if (data.hasOwnProperty('RunParameters')) {
+                obj['RunParameters'] = _ApiClient2['default'].convertToType(data['RunParameters'], { 'String': 'String' });
+            }
         }
         return obj;
     };
@@ -96,4 +100,8 @@ module.exports = exports['default'];
 
 /**
 * @member {String} OwnerId
+*/
+
+/**
+* @member {Object.<String, String>} RunParameters
 */

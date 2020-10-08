@@ -178,7 +178,9 @@ var JobBoard = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'a',
-                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: onRequestClose },
+                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: function () {
+                                    return onRequestClose(true);
+                                } },
                             pydio.MessageHash['ajxp_admin.scheduler.title']
                         ),
                         ' / ',
@@ -186,7 +188,9 @@ var JobBoard = (function (_React$Component) {
                         ' ',
                         job.Inactive ? ' [disabled]' : ''
                     ),
-                    backButtonAction: onRequestClose,
+                    backButtonAction: function () {
+                        return onRequestClose(true);
+                    },
                     actions: actions,
                     loading: loading
                 }),

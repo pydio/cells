@@ -41,6 +41,7 @@ var InstallTLSCertificate = (function () {
 
         this.CertFile = undefined;
         this.KeyFile = undefined;
+        this.CellsRootCA = undefined;
     }
 
     /**
@@ -61,6 +62,9 @@ var InstallTLSCertificate = (function () {
             if (data.hasOwnProperty('KeyFile')) {
                 obj['KeyFile'] = _ApiClient2['default'].convertToType(data['KeyFile'], 'String');
             }
+            if (data.hasOwnProperty('CellsRootCA')) {
+                obj['CellsRootCA'] = _ApiClient2['default'].convertToType(data['CellsRootCA'], 'String');
+            }
         }
         return obj;
     };
@@ -76,4 +80,8 @@ module.exports = exports['default'];
 
 /**
 * @member {String} KeyFile
+*/
+
+/**
+* @member {String} CellsRootCA
 */

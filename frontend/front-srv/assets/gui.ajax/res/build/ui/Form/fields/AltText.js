@@ -86,7 +86,6 @@ var test = function test(Component) {
         }
 
         wrapped.prototype.render = function render() {
-            console.log(this.props);
             var _props2 = this.props;
             var attributes = _props2.attributes;
             var _props2$altIcon = _props2.altIcon;

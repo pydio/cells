@@ -25,6 +25,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/discovery/config/lang"
+
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/spec"
 	"github.com/micro/go-micro/errors"
@@ -203,6 +205,7 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 			Name:              a.ID,
 			Icon:              a.Icon,
 			Label:             a.Label,
+			IsInternal:        a.IsInternal,
 			Tint:              t,
 			Description:       a.Description,
 			SummaryTemplate:   a.SummaryTemplate,
@@ -230,14 +233,14 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		}
 		switch protoName {
 		case "idm.UserSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.UserSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("userSingleQuery", &idm.UserSingleQuery{}, asSwitch)
 		case "idm.RoleSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.RoleSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("roleSingleQuery", &idm.RoleSingleQuery{}, asSwitch)
 		case "idm.WorkspaceSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.WorkspaceSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("workspaceSingleQuery", &idm.WorkspaceSingleQuery{}, asSwitch)
 		case "idm.ACLSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
-			a := protos.GenerateProtoToForm(&idm.ACLAction{})
+			form = protos.GenerateProtoToForm("aclSingleQuery", &idm.ACLSingleQuery{}, asSwitch)
+			a := protos.GenerateProtoToForm("aclAction", &idm.ACLAction{}, false)
 			if asSwitch {
 				// Patch Actions field manually
 				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
@@ -262,24 +265,10 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 				})
 			}
 		case "tree.Query":
-			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
+			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
-			form = protos.GenerateProtoToForm(&jobs.ActionOutputSingleQuery{}, asSwitch)
-		case "jobs.ContextMetaSingleQuery":
-			form = protos.GenerateProtoToForm(&jobs.ContextMetaSingleQuery{}, asSwitch)
-			// Select Choices
-			selectChoices := []map[string]string{
-				{servicecontext.HttpMetaRemoteAddress: servicecontext.HttpMetaRemoteAddress},
-				{servicecontext.HttpMetaUserAgent: servicecontext.HttpMetaUserAgent},
-				{servicecontext.HttpMetaContentType: servicecontext.HttpMetaContentType},
-				{servicecontext.HttpMetaProtocol: servicecontext.HttpMetaProtocol},
-				{servicecontext.HttpMetaHostname: servicecontext.HttpMetaHostname},
-				{servicecontext.HttpMetaRequestMethod: servicecontext.HttpMetaRequestMethod},
-				{servicecontext.HttpMetaRequestURI: servicecontext.HttpMetaRequestURI},
-				{servicecontext.HttpMetaCookiesString: servicecontext.HttpMetaCookiesString},
-				//{servicecontext.ClientTime: servicecontext.ClientTime},
-				{servicecontext.ServerTime: servicecontext.ServerTime},
-			}
+			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{
 				Name:        "Condition",
@@ -288,23 +277,47 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			}
 			for name, f := range ladon.ConditionFactories {
 				condition := f()
-				condForm := protos.GenerateProtoToForm(condition, false)
-				condField.Values = append(condField.Values, &forms.SwitchValue{
-					Name:   name,
-					Value:  name,
-					Label:  name,
-					Fields: condForm.Groups[0].Fields,
-				})
+				condForm := protos.GenerateProtoToForm("condition"+condition.GetName(), condition, false)
+				// Do not enqueue conditions with zero fields: they are not usable
+				if len(condForm.Groups[0].Fields) > 0 {
+					condField.Values = append(condField.Values, &forms.SwitchValue{
+						Name:   name,
+						Value:  name,
+						Label:  "contextMetaCondition." + name,
+						Fields: condForm.Groups[0].Fields,
+					})
+				}
 			}
-			if asSwitch {
-				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
-				sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+			if protoName == "policy.Conditions" {
+				// Specific case to just build Conditions form
+				form = &forms.Form{Groups: []*forms.Group{{
+					Fields: []forms.Field{condField},
+				}}}
 			} else {
-				form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				// Build FieldName / Condition Form
+				form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
+				selectChoices := []map[string]string{
+					{servicecontext.HttpMetaRemoteAddress: "contextMetaField." + servicecontext.HttpMetaRemoteAddress},
+					{servicecontext.HttpMetaUserAgent: "contextMetaField." + servicecontext.HttpMetaUserAgent},
+					{servicecontext.HttpMetaContentType: "contextMetaField." + servicecontext.HttpMetaContentType},
+					{servicecontext.HttpMetaProtocol: "contextMetaField." + servicecontext.HttpMetaProtocol},
+					{servicecontext.HttpMetaHostname: "contextMetaField." + servicecontext.HttpMetaHostname},
+					{servicecontext.HttpMetaRequestMethod: "contextMetaField." + servicecontext.HttpMetaRequestMethod},
+					{servicecontext.HttpMetaRequestURI: "contextMetaField." + servicecontext.HttpMetaRequestURI},
+					{servicecontext.HttpMetaCookiesString: "contextMetaField." + servicecontext.HttpMetaCookiesString},
+					//{servicecontext.ClientTime: servicecontext.ClientTime},
+					{servicecontext.ServerTime: "contextMetaField." + servicecontext.ServerTime},
+				}
+				if asSwitch {
+					sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+					sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+				} else {
+					form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				}
 			}
 		}
 	} else {
@@ -319,5 +332,6 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	if form == nil {
 		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 	}
+	form.I18NBundle = lang.Bundle()
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
 }

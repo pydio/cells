@@ -157,6 +157,7 @@ class MetadataBoard extends React.Component{
                                 showCheckboxes={false}
                                 emptyStateString={m('empty')}
                                 masterStyles={adminStyle.body.tableMaster}
+                                storageKey={'console.metadata.list'}
                             />
                         </Paper>
                     </div>

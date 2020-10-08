@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -51,7 +52,7 @@ var (
 // WGetAction performs a wget command with the provided URL
 type WGetAction struct {
 	Router     *views.Router
-	SourceUrl  *url.URL
+	SourceUrl  string
 	targetPath string
 }
 
@@ -103,11 +104,7 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 		w.targetPath = action.Parameters["targetPath"]
 	}
 	if urlParam, ok := action.Parameters["url"]; ok {
-		var e error
-		w.SourceUrl, e = url.Parse(urlParam)
-		if e != nil {
-			return e
-		}
+		w.SourceUrl = urlParam
 	} else {
 		return errors.BadRequest(common.SERVICE_TASKS, "missing parameter url in Action")
 	}
@@ -118,24 +115,23 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 // Run the actual action code
 func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	log.Logger(ctx).Info("WGET: " + w.SourceUrl.String())
-	//if len(input.Nodes) == 0 {
-	//	//log.Logger(ctx).Info("IGNORE WGET: " + w.SourceUrl.String())
-	//	//return input.WithIgnore(), nil
-	//	//input.Nodes
-	//}
+	var e error
+	sourceUrl, e := url.Parse(jobs.EvaluateFieldStr(ctx, input, w.SourceUrl))
+	if e != nil {
+		return input.WithError(e), e
+	}
 
 	var targetNode *tree.Node
 	targetNode = new(tree.Node)
 	if w.targetPath != "" {
-		basename := filepath.Base(w.SourceUrl.Path)
-		targetNode.Path = filepath.Join(jobs.EvaluateFieldStr(ctx, input, w.targetPath), basename)
+		basename := path.Base(sourceUrl.Path)
+		targetNode.Path = path.Join(jobs.EvaluateFieldStr(ctx, input, w.targetPath), basename)
 	} else {
 		targetNode = input.Nodes[0]
 	}
 
-	log.TasksLogger(ctx).Info(fmt.Sprintf("Downloading file to %s from URL %s", targetNode.GetPath(), w.SourceUrl.String()))
-	httpResponse, err := http.Get(w.SourceUrl.String())
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Downloading file to %s from URL %s", targetNode.GetPath(), sourceUrl.String()))
+	httpResponse, err := http.Get(sourceUrl.String())
 	if err != nil {
 		return input.WithError(err), err
 	}

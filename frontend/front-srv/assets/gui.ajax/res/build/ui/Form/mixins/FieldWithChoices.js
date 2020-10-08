@@ -96,7 +96,6 @@ exports['default'] = function (PydioComponent) {
                                 sorter.push({ id: repository.getId(), label: repository.getLabel() });
                             }
                         });
-                        console.log(sorter);
                         sorter.sort(function (a, b) {
                             return a.label.localeCompare(b.label, undefined, { numeric: true });
                         });

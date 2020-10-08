@@ -11,12 +11,6 @@ import (
 	service "github.com/pydio/cells/common/service/proto"
 )
 
-// Matcher interface provides a way to filter idm objects with standard XXXSingleQueries.
-type Matcher interface {
-	// Matches tries to apply a *SingleQuery on an existing object
-	Matches(idmObject interface{}) bool
-}
-
 func (m *RoleSingleQuery) Matches(idmObject interface{}) bool {
 	if role, ok := idmObject.(*Role); !ok {
 		return false

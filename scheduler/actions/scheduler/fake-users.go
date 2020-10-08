@@ -27,7 +27,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/dchest/uniuri"
@@ -56,6 +55,7 @@ type FakeUsersAction struct {
 func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              fakeUserCreationActionName,
+		IsInternal:      true,
 		Label:           "Fake Users",
 		Icon:            "account-multiple-plus",
 		Category:        actions.ActionCategoryIDM,
@@ -71,17 +71,17 @@ func (f *FakeUsersAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "number",
-					Type:        forms.ParamString,
+					Type:        forms.ParamInteger,
 					Label:       "Number of users",
 					Description: "Total number of users to create",
-					Default:     "100",
+					Default:     100,
 					Mandatory:   true,
 					Editable:    true,
 				},
 				&forms.FormField{
 					Name:        "prefix",
 					Type:        forms.ParamString,
-					Label:       "Ticks",
+					Label:       "Prefix",
 					Description: "Optional prefix to use for users logins",
 					Default:     "user-",
 					Mandatory:   false,
@@ -130,7 +130,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	log.TasksLogger(ctx).Info("Starting fake users creation")
 
 	var number int64
-	if n, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.number), 10, 64); err == nil {
+	if n, err := jobs.EvaluateFieldInt64(ctx, input, f.number); err == nil {
 		number = n
 	} else {
 		return input.WithError(err), err

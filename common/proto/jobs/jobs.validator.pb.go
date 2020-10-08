@@ -301,6 +301,7 @@ func (this *Task) Validate() error {
 	return nil
 }
 func (this *CtrlCommand) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *CtrlCommandResponse) Validate() error {
@@ -330,6 +331,7 @@ func (this *JobTriggerEvent) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Schedule", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *ActionOutput) Validate() error {

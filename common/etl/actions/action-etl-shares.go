@@ -52,6 +52,7 @@ func (c *SyncSharesAction) GetDescription(lang ...string) actions.ActionDescript
 	return actions.ActionDescription{
 		ID:              SyncSharesActionName,
 		Label:           "Sync. Shares",
+		IsInternal:      true,
 		Icon:            "",
 		Description:     "Diff and merge shares from two stores.",
 		Category:        actions.ActionCategoryETL,

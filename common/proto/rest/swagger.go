@@ -4655,17 +4655,16 @@ var SwaggerJson = `{
     "installProxyConfig": {
       "type": "object",
       "properties": {
-        "BindURL": {
-          "type": "string"
-        },
-        "ExternalURL": {
-          "type": "string"
-        },
-        "RedirectURLs": {
+        "Binds": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "A list of [host]:port to bind to"
+        },
+        "ReverseProxyURL": {
+          "type": "string",
+          "title": "Optional URL of reverse proxy exposing this site"
         },
         "SelfSigned": {
           "$ref": "#/definitions/installTLSSelfSigned"
@@ -4675,6 +4674,11 @@ var SwaggerJson = `{
         },
         "Certificate": {
           "$ref": "#/definitions/installTLSCertificate"
+        },
+        "SSLRedirect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If TLS is set, whether to automatically redirect each http://host:port to https://host:port"
         }
       },
       "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy"
@@ -4686,6 +4690,9 @@ var SwaggerJson = `{
           "type": "string"
         },
         "KeyFile": {
+          "type": "string"
+        },
+        "CellsRootCA": {
           "type": "string"
         }
       },
@@ -4734,6 +4741,16 @@ var SwaggerJson = `{
         "Description": {
           "type": "string",
           "title": "User-defined comment for this action"
+        },
+        "Bypass": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Bypass this action (forward input to output and do nothing)"
+        },
+        "BreakAfter": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Stop full chain now : do not carry on executing next actions"
         },
         "NodesSelector": {
           "$ref": "#/definitions/jobsNodesSelector",
@@ -4908,6 +4925,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Query built from ActionOutputSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "ActionOutputFilter can be used to filter last message output"
@@ -4936,6 +4961,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Can be built with ContextMetaSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "PolicyContextFilter can be used to filter request metadata"
@@ -4966,8 +4999,16 @@ var SwaggerJson = `{
         "OwnerId": {
           "type": "string",
           "title": "Owner of the job"
+        },
+        "RunParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Parameters used for RunOnce command"
         }
-      }
+      },
+      "title": "Command sent to control a job or a task"
     },
     "jobsCtrlCommandResponse": {
       "type": "object",
@@ -4975,7 +5016,8 @@ var SwaggerJson = `{
         "Msg": {
           "type": "string"
         }
-      }
+      },
+      "title": "Response to the CtrlCommand"
     },
     "jobsDeleteTasksRequest": {
       "type": "object",
@@ -5036,6 +5078,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Pass a slice of objects to one action, or trigger all actions in parallel"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Generic container for select/filter idm objects"
@@ -5070,6 +5120,11 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Admin can temporarily disable this job"
+        },
+        "Custom": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Job created by application or by administrator"
         },
         "Languages": {
           "type": "array",
@@ -5240,7 +5295,15 @@ var SwaggerJson = `{
         "Collect": {
           "type": "boolean",
           "format": "boolean",
-          "title": "Wether to trigger one action per node or one action\nwith all nodes as selection"
+          "title": "Whether to trigger one action per node or one action\nwith all nodes as selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////"
@@ -5352,6 +5415,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Wether to trigger one action per user or one action\nwith all user as a selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Select or filter users - should be replaced by more generic IdmSelector"
@@ -5785,6 +5856,11 @@ var SwaggerJson = `{
         "OutputDescription": {
           "type": "string",
           "title": "Additional description describing the action output"
+        },
+        "IsInternal": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "If action is declared internal, it is hidden to avoid polluting the list."
         }
       }
     },

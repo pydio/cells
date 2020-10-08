@@ -312,7 +312,8 @@ var JobsList = (function (_React$Component) {
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash[466] : m('system.empty'),
-                        masterStyles: adminStyles.body.tableMaster
+                        masterStyles: adminStyles.body.tableMaster,
+                        storageKey: 'console.scheduler.jobs.list'
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {

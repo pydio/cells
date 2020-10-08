@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/install"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/config"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/proto/install"
 )
 
 func init() {
@@ -40,6 +40,8 @@ var sitesDelete = &cobra.Command{
 			}
 			newSites = append(newSites, s)
 		}
-		config.SaveSites(newSites, common.PYDIO_SYSTEM_USERNAME, "Saving sites")
+		if e := confirmAndSave(cmd, newSites); e != nil {
+			log.Fatal(e)
+		}
 	},
 }

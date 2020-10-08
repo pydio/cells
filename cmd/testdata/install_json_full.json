@@ -1,0 +1,8 @@
+{
+  "FrontendLogin": "admin",
+  "FrontendPassword": "password",
+  "ProxyConfig": {
+    "Binds": ["0.0.0.0:9191"],
+    "ReverseProxyURL": "http://0.0.0.0:9191"
+  }
+}

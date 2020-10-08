@@ -9,7 +9,7 @@ import (
 	"github.com/pydio/cells/common/forms"
 )
 
-func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
+func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKeys ...map[string]string) *forms.Form {
 	s := reflect.ValueOf(msg).Elem()
 	var structProperties *proto.StructProperties
 	if _, ok := msg.(proto.Message); ok {
@@ -22,7 +22,6 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 		Label:  "Field Name",
 		Values: []*forms.SwitchValue{},
 	}
-	makeSwitch := len(asSwitch) > 0 && asSwitch[0]
 
 	for i := 0; i < s.NumField(); i++ {
 		value := s.Field(i)
@@ -40,7 +39,7 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 		if structProperties != nil {
 			pp = structProperties.Prop[i]
 		}
-		if field := fieldForValue(fieldName, value.Kind(), value.Type(), pp); field != nil {
+		if field := fieldForValue(prefix, fieldName, value.Kind(), value.Type(), pp, i18nKeys...); field != nil {
 			if f, ok := field.(*forms.ReplicableFields); ok && makeSwitch {
 				f.Mandatory = true
 				field = f
@@ -49,9 +48,12 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 			sw.Values = append(sw.Values, &forms.SwitchValue{
 				Name:   fieldName,
 				Value:  fieldName,
-				Label:  valueField.Name,
+				Label:  prefix + "." + valueField.Name,
 				Fields: []forms.Field{field},
 			})
+			if len(i18nKeys) > 0 {
+				i18nKeys[0][prefix+"."+valueField.Name] = valueField.Name
+			}
 		}
 	}
 	if makeSwitch {
@@ -64,25 +66,30 @@ func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 	return f
 }
 
-func fieldForValue(name string, kind reflect.Kind, vType reflect.Type, prop *proto.Properties) forms.Field {
+func fieldForValue(prefix, name string, kind reflect.Kind, vType reflect.Type, prop *proto.Properties, i18nKeys ...map[string]string) forms.Field {
+
+	if len(i18nKeys) > 0 {
+		i18nKeys[0][prefix+"."+name] = name
+	}
+
 	switch kind {
 	case reflect.String:
 		return &forms.FormField{
 			Name:  name,
 			Type:  "string",
-			Label: name,
+			Label: prefix + "." + name,
 		}
 	case reflect.Bool:
 		return &forms.FormField{
 			Name:  name,
 			Type:  "boolean",
-			Label: name,
+			Label: prefix + "." + name,
 		}
 	case reflect.Int64:
 		return &forms.FormField{
 			Name:  name,
 			Type:  "integer",
-			Label: name,
+			Label: prefix + "." + name,
 		}
 	case reflect.Int32:
 		if prop != nil && prop.Enum != "" {
@@ -91,13 +98,16 @@ func fieldForValue(name string, kind reflect.Kind, vType reflect.Type, prop *pro
 			var mss []map[string]string
 			for k, _ := range msi {
 				kV := make(map[string]string, 1)
-				kV[k] = k
+				kV[k] = prefix + "." + name + "." + k
 				mss = append(mss, kV)
+				if len(i18nKeys) > 0 {
+					i18nKeys[0][prefix+"."+name+"."+k] = k
+				}
 			}
 			selector := &forms.FormField{
 				Name:             name,
 				Type:             "select",
-				Label:            name,
+				Label:            prefix + "." + name,
 				ChoicePresetList: mss,
 			}
 			return selector
@@ -105,14 +115,14 @@ func fieldForValue(name string, kind reflect.Kind, vType reflect.Type, prop *pro
 			return &forms.FormField{
 				Name:  name,
 				Type:  "integer",
-				Label: name,
+				Label: prefix + "." + name,
 			}
 		}
 	case reflect.Slice:
 		//fmt.Println("Slice of", value.Type().Elem().Kind())
 		sKind := vType.Elem().Kind()
 		replicable := &forms.ReplicableFields{Id: name, Title: name + "[]"}
-		if field := fieldForValue(name, sKind, vType, prop); field != nil {
+		if field := fieldForValue(prefix, name, sKind, vType, prop, i18nKeys...); field != nil {
 			replicable.Fields = append(replicable.Fields, field)
 			return replicable
 		}

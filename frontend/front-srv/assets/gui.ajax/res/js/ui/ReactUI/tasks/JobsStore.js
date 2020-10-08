@@ -147,7 +147,9 @@ class JobsStore extends Observable {
         if (maxTasks > 0) {
             request.TasksLimit = maxTasks;
         }
-        if (jobId !== "") {
+        if(jobId && jobId instanceof Array){
+            request.JobIDs = jobId;
+        } else if (jobId !== "") {
             request.JobIDs = [jobId];
         }
         if (triggerType !== null) {

@@ -51,6 +51,7 @@ var RestActionDescription = (function () {
         this.Tint = undefined;
         this.InputDescription = undefined;
         this.OutputDescription = undefined;
+        this.IsInternal = undefined;
     }
 
     /**
@@ -100,6 +101,9 @@ var RestActionDescription = (function () {
             }
             if (data.hasOwnProperty('OutputDescription')) {
                 obj['OutputDescription'] = _ApiClient2['default'].convertToType(data['OutputDescription'], 'String');
+            }
+            if (data.hasOwnProperty('IsInternal')) {
+                obj['IsInternal'] = _ApiClient2['default'].convertToType(data['IsInternal'], 'Boolean');
             }
         }
         return obj;
@@ -156,4 +160,9 @@ module.exports = exports['default'];
 
 /**
 * @member {String} OutputDescription
+*/
+
+/**
+* If action is declared internal, it is hidden to avoid polluting the list.
+* @member {Boolean} IsInternal
 */

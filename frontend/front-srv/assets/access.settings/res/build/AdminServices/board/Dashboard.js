@@ -69,11 +69,18 @@ exports['default'] = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
-        return { details: false, filter: '', peers: [], peerFilter: '' };
+        var details = localStorage.getItem('console.services.details');
+        return {
+            details: details && details === 'true',
+            filter: '',
+            peers: [],
+            peerFilter: ''
+        };
     },
 
     onDetailsChange: function onDetailsChange(event, value) {
         this.setState({ details: value });
+        localStorage.setItem('console.services.details', value ? 'true' : 'false');
     },
 
     onFilterChange: function onFilterChange(event, index, value) {

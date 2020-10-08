@@ -51,6 +51,7 @@ type ArchiveAction struct {
 func (a *ArchiveAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              archiveActionName,
+		IsInternal:      true,
 		Label:           "Archive Changes",
 		Icon:            "zip-box",
 		Description:     "Archive all changes into an alternative table (legacy action)",

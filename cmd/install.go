@@ -22,10 +22,15 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
+
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
@@ -69,6 +74,7 @@ var (
 	niBindUrl          string
 	niExtUrl           string
 	niNoTls            bool
+	niModeCli          bool
 	niCertFile         string
 	niKeyFile          string
 	niLeEmailContact   string
@@ -131,6 +137,20 @@ var installCmd = &cobra.Command{
 
 		initServices()
 
+		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
+		niBindUrl = viper.GetString("bind")
+		niExtUrl = viper.GetString("external")
+		niNoTls = viper.GetBool("no_tls")
+		niModeCli = viper.GetBool("install_cli")
+		niCertFile = viper.GetString("tls_cert_file")
+		niKeyFile = viper.GetString("tls_key_file")
+		niLeEmailContact = viper.GetString("le_email")
+		niLeAcceptEula = viper.GetBool("le_agree")
+		niLeUseStagingCA = viper.GetBool("le_staging")
+		niYamlFile = viper.GetString("install_yaml")
+		niJsonFile = viper.GetString("install_json")
+		niExitAfterInstall = viper.GetBool("exit_after_install")
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -155,11 +175,12 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		if niYamlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
+		fmt.Println("YAML FILE ? ", niYamlFile)
+		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
-			if installConf.InternalUrl != "" {
+			if installConf.FrontendLogin != "" {
 				// We assume we have completely configured Cells. Exit.
 				return
 			}
@@ -168,20 +189,31 @@ var installCmd = &cobra.Command{
 			proxyConf = installConf.GetProxyConfig()
 
 		} else {
-			// Ask user to choose between browser or CLI interactive install
-			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-			installIndex, _, err := p.Run()
-			fatalIfError(cmd, err)
+			if !niModeCli {
+				// Ask user to choose between browser or CLI interactive install
+				p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
+				installIndex, _, err := p.Run()
+				fatalIfError(cmd, err)
+				niModeCli = installIndex == 1
+			}
 
 			// Gather proxy information
 			sites, err := config.LoadSites()
 			fatalIfError(cmd, err)
 			proxyConf = sites[0]
+			if proxyConf == config.DefaultBindingSite && niNoTls {
+				// Create a siteConf without TLS
+				noTlsConf := *proxyConf
+				noTlsConf.TLSConfig = nil
+				proxyConf = &noTlsConf
+				e := config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PYDIO_SYSTEM_USERNAME, "Create No TLS site at install")
+				fatalIfError(cmd, e)
+			}
 
 			fatalIfError(cmd, err)
 
 			// Prompt for config with CLI, apply and exit
-			if installIndex == 1 {
+			if niModeCli {
 				_, err := cliInstall(proxyConf)
 				fatalIfError(cmd, err)
 				return
@@ -374,20 +406,42 @@ func fatalIfError(cmd *cobra.Command, err error) {
 	}
 }
 
+func fatalQuitIfError(cmd *cobra.Command, err error) {
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
 func init() {
 
 	flags := installCmd.PersistentFlags()
-	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niNoTls, "no_tls", false, "Configure the main gateway to rather use plain HTTP")
-	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
-	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
-	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
-	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "Accept Let's Encrypt EULA")
-	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
-	flags.StringVar(&niYamlFile, "yaml", "", "Points toward a configuration in YAML format")
-	flags.StringVar(&niJsonFile, "json", "", "Points toward a configuration in JSON format")
-	flags.BoolVar(&niExitAfterInstall, "exit_after_install", false, "Simply exits main process after the installation is done")
+
+	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	flags.Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
+	flags.Bool("cli", false, "Do not prompt for install mode, use CLI mode by default")
+	flags.String("tls_cert_file", "", "TLS cert file path")
+	flags.String("tls_key_file", "", "TLS key file path")
+	flags.String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
+	flags.Bool("le_agree", false, "Accept Let's Encrypt EULA")
+	flags.Bool("le_staging", false, "Rather use staging CA entry point")
+	flags.String("yaml", "", "Points toward a configuration in YAML format")
+	flags.String("json", "", "Points toward a configuration in JSON format")
+	flags.Bool("exit_after_install", false, "Simply exits main process after the installation is done")
+
+	replaceKeys := map[string]string{
+		"yaml": "install_yaml",
+		"json": "install_json",
+		"cli":  "install_cli",
+	}
+	flags.VisitAll(func(flag *pflag.Flag) {
+		key := flag.Name
+		if replace, ok := replaceKeys[flag.Name]; ok {
+			key = replace
+		}
+		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+		viper.BindPFlag(key, flag)
+	})
 
 	RootCmd.AddCommand(installCmd)
 }

@@ -48,6 +48,9 @@ type Task struct {
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
 	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
+	if trigger, ok := event.(*jobs.JobTriggerEvent); ok && trigger.RunTaskId != "" {
+		taskID = trigger.RunTaskId
+	}
 	operationID := job.ID + "-" + taskID[0:8]
 	c := servicecontext.WithOperationID(ctx, operationID)
 	t := &Task{

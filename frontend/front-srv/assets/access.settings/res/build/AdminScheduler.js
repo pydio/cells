@@ -786,7 +786,9 @@ var JobBoard = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'a',
-                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: onRequestClose },
+                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: function () {
+                                    return onRequestClose(true);
+                                } },
                             pydio.MessageHash['ajxp_admin.scheduler.title']
                         ),
                         ' / ',
@@ -794,7 +796,9 @@ var JobBoard = (function (_React$Component) {
                         ' ',
                         job.Inactive ? ' [disabled]' : ''
                     ),
-                    backButtonAction: onRequestClose,
+                    backButtonAction: function () {
+                        return onRequestClose(true);
+                    },
                     actions: actions,
                     loading: loading
                 }),
@@ -1300,7 +1304,8 @@ var JobsList = (function (_React$Component) {
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? _pydio2['default'].getInstance().MessageHash[466] : m('system.empty'),
-                        masterStyles: adminStyles.body.tableMaster
+                        masterStyles: adminStyles.body.tableMaster,
+                        storageKey: 'console.scheduler.jobs.list'
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {

@@ -68,11 +68,12 @@ var StepperDialog = (function (_React$Component) {
         var open = _props.open;
         var onDismiss = _props.onDismiss;
         var onFilter = _props.onFilter;
+        var customFilter = _props.customFilter;
         var children = _props.children;
         var dialogProps = _props.dialogProps;
 
         var tt = title;
-        if (onDismiss || onFilter) {
+        if (onDismiss || onFilter || customFilter) {
             tt = _react2['default'].createElement(
                 'div',
                 { style: { position: 'relative', display: 'flex', alignItems: 'center' } },
@@ -80,6 +81,11 @@ var StepperDialog = (function (_React$Component) {
                     'div',
                     { style: { flex: 1 } },
                     title
+                ),
+                customFilter && _react2['default'].createElement(
+                    'div',
+                    { style: { marginRight: 16 } },
+                    customFilter
                 ),
                 onFilter && _react2['default'].createElement(
                     'div',

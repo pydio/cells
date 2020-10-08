@@ -63,7 +63,7 @@ func (c *RpcAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "service",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Service Name",
 					Description: "Full name of the cells micro service",
 					Default:     "",
@@ -72,7 +72,7 @@ func (c *RpcAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "method",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Method",
 					Description: "Name of the RPC method",
 					Mandatory:   true,
@@ -80,7 +80,7 @@ func (c *RpcAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "request",
-					Type:        "string",
+					Type:        forms.ParamTextarea,
 					Label:       "JSON Request",
 					Description: "JSON-encoded body to be sent as request",
 					Default:     "{}",
@@ -122,7 +122,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams)
 
 	log.TasksLogger(ctx).Info("Sending json+grpc request to " + c.ServiceName + "." + c.MethodName)
-	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, &jsonParams)
+	req := c.Client.NewJsonRequest(jobs.EvaluateFieldStr(ctx, input, c.ServiceName), jobs.EvaluateFieldStr(ctx, input, c.MethodName), &jsonParams)
 	var response json.RawMessage
 	e := c.Client.Call(ctx, req, &response)
 	if e != nil {

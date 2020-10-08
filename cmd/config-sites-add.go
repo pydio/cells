@@ -24,16 +24,14 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
-
-	"github.com/pydio/cells/common"
-
-	"github.com/pydio/cells/common/config"
 
 	"github.com/jaytaylor/go-hostsfile"
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils/net"
 )
@@ -56,15 +54,9 @@ var sitesAdd = &cobra.Command{
 		}
 		sites = append(sites, newSite)
 
-		e = config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
-		if e != nil {
+		if e := confirmAndSave(cmd, sites); e != nil {
 			log.Fatal(e)
 		}
-
-		cmd.Println("*************************************************************")
-		cmd.Println(" Config has been updated, please restart now!")
-		cmd.Println("**************************************************************")
-
 	},
 }
 
@@ -87,13 +79,13 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 		}
 		if i == 1 {
 			site.Binds = []string{}
-			promptBindURLs(site, false)
+			promptBindURLs(site, false, "")
 		} else if i == 2 {
-			promptBindURLs(site, false)
+			promptBindURLs(site, false, "")
 		}
 	} else {
 		// Get URL info from end user
-		e = promptBindURLs(site, false)
+		e = promptBindURLs(site, false, "")
 		if e != nil {
 			return
 		}
@@ -113,9 +105,30 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 	return
 }
 
-func promptBindURLs(site *install.ProxyConfig, resolveHosts bool) (e error) {
+func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort string) (e error) {
 
-	defaultPort := "8080"
+	if bindingPort == "" {
+		def := strings.Split(config.DefaultBindingSite.Binds[0], ":")[1]
+		portPrompt := &p.Prompt{
+			Label:     "Port used for binding",
+			Default:   def,
+			AllowEdit: true,
+			Validate: func(s string) error {
+				if s == "" {
+					return fmt.Errorf("Please provide a port number")
+				}
+				if _, e := strconv.ParseInt(s, 10, 32); e != nil {
+					return fmt.Errorf("Please provide a port number")
+				}
+				return nil
+			},
+		}
+		var er error
+		bindingPort, er = portPrompt.Run()
+		if er != nil {
+			return er
+		}
+	}
 	var bindHost string
 	defaultIps, e := net.GetAvailableIPs()
 	if e != nil {
@@ -126,26 +139,30 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool) (e error) {
 	if resolveHosts {
 		if res, err := hostsfile.ReverseLookup("127.0.0.1"); err == nil {
 			for _, h := range res {
+				// Skip commented values
+				if strings.HasPrefix(strings.TrimSpace(h), "#") {
+					continue
+				}
 				if h == "localhost" {
 					hasLocalhost = true
 				}
-				items = append(items, fmt.Sprintf("%s:%s", h, defaultPort))
+				items = append(items, fmt.Sprintf("%s:%s", h, bindingPort))
 			}
 		}
 	}
 
 	testExt, eExt := net.GetOutboundIP()
 	if eExt == nil {
-		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), defaultPort))
+		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), bindingPort))
 	}
 	for _, ip := range defaultIps {
 		if testExt != nil && testExt.String() == ip.String() {
 			continue
 		}
-		items = append(items, fmt.Sprintf("%s:%s", ip.String(), defaultPort))
+		items = append(items, fmt.Sprintf("%s:%s", ip.String(), bindingPort))
 	}
 	if !hasLocalhost {
-		items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
+		items = append(items, "localhost:"+bindingPort, "0.0.0.0:"+bindingPort)
 	}
 	resolveString := "Additional hosts from /etc/hosts..."
 	if !resolveHosts {
@@ -163,7 +180,7 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool) (e error) {
 		return
 	}
 	if bindHost == resolveString {
-		return promptBindURLs(site, true)
+		return promptBindURLs(site, true, bindingPort)
 	}
 
 	// Sanity checks
@@ -188,7 +205,7 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool) (e error) {
 	// TLS not included by default, still ask the user if he wants to change it
 	addOtherHost := p.Prompt{Label: "Do you want to add another host? [y/N] ", Default: ""}
 	if val, e1 := addOtherHost.Run(); e1 == nil && (val == "Y" || val == "y") {
-		return promptBindURLs(site, false)
+		return promptBindURLs(site, false, "")
 	}
 
 	return nil
