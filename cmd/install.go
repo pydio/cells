@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -175,7 +174,6 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		fmt.Println("YAML FILE ? ", niYamlFile)
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
 			installConf, err := nonInteractiveInstall(cmd, args)
