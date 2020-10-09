@@ -61,16 +61,22 @@ func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 			bc.ExternalHost = u.Hostname()
 		}
 	}
-	switch v := bc.TLSConfig.(type) {
-	case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
-		certFile, keyFile, err := providers.LoadCertificates(pc)
-		if err != nil {
-			return bc, err
+	if bc.TLSConfig == nil {
+		for i, b := range bc.Binds {
+			bc.Binds[i] = "http://" + b
 		}
-		bc.TLSCert = certFile
-		bc.TLSKey = keyFile
-	case *install.ProxyConfig_LetsEncrypt:
-		bc.TLS = v.LetsEncrypt.Email
+	} else {
+		switch v := bc.TLSConfig.(type) {
+		case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
+			certFile, keyFile, err := providers.LoadCertificates(pc)
+			if err != nil {
+				return bc, err
+			}
+			bc.TLSCert = certFile
+			bc.TLSKey = keyFile
+		case *install.ProxyConfig_LetsEncrypt:
+			bc.TLS = v.LetsEncrypt.Email
+		}
 	}
 	return bc, nil
 }
