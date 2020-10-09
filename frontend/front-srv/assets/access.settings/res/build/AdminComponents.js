@@ -19187,6 +19187,29 @@ var PluginsLoader = (function () {
             });
         }
     }, {
+        key: 'loadServiceConfigs',
+        value: function loadServiceConfigs(serviceName) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.getConfig("services/" + serviceName).then(function (data) {
+                return data || {};
+            }).then(function (restConfig) {
+                if (restConfig.Data) {
+                    return JSON.parse(restConfig.Data) || {};
+                } else {
+                    return {};
+                }
+            });
+        }
+    }, {
+        key: 'saveServiceConfigs',
+        value: function saveServiceConfigs(serviceName, data) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var body = new _pydioHttpRestApi.RestConfiguration();
+            body.FullPath = "services/" + serviceName;
+            body.Data = JSON.stringify(data);
+            return api.putConfig(body.FullPath, body);
+        }
+    }, {
         key: 'loadPluginConfigs',
         value: function loadPluginConfigs(pluginId) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
@@ -19289,6 +19312,14 @@ var PluginsLoader = (function () {
                     return params;
                 }).bind(_this2));
             });
+        }
+    }, {
+        key: 'loadSites',
+        value: function loadSites() {
+            var filter = arguments.length <= 0 || arguments[0] === undefined ? '*' : arguments[0];
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.listSites(filter);
         }
     }]);
 

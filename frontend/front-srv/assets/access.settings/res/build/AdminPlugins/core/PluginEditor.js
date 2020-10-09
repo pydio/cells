@@ -48,6 +48,10 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
+var _SitesParameters = require("./SitesParameters");
+
+var _SitesParameters2 = _interopRequireDefault(_SitesParameters);
+
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
  * and plugin parameters as form cards on the right.
@@ -271,6 +275,8 @@ var PluginEditor = _react2['default'].createClass({
         var accessByName = _props.accessByName;
         var docAsAdditionalPane = _props.docAsAdditionalPane;
         var onHeaderChange = _props.onHeaderChange;
+        var pluginId = _props.pluginId;
+        var pydio = _props.pydio;
         var _state = this.state;
         var dirty = _state.dirty;
         var mainPaneScrolled = _state.mainPaneScrolled;
@@ -281,6 +287,9 @@ var PluginEditor = _react2['default'].createClass({
         if (additionalPanes) {
             addPanes.top = additionalPanes.top.slice();
             addPanes.bottom = additionalPanes.bottom.slice();
+        }
+        if (pluginId === 'core.pydio') {
+            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio }));
         }
 
         var doc = documentation;

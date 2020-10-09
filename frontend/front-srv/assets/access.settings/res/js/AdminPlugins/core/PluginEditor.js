@@ -24,6 +24,7 @@ import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
 import XMLUtils from 'pydio/util/xml'
 import LangUtils from 'pydio/util/lang'
+import SitesParameters from "./SitesParameters";
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
@@ -234,13 +235,18 @@ let PluginEditor = React.createClass({
 
     render(){
 
-        const {closeEditor, additionalPanes, currentNode, accessByName, docAsAdditionalPane, onHeaderChange} = this.props;
+        const {closeEditor, additionalPanes, currentNode, accessByName, docAsAdditionalPane, onHeaderChange, pluginId, pydio} = this.props;
         const {dirty, mainPaneScrolled, label, documentation} = this.state;
 
         let addPanes = {top:[], bottom:[]};
         if(additionalPanes){
             addPanes.top = additionalPanes.top.slice();
             addPanes.bottom = additionalPanes.bottom.slice();
+        }
+        if(pluginId === 'core.pydio'){
+            addPanes.bottom.push(
+                <SitesParameters pydio={pydio}/>
+            );
         }
 
         let doc = documentation;

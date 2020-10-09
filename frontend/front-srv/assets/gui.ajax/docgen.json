@@ -1219,6 +1219,18 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "selectRows",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "rows",
+                "type": null
+              }
+            ],
+            "returns": null
           }
         ],
         "props": {
@@ -1330,6 +1342,10 @@
             "params": [
               {
                 "name": "roleId",
+                "type": null
+              },
+              {
+                "name": "roleLabel",
                 "type": null
               }
             ],
@@ -4052,6 +4068,13 @@
             "returns": null
           },
           {
+            "name": "syncStatuses",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "closeEditor",
             "docblock": null,
             "modifiers": [],
@@ -4071,6 +4094,22 @@
             "returns": null
           },
           {
+            "name": "makeStatusLabel",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "level",
+                "type": null
+              },
+              {
+                "name": "message",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "computeStatus",
             "docblock": null,
             "modifiers": [],
@@ -4081,6 +4120,18 @@
               },
               {
                 "name": "asNumber",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeJobStatus",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
                 "type": null
               }
             ],
@@ -13000,6 +13051,48 @@
               }
             },
             "description": "List all services and their status"
+          },
+          {
+            "name": "listSitesWithHttpInfo",
+            "docblock": "List configured sites\n@param {String} filter \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListSitesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "filter",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListSitesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List configured sites"
+          },
+          {
+            "name": "listSites",
+            "docblock": "List configured sites\n@param {String} filter \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListSitesResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "filter",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListSitesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List configured sites"
           },
           {
             "name": "listStorageBucketsWithHttpInfo",
@@ -22857,6 +22950,52 @@
               }
             },
             "description": "Constructs a <code>RestListSharedResourcesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestListSitesResponse.js": [
+      {
+        "description": "The RestListSitesResponse model module.\n@module model/RestListSitesResponse\n@version 1.0",
+        "displayName": "RestListSitesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestListSitesResponse</code>.\n@alias module:model/RestListSitesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestListSitesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestListSitesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestListSitesResponse} obj Optional instance to populate.\n@return {module:model/RestListSitesResponse} The populated <code>RestListSitesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestListSitesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestListSitesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestListSitesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestListSitesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -32947,6 +33086,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "loadStoredValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           },
           {

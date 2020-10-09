@@ -115,6 +115,10 @@ var _modelRestListProcessesResponse = require('../model/RestListProcessesRespons
 
 var _modelRestListProcessesResponse2 = _interopRequireDefault(_modelRestListProcessesResponse);
 
+var _modelRestListSitesResponse = require('../model/RestListSitesResponse');
+
+var _modelRestListSitesResponse2 = _interopRequireDefault(_modelRestListSitesResponse);
+
 var _modelRestListStorageBucketsRequest = require('../model/RestListStorageBucketsRequest');
 
 var _modelRestListStorageBucketsRequest2 = _interopRequireDefault(_modelRestListStorageBucketsRequest);
@@ -968,6 +972,47 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.listServices = function listServices(opts) {
     return this.listServicesWithHttpInfo(opts).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * List configured sites
+   * @param {String} filter 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListSitesResponse} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.listSitesWithHttpInfo = function listSitesWithHttpInfo(filter) {
+    var postBody = null;
+
+    // verify the required parameter 'filter' is set
+    if (filter === undefined || filter === null) {
+      throw new Error("Missing the required parameter 'filter' when calling listSites");
+    }
+
+    var pathParams = {
+      'Filter': filter
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestListSitesResponse2['default'];
+
+    return this.apiClient.callApi('/config/sites/{Filter}', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * List configured sites
+   * @param {String} filter 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListSitesResponse}
+   */
+
+  ConfigServiceApi.prototype.listSites = function listSites(filter) {
+    return this.listSitesWithHttpInfo(filter).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

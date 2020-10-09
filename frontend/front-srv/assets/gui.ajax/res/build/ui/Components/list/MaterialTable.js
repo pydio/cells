@@ -243,7 +243,11 @@ var MaterialTable = (function (_React$Component) {
                         v: null
                     };
                 }
-                if (['asc', 'desc', ''].indexOf(dir) === -1) {}
+                if (['asc', 'desc', ''].indexOf(dir) === -1) {
+                    return {
+                        v: null
+                    };
+                }
                 return {
                     v: { col: col, dir: dir }
                 };
