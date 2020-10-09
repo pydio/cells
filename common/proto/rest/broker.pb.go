@@ -53,6 +53,8 @@ It has these top-level messages:
 	SchedulerActionsResponse
 	SchedulerActionFormRequest
 	SchedulerActionFormResponse
+	ListSitesRequest
+	ListSitesResponse
 	SearchResults
 	Pagination
 	Metadata

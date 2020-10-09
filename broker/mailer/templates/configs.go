@@ -41,6 +41,7 @@ func RegisterTemplateFilter(filterFunc FilterFunc) {
 type ApplicationConfigs struct {
 	Title        string
 	Url          string
+	LinkUrl      string
 	From         string
 	FromName     string
 	FromCtl      string
@@ -55,7 +56,10 @@ type ApplicationConfigs struct {
 
 func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	T := lang.Bundle().GetTranslationFunc(languages...)
-	url := config.Get("defaults", "url").Default("URL NOT SET").String()
+
+	url := config.Get("services", "pydio.grpc.mailer", "url").Default(config.GetDefaultSiteURL()).String()
+	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
+
 	from := config.Get("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
 	fromName := config.Get("services", "pydio.grpc.mailer", "fromName").Default("").String()
 	fromCtl := config.Get("services", "pydio.grpc.mailer", "fromCtl", "@value").Default("user").String()
@@ -67,6 +71,7 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	a := ApplicationConfigs{
 		Title:        "Pydio",
 		Url:          url,
+		LinkUrl:      linkUrl,
 		From:         from,
 		FromName:     fromName,
 		FromCtl:      fromCtl,

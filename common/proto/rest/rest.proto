@@ -217,6 +217,12 @@ service ConfigService {
             get: "/config/scheduler/actions/{ActionName}"
         };
     }
+    // List configured sites
+    rpc ListSites(ListSitesRequest) returns (ListSitesResponse) {
+        option (google.api.http) = {
+            get: "/config/sites/{Filter}"
+        };
+    }
 }
 
 // Roles Management

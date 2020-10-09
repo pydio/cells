@@ -84,7 +84,7 @@ func BuildTemplateWithId(user *mailer.User, templateId string, templateData map[
 	if T(actionLabelId) != actionLabelId {
 		var link string
 		if linkPath, has := templateData["LinkPath"]; has {
-			link = fmt.Sprintf("%s%s", configs.Url, linkPath)
+			link = fmt.Sprintf("%s%s", configs.LinkUrl, linkPath)
 		} else if linkFull, has := templateData["LinkUrl"]; has {
 			link = linkFull
 		} else {

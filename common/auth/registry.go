@@ -219,7 +219,7 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 	var res []string
 	defaultBind := ""
 	if len(sites) > 0 {
-		defaultBind = sites[0].GetDefaultBindURL()
+		defaultBind = config.GetDefaultSiteURL(sites...)
 	}
 	if strings.Contains(s, "#default_bind#") {
 		res = append(res, strings.ReplaceAll(s, "#default_bind#", defaultBind))

@@ -233,7 +233,7 @@ var (
 )
 
 func init() {
-	plugins.Register(func (ctx context.Context) {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_PROXY),
 			service.Context(ctx),
@@ -418,7 +418,11 @@ func LoadCaddyConf() error {
 			var binds []string
 			for _, b := range si.Binds {
 				h, _, _ := net.SplitHostPort(b)
-				binds = append(binds, net.JoinHostPort(h, external))
+				newB := net.JoinHostPort(h, external)
+				if strings.HasPrefix(b, "http://") {
+					newB = "http://" + newB
+				}
+				binds = append(binds, newB)
 			}
 			si.Binds = binds
 			caddyconf.GrpcExternals = append(caddyconf.GrpcExternals, si)

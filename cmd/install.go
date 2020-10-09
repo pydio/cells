@@ -347,7 +347,11 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetDefaultBindURL()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")
 
-		open(proxyConf.GetDefaultBindURL())
+		if proxyConf.ReverseProxyURL != "" {
+			open(proxyConf.ReverseProxyURL)
+		} else {
+			open(proxyConf.GetDefaultBindURL())
+		}
 
 		return nil
 	})

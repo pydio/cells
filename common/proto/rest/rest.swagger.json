@@ -973,6 +973,31 @@
         ]
       }
     },
+    "/config/sites/{Filter}": {
+      "get": {
+        "summary": "List configured sites",
+        "operationId": "ListSites",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListSitesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -6517,6 +6542,18 @@
           "format": "int32"
         }
       }
+    },
+    "restListSitesResponse": {
+      "type": "object",
+      "properties": {
+        "Sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/installProxyConfig"
+          }
+        }
+      },
+      "title": "Response with declared sites"
     },
     "restListStorageBucketsRequest": {
       "type": "object",

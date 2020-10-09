@@ -335,3 +335,18 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	form.I18NBundle = lang.Bundle()
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
 }
+
+// ListSites implements /config/sites GET API
+func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) {
+	// There is an optional Filter string on req
+
+	ss, err := config.LoadSites()
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+
+	sites := &rest.ListSitesResponse{}
+	sites.Sites = ss
+	rsp.WriteEntity(sites)
+}

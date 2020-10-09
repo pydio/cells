@@ -15,9 +15,18 @@ var (
 )
 
 // GetDefaultSiteURL returns the first available bindURL of all available sites
-func GetDefaultSiteURL() string {
-	ss, _ := LoadSites()
-	for _, s := range ss {
+func GetDefaultSiteURL(sites ...*install.ProxyConfig) string {
+	if len(sites) == 0 {
+		sites, _ = LoadSites()
+	}
+	// Try first to find a declared external URL
+	for _, s := range sites {
+		if s.ReverseProxyURL != "" {
+			return s.ReverseProxyURL
+		}
+	}
+	// Else return default Bind URL
+	for _, s := range sites {
 		return s.GetDefaultBindURL()
 	}
 	return ""

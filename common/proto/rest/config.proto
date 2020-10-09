@@ -5,6 +5,7 @@ package rest;
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/object/object.proto";
 import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
+import "github.com/pydio/cells/common/proto/install/install.proto";
 
 // Configuration message. Data is an Json representation of any value
 message Configuration{
@@ -186,3 +187,14 @@ message SchedulerActionFormRequest{
 }
 
 message SchedulerActionFormResponse{}
+
+// Request used for ListSites api
+message ListSitesRequest {
+    string Filter = 1;
+}
+
+// Response with declared sites
+message ListSitesResponse {
+    repeated install.ProxyConfig Sites = 1;
+}
+
