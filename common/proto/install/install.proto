@@ -59,6 +59,11 @@ message ProxyConfig {
     }
     // If TLS is set, whether to automatically redirect each http://host:port to https://host:port
     bool SSLRedirect = 2;
+
+    // If set, this site will be in maintenance mode
+    bool Maintenance = 7;
+    // Append caddy directive to restrict maintenance mode
+    repeated string MaintenanceConditions = 8;
 }
 
 // TLSSelfSigned generates a selfsigned certificate

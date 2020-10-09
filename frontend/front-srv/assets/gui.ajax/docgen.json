@@ -3163,6 +3163,49 @@
         ]
       }
     ],
+    "AdminPlugins/core/SitesParameters.js": [
+      {
+        "description": "",
+        "displayName": "SitesParameters",
+        "methods": [
+          {
+            "name": "loadValues",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onNewRequest",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "type",
+                "type": null
+              },
+              {
+                "name": "v",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "save",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "type",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminPlugins/docs/JSDocsDashboard.js": [
       {
         "description": "",

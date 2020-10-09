@@ -55,7 +55,20 @@ var (
 	caddyfile = `
 {{range .Sites}}
 {{$ExternalHost := .ExternalHost}}
+{{$Maintenance := .Maintenance}}
+{{$MaintenanceConditions := .MaintenanceConditions}}
+{{$SiteWebRoot := .WebRoot}}
 {{range .Binds}}{{.}} {{end}}{
+	{{if $Maintenance}}
+	redir { 
+		{{range $MaintenanceConditions}}
+		{{.}}
+		{{end}}
+		if {path} not /maintenance.html
+		/maintenance.html
+	}
+	{{end}}
+
 	proxy /a  {{$.Micro | urls}} {
 		without /a
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
@@ -173,7 +186,7 @@ var (
 		to {path} {path}/ /login
 	}
 
-	root {{$.WebRoot}}
+	root {{if $SiteWebRoot}}{{$SiteWebRoot}}{{else}}{{$.WebRoot}}{{end}}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}

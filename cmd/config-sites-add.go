@@ -68,10 +68,15 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 
 	if edit {
 		label := "Site already declares the followings hosts : " + strings.Join(site.Binds, "") + ". Do you want to change this"
+		maintenanceString := "Set in maintenance mode"
+		if site.Maintenance {
+			maintenanceString = "Switch-off maintenance mode"
+		}
 		pr := p.Select{Label: label, Items: []string{
 			"Leave as is",
 			"Reset list and a new host",
 			"Append hosts to this list",
+			maintenanceString,
 		}}
 		i, _, e := pr.Run()
 		if e != nil {
@@ -82,6 +87,9 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 			promptBindURLs(site, false, "")
 		} else if i == 2 {
 			promptBindURLs(site, false, "")
+		} else if i == 3 {
+			promptMaintenanceMode(site)
+			return nil
 		}
 	} else {
 		// Get URL info from end user
@@ -103,6 +111,33 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 	}
 
 	return
+}
+
+func promptMaintenanceMode(site *install.ProxyConfig) (e error) {
+	if site.Maintenance {
+		fmt.Println("# Switching site back to production")
+		site.Maintenance = false
+		return
+	}
+	fmt.Println("# Switching site to maintenance mode")
+	site.Maintenance = true
+	confPrompt := p.Prompt{
+		Label:   "Define/change custom conditions for maintenance mode (use comma-separated-list, clear value to remove all)",
+		Default: strings.Join(site.MaintenanceConditions, ","),
+	}
+	conditions, e := confPrompt.Run()
+	if e != nil {
+		return e
+	}
+	site.MaintenanceConditions = []string{}
+	for _, cond := range strings.Split(conditions, ",") {
+		cond = strings.TrimSpace(cond)
+		if cond == "" {
+			continue
+		}
+		site.MaintenanceConditions = append(site.MaintenanceConditions, cond)
+	}
+	return nil
 }
 
 func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort string) (e error) {

@@ -161,6 +161,28 @@ func (m *ProxyConfig) UnmarshalFromMap(data map[string]interface{}, getKey func(
 			}
 		}
 	}
+
+	if u, o := data[getKey("Maintenance")]; o {
+		if b, o := u.(bool); o {
+			m.Maintenance = b
+		} else {
+			return fmt.Errorf("unexpected type for Maintenance (expected bool)")
+		}
+	}
+	if u, o := data[getKey("MaintenanceConditions")]; o {
+		if s, o := u.([]interface{}); o {
+			for _, v := range s {
+				if d, o := v.(string); o {
+					m.MaintenanceConditions = append(m.MaintenanceConditions, d)
+				} else {
+					return fmt.Errorf("unexpected type for MaintenanceConditions item (expected string)")
+				}
+			}
+		} else {
+			return fmt.Errorf("unexpected type for MaintenanceConditions (expected array)")
+		}
+	}
+
 	return nil
 }
 

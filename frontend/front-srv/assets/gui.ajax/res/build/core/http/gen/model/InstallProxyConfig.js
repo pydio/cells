@@ -57,6 +57,8 @@ var InstallProxyConfig = (function () {
         this.LetsEncrypt = undefined;
         this.Certificate = undefined;
         this.SSLRedirect = undefined;
+        this.Maintenance = undefined;
+        this.MaintenanceConditions = undefined;
     }
 
     /**
@@ -89,6 +91,12 @@ var InstallProxyConfig = (function () {
             if (data.hasOwnProperty('SSLRedirect')) {
                 obj['SSLRedirect'] = _ApiClient2['default'].convertToType(data['SSLRedirect'], 'Boolean');
             }
+            if (data.hasOwnProperty('Maintenance')) {
+                obj['Maintenance'] = _ApiClient2['default'].convertToType(data['Maintenance'], 'Boolean');
+            }
+            if (data.hasOwnProperty('MaintenanceConditions')) {
+                obj['MaintenanceConditions'] = _ApiClient2['default'].convertToType(data['MaintenanceConditions'], ['String']);
+            }
         }
         return obj;
     };
@@ -120,4 +128,12 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} SSLRedirect
+*/
+
+/**
+* @member {Boolean} Maintenance
+*/
+
+/**
+* @member {Array.<String>} MaintenanceConditions
 */
