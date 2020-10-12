@@ -47,13 +47,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 
-		o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
-			// Restarting the service
-			s.Stop()
-
-			s.Start(s.Options().Context)
-		})
-
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService()
 
@@ -123,6 +116,14 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			s.Init(
 				Micro(svc),
 			)
+
+			// Registering new watchers that can restart the service just in case
+			o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
+				// Restarting the service
+				s.Stop()
+
+				s.Start(s.Options().Context)
+			})
 
 			return nil
 		}
