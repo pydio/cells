@@ -26,13 +26,8 @@ import (
 
 	"github.com/jcuga/golongpoll"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-)
-
-var (
-	eventManager *golongpoll.LongpollManager
 )
 
 func init() {
@@ -43,28 +38,11 @@ func init() {
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.Description("RESTful Installation server"),
 			service.WithWeb(func() service.WebHandler {
-				return new(Handler)
+				eventManager, _ := golongpoll.StartLongpoll(golongpoll.Options{})
+				return &Handler{
+					eventManager,
+				}
 			}),
-			func(o *service.ServiceOptions) {
-				o.BeforeStart = append(o.BeforeStart, func(s service.Service) error {
-
-					var e error
-					if eventManager, e = golongpoll.StartLongpoll(golongpoll.Options{}); e != nil {
-						return e
-					}
-					s.Options().Web.HandleFunc("/install/events", eventManager.SubscriptionHandler)
-					log.Logger(o.Context).Info("Registering /install/events for Polling")
-					return nil
-				})
-				o.AfterStop = append(o.AfterStop, func(s service.Service) (e error) {
-					defer func() {
-						// ignore
-						recover()
-					}()
-					eventManager.Shutdown()
-					return nil
-				})
-			},
 		)
 	})
 }

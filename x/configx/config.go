@@ -166,6 +166,8 @@ func (v *config) Get() Value {
 		if ref, ok := vv["$ref"]; ok {
 			return v.r.Val(ref.(string)).Get()
 		}
+	case *ref:
+		return v.r.Val(vv.Get()).Get()
 	}
 
 	return v

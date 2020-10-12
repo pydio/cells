@@ -26,6 +26,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
@@ -125,6 +126,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to Amazon S3")
 	}
 
+	debug.PrintStack()
 	os.Setenv("MINIO_ACCESS_KEY", accessKey)
 	os.Setenv("MINIO_SECRET_KEY", secretKey)
 	os.Setenv("MINIO_BROWSER", "off")

@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/emicklei/go-restful"
+	"github.com/jcuga/golongpoll"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/caddy"
@@ -34,7 +35,9 @@ import (
 )
 
 // Handler to the REST requests.
-type Handler struct{}
+type Handler struct {
+	eventManager *golongpoll.LongpollManager
+}
 
 // SwaggerTags lists the names of the service tags declared in the swagger JSON implemented by this service.
 func (h *Handler) SwaggerTags() []string {
@@ -96,12 +99,12 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 
 	response := &install.InstallResponse{}
 	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-		eventManager.Publish("install", event)
+		h.eventManager.Publish("install", event)
 	}); er != nil {
-		eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
+		h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
 		service.RestError500(req, rsp, er)
 	} else {
-		eventManager.Publish("install", &lib.InstallProgressEvent{
+		h.eventManager.Publish("install", &lib.InstallProgressEvent{
 			Message:  "Installation Finished, starting all services...",
 			Progress: 100,
 		})
@@ -112,5 +115,11 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	go func() {
 		<-time.After(3 * time.Second)
 		caddy.Stop()
+		h.eventManager.Shutdown()
 	}()
+}
+
+// InstallEvents
+func (h *Handler) InstallEvents(req *restful.Request, rsp *restful.Response) {
+	h.eventManager.SubscriptionHandler(rsp.ResponseWriter, req.Request)
 }

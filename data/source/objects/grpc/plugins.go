@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"runtime/debug"
 
 	"github.com/micro/go-micro"
 
@@ -60,6 +61,7 @@ func init() {
 					engine := &ObjectHandler{}
 
 					m.Init(micro.AfterStart(func() error {
+						debug.PrintStack()
 						ctx := m.Options().Context
 						log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
 						var conf *object.MinioConfig

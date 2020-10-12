@@ -750,6 +750,12 @@ service InstallService {
             get: "/install/agreement"
         };
     }
+
+    rpc InstallEvents(install.InstallEventsRequest) returns (install.InstallEventsResponse) {
+        option(google.api.http) = {
+            get: "/install/events"
+        };
+    }
 }
 
 // Update Service

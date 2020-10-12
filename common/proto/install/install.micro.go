@@ -22,6 +22,8 @@ It has these top-level messages:
 	GetAgreementResponse
 	InstallRequest
 	InstallResponse
+	InstallEventsRequest
+	InstallEventsResponse
 */
 package install
 

@@ -26,6 +26,7 @@ import (
 
 // GetDatabase retrieves the database data from the config
 func GetDatabase(key string) (string, string) {
+
 	c := Get("#/databases/" + key).Default(configx.Reference("#/defaults/database")).StringMap()
 
 	return c["driver"], c["dsn"]

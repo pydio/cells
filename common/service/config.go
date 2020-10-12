@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/micro/go-micro"
@@ -45,6 +46,8 @@ func newConfigProvider(service micro.Service) error {
 		//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", name), zap.Any("cfg", cfg))
 		ctx = servicecontext.WithConfig(ctx, config.Get("services", name))
 		service.Init(micro.Context(ctx))
+
+		fmt.Println(name, config.Get("services", name))
 
 		return nil
 	}))

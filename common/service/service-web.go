@@ -33,7 +33,6 @@ import (
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-web"
 	"github.com/rs/cors"
 
 	"github.com/pydio/cells/common"
@@ -66,23 +65,30 @@ type WebHandler interface {
 }
 
 // WithWeb returns a web handler
-func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
+func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 
-		o.Micro = micro.NewService(
+		opts = append([]micro.Option{
 			micro.Name(o.Name),
 			micro.Metadata(registry.BuildServiceMeta()),
+		}, opts...)
+
+		o.Micro = micro.NewService(
+			opts...,
 		)
 
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService()
+			s.Init(
+				Micro(svc),
+			)
+
 			name := s.Options().Name
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
 			)
-
 			svc.Init(
 				micro.Name(name),
 				micro.Server(srv),
@@ -175,10 +181,6 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			wrapped = cors.Default().Handler(wrapped)
 
 			hd := srv.NewHandler(wrapped)
-
-			s.Init(
-				Micro(svc),
-			)
 
 			return srv.Handle(hd)
 		}

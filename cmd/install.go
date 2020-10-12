@@ -33,7 +33,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/micro/cli"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 
@@ -44,7 +43,6 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
 )
@@ -249,6 +247,7 @@ var installCmd = &cobra.Command{
 			common.SERVICE_MICRO_API,
 			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
 		}
+
 		for _, service := range allServices {
 			ignore := false
 			for _, ex := range excludes {
@@ -271,8 +270,7 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		wg.Add(1)
-		wg.Wait()
+		<-cmd.Context().Done()
 	},
 }
 
@@ -300,17 +298,17 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	// starting the installation REST service
 	regService := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
 
-	installServ := regService.(service.Service)
+	// installServ := regService.(service.Service)
 	// Strip some flag to avoid panic on re-registering a flag twice
-	flags := installServ.Options().Web.Options().Cmd.App().Flags
-	var newFlags []cli.Flag
-	for _, f := range flags {
-		if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-			continue
-		}
-		newFlags = append(newFlags, f)
-	}
-	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
+	// flags := installServ.Options().Web.Options().Cmd.App().Flags
+	// var newFlags []cli.Flag
+	// for _, f := range flags {
+	// 	if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+	// 		continue
+	// 	}
+	// 	newFlags = append(newFlags, f)
+	// }
+	// installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
 	// Starting service install
 	regService.Start(cmd.Context())
@@ -361,13 +359,24 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		os.Exit(1)
 	}
 
-	<-restartDone
-	instance := caddy.GetInstance()
-	instance.Wait()
+	instanceDone := make(chan struct{}, 1)
 
-	subscriber.Unsubscribe()
-	regService.Stop()
+	go func() {
+		<-restartDone
+		instance := caddy.GetInstance()
+		instance.Wait()
+		instanceDone <- struct{}{}
+	}()
 
+	defer subscriber.Unsubscribe()
+	defer regService.Stop()
+
+	select {
+	case <-instanceDone:
+		return
+	case <-cmd.Context().Done():
+		os.Exit(0)
+	}
 }
 
 /* HELPERS */

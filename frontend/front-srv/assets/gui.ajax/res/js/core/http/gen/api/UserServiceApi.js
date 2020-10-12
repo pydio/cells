@@ -29,7 +29,7 @@ export default class UserServiceApi {
     * Constructs a new UserServiceApi. 
     * @alias module:api/UserServiceApi
     * @class
-    * @param {module:ApiClient} apiClient Optional API client implementation to use,
+    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {

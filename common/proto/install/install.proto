@@ -117,6 +117,12 @@ message InstallResponse {
     bool success = 1;
 }
 
+message InstallEventsRequest {
+}
+
+message InstallEventsResponse {
+}
+
 service Install {
     rpc GetDefaults(GetDefaultsRequest) returns (GetDefaultsResponse);
     rpc Install(InstallRequest) returns (InstallResponse);

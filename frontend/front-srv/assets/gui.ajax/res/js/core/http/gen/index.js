@@ -69,6 +69,7 @@ import InstallCheckResult from './model/InstallCheckResult';
 import InstallGetAgreementResponse from './model/InstallGetAgreementResponse';
 import InstallGetDefaultsResponse from './model/InstallGetDefaultsResponse';
 import InstallInstallConfig from './model/InstallInstallConfig';
+import InstallInstallEventsResponse from './model/InstallInstallEventsResponse';
 import InstallInstallRequest from './model/InstallInstallRequest';
 import InstallInstallResponse from './model/InstallInstallResponse';
 import InstallPerformCheckRequest from './model/InstallPerformCheckRequest';
@@ -637,6 +638,12 @@ export {
      * @property {module:model/InstallInstallConfig}
      */
     InstallInstallConfig,
+
+    /**
+     * The InstallInstallEventsResponse model constructor.
+     * @property {module:model/InstallInstallEventsResponse}
+     */
+    InstallInstallEventsResponse,
 
     /**
      * The InstallInstallRequest model constructor.
