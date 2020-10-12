@@ -4722,6 +4722,18 @@
           "type": "boolean",
           "format": "boolean",
           "title": "If TLS is set, whether to automatically redirect each http://host:port to https://host:port"
+        },
+        "Maintenance": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If set, this site will be in maintenance mode"
+        },
+        "MaintenanceConditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Append caddy directive to restrict maintenance mode"
         }
       },
       "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy"

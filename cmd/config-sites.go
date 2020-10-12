@@ -39,25 +39,21 @@ var sitesCmd = &cobra.Command{
 		} else {
 			fmt.Println("The following sites are currently defined:")
 			listSites(cmd, sites)
-			actionP := promptui.Prompt{
-				Label: "What do you want to do? Type " + promptui.IconSelect + "[A] to add a new site, " + promptui.IconSelect + "[E] to edit an existing one, " + promptui.IconSelect + "[D] to delete a site, or " + promptui.IconSelect + "[Q] to quit",
-				Validate: func(s string) error {
-					s = strings.ToLower(s)
-					if s != "a" && s != "e" && s != "d" && s != "q" {
-						return fmt.Errorf("Please use one of [A|E|D|Q] values")
-					}
-					return nil
+			actionP := promptui.Select{
+				Items: []string{
+					"Add a new site",
+					"Edit an existing one",
+					"Delete a site",
+					"Quit",
 				},
+				Label: "What do you want to do",
 			}
-			action, e := actionP.Run()
+			action, _, e := actionP.Run()
 			fatalQuitIfError(cmd, e)
-			action = strings.ToLower(action)
 			switch action {
-			case "q":
-				return
-			case "a":
+			case 0:
 				sitesAdd.Run(cmd, args)
-			case "e":
+			case 1:
 				p := &promptui.Prompt{
 					Label: "Use the site number to edit it or hit Enter to exit",
 				}
@@ -69,7 +65,7 @@ var sitesCmd = &cobra.Command{
 					e = confirmAndSave(cmd, sites)
 					fatalQuitIfError(cmd, e)
 				}
-			case "d":
+			case 2:
 				p := &promptui.Prompt{
 					Label: "Provide the site number to be remove",
 				}
@@ -78,6 +74,9 @@ var sitesCmd = &cobra.Command{
 				} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
 					sitesDelete.Run(cmd, []string{n})
 				}
+			case 3:
+				return
+
 			}
 			cmd.Run(cmd, args)
 		}
@@ -86,9 +85,21 @@ var sitesCmd = &cobra.Command{
 
 func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 
+	oneHasMaintenance := false
+	for _, s := range sites {
+		if s.Maintenance {
+			oneHasMaintenance = true
+			break
+		}
+	}
+
 	table := tablewriter.NewWriter(cmd.OutOrStdout())
 	table.SetRowLine(true)
-	table.SetHeader([]string{"#", "Bind(s)", "TLS", "External URL"})
+	headers := []string{"#", "Bind(s)", "TLS", "External URL"}
+	if oneHasMaintenance {
+		headers = append(headers, "Maintenance Mode")
+	}
+	table.SetHeader(headers)
 
 	for i, s := range sites {
 		tlsString := "No Tls"
@@ -103,7 +114,18 @@ func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 				tlsString = "Custom Certificate"
 			}
 		}
-		table.Append([]string{fmt.Sprintf("%d", i), strings.Join(s.GetBindURLs(), ", "), tlsString, s.ReverseProxyURL})
+		data := []string{fmt.Sprintf("%d", i), strings.Join(s.GetBindURLs(), ", "), tlsString, s.ReverseProxyURL}
+		if oneHasMaintenance {
+			m := ""
+			if s.Maintenance {
+				m = "On"
+				if len(s.MaintenanceConditions) > 0 {
+					m = strings.Join(s.MaintenanceConditions, ",")
+				}
+			}
+			data = append(data, m)
+		}
+		table.Append(data)
 	}
 
 	table.Render()

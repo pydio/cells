@@ -2,9 +2,14 @@ package caddy
 
 import (
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/pkg/errors"
+	"github.com/pydio/cells/common/caddy/maintenance"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/discovery/install/assets"
 
 	"github.com/mholt/caddy/caddytls"
 	"github.com/pydio/cells/common/crypto/providers"
@@ -24,6 +29,8 @@ type SiteConf struct {
 	TLSKey  string
 	// Parsed External host if any
 	ExternalHost string
+	// Custom Root for this site
+	WebRoot string
 }
 
 func (s SiteConf) Redirects() map[string]string {
@@ -78,6 +85,13 @@ func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 			bc.TLS = v.LetsEncrypt.Email
 		}
 	}
+	if bc.Maintenance {
+		mDir, e := getMaintenanceRoot()
+		if e != nil {
+			return bc, e
+		}
+		bc.WebRoot = mDir
+	}
 	return bc, nil
 }
 
@@ -101,4 +115,21 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 		}
 	}
 	return caddySites, nil
+}
+
+var maintenanceDir string
+
+func getMaintenanceRoot() (string, error) {
+	if maintenanceDir != "" {
+		return maintenanceDir, nil
+	}
+	dir, err := assets.GetAssets("./maintenance/src")
+	if err != nil {
+		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "maintenance")
+		if err, _, _ := assets.RestoreAssets(dir, maintenance.PydioMaintenanceBox, nil); err != nil {
+			return "", errors.Wrap(err, "could not restore maintenance package")
+		}
+	}
+	maintenanceDir = dir
+	return dir, nil
 }

@@ -77,6 +77,12 @@ export default class InstallProxyConfig {
             if (data.hasOwnProperty('SSLRedirect')) {
                 obj['SSLRedirect'] = ApiClient.convertToType(data['SSLRedirect'], 'Boolean');
             }
+            if (data.hasOwnProperty('Maintenance')) {
+                obj['Maintenance'] = ApiClient.convertToType(data['Maintenance'], 'Boolean');
+            }
+            if (data.hasOwnProperty('MaintenanceConditions')) {
+                obj['MaintenanceConditions'] = ApiClient.convertToType(data['MaintenanceConditions'], ['String']);
+            }
         }
         return obj;
     }
@@ -105,6 +111,14 @@ export default class InstallProxyConfig {
     * @member {Boolean} SSLRedirect
     */
     SSLRedirect = undefined;
+    /**
+    * @member {Boolean} Maintenance
+    */
+    Maintenance = undefined;
+    /**
+    * @member {Array.<String>} MaintenanceConditions
+    */
+    MaintenanceConditions = undefined;
 
 
 
