@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jaytaylor/go-hostsfile"
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
@@ -172,12 +171,8 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 	var items []string
 	var hasLocalhost bool
 	if resolveHosts {
-		if res, err := hostsfile.ReverseLookup("127.0.0.1"); err == nil {
+		if res, err := net.HostsFileLookup(); err == nil {
 			for _, h := range res {
-				// Skip commented values
-				if strings.HasPrefix(strings.TrimSpace(h), "#") {
-					continue
-				}
 				if h == "localhost" {
 					hasLocalhost = true
 				}

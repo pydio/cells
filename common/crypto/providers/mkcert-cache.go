@@ -11,8 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jaytaylor/go-hostsfile"
-
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils/net"
@@ -88,7 +86,7 @@ func (m *MkCertCache) loadHosts(site *install.ProxyConfig) []string {
 			for _, i := range ii {
 				hns = append(hns, i.String())
 			}
-			if other, e := hostsfile.ReverseLookup("127.0.0.1"); e == nil && len(other) > 0 {
+			if other, e := net.HostsFileLookup(); e == nil && len(other) > 0 {
 				hns = append(hns, other...)
 			}
 		}
