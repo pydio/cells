@@ -22,7 +22,6 @@ package servicecontext
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -124,7 +123,6 @@ func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
 // passed along accross services (meta name may be lowered cased)
 func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
 	if md, ok := metadata.FromContext(ctx); ok {
-		fmt.Println(md)
 		if v, o := md[name]; o {
 			return v, true
 		} else if vs, os := md[strings.ToLower(name)]; os {

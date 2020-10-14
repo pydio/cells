@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/jaytaylor/go-hostsfile"
 	"github.com/pydio/cells/common/utils/net"
 )
 
@@ -59,7 +58,7 @@ func (m *ProxyConfig) GetExternalUrls() map[string]string {
 			for _, i := range ii {
 				uniques[i.String()] = strings.ReplaceAll(b, "0.0.0.0", i.String())
 			}
-			if other, e := hostsfile.ReverseLookup("127.0.0.1"); e == nil && len(other) > 0 {
+			if other, e := net.HostsFileLookup(); e == nil && len(other) > 0 {
 				for _, o := range other {
 					uniques[o] = strings.ReplaceAll(b, "0.0.0.0", o)
 				}

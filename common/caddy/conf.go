@@ -65,7 +65,7 @@ func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 	}
 	if pc.ReverseProxyURL != "" {
 		if u, e := url.Parse(pc.ReverseProxyURL); e == nil {
-			bc.ExternalHost = u.Hostname()
+			bc.ExternalHost = u.Host
 		}
 	}
 	if bc.TLSConfig == nil {

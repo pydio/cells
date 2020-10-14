@@ -33,8 +33,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
@@ -71,37 +69,37 @@ var (
 	}
 	{{end}}
 
-	proxy /a  {{$.Micro | urls}} {
+	proxy /a  {{$.MicroService | urls}} {
 		without /a
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /oidc {{$.OAuth | urls}} {
+	proxy /oidc {{$.OAuthService | urls}} {
 		insecure_skip_verify
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /io   {{$.Gateway | urls}} {
+	proxy /io   {{$.GatewayService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /data {{$.Gateway | urls}} {
+	proxy /data {{$.GatewayService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /ws   {{$.WebSocket | urls}} {
+	proxy /ws   {{$.WebSocketService | urls}} {
 		websocket
 		without /ws
 	}
-	proxy /dav {{$.DAV | urls}} {
+	proxy /dav {{$.WebDAVService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -109,47 +107,43 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	
-	proxy /plug/ {{$.FrontPlugins | urls}} {
+	proxy /plug/ {{$.FrontendService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /public/ {{$.FrontPlugins | urls}} {
+	proxy /public/ {{$.FrontendService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 	}
-	proxy /public/plug/ {{$.FrontPlugins | urls}} {
+	proxy /public/plug/ {{$.FrontendService | urls}} {
 		without /public
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /user/reset-password/ {{$.FrontPlugins | urls}} {
-		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
-	}
-	
-	proxy /robots.txt {{$.FrontPlugins | urls}} {
+	proxy /user/reset-password/ {{$.FrontendService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
-	proxy /login {{urls $.FrontPlugins "/gui"}} {
+	proxy /robots.txt {{$.FrontendService | urls}} {
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /login {{urls $.FrontendService "/gui"}} {
 		without /login
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
-		header_upstream X-Forwarded-Port {port}
 	}
-{{if not $.GrpcExternals}}
+{{if .HasTLS}}
 	proxy /grpc https://{{$.GrpcService | urls}} {
 		without /grpc
 		insecure_skip_verify
@@ -162,7 +156,7 @@ var (
 {{end}}
 
 	redir 302 {
-		{{if not $.GrpcExternals}}if {>Content-type} not_has "application/grpc"{{end}}
+		{{if .HasTLS}}if {>Content-type} not_has "application/grpc"{{end}}
 		if {path} is /
 		/ /login
 	}
@@ -204,46 +198,34 @@ var (
 {{end}}
 
 {{end}}
-
-{{range .GrpcExternals}}
-{{range .Binds}}{{.}} {{end}}{
-	proxy / https://{{$.GrpcService | urls}} {
-		insecure_skip_verify
-	}
-	root {{$.WebRoot}}
-	{{if .TLS}}tls {{.TLS}}{{end}}
-	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
-	errors "{{$.Logs}}/caddy_grpc_errors.log"	
-}
-{{end}}
-
 	`
 
 	caddyconf = struct {
-		// New way
-		Sites         []caddy.SiteConf
-		Micro         string
-		OAuth         string
-		Gateway       string
-		WebSocket     string
-		FrontPlugins  string
-		DAV           string
-		GrpcService   string
-		GrpcExternals []caddy.SiteConf
-		WebRoot       string
+		// Sites definition
+		Sites []caddy.SiteConf
+		// Services names
+		MicroService     string
+		OAuthService     string
+		GatewayService   string
+		WebSocketService string
+		FrontendService  string
+		WebDAVService    string
+		GrpcService      string
+		// Custom webroot - Generally pointing to a non-existing folder
+		WebRoot string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
-
+		// Additional modifiers used for templating
 		PluginTemplates []caddy.TemplateFunc
 		PluginPathes    []string
 	}{
-		Micro:        common.SERVICE_MICRO_API,
-		OAuth:        common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
-		Gateway:      common.SERVICE_GATEWAY_DATA,
-		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
-		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
-		DAV:          common.SERVICE_GATEWAY_DAV,
-		GrpcService:  common.SERVICE_GATEWAY_GRPC,
+		MicroService:     common.SERVICE_MICRO_API,
+		OAuthService:     common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
+		GatewayService:   common.SERVICE_GATEWAY_DATA,
+		WebSocketService: common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
+		FrontendService:  common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
+		WebDAVService:    common.SERVICE_GATEWAY_DAV,
+		GrpcService:      common.SERVICE_GATEWAY_GRPC,
 	}
 )
 
@@ -422,7 +404,6 @@ func LoadCaddyConf() error {
 
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
-	caddyconf.Micro = common.SERVICE_MICRO_API
 
 	sites, er := config.LoadSites()
 	if er != nil {
@@ -431,25 +412,6 @@ func LoadCaddyConf() error {
 	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
 	if er != nil {
 		return er
-	}
-
-	caddyconf.GrpcExternals = []caddy.SiteConf{}
-	if external := viper.GetString("grpc_external"); external != "" {
-		// Duplicate sites with new port
-		newSites, _ := caddy.SitesToCaddyConfigs(sites)
-		for _, si := range newSites {
-			var binds []string
-			for _, b := range si.Binds {
-				h, _, _ := net.SplitHostPort(b)
-				newB := net.JoinHostPort(h, external)
-				if strings.HasPrefix(b, "http://") {
-					newB = "http://" + newB
-				}
-				binds = append(binds, newB)
-			}
-			si.Binds = binds
-			caddyconf.GrpcExternals = append(caddyconf.GrpcExternals, si)
-		}
 	}
 
 	return nil

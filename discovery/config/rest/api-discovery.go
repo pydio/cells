@@ -22,6 +22,7 @@ package rest
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -55,6 +56,18 @@ import (
 /*****************************
 PUBLIC ENDPOINTS FOR DISCOVERY
 ******************************/
+func withPath(u *url.URL, p string) *url.URL {
+	u2 := *u
+	u2.Path = p
+	return &u2
+}
+
+func withScheme(u *url.URL, s string) *url.URL {
+	u2 := *u
+	u2.Scheme = s
+	return &u2
+}
+
 // Publish a list of available endpoints
 func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Response) {
 	var t time.Time
@@ -74,44 +87,39 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		endpointResponse.BuildRevision = common.BuildRevision
 	}
 
-	httpProtocol := "http"
-	wsProtocol := "ws"
-
 	urlParsed := net.ExternalDomainFromRequest(req.Request)
-	log.Logger(req.Request.Context()).Info("Request", zap.Any("mainUrl", urlParsed))
+	log.Logger(req.Request.Context()).Debug("Request", zap.Any("mainUrl", urlParsed))
 
+	wsProtocol := "ws"
 	if urlParsed.Scheme == "https" {
-		httpProtocol = "https"
 		wsProtocol = "wss"
 	}
 
-	endpointResponse.Endpoints["rest"] = fmt.Sprintf("%s://%s/a", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["openapi"] = fmt.Sprintf("%s://%s/a/config/discovery/openapi", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["forms"] = fmt.Sprintf("%s://%s/a/config/discovery/forms/{serviceName}", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["oidc"] = fmt.Sprintf("%s://%s/auth", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["s3"] = fmt.Sprintf("%s://%s/io", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["chats"] = fmt.Sprintf("%s://%s/ws/chat", wsProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
+	endpointResponse.Endpoints["rest"] = withPath(urlParsed, "/a").String()
+	endpointResponse.Endpoints["openapi"] = withPath(urlParsed, "/a/config/discovery/openapi").String()
+	endpointResponse.Endpoints["forms"] = withPath(urlParsed, "/a/config/discovery/forms").String() + "/{serviceName}"
+	endpointResponse.Endpoints["oidc"] = withPath(urlParsed, "/auth").String()
+	endpointResponse.Endpoints["s3"] = withPath(urlParsed, "/io").String()
+	endpointResponse.Endpoints["chats"] = withScheme(withPath(urlParsed, "/ws/chat"), wsProtocol).String()
+	endpointResponse.Endpoints["websocket"] = withScheme(withPath(urlParsed, "/ws/event"), wsProtocol).String()
+	endpointResponse.Endpoints["frontend"] = withPath(urlParsed, "").String()
 
-	ss, _ := config.LoadSites()
-	external := viper.GetString("grpc_external")
-	if external != "" {
-		// in case of HTTP, SERVICE_GATEWAY should already be bound to grpc_external
-		// Otherwise the proxy is exposing grpc_external
-		endpointResponse.Endpoints["grpc"] = external
-	} else if len(ss) == 1 && !ss[0].HasTLS() {
-		// Pure HTTP and no grpc_external : detect GRPC Service Ports
-		var grpcPorts []string
-		if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
-			for _, s := range ss {
-				for _, n := range s.Nodes {
-					grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+	if urlParsed.Scheme == "http" {
+		if external := viper.GetString("grpc_external"); external != "" {
+			endpointResponse.Endpoints["grpc"] = external
+		} else {
+			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
+			var grpcPorts []string
+			if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC_CLEAR); e == nil {
+				for _, s := range ss {
+					for _, n := range s.Nodes {
+						grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+					}
 				}
 			}
-		}
-		if len(grpcPorts) > 0 {
-			endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+			if len(grpcPorts) > 0 {
+				endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+			}
 		}
 	}
 
