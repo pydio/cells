@@ -26,8 +26,7 @@ import (
 	"fmt"
 	"os"
 
-	minio "github.com/pydio/minio-srv/cmd"
-	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"github.com/micro/go-micro/server"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -36,6 +35,8 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/net"
+	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/cmd/gateway/pydio"
 )
 
 type logger struct {
@@ -62,30 +63,41 @@ func init() {
 			service.Name(common.SERVICE_GATEWAY_DATA),
 			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
-			service.RouterDependencies(),
+			// service.RouterDependencies(),
 			service.Description("S3 Gateway to tree service"),
 			service.Port(fmt.Sprintf("%d", port)),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-
+			service.WithGeneric(func(opts ...server.Option) server.Server {
 				var certFile, keyFile string
 				if config.Get("cert", "http", "ssl").Bool() {
 					certFile = config.Get("cert", "http", "certFile").String()
 					keyFile = config.Get("cert", "http", "keyFile").String()
 				}
 
-				return service.RunnerFunc(func() error {
-						os.Setenv("MINIO_BROWSER", "off")
-						gw := &pydio.Pydio{}
-						console := &logger{ctx: ctx}
-						minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
+				srv := &gatewayDataServer{
+					ctx,
+					port,
+					certFile,
+					keyFile,
+				}
 
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
+				return service.NewGenericServer(srv, opts...)
 			}),
 		)
 	})
+}
+
+type gatewayDataServer struct {
+	ctx      context.Context
+	port     int
+	certFile string
+	keyFile  string
+}
+
+func (g *gatewayDataServer) Start() error {
+	os.Setenv("MINIO_BROWSER", "off")
+	gw := &pydio.Pydio{}
+	console := &logger{ctx: g.ctx}
+	go minio.StartPydioGateway(g.ctx, gw, fmt.Sprintf(":%d", g.port), "gateway", "gatewaysecret", console, g.certFile, g.keyFile)
+
+	return nil
 }
