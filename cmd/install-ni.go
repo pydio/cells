@@ -61,7 +61,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
-	if niBindUrl == "default" {
+	if niBindUrl == "default" || niBindUrl == "" {
 		def := *config.DefaultBindingSite
 		proxyConfig = &def
 	} else if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
@@ -132,6 +132,15 @@ func installFromConf() (*install.InstallConfig, error) {
 	installConf, err := unmarshallConf()
 	if err != nil {
 		return nil, err
+	}
+
+	if installConf.ProxyConfig == nil {
+		if envProxy, e := proxyConfigFromArgs(); e == nil {
+			installConf.ProxyConfig = envProxy
+		}
+	}
+	if installConf.ProxyConfig == nil {
+		installConf.ProxyConfig = config.DefaultBindingSite
 	}
 
 	// Preconfiguring proxy:
