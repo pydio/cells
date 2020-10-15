@@ -227,7 +227,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	folder := newSource.StorageConfiguration["folder"]
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
 	var opts []client.CallOption
-	if newSource.PeerAddress != "" {
+	if newSource.PeerAddress != "" && newSource.PeerAddress != "0.0.0.0" {
 		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
 		opts = append(opts, selectorOption)
 	}
