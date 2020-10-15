@@ -21,11 +21,13 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -61,7 +63,11 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
-	if niBindUrl == "default" || niBindUrl == "" {
+	if niBindUrl == "" {
+		niBindUrl = "default"
+	}
+
+	if niBindUrl == "default" {
 		def := *config.DefaultBindingSite
 		proxyConfig = &def
 	} else if p := strings.Split(niBindUrl, ":"); len(p) != 2 {
@@ -135,7 +141,10 @@ func installFromConf() (*install.InstallConfig, error) {
 	}
 
 	if installConf.ProxyConfig == nil {
+		fmt.Println(".... No proxy config")
 		if envProxy, e := proxyConfigFromArgs(); e == nil {
+			fmt.Println(".... No error while retrieving proxy from args")
+			fmt.Printf(".... Env Proxy: %v\n", envProxy)
 			installConf.ProxyConfig = envProxy
 		}
 	}
@@ -162,17 +171,17 @@ func installFromConf() (*install.InstallConfig, error) {
 	}
 
 	// Check if pre-configured DB is up and running
-	nbRetry := 10
+	nbRetry := 20
 	for i := 0; i < nbRetry; i++ {
 		if res := lib.PerformCheck(context.Background(), "DB", installConf); res.Success {
 			break
 		}
 		if i == nbRetry-1 {
-			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection config")
-			return nil, fmt.Errorf("no DB. Aborting...")
+			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection configuration.")
+			return nil, fmt.Errorf("No DB. Aborting...")
 		}
 		fmt.Println("... Cannot connect to database, wait before retry")
-		<-time.After(3 * time.Second)
+		<-time.After(6 * time.Second)
 	}
 
 	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
@@ -196,11 +205,17 @@ func unmarshallConf() (*install.InstallConfig, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not read YAML file at %s: %s", niYamlFile, err.Error())
 		}
-		err = yaml.Unmarshal(file, &confFromFile)
+
+		// Replace environment variables before unmarshalling
+		resolvedFile, err := replaceEnvVars(file)
+		if err != nil {
+			return nil, fmt.Errorf("could not replace environment variable in YAML file at %s: %s", niYamlFile, err.Error())
+		}
+
+		err = yaml.Unmarshal(resolvedFile, &confFromFile)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYamlFile, err.Error())
 		}
-
 	}
 
 	if niJsonFile != "" {
@@ -234,3 +249,43 @@ func applyProxySites(sites []*install.ProxyConfig) error {
 	return nil
 
 }
+
+// replaceEnvVars replaces all occurrences of environment variables.
+// Thanks to mholt and Light Code Labs, LLC. See: https://github.com/caddyserver/caddy
+func replaceEnvVars(input []byte) ([]byte, error) {
+	var offset int
+	for {
+		begin := bytes.Index(input[offset:], spanOpen)
+		if begin < 0 {
+			break
+		}
+		begin += offset // make beginning relative to input, not offset
+		end := bytes.Index(input[begin+len(spanOpen):], spanClose)
+		if end < 0 {
+			break
+		}
+		end += begin + len(spanOpen) // make end relative to input, not begin
+
+		// get the name; if there is no name, skip it
+		envVarName := input[begin+len(spanOpen) : end]
+		if len(envVarName) == 0 {
+			offset = end + len(spanClose)
+			continue
+		}
+
+		// get the value of the environment variable
+		envVarValue := []byte(os.ExpandEnv(os.Getenv(string(envVarName))))
+
+		// splice in the value
+		input = append(input[:begin],
+			append(envVarValue, input[end+len(spanClose):]...)...)
+
+		// continue at the end of the replacement
+		offset = begin + len(envVarValue)
+	}
+	return input, nil
+}
+
+// spanOpen and spanClose are used to bound spans that
+// contain the name of an environment variable.
+var spanOpen, spanClose = []byte{'{', '$'}, []byte{'}'}
