@@ -110,11 +110,8 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 		proxyConfig.TLSConfig = tlsConf
 
 	} else {
-
 		tlsConf := &install.ProxyConfig_SelfSigned{
-			SelfSigned: &install.TLSSelfSigned{
-				Hostnames: []string{niBindUrl},
-			},
+			SelfSigned: &install.TLSSelfSigned{}, // Leave hostnames empty
 		}
 		proxyConfig.TLSConfig = tlsConf
 
