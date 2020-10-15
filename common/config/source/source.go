@@ -1,4 +1,3 @@
-// Package source is the interface for sources
 package source
 
 import (

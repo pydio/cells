@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-config/source"
+	"github.com/pydio/cells/common/config/source"
 	"github.com/pydio/go-os/config"
 )
 

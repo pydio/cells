@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-config/source"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/common/config/source"
 	protoconfig "github.com/pydio/config-srv/proto/config"
 	go_micro_os_config "github.com/pydio/go-os/config/proto"
 	"go.uber.org/zap"

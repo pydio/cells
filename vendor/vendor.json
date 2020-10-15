@@ -3253,18 +3253,6 @@
 			"revisionTime": "2018-04-08T11:38:06Z"
 		},
 		{
-			"checksumSHA1": "jugvy+NKo6OIijYfWBkDAWNi1SY=",
-			"path": "github.com/micro/go-config/reader",
-			"revision": "05803c35ec9dbea47ba1258fc024259e94761892",
-			"revisionTime": "2018-03-21T07:47:09Z"
-		},
-		{
-			"checksumSHA1": "mqM/P0yaj5gyi5M6B+cLJBvOZd0=",
-			"path": "github.com/micro/go-config/source",
-			"revision": "05803c35ec9dbea47ba1258fc024259e94761892",
-			"revisionTime": "2018-03-21T07:47:09Z"
-		},
-		{
 			"checksumSHA1": "XiGYfivLxazG201tsVqbAepweE4=",
 			"path": "github.com/micro/go-log",
 			"revision": "cbfa9447f9b655f8e66583237e51f40ca9bff860",

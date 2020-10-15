@@ -3,8 +3,9 @@ package memory
 import (
 	"context"
 
-	"github.com/micro/go-config/source"
 	"github.com/pydio/go-os/config"
+
+	"github.com/pydio/cells/common/config/source"
 )
 
 type changeSetKey struct{}
