@@ -203,16 +203,18 @@ func (g *genericServer) Register() error {
 			if !ok {
 				continue
 			}
-			var host string
-			if tcp.IP.IsUnspecified() {
-				host = "0.0.0.0"
-			} else {
-				host = tcp.IP.String()
+			ip := tcp.IP.String()
+			if ip == "::" {
+				ip = "[::]"
+			}
+			addr, err := addr.Extract(ip)
+			if err != nil {
+				continue
 			}
 			// register service
 			node := &microregistry.Node{
 				Id:       config.Name + "-" + uuid.New().String(),
-				Address:  host,
+				Address:  addr,
 				Port:     tcp.Port,
 				Metadata: config.Metadata,
 			}
