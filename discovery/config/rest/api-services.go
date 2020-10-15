@@ -341,7 +341,9 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	}
 	for _, node := range srv.RunningNodes() {
 		// Double check that node is really running
-		if _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", node.Address, node.Port)); err != nil {
+		addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
+		if _, err := net.Dial("tcp", addr); err != nil {
+			log.Warn("Failed to check", zap.String("address", addr))
 			continue
 		}
 		p := int32(node.Port)

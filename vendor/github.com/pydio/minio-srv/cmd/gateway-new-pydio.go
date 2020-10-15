@@ -5,7 +5,7 @@ import (
 	"flag"
 
 	"github.com/minio/cli"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/minio-srv/cmd/logger"
 	"github.com/pydio/minio-srv/pkg/auth"
 )
@@ -58,5 +58,4 @@ func StartPydioGateway(ctx context.Context, gw Gateway, gatewayAddr string, acce
 		stopProcess()
 		return
 	}
-
 }

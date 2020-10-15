@@ -37,6 +37,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -121,6 +122,14 @@ type RunnerFunc func() error
 
 func (f RunnerFunc) Run() error {
 	return f()
+}
+
+type Addressable interface {
+	Addresses() []net.Addr
+}
+
+type Starter interface {
+	Start() error
 }
 
 type Stopper interface {
@@ -372,6 +381,8 @@ func (s *service) Start(ctx context.Context) {
 
 	if s.Options().MicroInit != nil {
 		go func() {
+			debug.SetPanicOnFault(true)
+
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
 				return

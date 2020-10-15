@@ -24,8 +24,10 @@ package proxy
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -34,6 +36,7 @@ import (
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/server"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
 	"github.com/pborman/uuid"
@@ -78,14 +81,14 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /io   {{$.GatewayService | serviceAddress}} {
+	proxy /io   {{$.GatewayService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /data {{$.GatewayService | serviceAddress}} {
+	proxy /data {{$.GatewayService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -233,90 +236,10 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+			service.WithGeneric(func(opts ...server.Option) server.Server {
+				srv := &gatewayProxyServer{context.TODO()}
 
-				if sites, er := config.LoadSites(); er == nil {
-					// TODO : THIS COULD BE SET A SITE LEVEL INSIDE CADDY CONFIGS
-					useLE := false
-					for _, s := range sites {
-						if s.HasTLS() && s.GetLetsEncrypt() != nil {
-							le := s.GetLetsEncrypt()
-							if le.AcceptEULA {
-								caddytls.Agreed = true
-							}
-							if le.StagingCA {
-								caddytls.DefaultCAUrl = caddy.DefaultCaStagingUrl
-							}
-							useLE = true
-							break
-						}
-					}
-					if useLE {
-						// Pre-check to insure path for automated generation of certificate is writable
-						caddyWDir := caddyutils.AssetsPath()
-						if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
-
-							log.Logger(ctx).Error("*******************************************************************")
-							log.Logger(ctx).Error("   ERROR: ")
-							log.Logger(ctx).Error("   You have chosen Let's Encrypt automatic management of TLS certificate,")
-							log.Logger(ctx).Error("   but it seems that you do not have sufficient permissions on Caddy's working directory: ")
-							log.Logger(ctx).Error("   " + caddyWDir)
-							log.Logger(ctx).Error("   (WRITE permission is required for the user that runs the App)")
-							log.Logger(ctx).Error("          ")
-							if u, er := user.Current(); er == nil {
-								log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
-								log.Logger(ctx).Error("          ")
-							}
-							log.Logger(ctx).Error("*******************************************************************")
-
-							return nil, nil, nil, err
-						}
-					}
-				}
-
-				caddy.Enable(caddyfile, play)
-
-				caddyconf.PluginTemplates = caddy.GetTemplates()
-				caddyconf.PluginPathes = caddy.GetPathes()
-
-				err := caddy.Start()
-				if err != nil {
-					if isErr, port := errorUtils.IsErrorPortPermissionDenied(err); isErr {
-						log.Logger(ctx).Error("*******************************************************************")
-						log.Logger(ctx).Error(fmt.Sprintf("   ERROR: Cannot bind to port %d.   ", port))
-						log.Logger(ctx).Error("   You should probably run the following command ")
-						log.Logger(ctx).Error("   otherwise the main internal proxy cannot start")
-						log.Logger(ctx).Error("   and your application will be unreachable.")
-						log.Logger(ctx).Error("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
-						log.Logger(ctx).Error("*******************************************************************")
-					}
-
-					for {
-						if err == nil || !errorUtils.IsErrorPortBusy(err) {
-							break
-						}
-						//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
-						return nil, nil, nil, fmt.Errorf(errorUtils.ErrServiceStartNeedsRetry)
-					}
-
-					return nil, nil, nil, err
-				}
-
-				instance := caddy.GetInstance()
-
-				return service.RunnerFunc(func() error {
-						instance.Wait()
-						return nil
-					}), service.CheckerFunc(func() error {
-
-						if len(instance.Servers()) == 0 {
-							return fmt.Errorf("No servers have been started")
-						}
-						return nil
-					}), service.StopperFunc(func() error {
-						instance.Stop()
-						return nil
-					}), nil
+				return service.NewGenericServer(srv, opts...)
 			}),
 			service.AfterStart(func(s service.Service) error {
 
@@ -369,6 +292,94 @@ func init() {
 			}),
 		)
 	})
+}
+
+type gatewayProxyServer struct {
+	ctx context.Context
+}
+
+func (g *gatewayProxyServer) Start() error {
+	ctx := g.ctx
+
+	if sites, er := config.LoadSites(); er == nil {
+		// TODO : THIS COULD BE SET A SITE LEVEL INSIDE CADDY CONFIGS
+		useLE := false
+		for _, s := range sites {
+			if s.HasTLS() && s.GetLetsEncrypt() != nil {
+				le := s.GetLetsEncrypt()
+				if le.AcceptEULA {
+					caddytls.Agreed = true
+				}
+				if le.StagingCA {
+					caddytls.DefaultCAUrl = caddy.DefaultCaStagingUrl
+				}
+				useLE = true
+				break
+			}
+		}
+		if useLE {
+			// Pre-check to insure path for automated generation of certificate is writable
+			caddyWDir := caddyutils.AssetsPath()
+			if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
+				log.Logger(ctx).Error("*******************************************************************")
+				log.Logger(ctx).Error("   ERROR: ")
+				log.Logger(ctx).Error("   You have chosen Let's Encrypt automatic management of TLS certificate,")
+				log.Logger(ctx).Error("   but it seems that you do not have sufficient permissions on Caddy's working directory: ")
+				log.Logger(ctx).Error("   " + caddyWDir)
+				log.Logger(ctx).Error("   (WRITE permission is required for the user that runs the App)")
+				log.Logger(ctx).Error("          ")
+				if u, er := user.Current(); er == nil {
+					log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
+					log.Logger(ctx).Error("          ")
+				}
+				log.Logger(ctx).Error("*******************************************************************")
+
+				return err
+			}
+		}
+	}
+
+	caddy.Enable(caddyfile, play)
+
+	caddyconf.PluginTemplates = caddy.GetTemplates()
+	caddyconf.PluginPathes = caddy.GetPathes()
+
+	err := caddy.Start()
+	if err != nil {
+		if isErr, port := errorUtils.IsErrorPortPermissionDenied(err); isErr {
+			log.Logger(ctx).Error("*******************************************************************")
+			log.Logger(ctx).Error(fmt.Sprintf("   ERROR: Cannot bind to port %d.   ", port))
+			log.Logger(ctx).Error("   You should probably run the following command ")
+			log.Logger(ctx).Error("   otherwise the main internal proxy cannot start")
+			log.Logger(ctx).Error("   and your application will be unreachable.")
+			log.Logger(ctx).Error("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
+			log.Logger(ctx).Error("*******************************************************************")
+		}
+
+		for {
+			if err == nil || !errorUtils.IsErrorPortBusy(err) {
+				break
+			}
+			//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
+			return errors.New(errorUtils.ErrServiceStartNeedsRetry)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (g *gatewayProxyServer) Addresses() []net.Addr {
+	var addresses []net.Addr
+	for _, s := range caddy.GetInstance().Servers() {
+		addresses = append(addresses, s.Addr())
+	}
+	return addresses
+}
+
+func (g *gatewayProxyServer) Stop() error {
+	return caddy.GetInstance().Stop()
 }
 
 func play() (*bytes.Buffer, error) {

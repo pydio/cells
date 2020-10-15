@@ -148,8 +148,6 @@ func Start() error {
 		return err
 	}
 
-	// fmt.Println(string(caddyfile.Body()))
-
 	// start caddy server
 	instance, err := caddy.Start(caddyfile)
 	if err != nil {
