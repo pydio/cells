@@ -26,7 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/go-oidc/jose"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -76,23 +75,6 @@ func (c *Claims) GetClientApp() string {
 	default:
 		return "unknown client app"
 	}
-}
-
-// UserNameFromIDToken parses an IDToken and extract the "name" field from the claims
-func UserNameFromIDToken(token string) string {
-
-	jwt, e := jose.ParseJWT(token)
-	if e != nil {
-		return ""
-	}
-	claims, e := jwt.Claims()
-	if e != nil {
-		return ""
-	}
-	if v, ok := claims["name"]; ok {
-		return v.(string)
-	}
-	return ""
 }
 
 // IDTokenSubject is the representation of the format of subject we are using
