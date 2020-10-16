@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strconv"
 	"strings"
 
 	p "github.com/manifoldco/promptui"
@@ -73,7 +72,7 @@ func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 		}
 		pr := p.Select{Label: label, Items: []string{
 			"Leave as is",
-			"Reset list and a new host",
+			"Reset list and set a new host",
 			"Append hosts to this list",
 			maintenanceString,
 		}}
@@ -144,18 +143,10 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 	if bindingPort == "" {
 		def := strings.Split(config.DefaultBindingSite.Binds[0], ":")[1]
 		portPrompt := &p.Prompt{
-			Label:     "Port used for binding",
+			Label:     "Binding Port",
 			Default:   def,
 			AllowEdit: true,
-			Validate: func(s string) error {
-				if s == "" {
-					return fmt.Errorf("Please provide a port number")
-				}
-				if _, e := strconv.ParseInt(s, 10, 32); e != nil {
-					return fmt.Errorf("Please provide a port number")
-				}
-				return nil
-			},
+			Validate:  validPortNumber,
 		}
 		var er error
 		bindingPort, er = portPrompt.Run()
@@ -176,23 +167,23 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 				if h == "localhost" {
 					hasLocalhost = true
 				}
-				items = append(items, fmt.Sprintf("%s:%s", h, bindingPort))
+				items = append(items, h)
 			}
 		}
 	}
 
 	testExt, eExt := net.GetOutboundIP()
 	if eExt == nil {
-		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), bindingPort))
+		items = append(items, testExt.String())
 	}
 	for _, ip := range defaultIps {
 		if testExt != nil && testExt.String() == ip.String() {
 			continue
 		}
-		items = append(items, fmt.Sprintf("%s:%s", ip.String(), bindingPort))
+		items = append(items, ip.String())
 	}
 	if !hasLocalhost {
-		items = append(items, "localhost:"+bindingPort, "0.0.0.0:"+bindingPort)
+		items = append(items, "localhost", "0.0.0.0")
 	}
 	resolveString := "Additional hosts from /etc/hosts..."
 	if !resolveHosts {
@@ -200,10 +191,9 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 	}
 
 	prompt := p.SelectWithAdd{
-		Label:    "Internal Url (address that the webserver will listen to, use ip:port or yourdomain.tld:port, without http/https)",
+		Label:    "Binding Host (webserver will listen to {Host}:{Port}. Use an IP or domain name)",
 		Items:    items,
-		AddLabel: "Other",
-		Validate: validHostPort,
+		AddLabel: "Other (enter your own ip/domain)",
 	}
 	_, bindHost, e = prompt.Run()
 	if e != nil {
@@ -213,6 +203,7 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 		return promptBindURLs(site, true, bindingPort)
 	}
 
+	bindHost = fmt.Sprintf("%s:%s", bindHost, bindingPort)
 	// Sanity checks
 	tmpBindStr, e1 := guessParsableURL(bindHost, true)
 	if e1 != nil {
@@ -227,7 +218,7 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 	// TODO let end user try again
 	parts := strings.Split(bindURL.Host, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+		return fmt.Errorf("Please provide an [IP|DOMAIN]:[PORT] string")
 	}
 
 	site.Binds = append(site.Binds, fmt.Sprintf("%s:%s", bindURL.Hostname(), bindURL.Port()))

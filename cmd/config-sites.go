@@ -39,11 +39,17 @@ var sitesCmd = &cobra.Command{
 		} else {
 			fmt.Println("The following sites are currently defined:")
 			listSites(cmd, sites)
+			editString := "Edit an existing site"
+			deleteString := "Delete an existing site"
+			if len(sites) == 1 {
+				editString = "Edit current site"
+				deleteString = "Delete current site (will fallback to defaults)"
+			}
 			actionP := promptui.Select{
 				Items: []string{
 					"Add a new site",
-					"Edit an existing one",
-					"Delete a site",
+					editString,
+					deleteString,
 					"Quit",
 				},
 				Label: "What do you want to do",
@@ -54,26 +60,54 @@ var sitesCmd = &cobra.Command{
 			case 0:
 				sitesAdd.Run(cmd, args)
 			case 1:
-				p := &promptui.Prompt{
-					Label: "Use the site number to edit it or hit Enter to exit",
+				index := 0
+				if len(sites) > 1 {
+					p := &promptui.Prompt{
+						Label: "Provide the site number to edit",
+						Validate: func(s string) error {
+							i, e := strconv.ParseInt(s, 10, 64)
+							if e != nil {
+								return e
+							}
+							if int(i) >= len(sites) {
+								return fmt.Errorf("please provide a number smaller than %d", len(sites))
+							}
+							return nil
+						},
+					}
+					if n, e := p.Run(); e != nil || n == "" {
+						return
+					} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
+						index = int(idx)
+					}
 				}
-				if n, e := p.Run(); e != nil || n == "" {
-					return
-				} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
-					e := promptSite(sites[int(idx)], true)
-					fatalQuitIfError(cmd, e)
-					e = confirmAndSave(cmd, sites)
-					fatalQuitIfError(cmd, e)
-				}
+				e := promptSite(sites[index], true)
+				fatalQuitIfError(cmd, e)
+				e = confirmAndSave(cmd, sites)
+				fatalQuitIfError(cmd, e)
 			case 2:
-				p := &promptui.Prompt{
-					Label: "Provide the site number to be remove",
+				index := "0"
+				if len(sites) > 1 {
+					p := &promptui.Prompt{
+						Label: "Provide the site number to be remove",
+						Validate: func(s string) error {
+							i, e := strconv.ParseInt(s, 10, 64)
+							if e != nil {
+								return e
+							}
+							if int(i) >= len(sites) {
+								return fmt.Errorf("please provide a number smaller than %d", len(sites))
+							}
+							return nil
+						},
+					}
+					if n, e := p.Run(); e != nil || n == "" {
+						return
+					} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
+						index = n
+					}
 				}
-				if n, e := p.Run(); e != nil || n == "" {
-					return
-				} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
-					sitesDelete.Run(cmd, []string{n})
-				}
+				sitesDelete.Run(cmd, []string{index})
 			case 3:
 				return
 
