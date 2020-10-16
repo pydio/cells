@@ -40,19 +40,13 @@ var _JobBoard = require('./JobBoard');
 
 var _JobBoard2 = _interopRequireDefault(_JobBoard);
 
-var _lodashDebounce = require('lodash.debounce');
-
-var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _JobsList = require("./JobsList");
 
 var _JobsList2 = _interopRequireDefault(_JobsList);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
+var _Loader = require('./Loader');
 
-var JobsStore = _Pydio$requireLib.JobsStore;
+var _Loader2 = _interopRequireDefault(_Loader);
 
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
@@ -61,96 +55,48 @@ var Dashboard = _react2['default'].createClass({
 
     getInitialState: function getInitialState() {
         return {
+            jobs: [],
             Owner: null,
             Filter: null
         };
     },
 
-    load: function load() {
-        var _this = this;
-
-        var hideLoading = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-        var _state = this.state;
-        var Owner = _state.Owner;
-        var Filter = _state.Filter;
-
-        if (!hideLoading) {
-            this.setState({ loading: true });
-        }
-        JobsStore.getInstance().getAdminJobs(Owner, Filter, "", 1).then(function (jobs) {
-            _this.setState({ result: jobs, loading: false });
-        })['catch'](function (reason) {
-            _this.setState({ error: reason.message, loading: false });
-        });
-    },
-
-    loadOne: function loadOne(jobID) {
-        var _this2 = this;
-
-        var hideLoading = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-        // Merge job inside global results
-        var result = this.state.result;
-
-        if (!hideLoading) {
-            this.setState({ loading: true });
-        }
-        return JobsStore.getInstance().getAdminJobs(null, null, jobID).then(function (jobs) {
-            result.Jobs.forEach(function (v, k) {
-                if (v.ID === jobID) {
-                    result.Jobs[k] = jobs.Jobs[0];
-                }
-            });
-            _this2.setState({ result: result, loading: false });
-            return result;
-        })['catch'](function (reason) {
-            _this2.setState({ error: reason.message, loading: false });
-        });
+    reload: function reload() {
+        this.loader.load();
     },
 
     componentDidMount: function componentDidMount() {
-        var _this3 = this;
+        var _this = this;
 
-        this.load();
-        this._loadDebounced = (0, _lodashDebounce2['default'])(function (jobId) {
-            if (jobId && _this3.state && _this3.state.selectJob === jobId) {
-                _this3.loadOne(jobId, true);
-            } else {
-                _this3.load(true);
+        this.loader = new _Loader2['default']();
+        this.loader.observe('loading', function () {
+            _this.setState({ loading: true });
+        });
+        this.loader.observe('loaded', function (memo) {
+            _this.setState({ loading: false });
+            if (memo.jobs) {
+                _this.setState({ jobs: memo.jobs });
+            } else if (memo.error) {
+                _this.setState({ error: memo.error });
             }
-        }, 500);
-        JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
-        this._poll = setInterval(function () {
-            if (_this3.state && _this3.state.selectJob) {
-                _this3.loadOne(_this3.state.selectJob, true);
-            } else {
-                _this3.load(true);
-            }
-        }, 10000);
+        });
+        this.loader.start();
     },
 
     componentWillUnmount: function componentWillUnmount() {
-        if (this._poll) {
-            clearInterval(this._poll);
-        }
-        JobsStore.getInstance().stopObserving("tasks_updated");
+        this.loader.stop();
     },
 
     selectRows: function selectRows(rows) {
-        var _this4 = this;
-
         if (rows.length) {
-            (function () {
-                var jobID = rows[0].ID;
-                _this4.loadOne(jobID).then(function () {
-                    _this4.setState({ selectJob: jobID });
-                });
-            })();
+            var jobID = rows[0].ID;
+            this.loader.stop();
+            this.setState({ selectJob: jobID });
         }
     },
 
     render: function render() {
-        var _this5 = this;
+        var _this2 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -162,29 +108,28 @@ var Dashboard = _react2['default'].createClass({
         };
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        var _state2 = this.state;
-        var result = _state2.result;
-        var loading = _state2.loading;
-        var selectJob = _state2.selectJob;
+        var _state = this.state;
+        var jobs = _state.jobs;
+        var loading = _state.loading;
+        var selectJob = _state.selectJob;
 
-        if (selectJob && result && result.Jobs) {
-            var found = result.Jobs.filter(function (j) {
+        if (selectJob && jobs) {
+            var found = jobs.filter(function (j) {
                 return j.ID === selectJob;
             });
+            console.log(selectJob, found);
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], {
                     pydio: pydio,
                     job: found[0],
                     jobsEditable: jobsEditable,
                     onSave: function () {
-                        _this5.load(true);
+                        _this2.reload();
                     },
                     adminStyles: adminStyles,
-                    onRequestClose: function (refresh) {
-                        _this5.setState({ selectJob: null });
-                        if (refresh) {
-                            _this5.load();
-                        }
+                    onRequestClose: function () {
+                        _this2.loader.start();
+                        _this2.setState({ selectJob: null });
                     }
                 });
             }
@@ -196,15 +141,15 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                reloadAction: this.load.bind(this),
+                reloadAction: this.reload.bind(this),
                 loading: loading
             }),
             _react2['default'].createElement(_JobsList2['default'], {
                 pydio: pydio,
                 selectRows: function (rows) {
-                    _this5.selectRows(rows);
+                    _this2.selectRows(rows);
                 },
-                jobs: result ? result.Jobs : [],
+                jobs: jobs,
                 loading: loading
             })
         );

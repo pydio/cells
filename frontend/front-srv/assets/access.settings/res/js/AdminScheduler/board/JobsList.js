@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import ScheduleForm from "./ScheduleForm";
 import Events from "./Events";
 
-import {IconButton, Paper, Dialog} from 'material-ui'
+import {Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');

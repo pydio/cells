@@ -23,11 +23,13 @@ import JobsList from './board/JobsList'
 import TasksList from './board/TasksList'
 import ScheduleForm from './board/ScheduleForm'
 import Events from './board/Events'
+import Loader from './board/Loader'
 
 window.AdminScheduler = {
     Dashboard,
     JobsList,
     TasksList,
     ScheduleForm,
-    Events
+    Events,
+    Loader
 };
