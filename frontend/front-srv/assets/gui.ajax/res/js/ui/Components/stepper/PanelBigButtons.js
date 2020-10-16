@@ -95,6 +95,20 @@ const css = `
     justify-content: center;
 }
 
+.react-mui-context .bbpanel .stepper-tag {
+    position: absolute;
+    top: 13px;
+    left: 12px;
+    background-color: #FF9800;
+    color: white;
+    padding: 2px 7px;
+    font-size: 12px;
+    height: 20px;
+    line-height: 16px;
+    border-radius: 7px;
+    font-weight: 500;
+}
+
 .react-mui-context .bbpanel .stepper-action-icon > span {
     font-size: 50px !important;
 }
@@ -148,6 +162,7 @@ class PanelBigButtons extends React.Component {
                                 }
                                 return (
                                     <Paper zDepth={0} {...this.stProps('action', 'container')} onClick={()=>{onPick(a.value)}}>
+                                        {a.tag && <div className={"stepper-tag"}>{a.tag}</div>}
                                         {a.onDelete &&
                                             <div {...this.stProps('action', 'deleteButton')}>
                                                 <IconButton

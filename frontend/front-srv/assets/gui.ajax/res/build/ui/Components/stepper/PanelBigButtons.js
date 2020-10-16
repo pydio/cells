@@ -66,7 +66,7 @@ var styles = {
     }
 };
 
-var css = '\n.react-mui-context .bbpanel .stepper-section-actions {\n    display: flex;\n    flex-wrap: wrap;\n}\n\n.react-mui-context .bbpanel .stepper-section-container {\n    margin-bottom: 30px;\n}\n\n.react-mui-context .bbpanel .stepper-section-title {\n    font-size: 13px;\n    font-weight: 500;\n    color: #455a64;\n    padding-bottom: 20px;    \n}\n\n.react-mui-context .bbpanel .stepper-action-container {\n    margin: 10px;\n    width: 230px;\n    height: 210px;\n    display: flex;\n    flex-direction: column;\n    font-size: 15px;\n    padding: 10px 20px;\n    border-radius: 6px !important;\n    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.15);\n    cursor: pointer;\n    position:relative;\n}\n\n.react-mui-context .bbpanel .stepper-action-container:hover {\n    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.3)\n}\n\n.react-mui-context .bbpanel .stepper-action-icon {\n    flex: 1;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.react-mui-context .bbpanel .stepper-action-icon > span {\n    font-size: 50px !important;\n}\n\n.react-mui-context .bbpanel .stepper-action-title {\n    padding-bottom: 20px;\n    font-weight: 500;\n    text-align: center;\n    font-size: 16px;\n}\n\n.react-mui-context .bbpanel .stepper-action-description {\n    text-align: center;\n    font-weight: 300;\n    font-size: 13px;\n    padding-bottom: 10px;   \n}\n';
+var css = '\n.react-mui-context .bbpanel .stepper-section-actions {\n    display: flex;\n    flex-wrap: wrap;\n}\n\n.react-mui-context .bbpanel .stepper-section-container {\n    margin-bottom: 30px;\n}\n\n.react-mui-context .bbpanel .stepper-section-title {\n    font-size: 13px;\n    font-weight: 500;\n    color: #455a64;\n    padding-bottom: 20px;    \n}\n\n.react-mui-context .bbpanel .stepper-action-container {\n    margin: 10px;\n    width: 230px;\n    height: 210px;\n    display: flex;\n    flex-direction: column;\n    font-size: 15px;\n    padding: 10px 20px;\n    border-radius: 6px !important;\n    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.15);\n    cursor: pointer;\n    position:relative;\n}\n\n.react-mui-context .bbpanel .stepper-action-container:hover {\n    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.3)\n}\n\n.react-mui-context .bbpanel .stepper-action-icon {\n    flex: 1;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.react-mui-context .bbpanel .stepper-tag {\n    position: absolute;\n    top: 13px;\n    left: 12px;\n    background-color: #FF9800;\n    color: white;\n    padding: 2px 7px;\n    font-size: 12px;\n    height: 20px;\n    line-height: 16px;\n    border-radius: 7px;\n    font-weight: 500;\n}\n\n.react-mui-context .bbpanel .stepper-action-icon > span {\n    font-size: 50px !important;\n}\n\n.react-mui-context .bbpanel .stepper-action-title {\n    padding-bottom: 20px;\n    font-weight: 500;\n    text-align: center;\n    font-size: 16px;\n}\n\n.react-mui-context .bbpanel .stepper-action-description {\n    text-align: center;\n    font-weight: 300;\n    font-size: 13px;\n    padding-bottom: 10px;   \n}\n';
 
 var PanelBigButtons = (function (_React$Component) {
     _inherits(PanelBigButtons, _React$Component);
@@ -129,6 +129,11 @@ var PanelBigButtons = (function (_React$Component) {
                                 _extends({ zDepth: 0 }, _this.stProps('action', 'container'), { onClick: function () {
                                         onPick(a.value);
                                     } }),
+                                a.tag && _react2['default'].createElement(
+                                    'div',
+                                    { className: "stepper-tag" },
+                                    a.tag
+                                ),
                                 a.onDelete && _react2['default'].createElement(
                                     'div',
                                     _this.stProps('action', 'deleteButton'),
