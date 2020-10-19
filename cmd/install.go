@@ -411,8 +411,8 @@ func open(url string) error {
 
 func fatalIfError(cmd *cobra.Command, err error) {
 	if err != nil {
-		cmd.Help()
 		log.Fatal(err.Error())
+		cmd.Printf("Use \"%s [command] --help\" for more information.", os.Args[0])
 		os.Exit(1)
 	}
 }
