@@ -237,6 +237,12 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", a))
 				}
 			}
+			if si.GetReverseProxyURL() != "" {
+				u, e := url.Parse(si.GetReverseProxyURL())
+				if e == nil && !fosite.IsRedirectURISecure(u) {
+					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", u.String()))
+				}
+			}
 		}
 	} else {
 		res = append(res, s)

@@ -42,10 +42,15 @@ var _boardEvents = require('./board/Events');
 
 var _boardEvents2 = _interopRequireDefault(_boardEvents);
 
+var _boardLoader = require('./board/Loader');
+
+var _boardLoader2 = _interopRequireDefault(_boardLoader);
+
 window.AdminScheduler = {
   Dashboard: _boardDashboard2['default'],
   JobsList: _boardJobsList2['default'],
   TasksList: _boardTasksList2['default'],
   ScheduleForm: _boardScheduleForm2['default'],
-  Events: _boardEvents2['default']
+  Events: _boardEvents2['default'],
+  Loader: _boardLoader2['default']
 };

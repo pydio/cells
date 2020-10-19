@@ -41,19 +41,13 @@ var _JobBoard = require('./JobBoard');
 
 var _JobBoard2 = _interopRequireDefault(_JobBoard);
 
-var _lodashDebounce = require('lodash.debounce');
-
-var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _JobsList = require("./JobsList");
 
 var _JobsList2 = _interopRequireDefault(_JobsList);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
+var _Loader = require('./Loader');
 
-var JobsStore = _Pydio$requireLib.JobsStore;
+var _Loader2 = _interopRequireDefault(_Loader);
 
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
@@ -62,96 +56,48 @@ var Dashboard = _react2['default'].createClass({
 
     getInitialState: function getInitialState() {
         return {
+            jobs: [],
             Owner: null,
             Filter: null
         };
     },
 
-    load: function load() {
-        var _this = this;
-
-        var hideLoading = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-        var _state = this.state;
-        var Owner = _state.Owner;
-        var Filter = _state.Filter;
-
-        if (!hideLoading) {
-            this.setState({ loading: true });
-        }
-        JobsStore.getInstance().getAdminJobs(Owner, Filter, "", 1).then(function (jobs) {
-            _this.setState({ result: jobs, loading: false });
-        })['catch'](function (reason) {
-            _this.setState({ error: reason.message, loading: false });
-        });
-    },
-
-    loadOne: function loadOne(jobID) {
-        var _this2 = this;
-
-        var hideLoading = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-        // Merge job inside global results
-        var result = this.state.result;
-
-        if (!hideLoading) {
-            this.setState({ loading: true });
-        }
-        return JobsStore.getInstance().getAdminJobs(null, null, jobID).then(function (jobs) {
-            result.Jobs.forEach(function (v, k) {
-                if (v.ID === jobID) {
-                    result.Jobs[k] = jobs.Jobs[0];
-                }
-            });
-            _this2.setState({ result: result, loading: false });
-            return result;
-        })['catch'](function (reason) {
-            _this2.setState({ error: reason.message, loading: false });
-        });
+    reload: function reload() {
+        this.loader.load();
     },
 
     componentDidMount: function componentDidMount() {
-        var _this3 = this;
+        var _this = this;
 
-        this.load();
-        this._loadDebounced = (0, _lodashDebounce2['default'])(function (jobId) {
-            if (jobId && _this3.state && _this3.state.selectJob === jobId) {
-                _this3.loadOne(jobId, true);
-            } else {
-                _this3.load(true);
+        this.loader = new _Loader2['default']();
+        this.loader.observe('loading', function () {
+            _this.setState({ loading: true });
+        });
+        this.loader.observe('loaded', function (memo) {
+            _this.setState({ loading: false });
+            if (memo.jobs) {
+                _this.setState({ jobs: memo.jobs });
+            } else if (memo.error) {
+                _this.setState({ error: memo.error });
             }
-        }, 500);
-        JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
-        this._poll = setInterval(function () {
-            if (_this3.state && _this3.state.selectJob) {
-                _this3.loadOne(_this3.state.selectJob, true);
-            } else {
-                _this3.load(true);
-            }
-        }, 10000);
+        });
+        this.loader.start();
     },
 
     componentWillUnmount: function componentWillUnmount() {
-        if (this._poll) {
-            clearInterval(this._poll);
-        }
-        JobsStore.getInstance().stopObserving("tasks_updated");
+        this.loader.stop();
     },
 
     selectRows: function selectRows(rows) {
-        var _this4 = this;
-
         if (rows.length) {
-            (function () {
-                var jobID = rows[0].ID;
-                _this4.loadOne(jobID).then(function () {
-                    _this4.setState({ selectJob: jobID });
-                });
-            })();
+            var jobID = rows[0].ID;
+            this.loader.stop();
+            this.setState({ selectJob: jobID });
         }
     },
 
     render: function render() {
-        var _this5 = this;
+        var _this2 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -163,29 +109,28 @@ var Dashboard = _react2['default'].createClass({
         };
         var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        var _state2 = this.state;
-        var result = _state2.result;
-        var loading = _state2.loading;
-        var selectJob = _state2.selectJob;
+        var _state = this.state;
+        var jobs = _state.jobs;
+        var loading = _state.loading;
+        var selectJob = _state.selectJob;
 
-        if (selectJob && result && result.Jobs) {
-            var found = result.Jobs.filter(function (j) {
+        if (selectJob && jobs) {
+            var found = jobs.filter(function (j) {
                 return j.ID === selectJob;
             });
+            console.log(selectJob, found);
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], {
                     pydio: pydio,
                     job: found[0],
                     jobsEditable: jobsEditable,
                     onSave: function () {
-                        _this5.load(true);
+                        _this2.reload();
                     },
                     adminStyles: adminStyles,
-                    onRequestClose: function (refresh) {
-                        _this5.setState({ selectJob: null });
-                        if (refresh) {
-                            _this5.load();
-                        }
+                    onRequestClose: function () {
+                        _this2.loader.start();
+                        _this2.setState({ selectJob: null });
                     }
                 });
             }
@@ -197,15 +142,15 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                reloadAction: this.load.bind(this),
+                reloadAction: this.reload.bind(this),
                 loading: loading
             }),
             _react2['default'].createElement(_JobsList2['default'], {
                 pydio: pydio,
                 selectRows: function (rows) {
-                    _this5.selectRows(rows);
+                    _this2.selectRows(rows);
                 },
-                jobs: result ? result.Jobs : [],
+                jobs: jobs,
                 loading: loading
             })
         );
@@ -217,7 +162,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":3,"./JobsList":5,"lodash.debounce":"lodash.debounce","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],2:[function(require,module,exports){
+},{"./JobBoard":3,"./JobsList":5,"./Loader":6,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],2:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -672,6 +617,10 @@ var _JobSchedule = require('./JobSchedule');
 
 var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 
+var _Loader = require("./Loader");
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -680,6 +629,8 @@ var JobBoard = (function (_React$Component) {
     _inherits(JobBoard, _React$Component);
 
     function JobBoard(props) {
+        var _this = this;
+
         _classCallCheck(this, JobBoard);
 
         _get(Object.getPrototypeOf(JobBoard.prototype), 'constructor', this).call(this, props);
@@ -692,40 +643,32 @@ var JobBoard = (function (_React$Component) {
             create: props.create,
             descriptions: {}
         };
+        this.loader = new _Loader2['default'](props.job.ID);
+        this.loader.observe('loaded', function (memo) {
+            if (memo.job) {
+                _this.setState({ job: memo.job, error: null });
+            } else if (memo.error) {
+                _this.setState({ error: memo.error });
+            }
+        });
     }
 
     _createClass(JobBoard, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this = this;
+            var _this2 = this;
 
+            this.loader.start();
             // Load descriptions
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                _this.setState({ descriptions: data.Actions });
+                _this2.setState({ descriptions: data.Actions });
             });
         }
     }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
-                this.setState({ job: nextProps.job });
-            }
-        }
-    }, {
-        key: 'onJobSave',
-        value: function onJobSave(job) {
-            this.setState({ job: job, create: false });
-        }
-    }, {
-        key: 'onJsonSave',
-        value: function onJsonSave(job) {
-            var _this2 = this;
-
-            // Artificial redraw : go null and back to job
-            this.setState({ job: null, create: false }, function () {
-                _this2.setState({ job: job });
-            });
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            this.loader.stop();
         }
     }, {
         key: 'render',
@@ -825,7 +768,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobSchedule":4,"./TasksList":8,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],4:[function(require,module,exports){
+},{"./JobSchedule":4,"./Loader":6,"./TasksList":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -989,7 +932,7 @@ var JobSchedule = (function (_React$Component) {
 exports['default'] = JobSchedule;
 module.exports = exports['default'];
 
-},{"./ScheduleForm":6,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
+},{"./ScheduleForm":7,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1337,7 +1280,137 @@ JobsList = (0, _materialUiStyles.muiThemeable)()(JobsList);
 exports['default'] = JobsList;
 module.exports = exports['default'];
 
-},{"./Events":2,"./ScheduleForm":6,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],6:[function(require,module,exports){
+},{"./Events":2,"./ScheduleForm":7,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],6:[function(require,module,exports){
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioLangObservable = require('pydio/lang/observable');
+
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
+
+var JobsStore = _Pydio$requireLib.JobsStore;
+
+var Loader = (function (_Observable) {
+    _inherits(Loader, _Observable);
+
+    function Loader() {
+        var jobId = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+        _classCallCheck(this, Loader);
+
+        _get(Object.getPrototypeOf(Loader.prototype), 'constructor', this).call(this);
+        this.jobId = jobId;
+    }
+
+    _createClass(Loader, [{
+        key: 'start',
+        value: function start() {
+            var _this = this;
+
+            this.load(true);
+            this._loadDebounced = (0, _lodashDebounce2['default'])(function () {
+                _this.load(true);
+            }, 500);
+            JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+            this._poll = setInterval(function () {
+                _this.load(true);
+            }, 5000);
+        }
+    }, {
+        key: 'stop',
+        value: function stop() {
+            if (this._poll) {
+                JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+                clearInterval(this._poll);
+            }
+        }
+    }, {
+        key: 'setFilter',
+        value: function setFilter(owner, filter) {
+            this.owner = owner;
+            this.filter = filter;
+            this.load();
+        }
+    }, {
+        key: 'load',
+        value: function load() {
+            var _this2 = this;
+
+            var hideLoading = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+            if (!hideLoading) {
+                this.notify('loading');
+            }
+            if (this.jobId) {
+                JobsStore.getInstance().getAdminJobs(this.owner, null, this.jobId).then(function (result) {
+                    if (!result.Jobs || result.Jobs.length === 0) {
+                        return;
+                    }
+                    var job = result.Jobs[0];
+                    _this2.notify('loaded', { job: job });
+                })['catch'](function (reason) {
+                    _this2.notify('loaded', { error: reason.message });
+                });
+            } else {
+                JobsStore.getInstance().getAdminJobs(this.owner, null, "", 1).then(function (result) {
+                    var jobs = result.Jobs || [];
+                    _this2.notify('loaded', { jobs: jobs });
+                })['catch'](function (reason) {
+                    _this2.notify('loaded', { error: reason.message });
+                });
+            }
+        }
+    }]);
+
+    return Loader;
+})(_pydioLangObservable2['default']);
+
+exports['default'] = Loader;
+module.exports = exports['default'];
+
+},{"lodash.debounce":"lodash.debounce","pydio":"pydio","pydio/lang/observable":"pydio/lang/observable"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1729,7 +1802,7 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],7:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2047,7 +2120,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],8:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2427,7 +2500,7 @@ var TasksList = (function (_React$Component) {
 exports['default'] = TasksList;
 module.exports = exports['default'];
 
-},{"./TaskActivity":7,"material-ui":"material-ui","pydio":"pydio","react":"react"}],9:[function(require,module,exports){
+},{"./TaskActivity":8,"material-ui":"material-ui","pydio":"pydio","react":"react"}],10:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2472,12 +2545,17 @@ var _boardEvents = require('./board/Events');
 
 var _boardEvents2 = _interopRequireDefault(_boardEvents);
 
+var _boardLoader = require('./board/Loader');
+
+var _boardLoader2 = _interopRequireDefault(_boardLoader);
+
 window.AdminScheduler = {
   Dashboard: _boardDashboard2['default'],
   JobsList: _boardJobsList2['default'],
   TasksList: _boardTasksList2['default'],
   ScheduleForm: _boardScheduleForm2['default'],
-  Events: _boardEvents2['default']
+  Events: _boardEvents2['default'],
+  Loader: _boardLoader2['default']
 };
 
-},{"./board/Dashboard":1,"./board/Events":2,"./board/JobsList":5,"./board/ScheduleForm":6,"./board/TasksList":8}]},{},[9]);
+},{"./board/Dashboard":1,"./board/Events":2,"./board/JobsList":5,"./board/Loader":6,"./board/ScheduleForm":7,"./board/TasksList":9}]},{},[10]);

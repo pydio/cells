@@ -64,6 +64,10 @@ var _JobSchedule = require('./JobSchedule');
 
 var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 
+var _Loader = require("./Loader");
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -72,6 +76,8 @@ var JobBoard = (function (_React$Component) {
     _inherits(JobBoard, _React$Component);
 
     function JobBoard(props) {
+        var _this = this;
+
         _classCallCheck(this, JobBoard);
 
         _get(Object.getPrototypeOf(JobBoard.prototype), 'constructor', this).call(this, props);
@@ -84,40 +90,32 @@ var JobBoard = (function (_React$Component) {
             create: props.create,
             descriptions: {}
         };
+        this.loader = new _Loader2['default'](props.job.ID);
+        this.loader.observe('loaded', function (memo) {
+            if (memo.job) {
+                _this.setState({ job: memo.job, error: null });
+            } else if (memo.error) {
+                _this.setState({ error: memo.error });
+            }
+        });
     }
 
     _createClass(JobBoard, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this = this;
+            var _this2 = this;
 
+            this.loader.start();
             // Load descriptions
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                _this.setState({ descriptions: data.Actions });
+                _this2.setState({ descriptions: data.Actions });
             });
         }
     }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
-                this.setState({ job: nextProps.job });
-            }
-        }
-    }, {
-        key: 'onJobSave',
-        value: function onJobSave(job) {
-            this.setState({ job: job, create: false });
-        }
-    }, {
-        key: 'onJsonSave',
-        value: function onJsonSave(job) {
-            var _this2 = this;
-
-            // Artificial redraw : go null and back to job
-            this.setState({ job: null, create: false }, function () {
-                _this2.setState({ job: job });
-            });
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            this.loader.stop();
         }
     }, {
         key: 'render',
