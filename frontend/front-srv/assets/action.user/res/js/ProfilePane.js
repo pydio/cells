@@ -31,7 +31,7 @@ const {Manager, FormPanel} = Pydio.requireLib('form');
 
 const FORM_CSS = ` 
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group:first-of-type {
-  margin-top: 220px;
+  margin-top: 230px;
   overflow-y: hidden;
 }
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image {
@@ -39,9 +39,13 @@ const FORM_CSS = `
   top: 0;
   left: 0;
   right: 0;
-  height: 200px;
+  height: 220px;
   background-color: #eceff1;
 }
+.react-mui-context .current-user-edit.pydio-form-panel .form-entry-image>div:last-child {
+  margin-top: 0;
+}
+
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image > div:first-child {
   padding: 0;
   border-radius: 0;
