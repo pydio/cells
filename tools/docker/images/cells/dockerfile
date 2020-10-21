@@ -7,7 +7,7 @@ ENV CELLS_VERSION ${version}
 
 WORKDIR /pydio
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
-RUN wget --output-document=jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
+RUN wget --output-document=jq "https://download.pydio.com/pub/linux/tools/jq-linux64-v1.6"
 RUN chmod +x /pydio/cells /pydio/jq 
 
 # Creates the final image
