@@ -90,6 +90,7 @@ func VersionHash() string {
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	sessionTimeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	clientSession := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
 	timeoutWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
 
@@ -114,7 +115,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		UsersEnabled:                 true,
 		LoggedUser:                   false,
 		CurrentLanguage:              lang,
-		Session_timeout:              SessionTimeoutMinutes * 60,
+		Session_timeout:              sessionTimeout * 60,
 		Client_timeout:               clientSession * 60,
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,

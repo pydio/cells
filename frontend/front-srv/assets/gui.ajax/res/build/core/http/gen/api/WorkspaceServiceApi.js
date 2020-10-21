@@ -51,7 +51,7 @@ var WorkspaceServiceApi = (function () {
   * Constructs a new WorkspaceServiceApi. 
   * @alias module:api/WorkspaceServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 

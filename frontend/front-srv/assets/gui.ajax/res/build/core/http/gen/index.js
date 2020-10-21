@@ -245,6 +245,10 @@ var _modelInstallInstallConfig = require('./model/InstallInstallConfig');
 
 var _modelInstallInstallConfig2 = _interopRequireDefault(_modelInstallInstallConfig);
 
+var _modelInstallInstallEventsResponse = require('./model/InstallInstallEventsResponse');
+
+var _modelInstallInstallEventsResponse2 = _interopRequireDefault(_modelInstallInstallEventsResponse);
+
 var _modelInstallInstallRequest = require('./model/InstallInstallRequest');
 
 var _modelInstallInstallRequest2 = _interopRequireDefault(_modelInstallInstallRequest);
@@ -1446,6 +1450,13 @@ exports.
  * @property {module:model/InstallInstallConfig}
  */
 InstallInstallConfig = _modelInstallInstallConfig2['default'];
+exports.
+
+/**
+ * The InstallInstallEventsResponse model constructor.
+ * @property {module:model/InstallInstallEventsResponse}
+ */
+InstallInstallEventsResponse = _modelInstallInstallEventsResponse2['default'];
 exports.
 
 /**

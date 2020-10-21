@@ -18,10 +18,6 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 )
 
-const (
-	SessionTimeoutMinutes = 24
-)
-
 var (
 	sessionStores     map[string]*sessions.CookieStore
 	sessionStoresLock *sync.Mutex
@@ -60,9 +56,10 @@ func storeForUrl(u *url.URL) sessions.Store {
 
 	pKey := loadKey()
 	ss := sessions.NewCookieStore(pKey)
+	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	ss.Options = &sessions.Options{
 		Path:     "/a/frontend",
-		MaxAge:   60 * SessionTimeoutMinutes,
+		MaxAge:   60 * timeout,
 		HttpOnly: true,
 	}
 	if u.Scheme == "https" {

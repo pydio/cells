@@ -79,7 +79,9 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 		)
 
 		o.MicroInit = func(s Service) error {
-			svc := micro.NewService()
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 			s.Init(
 				Micro(svc),
 			)
@@ -93,8 +95,8 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Name(name),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(time.Second*30),
-				micro.RegisterInterval(time.Second*10),
+				micro.RegisterTTL(10 * time.Minute),
+				micro.RegisterInterval(5 * time.Minute),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
