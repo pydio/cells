@@ -5,9 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/olekukonko/tablewriter"
-
 	"github.com/manifoldco/promptui"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
