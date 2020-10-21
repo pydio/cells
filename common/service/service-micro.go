@@ -23,7 +23,11 @@ package service
 import (
 	"time"
 
+	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/selector"
+	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/server/grpc"
 
@@ -35,6 +39,26 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/x/configx"
 )
+
+var (
+	slctr   = cache.NewSelector(selector.Registry(defaults.Registry()))
+	command = &Cmd{}
+	// cmd.NewCmd(
+	// 	cmd.Selector(&slctr),
+	// )
+)
+
+type Cmd struct{}
+
+func (c *Cmd) App() *cli.App {
+	return nil
+}
+func (c *Cmd) Init(opts ...cmd.Option) error {
+	return nil
+}
+func (c *Cmd) Options() cmd.Options {
+	return cmd.Options{}
+}
 
 func Micro(m micro.Service) ServiceOption {
 	return func(o *ServiceOptions) {
@@ -48,7 +72,10 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 		o.Version = common.Version().String()
 
 		o.MicroInit = func(s Service) error {
-			svc := micro.NewService()
+
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
@@ -64,8 +91,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(time.Second*30),
-				micro.RegisterInterval(time.Second*10),
+				micro.RegisterTTL(10 * time.Minute),
+				micro.RegisterInterval(5 * time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)

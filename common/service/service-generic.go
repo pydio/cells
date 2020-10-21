@@ -48,7 +48,9 @@ import (
 func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.MicroInit = func(s Service) error {
-			svc := micro.NewService()
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
@@ -62,8 +64,8 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(time.Second*30),
-				micro.RegisterInterval(10*time.Second),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -92,7 +94,9 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.MicroInit = func(s Service) error {
-			svc := micro.NewService()
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)

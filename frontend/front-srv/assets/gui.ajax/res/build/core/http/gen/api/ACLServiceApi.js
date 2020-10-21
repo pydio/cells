@@ -51,7 +51,7 @@ var ACLServiceApi = (function () {
   * Constructs a new ACLServiceApi. 
   * @alias module:api/ACLServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 

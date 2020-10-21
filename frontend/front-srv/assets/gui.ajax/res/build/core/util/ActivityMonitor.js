@@ -222,7 +222,7 @@ var ActivityMonitor = (function (_Observable) {
             this.updateLastActive();
             return;
         }
-        //console.log(idleTime, this._logoutTime);
+        // console.log(idleTime, this._warningTime, this._logoutTime);
         if (idleTime >= this._logoutTime) {
             this.removeWarningState();
             this._state = 'active';

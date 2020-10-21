@@ -203,8 +203,6 @@ func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig 
 	queueName = queueConfig.Val("@value").Default("boltdb").String()
 	senderName = senderConfig.Val("@value").Default("sendmail").String()
 
-	log.Logger(context.Background()).Info("Parsed config for mailer")
-
 	return
 }
 

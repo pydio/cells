@@ -31,6 +31,10 @@ var _modelInstallGetDefaultsResponse = require('../model/InstallGetDefaultsRespo
 
 var _modelInstallGetDefaultsResponse2 = _interopRequireDefault(_modelInstallGetDefaultsResponse);
 
+var _modelInstallInstallEventsResponse = require('../model/InstallInstallEventsResponse');
+
+var _modelInstallInstallEventsResponse2 = _interopRequireDefault(_modelInstallInstallEventsResponse);
+
 var _modelInstallInstallRequest = require('../model/InstallInstallRequest');
 
 var _modelInstallInstallRequest2 = _interopRequireDefault(_modelInstallInstallRequest);
@@ -59,7 +63,7 @@ var InstallServiceApi = (function () {
   * Constructs a new InstallServiceApi. 
   * @alias module:api/InstallServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 
@@ -129,6 +133,36 @@ var InstallServiceApi = (function () {
 
   InstallServiceApi.prototype.getInstall = function getInstall() {
     return this.getInstallWithHttpInfo().then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallInstallEventsResponse} and HTTP response
+   */
+
+  InstallServiceApi.prototype.installEventsWithHttpInfo = function installEventsWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelInstallInstallEventsResponse2['default'];
+
+    return this.apiClient.callApi('/install/events', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallInstallEventsResponse}
+   */
+
+  InstallServiceApi.prototype.installEvents = function installEvents() {
+    return this.installEventsWithHttpInfo().then(function (response_and_data) {
       return response_and_data.data;
     });
   };

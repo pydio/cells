@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 
 	net2 "github.com/pydio/cells/common/utils/net"
 

@@ -163,7 +163,7 @@ var ConfigServiceApi = (function () {
   * Constructs a new ConfigServiceApi. 
   * @alias module:api/ConfigServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 
