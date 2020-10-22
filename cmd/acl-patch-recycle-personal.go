@@ -23,16 +23,21 @@ package cmd
 import (
 	"context"
 
+	"github.com/fatih/color"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
+	dryRun           bool
 	patchRecycleRoot string
 )
 
@@ -42,6 +47,7 @@ var patchRecyclePersonalCmd = &cobra.Command{
 	Short: "Patches the recycle bins for the personal folder",
 	Long:  `Patches the recycle bins for the personal folder`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SetOutput(color.Output)
 
 		ctx := context.Background()
 
@@ -67,10 +73,46 @@ var patchRecyclePersonalCmd = &cobra.Command{
 				Action: permissions.AclRecycleRoot,
 			}
 
-			cmd.Println(resp.GetNode().Path)
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-				ACL: newACL,
+			query, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+				Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
+				NodeIDs: []string{resp.Node.Uuid},
 			})
+
+			streamSearch, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
+				Query: &service.Query{
+					SubQueries: []*any.Any{query},
+				},
+			})
+
+			if err != nil {
+				return err
+			}
+
+			defer streamSearch.Close()
+
+			found := false
+			for {
+				_, err := streamSearch.Recv()
+				if err != nil {
+					break
+				}
+
+				found = true
+				break
+			}
+
+			if found {
+				color.White("  " + resp.GetNode().Path)
+				continue
+			}
+
+			color.Green("+ " + resp.GetNode().Path)
+
+			if !dryRun {
+				aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+					ACL: newACL,
+				})
+			}
 		}
 
 		return nil
@@ -79,5 +121,6 @@ var patchRecyclePersonalCmd = &cobra.Command{
 
 func init() {
 	patchRecyclePersonalCmd.Flags().StringVar(&patchRecycleRoot, "path", "personal", "Full path to browse. All existing children will be flagged with the recycle_root ACL.")
+	patchRecyclePersonalCmd.Flags().BoolVar(&dryRun, "dry-run", true, "Run as a dry-run")
 	AclCmd.AddCommand(patchRecyclePersonalCmd)
 }
