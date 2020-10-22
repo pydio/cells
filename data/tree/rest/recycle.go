@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -9,10 +10,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -80,7 +81,9 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 
 	if recycle == nil {
 		l := len(ancestors)
-		if l > 3 && ancestors[l-2].Uuid == "DATASOURCE:personal" {
+		// TODO - for now we just check if it starts with a DATASOURCE:personal
+		// But we would need a process that could reverse lookup the template.js
+		if l > 3 && strings.HasPrefix(ancestors[l-2].Uuid, "DATASOURCE:personal") {
 			personalFolder := ancestors[l-3]
 			// This is a "personal files" case, where the recycle root may not have been created for various reasons, add it now
 			log.Logger(ctx).Info("Recycle not found inside a personal files, create ACL now on ", ancestors[l-3].Zap())
