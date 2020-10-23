@@ -1,7 +1,6 @@
 package migrations
 
 import (
-	"fmt"
 	"log"
 	"path"
 
@@ -32,8 +31,6 @@ func movePydioConnectors(config configx.Values) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
-	fmt.Println("Type is ? ", c)
 
 	var changed = false
 	for _, connector := range connectors {
