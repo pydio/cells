@@ -121,7 +121,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		break
 
 	case "S3_KEYS":
-		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		mc, e := minio.NewCore(c.GetDsS3Custom(), c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
 		if e != nil {
 			wrapError(e)
 			break
@@ -151,7 +151,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		break
 
 	case "S3_BUCKETS":
-		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		mc, e := minio.NewCore(c.GetDsS3Custom(), c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
 		if e != nil {
 			wrapError(e)
 			break

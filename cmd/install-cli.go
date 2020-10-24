@@ -257,6 +257,12 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	} else {
 		c.DsS3ApiSecret = strings.Trim(apiSecret, " ")
 	}
+	pr = p.Prompt{Label: "Please enter S3 Api Endpoint", Validate: notEmpty, Default: c.DsS3Custom}
+	if s3Custom, e := pr.Run(); e != nil {
+		return buckets, canCreate, e
+	} else {
+		c.DsS3Custom = strings.Trim(s3Custom, " ")
+	}
 	check := lib.PerformCheck(context.Background(), "S3_KEYS", c)
 	var res map[string]interface{}
 	e = json.Unmarshal([]byte(check.JsonResult), &res)

@@ -42,6 +42,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbSocketUser = "root"
 	c.DbSocketPassword = ""
 	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
+	c.DsS3Custom = "s3.amazonaws.com"
 	c.DsName = "pydiods1"
 	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.DsFolder = config.ApplicationWorkingDir(config.ApplicationDirData)
