@@ -602,20 +602,27 @@ class InstallForm extends React.Component {
                                     <div style={{flex: 1, marginRight: 5}}>
                                         <Field name="dsS3ApiKey" component={renderTextField}
                                                floatingLabel={this.t('form.dsS3ApiKey.label')}
-                                               label={this.t('form.dsS3ApiKey.legend')}
-                                               errorText={(s3CheckKeysError && s3CheckKeysError.error) || s3CheckBucketsError}
-                                        />
+                                               label={this.t('form.dsS3ApiKey.legend')}/>
                                     </div>
                                     <div style={{flex: 1, marginLeft: 5}}>
                                         <Field name="dsS3ApiSecret" component={renderPassField}
                                                floatingLabel={this.t('form.dsS3ApiSecret.label')}
                                                label={this.t('form.dsS3ApiSecret.legend')}/>
                                     </div>
+                                </div>
+                                <div style={{display: 'flex', alignItems: 'flex-end'}}>
+                                    <div style={{flex: 1, marginRight: 5}}>
+                                        <Field name="dsS3Custom" component={renderTextField}
+                                               floatingLabel={this.t('form.dsS3Custom.label')}
+                                               label={this.t('form.dsS3Custom.legend')}
+                                               errorText={(s3CheckKeysError && s3CheckKeysError.error) || s3CheckBucketsError}
+                                        />
+                                    </div>
                                     {performingCheck === 'S3_KEYS' && <div style={{width:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
                                     <div>
                                         {performingCheck !== 'S3_KEYS' &&
                                             <IconButton
-                                                disabled={!s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret}
+                                                disabled={!s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret || !s3Config.dsS3Custom}
                                                 iconClassName={"mdi mdi-login-variant"}
                                                 tooltip={this.t('form.dsS3ValidateKeys')}
                                                 tooltipPosition={"bottom-left"}

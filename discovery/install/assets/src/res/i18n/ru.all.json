@@ -203,6 +203,12 @@
   "form.dsS3ApiSecret.legend": {
     "other": "Секретный ключ"
   },
+  "form.dsS3Custom.label":{
+    "other": "S3 Api Endpoint"
+  },
+  "form.dsS3Custom.legend":{
+    "other": "Hostname of S3 API"
+  },
   "form.dsS3ValidateKeys": {
     "other": "Подключиться к S3 для определения сегментов"
   },

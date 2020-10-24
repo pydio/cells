@@ -203,6 +203,12 @@
   "form.dsS3ApiSecret.legend": {
     "other": "Geheime sleutel"
   },
+  "form.dsS3Custom.label":{
+    "other": "S3 Api Endpoint"
+  },
+  "form.dsS3Custom.legend":{
+    "other": "Hostname of S3 API"
+  },
   "form.dsS3ValidateKeys": {
     "other": "Verbind met S3 om S3-buckets te definiëren"
   },

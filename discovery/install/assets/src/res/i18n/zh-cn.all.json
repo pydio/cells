@@ -203,6 +203,12 @@
   "form.dsS3ApiSecret.legend": {
     "other": "密钥"
   },
+  "form.dsS3Custom.label":{
+    "other": "S3 Api Endpoint"
+  },
+  "form.dsS3Custom.legend":{
+    "other": "Hostname of S3 API"
+  },
   "form.dsS3ValidateKeys": {
     "other": "连接到 S3 来查找存储桶"
   },

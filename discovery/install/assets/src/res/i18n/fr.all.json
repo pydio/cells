@@ -203,6 +203,12 @@
   "form.dsS3ApiSecret.legend": {
     "other": "Clé secrète"
   },
+  "form.dsS3Custom.label":{
+    "other": "Point de terminaison d'API S3"
+  },
+  "form.dsS3Custom.legend":{
+    "other": "Nom d'hôte de l'API S3"
+  },
   "form.dsS3ValidateKeys": {
     "other": "Connectez-vous à S3 pour définir les buckets à utiliser"
   },
