@@ -22,11 +22,11 @@ func TestNewVaultSource(t *testing.T) {
 		defer os.Remove(keyPath)
 		src := NewVaultSource(storePath, keyPath, true)
 		So(src, ShouldNotBeNil)
-		So(src.masterPass, ShouldNotBeEmpty)
-		So(src.masterPass, ShouldHaveLength, 50)
+		So(src.(*VaultSource).masterPass, ShouldNotBeEmpty)
+		So(src.(*VaultSource).masterPass, ShouldHaveLength, 50)
 
 		// Set a value
-		e := src.Set("mysecretuuid", "mysecretvalue", true)
+		e := src.(*VaultSource).Set("mysecretuuid", "mysecretvalue", true)
 		So(e, ShouldBeNil)
 
 		// Read the value on file
@@ -52,7 +52,7 @@ func TestNewVaultSource(t *testing.T) {
 		So(val, ShouldEqual, "mysecretvalue")
 
 		// Delete the value
-		e = src.Delete("mysecretuuid", true)
+		e = src.(*VaultSource).Delete("mysecretuuid", true)
 		So(e, ShouldBeNil)
 		// Reread and check it's not there anymore
 		newSrcSet, e = src.Read()
