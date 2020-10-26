@@ -167,10 +167,12 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 
 	for _, node := range input.Nodes {
 		if len(selector.Pathes) > 0 {
-			if !contains(selector.Pathes, node.Path, false, false) {
+			if contains(selector.Pathes, node.Path, false, false) {
+				newNodes = append(newNodes, node)
+			} else {
 				excluded = append(excluded, node)
-				continue
 			}
+			continue
 		}
 		if multi != nil {
 			if multi.Matches(node) {

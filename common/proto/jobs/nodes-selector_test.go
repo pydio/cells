@@ -45,14 +45,9 @@ func TestNodesSelector_Filter(t *testing.T) {
 
 	Convey("Basic Filters", t, func() {
 
-		n := &NodesSelector{} // Empty Node
-		input := ActionMessage{Nodes: []*tree.Node{&tree.Node{Path: "test"}}}
-		output, _, _ := n.Filter(bg, input)
-		So(output, ShouldResemble, input)
-
-		n = &NodesSelector{} // Empty Filter
-		output, _, _ = n.Filter(bg, ActionMessage{Nodes: []*tree.Node{node}})
-		So(output.Nodes[0], ShouldResemble, node)
+		n := &NodesSelector{} // Empty Filter
+		output, _, _ := n.Filter(bg, ActionMessage{Nodes: []*tree.Node{node}})
+		So(output.Nodes, ShouldHaveLength, 0)
 
 		n = &NodesSelector{All: true} // All : True
 		output, _, _ = n.Filter(bg, ActionMessage{Nodes: []*tree.Node{node}})
