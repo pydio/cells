@@ -56,6 +56,7 @@ type SyslogServer struct {
 	indexPath    string
 	mappingName  string
 
+	opened      bool
 	inserts     chan interface{}
 	insertsDone chan bool
 	crtBatch    *bleve.Batch
@@ -105,6 +106,7 @@ func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 
 	s.inserts = make(chan interface{})
 	s.insertsDone = make(chan bool)
+	s.opened = true
 
 	if indexPath != "" && s.rotationSize > -1 {
 		s.rotateIfNeeded()
@@ -118,7 +120,12 @@ func (s *SyslogServer) getWriteIndex() bleve.Index {
 }
 
 func (s *SyslogServer) Close() {
+	if !s.opened {
+		return
+	}
+	s.opened = false
 	close(s.insertsDone)
+
 }
 
 func (s *SyslogServer) listIndexes(renameIfNeeded ...bool) (paths []string) {
