@@ -379,7 +379,11 @@ func (g *gatewayProxyServer) Addresses() []net.Addr {
 }
 
 func (g *gatewayProxyServer) Stop() error {
-	return caddy.GetInstance().Stop()
+	instance := caddy.GetInstance()
+	if instance != nil {
+		return caddy.GetInstance().Stop()
+	}
+	return nil
 }
 
 func play() (*bytes.Buffer, error) {
