@@ -269,7 +269,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes[idm.UserAttrLabelLike] = user.Login
+		user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Login)
 		if user.Attributes[idm.UserAttrDisplayName] != "" {
 			user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Attributes[idm.UserAttrDisplayName])
 		}
@@ -390,7 +390,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	}
 	object := results[0]
 	user = object.(*idm.User)
-	if user.Login != userName {
+	if strings.ToLower(user.Login) != strings.ToLower(userName) {
 		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
 	}
 	hashedPass := user.Password

@@ -129,10 +129,15 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			q.AttributeName = idm.UserAttrLabelLike
 			q.AttributeValue = q.Login
 		} else {
-			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
-			if !q.Not {
+			// Use Equal but make sure it's case insensitive
+			var ex goqu.Expression
+			if q.Not {
+				ex = goqu.Func("LOWER", goqu.I("t.name")).Neq(goqu.Func("LOWER", q.Login))
+			} else {
+				ex = goqu.Func("LOWER", goqu.I("t.name")).Eq(goqu.Func("LOWER", q.Login))
 				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 			}
+			expressions = append(expressions, ex)
 		}
 	}
 
