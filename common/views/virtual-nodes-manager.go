@@ -154,7 +154,7 @@ func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tr
 			datasourceKeys[key] = key
 		}
 		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: vars["User.Name"]},
+			"User":        &permissions.JsUser{Name: strings.ToLower(vars["User.Name"])},
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
