@@ -90,7 +90,7 @@ exports['default'] = _react2['default'].createClass({
             null,
             _react2['default'].createElement(
                 'div',
-                { style: { position: 'relative', width: '100%', height: 205, overflow: 'hidden', backgroundColor: '#eceff1' } },
+                { style: { position: 'relative', width: '100%', height: 220, overflow: 'hidden', backgroundColor: '#eceff1' } },
                 _react2['default'].createElement(_ProfilePane2['default'], _extends({ miniDisplay: true }, this.props, { saveOnChange: true }))
             ),
             _react2['default'].createElement(_materialUi.CardTitle, { title: this.getMessage('title'), subtitle: this.getMessage('subtitle') })

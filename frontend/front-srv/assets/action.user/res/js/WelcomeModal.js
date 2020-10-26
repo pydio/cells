@@ -62,7 +62,7 @@ export default React.createClass({
     render: function(){
         return (
             <div>
-                <div style={{position:'relative', width:'100%', height: 205, overflow: 'hidden', backgroundColor: '#eceff1'}}>
+                <div style={{position:'relative', width:'100%', height: 220, overflow: 'hidden', backgroundColor: '#eceff1'}}>
                     <ProfilePane miniDisplay={true} {...this.props} saveOnChange={true} />
                 </div>
                 <CardTitle title={this.getMessage('title')} subtitle={this.getMessage('subtitle')}/>
