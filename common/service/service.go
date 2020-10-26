@@ -59,6 +59,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
+	errorUtils "github.com/pydio/cells/common/utils/error"
 	net2 "github.com/pydio/cells/common/utils/net"
 )
 
@@ -381,19 +382,34 @@ func (s *service) Start(ctx context.Context) {
 	}
 
 	if s.Options().MicroInit != nil {
+		debug.SetPanicOnFault(true)
+
+		if err := s.Options().MicroInit(s); err != nil {
+			log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
+			return
+		}
+
 		go func() {
-			debug.SetPanicOnFault(true)
-
-			if err := s.Options().MicroInit(s); err != nil {
-				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
-				return
-			}
-
-			if err := s.Options().Micro.Run(); err != nil {
-				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+			defer func() {
 				if stopper, ok := s.Options().Micro.(Stopper); ok {
 					stopper.Stop()
 				}
+			}()
+
+			for {
+				err := s.Options().Micro.Run()
+				if err == nil {
+					break
+				}
+
+				if errorUtils.IsServiceStartNeedsRetry(err) {
+					log.Logger(ctx).Info("Service failed to start - restarting in 10s", zap.Error(err))
+					<-time.After(10 * time.Second)
+					continue
+				}
+
+				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				break
 			}
 		}()
 	}
