@@ -41,7 +41,7 @@ const (
 func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
 
 	var f string
-	var d ApplicationDirType
+	var d ApplicationDirType = -1 // Set unknown value!
 	if len(dirType) > 0 {
 		d = dirType[0]
 	}
