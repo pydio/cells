@@ -215,9 +215,9 @@ func TestIndex(t *testing.T) {
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: node1_4_1})
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: node1_4_2})
 
-		resp, _ := send(s, "GetNode", &tree.ReadNodeRequest{Node: node1_4_1})
+		resp, _ := send(s, "GetNode", &tree.ReadNodeRequest{Node: node1_4_2})
 		So(resp.(*tree.ReadNodeResponse).Success, ShouldBeTrue)
-		So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_1_4_1")
+		So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_1_4_2")
 
 	})
 
