@@ -360,8 +360,9 @@ func (g *gatewayProxyServer) Start() error {
 			if err == nil || !errorUtils.IsErrorPortBusy(err) {
 				break
 			}
+
 			//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
-			return errors.New(errorUtils.ErrServiceStartNeedsRetry)
+			return errors.New(errorUtils.ErrServiceStartNeedsRetry + " - " + err.Error())
 		}
 
 		return err
