@@ -101,7 +101,7 @@ func TestMain(m *testing.M) {
 		func() server.Option { return server.Broker(nats.NewBroker()) },
 	)
 
-	options := configx.NewMap()
+	options := configx.New()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
@@ -215,9 +215,9 @@ func TestIndex(t *testing.T) {
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: node1_4_1})
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: node1_4_2})
 
-		resp, _ := send(s, "GetNode", &tree.ReadNodeRequest{Node: node1_4_2})
+		resp, _ := send(s, "GetNode", &tree.ReadNodeRequest{Node: node1_4_1})
 		So(resp.(*tree.ReadNodeResponse).Success, ShouldBeTrue)
-		So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_1_4_2")
+		So(resp.(*tree.ReadNodeResponse).Node.Uuid, ShouldEqual, "test_1_4_1")
 
 	})
 
