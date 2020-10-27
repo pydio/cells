@@ -390,12 +390,6 @@ func (s *service) Start(ctx context.Context) {
 		}
 
 		go func() {
-			defer func() {
-				if stopper, ok := s.Options().Micro.(Stopper); ok {
-					stopper.Stop()
-				}
-			}()
-
 			for {
 				err := s.Options().Micro.Run()
 				if err == nil {
