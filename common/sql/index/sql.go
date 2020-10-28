@@ -254,6 +254,14 @@ func init() {
 			WHERE %s AND level = ? AND name like ?`, sub), args
 	}
 
+	queries["child_sqlite3"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(mpathes[0]))
+		return fmt.Sprintf(`
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ? AND name like ? ESCAPE '\'`, sub), args
+	}
+
 	queries["lastChild"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
@@ -867,7 +875,12 @@ func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.T
 
 	mpath := node.MPath
 
-	if stmt, args, e := dao.GetStmtWithArgs("child", mpath.String()); e == nil {
+	stmtName := "child"
+	if dao.Driver() == "sqlite3" {
+		stmtName = "child_sqlite3"
+	}
+
+	if stmt, args, e := dao.GetStmtWithArgs(stmtName, mpath.String()); e == nil {
 		// Escape for LIKE query
 		reqName = strings.ReplaceAll(reqName, "_", "\\_")
 		reqName = strings.ReplaceAll(reqName, "%", "\\%")

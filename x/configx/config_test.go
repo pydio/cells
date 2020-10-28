@@ -193,7 +193,7 @@ func TestReference(t *testing.T) {
 
 		So(m.Val("service/pointerMap/val2").Default(Reference("#/defaults/val2")).String(), ShouldEqual, "test2")
 
-		So(m.Val("#/databases/wrongdefault").Default(Reference("#/databases/default")).StringMap(), ShouldEqual, "test2")
+		So(m.Val("#/databases/wrongdefault").Default(Reference("#/defaults/val2")).String(), ShouldEqual, "test2")
 
 	})
 }

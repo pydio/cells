@@ -48,7 +48,7 @@ type InstallProgressEvent struct {
 
 func Install(ctx context.Context, c *install.InstallConfig, flags byte, publisher func(event *InstallProgressEvent)) error {
 
-	log.Logger(ctx).Info("Starting installation now", zap.String("bindUrl", c.InternalUrl))
+	log.Logger(ctx).Info("Starting installation now")
 
 	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DB) != 0 {
 		if err := actionDatabaseAdd(c); err != nil {

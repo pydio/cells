@@ -101,7 +101,7 @@ func TestMain(m *testing.M) {
 		func() server.Option { return server.Broker(nats.NewBroker()) },
 	)
 
-	options := configx.NewMap()
+	options := configx.New()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {

@@ -78,7 +78,7 @@ func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 	response := &install.GetDefaultsResponse{
 		Config: lib.GenerateDefaultConfig(),
 	}
-	log.Logger(ctx).Info("Received Install.Get request", zap.Any("response", response))
+	log.Logger(ctx).Debug("Received Install.Get request", zap.Any("response", response))
 	rsp.WriteEntity(response)
 }
 
