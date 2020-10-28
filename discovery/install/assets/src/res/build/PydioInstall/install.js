@@ -968,9 +968,7 @@ var InstallForm = function (_React$Component) {
                                         { style: { flex: 1, marginRight: 5 } },
                                         _react2.default.createElement(_reduxForm.Field, { name: 'dsS3ApiKey', component: renderTextField,
                                             floatingLabel: this.t('form.dsS3ApiKey.label'),
-                                            label: this.t('form.dsS3ApiKey.legend'),
-                                            errorText: s3CheckKeysError && s3CheckKeysError.error || s3CheckBucketsError
-                                        })
+                                            label: this.t('form.dsS3ApiKey.legend') })
                                     ),
                                     _react2.default.createElement(
                                         'div',
@@ -978,6 +976,19 @@ var InstallForm = function (_React$Component) {
                                         _react2.default.createElement(_reduxForm.Field, { name: 'dsS3ApiSecret', component: renderPassField,
                                             floatingLabel: this.t('form.dsS3ApiSecret.label'),
                                             label: this.t('form.dsS3ApiSecret.legend') })
+                                    )
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { display: 'flex', alignItems: 'flex-end' } },
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginRight: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dsS3Custom', component: renderTextField,
+                                            floatingLabel: this.t('form.dsS3Custom.label'),
+                                            label: this.t('form.dsS3Custom.legend'),
+                                            errorText: s3CheckKeysError && s3CheckKeysError.error || s3CheckBucketsError
+                                        })
                                     ),
                                     performingCheck === 'S3_KEYS' && _react2.default.createElement(
                                         'div',
@@ -988,7 +999,7 @@ var InstallForm = function (_React$Component) {
                                         'div',
                                         null,
                                         performingCheck !== 'S3_KEYS' && _react2.default.createElement(_materialUi.IconButton, {
-                                            disabled: !s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret,
+                                            disabled: !s3Config || !s3Config.dsS3ApiKey || !s3Config.dsS3ApiSecret || !s3Config.dsS3Custom,
                                             iconClassName: "mdi mdi-login-variant",
                                             tooltip: this.t('form.dsS3ValidateKeys'),
                                             tooltipPosition: "bottom-left",
