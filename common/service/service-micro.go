@@ -21,6 +21,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/micro/cli"
@@ -43,9 +44,6 @@ import (
 var (
 	slctr   = cache.NewSelector(selector.Registry(defaults.Registry()))
 	command = &Cmd{}
-	// cmd.NewCmd(
-	// 	cmd.Selector(&slctr),
-	// )
 )
 
 type Cmd struct{}
@@ -71,6 +69,14 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 
+		// Registering new watchers that can restart the service just in case
+		o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
+			// Restarting the service
+			s.Stop()
+
+			s.Start(s.Options().Context)
+		})
+
 		o.MicroInit = func(s Service) error {
 
 			svc := micro.NewService(
@@ -86,6 +92,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if o.TLSConfig != nil {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
+
+			ctx, cancel := context.WithCancel(ctx)
+
 			srv := defaults.NewServer(srvOpts...)
 			svc.Init(
 				micro.Client(defaults.NewClient()),
@@ -144,15 +153,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			s.Init(
 				Micro(svc),
+				Cancel(cancel),
 			)
-
-			// Registering new watchers that can restart the service just in case
-			o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
-				// Restarting the service
-				s.Stop()
-
-				s.Start(s.Options().Context)
-			})
 
 			return nil
 		}

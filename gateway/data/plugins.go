@@ -74,10 +74,10 @@ func init() {
 				}
 
 				srv := &gatewayDataServer{
-					ctx,
-					port,
-					certFile,
-					keyFile,
+					ctx:      ctx,
+					port:     port,
+					certFile: certFile,
+					keyFile:  keyFile,
 				}
 
 				return service.NewGenericServer(srv, opts...)
@@ -88,6 +88,7 @@ func init() {
 
 type gatewayDataServer struct {
 	ctx      context.Context
+	cancel   context.CancelFunc
 	port     int
 	certFile string
 	keyFile  string
@@ -97,7 +98,18 @@ func (g *gatewayDataServer) Start() error {
 	os.Setenv("MINIO_BROWSER", "off")
 	gw := &pydio.Pydio{}
 	console := &logger{ctx: g.ctx}
-	go minio.StartPydioGateway(g.ctx, gw, fmt.Sprintf(":%d", g.port), "gateway", "gatewaysecret", console, g.certFile, g.keyFile)
+	ctx, cancel := context.WithCancel(g.ctx)
+	g.cancel = cancel
+
+	go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", g.port), "gateway", "gatewaysecret", console, g.certFile, g.keyFile)
+
+	return nil
+}
+
+func (g *gatewayDataServer) Stop() error {
+	if g.cancel != nil {
+		g.cancel()
+	}
 
 	return nil
 }
