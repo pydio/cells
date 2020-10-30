@@ -117,10 +117,8 @@ func handleSignals() {
 						continue
 					}
 
-					log.Info("Stopping ", zap.String("service", service.Name()))
 					service.Stop()
 
-					log.Info("Restarting ", zap.String("service", service.Name()))
 					service.Start(ctx)
 				}
 			}

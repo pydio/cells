@@ -60,7 +60,7 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	errorUtils "github.com/pydio/cells/common/utils/error"
-	net2 "github.com/pydio/cells/common/utils/net"
+	unet "github.com/pydio/cells/common/utils/net"
 )
 
 type Service interface {
@@ -166,7 +166,7 @@ func NewService(opts ...ServiceOption) Service {
 	// Checking that the service is not bound to a certain IP
 	peerAddress := config.Get("services", name, "PeerAddress").String()
 
-	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
+	if peerAddress != "" && !unet.PeerAddressIsLocal(peerAddress) {
 		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", name), zap.String("ip", peerAddress))
 		return nil
 	}
@@ -177,7 +177,6 @@ func NewService(opts ...ServiceOption) Service {
 	}
 
 	// Setting context
-	// ctx, cancel := context.WithCancel(s.Options().Context)
 	ctx = servicecontext.WithServiceName(ctx, name)
 
 	if s.IsGRPC() {
@@ -250,6 +249,25 @@ var mandatoryOptions = []ServiceOption{
 		if s.MustBeUnique() && defaults.RuntimeIsCluster() && s.Options().Cluster != nil {
 			return s.Options().Cluster.Leave()
 		}
+		return nil
+	}),
+
+	// Checking port if set is available
+	BeforeStart(func(s Service) error {
+		port := s.Options().Port
+		if port == "" {
+			return nil
+		}
+
+		for {
+			err := unet.CheckPortAvailability(port)
+			if err == nil {
+				break
+			}
+
+			<-time.After(1 * time.Second)
+		}
+
 		return nil
 	}),
 
@@ -402,28 +420,11 @@ func (s *service) Start(ctx context.Context) {
 					continue
 				}
 
-				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				log.Logger(s.Options().Context).Error("Could not run ", zap.Error(err))
 				break
 			}
 		}()
 	}
-
-	// if s.Options().Web != nil {
-	// 	go func() {
-	// 		if err := s.Options().WebInit(s); err != nil {
-	// 			log.Logger(ctx).Error("Could not web init ", zap.Error(err))
-	// 			cancel()
-	// 			return
-	// 		}
-	// 		if err := s.Options().Web.Run(); err != nil {
-	// 			log.Logger(ctx).Error("Could not run ", zap.Error(err))
-	// 			if stopper, ok := s.Options().Micro.(Stopper); ok {
-	// 				stopper.Stop()
-	// 			}
-	// 			cancel()
-	// 		}
-	// 	}()
-	// }
 
 	for _, f := range s.Options().AfterStart {
 		if err := f(s); err != nil {
@@ -493,7 +494,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 func (s *service) Stop() {
 
 	ctx := s.Options().Context
-	// cancel := s.Options().Cancel
+	cancel := s.Options().Cancel
 
 	for _, f := range s.Options().BeforeStop {
 		if err := f(s); err != nil {
@@ -502,8 +503,8 @@ func (s *service) Stop() {
 	}
 
 	// Cancelling context should stop the service altogether
-	if stopper, ok := s.Options().Micro.(Stopper); ok {
-		stopper.Stop()
+	if cancel != nil {
+		cancel()
 	}
 
 	for _, f := range s.Options().AfterStop {

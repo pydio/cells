@@ -129,7 +129,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	os.Setenv("MINIO_SECRET_KEY", secretKey)
 	os.Setenv("MINIO_BROWSER", "off")
 
-	minio.Main(params)
+	go minio.Main(params)
 
 	return nil
 }

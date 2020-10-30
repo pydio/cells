@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"os"
 
 	"github.com/micro/go-micro"
 
@@ -59,29 +60,35 @@ func init() {
 
 					engine := &ObjectHandler{}
 
-					m.Init(micro.AfterStart(func() error {
-						ctx := m.Options().Context
-						log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
-						var conf *object.MinioConfig
-						if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
-							return err
-						}
+					object.RegisterObjectsEndpointHandler(s, engine)
 
-						if ip, e := net.GetExternalIP(); e != nil {
-							conf.RunningHost = "127.0.0.1"
-						} else {
-							conf.RunningHost = ip.String()
-						}
+					m.Init(
+						micro.AfterStart(func() error {
+							ctx := m.Options().Context
+							log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
+							var conf *object.MinioConfig
+							if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
+								return err
+							}
 
-						conf.RunningSecure = false
+							if ip, e := net.GetExternalIP(); e != nil {
+								conf.RunningHost = "127.0.0.1"
+							} else {
+								conf.RunningHost = ip.String()
+							}
 
-						engine.Config = conf
-						log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
-						go engine.StartMinioServer(ctx, serviceName)
-						object.RegisterObjectsEndpointHandler(s, engine)
+							conf.RunningSecure = false
 
-						return nil
-					}))
+							engine.Config = conf
+							log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
+							go engine.StartMinioServer(ctx, serviceName)
+
+							return nil
+						}),
+						micro.BeforeStop(func() error {
+							os.Exit(1)
+							return nil
+						}))
 
 					return nil
 				}),
