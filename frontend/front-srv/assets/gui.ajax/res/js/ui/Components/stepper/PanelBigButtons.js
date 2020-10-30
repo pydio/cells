@@ -97,15 +97,15 @@ const css = `
 
 .react-mui-context .bbpanel .stepper-tag {
     position: absolute;
-    top: 13px;
-    left: 12px;
-    background-color: #FF9800;
+    top: 15px;
+    left: 16px;
+    background-color: #B0BEC5;
     color: white;
-    padding: 2px 7px;
+    padding: 1px 5px;
     font-size: 12px;
-    height: 20px;
+    height: 19px;
     line-height: 16px;
-    border-radius: 7px;
+    border-radius: 4px;
     font-weight: 500;
 }
 
