@@ -335,19 +335,21 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		taskLogger.Info("-- Copied sourceNode with empty Uuid - Close Session")
 	}
 
-	if move {
-		// Send an optimistic event => s3 operations are done, let's update UX before indexation is finished
-		optimisticTarget := sourceNode.Clone()
-		optimisticTarget.Path = targetNode.Path
-		optimisticTarget.SetMeta("name", path.Base(targetNode.Path))
-		log.Logger(ctx).Debug("Finished move - Sending Optimistic Event", sourceNode.Zap("from"), optimisticTarget.Zap("to"))
-		client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
-			Optimistic: true,
-			Type:       tree.NodeChangeEvent_UPDATE_PATH,
-			Source:     sourceNode,
-			Target:     optimisticTarget,
-		}))
-	}
+	/*
+		if move {
+			// Send an optimistic event => s3 operations are done, let's update UX before indexation is finished
+			optimisticTarget := sourceNode.Clone()
+			optimisticTarget.Path = targetNode.Path
+			optimisticTarget.SetMeta("name", path.Base(targetNode.Path))
+			log.Logger(ctx).Debug("Finished move - Sending Optimistic Event", sourceNode.Zap("from"), optimisticTarget.Zap("to"))
+			client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+				Optimistic: true,
+				Type:       tree.NodeChangeEvent_UPDATE_PATH,
+				Source:     sourceNode,
+				Target:     optimisticTarget,
+			}))
+		}
+	*/
 
 	return
 }
