@@ -333,6 +333,12 @@ var WorkspacesList = (function (_React$Component2) {
             return !_pydioModelRepository2['default'].isInternal(ws.getId());
         });
         wsList.sort(function (oA, oB) {
+            if (oA.getRepositoryType() === "workspace-personal") {
+                return -1;
+            }
+            if (oB.getRepositoryType() === "workspace-personal") {
+                return 1;
+            }
             var res = oA.getLabel().localeCompare(oB.getLabel(), undefined, { numeric: true });
             if (res === 0) {
                 return oA.getSlug().localeCompare(oB.getSlug());

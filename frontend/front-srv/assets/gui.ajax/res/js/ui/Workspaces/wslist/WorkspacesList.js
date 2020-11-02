@@ -217,6 +217,12 @@ class WorkspacesList extends React.Component{
         workspaces.forEach(o => wsList.push(o));
         wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
         wsList.sort((oA, oB) => {
+            if(oA.getRepositoryType() === "workspace-personal") {
+                return -1
+            }
+            if(oB.getRepositoryType() === "workspace-personal") {
+                return 1
+            }
             const res = oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
             if (res === 0) {
                 return oA.getSlug().localeCompare(oB.getSlug());
