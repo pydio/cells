@@ -10,7 +10,7 @@ RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-am
 RUN wget --output-document=jq "https://download.pydio.com/pub/linux/tools/jq-linux64-v1.6"
 RUN chmod +x /pydio/cells /pydio/jq 
 
-# Creates the final image
+# Create the target image
 FROM busybox:glibc
 ARG version
 
