@@ -44,7 +44,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	ctx := req.Context()
 
 	tplConf = &TplConf{
-		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").Default("Pydio Cells").String(),
+		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
