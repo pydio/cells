@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"github.com/micro/go-micro/metadata"
@@ -224,14 +226,17 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 		var (
 			hasData bool
-			metaCtx context.Context
 		)
 
 		claims, _ := session.Get(SessionClaimsKey)
 		uName, _ := session.Get(SessionUsernameKey)
-		metaCtx = metadata.NewContext(context.Background(), map[string]string{
+		metaCtx := context.Background()
+		metaCtx = metadata.NewContext(metaCtx, map[string]string{
 			common.PYDIO_CONTEXT_USER_KEY: uName.(string),
 		})
+		if md, o := session.Get(SessionMetaContext); o {
+			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
+		}
 		metaCtx = servicecontext.WithServiceName(metaCtx, common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET)
 		metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 

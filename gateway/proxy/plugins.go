@@ -98,6 +98,9 @@ var (
 	proxy /ws   {{$.WebSocketService | urls}} {
 		websocket
 		without /ws
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
 	}
 	proxy /dav {{$.WebDAVService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}

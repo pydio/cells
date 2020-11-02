@@ -24,23 +24,28 @@ package websocket
 import (
 	"context"
 
+	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
-const SessionRolesKey = "roles"
-const SessionWorkspacesKey = "workspaces"
-const SessionAccessListKey = "accessList"
-const SessionUsernameKey = "user"
-const SessionProfileKey = "profile"
-const SessionClaimsKey = "claims"
-const SessionLimiterKey = "limiter"
+const (
+	SessionRolesKey      = "roles"
+	SessionWorkspacesKey = "workspaces"
+	SessionAccessListKey = "accessList"
+	SessionUsernameKey   = "user"
+	SessionProfileKey    = "profile"
+	SessionClaimsKey     = "claims"
+	SessionLimiterKey    = "limiter"
+	SessionMetaContext   = "metaContext"
+)
 
 const LimiterRate = 30
 const LimiterBurst = 20
@@ -74,6 +79,10 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		session.Set(SessionProfileKey, claims.Profile)
 		session.Set(SessionClaimsKey, claims)
 		session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
+		ctx := servicecontext.HttpRequestInfoToMetadata(context.Background(), session.Request)
+		if md, ok := metadata.FromContext(ctx); ok {
+			session.Set(SessionMetaContext, md)
+		}
 	} else {
 		log.Logger(ctx).Error("Error while setting workspaces in session", zap.Error(err))
 		ClearSession(session)
