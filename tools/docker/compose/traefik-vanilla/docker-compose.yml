@@ -1,0 +1,78 @@
+version: "3.7"
+
+volumes:
+  cells_working_dir: {}
+  cells_data: {}
+  mysql_data: {}
+
+services:
+  # Traefik as reverse proxy with dashboard enabled at ${PUBLIC_FQDN}/dashboard/ (trailing slash is important).
+  reverse:
+    image: traefik:2.3
+    ports: [80:80, 443:443]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persists certificate locally, otherwise we will recreate new ones at each restarts and quickly hit limits.
+      # Remember to flush the file if you want to switch from staging CA server to prod
+      - ./acme.json:/acme.json  
+    command:
+      # More logs when debugging
+      #- --log.level=DEBUG
+      - --providers.docker
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --serverstransport.insecureskipverify=true
+      - --certificatesresolvers.leresolver.acme.tlschallenge=true
+      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.email=${TLS_MAIL_ADDRESS}
+      - --api
+      # Insure to use staging CA server while testing to avoid being black listed => generated cert is un-trusted by browsers. Comment out once everything is correctly configured. 
+      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+    labels:
+        # Redirect HTTP traffic to HTTPS
+        - traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)
+        - traefik.http.routers.redirs.entrypoints=web
+        - traefik.http.routers.redirs.middlewares=redirect-to-https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+        # Expose the traefik dashboard on the reserved sub path, TLS is provided by the Let's Encrypt cert provider.
+        - traefik.http.routers.reverse.service=api@internal
+        - traefik.http.routers.reverse.rule=PathPrefix(`/api`)||PathPrefix(`/dashboard`)
+        - traefik.http.routers.reverse.entrypoints=websecure
+        - traefik.http.routers.reverse.tls.certresolver=leresolver
+        # Protect dashboard with simple auth => log with admin / admin for this example
+        - traefik.http.routers.reverse.middlewares=admin
+        # Password is generated with `htpasswd -nb admin admin` beware to escape all '$' replacing them by '$$'
+        - "traefik.http.middlewares.admin.basicauth.users=admin:$$apr1$$KnKvATsN$$L8K.P.maCu4zR/rVzD8h0/"
+    
+  # DB backend
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=cells
+      - MYSQL_USER=${MYSQL_PYDIO_USER_LOGIN}
+      - MYSQL_PASSWORD=${MYSQL_PYDIO_USER_PASSWORD}
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci] 
+  
+  # Pydio Cells server
+  cells:
+    image: ${CELLS_DOCKER_IMAGE}
+    restart: unless-stopped
+    expose: [443]
+    volumes:
+      - cells_working_dir:/var/cells
+      - cells_data:/data
+    environment:
+      - CELLS_BIND=0.0.0.0:443
+      - CELLS_EXTERNAL=https://${PUBLIC_FQDN}    
+    labels:
+      - traefik.http.services.cells.loadbalancer.server.scheme=https
+      - traefik.http.routers.cells.rule=Host(`${PUBLIC_FQDN}`)
+      - traefik.http.routers.cells.entrypoints=websecure
+      - traefik.http.routers.cells.tls=true
+      - traefik.http.routers.cells.tls.certresolver=leresolver
+    depends_on:
+      - mysql
