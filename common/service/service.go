@@ -219,7 +219,7 @@ var mandatoryOptions = []ServiceOption{
 	}),
 
 	AfterInit(func(s Service) error {
-		if !s.Options().NoAutoRestart {
+		if s.Options().AutoRestart {
 			s.Init(Watch(func(Service, configx.Values) {
 				s.Stop()
 				s.Start(s.Options().Context)

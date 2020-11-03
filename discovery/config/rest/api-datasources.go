@@ -147,13 +147,9 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
 	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
-	fmt.Println("Updating sync ", ds)
-	err := config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
-	fmt.Println(err)
+	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
-
-	fmt.Println("Configuration for sync is now ? ")
 	fmt.Println(config.Get("services", "pydio.grpc.data.sync."+dsName))
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))

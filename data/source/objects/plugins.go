@@ -46,7 +46,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Starter for different sources objects"),
-			service.NoAutoRestart(true),
 			service.WithMicro(func(m micro.Service) error {
 				runner := service.NewChildrenRunner(Name, ChildPrefix)
 				var cancel context.CancelFunc

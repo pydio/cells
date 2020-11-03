@@ -70,11 +70,11 @@ type ServiceOptions struct {
 	Dependencies []*dependency
 
 	// Starting options
-	AutoStart     bool
-	NoAutoRestart bool
-	Fork          bool
-	Unique        bool
-	Cluster       registry.Cluster
+	AutoStart   bool
+	AutoRestart bool
+	Fork        bool
+	Unique      bool
+	Cluster     registry.Cluster
 
 	Registry registry.Registry
 
@@ -283,9 +283,9 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
-func NoAutoRestart(b bool) ServiceOption {
+func AutoRestart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.NoAutoRestart = b
+		o.AutoRestart = b
 	}
 }
 

@@ -279,8 +279,6 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 				}
 			}
 
-			<-time.After(2 * time.Second)
-
 			// Then start what's been added
 			for _, source := range sources {
 				if _, ok := c.services[source]; !ok && !c.FilterOutSource(ctx, source) {

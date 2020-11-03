@@ -57,6 +57,7 @@ func init() {
 			service.Description("MailSender Service"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
 			service.Unique(true),
+			service.AutoRestart(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
