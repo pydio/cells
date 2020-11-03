@@ -48,6 +48,7 @@ import (
 
 func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
+		o.NoAutoRestart = true
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService(
 				micro.Cmd(command),
@@ -68,8 +69,8 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),

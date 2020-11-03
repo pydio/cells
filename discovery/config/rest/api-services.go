@@ -22,8 +22,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
-	"net"
 	"path"
 	"sort"
 	"strings"
@@ -341,11 +339,11 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	}
 	for _, node := range srv.RunningNodes() {
 		// Double check that node is really running
-		addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
-		if _, err := net.Dial("tcp", addr); err != nil {
-			log.Warn("Failed to check", zap.String("address", addr))
-			continue
-		}
+		// addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
+		// if _, err := net.Dial("tcp", addr); err != nil {
+		// 	log.Warn("Failed to check", zap.String("service", srv.Name()), zap.String("address", addr))
+		// 	continue
+		// }
 		p := int32(node.Port)
 		a := node.Address
 		//if configAddress != "" {

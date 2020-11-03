@@ -70,10 +70,11 @@ type ServiceOptions struct {
 	Dependencies []*dependency
 
 	// Starting options
-	AutoStart bool
-	Fork      bool
-	Unique    bool
-	Cluster   registry.Cluster
+	AutoStart     bool
+	NoAutoRestart bool
+	Fork          bool
+	Unique        bool
+	Cluster       registry.Cluster
 
 	Registry registry.Registry
 
@@ -102,7 +103,7 @@ type ServiceOptions struct {
 	webHandlerWraps []func(http.Handler) http.Handler
 
 	// Watcher
-	Watchers []func(Service, configx.Values)
+	Watchers map[string][]func(Service, configx.Values)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -112,6 +113,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 
 	opt.Registry = registry.Default
 	opt.AutoStart = true
+	opt.Watchers = make(map[string][]func(Service, configx.Values))
 
 	for _, o := range opts {
 		o(&opt)
@@ -281,8 +283,18 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
+func NoAutoRestart(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.NoAutoRestart = b
+	}
+}
+
 func Watch(fn func(Service, configx.Values)) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Watchers = append(o.Watchers, fn)
+		watchers, ok := o.Watchers[""]
+		if !ok {
+			watchers = []func(Service, configx.Values){}
+		}
+		o.Watchers[""] = append(watchers, fn)
 	}
 }
