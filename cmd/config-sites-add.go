@@ -65,7 +65,7 @@ func init() {
 func promptSite(site *install.ProxyConfig, edit bool) (e error) {
 
 	if edit {
-		label := "Site already declares the followings hosts : " + strings.Join(site.Binds, "") + ". Do you want to change this"
+		label := "Site already declares the followings hosts : [" + strings.Join(site.Binds, ", ") + "]. Do you want to change this"
 		maintenanceString := "Set in maintenance mode"
 		if site.Maintenance {
 			maintenanceString = "Switch-off maintenance mode"

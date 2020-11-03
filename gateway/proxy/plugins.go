@@ -69,6 +69,13 @@ var (
 	}
 	{{end}}
 
+	{{if not $.FrontReady}}
+	redir { 
+		if {path} not /starting.html
+		/starting.html
+	}
+	{{end}}
+
 	proxy /a  {{$.MicroService | urls}} {
 		without /a
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
@@ -110,6 +117,7 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	
+{{if $.FrontReady}}
 	proxy /plug/ {{$.FrontendService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
@@ -146,6 +154,7 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
+{{end}}
 {{if .HasTLS}}
 	proxy /grpc https://{{$.GrpcService | urls}} {
 		without /grpc
@@ -218,6 +227,8 @@ var (
 		WebRoot string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
+		// Front service is pre-checked before template generation
+		FrontReady bool
 		// Additional modifiers used for templating
 		PluginTemplates []caddy.TemplateFunc
 		PluginPathes    []string
@@ -412,6 +423,13 @@ func LoadCaddyConf() error {
 
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
+
+	caddyconf.FrontReady = caddy.ServiceReady(caddyconf.FrontendService)
+	if !caddyconf.FrontReady {
+		if mDir, e := caddy.GetMaintenanceRoot(); e == nil {
+			caddyconf.WebRoot = mDir
+		}
+	}
 
 	sites, er := config.LoadSites()
 	if er != nil {

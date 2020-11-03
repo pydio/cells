@@ -86,7 +86,7 @@ func SiteConfFromProxyConfig(pc *install.ProxyConfig) (SiteConf, error) {
 		}
 	}
 	if bc.Maintenance {
-		mDir, e := getMaintenanceRoot()
+		mDir, e := GetMaintenanceRoot()
 		if e != nil {
 			return bc, e
 		}
@@ -119,7 +119,7 @@ func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, e
 
 var maintenanceDir string
 
-func getMaintenanceRoot() (string, error) {
+func GetMaintenanceRoot() (string, error) {
 	if maintenanceDir != "" {
 		return maintenanceDir, nil
 	}

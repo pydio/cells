@@ -257,6 +257,16 @@ func GetConfigPaths() [][]string {
 	return mainCaddy.configPaths
 }
 
+func ServiceReady(name string) bool {
+	services, _ := registry.GetService(name)
+	for _, service := range services {
+		if len(service.Nodes) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func internalURLFromServices(name string, uri ...string) string {
 	var res []string
 
