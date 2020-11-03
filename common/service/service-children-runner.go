@@ -45,11 +45,16 @@ import (
 )
 
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
+	// TODO - should be a generic server
 	return WithMicro(func(m micro.Service) error {
-		runner := NewChildrenRunner(m, parentName, childrenPrefix)
+		runner := NewChildrenRunner(parentName, childrenPrefix)
+		var cancel context.CancelFunc
+
 		m.Init(
 			micro.AfterStart(func() error {
 				ctx := m.Options().Context
+				ctx, cancel = context.WithCancel(ctx)
+
 				conf := servicecontext.GetConfig(ctx)
 				runner.StartFromInitialConf(ctx, conf)
 				runner.beforeDeleteClean = cleanEndpointBeforeDelete
@@ -59,7 +64,8 @@ func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndp
 				return nil
 			}),
 			micro.BeforeStop(func() error {
-				runner.StopAll(m.Options().Context)
+				cancel()
+
 				return nil
 			}),
 		)
@@ -68,11 +74,10 @@ func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndp
 }
 
 // NewChildrenRunner creates a ChildrenRunner
-func NewChildrenRunner(parentService micro.Service, parentName string, childPrefix string) *ChildrenRunner {
+func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
 	c := &ChildrenRunner{
-		parentService: parentService,
-		parentName:    parentName,
-		childPrefix:   childPrefix,
+		parentName:  parentName,
+		childPrefix: childPrefix,
 	}
 	c.mutex = &sync.Mutex{}
 	c.services = make(map[string]*exec.Cmd)
@@ -119,7 +124,7 @@ func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg configx.V
 func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...int) error {
 
 	name := c.childPrefix + source
-	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
+	cmd := exec.Command(os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -158,13 +163,22 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 	c.services[source] = cmd
 	c.mutex.Unlock()
 
+	go func() {
+		select {
+		case <-ctx.Done():
+			if cmd.Process != nil {
+				cmd.Process.Signal(syscall.SIGINT)
+			}
+		}
+	}()
+
 	log.Logger(ctx).Debug("Starting SubProcess: " + name)
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		if err.Error() != "signal: killed" && err.Error() != "signal: interrupt" {
+		if err.Error() != "signal: killed" && err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
 			log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
 			registry.Default.SetServiceStopped(name)
 			c.mutex.Lock()
@@ -264,6 +278,8 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 					c.afterDeleteChan <- name
 				}
 			}
+
+			<-time.After(2 * time.Second)
 
 			// Then start what's been added
 			for _, source := range sources {

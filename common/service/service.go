@@ -39,6 +39,7 @@ import (
 	"regexp"
 	"runtime/debug"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gyuho/goraph"
@@ -61,6 +62,7 @@ import (
 	"github.com/pydio/cells/common/sql"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 	unet "github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Service interface {
@@ -216,13 +218,25 @@ var mandatoryOptions = []ServiceOption{
 		return nil
 	}),
 
+	AfterInit(func(s Service) error {
+		if !s.Options().NoAutoRestart {
+			s.Init(Watch(func(Service, configx.Values) {
+				s.Stop()
+				s.Start(s.Options().Context)
+			}))
+		}
+
+		return nil
+	}),
+
 	// Setting config watchers
 	AfterInit(func(s Service) error {
-		watchers := s.Options().Watchers
-		if len(watchers) == 0 {
-			return nil
+		for k, w := range s.Options().Watchers {
+			if k == "" {
+				k = "services/" + s.Name()
+			}
+			registerWatchers(s, k, w)
 		}
-		registerWatchers(s, "services/"+s.Name(), watchers)
 		return nil
 	}),
 
@@ -441,7 +455,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	// cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
+	cmd := exec.Command(os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -463,6 +477,13 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	go func() {
 		for scannerErr.Scan() {
 			log.StdOut.WriteString(strings.TrimRight(scannerErr.Text(), "\n") + "\n")
+		}
+	}()
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			cmd.Process.Signal(syscall.SIGINT)
 		}
 	}()
 

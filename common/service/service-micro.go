@@ -38,7 +38,6 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -69,14 +68,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 
-		// Registering new watchers that can restart the service just in case
-		o.Watchers = append(o.Watchers, func(s Service, v configx.Values) {
-			// Restarting the service
-			s.Stop()
-
-			s.Start(s.Options().Context)
-		})
-
 		o.MicroInit = func(s Service) error {
 
 			svc := micro.NewService(
@@ -102,8 +93,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)

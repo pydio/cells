@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"os"
 
 	"github.com/micro/go-micro"
 
@@ -85,10 +84,7 @@ func init() {
 
 							return nil
 						}),
-						micro.BeforeStop(func() error {
-							os.Exit(1)
-							return nil
-						}))
+					)
 
 					return nil
 				}),
