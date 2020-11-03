@@ -31,7 +31,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 				return err
 			}
 
-			login, err := hydra.GetLogin(challenge)
+			login, err := hydra.GetLogin(req.Request.Context(), challenge)
 			if err != nil {
 				return err
 			}

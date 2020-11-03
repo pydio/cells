@@ -974,6 +974,31 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/sites/{Filter}": {
+      "get": {
+        "summary": "List configured sites",
+        "operationId": "ListSites",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListSitesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Filter",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -1495,6 +1520,22 @@ var SwaggerJson = `{
             }
           }
         ],
+        "tags": [
+          "InstallService"
+        ]
+      }
+    },
+    "/install/events": {
+      "get": {
+        "operationId": "InstallEvents",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/installInstallEventsResponse"
+            }
+          }
+        },
         "tags": [
           "InstallService"
         ]
@@ -4616,6 +4657,9 @@ var SwaggerJson = `{
         }
       }
     },
+    "installInstallEventsResponse": {
+      "type": "object"
+    },
     "installInstallRequest": {
       "type": "object",
       "properties": {
@@ -4655,17 +4699,16 @@ var SwaggerJson = `{
     "installProxyConfig": {
       "type": "object",
       "properties": {
-        "BindURL": {
-          "type": "string"
-        },
-        "ExternalURL": {
-          "type": "string"
-        },
-        "RedirectURLs": {
+        "Binds": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "A list of [host]:port to bind to"
+        },
+        "ReverseProxyURL": {
+          "type": "string",
+          "title": "Optional URL of reverse proxy exposing this site"
         },
         "SelfSigned": {
           "$ref": "#/definitions/installTLSSelfSigned"
@@ -4675,6 +4718,23 @@ var SwaggerJson = `{
         },
         "Certificate": {
           "$ref": "#/definitions/installTLSCertificate"
+        },
+        "SSLRedirect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If TLS is set, whether to automatically redirect each http://host:port to https://host:port"
+        },
+        "Maintenance": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "If set, this site will be in maintenance mode"
+        },
+        "MaintenanceConditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Append caddy directive to restrict maintenance mode"
         }
       },
       "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy"
@@ -4686,6 +4746,9 @@ var SwaggerJson = `{
           "type": "string"
         },
         "KeyFile": {
+          "type": "string"
+        },
+        "CellsRootCA": {
           "type": "string"
         }
       },
@@ -4734,6 +4797,16 @@ var SwaggerJson = `{
         "Description": {
           "type": "string",
           "title": "User-defined comment for this action"
+        },
+        "Bypass": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Bypass this action (forward input to output and do nothing)"
+        },
+        "BreakAfter": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Stop full chain now : do not carry on executing next actions"
         },
         "NodesSelector": {
           "$ref": "#/definitions/jobsNodesSelector",
@@ -4908,6 +4981,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Query built from ActionOutputSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "ActionOutputFilter can be used to filter last message output"
@@ -4936,6 +5017,14 @@ var SwaggerJson = `{
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Can be built with ContextMetaSingleQuery"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "PolicyContextFilter can be used to filter request metadata"
@@ -4966,8 +5055,16 @@ var SwaggerJson = `{
         "OwnerId": {
           "type": "string",
           "title": "Owner of the job"
+        },
+        "RunParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Parameters used for RunOnce command"
         }
-      }
+      },
+      "title": "Command sent to control a job or a task"
     },
     "jobsCtrlCommandResponse": {
       "type": "object",
@@ -4975,7 +5072,8 @@ var SwaggerJson = `{
         "Msg": {
           "type": "string"
         }
-      }
+      },
+      "title": "Response to the CtrlCommand"
     },
     "jobsDeleteTasksRequest": {
       "type": "object",
@@ -5036,6 +5134,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Pass a slice of objects to one action, or trigger all actions in parallel"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Generic container for select/filter idm objects"
@@ -5070,6 +5176,11 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Admin can temporarily disable this job"
+        },
+        "Custom": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Job created by application or by administrator"
         },
         "Languages": {
           "type": "array",
@@ -5240,7 +5351,15 @@ var SwaggerJson = `{
         "Collect": {
           "type": "boolean",
           "format": "boolean",
-          "title": "Wether to trigger one action per node or one action\nwith all nodes as selection"
+          "title": "Whether to trigger one action per node or one action\nwith all nodes as selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////"
@@ -5352,6 +5471,14 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Wether to trigger one action per user or one action\nwith all user as a selection"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
         }
       },
       "title": "Select or filter users - should be replaced by more generic IdmSelector"
@@ -5706,7 +5833,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name whose content describes the type of the\nserialized protocol buffer message.\n\nFor URLs which use the scheme http, https, or no scheme, the\nfollowing restrictions and interpretations apply:\n\n* If no scheme is provided, https is assumed.\n* The last segment of the URL's path must represent the fully\n  qualified name of the type (as in path/google.protobuf.Duration).\n  The name should be in a canonical form (e.g., leading \".\" is\n  not accepted).\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -5785,6 +5912,11 @@ var SwaggerJson = `{
         "OutputDescription": {
           "type": "string",
           "title": "Additional description describing the action output"
+        },
+        "IsInternal": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "If action is declared internal, it is hidden to avoid polluting the list."
         }
       }
     },
@@ -6442,6 +6574,18 @@ var SwaggerJson = `{
           "format": "int32"
         }
       }
+    },
+    "restListSitesResponse": {
+      "type": "object",
+      "properties": {
+        "Sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/installProxyConfig"
+          }
+        }
+      },
+      "title": "Response with declared sites"
     },
     "restListStorageBucketsRequest": {
       "type": "object",

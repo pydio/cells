@@ -21,7 +21,6 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -36,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -49,10 +49,10 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 	names := SourceNamesForDataServices(common.SERVICE_DATA_OBJECTS)
 	for _, name := range names {
 		var conf *object.MinioConfig
-		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
+		if e := Get(configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name)).Scan(&conf); e == nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
-			if sec := GetSecret(conf.ApiSecret).String(""); sec != "" {
+			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
 				conf.ApiSecret = sec
 			}
 		}
@@ -66,7 +66,7 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 	names := SourceNamesForDataServices(common.SERVICE_DATA_SYNC)
 	for _, name := range names {
 		var conf *object.DataSource
-		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+name).Scan(&conf); e == nil {
+		if e := Get(configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+name)).Scan(&conf); e == nil {
 			res[name] = conf
 		}
 	}
@@ -75,17 +75,12 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
 func SourceNamesForDataServices(dataSrvType string) []string {
-	var res []string
-	var cfgMap Map
-	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType).Scan(&cfgMap); err == nil {
-		return SourceNamesFromDataConfigs(cfgMap)
-	}
-	return res
+	return SourceNamesFromDataConfigs(Get(configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType)))
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
-func SourceNamesFromDataConfigs(cfgMap common.ConfigValues) []string {
-	names := cfgMap.StringArray("sources")
+func SourceNamesFromDataConfigs(values configx.Values) []string {
+	names := values.Val("sources").StringArray()
 	return SourceNamesFiltered(names)
 }
 
@@ -108,16 +103,14 @@ func SourceNamesToConfig(sources map[string]*object.DataSource) {
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	marsh, _ := json.Marshal(sourcesJsonKey)
-	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
-	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
+	Set(sourcesJsonKey, configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources"))
+	Set(sourcesJsonKey, configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources"))
 }
 
 func TouchSourceNamesForDataServices(dataSrvType string) {
 	sources := SourceNamesForDataServices(dataSrvType)
 	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	marsh, _ := json.Marshal(sources)
-	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType, "sources")
+	Set(sources, configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType, "sources"))
 	Save(common.PYDIO_SYSTEM_USERNAME, "Touch sources update date for "+dataSrvType)
 }
 
@@ -129,8 +122,7 @@ func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
 	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	marsh, _ := json.Marshal(sourcesJsonKey)
-	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources")
+	Set(sourcesJsonKey, configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources"))
 }
 
 func IndexServiceTableNames(dsName string) map[string]string {

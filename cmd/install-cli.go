@@ -44,7 +44,7 @@ var (
 func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error) {
 
 	cliConfig := lib.GenerateDefaultConfig()
-	cliConfig.InternalUrl = proxyConfig.GetBindURL()
+	cliConfig.InternalUrl = strings.Join(proxyConfig.GetBinds(), ", ")
 	cliConfig.ProxyConfig = proxyConfig
 
 	fmt.Println("\n\033[1m## Database Connection\033[0m")
@@ -151,7 +151,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 			}
 		}
 		if existConfirm != "" {
-			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue?", IsConfirm: true}
+			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue", IsConfirm: true}
 			if _, e := confirm.Run(); e != nil {
 				return promptDB(c)
 			}

@@ -51,7 +51,7 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
 		return e
 	}
-	response.Channel = configs.String("channel")
+	response.Channel = configs.Val("channel").String()
 	response.AvailableBinaries = binaries
 
 	return nil
@@ -131,11 +131,20 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				task.Status = jobs.TaskStatus_Finished
 				task.StatusMessage = "Binary package has been successfully verified, you can now restart Cells.\n"
 				// Double check if we are on a protected port and log a hint in such case.
-				intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
-				port, err := strconv.Atoi(intURL.Port())
-				if err == nil && port < 1024 {
+				hasProtectedPort := false
+				sites, _ := config.LoadSites()
+				for _, si := range sites {
+					for _, a := range si.GetBindURLs() {
+						u, _ := url.Parse(a)
+						if port, err := strconv.Atoi(u.Port()); err == nil && port < 1024 {
+							hasProtectedPort = true
+							break
+						}
+					}
+				}
+				if hasProtectedPort {
 					task.StatusMessage += "--------- \n"
-					task.StatusMessage += fmt.Sprintf("WARNING: you are using the reserved port %d.\n", port)
+					task.StatusMessage += fmt.Sprintf("WARNING: you are using a reserved port on one your binding url.\n")
 					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
 					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
 				}

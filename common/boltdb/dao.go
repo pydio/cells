@@ -23,8 +23,8 @@ package boltdb
 
 import (
 	bolt "github.com/etcd-io/bbolt"
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/x/configx"
 )
 
 // DAO defines the functions specific to the boltdb dao
@@ -50,7 +50,7 @@ func NewDAO(driver string, dsn string, prefix string) *Handler {
 }
 
 // Init initialises the handler
-func (h *Handler) Init(common.ConfigValues) error {
+func (h *Handler) Init(configx.Values) error {
 	return nil
 }
 

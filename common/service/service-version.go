@@ -121,6 +121,11 @@ func ApplyMigrations(ctx context.Context, current *version.Version, target *vers
 		return nil, nil
 	}
 
+	// Special case if we're in dev and moving from 0.2.0 to a dev
+	if strings.HasSuffix(target.String(), "-dev") && current.String() == "0.2.0" {
+		return target, nil
+	}
+
 	if migrations == nil {
 		return target, nil
 	}

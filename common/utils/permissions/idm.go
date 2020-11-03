@@ -401,10 +401,6 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	accessList = NewAccessList(roles)
 	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))
-	ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
-		cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
-		return cli.IsAllowed(ctx, request)
-	}
 	accessList.Flatten(ctx)
 
 	idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
@@ -426,7 +422,7 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 		return
 	}
 
-	accessList, err = AccessListFromRoles(ctx, user.Roles, false, true)
+	accessList, err = AccessListFromRoles(ctx, user.Roles, true, true)
 
 	return
 }
@@ -519,9 +515,11 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 	search := []*idm.ACLAction{AclRead, AclDeny, AclWrite}
 	if countPolicies {
 		search = append(search, AclPolicy)
-		ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
-			return &idm.PolicyEngineResponse{Allowed: true}, nil
-		}
+		/*
+			ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+				return &idm.PolicyEngineResponse{Allowed: true}, nil
+			}
+		*/
 	}
 	accessList.Append(GetACLsForRoles(ctx, roles, search...))
 	accessList.Flatten(ctx)

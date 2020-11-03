@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-config/source"
+	"github.com/pydio/cells/common/config/source"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/etl/models"

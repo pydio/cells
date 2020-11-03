@@ -23,13 +23,16 @@ package meta
 
 import (
 	"context"
+	"io"
 	"time"
+
+	"github.com/pydio/cells/common/utils/permissions"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 )
@@ -39,11 +42,36 @@ const (
 	ServiceMetaNsProvider = "MetaNsProvider"
 )
 
-type MetaProviderCloser func()
+type Loader interface {
+	io.Closer
+	LoadMetas(ctx context.Context, nodes ...*tree.Node)
+}
 
-func InitMetaProviderClients(ctx context.Context, withCoreMeta bool) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, MetaProviderCloser, []string) {
+type StreamLoader struct {
+	names     []string
+	streamers []tree.NodeProviderStreamer_ReadNodeStreamClient
+	closer    MetaProviderCloser
+}
 
-	metaProviders, names := getMetaProviderStreamers(withCoreMeta)
+func NewStreamLoader(ctx context.Context) Loader {
+	l := &StreamLoader{}
+	l.streamers, l.closer, l.names = initMetaProviderClients(ctx)
+	return l
+}
+
+func (l *StreamLoader) LoadMetas(ctx context.Context, nodes ...*tree.Node) {
+	enrichNodesMetaFromProviders(ctx, l.streamers, l.names, nodes...)
+}
+
+func (l *StreamLoader) Close() error {
+	return l.closer()
+}
+
+type MetaProviderCloser func() error
+
+func initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, MetaProviderCloser, []string) {
+
+	metaProviders, names := getMetaProviderStreamers(ctx)
 	var streamers []tree.NodeProviderStreamer_ReadNodeStreamClient
 	for _, cli := range metaProviders {
 		metaStreamer, metaE := cli.ReadNodeStream(ctx)
@@ -52,27 +80,30 @@ func InitMetaProviderClients(ctx context.Context, withCoreMeta bool) ([]tree.Nod
 		}
 		streamers = append(streamers, metaStreamer)
 	}
-	outCloser := func() {
+	outCloser := func() error {
 		for _, streamer := range streamers {
 			streamer.Close()
 		}
+		return nil
 	}
-	//log.Logger(ctx).Info("Init streamers", zap.Any("n", names))
 	return streamers, outCloser, names
 
 }
 
-func EnrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, names []string, nodes ...*tree.Node) {
+func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, names []string, nodes ...*tree.Node) {
 
 	profiles := make(map[string][]time.Duration)
 
 	for _, node := range nodes {
 
 		for i, metaStreamer := range streamers {
-
 			name := names[i]
+			// This metaStream is already loaded, avoid reloading
+			if node.HasMetaKey("pydio:meta-loaded-" + name) {
+				log.Logger(ctx).Debug("Meta " + name + " already loaded, skipping")
+				continue
+			}
 			start := time.Now()
-			//log.Logger(ctx).Info("Sending to metaStreamer", zap.String("n", name))
 			sendError := metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
 			if sendError != nil {
 				log.Logger(ctx).Error("Error while sending to metaStreamer", zap.String("n", name), node.ZapPath(), node.ZapUuid(), zap.Error(sendError))
@@ -80,13 +111,13 @@ func EnrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 			}
 			metaResponse, err := metaStreamer.Recv()
 			if err == nil {
-
 				if node.MetaStore == nil {
-					node.MetaStore = make(map[string]string, len(metaResponse.Node.MetaStore))
+					node.MetaStore = make(map[string]string, len(metaResponse.Node.MetaStore)+1)
 				}
 				for k, v := range metaResponse.Node.MetaStore {
 					node.MetaStore[k] = v
 				}
+				node.MetaStore["pydio:meta-loaded-"+name] = "true" // JSON
 			}
 			profiles[name] = append(profiles[name], time.Now().Sub(start))
 
@@ -106,14 +137,19 @@ func EnrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 
 }
 
-func getMetaProviderStreamers(withCoreMeta bool) ([]tree.NodeProviderStreamerClient, []string) {
+func getMetaProviderStreamers(ctx context.Context) ([]tree.NodeProviderStreamerClient, []string) {
 
-	// Init with Meta Grpc Service
 	var result []tree.NodeProviderStreamerClient
 	var names []string
-	if withCoreMeta {
-		result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)))
-		names = append(names, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+
+	// Load core Meta
+	result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)))
+	names = append(names, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+
+	// Load User meta (if claims are not empty!)
+	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
+		log.Logger(ctx).Debug("No user/claims found - skipping user metas on metaStreamers init!")
+		return result, names
 	}
 
 	// Other Meta Providers (running services only)

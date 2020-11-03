@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -14,41 +15,64 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/utils/net"
 )
 
-const (
-	SessionTimeoutMinutes = 24
+var (
+	sessionStores     map[string]*sessions.CookieStore
+	sessionStoresLock *sync.Mutex
+	knownKey          []byte
 )
 
-var sessionStore *sessions.CookieStore
+func init() {
+	sessionStores = make(map[string]*sessions.CookieStore)
+	sessionStoresLock = &sync.Mutex{}
+}
 
-func GetSessionStore() sessions.Store {
-	if sessionStore == nil {
-		val := config.Get("frontend", "session", "secureKey").String("")
-		var key []byte
-		if val == "" {
-			key = securecookie.GenerateRandomKey(64)
-			val = base64.StdEncoding.EncodeToString(key)
-			config.Set(val, "frontend", "session", "secureKey")
-			config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating session random key")
-		} else {
-			key, _ = base64.StdEncoding.DecodeString(val)
-		}
-		sessionStore = sessions.NewCookieStore([]byte(val))
-		sessionStore.Options = &sessions.Options{
-			Path:     "/a/frontend",
-			MaxAge:   60 * SessionTimeoutMinutes,
-			HttpOnly: true,
-		}
-		if config.Get("cert", "proxy", "ssl").Bool(false) {
-			sessionStore.Options.Secure = true
-		}
-		urlVal := config.Get("defaults", "url").String("")
-		if parsed, e := url.Parse(urlVal); e == nil {
-			sessionStore.Options.Domain = strings.Split(parsed.Host, ":")[0]
-		}
+func loadKey() []byte {
+	if knownKey != nil {
+		return knownKey
 	}
-	return sessionStore
+	val := config.Get("frontend", "session", "secureKey").String()
+	var key []byte
+	if val == "" {
+		knownKey = securecookie.GenerateRandomKey(64)
+		val = base64.StdEncoding.EncodeToString(key)
+		config.Get("frontend", "session", "secureKey").Set(val)
+		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating session random key")
+	} else {
+		knownKey, _ = base64.StdEncoding.DecodeString(val)
+	}
+	return knownKey
+}
+
+func storeForUrl(u *url.URL) sessions.Store {
+	key := u.Scheme + "://" + u.Hostname()
+	sessionStoresLock.Lock()
+	defer sessionStoresLock.Unlock()
+	if ss, o := sessionStores[key]; o {
+		return ss
+	}
+
+	pKey := loadKey()
+	ss := sessions.NewCookieStore(pKey)
+	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	ss.Options = &sessions.Options{
+		Path:     "/a/frontend",
+		MaxAge:   60 * timeout,
+		HttpOnly: true,
+	}
+	if u.Scheme == "https" {
+		ss.Options.Secure = true
+	}
+	ss.Options.Domain = u.Hostname()
+	sessionStores[key] = ss
+	return ss
+}
+
+func GetSessionStore(req *http.Request) sessions.Store {
+	u := net.ExternalDomainFromRequest(req)
+	return storeForUrl(u)
 }
 
 // NewSessionWrapper creates a Http middleware checking if a cookie is passed
@@ -78,7 +102,7 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 		if h, ok := r.Header[common.XPydioFrontendSessionUuid]; ok {
 			sessionName = sessionName + "-" + strings.Join(h, "")
 		}
-		session, err := GetSessionStore().Get(r, sessionName)
+		session, err := GetSessionStore(r).Get(r, sessionName)
 		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 		}

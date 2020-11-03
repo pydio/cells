@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
@@ -59,12 +58,15 @@ func TestWGetAction_Init(t *testing.T) {
 		e := action.Init(job, nil, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
-		// Invalid URL
-		e = action.Init(job, nil, &jobs.Action{
+		// Invalid URL should trigger a parse error
+		action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "htétp://",
 			},
 		})
+		status := make(chan string)
+		progress := make(chan float32)
+		_, e = action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{})
 		So(e, ShouldNotBeNil)
 
 		// Valid URL
@@ -74,7 +76,7 @@ func TestWGetAction_Init(t *testing.T) {
 			},
 		})
 		So(e, ShouldBeNil)
-		So(action.SourceUrl, ShouldResemble, &url.URL{Scheme: "http", Host: "google.com"})
+		So(action.SourceUrl, ShouldEqual, "http://google.com")
 
 	})
 }

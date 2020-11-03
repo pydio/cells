@@ -190,6 +190,7 @@ export default React.createClass({
                 masterStyles={tableStyles}
                 paginate={[10, 25, 50, 100]}
                 defaultPageSize={25}
+                storageKey={'console.workspaces.list'}
             />
         );
 

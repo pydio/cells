@@ -28,9 +28,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _fieldsValidLogin = require('../fields/ValidLogin');
 
 var _fieldsValidLogin2 = _interopRequireDefault(_fieldsValidLogin);
+
+var _fieldsAltText = require("../fields/AltText");
+
+var _fieldsAltText2 = _interopRequireDefault(_fieldsAltText);
 
 var XMLUtils = require('pydio/util/xml');
 var InputBoolean = require('./../fields/InputBoolean');
@@ -128,41 +136,68 @@ var Manager = (function () {
 
     Manager.createFormElement = function createFormElement(props) {
         var value = undefined;
-        switch (props.attributes['type']) {
+        var attributes = props.attributes;
+        var onAltTextSwitch = props.onAltTextSwitch;
+        var altTextSwitchIcon = props.altTextSwitchIcon;
+        var altTextSwitchTip = props.altTextSwitchTip;
+
+        var switchProps = { onAltTextSwitch: onAltTextSwitch, altTip: altTextSwitchTip, altIconText: altTextSwitchIcon };
+        switch (attributes['type']) {
             case 'boolean':
-                value = React.createElement(InputBoolean, props);
+                value = _react2['default'].createElement(InputBoolean, props);
+                if (onAltTextSwitch) {
+                    value = _react2['default'].createElement(
+                        _fieldsAltText2['default'],
+                        _extends({}, props, switchProps, { altIcon: "mdi mdi-toggle-switch" }),
+                        value
+                    );
+                }
                 break;
             case 'string':
             case 'textarea':
             case 'password':
-                value = React.createElement(InputText, props);
+                value = _react2['default'].createElement(InputText, props);
                 break;
             case 'valid-password':
-                value = React.createElement(ValidPassword, props);
+                value = _react2['default'].createElement(ValidPassword, props);
                 break;
             case 'valid-login':
-                value = React.createElement(_fieldsValidLogin2['default'], props);
+                value = _react2['default'].createElement(_fieldsValidLogin2['default'], props);
                 break;
             case 'integer':
-                value = React.createElement(InputInteger, props);
+                value = _react2['default'].createElement(InputInteger, props);
+                if (onAltTextSwitch) {
+                    value = _react2['default'].createElement(
+                        _fieldsAltText2['default'],
+                        _extends({}, props, switchProps, { altIcon: "mdi mdi-number" }),
+                        value
+                    );
+                }
                 break;
             case 'button':
-                value = React.createElement(InputButton, props);
+                value = _react2['default'].createElement(InputButton, props);
                 break;
             case 'monitor':
-                value = React.createElement(MonitoringLabel, props);
+                value = _react2['default'].createElement(MonitoringLabel, props);
                 break;
             case 'image':
-                value = React.createElement(InputImage, props);
+                value = _react2['default'].createElement(InputImage, props);
                 break;
             case 'select':
-                value = React.createElement(SelectBox, props);
+                value = _react2['default'].createElement(SelectBox, props);
+                if (onAltTextSwitch) {
+                    value = _react2['default'].createElement(
+                        _fieldsAltText2['default'],
+                        _extends({}, props, switchProps, { altIcon: "mdi mdi-view-list" }),
+                        value
+                    );
+                }
                 break;
             case 'autocomplete':
-                value = React.createElement(AutocompleteBox, props);
+                value = _react2['default'].createElement(AutocompleteBox, props);
                 break;
             case 'autocomplete-tree':
-                value = React.createElement(AutocompleteTree, props);
+                value = _react2['default'].createElement(AutocompleteTree, props);
                 break;
             case 'legend':
                 value = null;
@@ -174,7 +209,7 @@ var Manager = (function () {
                 if (props.value) {
                     value = props.value;
                 } else {
-                    value = React.createElement(
+                    value = _react2['default'].createElement(
                         'span',
                         { className: 'paramValue-empty' },
                         'Empty'

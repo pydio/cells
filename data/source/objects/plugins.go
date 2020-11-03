@@ -40,24 +40,32 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Starter for different sources objects"),
 			service.WithMicro(func(m micro.Service) error {
-				runner := service.NewChildrenRunner(m, Name, ChildPrefix)
+				runner := service.NewChildrenRunner(Name, ChildPrefix)
+				var cancel context.CancelFunc
 				m.Init(
 					micro.AfterStart(func() error {
 						ctx := m.Options().Context
 						conf := servicecontext.GetConfig(ctx)
+						ctx, cancel = context.WithCancel(ctx)
 						treeServer := NewTreeHandler(conf)
 						runner.StartFromInitialConf(ctx, conf)
 						tree.RegisterNodeProviderHandler(m.Server(), treeServer)
 						tree.RegisterNodeReceiverHandler(m.Server(), treeServer)
 						runner.OnDeleteConfig(onDeleteObjectsConfig)
 						return nil
-					}))
+					}),
+					micro.BeforeStop(func() error {
+						cancel()
+						return nil
+					}),
+				)
 
 				//tree.RegisterNodeProviderHandler(m.Server(), treeServer)
 

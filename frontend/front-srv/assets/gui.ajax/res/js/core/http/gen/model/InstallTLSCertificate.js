@@ -62,6 +62,9 @@ export default class InstallTLSCertificate {
             if (data.hasOwnProperty('KeyFile')) {
                 obj['KeyFile'] = ApiClient.convertToType(data['KeyFile'], 'String');
             }
+            if (data.hasOwnProperty('CellsRootCA')) {
+                obj['CellsRootCA'] = ApiClient.convertToType(data['CellsRootCA'], 'String');
+            }
         }
         return obj;
     }
@@ -74,6 +77,10 @@ export default class InstallTLSCertificate {
     * @member {String} KeyFile
     */
     KeyFile = undefined;
+    /**
+    * @member {String} CellsRootCA
+    */
+    CellsRootCA = undefined;
 
 
 

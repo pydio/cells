@@ -29,11 +29,11 @@ import (
 
 	sqldb "database/sql"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/packr"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -65,7 +65,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (h *sqlimpl) Init(options common.ConfigValues) error {
+func (h *sqlimpl) Init(options configx.Values) error {
 	// super
 	if err := h.DAO.Init(options); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (h *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := h.Prepare(key, query); err != nil {
 				log.Logger(context.Background()).Error("failed to prepare statement", zap.String("name", key), zap.Error(err))

@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/pydio/cells/common/config"
@@ -28,6 +29,36 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 )
 
+// MergeWithDefaultConfig merges a parsed config (from yaml or json) with missing fields
+// values from Default config.
+func MergeWithDefaultConfig(conf *install.InstallConfig) error {
+	def := GenerateDefaultConfig()
+	var target map[string]interface{}
+	// Create a generic view of the default and unmarshall conf into it
+	defM, _ := json.Marshal(def)
+	if e := json.Unmarshal(defM, &target); e != nil {
+		return e
+	}
+	// Avoid duplicating sites
+	site := conf.ProxyConfig
+	conf.ProxyConfig = nil
+	confM, _ := json.Marshal(conf)
+	if e := json.Unmarshal(confM, &target); e != nil {
+		return e
+	}
+	// Remarsh / unmarsh to an install config
+	final, _ := json.Marshal(&target)
+	if e := json.Unmarshal(final, &conf); e != nil {
+		return e
+	}
+	conf.ProxyConfig = site
+	if conf.FrontendPassword != "" {
+		conf.FrontendRepeatPassword = conf.FrontendPassword
+	}
+	return nil
+}
+
+// GenerateDefaultConfig creates InstallConfig with default values
 func GenerateDefaultConfig() *install.InstallConfig {
 
 	c := &install.InstallConfig{}
@@ -50,7 +81,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.FrontendLogin = "admin"
 	c.FrontendPassword = ""
 	c.FrontendRepeatPassword = ""
-	c.InternalUrl = config.Get("internalUrl").String("")
+	c.InternalUrl = config.Get("internalUrl").String()
 	c.CheckResults = []*install.CheckResult{}
 
 	return c

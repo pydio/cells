@@ -22,6 +22,7 @@
 package grpc
 
 import (
+	"context"
 	"path"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -38,9 +39,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("Syslog index store"),
 			service.Unique(true),
@@ -50,7 +52,7 @@ func init() {
 					return e
 				}
 				rotationSize := log.DefaultRotationSize
-				if r := servicecontext.GetConfig(m.Options().Context).Int("bleveRotationSize"); r > 0 {
+				if r := servicecontext.GetConfig(m.Options().Context).Val("bleveRotationSize").Int(); r > 0 {
 					rotationSize = int64(r)
 				}
 				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", rotationSize)

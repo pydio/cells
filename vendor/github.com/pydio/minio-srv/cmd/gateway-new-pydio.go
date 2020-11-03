@@ -5,7 +5,7 @@ import (
 	"flag"
 
 	"github.com/minio/cli"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/minio-srv/cmd/logger"
 	"github.com/pydio/minio-srv/pkg/auth"
 )
@@ -41,12 +41,13 @@ func StartPydioGateway(ctx context.Context, gw Gateway, gatewayAddr string, acce
 		if err != nil {
 			log.Info("Unable to shutdown http server:" + err.Error())
 		}
+
 		return true
 	}
 
 	select {
 	case e := <-globalHTTPServerErrorCh:
-		logger.Info("Received Error on globalHTTPServerErrorCh", e)
+		logger.Info("Received Error on globalHTTPServerErrorCh", e, gatewayAddr)
 		stopProcess()
 		return
 	case <-globalOSSignalCh:
@@ -54,9 +55,9 @@ func StartPydioGateway(ctx context.Context, gw Gateway, gatewayAddr string, acce
 		stopProcess()
 		return
 	case <-ctx.Done():
-		log.Info("Received ctx.Done()")
-		stopProcess()
+		go stopProcess()
+		<-globalHTTPServerErrorCh
+
 		return
 	}
-
 }

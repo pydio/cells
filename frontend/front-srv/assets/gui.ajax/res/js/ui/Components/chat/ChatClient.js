@@ -229,7 +229,13 @@ class ChatClient extends PydioWebSocket {
         if (!this.currentRepo) {
             return;
         }
-        const url = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET").replace("/event", "/chat");
+        let wsPath = this.pydio.Parameters.get("ENDPOINT_WEBSOCKET").replace('/event', '/chat');
+        if(wsPath && wsPath[0] === '/'){
+            wsPath = wsPath.substr(1)
+        }
+        const location = this.pydio.getFrontendUrl();
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        const url = `${protocol}://${location.host}/` + wsPath;
         this.ws = new ReconnectingWebSocket(url, [], {
             maxReconnectionDelay: 60000,
             reconnectionDelayGrowFactor: 1.6,

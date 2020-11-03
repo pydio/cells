@@ -90,7 +90,7 @@ func watch() {
 					}
 				}()
 
-				// retrieve the list of services that have started
+				// retrieve the list of services that have stopped
 				wg.Add(1)
 				go func() {
 					defer wg.Done()

@@ -26,37 +26,48 @@ import (
 	"strings"
 	"time"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
-	"github.com/ory/ladon"
-
-	"github.com/pydio/cells/common/proto/jobs"
-
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/forms/protos"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-
-	"github.com/pydio/cells/scheduler/actions"
-
-	"github.com/go-openapi/spec"
+	"github.com/pydio/cells/discovery/config/lang"
 
 	"github.com/emicklei/go-restful"
+	"github.com/go-openapi/spec"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
+	"github.com/ory/ladon"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/forms/protos"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
 /*****************************
 PUBLIC ENDPOINTS FOR DISCOVERY
 ******************************/
+func withPath(u *url.URL, p string) *url.URL {
+	u2 := *u
+	u2.Path = p
+	return &u2
+}
+
+func withScheme(u *url.URL, s string) *url.URL {
+	u2 := *u
+	u2.Scheme = s
+	return &u2
+}
+
 // Publish a list of available endpoints
 func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Response) {
 	var t time.Time
@@ -76,45 +87,39 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		endpointResponse.BuildRevision = common.BuildRevision
 	}
 
-	cfg := config.Default()
-	httpProtocol := "http"
+	urlParsed := net.ExternalDomainFromRequest(req.Request)
+	log.Logger(req.Request.Context()).Debug("Request", zap.Any("mainUrl", urlParsed))
+
 	wsProtocol := "ws"
-
-	mainUrl := cfg.Get("defaults", "url").String("")
-	if !strings.HasPrefix(mainUrl, "http") {
-		mainUrl = "http://" + mainUrl
-	}
-	urlParsed, _ := url.Parse(mainUrl)
-
-	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
-	if ssl {
-		httpProtocol = "https"
+	if urlParsed.Scheme == "https" {
 		wsProtocol = "wss"
 	}
 
-	endpointResponse.Endpoints["rest"] = fmt.Sprintf("%s://%s/a", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["openapi"] = fmt.Sprintf("%s://%s/a/config/discovery/openapi", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["forms"] = fmt.Sprintf("%s://%s/a/config/discovery/forms/{serviceName}", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["oidc"] = fmt.Sprintf("%s://%s/auth", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["s3"] = fmt.Sprintf("%s://%s/io", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["chats"] = fmt.Sprintf("%s://%s/ws/chat", wsProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
+	endpointResponse.Endpoints["rest"] = withPath(urlParsed, "/a").String()
+	endpointResponse.Endpoints["openapi"] = withPath(urlParsed, "/a/config/discovery/openapi").String()
+	endpointResponse.Endpoints["forms"] = withPath(urlParsed, "/a/config/discovery/forms").String() + "/{serviceName}"
+	endpointResponse.Endpoints["oidc"] = withPath(urlParsed, "/auth").String()
+	endpointResponse.Endpoints["s3"] = withPath(urlParsed, "/io").String()
+	endpointResponse.Endpoints["chats"] = withScheme(withPath(urlParsed, "/ws/chat"), wsProtocol).String()
+	endpointResponse.Endpoints["websocket"] = withScheme(withPath(urlParsed, "/ws/event"), wsProtocol).String()
+	endpointResponse.Endpoints["frontend"] = withPath(urlParsed, "").String()
 
-	external := viper.Get("grpc_external")
-	externalSet := external != nil && external.(string) != ""
-	if !ssl || externalSet {
-		// Detect GRPC Service Ports
-		var grpcPorts []string
-		if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
-			for _, s := range ss {
-				for _, n := range s.Nodes {
-					grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+	if urlParsed.Scheme == "http" {
+		if external := viper.GetString("grpc_external"); external != "" {
+			endpointResponse.Endpoints["grpc"] = external
+		} else {
+			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
+			var grpcPorts []string
+			if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC_CLEAR); e == nil {
+				for _, s := range ss {
+					for _, n := range s.Nodes {
+						grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+					}
 				}
 			}
-		}
-		if len(grpcPorts) > 0 {
-			endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+			if len(grpcPorts) > 0 {
+				endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+			}
 		}
 	}
 
@@ -125,9 +130,8 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 // OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
-	cfg := config.Default()
-	u := cfg.Get("defaults", "url").String("")
-	p, _ := url.Parse(u)
+	p := net.ExternalDomainFromRequest(req.Request)
+	p.Path = ""
 
 	jsonSpec := service.SwaggerSpec()
 	jsonSpec.Spec().Host = p.Host
@@ -141,8 +145,8 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 			Type:             "oauth2",
 			Description:      "Login using OAuth2 code flow",
 			Flow:             "accessCode",
-			AuthorizationURL: u + "/oidc/oauth2/auth",
-			TokenURL:         u + "/oidc/oauth2/token",
+			AuthorizationURL: p.String() + "/oidc/oauth2/auth",
+			TokenURL:         p.String() + "/oidc/oauth2/token",
 		},
 	}
 	jsonSpec.Spec().SecurityDefinitions = map[string]*spec.SecurityScheme{"oauth2": scheme}
@@ -188,7 +192,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
 	return
 
 }
@@ -196,7 +200,7 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 // SchedulerActionsDiscovery lists all registered actions
 func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
 	actionManager := actions.GetActionsManager()
-	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	response := &rest.SchedulerActionsResponse{
 		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
 	}
@@ -209,6 +213,7 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 			Name:              a.ID,
 			Icon:              a.Icon,
 			Label:             a.Label,
+			IsInternal:        a.IsInternal,
 			Tint:              t,
 			Description:       a.Description,
 			SummaryTemplate:   a.SummaryTemplate,
@@ -236,14 +241,14 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		}
 		switch protoName {
 		case "idm.UserSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.UserSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("userSingleQuery", &idm.UserSingleQuery{}, asSwitch)
 		case "idm.RoleSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.RoleSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("roleSingleQuery", &idm.RoleSingleQuery{}, asSwitch)
 		case "idm.WorkspaceSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.WorkspaceSingleQuery{}, asSwitch)
+			form = protos.GenerateProtoToForm("workspaceSingleQuery", &idm.WorkspaceSingleQuery{}, asSwitch)
 		case "idm.ACLSingleQuery":
-			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
-			a := protos.GenerateProtoToForm(&idm.ACLAction{})
+			form = protos.GenerateProtoToForm("aclSingleQuery", &idm.ACLSingleQuery{}, asSwitch)
+			a := protos.GenerateProtoToForm("aclAction", &idm.ACLAction{}, false)
 			if asSwitch {
 				// Patch Actions field manually
 				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
@@ -268,23 +273,10 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 				})
 			}
 		case "tree.Query":
-			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
+			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
-			form = protos.GenerateProtoToForm(&jobs.ActionOutputSingleQuery{}, asSwitch)
-		case "jobs.ContextMetaSingleQuery":
-			form = protos.GenerateProtoToForm(&jobs.ContextMetaSingleQuery{}, asSwitch)
-			// Select Choices
-			selectChoices := []map[string]string{
-				{servicecontext.HttpMetaRemoteAddress: servicecontext.HttpMetaRemoteAddress},
-				{servicecontext.HttpMetaUserAgent: servicecontext.HttpMetaUserAgent},
-				{servicecontext.HttpMetaContentType: servicecontext.HttpMetaContentType},
-				{servicecontext.HttpMetaProtocol: servicecontext.HttpMetaProtocol},
-				{servicecontext.HttpMetaRequestMethod: servicecontext.HttpMetaRequestMethod},
-				{servicecontext.HttpMetaRequestURI: servicecontext.HttpMetaRequestURI},
-				{servicecontext.HttpMetaCookiesString: servicecontext.HttpMetaCookiesString},
-				//{servicecontext.ClientTime: servicecontext.ClientTime},
-				{servicecontext.ServerTime: servicecontext.ServerTime},
-			}
+			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{
 				Name:        "Condition",
@@ -293,23 +285,47 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			}
 			for name, f := range ladon.ConditionFactories {
 				condition := f()
-				condForm := protos.GenerateProtoToForm(condition, false)
-				condField.Values = append(condField.Values, &forms.SwitchValue{
-					Name:   name,
-					Value:  name,
-					Label:  name,
-					Fields: condForm.Groups[0].Fields,
-				})
+				condForm := protos.GenerateProtoToForm("condition"+condition.GetName(), condition, false)
+				// Do not enqueue conditions with zero fields: they are not usable
+				if len(condForm.Groups[0].Fields) > 0 {
+					condField.Values = append(condField.Values, &forms.SwitchValue{
+						Name:   name,
+						Value:  name,
+						Label:  "contextMetaCondition." + name,
+						Fields: condForm.Groups[0].Fields,
+					})
+				}
 			}
-			if asSwitch {
-				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
-				sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+			if protoName == "policy.Conditions" {
+				// Specific case to just build Conditions form
+				form = &forms.Form{Groups: []*forms.Group{{
+					Fields: []forms.Field{condField},
+				}}}
 			} else {
-				form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
-				form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
-				form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				// Build FieldName / Condition Form
+				form = protos.GenerateProtoToForm("contextMetaSingleQuery", &jobs.ContextMetaSingleQuery{}, asSwitch)
+				selectChoices := []map[string]string{
+					{servicecontext.HttpMetaRemoteAddress: "contextMetaField." + servicecontext.HttpMetaRemoteAddress},
+					{servicecontext.HttpMetaUserAgent: "contextMetaField." + servicecontext.HttpMetaUserAgent},
+					{servicecontext.HttpMetaContentType: "contextMetaField." + servicecontext.HttpMetaContentType},
+					{servicecontext.HttpMetaProtocol: "contextMetaField." + servicecontext.HttpMetaProtocol},
+					{servicecontext.HttpMetaHostname: "contextMetaField." + servicecontext.HttpMetaHostname},
+					{servicecontext.HttpMetaRequestMethod: "contextMetaField." + servicecontext.HttpMetaRequestMethod},
+					{servicecontext.HttpMetaRequestURI: "contextMetaField." + servicecontext.HttpMetaRequestURI},
+					{servicecontext.HttpMetaCookiesString: "contextMetaField." + servicecontext.HttpMetaCookiesString},
+					//{servicecontext.ClientTime: servicecontext.ClientTime},
+					{servicecontext.ServerTime: "contextMetaField." + servicecontext.ServerTime},
+				}
+				if asSwitch {
+					sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+					sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+				} else {
+					form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+					form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+					form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+				}
 			}
 		}
 	} else {
@@ -324,5 +340,21 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	if form == nil {
 		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 	}
-	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	form.I18NBundle = lang.Bundle()
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
+}
+
+// ListSites implements /config/sites GET API
+func (s *Handler) ListSites(req *restful.Request, rsp *restful.Response) {
+	// There is an optional Filter string on req
+
+	ss, err := config.LoadSites()
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+
+	sites := &rest.ListSitesResponse{}
+	sites.Sites = ss
+	rsp.WriteEntity(sites)
 }

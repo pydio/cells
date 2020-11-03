@@ -145,8 +145,7 @@ exports['default'] = React.createClass({
             this.clearSubParametersValues(paramName, newValue, switchValues[newValue] ? switchValues[newValue].fields : []);
         }).bind(this);
         var subForm = undefined,
-            selectorLegend = undefined,
-            subFormHeader = undefined;
+            selectorLegend = undefined;
         var selector = React.createElement(_fieldsInputSelectBox2['default'], {
             key: paramName,
             name: paramName,
@@ -172,19 +171,12 @@ exports['default'] = React.createClass({
             helperMark = React.createElement('span', { className: 'icon-question-sign', onClick: showHelper });
         }
 
-        selectorLegend = React.createElement(
-            'div',
-            { className: 'form-legend' },
-            attributes['description'],
-            ' ',
-            helperMark
-        );
         if (values[paramName] && switchValues[values[paramName]]) {
-            subFormHeader = React.createElement(
-                'h4',
-                null,
-                values[paramName]
-            );
+            var _props = this.props;
+            var onAltTextSwitch = _props.onAltTextSwitch;
+            var altTextSwitchIcon = _props.altTextSwitchIcon;
+            var altTextSwitchTip = _props.altTextSwitchTip;
+
             subForm = React.createElement(_FormPanel2['default'], {
                 onParameterChange: this.props.onParameterChange,
                 applyButtonAction: this.props.applyButtonAction,
@@ -199,14 +191,23 @@ exports['default'] = React.createClass({
                 checkHasHelper: this.props.checkHasHelper,
                 setHelperData: this.props.setHelperData,
                 helperTestFor: values[paramName],
-                accordionizeIfGroupsMoreThan: 5
+                accordionizeIfGroupsMoreThan: 5,
+                onAltTextSwitch: onAltTextSwitch,
+                altTextSwitchIcon: altTextSwitchIcon,
+                altTextSwitchTip: altTextSwitchTip
             });
         }
         return React.createElement(
             'div',
             { className: 'sub-form-group' },
+            React.createElement(
+                'div',
+                { className: 'form-legend' },
+                attributes['description'],
+                ' ',
+                helperMark
+            ),
             selector,
-            selectorLegend,
             subForm
         );
     }

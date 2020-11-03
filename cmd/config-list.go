@@ -41,10 +41,8 @@ Configurations are listed as truple [serviceName, configName, configValue], wher
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		cfg := config.Default().(*config.Config)
-
 		var m map[string]map[string]interface{}
-		if err := cfg.UnmarshalKey("services", &m); err != nil {
+		if err := config.Get("services").Scan(&m); err != nil {
 			log.Fatal(err)
 		}
 

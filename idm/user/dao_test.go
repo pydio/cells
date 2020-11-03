@@ -11,10 +11,10 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 	// SQLite is used for the tests.
@@ -33,7 +33,7 @@ type server struct{}
 
 func TestMain(m *testing.M) {
 
-	var options config.Map
+	var options = configx.New()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if dao == nil {

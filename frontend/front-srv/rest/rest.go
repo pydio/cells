@@ -92,13 +92,12 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
 	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
 
-	cfg := config.Default()
 	rolesConfigs := user.FlattenedRolesConfigs()
 
 	status := frontend.RequestStatus{
-		Config:        cfg,
-		AclParameters: rolesConfigs.Get("parameters").(*config.Map),
-		AclActions:    rolesConfigs.Get("actions").(*config.Map),
+		Config:        config.Get(),
+		AclParameters: rolesConfigs.Val("parameters"),
+		AclActions:    rolesConfigs.Val("actions"),
 		WsScopes:      user.GetActiveScopes(),
 		User:          user,
 		NoClaims:      !user.Logged,
@@ -154,6 +153,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	if lang == "" {
 		lang = "en-us"
 	}
+
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
 	rsp.WriteAsXml(plugins)
 }
@@ -168,7 +168,7 @@ func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Res
 		sessionName = sessionName + "-" + h
 	}
 
-	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -208,7 +208,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		sessionName = sessionName + "-" + h
 	}
 
-	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -262,7 +262,7 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 		sessionName = sessionName + "-" + h
 	}
 
-	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return

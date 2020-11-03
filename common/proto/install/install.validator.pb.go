@@ -108,3 +108,9 @@ func (this *InstallRequest) Validate() error {
 func (this *InstallResponse) Validate() error {
 	return nil
 }
+func (this *InstallEventsRequest) Validate() error {
+	return nil
+}
+func (this *InstallEventsResponse) Validate() error {
+	return nil
+}

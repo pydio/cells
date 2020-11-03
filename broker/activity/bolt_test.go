@@ -31,20 +31,20 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
 	tmpDbFilePath string
-	conf          *config.Map
+	conf          configx.Values
 )
 
 func init() {
 	// Define parameters to shorten tests launch
 	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
-	conf = config.NewMap()
-	conf.Set("InboxMaxSize", int64(10))
+	conf = configx.New()
+	conf.Val("InboxMaxSize").Set(int64(10))
 }
 
 func TestEmptyDao(t *testing.T) {
@@ -66,7 +66,7 @@ func TestEmptyDao(t *testing.T) {
 		defer os.Remove(tmpDbFilePath)
 		tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 		dao := NewDAO(tmpdao).(*boltdbimpl)
-		dao.Init(*conf)
+		dao.Init(conf)
 		defer dao.CloseConn()
 
 		results := make(chan *activity.Object)
@@ -81,7 +81,7 @@ func TestInsertActivity(t *testing.T) {
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
-	dao.Init(*conf)
+	dao.Init(conf)
 	defer dao.CloseConn()
 
 	Convey("Test insert", t, func() {
@@ -178,7 +178,7 @@ func TestMultipleInsert(t *testing.T) {
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
-	dao.Init(*conf)
+	dao.Init(conf)
 	defer dao.CloseConn()
 
 	Convey("Test insert", t, func() {
@@ -232,7 +232,7 @@ func TestCursor(t *testing.T) {
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
-	dao.Init(*conf)
+	dao.Init(conf)
 	defer dao.CloseConn()
 
 	Convey("Insert Activities and browse", t, func() {
@@ -351,7 +351,7 @@ func TestDelete(t *testing.T) {
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
-	dao.Init(*conf)
+	dao.Init(conf)
 	defer dao.CloseConn()
 
 	Convey("Test Delete Owner", t, func() {
@@ -382,7 +382,7 @@ func TestSubscriptions(t *testing.T) {
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
-	dao.Init(*conf)
+	dao.Init(conf)
 	defer dao.CloseConn()
 
 	Convey("Test subscribe", t, func() {

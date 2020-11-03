@@ -23,7 +23,6 @@ package service
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -35,7 +34,6 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -43,15 +41,20 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/x/configx"
 )
 
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
-
+	// TODO - should be a generic server
 	return WithMicro(func(m micro.Service) error {
-		runner := NewChildrenRunner(m, parentName, childrenPrefix)
+		runner := NewChildrenRunner(parentName, childrenPrefix)
+		var cancel context.CancelFunc
+
 		m.Init(
 			micro.AfterStart(func() error {
 				ctx := m.Options().Context
+				ctx, cancel = context.WithCancel(ctx)
+
 				conf := servicecontext.GetConfig(ctx)
 				runner.StartFromInitialConf(ctx, conf)
 				runner.beforeDeleteClean = cleanEndpointBeforeDelete
@@ -61,7 +64,8 @@ func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndp
 				return nil
 			}),
 			micro.BeforeStop(func() error {
-				runner.StopAll(m.Options().Context)
+				cancel()
+
 				return nil
 			}),
 		)
@@ -70,11 +74,10 @@ func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndp
 }
 
 // NewChildrenRunner creates a ChildrenRunner
-func NewChildrenRunner(parentService micro.Service, parentName string, childPrefix string) *ChildrenRunner {
+func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
 	c := &ChildrenRunner{
-		parentService: parentService,
-		parentName:    parentName,
-		childPrefix:   childPrefix,
+		parentName:  parentName,
+		childPrefix: childPrefix,
 	}
 	c.mutex = &sync.Mutex{}
 	c.services = make(map[string]*exec.Cmd)
@@ -106,7 +109,7 @@ func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) 
 }
 
 // StartFromInitialConf list the sources keys and start them
-func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.ConfigValues) {
+func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg configx.Values) {
 	sources := config.SourceNamesFromDataConfigs(cfg)
 	c.initialCtx = ctx
 	log.Logger(ctx).Info("Starting umbrella service "+c.childPrefix+" with sources", zap.Any("sources", sources))
@@ -121,7 +124,7 @@ func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.Co
 func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...int) error {
 
 	name := c.childPrefix + source
-	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
+	cmd := exec.Command(os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -160,13 +163,22 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 	c.services[source] = cmd
 	c.mutex.Unlock()
 
+	go func() {
+		select {
+		case <-ctx.Done():
+			if cmd.Process != nil {
+				cmd.Process.Signal(syscall.SIGINT)
+			}
+		}
+	}()
+
 	log.Logger(ctx).Debug("Starting SubProcess: " + name)
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		if err.Error() != "signal: killed" && err.Error() != "signal: interrupt" {
+		if err.Error() != "signal: killed" && err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
 			log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
 			registry.Default.SetServiceStopped(name)
 			c.mutex.Lock()
@@ -206,7 +218,7 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
-	watcher, err := config.Default().Watch("services", c.parentName, "sources")
+	watcher, err := config.Watch("services", c.parentName, "sources")
 	if err != nil {
 		return err
 	}
@@ -218,16 +230,9 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 			if err != nil {
 				return
 			}
-			var sourceString string
-			if err := res.Scan(&sourceString); err != nil {
-				log.Logger(ctx).Error("Cannot read sources", zap.Error(err))
-				continue
-			}
-			var arr []string
-			if err := json.Unmarshal([]byte(sourceString), &arr); err != nil {
-				log.Logger(ctx).Error("Invalid sources", zap.Error(err))
-				continue
-			}
+
+			arr := res.StringArray()
+
 			sources := config.SourceNamesFiltered(arr)
 			log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
 			log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Any("new sources", sources))

@@ -28,7 +28,7 @@ import (
 	"github.com/micro/go-micro/server"
 
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func newConfigProvider(service micro.Service) error {
@@ -40,17 +40,10 @@ func newConfigProvider(service micro.Service) error {
 
 	// Going to get the configs from the config service
 	options = append(options, micro.BeforeStart(func() error {
-
-		var cfg config.Map
-
 		name := servicecontext.GetServiceName(ctx)
 
-		if err := config.Get("services", name).Scan(&cfg); err != nil {
-			return err
-		}
-
 		//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", name), zap.Any("cfg", cfg))
-		ctx = servicecontext.WithConfig(ctx, cfg)
+		ctx = servicecontext.WithConfig(ctx, config.Get("services", name))
 		service.Init(micro.Context(ctx))
 
 		return nil
@@ -76,18 +69,10 @@ func NewConfigHandlerWrapper(service micro.Service) server.HandlerWrapper {
 
 // NewConfigHttpHandlerWrapper is the same as ConfigHandlerWrapper but for pure http
 func NewConfigHttpHandlerWrapper(h http.Handler, serviceName string) (http.Handler, error) {
-	var cfg config.Map
-
-	if err := config.Get("services", serviceName).Scan(&cfg); err != nil {
-		return nil, err
-	}
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		c := r.Context()
-		c = servicecontext.WithConfig(c, cfg)
+		c = servicecontext.WithConfig(c, config.Get("services", serviceName))
 		r = r.WithContext(c)
 		h.ServeHTTP(w, r)
-
 	}), nil
 }

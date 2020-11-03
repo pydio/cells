@@ -8,6 +8,7 @@ import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 import _ "github.com/pydio/cells/common/proto/ctl"
+import _ "github.com/pydio/cells/common/proto/install"
 import _ "github.com/pydio/cells/common/proto/object"
 import _ "github.com/pydio/cells/common/proto/tree"
 
@@ -138,5 +139,18 @@ func (this *SchedulerActionFormRequest) Validate() error {
 	return nil
 }
 func (this *SchedulerActionFormResponse) Validate() error {
+	return nil
+}
+func (this *ListSitesRequest) Validate() error {
+	return nil
+}
+func (this *ListSitesResponse) Validate() error {
+	for _, item := range this.Sites {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Sites", err)
+			}
+		}
+	}
 	return nil
 }

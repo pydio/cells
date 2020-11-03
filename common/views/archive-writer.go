@@ -25,7 +25,6 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"context"
-	"github.com/pydio/cells/common/proto/jobs"
 	"io"
 	"path"
 	"strings"
@@ -40,7 +39,7 @@ type ArchiveWriter struct {
 	Router Handler
 
 	// Optional filter when listing nodes to build the archive
-	NodesFilter *jobs.NodesSelector
+	WalkFilter WalkFilter
 }
 
 func (w *ArchiveWriter) commonRoot(nodes []*tree.Node) string {
@@ -81,8 +80,8 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 			return node.Size > 0
 		},
 	}
-	if w.NodesFilter != nil {
-		filters = append(filters, WalkFilterFromNodeFilter(w.NodesFilter))
+	if w.WalkFilter != nil {
+		filters = append(filters, w.WalkFilter)
 	}
 	for _, node := range nodes {
 

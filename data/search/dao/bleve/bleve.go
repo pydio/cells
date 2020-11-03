@@ -214,7 +214,7 @@ func extractConfigs(conf map[string]interface{}) (basenameAnalyzer, contentAnaly
 	}
 	_, tt := registry.AnalyzerTypesAndInstances()
 
-	if bA, o := conf["basenameAnalyzer"]; o {
+	if bA, o := conf["basenameAnalyzer"]; o && bA != "" {
 		var found bool
 		for _, t := range tt {
 			if t == bA.(string) {
@@ -228,7 +228,7 @@ func extractConfigs(conf map[string]interface{}) (basenameAnalyzer, contentAnaly
 		}
 	}
 
-	if cA, o := conf["contentAnalyzer"]; o {
+	if cA, o := conf["contentAnalyzer"]; o && cA != "" {
 		var found bool
 		for _, t := range tt {
 			if t == cA.(string) {

@@ -104,7 +104,7 @@ func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "ThumbSizes",
-					Type:        "string",
+					Type:        forms.ParamTextarea,
 					Label:       "Sizes",
 					Description: "A JSON map describing each thumbnail to be created",
 					Default:     "",
@@ -123,14 +123,6 @@ func (t *ThumbnailExtractor) GetName() string {
 
 // Init passes parameters to the action.
 func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	// Todo : get sizes from parameters
-	/*
-		t.Router = views.NewStandardRouter(views.RouterOptions{
-			AdminView:     true,
-			WatchRegistry: false,
-		})
-	*/
-
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {
@@ -233,9 +225,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	node.SetMeta(METADATA_COMPAT_IMAGE_WIDTH, width)
 	node.SetMeta(METADATA_COMPAT_IMAGE_READABLE_DIMENSIONS, fmt.Sprintf("%dpx X %dpx", width, height))
 
-	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
-
-	if err != nil {
+	if _, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); err != nil {
 		return errors.Wrap(err, errPath)
 	}
 
@@ -252,6 +242,9 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
+			// Remove processing state from Metadata
+			node.SetMeta(METADATA_THUMBNAILS, nil)
+			t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 			return errors.Wrap(err, errPath)
 		}
 		displayMemStat(ctx, "AFTER WRITE SIZE FROM SRC")

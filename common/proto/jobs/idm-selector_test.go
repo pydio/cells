@@ -1,0 +1,99 @@
+package jobs
+
+import (
+	"context"
+	"testing"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pydio/cells/common/proto/idm"
+	service "github.com/pydio/cells/common/service/proto"
+
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+func TestIdmSelector_Filter1(t *testing.T) {
+
+	Convey("Test user single query", t, func() {
+		q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
+		m := &IdmSelector{
+			Type:  IdmSelectorType_User,
+			Query: &service.Query{SubQueries: []*any.Any{q}},
+		}
+		ctx := context.Background()
+		// Simple test
+		input := ActionMessage{Users: []*idm.User{{Login: "test"}}}
+		message, opposite, pass := m.Filter(ctx, input)
+		So(message, ShouldNotBeNil)
+		So(message.Users, ShouldHaveLength, 1)
+		So(pass, ShouldBeTrue)
+		So(opposite, ShouldBeNil)
+
+		// Opposite test
+		input = ActionMessage{Users: []*idm.User{{Login: "other"}}}
+		message, opposite, pass = m.Filter(ctx, input)
+		So(message, ShouldNotBeNil)
+		So(message.Users, ShouldHaveLength, 0)
+		So(pass, ShouldBeFalse)
+		So(opposite, ShouldNotBeNil)
+		So(opposite.Users, ShouldHaveLength, 1)
+	})
+}
+
+func TestIdmSelector_Filter2(t *testing.T) {
+
+	Convey("Test user two single queries", t, func() {
+		q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
+		q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{HasProfile: "standard"})
+		m := &IdmSelector{
+			Type: IdmSelectorType_User,
+			Query: &service.Query{
+				SubQueries: []*any.Any{q1, q2},
+				Operation:  service.OperationType_AND,
+			},
+		}
+		ctx := context.Background()
+		// Simple test
+		input := ActionMessage{Users: []*idm.User{{
+			Login: "test",
+			Attributes: map[string]string{
+				idm.UserAttrProfile: "standard",
+			},
+		}}}
+		message, opposite, pass := m.Filter(ctx, input)
+		So(message, ShouldNotBeNil)
+		So(message.Users, ShouldHaveLength, 1)
+		So(pass, ShouldBeTrue)
+		So(opposite, ShouldBeNil)
+	})
+}
+
+func TestIdmSelector_Filter3(t *testing.T) {
+
+	Convey("Test user complex query", t, func() {
+		q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
+		q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{HasProfile: "standard"})
+		subQ, _ := ptypes.MarshalAny(&service.Query{
+			SubQueries: []*any.Any{q1, q2},
+			Operation:  service.OperationType_AND,
+		})
+		m := &IdmSelector{
+			Type:  IdmSelectorType_User,
+			Query: &service.Query{SubQueries: []*any.Any{subQ}},
+		}
+		ctx := context.Background()
+		// Simple test
+		input := ActionMessage{Users: []*idm.User{{
+			Login: "test",
+			Attributes: map[string]string{
+				idm.UserAttrProfile: "standard",
+			},
+		}}}
+		message, opposite, pass := m.Filter(ctx, input)
+		So(message, ShouldNotBeNil)
+		So(message.Users, ShouldHaveLength, 1)
+		So(pass, ShouldBeTrue)
+		So(opposite, ShouldBeNil)
+	})
+
+}

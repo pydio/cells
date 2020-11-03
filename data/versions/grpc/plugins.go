@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -46,11 +46,12 @@ var (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Versioning service"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),

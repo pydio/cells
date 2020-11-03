@@ -36,6 +36,7 @@ import RestListPeerFoldersRequest from '../model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from '../model/RestListPeersAddressesResponse';
 import RestListProcessesRequest from '../model/RestListProcessesRequest';
 import RestListProcessesResponse from '../model/RestListProcessesResponse';
+import RestListSitesResponse from '../model/RestListSitesResponse';
 import RestListStorageBucketsRequest from '../model/RestListStorageBucketsRequest';
 import RestNodesCollection from '../model/RestNodesCollection';
 import RestOpenApiResponse from '../model/RestOpenApiResponse';
@@ -1012,6 +1013,55 @@ export default class ConfigServiceApi {
      */
     listServices(opts) {
       return this.listServicesWithHttpInfo(opts)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * List configured sites
+     * @param {String} filter 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListSitesResponse} and HTTP response
+     */
+    listSitesWithHttpInfo(filter) {
+      let postBody = null;
+
+      // verify the required parameter 'filter' is set
+      if (filter === undefined || filter === null) {
+        throw new Error("Missing the required parameter 'filter' when calling listSites");
+      }
+
+
+      let pathParams = {
+        'Filter': filter
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestListSitesResponse;
+
+      return this.apiClient.callApi(
+        '/config/sites/{Filter}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List configured sites
+     * @param {String} filter 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListSitesResponse}
+     */
+    listSites(filter) {
+      return this.listSitesWithHttpInfo(filter)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

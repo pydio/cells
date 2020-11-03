@@ -22,6 +22,7 @@
 package rest
 
 import (
+	"context"
 	"encoding/gob"
 
 	"github.com/pydio/packr"
@@ -79,7 +80,7 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		gob.Register(map[string]string{})
 
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
@@ -97,6 +98,7 @@ func init() {
 
 		s := service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_FRONTEND),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(BasePluginsBox),

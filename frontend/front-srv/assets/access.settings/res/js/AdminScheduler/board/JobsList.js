@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import ScheduleForm from "./ScheduleForm";
 import Events from "./Events";
 
-import {IconButton, Paper, Dialog} from 'material-ui'
+import {Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
@@ -191,6 +191,7 @@ class JobsList extends React.Component {
                         showCheckboxes={false}
                         emptyStateString={loading ? Pydio.getInstance().MessageHash[466] : m('system.empty')}
                         masterStyles={adminStyles.body.tableMaster}
+                        storageKey={'console.scheduler.jobs.list'}
                     />
                 </Paper>
                 <AdminComponents.SubHeader

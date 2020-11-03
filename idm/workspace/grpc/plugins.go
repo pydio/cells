@@ -22,21 +22,24 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/idm/workspace"
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("Workspaces Service"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),

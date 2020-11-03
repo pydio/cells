@@ -114,7 +114,11 @@ var PluginsLoader = (function () {
             // Load initial config
 
             api.getConfig(fullPath).then(function (response) {
-                var currentData = JSON.parse(response.Data) || {};
+                return response.Data;
+            }).then(function () {
+                var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
+
+                var currentData = JSON.parse(data) || {};
                 currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
                 var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
@@ -126,13 +130,40 @@ var PluginsLoader = (function () {
             });
         }
     }, {
+        key: 'loadServiceConfigs',
+        value: function loadServiceConfigs(serviceName) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.getConfig("services/" + serviceName).then(function (data) {
+                return data || {};
+            }).then(function (restConfig) {
+                if (restConfig.Data) {
+                    return JSON.parse(restConfig.Data) || {};
+                } else {
+                    return {};
+                }
+            });
+        }
+    }, {
+        key: 'saveServiceConfigs',
+        value: function saveServiceConfigs(serviceName, data) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var body = new _pydioHttpRestApi.RestConfiguration();
+            body.FullPath = "services/" + serviceName;
+            body.Data = JSON.stringify(data);
+            return api.putConfig(body.FullPath, body);
+        }
+    }, {
         key: 'loadPluginConfigs',
         value: function loadPluginConfigs(pluginId) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var fullPath = "frontend/plugin/" + pluginId;
             return new Promise(function (resolve, reject) {
                 api.getConfig(fullPath).then(function (response) {
-                    var currentData = JSON.parse(response.Data) || {};
+                    return response.Data;
+                }).then(function () {
+                    var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
+
+                    var currentData = JSON.parse(data) || {};
                     resolve(currentData);
                 })['catch'](function (e) {
                     reject(e);
@@ -147,7 +178,11 @@ var PluginsLoader = (function () {
             var fullPath = "frontend/plugin/" + pluginId;
 
             api.getConfig(fullPath).then(function (response) {
-                var currentData = JSON.parse(response.Data) || {};
+                return response.Data;
+            }).then(function () {
+                var data = arguments.length <= 0 || arguments[0] === undefined ? "{}" : arguments[0];
+
+                var currentData = JSON.parse(data) || {};
                 var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
                 var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
@@ -220,6 +255,14 @@ var PluginsLoader = (function () {
                     return params;
                 }).bind(_this2));
             });
+        }
+    }, {
+        key: 'loadSites',
+        value: function loadSites() {
+            var filter = arguments.length <= 0 || arguments[0] === undefined ? '*' : arguments[0];
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.listSites(filter);
         }
     }]);
 

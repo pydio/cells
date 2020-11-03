@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -30,13 +32,13 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
 )
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_OBJECTS)
 
@@ -44,6 +46,7 @@ func init() {
 
 			service.NewService(
 				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
+				service.Context(ctx),
 				service.Tag(common.SERVICE_TAG_DATASOURCE),
 				service.Description("S3 Object service for a given datasource"),
 				service.Source(datasource),
@@ -56,28 +59,32 @@ func init() {
 
 					engine := &ObjectHandler{}
 
-					m.Init(micro.AfterStart(func() error {
-						ctx := m.Options().Context
-						log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
-						var conf *object.MinioConfig
-						if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
-							return err
-						}
-						if ip, e := net.GetExternalIP(); e != nil {
-							conf.RunningHost = "127.0.0.1"
-						} else {
-							conf.RunningHost = ip.String()
-						}
+					object.RegisterObjectsEndpointHandler(s, engine)
 
-						conf.RunningSecure = false
+					m.Init(
+						micro.AfterStart(func() error {
+							ctx := m.Options().Context
+							log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
+							var conf *object.MinioConfig
+							if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
+								return err
+							}
 
-						engine.Config = conf
-						log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
-						go engine.StartMinioServer(ctx, serviceName)
-						object.RegisterObjectsEndpointHandler(s, engine)
+							if ip, e := net.GetExternalIP(); e != nil {
+								conf.RunningHost = "127.0.0.1"
+							} else {
+								conf.RunningHost = ip.String()
+							}
 
-						return nil
-					}))
+							conf.RunningSecure = false
+
+							engine.Config = conf
+							log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
+							go engine.StartMinioServer(ctx, serviceName)
+
+							return nil
+						}),
+					)
 
 					return nil
 				}),

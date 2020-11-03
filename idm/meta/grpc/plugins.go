@@ -43,9 +43,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),

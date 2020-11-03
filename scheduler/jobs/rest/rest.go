@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/proto/rest"
@@ -71,7 +71,7 @@ func (s *JobsHandler) Filter() func(string) string {
 
 func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
@@ -138,8 +138,10 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	} else if cmd.Cmd == jobs.Command_RunOnce {
 
 		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
-			JobID:  cmd.JobId,
-			RunNow: true,
+			JobID:         cmd.JobId,
+			RunNow:        true,
+			RunTaskId:     cmd.TaskId,
+			RunParameters: cmd.RunParameters,
 		}))
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {
@@ -204,7 +206,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", request))
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {

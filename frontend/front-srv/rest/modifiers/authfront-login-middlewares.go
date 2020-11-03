@@ -120,6 +120,8 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 			return nil
 		}
 
+		fmt.Println("Login failed with ", err)
+
 		ctx := req.Request.Context()
 
 		username := in.AuthInfo["login"]

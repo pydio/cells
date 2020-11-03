@@ -995,12 +995,6 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
-			"checksumSHA1": "4tTcNh86OwCSkCD6WeA6ajRYqDA=",
-			"path": "github.com/coreos/go-oidc/jose",
-			"revision": "a4973d9a4225417aecf5d450a9522f00c1f7130f",
-			"revisionTime": "2017-07-11T23:37:13Z"
-		},
-		{
 			"checksumSHA1": "zQ6TLRa2BeiERZIPME4H0kXDGXc=",
 			"path": "github.com/couchbase/vellum",
 			"revision": "e91b68ff3efe3cc11723aa25dd315cbc9276cd65",
@@ -2504,10 +2498,10 @@
 			"revisionTime": "2018-04-03T01:34:13Z"
 		},
 		{
-			"checksumSHA1": "/MbkohdDPqGPeAkHq6ZkInB/WD0=",
+			"checksumSHA1": "9msy4a5g5RxRvoihh+J9Qr4lEHw=",
 			"path": "github.com/imdario/mergo",
-			"revision": "0d4b488675fdec1dde48751b05ab530cf0b630e1",
-			"revisionTime": "2018-01-26T22:59:47Z"
+			"revision": "cd55aeac72a19c6d5826061d5125d72b252a12eb",
+			"revisionTime": "2020-08-11T19:49:30Z"
 		},
 		{
 			"checksumSHA1": "YjZiQ5N552dJ7GpJ2P4TTRu4PKI=",
@@ -3251,18 +3245,6 @@
 			"path": "github.com/micro/go-api/server",
 			"revision": "1adef4afafd09abaef2d52d911bd00db4acbd9e6",
 			"revisionTime": "2018-04-08T11:38:06Z"
-		},
-		{
-			"checksumSHA1": "jugvy+NKo6OIijYfWBkDAWNi1SY=",
-			"path": "github.com/micro/go-config/reader",
-			"revision": "05803c35ec9dbea47ba1258fc024259e94761892",
-			"revisionTime": "2018-03-21T07:47:09Z"
-		},
-		{
-			"checksumSHA1": "mqM/P0yaj5gyi5M6B+cLJBvOZd0=",
-			"path": "github.com/micro/go-config/source",
-			"revision": "05803c35ec9dbea47ba1258fc024259e94761892",
-			"revisionTime": "2018-03-21T07:47:09Z"
 		},
 		{
 			"checksumSHA1": "XiGYfivLxazG201tsVqbAepweE4=",
@@ -4773,10 +4755,10 @@
 			"revisionTime": "2018-02-14T17:35:30Z"
 		},
 		{
-			"checksumSHA1": "12g3NDgLPvSJcPKEKzU42m6GWVI=",
+			"checksumSHA1": "CsajbASRVnQPgwEY6czpobf/Mk8=",
 			"path": "github.com/spf13/cobra",
-			"revision": "c439c4fa093711d42e1b01acb1235b52004753c1",
-			"revisionTime": "2018-03-19T06:20:04Z"
+			"revision": "b97b5ead31f7d34f764ac8666e40c214bb8e06dc",
+			"revisionTime": "2020-10-06T03:54:06Z"
 		},
 		{
 			"checksumSHA1": "+JFKK0z5Eutk29rUz1lEhLxHMfk=",
@@ -4785,10 +4767,10 @@
 			"revisionTime": "2018-01-09T13:55:06Z"
 		},
 		{
-			"checksumSHA1": "tfKmT8uovT9Ch2YyDJtti3egAB4=",
+			"checksumSHA1": "ZCkvlhpIvDEtkO5t08eu2WkvBpU=",
 			"path": "github.com/spf13/pflag",
-			"revision": "ee5fd03fd6acfd43e44aea0b4135958546ed8e73",
-			"revisionTime": "2018-02-20T14:32:36Z"
+			"revision": "6971c29c4a22981adeaee7f4b437c0cffe08c031",
+			"revisionTime": "2020-09-10T15:26:56Z"
 		},
 		{
 			"checksumSHA1": "AB/VGCv0NIjGYZXhJUBSbVIsOJw=",
@@ -5074,10 +5056,22 @@
 			"revisionTime": "2017-10-30T23:38:06Z"
 		},
 		{
+			"checksumSHA1": "zXomv4i4Q94teiXvnLQHfHEIi1g=",
+			"path": "go.uber.org/zap/internal/ztest",
+			"revision": "a6015e13fab9b744d96085308ce4e8f11bad1996",
+			"revisionTime": "2019-10-30T01:33:56Z"
+		},
+		{
 			"checksumSHA1": "mRD6lujPvXPkbC3+byNwO/bNVu8=",
 			"path": "go.uber.org/zap/zapcore",
 			"revision": "f85c78b1dd998214c5f2138155b320a4a43fbe36",
 			"revisionTime": "2017-10-30T23:38:06Z"
+		},
+		{
+			"checksumSHA1": "lrLB9tR78lH/Pbd8HqDdsMEIg00=",
+			"path": "go.uber.org/zap/zaptest",
+			"revision": "a6015e13fab9b744d96085308ce4e8f11bad1996",
+			"revisionTime": "2019-10-30T01:33:56Z"
 		},
 		{
 			"checksumSHA1": "zHLlCNnnX/KNVue2tHr+FWxbszA=",

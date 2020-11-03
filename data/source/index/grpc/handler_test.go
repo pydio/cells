@@ -33,10 +33,10 @@ import (
 	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/service/context"
+	defaults "github.com/pydio/cells/common/micro"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/source/index"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -101,7 +101,7 @@ func TestMain(m *testing.M) {
 		func() server.Option { return server.Broker(nats.NewBroker()) },
 	)
 
-	var options config.Map
+	options := configx.New()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {

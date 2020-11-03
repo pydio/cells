@@ -69,6 +69,12 @@ export default class JobsNodesSelector {
             if (data.hasOwnProperty('Collect')) {
                 obj['Collect'] = ApiClient.convertToType(data['Collect'], 'Boolean');
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
+            }
         }
         return obj;
     }
@@ -89,6 +95,14 @@ export default class JobsNodesSelector {
     * @member {Boolean} Collect
     */
     Collect = undefined;
+    /**
+    * @member {String} Label
+    */
+    Label = undefined;
+    /**
+    * @member {String} Description
+    */
+    Description = undefined;
 
 
 

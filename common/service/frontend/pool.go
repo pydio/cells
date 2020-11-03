@@ -16,6 +16,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/x/configx"
 )
 
 type PluginsPool struct {
@@ -162,11 +163,11 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 		}
 	}
 	emptyStatus := RequestStatus{
-		Config:        config.Default(),
+		Config:        config.Get(),
 		Lang:          lang,
 		NoClaims:      true,
-		AclParameters: config.NewMap(),
-		AclActions:    config.NewMap(),
+		AclParameters: configx.New(),
+		AclActions:    configx.New(),
 	}
 
 	for _, plugin := range p.Plugins {
@@ -225,6 +226,7 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	}
 	// Filter Accesses
 	filtered := make(map[string]Plugin)
+
 	for id, p := range p.Plugins {
 		if err := ApplyPluginModifiers(ctx, status, p); err != nil {
 			log.Logger(ctx).Error("Filtering out plugin "+id+" (error while applying filter)", zap.Error(err))
@@ -311,7 +313,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
-	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("")
+	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
 		content, _ := ioutil.ReadAll(f)
 		var data map[string]Translation

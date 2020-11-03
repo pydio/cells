@@ -69,27 +69,28 @@ func (ex *ExtractAction) GetParametersForm() *forms.Form {
 		{
 			Fields: []forms.Field{
 				&forms.FormField{
+					Name:        "target",
+					Type:        forms.ParamString,
+					Label:       "Extraction path",
+					Description: "FullPath used for extracting contents. If left empty, will extract in the same folder.",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
 					Name:        "format",
 					Type:        forms.ParamSelect,
 					Label:       "Archive format",
-					Description: "The format of the archive",
-					Default:     "",
+					Description: "Compression format of the archive",
+					Default:     detectFormat,
 					Mandatory:   true,
 					Editable:    true,
 					ChoicePresetList: []map[string]string{
+						{detectFormat: "Detect (from filename)"},
 						{zipFormat: "Zip"},
 						{tarFormat: "Tar"},
 						{tarGzFormat: "TarGz"},
 					},
-				},
-				&forms.FormField{
-					Name:        "target",
-					Type:        "string",
-					Label:       "Archive path",
-					Description: "FullPath to the new archive",
-					Default:     "",
-					Mandatory:   false,
-					Editable:    true,
 				},
 			},
 		},
@@ -125,14 +126,18 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 		ext = ".tar.gz"
 	}
 
-	format := ex.Format
-	if format == "" {
-		format = strings.TrimLeft(ext, ".")
+	format := jobs.EvaluateFieldStr(ctx, input, ex.Format)
+	if format == "" || format == detectFormat {
+		format = strings.ToLower(strings.TrimLeft(ext, "."))
+		if format != zipFormat && format != tarFormat && format != tarGzFormat {
+			e := fmt.Errorf("Could not extract format from file extension (" + ext +")")
+			return input.WithError(e), e
+		}
 	}
 	targetName := jobs.EvaluateFieldStr(ctx, input, ex.TargetName)
 	if targetName == "" {
-		base := strings.TrimSuffix(filepath.Base(archiveNode.Path), ext)
-		targetName = computeTargetName(ctx, ex.Router, filepath.Dir(archiveNode.Path), base)
+		base := strings.TrimSuffix(path.Base(archiveNode.Path), ext)
+		targetName = computeTargetName(ctx, ex.Router, path.Dir(archiveNode.Path), base)
 	}
 	targetNode := &tree.Node{Path: targetName, Type: tree.NodeType_COLLECTION}
 	_, e := ex.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode})

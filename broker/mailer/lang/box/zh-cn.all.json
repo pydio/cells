@@ -237,6 +237,10 @@
     "other": "发送邮件给用户"
   },
   "Mail.Config.FromCtlDefault.Label": {
+<<<<<<< HEAD
     "other": "总是从默认的 FROM 地址/名称发送"
+=======
+    "other": "Always send from the Default FROM address/name"
+>>>>>>> multi-bind
   }
 }

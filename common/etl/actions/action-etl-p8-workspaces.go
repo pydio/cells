@@ -36,6 +36,7 @@ func (c *SyncWorkspacesAction) GetName() string {
 func (c *SyncWorkspacesAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncWorkspacesActionName,
+		IsInternal:      true,
 		Label:           "Sync. workspaces",
 		Icon:            "",
 		Description:     "Diff and merge workspaces from stores",

@@ -53,6 +53,7 @@ exports['default'] = React.createClass({
         this._observer = function (activityState) {
             _this.setState(activityState);
         };
+
         this.props.pydio.observe('activity_state_change', this._observer);
     },
 

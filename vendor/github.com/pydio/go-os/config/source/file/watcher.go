@@ -3,8 +3,8 @@ package file
 import (
 	"errors"
 
-	"github.com/pydio/go-os/config"
 	"github.com/fsnotify/fsnotify"
+	"github.com/pydio/go-os/config"
 )
 
 type watcher struct {

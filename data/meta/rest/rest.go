@@ -80,9 +80,9 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	}
 
 	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", path), zap.Any("n", node))
-	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
-	defer closer()
-	meta.EnrichNodesMetaFromProviders(ctx, streamers, names, node)
+	loader := meta.NewStreamLoader(ctx)
+	defer loader.Close()
+	loader.LoadMetas(ctx, node)
 
 	//log.Logger(ctx).Debug("AFTER META PROVIDERS", zap.Any("n", node))
 	resp.WriteEntity(node.WithoutReservedMetas())
@@ -147,14 +147,14 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
-	defer closer()
+	metaLoader := meta.NewStreamLoader(ctx)
+	defer metaLoader.Close()
 
 	if len(output.Nodes) > 0 {
 		for i, n := range output.Nodes {
 			if n.Uuid != "" {
-				meta.EnrichNodesMetaFromProviders(ctx, streamers, names, n)
-				output.Nodes[i] = n
+				metaLoader.LoadMetas(ctx, n)
+				output.Nodes[i] = n.WithoutReservedMetas()
 			}
 		}
 	}
@@ -194,7 +194,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 			s := time.Now()
 			if !bulkRequest.Versions {
-				meta.EnrichNodesMetaFromProviders(ctx, streamers, names, r.Node)
+				metaLoader.LoadMetas(ctx, r.Node)
 			}
 			eTimes = append(eTimes, time.Now().Sub(s))
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {

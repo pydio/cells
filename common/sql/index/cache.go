@@ -34,12 +34,12 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsql "github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -150,7 +150,7 @@ func (d *daocache) resync() {
 }
 
 // Init the dao cache
-func (d *daocache) Init(m common.ConfigValues) error {
+func (d *daocache) Init(m configx.Values) error {
 	return d.DAO.(dao.DAO).Init(m)
 }
 

@@ -166,9 +166,16 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	r.Task.SetStartTime(time.Now())
 	r.Task.Save()
 
-	runnableChannels, done := r.Task.GetRunnableChannels()
-	outputMessage, err := r.Implementation.Run(r.Context, runnableChannels, r.Message)
-	close(done)
+	var outputMessage jobs.ActionMessage
+	var err error
+	if r.Action.Bypass {
+		log.TasksLogger(r.Context).Warn("Skipping action " + r.ID + " as it is flagged Bypass. Forwarding input to output.")
+		outputMessage = r.Message
+	} else {
+		runnableChannels, done := r.Task.GetRunnableChannels()
+		outputMessage, err = r.Implementation.Run(r.Context, runnableChannels, r.Message)
+		close(done)
+	}
 	r.Task.Done(1)
 
 	if err != nil {
@@ -180,7 +187,11 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	}
 	r.Task.AppendLog(r.Action, r.Message, outputMessage)
 
-	r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, Queue)
+	if !r.Action.BreakAfter {
+		r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, Queue)
+	} else {
+		log.TasksLogger(r.Context).Warn("Stopping chain at action " + r.ID + " as it is flagged BreakAfter.")
+	}
 
 	if !taskUpdateDelegated {
 		r.Task.SetStatus(jobs.TaskStatus_Finished, "Complete")

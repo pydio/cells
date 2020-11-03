@@ -21,6 +21,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
@@ -31,9 +33,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
 			service.Description("Main service loading configurations for all other services."),
 			service.WithStorage(config.NewDAO),

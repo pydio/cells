@@ -304,16 +304,25 @@ exports['default'] = _react2['default'].createClass({
         var _this2 = this;
 
         var allGroups = [];
-        var values = this.getValues();
         var groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = { FIELDS: [] };
         var replicationGroups = {};
+        var _props = this.props;
+        var parameters = _props.parameters;
+        var values = _props.values;
+        var skipFieldsTypes = _props.skipFieldsTypes;
+        var disabled = _props.disabled;
+        var binary_context = _props.binary_context;
+        var _props2 = this.props;
+        var altTextSwitchIcon = _props2.altTextSwitchIcon;
+        var altTextSwitchTip = _props2.altTextSwitchTip;
+        var onAltTextSwitch = _props2.onAltTextSwitch;
 
-        this.props.parameters.map((function (attributes) {
+        parameters.map((function (attributes) {
             var _this = this;
 
             var type = attributes['type'];
-            if (this.props.skipFieldsTypes && this.props.skipFieldsTypes.indexOf(type) > -1) {
+            if (skipFieldsTypes && skipFieldsTypes.indexOf(type) > -1) {
                 return;
             }
             var paramName = attributes['name'];
@@ -328,7 +337,8 @@ exports['default'] = _react2['default'].createClass({
                 allGroups[group] = { FIELDS: [], LABEL: group };
             }
 
-            var repGroup = attributes['replicationGroup'];
+            var repGroup = attributes.replicationGroup;
+
             if (repGroup) {
 
                 if (!replicationGroups[repGroup]) {
@@ -351,68 +361,76 @@ exports['default'] = _react2['default'].createClass({
                     field = _react2['default'].createElement(_GroupSwitchPanel2['default'], _extends({}, this.props, {
                         onChange: this.onSubformChange,
                         paramAttributes: attributes,
-                        parameters: this.props.parameters,
-                        values: this.props.values,
+                        parameters: parameters,
+                        values: values,
                         key: paramName,
                         onScrollCallback: null,
                         limitToGroups: null,
                         onValidStatusChange: this.onSubformValidStatusChange
                     }));
                 } else if (attributes['type'] !== 'hidden') {
+                    (function () {
 
-                    var helperMark;
-                    if (this.props.setHelperData && this.props.checkHasHelper && this.props.checkHasHelper(attributes['name'], this.props.helperTestFor)) {
-                        var showHelper = (function () {
-                            this.props.setHelperData({
-                                paramAttributes: attributes,
-                                values: values,
-                                postValues: this.getValuesForPOST(values),
-                                applyButtonAction: this.applyButtonAction
-                            }, this.props.helperTestFor);
-                        }).bind(this);
-                        helperMark = _react2['default'].createElement('span', { className: 'icon-question-sign', onClick: showHelper });
-                    }
-                    var mandatoryMissing = false;
-                    var classLegend = "form-legend";
-                    if (attributes['errorText']) {
-                        classLegend = "form-legend mandatory-missing";
-                    } else if (attributes['warningText']) {
-                        classLegend = "form-legend warning-message";
-                    } else if (attributes['mandatory'] && (attributes['mandatory'] === "true" || attributes['mandatory'] === true)) {
-                        if (['string', 'textarea', 'image', 'integer'].indexOf(attributes['type']) !== -1 && !values[paramName]) {
-                            mandatoryMissing = true;
-                            classLegend = "form-legend mandatory-missing";
+                        var helperMark = undefined;
+                        var _props3 = _this.props;
+                        var setHelperData = _props3.setHelperData;
+                        var checkHasHelper = _props3.checkHasHelper;
+                        var helperTestFor = _props3.helperTestFor;
+
+                        if (setHelperData && checkHasHelper && checkHasHelper(attributes['name'], helperTestFor)) {
+                            var showHelper = (function () {
+                                setHelperData({
+                                    paramAttributes: attributes,
+                                    values: values,
+                                    postValues: this.getValuesForPOST(values),
+                                    applyButtonAction: this.applyButtonAction
+                                }, helperTestFor);
+                            }).bind(_this);
+                            helperMark = _react2['default'].createElement('span', { className: 'icon-question-sign', onClick: showHelper });
                         }
-                    }
+                        var mandatoryMissing = false;
+                        var classLegend = "form-legend";
+                        if (attributes['errorText']) {
+                            classLegend = "form-legend mandatory-missing";
+                        } else if (attributes['warningText']) {
+                            classLegend = "form-legend warning-message";
+                        } else if (attributes['mandatory'] && (attributes['mandatory'] === "true" || attributes['mandatory'] === true)) {
+                            if (['string', 'textarea', 'image', 'integer'].indexOf(attributes['type']) !== -1 && !values[paramName]) {
+                                mandatoryMissing = true;
+                                classLegend = "form-legend mandatory-missing";
+                            }
+                        }
 
-                    var props = {
-                        ref: "form-element-" + paramName,
-                        attributes: attributes,
-                        name: paramName,
-                        value: values[paramName],
-                        onChange: function onChange(newValue, oldValue, additionalFormData) {
-                            _this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
-                        },
-                        disabled: this.props.disabled || attributes['readonly'],
-                        multiple: attributes['multiple'],
-                        binary_context: this.props.binary_context,
-                        displayContext: 'form',
-                        applyButtonAction: this.applyButtonAction,
-                        errorText: mandatoryMissing ? pydio.MessageHash['621'] : attributes.errorText ? attributes.errorText : null
-                    };
+                        var props = {
+                            ref: "form-element-" + paramName,
+                            attributes: attributes,
+                            name: paramName,
+                            value: values[paramName],
+                            onChange: function onChange(newValue, oldValue, additionalFormData) {
+                                _this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
+                            },
+                            disabled: disabled || attributes['readonly'],
+                            multiple: attributes['multiple'],
+                            binary_context: binary_context,
+                            displayContext: 'form',
+                            applyButtonAction: _this.applyButtonAction,
+                            errorText: mandatoryMissing ? pydio.MessageHash['621'] : attributes.errorText ? attributes.errorText : null,
+                            onAltTextSwitch: onAltTextSwitch, altTextSwitchIcon: altTextSwitchIcon, altTextSwitchTip: altTextSwitchTip
+                        };
 
-                    field = _react2['default'].createElement(
-                        'div',
-                        { key: paramName, className: 'form-entry-' + attributes['type'] },
-                        _managerManager2['default'].createFormElement(props),
-                        _react2['default'].createElement(
+                        field = _react2['default'].createElement(
                             'div',
-                            { className: classLegend },
-                            attributes['warningText'] ? attributes['warningText'] : attributes['description'],
-                            ' ',
-                            helperMark
-                        )
-                    );
+                            { key: paramName, className: 'form-entry-' + attributes['type'] },
+                            _react2['default'].createElement(
+                                'div',
+                                { className: classLegend },
+                                attributes['warningText'] ? attributes['warningText'] : attributes['description'],
+                                ' ',
+                                helperMark
+                            ),
+                            _managerManager2['default'].createFormElement(props)
+                        );
+                    })();
                 } else {
 
                     this._hiddenValues[paramName] = values[paramName] === undefined ? attributes['default'] : values[paramName];
@@ -526,16 +544,16 @@ exports['default'] = _react2['default'].createClass({
                 };
 
                 for (var k in otherPanes) {
-                    var _ret2 = _loop(k);
+                    var _ret3 = _loop(k);
 
-                    if (_ret2 === 'continue') continue;
+                    if (_ret3 === 'continue') continue;
                 }
                 groupPanes = otherPanes['top'].concat(groupPanes).concat(otherPanes['bottom']);
             })();
         }
 
         if (this.props.tabs) {
-            var _ret3 = (function () {
+            var _ret4 = (function () {
                 var className = _this2.props.className;
                 var initialSelectedIndex = 0;
                 var i = 0;
@@ -589,7 +607,7 @@ exports['default'] = _react2['default'].createClass({
                 };
             })();
 
-            if (typeof _ret3 === 'object') return _ret3.v;
+            if (typeof _ret4 === 'object') return _ret4.v;
         } else {
             return _react2['default'].createElement(
                 'div',

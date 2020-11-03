@@ -182,6 +182,7 @@ class VirtualNodes extends React.Component{
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 masterStyles={adminStyles.body.tableMaster}
+                                storageKey={'console.templatepaths.list'}
                             />
                         </Paper>
                     }

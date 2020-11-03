@@ -254,6 +254,7 @@ class EncryptionKeys extends React.Component{
                         showCheckboxes={false}
                         emptyStateString={m('key.emptyState')}
                         masterStyles={tableMaster}
+                        storageKey={'console.encryption-keys.list'}
                     />
                 </Paper>
                 {accessByName('CreateEncryption') &&

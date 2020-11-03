@@ -26,6 +26,7 @@ package mailer
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/micro/go-micro/errors"
@@ -34,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/x/configx"
 )
 
 type Queue interface {
@@ -43,12 +45,12 @@ type Queue interface {
 }
 
 type Sender interface {
-	Configure(ctx context.Context, conf config.Map) error
+	Configure(ctx context.Context, conf configx.Values) error
 	Send(email *mailer.Mail) error
 	Check(ctx context.Context) error
 }
 
-func GetQueue(ctx context.Context, t string, conf common.ConfigValues) Queue {
+func GetQueue(ctx context.Context, t string, conf configx.Values) Queue {
 	switch t {
 	case "memory":
 		return newInMemoryQueue()
@@ -64,7 +66,7 @@ func GetQueue(ctx context.Context, t string, conf common.ConfigValues) Queue {
 	return nil
 }
 
-func GetSender(t string, conf config.Map) (Sender, error) {
+func GetSender(t string, conf configx.Values) (Sender, error) {
 
 	var sender Sender
 
@@ -85,6 +87,7 @@ func GetSender(t string, conf config.Map) (Sender, error) {
 
 	err := sender.Configure(nil, conf)
 	if err != nil {
+		fmt.Println(err)
 		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure sender for type %s", t)
 	}
 

@@ -26,8 +26,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 const (
@@ -43,13 +43,13 @@ const (
 func TestSmtp_Send(t *testing.T) {
 	Convey("Test Sending w/ SMTP over gmail", t, func() {
 
-		conf := config.NewMap()
-		conf.Set("host", "smtp.gmail.com")
-		conf.Set("port", float64(587))
+		conf := configx.New()
+		conf.Val("host").Set("smtp.gmail.com")
+		conf.Val("port").Set(float64(587))
 
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
-		conf.Set("user", test_username)
-		conf.Set("clearPass", test_pwd)
+		conf.Val("user").Set(test_username)
+		conf.Val("clearPass").Set(test_pwd)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
@@ -67,7 +67,7 @@ func TestSmtp_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		smtp := &Smtp{}
-		err := smtp.Configure(context.Background(), *conf)
+		err := smtp.Configure(context.Background(), conf)
 		So(err, ShouldBeNil)
 
 		err = smtp.Send(email)

@@ -26,6 +26,7 @@ import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
 import TasksList from './TasksList'
 import JobSchedule from './JobSchedule'
+import Loader from "./Loader";
 
 const {JobsStore} = Pydio.requireLib("boot");
 
@@ -42,9 +43,18 @@ class JobBoard extends React.Component {
             create: props.create,
             descriptions: {},
         }
+        this.loader = new Loader(props.job.ID);
+        this.loader.observe('loaded', (memo) => {
+            if(memo.job) {
+                this.setState({job: memo.job, error: null});
+            } else if(memo.error){
+                this.setState({error: memo.error});
+            }
+        });
     }
 
     componentDidMount(){
+        this.loader.start();
         // Load descriptions
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
@@ -53,21 +63,8 @@ class JobBoard extends React.Component {
 
     }
 
-    componentWillReceiveProps(nextProps){
-        if(nextProps.job && (nextProps.job.Tasks !== this.props.job.Tasks || nextProps.job.Inactive !== this.props.job.Inactive)) {
-            this.setState({job: nextProps.job});
-        }
-    }
-
-    onJobSave(job){
-        this.setState({job: job, create: false});
-    }
-
-    onJsonSave(job){
-        // Artificial redraw : go null and back to job
-        this.setState({job: null, create:false}, ()=>{
-            this.setState({job: job});
-        });
+    componentWillUnmount(){
+        this.loader.stop();
     }
 
     render(){
@@ -104,8 +101,8 @@ class JobBoard extends React.Component {
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <AdminComponents.Header
-                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
-                    backButtonAction={onRequestClose}
+                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={() => onRequestClose(true)}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
+                    backButtonAction={() => onRequestClose(true)}
                     actions={actions}
                     loading={loading}
                 />

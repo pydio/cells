@@ -2,18 +2,10 @@ package config
 
 import (
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/x/configx"
 )
 
 // GetUpdatesConfigs gather update configs from correct location
-func GetUpdatesConfigs() common.ConfigValues {
-
-	url := Default().Get("defaults", "update", "updateUrl").String("")
-	pKey := Default().Get("defaults", "update", "publicKey").String("")
-	channel := Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "channel").String("stable")
-	configs := Map{}
-	configs.Set("updateUrl", url)
-	configs.Set("channel", channel)
-	configs.Set("publicKey", pKey)
-	return configs
-
+func GetUpdatesConfigs() configx.Values {
+	return Get(configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE))
 }

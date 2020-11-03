@@ -36,13 +36,14 @@ const (
 	HttpMetaRemoteAddress = "RemoteAddress"
 	HttpMetaRequestMethod = "RequestMethod"
 	HttpMetaRequestURI    = "RequestURI"
+	HttpMetaHostname      = "RequestHostname"
 	HttpMetaProtocol      = "HttpProtocol"
 	HttpMetaUserAgent     = "UserAgent"
 	HttpMetaContentType   = "ContentType"
 	HttpMetaCookiesString = "CookiesString"
 	ClientTime            = "ClientTime"
 	ServerTime            = "ServerTime"
-	CtxWorkspaceUuid = "CtxWorkspaceUuid"
+	CtxWorkspaceUuid      = "CtxWorkspaceUuid"
 )
 
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
@@ -65,6 +66,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
 	meta[ClientTime] = t.Format(layout)
 
+	meta[HttpMetaHostname] = strings.Split(req.Host, ":")[0]
 	// We might want to also support new standard "Forwarded" header.
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
 		ips := strings.Split(strings.Join(h, ""), ",")
@@ -115,4 +117,17 @@ func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
 		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))
 		h.ServeHTTP(w, r)
 	})
+}
+
+// HttpMetaFromGrpcContext extracts metadata from context that may have been
+// passed along accross services (meta name may be lowered cased)
+func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
+	if md, ok := metadata.FromContext(ctx); ok {
+		if v, o := md[name]; o {
+			return v, true
+		} else if vs, os := md[strings.ToLower(name)]; os {
+			return vs, true
+		}
+	}
+	return "", false
 }

@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"

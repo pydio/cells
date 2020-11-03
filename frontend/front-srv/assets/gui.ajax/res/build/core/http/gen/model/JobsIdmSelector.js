@@ -51,6 +51,8 @@ var JobsIdmSelector = (function () {
         this.All = undefined;
         this.Query = undefined;
         this.Collect = undefined;
+        this.Label = undefined;
+        this.Description = undefined;
     }
 
     /**
@@ -77,6 +79,12 @@ var JobsIdmSelector = (function () {
             if (data.hasOwnProperty('Collect')) {
                 obj['Collect'] = _ApiClient2['default'].convertToType(data['Collect'], 'Boolean');
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = _ApiClient2['default'].convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = _ApiClient2['default'].convertToType(data['Description'], 'String');
+            }
         }
         return obj;
     };
@@ -100,4 +108,12 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Collect
+*/
+
+/**
+* @member {String} Label
+*/
+
+/**
+* @member {String} Description
 */

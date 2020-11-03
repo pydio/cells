@@ -26,7 +26,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
@@ -38,9 +38,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Starter for data sources synchronizations"),
 			service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),

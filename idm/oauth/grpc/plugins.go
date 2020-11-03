@@ -22,6 +22,7 @@
 package grpc
 
 import (
+	"context"
 	"log"
 
 	"github.com/micro/go-micro"
@@ -39,10 +40,11 @@ import (
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
@@ -62,25 +64,25 @@ func init() {
 		)
 
 		// load configuration
-		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 
 		// And watch to know when we need to reload
-		watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
-		if err != nil {
-			log.Fatal("Could not initiate watcher")
-		}
+		// watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
+		// if err != nil {
+		// 	log.Fatal("Could not initiate watcher")
+		// }
 
-		go func() {
-			defer watcher.Stop()
-			for {
-				_, err := watcher.Next()
-				if err != nil {
-					break
-				}
+		// go func() {
+		// 	defer watcher.Stop()
+		// 	for {
+		// 		_, err := watcher.Next()
+		// 		if err != nil {
+		// 			break
+		// 		}
 
-				auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-			}
-		}()
+		// 		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		// 	}
+		// }()
 
 		// Register the service as a GRPC Auth Provider
 		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
@@ -93,14 +95,15 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	auth.OnConfigurationInit(func() {
+	auth.OnConfigurationInit(func(scanner common.Scanner) {
+
 		var m []struct {
-			ID   string `"json:id"`
-			Name string `"json:id"`
-			Type string `"json:type"`
+			ID   string
+			Name string
+			Type string
 		}
 
-		if err := auth.GetConfigurationProvider().Connectors().Scan(&m); err != nil {
+		if err := scanner.Scan(&m); err != nil {
 			log.Fatal("Wrong configuration ", err)
 		}
 

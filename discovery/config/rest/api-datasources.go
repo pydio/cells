@@ -83,9 +83,10 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+
 	// Replace uuid secret if it exists
 	var secretUuid string
-	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
 		secretUuid = ds.ApiSecret
 		ds.ApiSecret = sec
 	}
@@ -104,7 +105,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			return
 		}
 		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
-		rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+		rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
@@ -149,6 +150,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
+	fmt.Println(config.Get("services", "pydio.grpc.data.sync."+dsName))
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
 	config.SourceNamesToConfig(currentSources)
@@ -179,6 +181,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		}
 
 	} else {
+		fmt.Println("Error is ", err)
 		service.RestError500(req, resp, err)
 	}
 
@@ -191,7 +194,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
 		return
 	}
-	if dsName == config.Get("defaults", "datasource").String("") {
+	if dsName == config.Get("defaults", "datasource").String() {
 		service.RestError500(req, resp, fmt.Errorf("This is the default datasource! Please replace it in your config file before trying to delete."))
 		return
 	}
@@ -274,7 +277,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	u, _ := url.Parse(endpoint)
 	host := u.Host
 	secure := u.Scheme == "https"
-	if sec := config.GetSecret(ds.ApiSecret).String(""); sec != "" {
+	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {
 		ds.ApiSecret = sec
 	}
 	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
@@ -342,7 +345,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	if ds.StorageConfiguration != nil {
 		if folder, ok := ds.StorageConfiguration["folder"]; ok {
-			rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+			rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}

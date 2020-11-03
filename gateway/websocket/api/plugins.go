@@ -23,15 +23,15 @@ package api
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/metadata"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/activity"
 	chat2 "github.com/pydio/cells/common/proto/chat"
@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/gateway/websocket"
 )
@@ -58,26 +58,19 @@ func publicationContext(publication broker.Publication) context.Context {
 }
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
 			service.Fork(true),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
 			service.Description("WebSocket server pushing event to the clients"),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
+			service.WithHTTP(func() http.Handler {
 
-			}, func(s service.Service) (micro.Option, error) {
+				// ctx := s.Options().Context
 
-				ctx := s.Options().Context
-				srv := defaults.NewHTTPServer()
+				ctx := context.TODO()
 
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)
@@ -145,14 +138,7 @@ func init() {
 					chat.Websocket.HandleRequest(c.Writer, c.Request)
 				})
 
-				hd := srv.NewHandler(Server)
-
-				err := srv.Handle(hd)
-				if err != nil {
-					return nil, err
-				}
-
-				return micro.Server(srv), nil
+				return Server
 			}),
 		)
 

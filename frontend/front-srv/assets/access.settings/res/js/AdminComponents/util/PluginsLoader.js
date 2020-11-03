@@ -78,8 +78,8 @@ class PluginsLoader {
         const fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
         // Load initial config
 
-        api.getConfig(fullPath).then((response) => {
-            const currentData = JSON.parse(response.Data) || {};
+        api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
+            const currentData = JSON.parse(data) || {};
             currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
             const config = RestConfiguration.constructFromObject({
                 FullPath: fullPath,
@@ -91,12 +91,31 @@ class PluginsLoader {
         });
     }
 
+    loadServiceConfigs(serviceName){
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        return api.getConfig("services/" + serviceName).then(data => data || {}).then((restConfig) => {
+            if(restConfig.Data){
+                return JSON.parse(restConfig.Data) || {};
+            } else {
+                return {}
+            }
+        });
+    }
+
+    saveServiceConfigs(serviceName, data){
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        let body = new RestConfiguration();
+        body.FullPath = "services/" + serviceName;
+        body.Data = JSON.stringify(data);
+        return api.putConfig(body.FullPath, body);
+    }
+
     loadPluginConfigs(pluginId){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const fullPath = "frontend/plugin/" + pluginId;
         return new Promise((resolve, reject) => {
-            api.getConfig(fullPath).then((response) => {
-                const currentData = JSON.parse(response.Data) || {};
+            api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
+                const currentData = JSON.parse(data) || {};
                 resolve(currentData);
             }).catch(e => {
                 reject(e);
@@ -109,8 +128,8 @@ class PluginsLoader {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const fullPath = "frontend/plugin/" + pluginId;
 
-        api.getConfig(fullPath).then((response) => {
-            const currentData = JSON.parse(response.Data) || {};
+        api.getConfig(fullPath).then(response => response.Data).then((data = "{}") => {
+            const currentData = JSON.parse(data) || {};
             const newData = LangUtils.mergeObjectsRecursive(currentData, values);
             const config = RestConfiguration.constructFromObject({
                 FullPath: fullPath,
@@ -178,6 +197,11 @@ class PluginsLoader {
                 return params;
             }.bind(this));
         })
+    }
+
+    loadSites(filter = '*'){
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        return api.listSites(filter);
     }
 
 }

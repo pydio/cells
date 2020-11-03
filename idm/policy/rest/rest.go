@@ -26,7 +26,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/i18n"
@@ -56,7 +56,7 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 	log.Logger(ctx).Info("Received Policy.List API request")
 
 	response, err := h.getClient().ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
-	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	tr := lang.Bundle().GetTranslationFunc(languages...)
 	for _, g := range response.PolicyGroups {
 		g.Name = tr(g.Name)

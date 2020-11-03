@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
@@ -32,9 +34,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO, "broker_chat"),

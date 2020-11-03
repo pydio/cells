@@ -47,6 +47,7 @@ var (
 func (c *MigratePydioMetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              MigratePydioMetaActionName,
+		IsInternal:      true,
 		Label:           "Legacy meta from P8",
 		Icon:            "",
 		Description:     "Pydio 8 migration specific task (do not use manually).",

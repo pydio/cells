@@ -4,10 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"strconv"
-	"strings"
 
-	"github.com/micro/go-config/reader"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -37,7 +34,6 @@ type BootConf struct {
 	ENDPOINT_REST_API            string
 	ENDPOINT_S3_GATEWAY          string
 	ENDPOINT_WEBSOCKET           string
-	FRONTEND_URL                 string
 	PUBLIC_BASEURI               string
 	ZipEnabled                   bool                   `json:"zipEnabled"`
 	MultipleFilesDownloadEnabled bool                   `json:"multipleFilesDownloadEnabled"`
@@ -67,7 +63,7 @@ func VersionHash() string {
 		return versionHash
 	}
 	// Create version seed
-	vSeed := config.Get("frontend", "versionSeed").String("")
+	vSeed := config.Get("frontend", "versionSeed").Default("").String()
 	if vSeed == "" {
 		vSeed = uuid.New()
 		config.Set(vSeed, "frontend", "versionSeed")
@@ -79,26 +75,24 @@ func VersionHash() string {
 	return versionHash
 }
 
-func numberFromIntOrString(value reader.Value, def int) int {
-	intVal := def
-	if value.Int(-1) != -1 {
-		intVal = value.Int(def)
-	} else if value.String("") != "" {
-		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
-			intVal = int(parsed)
-		}
-	}
-	return intVal
-}
+// func numberFromIntOrString(value reader.Value, def int) int {
+// 	intVal := def
+// 	if value.Int(-1) != -1 {
+// 		intVal = value.Int(def)
+// 	} else if value.String("") != "" {
+// 		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
+// 			intVal = int(parsed)
+// 		}
+// 	}
+// 	return intVal
+// }
 
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
-	url := config.Get("defaults", "url").String("")
-	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
-
-	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
-	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
-	timeoutWarn := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN"), 3)
+	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
+	sessionTimeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
+	clientSession := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT").Default(24).Int()
+	timeoutWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN").Default(3).Int()
 
 	vHash := VersionHash()
 	vDate := ""
@@ -111,10 +105,9 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
-		ENDPOINT_REST_API:            url + "/a",
-		ENDPOINT_S3_GATEWAY:          url + "/io",
-		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
-		FRONTEND_URL:                 url,
+		ENDPOINT_REST_API:            "/a",
+		ENDPOINT_S3_GATEWAY:          "/io",
+		ENDPOINT_WEBSOCKET:           "/ws/event",
 		PUBLIC_BASEURI:               "/public",
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
@@ -122,16 +115,16 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		UsersEnabled:                 true,
 		LoggedUser:                   false,
 		CurrentLanguage:              lang,
-		Session_timeout:              SessionTimeoutMinutes * 60,
+		Session_timeout:              sessionTimeout * 60,
 		Client_timeout:               clientSession * 60,
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Bool(false),
+		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Default(false).Bool(),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells"),
+			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").Default("Pydio Cells").String(),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: i18n.AvailableLanguages,
@@ -146,7 +139,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		},
 	}
 
-	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").String(""); icBinary != "" {
+	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").Default("").String(); icBinary != "" {
 		b.CustomWording.IconBinary = icBinary
 	}
 

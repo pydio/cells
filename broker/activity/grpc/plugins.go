@@ -29,6 +29,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/broker/activity"
@@ -42,6 +44,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/meta"
 )
@@ -51,9 +54,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("Activity Service is collecting activity for users and nodes"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
@@ -118,6 +122,9 @@ func init() {
 func RegisterDigestJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for creating activities digests")
+	// Build queries for standard users
+	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
+	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeAnyValue: true, Not: true})
 	job := &jobs.Job{
 		ID:             "users-activity-digest",
 		Label:          "Users activities digest",
@@ -131,7 +138,11 @@ func RegisterDigestJob(ctx context.Context) error {
 			{
 				ID: "broker.activity.actions.mail-digest",
 				UsersSelector: &jobs.UsersSelector{
-					All: true,
+					Label: "All users except hidden",
+					Query: &serviceproto.Query{
+						SubQueries: []*any.Any{q1, q2},
+						Operation:  serviceproto.OperationType_AND,
+					},
 				},
 			},
 		},

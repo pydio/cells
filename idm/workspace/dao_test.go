@@ -28,10 +28,10 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 	// Use SQLite backend for the tests
@@ -47,7 +47,7 @@ var (
 
 func TestMain(m *testing.M) {
 
-	var options config.Map
+	var options = configx.New()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if dao == nil {

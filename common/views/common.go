@@ -36,15 +36,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pydio/cells/common/proto/jobs"
-
-	"go.uber.org/zap/zapcore"
-
 	"github.com/golang/protobuf/proto"
-
 	"github.com/pkg/errors"
-
 	"github.com/pydio/minio-go"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
@@ -236,13 +231,4 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 func WalkFilterSkipPydioHiddenFile(ctx context.Context, node *tree.Node) bool {
 	return !strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
-}
-
-func WalkFilterFromNodeFilter(selector *jobs.NodesSelector) WalkFilter {
-	return func(ctx context.Context, node *tree.Node) bool {
-		in := jobs.ActionMessage{}
-		in = in.WithNode(node)
-		_, _, pass := selector.Filter(ctx, in)
-		return pass
-	}
 }

@@ -31,9 +31,10 @@ import (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SHARE),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("REST access to shared rooms"),
 			service.RouterDependencies(),

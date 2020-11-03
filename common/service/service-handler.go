@@ -34,7 +34,7 @@ func (s *StopHandler) SetService(srv Service) {
 	s.s = srv
 }
 
-func (s *StopHandler) Process(ctx context.Context, in *proto.StopEvent) error {
+func (s *StopHandler) ProcessEvent(ctx context.Context, in *proto.StopEvent) error {
 	if s.s.Name() == in.ServiceName {
 		s.s.Stop()
 	}

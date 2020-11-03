@@ -1,7 +1,7 @@
 {
   "name": "action.user",
   "description": "User account panels",
-  "source_path":"res/js",
+  "source_path": "res/js",
   "main": "index.js",
   "author": "Abstrium SAS",
   "license": "agpl",

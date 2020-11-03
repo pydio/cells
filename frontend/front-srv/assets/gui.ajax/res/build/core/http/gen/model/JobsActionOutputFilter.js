@@ -44,6 +44,8 @@ var JobsActionOutputFilter = (function () {
         _classCallCheck(this, JobsActionOutputFilter);
 
         this.Query = undefined;
+        this.Label = undefined;
+        this.Description = undefined;
     }
 
     /**
@@ -61,6 +63,12 @@ var JobsActionOutputFilter = (function () {
             if (data.hasOwnProperty('Query')) {
                 obj['Query'] = _ServiceQuery2['default'].constructFromObject(data['Query']);
             }
+            if (data.hasOwnProperty('Label')) {
+                obj['Label'] = _ApiClient2['default'].convertToType(data['Label'], 'String');
+            }
+            if (data.hasOwnProperty('Description')) {
+                obj['Description'] = _ApiClient2['default'].convertToType(data['Description'], 'String');
+            }
         }
         return obj;
     };
@@ -73,3 +81,11 @@ var JobsActionOutputFilter = (function () {
 
 exports['default'] = JobsActionOutputFilter;
 module.exports = exports['default'];
+
+/**
+* @member {String} Label
+*/
+
+/**
+* @member {String} Description
+*/

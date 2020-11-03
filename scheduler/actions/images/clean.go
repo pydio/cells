@@ -50,7 +50,7 @@ func (c *CleanThumbsTask) GetDescription(lang ...string) actions.ActionDescripti
 		Label:           "Clean Thumbs",
 		Icon:            "image-broken-variant",
 		Category:        actions.ActionCategoryMedia,
-		Description:     "Remove thumbnails associated to delete images",
+		Description:     "Remove thumbnails associated to deleted images",
 		SummaryTemplate: "",
 		HasForm:         false,
 	}

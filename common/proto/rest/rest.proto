@@ -217,6 +217,12 @@ service ConfigService {
             get: "/config/scheduler/actions/{ActionName}"
         };
     }
+    // List configured sites
+    rpc ListSites(ListSitesRequest) returns (ListSitesResponse) {
+        option (google.api.http) = {
+            get: "/config/sites/{Filter}"
+        };
+    }
 }
 
 // Roles Management
@@ -742,6 +748,12 @@ service InstallService {
     rpc GetAgreement(install.GetAgreementRequest) returns (install.GetAgreementResponse) {
         option(google.api.http) = {
             get: "/install/agreement"
+        };
+    }
+
+    rpc InstallEvents(install.InstallEventsRequest) returns (install.InstallEventsResponse) {
+        option(google.api.http) = {
+            get: "/install/events"
         };
     }
 }

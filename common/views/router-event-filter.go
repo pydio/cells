@@ -79,10 +79,15 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 		return node, false
 	}
 	roots := workspace.RootUUIDs
+	ancestors, e := tree.BuildAncestorsList(ctx, r.GetClientsPool().GetTreeClient(), node)
+	if e != nil {
+		log.Logger(ctx).Error("Cannot list ancestors list for", node.Zap(), zap.Error(e))
+		return node, false
+	}
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-			if accessList != nil && !accessList.CanReadPath(ctx, node, r.virtualResolver) {
-				log.Logger(ctx).Debug("[WorkspaceCanSeeNode] Cannot read node - Skipping", node.ZapPath())
+			if accessList != nil && !accessList.CanReadPath(ctx, r.virtualResolver, ancestors...) {
+				//log.Logger(ctx).Info("[WorkspaceCanSeeNode] CanReadPath fail - Skipping", node.ZapPath())
 				continue
 			}
 			newNode := node.Clone()
@@ -96,6 +101,8 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 			})
 			log.Logger(ctx).Debug("Router Filtered node", zap.String("rootPath", parent.Path), zap.String("workspace", workspace.Label), zap.String("from", node.Path), zap.String("to", newNode.Path))
 			return newNode, true
+		} else {
+
 		}
 	}
 	return nil, false
@@ -137,6 +144,7 @@ func (r *RouterEventFilter) getRoot(ctx context.Context, rootId string) *tree.No
 	}
 	resp, e := r.pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {
+		resp.Node.Path = strings.Trim(resp.Node.Path, "/")
 		r.RootNodesCache.Set(rootId, resp.Node.Clone(), cache.DefaultExpiration)
 		return resp.Node
 	}

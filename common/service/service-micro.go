@@ -21,15 +21,18 @@
 package service
 
 import (
-	"fmt"
+	"context"
 	"time"
 
+	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/selector"
+	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
@@ -37,13 +40,39 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
+var (
+	slctr   = cache.NewSelector(selector.Registry(defaults.Registry()))
+	command = &Cmd{}
+)
+
+type Cmd struct{}
+
+func (c *Cmd) App() *cli.App {
+	return nil
+}
+func (c *Cmd) Init(opts ...cmd.Option) error {
+	return nil
+}
+func (c *Cmd) Options() cmd.Options {
+	return cmd.Options{}
+}
+
+func Micro(m micro.Service) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Micro = m
+	}
+}
+
 // WithMicro adds a micro service handler to the current service
 func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
-		o.Micro = micro.NewService()
 
 		o.MicroInit = func(s Service) error {
+
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
@@ -51,20 +80,21 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if o.Port != "" {
 				srvOpts = append(srvOpts, server.Address(":"+o.Port))
 			}
-			// pydio.gateway.grpc specific stuff
-			if o.Name == common.SERVICE_GATEWAY_GRPC {
-				if tls := config.GetTLSServerConfig("proxy"); tls != nil {
-					fmt.Println("[TLS] Activating TLS on " + o.Name)
-					srvOpts = append(srvOpts, grpc.AuthTLS(tls))
-				}
+			if o.TLSConfig != nil {
+				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
+
+			ctx, cancel := context.WithCancel(ctx)
+
 			srv := defaults.NewServer(srvOpts...)
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
+				// micro.RegisterTTL(10*time.Minute),
+				// micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)
@@ -73,8 +103,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if s.Options().Source != "" {
 				meta["source"] = s.Options().Source
 			}
+
 			// context is always added last - so that there is no override
-			s.Options().Micro.Init(
+			svc.Init(
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
@@ -82,7 +113,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
 				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
-					return f(s.Options().Micro)
+					return f(svc)
 				}),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
@@ -100,17 +131,21 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			)
 
 			// newTracer(name, &options)
-			servicecontext.NewMetricsWrapper(s.Options().Micro)
-			newBackoffer(s.Options().Micro)
-			newConfigProvider(s.Options().Micro)
-			newDBProvider(s.Options().Micro)
-			newLogProvider(s.Options().Micro)
+			servicecontext.NewMetricsWrapper(svc)
+			newBackoffer(svc)
+			newConfigProvider(svc)
+			newDBProvider(svc)
+			newLogProvider(svc)
 			// newTraceProvider(s.Options().Micro) // DISABLED FOR NOW DUE TO CONFLICT WITH THE MICRO GO OS
-			newClaimsProvider(s.Options().Micro)
+			newClaimsProvider(svc)
 
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
+			proto.RegisterServiceHandler(srv, &StatusHandler{s.Address()})
+			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, srv, &StopHandler{s})
 
-			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
+			s.Init(
+				Micro(svc),
+				Cancel(cancel),
+			)
 
 			return nil
 		}

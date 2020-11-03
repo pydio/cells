@@ -30,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/pkg/disk"
+
 	// Import minio gateways
 	_ "github.com/pydio/minio-srv/cmd/gateway"
 
@@ -49,8 +50,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	accessKey := o.Config.ApiKey
 	secretKey := o.Config.ApiSecret
+
 	// Replace secretKey on the fly
-	if sec := config.GetSecret(secretKey).String(""); sec != "" {
+	if sec := config.GetSecret(secretKey).String(); sec != "" {
 		secretKey = sec
 	}
 	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
@@ -129,7 +131,6 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	minio.Main(params)
 
 	return nil
-
 }
 
 // GetMinioConfig returns current configuration

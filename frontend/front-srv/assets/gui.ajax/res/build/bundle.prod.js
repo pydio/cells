@@ -1367,7 +1367,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 /*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <http://feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
@@ -8597,25 +8597,11 @@ var defaultRenderers = {
 var coreTypes = Object.keys(defaultRenderers);
 
 function getCoreProps(props) {
-    var propKeys = Object.keys(props);
-
-    var dataPropKeys = propKeys.filter(function(propKey) {
-        return propKey.match(/data-.*/g);
-    });
-
-    var base = {
-        key: props.nodeKey,
-        className: props.className
+    return {
+        'key': props.nodeKey,
+        'className': props.className,
+        'data-sourcepos': props['data-sourcepos']
     };
-
-    var dataAttributes = dataPropKeys.reduce(function(prev, dataPropKey) {
-        var attributes = {};
-        attributes[dataPropKey] = props[dataPropKey];
-
-        return assign(attributes, prev);
-    }, {});
-
-    return assign(dataAttributes, base);
 }
 
 function normalizeTypeName(typeName) {
@@ -11865,7 +11851,7 @@ module.exports = function (it) {
 };
 
 },{}],67:[function(require,module,exports){
-var core = module.exports = { version: '2.6.11' };
+var core = module.exports = { version: '2.6.9' };
 if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 },{}],68:[function(require,module,exports){
@@ -19060,7 +19046,7 @@ module.exports = hyphenateStyleName;
 },{}],294:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
-  var eLen = (nBytes * 8) - mLen - 1
+  var eLen = nBytes * 8 - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var nBits = -7
@@ -19073,12 +19059,12 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   e = s & ((1 << (-nBits)) - 1)
   s >>= (-nBits)
   nBits += eLen
-  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   m = e & ((1 << (-nBits)) - 1)
   e >>= (-nBits)
   nBits += mLen
-  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
     e = 1 - eBias
@@ -19093,7 +19079,7 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   var e, m, c
-  var eLen = (nBytes * 8) - mLen - 1
+  var eLen = nBytes * 8 - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
@@ -19126,7 +19112,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       m = 0
       e = eMax
     } else if (e + eBias >= 1) {
-      m = ((value * c) - 1) * Math.pow(2, mLen)
+      m = (value * c - 1) * Math.pow(2, mLen)
       e = e + eBias
     } else {
       m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
@@ -23311,7 +23297,7 @@ module.exports = isPlainObject;
 /**
  * Lodash (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
- * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+ * Copyright JS Foundation and other contributors <https://js.foundation/>
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -23414,14 +23400,6 @@ var freeProcess = moduleExports && freeGlobal.process;
 /** Used to access faster Node.js helpers. */
 var nodeUtil = (function() {
   try {
-    // Use `util.types` for Node.js 10+.
-    var types = freeModule && freeModule.require && freeModule.require('util').types;
-
-    if (types) {
-      return types;
-    }
-
-    // Legacy `process.binding('util')` for Node.js < 10.
     return freeProcess && freeProcess.binding && freeProcess.binding('util');
   } catch (e) {}
 }());
@@ -23505,6 +23483,20 @@ function overArg(func, transform) {
   return function(arg) {
     return func(transform(arg));
   };
+}
+
+/**
+ * Gets the value at `key`, unless `key` is "__proto__".
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the property to get.
+ * @returns {*} Returns the property value.
+ */
+function safeGet(object, key) {
+  return key == '__proto__'
+    ? undefined
+    : object[key];
 }
 
 /** Used for built-in method references. */
@@ -24228,8 +24220,8 @@ function baseMerge(object, source, srcIndex, customizer, stack) {
     return;
   }
   baseFor(source, function(srcValue, key) {
-    stack || (stack = new Stack);
     if (isObject(srcValue)) {
+      stack || (stack = new Stack);
       baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
     }
     else {
@@ -24305,7 +24297,7 @@ function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, sta
       if (isArguments(objValue)) {
         newValue = toPlainObject(objValue);
       }
-      else if (!isObject(objValue) || isFunction(objValue)) {
+      else if (!isObject(objValue) || (srcIndex && isFunction(objValue))) {
         newValue = initCloneObject(srcValue);
       }
     }
@@ -24715,26 +24707,6 @@ function overRest(func, start, transform) {
     otherArgs[start] = transform(array);
     return apply(func, this, otherArgs);
   };
-}
-
-/**
- * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the property to get.
- * @returns {*} Returns the property value.
- */
-function safeGet(object, key) {
-  if (key === 'constructor' && typeof object[key] === 'function') {
-    return;
-  }
-
-  if (key == '__proto__') {
-    return;
-  }
-
-  return object[key];
 }
 
 /**
@@ -84490,7 +84462,7 @@ var AutosizeInput = React.createClass({
 module.exports = AutosizeInput;
 },{"react":"react"}],860:[function(require,module,exports){
 (function (process){
-/** @license React v16.13.0
+/** @license React v16.8.6
  * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -84507,39 +84479,88 @@ if (process.env.NODE_ENV !== "production") {
   (function() {
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
 // nor polyfill, then a plain number is used for performance.
 var hasSymbol = typeof Symbol === 'function' && Symbol.for;
+
 var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
 var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
 var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
 var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
 var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
 var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
-var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace; // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
-// (unstable) APIs that have been removed. Can we remove the symbols?
-
+var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
 var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
 var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
 var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
 var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
-var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
 var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
 var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
-var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
-var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
-var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
-var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
 function isValidElementType(type) {
-  return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
+  return typeof type === 'string' || typeof type === 'function' ||
+  // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE);
 }
+
+/**
+ * Forked from fbjs/warning:
+ * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
+ *
+ * Only change is we use console.warn instead of console.error,
+ * and do nothing when 'console' is not supported.
+ * This really simplifies the code.
+ * ---
+ * Similar to invariant but only logs a warning if the condition is not met.
+ * This can be used to log issues in development environments in critical
+ * paths. Removing the logging code for production environments will keep the
+ * same logic and follow the same code paths.
+ */
+
+var lowPriorityWarning = function () {};
+
+{
+  var printWarning = function (format) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var argIndex = 0;
+    var message = 'Warning: ' + format.replace(/%s/g, function () {
+      return args[argIndex++];
+    });
+    if (typeof console !== 'undefined') {
+      console.warn(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+
+  lowPriorityWarning = function (condition, format) {
+    if (format === undefined) {
+      throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
+    }
+    if (!condition) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
+      }
+
+      printWarning.apply(undefined, [format].concat(args));
+    }
+  };
+}
+
+var lowPriorityWarning$1 = lowPriorityWarning;
 
 function typeOf(object) {
   if (typeof object === 'object' && object !== null) {
     var $$typeof = object.$$typeof;
-
     switch ($$typeof) {
       case REACT_ELEMENT_TYPE:
         var type = object.type;
@@ -84552,32 +84573,29 @@ function typeOf(object) {
           case REACT_STRICT_MODE_TYPE:
           case REACT_SUSPENSE_TYPE:
             return type;
-
           default:
             var $$typeofType = type && type.$$typeof;
 
             switch ($$typeofType) {
               case REACT_CONTEXT_TYPE:
               case REACT_FORWARD_REF_TYPE:
-              case REACT_LAZY_TYPE:
-              case REACT_MEMO_TYPE:
               case REACT_PROVIDER_TYPE:
                 return $$typeofType;
-
               default:
                 return $$typeof;
             }
-
         }
-
+      case REACT_LAZY_TYPE:
+      case REACT_MEMO_TYPE:
       case REACT_PORTAL_TYPE:
         return $$typeof;
     }
   }
 
   return undefined;
-} // AsyncMode is deprecated along with isAsyncMode
+}
 
+// AsyncMode is deprecated along with isAsyncMode
 var AsyncMode = REACT_ASYNC_MODE_TYPE;
 var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
 var ContextConsumer = REACT_CONTEXT_TYPE;
@@ -84591,17 +84609,17 @@ var Portal = REACT_PORTAL_TYPE;
 var Profiler = REACT_PROFILER_TYPE;
 var StrictMode = REACT_STRICT_MODE_TYPE;
 var Suspense = REACT_SUSPENSE_TYPE;
-var hasWarnedAboutDeprecatedIsAsyncMode = false; // AsyncMode should be deprecated
 
+var hasWarnedAboutDeprecatedIsAsyncMode = false;
+
+// AsyncMode should be deprecated
 function isAsyncMode(object) {
   {
     if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-      hasWarnedAboutDeprecatedIsAsyncMode = true; // Using console['warn'] to evade Babel and ESLint
-
-      console['warn']('The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+      hasWarnedAboutDeprecatedIsAsyncMode = true;
+      lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
     }
   }
-
   return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
 }
 function isConcurrentMode(object) {
@@ -84641,6 +84659,7 @@ function isSuspense(object) {
   return typeOf(object) === REACT_SUSPENSE_TYPE;
 }
 
+exports.typeOf = typeOf;
 exports.AsyncMode = AsyncMode;
 exports.ConcurrentMode = ConcurrentMode;
 exports.ContextConsumer = ContextConsumer;
@@ -84654,6 +84673,7 @@ exports.Portal = Portal;
 exports.Profiler = Profiler;
 exports.StrictMode = StrictMode;
 exports.Suspense = Suspense;
+exports.isValidElementType = isValidElementType;
 exports.isAsyncMode = isAsyncMode;
 exports.isConcurrentMode = isConcurrentMode;
 exports.isContextConsumer = isContextConsumer;
@@ -84667,14 +84687,12 @@ exports.isPortal = isPortal;
 exports.isProfiler = isProfiler;
 exports.isStrictMode = isStrictMode;
 exports.isSuspense = isSuspense;
-exports.isValidElementType = isValidElementType;
-exports.typeOf = typeOf;
   })();
 }
 
 }).call(this,require('_process'))
 },{"_process":31}],861:[function(require,module,exports){
-/** @license React v16.13.0
+/** @license React v16.8.6
  * react-is.production.min.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -84683,12 +84701,12 @@ exports.typeOf = typeOf;
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?
-Symbol.for("react.suspense_list"):60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.block"):60121,w=b?Symbol.for("react.fundamental"):60117,x=b?Symbol.for("react.responder"):60118,y=b?Symbol.for("react.scope"):60119;
-function z(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function A(a){return z(a)===m}exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;
-exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;exports.isAsyncMode=function(a){return A(a)||z(a)===l};exports.isConcurrentMode=A;exports.isContextConsumer=function(a){return z(a)===k};exports.isContextProvider=function(a){return z(a)===h};exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return z(a)===n};exports.isFragment=function(a){return z(a)===e};exports.isLazy=function(a){return z(a)===t};
-exports.isMemo=function(a){return z(a)===r};exports.isPortal=function(a){return z(a)===d};exports.isProfiler=function(a){return z(a)===g};exports.isStrictMode=function(a){return z(a)===f};exports.isSuspense=function(a){return z(a)===p};
-exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===w||a.$$typeof===x||a.$$typeof===y||a.$$typeof===v)};exports.typeOf=z;
+'use strict';Object.defineProperty(exports,"__esModule",{value:!0});
+var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.memo"):
+60115,r=b?Symbol.for("react.lazy"):60116;function t(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case h:return a;default:return u}}case r:case q:case d:return u}}}function v(a){return t(a)===m}exports.typeOf=t;exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;
+exports.Fragment=e;exports.Lazy=r;exports.Memo=q;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||"object"===typeof a&&null!==a&&(a.$$typeof===r||a.$$typeof===q||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n)};exports.isAsyncMode=function(a){return v(a)||t(a)===l};exports.isConcurrentMode=v;exports.isContextConsumer=function(a){return t(a)===k};
+exports.isContextProvider=function(a){return t(a)===h};exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return t(a)===n};exports.isFragment=function(a){return t(a)===e};exports.isLazy=function(a){return t(a)===r};exports.isMemo=function(a){return t(a)===q};exports.isPortal=function(a){return t(a)===d};exports.isProfiler=function(a){return t(a)===g};exports.isStrictMode=function(a){return t(a)===f};
+exports.isSuspense=function(a){return t(a)===p};
 
 },{}],862:[function(require,module,exports){
 (function (process){
@@ -85778,95 +85796,99 @@ arguments[4][247][0].apply(exports,arguments)
 },{"dup":247}],887:[function(require,module,exports){
 arguments[4][248][0].apply(exports,arguments)
 },{"./_baseGetTag":879,"./_getPrototype":881,"./isObjectLike":886,"dup":248}],888:[function(require,module,exports){
-"use strict";
+'use strict';
 
 exports.__esModule = true;
-exports.default = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
+var _react = require('react');
 
-var _reactDraggable = require("react-draggable");
+var _react2 = _interopRequireDefault(_react);
 
-var _utils = require("./utils");
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _reactDraggable = require('react-draggable');
+
+var _cloneElement = require('./cloneElement');
+
+var _cloneElement2 = _interopRequireDefault(_cloneElement);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var Resizable =
-/*#__PURE__*/
-function (_React$Component) {
-  _inheritsLoose(Resizable, _React$Component);
+var Resizable = function (_React$Component) {
+  _inherits(Resizable, _React$Component);
 
   function Resizable() {
-    var _this;
+    var _temp, _this, _ret;
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    _classCallCheck(this, Resizable);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _React$Component.call.apply(_React$Component, [this].concat(args)) || this;
-
-    _defineProperty(_assertThisInitialized(_this), "state", {
-      slackW: 0,
-      slackH: 0
-    });
-
-    return _this;
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.state = {
+      resizing: false,
+      width: _this.props.width, height: _this.props.height,
+      slackW: 0, slackH: 0
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
-  var _proto = Resizable.prototype;
+  Resizable.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+    // If parent changes height/width, set that in our state.
+    if (!this.state.resizing && (nextProps.width !== this.props.width || nextProps.height !== this.props.height)) {
+      this.setState({
+        width: nextProps.width,
+        height: nextProps.height
+      });
+    }
+  };
 
-  _proto.lockAspectRatio = function lockAspectRatio(width, height, aspectRatio) {
+  Resizable.prototype.lockAspectRatio = function lockAspectRatio(width, height, aspectRatio) {
     height = width / aspectRatio;
     width = height * aspectRatio;
     return [width, height];
-  } // If you do this, be careful of constraints
-  ;
+  };
 
-  _proto.runConstraints = function runConstraints(width, height) {
+  // If you do this, be careful of constraints
+
+
+  Resizable.prototype.runConstraints = function runConstraints(width, height) {
     var _ref = [this.props.minConstraints, this.props.maxConstraints],
         min = _ref[0],
         max = _ref[1];
-    if (!min && !max) return [width, height]; // Fit width & height to aspect ratio
+
 
     if (this.props.lockAspectRatio) {
-      if (height === this.props.height) {
-        var ratio = this.props.width / this.props.height;
-        height = width / ratio;
-        width = height * ratio;
-      } else {
-        // Take into account vertical resize with N/S handles on locked aspect
-        // ratio. Calculate the change height-first, instead of width-first
-        var _ratio = this.props.height / this.props.width;
-
-        width = height / _ratio;
-        height = width * _ratio;
-      }
+      var ratio = this.state.width / this.state.height;
+      height = width / ratio;
+      width = height * ratio;
     }
 
+    if (!min && !max) return [width, height];
+
     var oldW = width,
-        oldH = height; // Add slack to the values used to calculate bound position. This will ensure that if
+        oldH = height;
+
+    // Add slack to the values used to calculate bound position. This will ensure that if
     // we start removing slack, the element won't react to it right away until it's been
     // completely removed.
 
-    var _this$state = this.state,
-        slackW = _this$state.slackW,
-        slackH = _this$state.slackH;
+    var _state = this.state,
+        slackW = _state.slackW,
+        slackH = _state.slackH;
+
     width += slackW;
     height += slackH;
 
@@ -85874,92 +85896,83 @@ function (_React$Component) {
       width = Math.max(min[0], width);
       height = Math.max(min[1], height);
     }
-
     if (max) {
       width = Math.min(max[0], width);
       height = Math.min(max[1], height);
-    } // If the numbers changed, we must have introduced some slack. Record it for the next iteration.
+    }
 
-
+    // If the numbers changed, we must have introduced some slack. Record it for the next iteration.
     slackW += oldW - width;
     slackH += oldH - height;
-
     if (slackW !== this.state.slackW || slackH !== this.state.slackH) {
-      this.setState({
-        slackW: slackW,
-        slackH: slackH
-      });
+      this.setState({ slackW: slackW, slackH: slackH });
     }
 
     return [width, height];
-  }
+  };
+
   /**
    * Wrapper around drag events to provide more useful data.
    *
    * @param  {String} handlerName Handler name to wrap.
    * @return {Function}           Handler function.
    */
-  ;
 
-  _proto.resizeHandler = function resizeHandler(handlerName, axis) {
+
+  Resizable.prototype.resizeHandler = function resizeHandler(handlerName, axis) {
     var _this2 = this;
 
     return function (e, _ref2) {
       var node = _ref2.node,
           deltaX = _ref2.deltaX,
           deltaY = _ref2.deltaY;
-      deltaX /= _this2.props.transformScale;
-      deltaY /= _this2.props.transformScale; // Axis restrictions
 
+
+      // Axis restrictions
       var canDragX = (_this2.props.axis === 'both' || _this2.props.axis === 'x') && ['n', 's'].indexOf(axis) === -1;
-      var canDragY = (_this2.props.axis === 'both' || _this2.props.axis === 'y') && ['e', 'w'].indexOf(axis) === -1; // reverse delta if using top or left drag handles
+      var canDragY = (_this2.props.axis === 'both' || _this2.props.axis === 'y') && ['e', 'w'].indexOf(axis) === -1;
 
+      // reverse delta if using top or left drag handles
       if (canDragX && axis[axis.length - 1] === 'w') {
         deltaX = -deltaX;
       }
-
       if (canDragY && axis[0] === 'n') {
         deltaY = -deltaY;
-      } // Update w/h
+      }
 
+      // Update w/h
+      var width = _this2.state.width + (canDragX ? deltaX : 0);
+      var height = _this2.state.height + (canDragY ? deltaY : 0);
 
-      var width = _this2.props.width + (canDragX ? deltaX : 0);
-      var height = _this2.props.height + (canDragY ? deltaY : 0); // Early return if no change
-
-      var widthChanged = width !== _this2.props.width,
-          heightChanged = height !== _this2.props.height;
+      // Early return if no change
+      var widthChanged = width !== _this2.state.width,
+          heightChanged = height !== _this2.state.height;
       if (handlerName === 'onResize' && !widthChanged && !heightChanged) return;
 
-      var _this2$runConstraints = _this2.runConstraints(width, height);
-
-      width = _this2$runConstraints[0];
-      height = _this2$runConstraints[1];
       // Set the appropriate state for this handler.
-      var newState = {};
+      var _runConstraints = _this2.runConstraints(width, height);
 
-      if (handlerName === 'onResizeStart') {// nothing
+      width = _runConstraints[0];
+      height = _runConstraints[1];
+      var newState = {};
+      if (handlerName === 'onResizeStart') {
+        newState.resizing = true;
       } else if (handlerName === 'onResizeStop') {
+        newState.resizing = false;
         newState.slackW = newState.slackH = 0;
       } else {
         // Early return if no change after constraints
-        if (width === _this2.props.width && height === _this2.props.height) return;
+        if (width === _this2.state.width && height === _this2.state.height) return;
+        newState.width = width;
+        newState.height = height;
       }
 
       var hasCb = typeof _this2.props[handlerName] === 'function';
-
       if (hasCb) {
         // $FlowIgnore isn't refining this correctly to SyntheticEvent
         if (typeof e.persist === 'function') e.persist();
-
         _this2.setState(newState, function () {
-          return _this2.props[handlerName](e, {
-            node: node,
-            size: {
-              width: width,
-              height: height
-            },
-            handle: axis
-          });
+          return _this2.props[handlerName](e, { node: node, size: { width: width, height: height }, handle: axis });
         });
       } else {
         _this2.setState(newState);
@@ -85967,82 +85980,86 @@ function (_React$Component) {
     };
   };
 
-  _proto.renderResizeHandle = function renderResizeHandle(resizeHandle) {
+  Resizable.prototype.renderResizeHandle = function renderResizeHandle(resizeHandle) {
     var handle = this.props.handle;
 
     if (handle) {
       if (typeof handle === 'function') {
         return handle(resizeHandle);
       }
-
       return handle;
     }
-
-    return _react.default.createElement("span", {
-      className: "react-resizable-handle react-resizable-handle-" + resizeHandle
-    });
+    return _react2.default.createElement('span', { className: 'react-resizable-handle react-resizable-handle-' + resizeHandle });
   };
 
-  _proto.render = function render() {
+  Resizable.prototype.render = function render() {
     var _this3 = this;
 
     // eslint-disable-next-line no-unused-vars
-    var _this$props = this.props,
-        children = _this$props.children,
-        draggableOpts = _this$props.draggableOpts,
-        width = _this$props.width,
-        height = _this$props.height,
-        handleSize = _this$props.handleSize,
-        lockAspectRatio = _this$props.lockAspectRatio,
-        axis = _this$props.axis,
-        minConstraints = _this$props.minConstraints,
-        maxConstraints = _this$props.maxConstraints,
-        onResize = _this$props.onResize,
-        onResizeStop = _this$props.onResizeStop,
-        onResizeStart = _this$props.onResizeStart,
-        resizeHandles = _this$props.resizeHandles,
-        transformScale = _this$props.transformScale,
-        p = _objectWithoutPropertiesLoose(_this$props, ["children", "draggableOpts", "width", "height", "handleSize", "lockAspectRatio", "axis", "minConstraints", "maxConstraints", "onResize", "onResizeStop", "onResizeStart", "resizeHandles", "transformScale"]);
+    var _props = this.props,
+        children = _props.children,
+        draggableOpts = _props.draggableOpts,
+        width = _props.width,
+        height = _props.height,
+        handleSize = _props.handleSize,
+        lockAspectRatio = _props.lockAspectRatio,
+        axis = _props.axis,
+        minConstraints = _props.minConstraints,
+        maxConstraints = _props.maxConstraints,
+        onResize = _props.onResize,
+        onResizeStop = _props.onResizeStop,
+        onResizeStart = _props.onResizeStart,
+        resizeHandles = _props.resizeHandles,
+        p = _objectWithoutProperties(_props, ['children', 'draggableOpts', 'width', 'height', 'handleSize', 'lockAspectRatio', 'axis', 'minConstraints', 'maxConstraints', 'onResize', 'onResizeStop', 'onResizeStart', 'resizeHandles']);
 
-    var className = p.className ? p.className + " react-resizable" : 'react-resizable'; // What we're doing here is getting the child of this element, and cloning it with this element's props.
+    var className = p.className ? p.className + ' react-resizable' : 'react-resizable';
+
+    // What we're doing here is getting the child of this element, and cloning it with this element's props.
     // We are then defining its children as:
     // Its original children (resizable's child's children), and
     // One or more draggable handles.
-
-    return (0, _utils.cloneElement)(children, _objectSpread({}, p, {
+    return (0, _cloneElement2.default)(children, _extends({}, p, {
       className: className,
       children: [children.props.children, resizeHandles.map(function (h) {
-        return _react.default.createElement(_reactDraggable.DraggableCore, _extends({}, draggableOpts, {
-          key: "resizableHandle-" + h,
-          onStop: _this3.resizeHandler('onResizeStop', h),
-          onStart: _this3.resizeHandler('onResizeStart', h),
-          onDrag: _this3.resizeHandler('onResize', h)
-        }), _this3.renderResizeHandle(h));
+        return _react2.default.createElement(
+          _reactDraggable.DraggableCore,
+          _extends({}, draggableOpts, {
+            key: 'resizableHandle-' + h,
+            onStop: _this3.resizeHandler('onResizeStop', h),
+            onStart: _this3.resizeHandler('onResizeStart', h),
+            onDrag: _this3.resizeHandler('onResize', h)
+          }),
+          _this3.renderResizeHandle(h)
+        );
       })]
     }));
   };
 
   return Resizable;
-}(_react.default.Component);
+}(_react2.default.Component);
 
-exports.default = Resizable;
-
-_defineProperty(Resizable, "propTypes", {
+Resizable.propTypes = {
   //
   // Required Props
   //
+
   // Require that one and only one child be present.
-  children: _propTypes.default.element.isRequired,
+  children: _propTypes2.default.element.isRequired,
+
   // Initial w/h
-  width: _propTypes.default.number.isRequired,
-  height: _propTypes.default.number.isRequired,
+  width: _propTypes2.default.number.isRequired,
+  height: _propTypes2.default.number.isRequired,
+
   //
   // Optional props
   //
+
   // Custom resize handle
-  handle: _propTypes.default.element,
+  handle: _propTypes2.default.element,
+
   // If you change this, be sure to update your css
-  handleSize: _propTypes.default.array,
+  handleSize: _propTypes2.default.array,
+
   // Defines which resize handles should be rendered (default: 'se')
   // Allows for any combination of:
   // 's' - South handle (bottom-center)
@@ -86053,200 +86070,183 @@ _defineProperty(Resizable, "propTypes", {
   // 'nw' - Northwest handle (top-left)
   // 'se' - Southeast handle (bottom-right)
   // 'ne' - Northeast handle (top-center)
-  resizeHandles: _propTypes.default.arrayOf(_propTypes.default.oneOf(['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne'])),
-  transformScale: _propTypes.default.number,
+  resizeHandles: _propTypes2.default.arrayOf(_propTypes2.default.oneOf(['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne'])),
+
   // If true, will only allow width/height to move in lockstep
-  lockAspectRatio: _propTypes.default.bool,
+  lockAspectRatio: _propTypes2.default.bool,
+
   // Restricts resizing to a particular axis (default: 'both')
   // 'both' - allows resizing by width or height
   // 'x' - only allows the width to be changed
   // 'y' - only allows the height to be changed
   // 'none' - disables resizing altogether
-  axis: _propTypes.default.oneOf(['both', 'x', 'y', 'none']),
-  // Min/max size
-  minConstraints: _propTypes.default.arrayOf(_propTypes.default.number),
-  maxConstraints: _propTypes.default.arrayOf(_propTypes.default.number),
-  // Callbacks
-  onResizeStop: _propTypes.default.func,
-  onResizeStart: _propTypes.default.func,
-  onResize: _propTypes.default.func,
-  // These will be passed wholesale to react-draggable's DraggableCore
-  draggableOpts: _propTypes.default.object
-});
+  axis: _propTypes2.default.oneOf(['both', 'x', 'y', 'none']),
 
-_defineProperty(Resizable, "defaultProps", {
+  // Min/max size
+  minConstraints: _propTypes2.default.arrayOf(_propTypes2.default.number),
+  maxConstraints: _propTypes2.default.arrayOf(_propTypes2.default.number),
+
+  // Callbacks
+  onResizeStop: _propTypes2.default.func,
+  onResizeStart: _propTypes2.default.func,
+  onResize: _propTypes2.default.func,
+
+  // These will be passed wholesale to react-draggable's DraggableCore
+  draggableOpts: _propTypes2.default.object
+};
+Resizable.defaultProps = {
   handleSize: [20, 20],
   lockAspectRatio: false,
   axis: 'both',
   minConstraints: [20, 20],
   maxConstraints: [Infinity, Infinity],
-  resizeHandles: ['se'],
-  transformScale: 1
-});
-},{"./utils":890,"prop-types":552,"react":"react","react-draggable":"react-draggable"}],889:[function(require,module,exports){
-"use strict";
+  resizeHandles: ['se']
+};
+exports.default = Resizable;
+},{"./cloneElement":890,"prop-types":552,"react":"react","react-draggable":"react-draggable"}],889:[function(require,module,exports){
+'use strict';
 
 exports.__esModule = true;
-exports.default = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _propTypes = _interopRequireDefault(require("prop-types"));
+var _react = require('react');
 
-var _Resizable = _interopRequireDefault(require("./Resizable"));
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Resizable = require('./Resizable');
+
+var _Resizable2 = _interopRequireDefault(_Resizable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 // An example use of Resizable.
-var ResizableBox =
-/*#__PURE__*/
-function (_React$Component) {
-  _inheritsLoose(ResizableBox, _React$Component);
+var ResizableBox = function (_React$Component) {
+  _inherits(ResizableBox, _React$Component);
 
   function ResizableBox() {
-    var _this;
+    var _temp, _this, _ret;
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    _classCallCheck(this, ResizableBox);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = _React$Component.call.apply(_React$Component, [this].concat(args)) || this;
-
-    _defineProperty(_assertThisInitialized(_this), "state", {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.state = {
       width: _this.props.width,
-      height: _this.props.height,
-      propsWidth: _this.props.width,
-      propsHeight: _this.props.height
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "onResize", function (e, data) {
+      height: _this.props.height
+    }, _this.onResize = function (e, data) {
       var size = data.size;
       var width = size.width,
           height = size.height;
 
+
       if (_this.props.onResize) {
         e.persist && e.persist();
-
         _this.setState(size, function () {
           return _this.props.onResize && _this.props.onResize(e, data);
         });
       } else {
         _this.setState(size);
       }
-    });
-
-    return _this;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
-  ResizableBox.getDerivedStateFromProps = function getDerivedStateFromProps(props, state) {
-    // If parent changes height/width, set that in our state.
-    if (state.propsWidth !== props.width || state.propsHeight !== props.height) {
-      return {
-        width: props.width,
-        height: props.height,
-        propsWidth: props.width,
-        propsHeight: props.height
-      };
+  ResizableBox.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+    if (nextProps.width !== this.props.width || nextProps.height !== this.props.height) {
+      this.setState({
+        width: nextProps.width,
+        height: nextProps.height
+      });
     }
-
-    return null;
   };
 
-  var _proto = ResizableBox.prototype;
-
-  _proto.render = function render() {
+  ResizableBox.prototype.render = function render() {
     // Basic wrapper around a Resizable instance.
     // If you use Resizable directly, you are responsible for updating the child component
     // with a new width and height.
-    var _this$props = this.props,
-        handle = _this$props.handle,
-        handleSize = _this$props.handleSize,
-        onResize = _this$props.onResize,
-        onResizeStart = _this$props.onResizeStart,
-        onResizeStop = _this$props.onResizeStop,
-        draggableOpts = _this$props.draggableOpts,
-        minConstraints = _this$props.minConstraints,
-        maxConstraints = _this$props.maxConstraints,
-        lockAspectRatio = _this$props.lockAspectRatio,
-        axis = _this$props.axis,
-        width = _this$props.width,
-        height = _this$props.height,
-        resizeHandles = _this$props.resizeHandles,
-        props = _objectWithoutPropertiesLoose(_this$props, ["handle", "handleSize", "onResize", "onResizeStart", "onResizeStop", "draggableOpts", "minConstraints", "maxConstraints", "lockAspectRatio", "axis", "width", "height", "resizeHandles"]);
+    var _props = this.props,
+        handle = _props.handle,
+        handleSize = _props.handleSize,
+        onResize = _props.onResize,
+        onResizeStart = _props.onResizeStart,
+        onResizeStop = _props.onResizeStop,
+        draggableOpts = _props.draggableOpts,
+        minConstraints = _props.minConstraints,
+        maxConstraints = _props.maxConstraints,
+        lockAspectRatio = _props.lockAspectRatio,
+        axis = _props.axis,
+        width = _props.width,
+        height = _props.height,
+        resizeHandles = _props.resizeHandles,
+        props = _objectWithoutProperties(_props, ['handle', 'handleSize', 'onResize', 'onResizeStart', 'onResizeStop', 'draggableOpts', 'minConstraints', 'maxConstraints', 'lockAspectRatio', 'axis', 'width', 'height', 'resizeHandles']);
 
-    return _react.default.createElement(_Resizable.default, {
-      handle: handle,
-      handleSize: handleSize,
-      width: this.state.width,
-      height: this.state.height,
-      onResizeStart: onResizeStart,
-      onResize: this.onResize,
-      onResizeStop: onResizeStop,
-      draggableOpts: draggableOpts,
-      minConstraints: minConstraints,
-      maxConstraints: maxConstraints,
-      lockAspectRatio: lockAspectRatio,
-      axis: axis,
-      resizeHandles: resizeHandles
-    }, _react.default.createElement("div", _extends({
-      style: {
-        width: this.state.width + 'px',
-        height: this.state.height + 'px'
-      }
-    }, props)));
+    return _react2.default.createElement(
+      _Resizable2.default,
+      {
+        handle: handle,
+        handleSize: handleSize,
+        width: this.state.width,
+        height: this.state.height,
+        onResizeStart: onResizeStart,
+        onResize: this.onResize,
+        onResizeStop: onResizeStop,
+        draggableOpts: draggableOpts,
+        minConstraints: minConstraints,
+        maxConstraints: maxConstraints,
+        lockAspectRatio: lockAspectRatio,
+        axis: axis,
+        resizeHandles: resizeHandles
+      },
+      _react2.default.createElement('div', _extends({ style: { width: this.state.width + 'px', height: this.state.height + 'px' } }, props))
+    );
   };
 
   return ResizableBox;
-}(_react.default.Component);
+}(_react2.default.Component);
 
-exports.default = ResizableBox;
-
-_defineProperty(ResizableBox, "propTypes", {
-  height: _propTypes.default.number,
-  width: _propTypes.default.number
-});
-
-_defineProperty(ResizableBox, "defaultProps", {
+ResizableBox.propTypes = {
+  height: _propTypes2.default.number,
+  width: _propTypes2.default.number
+};
+ResizableBox.defaultProps = {
   handleSize: [20, 20]
-});
+};
+exports.default = ResizableBox;
 },{"./Resizable":888,"prop-types":552,"react":"react"}],890:[function(require,module,exports){
-"use strict";
+'use strict';
 
-exports.__esModule = true;
-exports.cloneElement = cloneElement;
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _react = _interopRequireDefault(require("react"));
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 // React.addons.cloneWithProps look-alike that merges style & className.
-function cloneElement(element, props) {
+module.exports = function cloneElement(element, props) {
   if (props.style && element.props.style) {
-    props.style = _objectSpread({}, element.props.style, {}, props.style);
+    props.style = _extends({}, element.props.style, props.style);
   }
-
   if (props.className && element.props.className) {
-    props.className = element.props.className + " " + props.className;
+    props.className = element.props.className + ' ' + props.className;
   }
-
-  return _react.default.cloneElement(element, props);
-}
+  return _react2.default.cloneElement(element, props);
+};
 },{"react":"react"}],891:[function(require,module,exports){
 'use strict';
 module.exports = function() {
@@ -91850,9 +91850,7 @@ function select(element) {
 module.exports = select;
 
 },{}],952:[function(require,module,exports){
-'use strict';
-
-function shallowEqualArrays(arrA, arrB) {
+module.exports = function shallowEqualArrays(arrA, arrB) {
   if (arrA === arrB) {
     return true;
   }
@@ -91874,9 +91872,7 @@ function shallowEqualArrays(arrA, arrB) {
   }
 
   return true;
-}
-
-module.exports = shallowEqualArrays;
+};
 
 },{}],953:[function(require,module,exports){
 module.exports = function (target) {
@@ -99216,7 +99212,7 @@ function createStore(reducer, preloadedState, enhancer) {
   var _ref2;
 
   if (typeof preloadedState === 'function' && typeof enhancer === 'function' || typeof enhancer === 'function' && typeof arguments[3] === 'function') {
-    throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function.');
+    throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function');
   }
 
   if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
@@ -99241,13 +99237,6 @@ function createStore(reducer, preloadedState, enhancer) {
   var currentListeners = [];
   var nextListeners = currentListeners;
   var isDispatching = false;
-  /**
-   * This makes a shallow copy of currentListeners so we can use
-   * nextListeners as a temporary list while dispatching.
-   *
-   * This prevents any bugs around consumers calling
-   * subscribe/unsubscribe in the middle of a dispatch.
-   */
 
   function ensureCanMutateNextListeners() {
     if (nextListeners === currentListeners) {
@@ -99299,7 +99288,7 @@ function createStore(reducer, preloadedState, enhancer) {
     }
 
     if (isDispatching) {
-      throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+      throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
     }
 
     var isSubscribed = true;
@@ -99311,14 +99300,13 @@ function createStore(reducer, preloadedState, enhancer) {
       }
 
       if (isDispatching) {
-        throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+        throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
       }
 
       isSubscribed = false;
       ensureCanMutateNextListeners();
       var index = nextListeners.indexOf(listener);
       nextListeners.splice(index, 1);
-      currentListeners = null;
     };
   }
   /**
@@ -99394,11 +99382,7 @@ function createStore(reducer, preloadedState, enhancer) {
       throw new Error('Expected the nextReducer to be a function.');
     }
 
-    currentReducer = nextReducer; // This action has a similiar effect to ActionTypes.INIT.
-    // Any reducers that existed in both the new and old rootReducer
-    // will receive the previous state. This effectively populates
-    // the new state tree with any relevant data from the old one.
-
+    currentReducer = nextReducer;
     dispatch({
       type: ActionTypes.REPLACE
     });
@@ -99568,9 +99552,7 @@ function combineReducers(reducers) {
     }
   }
 
-  var finalReducerKeys = Object.keys(finalReducers); // This is used to make sure we don't warn about the same
-  // keys multiple times.
-
+  var finalReducerKeys = Object.keys(finalReducers);
   var unexpectedKeyCache;
 
   if ("production" !== 'production') {
@@ -99620,7 +99602,6 @@ function combineReducers(reducers) {
       hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
     }
 
-    hasChanged = hasChanged || finalReducerKeys.length !== Object.keys(state).length;
     return hasChanged ? nextState : state;
   };
 }
@@ -99636,8 +99617,8 @@ function bindActionCreator(actionCreator, dispatch) {
  * may be invoked directly. This is just a convenience method, as you can call
  * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
  *
- * For convenience, you can also pass an action creator as the first argument,
- * and get a dispatch wrapped function in return.
+ * For convenience, you can also pass a single function as the first argument,
+ * and get a function in return.
  *
  * @param {Function|Object} actionCreators An object whose values are action
  * creator functions. One handy way to obtain it is to use ES6 `import * as`
@@ -99662,9 +99643,11 @@ function bindActionCreators(actionCreators, dispatch) {
     throw new Error("bindActionCreators expected an object or a function, instead received " + (actionCreators === null ? 'null' : typeof actionCreators) + ". " + "Did you write \"import ActionCreators from\" instead of \"import * as ActionCreators from\"?");
   }
 
+  var keys = Object.keys(actionCreators);
   var boundActionCreators = {};
 
-  for (var key in actionCreators) {
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
     var actionCreator = actionCreators[key];
 
     if (typeof actionCreator === 'function') {
@@ -99690,34 +99673,20 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    keys.push.apply(keys, Object.getOwnPropertySymbols(object));
-  }
-
-  if (enumerableOnly) keys = keys.filter(function (sym) {
-    return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-  });
-  return keys;
-}
-
-function _objectSpread2(target) {
+function _objectSpread(target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
 
-    if (i % 2) {
-      ownKeys(source, true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(source).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
     }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
   }
 
   return target;
@@ -99782,7 +99751,7 @@ function applyMiddleware() {
       var store = createStore.apply(void 0, arguments);
 
       var _dispatch = function dispatch() {
-        throw new Error('Dispatching while constructing your middleware is not allowed. ' + 'Other middleware would not be applied to this dispatch.');
+        throw new Error("Dispatching while constructing your middleware is not allowed. " + "Other middleware would not be applied to this dispatch.");
       };
 
       var middlewareAPI = {
@@ -99795,7 +99764,7 @@ function applyMiddleware() {
         return middleware(middlewareAPI);
       });
       _dispatch = compose.apply(void 0, chain)(store.dispatch);
-      return _objectSpread2({}, store, {
+      return _objectSpread({}, store, {
         dispatch: _dispatch
       });
     };
@@ -99813,12 +99782,12 @@ if ("production" !== 'production' && typeof isCrushed.name === 'string' && isCru
   warning('You are currently using minified code outside of NODE_ENV === "production". ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or setting mode to production in webpack (https://webpack.js.org/concepts/mode/) ' + 'to ensure you have the correct code for your production build.');
 }
 
-exports.__DO_NOT_USE__ActionTypes = ActionTypes;
-exports.applyMiddleware = applyMiddleware;
-exports.bindActionCreators = bindActionCreators;
-exports.combineReducers = combineReducers;
-exports.compose = compose;
 exports.createStore = createStore;
+exports.combineReducers = combineReducers;
+exports.bindActionCreators = bindActionCreators;
+exports.applyMiddleware = applyMiddleware;
+exports.compose = compose;
+exports.__DO_NOT_USE__ActionTypes = ActionTypes;
 
 },{"symbol-observable":956}],"systemjs":[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename){

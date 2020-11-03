@@ -76,6 +76,9 @@ export default class JobsJob {
             if (data.hasOwnProperty('Inactive')) {
                 obj['Inactive'] = ApiClient.convertToType(data['Inactive'], 'Boolean');
             }
+            if (data.hasOwnProperty('Custom')) {
+                obj['Custom'] = ApiClient.convertToType(data['Custom'], 'Boolean');
+            }
             if (data.hasOwnProperty('Languages')) {
                 obj['Languages'] = ApiClient.convertToType(data['Languages'], ['String']);
             }
@@ -138,6 +141,10 @@ export default class JobsJob {
     * @member {Boolean} Inactive
     */
     Inactive = undefined;
+    /**
+    * @member {Boolean} Custom
+    */
+    Custom = undefined;
     /**
     * @member {Array.<String>} Languages
     */

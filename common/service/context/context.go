@@ -23,13 +23,12 @@ package servicecontext
 
 import (
 	"context"
-	"encoding/json"
 	"sync/atomic"
 
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/x/configx"
 )
 
 type contextType int
@@ -83,7 +82,7 @@ func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
 }
 
 // WithConfig links a config to the context
-func WithConfig(ctx context.Context, config common.ConfigValues) context.Context {
+func WithConfig(ctx context.Context, config configx.Values) context.Context {
 	return context.WithValue(ctx, configKey, config)
 }
 
@@ -125,8 +124,8 @@ func GetDAO(ctx context.Context) dao.DAO {
 }
 
 // GetConfig returns the config from the context in argument
-func GetConfig(ctx context.Context) common.ConfigValues {
-	if conf, ok := ctx.Value(configKey).(common.ConfigValues); ok {
+func GetConfig(ctx context.Context) configx.Values {
+	if conf, ok := ctx.Value(configKey).(configx.Values); ok {
 		return conf
 	}
 	return nil
@@ -138,6 +137,6 @@ func ScanConfig(ctx context.Context, target interface{}) error {
 	if conf == nil {
 		return errors.New("cannot find config in this context")
 	}
-	marsh, _ := json.Marshal(conf)
-	return json.Unmarshal(marsh, &target)
+
+	return conf.Scan(target)
 }

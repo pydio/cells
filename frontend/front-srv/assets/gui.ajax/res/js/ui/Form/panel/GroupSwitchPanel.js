@@ -130,7 +130,7 @@ export default React.createClass({
         const selectorChanger = function(newValue){
             this.clearSubParametersValues(paramName, newValue, switchValues[newValue]?switchValues[newValue].fields:[]);
         }.bind(this);
-        let subForm, selectorLegend, subFormHeader;
+        let subForm, selectorLegend;
         const selector = (
             <SelectBox
                 key={paramName}
@@ -158,13 +158,8 @@ export default React.createClass({
             helperMark = <span className="icon-question-sign" onClick={showHelper}></span>;
         }
 
-        selectorLegend = (
-            <div className="form-legend">{attributes['description']} {helperMark}</div>
-        );
         if(values[paramName] && switchValues[values[paramName]]){
-            subFormHeader = (
-                <h4>{values[paramName]}</h4>
-            );
+            const {onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip} = this.props;
             subForm = (
                 <FormPanel
                     onParameterChange={this.props.onParameterChange}
@@ -181,13 +176,16 @@ export default React.createClass({
                     setHelperData={this.props.setHelperData}
                     helperTestFor={values[paramName]}
                     accordionizeIfGroupsMoreThan={5}
+                    onAltTextSwitch={onAltTextSwitch}
+                    altTextSwitchIcon={altTextSwitchIcon}
+                    altTextSwitchTip={altTextSwitchTip}
                 />
             );
         }
         return (
             <div className="sub-form-group">
+                <div className="form-legend">{attributes['description']} {helperMark}</div>
                 {selector}
-                {selectorLegend}
                 {subForm}
             </div>
         );

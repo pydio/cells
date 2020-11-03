@@ -32,10 +32,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 )
 
 var mockDAO DAO
@@ -50,7 +50,7 @@ func GetDAO(t *testing.T) DAO {
 		log.Println(err)
 	}
 
-	var options config.Map
+	var options = configx.New()
 
 	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_key_test")
 

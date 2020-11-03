@@ -57,8 +57,8 @@ func NewMockFromMicroService(rs *registry.Service) *mockService {
 	return m
 }
 
-func (m *mockService) Start() {}
-func (m *mockService) Stop()  {}
+func (m *mockService) Start(context.Context) {}
+func (m *mockService) Stop()                 {}
 func (m *mockService) IsRunning() bool {
 	return m.running
 }
@@ -126,7 +126,7 @@ func (m *mockService) RequiresFork() bool {
 func (m *mockService) AutoStart() bool {
 	return false
 }
-func (m *mockService) ForkStart(...int) {
+func (m *mockService) ForkStart(context.Context, ...int) {
 }
 func (m *mockService) MustBeUnique() bool {
 	return false

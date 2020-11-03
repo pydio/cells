@@ -62,7 +62,7 @@ func (c *ResyncAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "service",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Service Name",
 					Description: "Full name of the cells micro service",
 					Default:     "",
@@ -71,7 +71,7 @@ func (c *ResyncAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "path",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Path",
 					Description: "Internal path on which to trigger the resync",
 					Default:     "/",
@@ -80,9 +80,9 @@ func (c *ResyncAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "dry-run",
-					Type:        "boolean",
+					Type:        forms.ParamBool,
 					Label:       "Dry Run",
-					Description: "Perform a dry-run sync, i.e. no changes are applied",
+					Description: "For services supporting this, perform a dry-run, no changes are applied",
 					Default:     nil,
 					Mandatory:   false,
 					Editable:    true,

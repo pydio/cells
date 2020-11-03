@@ -22,6 +22,7 @@ package jobs
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/micro/go-micro/client"
 )
@@ -70,3 +71,21 @@ func EvaluateFieldStrSlice(ctx context.Context, input ActionMessage, values []st
 	return values
 }
 
+func EvaluateFieldBool(ctx context.Context, input ActionMessage, value string) (bool, error) {
+	strVal := EvaluateFieldStr(ctx, input, value)
+	return strconv.ParseBool(strVal)
+}
+
+func EvaluateFieldInt(ctx context.Context, input ActionMessage, value string) (int, error) {
+	strVal := EvaluateFieldStr(ctx, input, value)
+	if i, e := strconv.ParseInt(strVal, 10, 64); e == nil {
+		return int(i), nil
+	} else {
+		return 0, e
+	}
+}
+
+func EvaluateFieldInt64(ctx context.Context, input ActionMessage, value string) (int64, error) {
+	strVal := EvaluateFieldStr(ctx, input, value)
+	return strconv.ParseInt(strVal, 10, 64)
+}

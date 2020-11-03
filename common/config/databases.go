@@ -21,53 +21,13 @@
 package config
 
 import (
-	"log"
-	"sync"
+	"github.com/pydio/cells/x/configx"
 )
-
-var (
-	databaseOnce  = &sync.Once{}
-	defaultDriver string
-	defaultDSN    string
-	databases     Map
-)
-
-func loadDatabases() {
-	Get("databases").Scan(&databases)
-
-	if defaultDbKey := Get("defaults", "database").String(""); defaultDbKey != "" {
-		if _, ok := databases[defaultDbKey]; ok {
-			sMap := databases.StringMap(defaultDbKey)
-			if d, o := sMap["driver"]; o {
-				defaultDriver = d
-			}
-			if d, o := sMap["dsn"]; o {
-				defaultDSN = d
-			}
-		}
-	}
-
-	// If no database is found, there's a config issue!
-	// But do not stop here, it should be checked at the cmd level (services-start.go),
-	// as we don't have a way to throw back the error (log.Fatal silently breaks)
-	if defaultDriver == "" {
-		log.Println("[FATAL] Could not find default database! Please make sure that databases are correctly configured and started.")
-	}
-}
-
-// GetDefaultDatabase returns the information for the default database
-func GetDefaultDatabase() (string, string) {
-	databaseOnce.Do(func() {
-		loadDatabases()
-	})
-	return defaultDriver, defaultDSN
-}
 
 // GetDatabase retrieves the database data from the config
-func GetDatabase(name string) (string, string) {
-	databaseOnce.Do(func() {
-		loadDatabases()
-	})
+func GetDatabase(key string) (string, string) {
 
-	return databases.Database(name)
+	c := Get("#/databases/" + key).Default(configx.Reference("#/defaults/database")).StringMap()
+
+	return c["driver"], c["dsn"]
 }

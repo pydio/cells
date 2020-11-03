@@ -29,9 +29,9 @@ import (
 	"strings"
 
 	bolt "github.com/etcd-io/bbolt"
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/x/configx"
 )
 
 type boltdbimpl struct {
@@ -42,10 +42,10 @@ type boltdbimpl struct {
 }
 
 // Init the storage
-func (dao *boltdbimpl) Init(options common.ConfigValues) error {
+func (dao *boltdbimpl) Init(options configx.Values) error {
 
 	// Update defaut inbox max size if set in the config
-	dao.InboxMaxSize = options.Int64("InboxMaxSize", dao.InboxMaxSize)
+	dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
 
 	dao.DB().Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(activity.OwnerType_USER.String()))

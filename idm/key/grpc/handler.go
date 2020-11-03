@@ -82,7 +82,7 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp
 
 	// TODO: Extract user / password info from Context
 	user := common.PYDIO_SYSTEM_USERNAME
-	pwd := config.Vault().Get("masterPassword").Bytes()
+	pwd := config.Vault().Val("masterPassword").Bytes()
 
 	rsp.Key, err = dao.GetKey(user, req.KeyID)
 	if err != nil {
@@ -333,7 +333,7 @@ func open(k *enc.Key, passwordBytes []byte) error {
 
 func getMasterPassword() ([]byte, error) {
 	var masterPasswordBytes []byte
-	masterPassword := config.Vault().Get("masterPassword").String("")
+	masterPassword := config.Vault().Val("masterPassword").String()
 	if masterPassword == "" {
 		return masterPasswordBytes, errors.InternalServerError("master.key.load", "cannot get master password")
 	}

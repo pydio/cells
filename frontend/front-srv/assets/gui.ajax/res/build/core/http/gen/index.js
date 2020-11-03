@@ -245,6 +245,10 @@ var _modelInstallInstallConfig = require('./model/InstallInstallConfig');
 
 var _modelInstallInstallConfig2 = _interopRequireDefault(_modelInstallInstallConfig);
 
+var _modelInstallInstallEventsResponse = require('./model/InstallInstallEventsResponse');
+
+var _modelInstallInstallEventsResponse2 = _interopRequireDefault(_modelInstallInstallEventsResponse);
+
 var _modelInstallInstallRequest = require('./model/InstallInstallRequest');
 
 var _modelInstallInstallRequest2 = _interopRequireDefault(_modelInstallInstallRequest);
@@ -588,6 +592,10 @@ var _modelRestListSharedResourcesRequest2 = _interopRequireDefault(_modelRestLis
 var _modelRestListSharedResourcesResponse = require('./model/RestListSharedResourcesResponse');
 
 var _modelRestListSharedResourcesResponse2 = _interopRequireDefault(_modelRestListSharedResourcesResponse);
+
+var _modelRestListSitesResponse = require('./model/RestListSitesResponse');
+
+var _modelRestListSitesResponse2 = _interopRequireDefault(_modelRestListSitesResponse);
 
 var _modelRestListStorageBucketsRequest = require('./model/RestListStorageBucketsRequest');
 
@@ -1445,6 +1453,13 @@ InstallInstallConfig = _modelInstallInstallConfig2['default'];
 exports.
 
 /**
+ * The InstallInstallEventsResponse model constructor.
+ * @property {module:model/InstallInstallEventsResponse}
+ */
+InstallInstallEventsResponse = _modelInstallInstallEventsResponse2['default'];
+exports.
+
+/**
  * The InstallInstallRequest model constructor.
  * @property {module:model/InstallInstallRequest}
  */
@@ -2044,6 +2059,13 @@ exports.
  * @property {module:model/RestListSharedResourcesResponse}
  */
 RestListSharedResourcesResponse = _modelRestListSharedResourcesResponse2['default'];
+exports.
+
+/**
+ * The RestListSitesResponse model constructor.
+ * @property {module:model/RestListSitesResponse}
+ */
+RestListSitesResponse = _modelRestListSitesResponse2['default'];
 exports.
 
 /**

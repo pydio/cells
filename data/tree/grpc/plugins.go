@@ -22,22 +22,24 @@
 package grpc
 
 import (
+	"context"
 	"sync"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
 			service.Description("Aggregator of all datasources into one master tree"),

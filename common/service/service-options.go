@@ -22,10 +22,10 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"regexp"
 
-	"github.com/micro/go-micro"
 	"github.com/micro/go-web"
 	"github.com/spf13/pflag"
 
@@ -33,11 +33,16 @@ import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/x/configx"
 )
 
 type dependency struct {
 	Name string
 	Tag  []string
+}
+
+type Runnable interface {
+	Run() error
 }
 
 // ServiceOptions stores all options for a pydio service
@@ -56,18 +61,20 @@ type ServiceOptions struct {
 	Prefix     interface{}
 	Migrations []*Migration
 
-	Port string
+	Port      string
+	TLSConfig *tls.Config
 
-	Micro micro.Service
+	Micro Runnable
 	Web   web.Service
 
 	Dependencies []*dependency
 
 	// Starting options
-	AutoStart bool
-	Fork      bool
-	Unique    bool
-	Cluster   registry.Cluster
+	AutoStart   bool
+	AutoRestart bool
+	Fork        bool
+	Unique      bool
+	Cluster     registry.Cluster
 
 	Registry registry.Registry
 
@@ -88,14 +95,15 @@ type ServiceOptions struct {
 	OnRegexpMatch func(Service, []string) error
 
 	// Micro init
-	MicroInit func(Service) error
+	MicroInit   func(Service) error
+	MicroCancel context.CancelFunc
 
 	// Web init
 	WebInit         func(Service) error
 	webHandlerWraps []func(http.Handler) http.Handler
 
 	// Watcher
-	Watchers []func(common.ConfigValues)
+	Watchers map[string][]func(Service, configx.Values)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -105,6 +113,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 
 	opt.Registry = registry.Default
 	opt.AutoStart = true
+	opt.Watchers = make(map[string][]func(Service, configx.Values))
 
 	for _, o := range opts {
 		o(&opt)
@@ -171,6 +180,12 @@ func Regexp(r string) ServiceOption {
 func Port(p string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Port = p
+	}
+}
+
+func WithTLSConfig(c *tls.Config) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.TLSConfig = c
 	}
 }
 
@@ -268,8 +283,18 @@ func AfterStop(fn func(Service) error) ServiceOption {
 	}
 }
 
-func Watch(fn func(common.ConfigValues)) ServiceOption {
+func AutoRestart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Watchers = append(o.Watchers, fn)
+		o.AutoRestart = b
+	}
+}
+
+func Watch(fn func(Service, configx.Values)) ServiceOption {
+	return func(o *ServiceOptions) {
+		watchers, ok := o.Watchers[""]
+		if !ok {
+			watchers = []func(Service, configx.Values){}
+		}
+		o.Watchers[""] = append(watchers, fn)
 	}
 }

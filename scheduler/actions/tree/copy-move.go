@@ -83,12 +83,21 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 		{
 			Fields: []forms.Field{
 				&forms.FormField{
+					Name:        "target",
+					Type:        forms.ParamString,
+					Label:       "Destination",
+					Description: "Where to copy or move original files",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
 					Name:        "type",
-					Type:        "select",
+					Type:        forms.ParamSelect,
 					Label:       "Operation Type",
 					Description: "Copy or move",
 					Mandatory:   true,
 					Editable:    true,
+					Default: "copy",
 					ChoicePresetList: []map[string]string{
 						{"copy": "Copy"},
 						{"move": "Move"},
@@ -96,7 +105,7 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "recursive",
-					Type:        "boolean",
+					Type:        forms.ParamBool,
 					Label:       "Recursive",
 					Description: "Apply recursively on folders",
 					Default:     true,
@@ -104,17 +113,9 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 					Editable:    true,
 				},
 				&forms.FormField{
-					Name:        "target",
-					Type:        "string",
-					Label:       "Destination",
-					Description: "Where to copy or move original files",
-					Mandatory:   true,
-					Editable:    true,
-				},
-				&forms.FormField{
 					Name:        "targetParent",
-					Type:        "boolean",
-					Label:       "Parent Folder",
+					Type:        forms.ParamBool,
+					Label:       "Destination points to parent folder",
 					Description: "If set to true, the files are created inside the target folder, otherwise the destination should point to full path of target",
 					Default:     true,
 					Mandatory:   false,
@@ -122,8 +123,8 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "create",
-					Type:        "boolean",
-					Label:       "Create",
+					Type:        forms.ParamBool,
+					Label:       "Create Destination",
 					Description: "Whether to automatically create the destination folder or not",
 					Default:     true,
 					Mandatory:   false,
@@ -186,7 +187,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithIgnore(), nil // Ignore
 	}
 	sourceNode := input.Nodes[0]
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Get(), true))
 
 	targetNode := &tree.Node{
 		Path: jobs.EvaluateFieldStr(ctx, input, c.TargetPlaceholder),

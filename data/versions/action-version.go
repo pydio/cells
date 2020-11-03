@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/i18n"
@@ -93,7 +93,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if node.Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 	var hasPolicy bool
 	if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)); e == nil {
 		if nodeSource.VersioningPolicyName != "" {

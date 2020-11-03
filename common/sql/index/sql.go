@@ -42,10 +42,10 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -254,6 +254,14 @@ func init() {
 			WHERE %s AND level = ? AND name like ?`, sub), args
 	}
 
+	queries["child_sqlite3"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(mpathes[0]))
+		return fmt.Sprintf(`
+			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ? AND name like ? ESCAPE '\'`, sub), args
+	}
+
 	queries["lastChild"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
@@ -299,7 +307,7 @@ type IndexSQL struct {
 }
 
 // Init handles the db version migration and prepare the statements
-func (dao *IndexSQL) Init(options common.ConfigValues) error {
+func (dao *IndexSQL) Init(options configx.Values) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
@@ -312,7 +320,7 @@ func (dao *IndexSQL) Init(options common.ConfigValues) error {
 		return err
 	}
 
-	if prepare, ok := options.Get("prepare").(bool); !ok || prepare {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := dao.Prepare(key, query); err != nil {
 				return err
@@ -867,7 +875,12 @@ func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.T
 
 	mpath := node.MPath
 
-	if stmt, args, e := dao.GetStmtWithArgs("child", mpath.String()); e == nil {
+	stmtName := "child"
+	if dao.Driver() == "sqlite3" {
+		stmtName = "child_sqlite3"
+	}
+
+	if stmt, args, e := dao.GetStmtWithArgs(stmtName, mpath.String()); e == nil {
 		// Escape for LIKE query
 		reqName = strings.ReplaceAll(reqName, "_", "\\_")
 		reqName = strings.ReplaceAll(reqName, "%", "\\%")

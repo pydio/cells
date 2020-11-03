@@ -48,7 +48,7 @@ var (
 
 type DeleteAction struct {
 	Client             views.Handler
-	deleteChildrenOnly bool
+	childrenOnlyParam string
 }
 
 func (c *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -70,7 +70,7 @@ func (c *DeleteAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "childrenOnly",
-					Type:        "boolean",
+					Type:        forms.ParamBool,
 					Label:       "Children Only",
 					Description: "Delete only the children items from the input node",
 					Default:     false,
@@ -91,8 +91,10 @@ func (c *DeleteAction) GetName() string {
 func (c *DeleteAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 
 	c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	if co, ok := action.Parameters["childrenOnly"]; ok && co == "true" {
-		c.deleteChildrenOnly = true
+	if co, ok := action.Parameters["childrenOnly"]; ok {
+		c.childrenOnlyParam = co
+	} else {
+		c.childrenOnlyParam = "false"
 	}
 
 	return nil
@@ -105,7 +107,12 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
-	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Get(), true))
+
+	childrenOnly, e := jobs.EvaluateFieldBool(ctx, input, c.childrenOnlyParam)
+	if e != nil {
+		return input.WithError(e), e
+	}
 
 	sourceNode := input.Nodes[0]
 
@@ -136,7 +143,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			if e != nil {
 				break
 			}
-			if resp.Node.Path == path.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && c.deleteChildrenOnly {
+			if resp.Node.Path == path.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && childrenOnly {
 				// Do not delete first .pydio!
 				continue
 			}

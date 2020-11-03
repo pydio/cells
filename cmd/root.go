@@ -22,9 +22,15 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	log2 "log"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/spf13/pflag"
 
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
@@ -34,10 +40,17 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/file"
+	"github.com/pydio/cells/common/config/micro/vault"
+	"github.com/pydio/cells/common/config/migrations"
+	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
+	"github.com/pydio/cells/x/filex"
 
 	// All brokers
 	httpbroker "github.com/pydio/cells/common/micro/broker/http"
@@ -49,16 +62,23 @@ import (
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/service/metrics"
+
+	//
+	microconfig "github.com/pydio/go-os/config"
 )
 
 var (
+	ctx             context.Context
+	cancel          context.CancelFunc
 	allServices     []registry.Service
 	runningServices []*microregistry.Service
 
 	profiling bool
 	profile   *os.File
 
-	IsFork bool
+	IsFork       bool
+	EnvPrefixOld = "pydio"
+	EnvPrefixNew = "cells"
 )
 
 const startTagUnique = "unique"
@@ -140,12 +160,15 @@ You can customize the various storage locations with the following ENV variables
 func init() {
 	cobra.OnInitialize(
 		initLogLevel,
+		initConfig,
 	)
-
-	viper.SetEnvPrefix("pydio")
+	initEnvPrefixes()
+	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
+
+	flags.String("config", "local", "Config")
 
 	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
 	flags.String("registry_address", ":4222", "Registry connection address")
@@ -167,25 +190,19 @@ func init() {
 	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
 
-	viper.BindPFlag("registry", flags.Lookup("registry"))
-	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
-	viper.BindPFlag("registry_cluster_address", flags.Lookup("registry_cluster_address"))
-	viper.BindPFlag("registry_cluster_routes", flags.Lookup("registry_cluster_routes"))
+	replaceKeys := map[string]string{
+		"log":  "logs_level",
+		"fork": "is_fork",
+	}
+	flags.VisitAll(func(flag *pflag.Flag) {
+		key := flag.Name
+		if replace, ok := replaceKeys[flag.Name]; ok {
+			key = replace
+		}
+		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+		viper.BindPFlag(key, flag)
+	})
 
-	viper.BindPFlag("broker", flags.Lookup("broker"))
-	viper.BindPFlag("broker_address", flags.Lookup("broker_address"))
-
-	viper.BindPFlag("transport", flags.Lookup("transport"))
-	viper.BindPFlag("transport_address", flags.Lookup("transport_address"))
-
-	viper.BindPFlag("logs_level", flags.Lookup("log"))
-	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
-	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
-	viper.BindPFlag("grpc_external", flags.Lookup("grpc_external"))
-
-	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
-	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
-	viper.BindPFlag("is_fork", flags.Lookup("fork"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -198,10 +215,126 @@ func Execute() {
 	nats.Init()
 	metrics.Init()
 
-	if err := RootCmd.Execute(); err != nil {
+	ctx, cancel = context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := RootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func initConfig() {
+	// TODO - do something about that
+	// VersionsStore = filex.NewStore(PydioConfigDir)
+	// written, err := filex.WriteIfNotExists(filepath.Join(PydioConfigDir, PydioConfigFile), SampleConfig)
+	// if err != nil {
+	// 	fmt.Println("Error while trying to create default config file")
+	// 	os.Exit(1)
+	// }
+	// if written && VersionsStore != nil {
+	// 	var data interface{}
+	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+	// 		VersionsStore.Put(&filex.Version{
+	// 			User: "cli",
+	// 			Date: time.Now(),
+	// 			Log:  "Initialize with sample config",
+	// 			Data: data,
+	// 		})
+	// 	}
+	// }
+
+	versionsStore := filex.NewStore(config.PydioConfigDir)
+
+	if _, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig); err != nil {
+		fmt.Println("Error while trying to create default config file")
+		os.Exit(1)
+	}
+
+	var vaultConfig config.Store
+	var defaultConfig config.Store
+
+	switch viper.GetString("config") {
+	case "mysql":
+		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
+		defaultConfig = config.NewVault(
+			config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
+			vaultConfig,
+		)
+	default:
+		vaultConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(
+						vault.NewVaultSource(
+							filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
+							filepath.Join(config.PydioConfigDir, "cells-vault-key"),
+							true,
+						),
+					),
+					microconfig.PollInterval(10*time.Second),
+				),
+			))
+
+		defaultConfig =
+			config.NewVault(
+				config.New(
+					config.NewVersionStore(versionsStore, micro.New(
+						microconfig.NewConfig(
+							microconfig.WithSource(
+								file.NewSource(
+									microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+								),
+							),
+							microconfig.PollInterval(10*time.Second),
+						),
+					),
+					)),
+				vaultConfig,
+			)
+	}
+
+	// if written && VersionsStore != nil {
+	// 	var data interface{}
+	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+	// 		VersionsStore.Put(&filex.Version{
+	// 			User: "cli",
+	// 			Date: time.Now(),
+	// 			Log:  "Initialize with sample config",
+	// 			Data: data,
+	// 		})
+	// 	}
+	// }
+
+	// Need to do something for the versions
+	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {
+		if err := config.Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied"); err != nil {
+			log.Fatal("Could not save config migrations", zap.Error(err))
+		}
+	}
+	config.Register(defaultConfig)
+	config.RegisterVault(vaultConfig)
+
+	//if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
+	// 				e2 := Save(common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+	// 				if e2 != nil {
+	// 					fmt.Println("[Configs] Error while saving upgraded configs")
+	// 				} else {
+	// 					fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
+	// 				}
+	// 				// Reload fully from source to make sure it's in sync with JSON
+	// 				defaultConfig = &Config{config.NewConfig(
+	// 					config.WithSource(newLocalSource()),
+	// 					config.PollInterval(10*time.Second),
+	// 				)}
+	// 			} else if e != nil {
+	// case "etcd":
+	// 	config.Register(
+	// 		config.New(etcd.NewSource(clientv3.Config{
+	// 			Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
+	// 			DialTimeout: 5 * time.Second,
+	// 		})))
+	// }
 }
 
 func initLogLevel() {
@@ -210,7 +343,7 @@ func initLogLevel() {
 	logLevel := viper.GetString("logs_level")
 
 	// Making sure the log level is passed everywhere (fork processes for example)
-	os.Setenv("PYDIO_LOGS_LEVEL", logLevel)
+	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
 
 	if logLevel == "production" {
 		common.LogConfig = common.LogConfigProduction
@@ -279,5 +412,19 @@ func handleTransport() {
 		grpctransport.Enable()
 	default:
 		log.Fatal("transport not supported")
+	}
+}
+
+func initEnvPrefixes() {
+	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
+	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
+	for _, pair := range os.Environ() {
+		if strings.HasPrefix(pair, prefOld) {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				//fmt.Println("Setting", pair, prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+			}
+		}
 	}
 }

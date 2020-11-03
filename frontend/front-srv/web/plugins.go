@@ -30,14 +30,13 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
-	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
@@ -52,9 +51,10 @@ Disallow: /`
 
 func init() {
 
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_FRONTEND),
 			service.Description("WEB service for serving statics"),
 			service.Migrations([]*service.Migration{
@@ -63,17 +63,7 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
-			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-				return service.RunnerFunc(func() error {
-						return nil
-					}), service.CheckerFunc(func() error {
-						return nil
-					}), service.StopperFunc(func() error {
-						return nil
-					}), nil
-			}, func(s service.Service) (micro.Option, error) {
-				srv := defaults.NewHTTPServer()
-
+			service.WithHTTP(func() http.Handler {
 				httpFs := frontend.GetPluginsFS()
 				fs := gzipped.FileServer(httpFs)
 
@@ -100,22 +90,15 @@ func init() {
 				// Adding subscriber
 				if _, err := defaults.Broker().Subscribe(common.TOPIC_ASSETS_RELOAD, func(p broker.Publication) error {
 					// Reload FS
-					log.Logger(s.Options().Context).Info("Reloading PluginFS")
+					log.Info("Reloading PluginFS")
 					frontend.HotReload()
 					httpFs = frontend.GetPluginsFS()
 					return nil
 				}); err != nil {
-					return nil, err
+					return nil
 				}
 
-				hd := srv.NewHandler(routerWithTimeout)
-
-				err := srv.Handle(hd)
-				if err != nil {
-					return nil, err
-				}
-
-				return micro.Server(srv), nil
+				return routerWithTimeout
 			}),
 		)
 	})
@@ -124,7 +107,7 @@ func init() {
 // DropLegacyStatics removes files and references to old PHP data in configuration
 func DropLegacyStatics(ctx context.Context) error {
 
-	frontRoot := config.Get("defaults", "frontRoot").String(filepath.Join(config.ApplicationWorkingDir(), "static", "pydio"))
+	frontRoot := config.Get("defaults", "frontRoot").Default(filepath.Join(config.ApplicationWorkingDir(), "static", "pydio")).String()
 	if frontRoot != "" {
 		if er := os.RemoveAll(frontRoot); er != nil {
 			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))
@@ -138,7 +121,7 @@ func DropLegacyStatics(ctx context.Context) error {
 	config.Del("defaults", "fpm")
 	config.Del("defaults", "fronts")
 	config.Del("services", "pydio.frontends")
-	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("") == "" {
+	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String() == "" {
 		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
 	}
 	if e := config.Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade to 1.2.0"); e == nil {

@@ -22,8 +22,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
-	"net"
 	"path"
 	"sort"
 	"strings"
@@ -35,7 +33,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/ctl"
@@ -228,7 +225,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	folder := newSource.StorageConfiguration["folder"]
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
 	var opts []client.CallOption
-	if newSource.PeerAddress != "" {
+	if newSource.PeerAddress != "" && newSource.PeerAddress != "0.0.0.0" {
 		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
 		opts = append(opts, selectorOption)
 	}
@@ -326,11 +323,11 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
 	}
-	configAddress := ""
-	c := config.Default().Get("defaults", "url").String("")
-	if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
-		configAddress = c
-	}
+	//configAddress := ""
+	//c := config.Default().Get("defaults", "url").String("")
+	//if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
+	//	configAddress = c
+	//}
 	protoSrv := &ctl.Service{
 		Name:         srv.Name(),
 		Status:       status,
@@ -342,15 +339,17 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	}
 	for _, node := range srv.RunningNodes() {
 		// Double check that node is really running
-		if _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", node.Address, node.Port)); err != nil {
-			continue
-		}
+		// addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
+		// if _, err := net.Dial("tcp", addr); err != nil {
+		// 	log.Warn("Failed to check", zap.String("service", srv.Name()), zap.String("address", addr))
+		// 	continue
+		// }
 		p := int32(node.Port)
 		a := node.Address
-		if configAddress != "" {
-			a = configAddress
-			p = 0
-		}
+		//if configAddress != "" {
+		//	a = configAddress
+		//	p = 0
+		//}
 		protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 			Id:       node.Id,
 			Port:     p,

@@ -30,13 +30,18 @@ import (
 
 // PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
 func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption {
-	return selector.WithFilter(func(services []*registry.Service) (out []*registry.Service) {
-		for _, srv := range services {
-			if srv.Name != srvName {
+	return selector.WithFilter(func(in []*registry.Service) (out []*registry.Service) {
+		for _, current := range in {
+			if current.Name != srvName {
 				continue
 			}
+
+			// create a copy so as not to override service registry info
+			service := new(registry.Service)
+			*service = *current
+
 			var nodes []*registry.Node
-			for _, n := range srv.Nodes {
+			for _, n := range service.Nodes {
 				for _, address := range strings.Split(targetPeer, "|") {
 					if n.Address == address {
 						nodes = append(nodes, n)
@@ -48,9 +53,10 @@ func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption
 					}
 				}
 			}
+
 			if len(nodes) > 0 {
-				srv.Nodes = nodes
-				out = append(out, srv)
+				service.Nodes = nodes
+				out = append(out, service)
 			}
 		}
 		return
@@ -59,21 +65,26 @@ func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption
 
 // PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
 func FixedInstanceSelector(srvName string, targetAddress string) selector.SelectOption {
-	return selector.WithFilter(func(services []*registry.Service) (out []*registry.Service) {
-		for _, srv := range services {
-			if srv.Name != srvName {
+	return selector.WithFilter(func(in []*registry.Service) (out []*registry.Service) {
+		for _, current := range in {
+			if current.Name != srvName {
 				continue
 			}
+
+			// create a copy so as not to override service registry info
+			service := new(registry.Service)
+			*service = *current
+
 			var nodes []*registry.Node
-			for _, n := range srv.Nodes {
+			for _, n := range service.Nodes {
 				if fmt.Sprintf("%s:%d", n.Address, n.Port) == targetAddress {
 					nodes = append(nodes, n)
 					break
 				}
 			}
 			if len(nodes) > 0 {
-				srv.Nodes = nodes
-				out = append(out, srv)
+				service.Nodes = nodes
+				out = append(out, service)
 			}
 		}
 		return

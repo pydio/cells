@@ -62,6 +62,8 @@ var JobsAction = (function () {
         this.ID = undefined;
         this.Label = undefined;
         this.Description = undefined;
+        this.Bypass = undefined;
+        this.BreakAfter = undefined;
         this.NodesSelector = undefined;
         this.UsersSelector = undefined;
         this.NodesFilter = undefined;
@@ -95,6 +97,12 @@ var JobsAction = (function () {
             }
             if (data.hasOwnProperty('Description')) {
                 obj['Description'] = _ApiClient2['default'].convertToType(data['Description'], 'String');
+            }
+            if (data.hasOwnProperty('Bypass')) {
+                obj['Bypass'] = _ApiClient2['default'].convertToType(data['Bypass'], 'Boolean');
+            }
+            if (data.hasOwnProperty('BreakAfter')) {
+                obj['BreakAfter'] = _ApiClient2['default'].convertToType(data['BreakAfter'], 'Boolean');
             }
             if (data.hasOwnProperty('NodesSelector')) {
                 obj['NodesSelector'] = _JobsNodesSelector2['default'].constructFromObject(data['NodesSelector']);
@@ -148,6 +156,14 @@ module.exports = exports['default'];
 
 /**
 * @member {String} Description
+*/
+
+/**
+* @member {Boolean} Bypass
+*/
+
+/**
+* @member {Boolean} BreakAfter
 */
 
 /**

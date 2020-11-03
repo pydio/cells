@@ -27,17 +27,17 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/x/configx"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	wconfig "github.com/pydio/go-os/config"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 var (
@@ -46,16 +46,18 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("MailSender Service"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
 			service.Unique(true),
+			service.AutoRestart(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -71,16 +73,7 @@ func init() {
 					return err
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
-				watcher, err := watchConfigChanges(ctx, handler)
-				if err != nil {
-					log.Logger(ctx).Error("Cannot start watcher - still starting service", zap.Error(err))
-				} else {
-					m.Init(micro.BeforeStop(func() error {
-						log.Logger(ctx).Info("Stopping configs watcher")
-						watcher.Stop()
-						return nil
-					}))
-				}
+
 				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
 				return nil
 			}),
@@ -88,8 +81,8 @@ func init() {
 	})
 }
 
-func watchConfigChanges(ctx context.Context, handler *Handler) (wconfig.Watcher, error) {
-	watcher, err := config.Default().Watch("services", Name)
+func watchConfigChanges(ctx context.Context, handler *Handler) (configx.Receiver, error) {
+	watcher, err := config.Watch("services", Name)
 	if err != nil {
 		return nil, err
 	}

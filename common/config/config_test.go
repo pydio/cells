@@ -21,33 +21,56 @@
 package config
 
 import (
-	"os"
+	"sync"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestTreeNode(t *testing.T) {
-
-	PydioConfigDir = os.TempDir()
-
-	// For the time being, we do not use env variable as option backend,
-	// so the below test would fail.
-
-	// Convey("Test Get env", t, func() {
-	// 	os.Setenv("PYDIO_URL", "http://localhost:2015")
-	// 	So(Get("url").String(""), ShouldEqual, "http://localhost:2015")
-	// })
-
+func TestConfig(t *testing.T) {
 	Convey("Test Set", t, func() {
-
-		initConfig()
-		Set("whatever", "url")
-		So(Get("url").String(""), ShouldEqual, "whatever")
-
+		err := Set("my-test-config-value", "test")
+		So(err, ShouldBeNil)
+		So(Get("test").Default("").String(), ShouldEqual, "my-test-config-value")
 	})
 
-	// Convey("Test Del", t, func() {
-	// 	Del()
-	// })
+	Convey("Test Watch", t, func() {
+		w, err := Watch("watch", "val")
+		So(err, ShouldBeNil)
+
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			for {
+				w.Next()
+
+				wg.Done()
+			}
+		}()
+
+		Set("test", "watch", "val")
+
+		wg.Wait()
+	})
+
+	/*
+		Convey("Test Scan", t, func() {
+			w, err := Watch("watch", "val")
+			So(err, ShouldBeNil)
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				for {
+					w.Next()
+
+					wg.Done()
+				}
+			}()
+
+			Set("test", "watch", "val")
+
+			wg.Wait()
+		})
+	*/
 }

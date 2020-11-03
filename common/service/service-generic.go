@@ -22,14 +22,22 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"net"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 
-	errorUtils "github.com/pydio/cells/common/utils/error"
+	"github.com/google/uuid"
 
 	"github.com/micro/go-micro"
-	"go.uber.org/zap"
+	"github.com/micro/go-micro/codec"
+	"github.com/micro/go-micro/server"
+	"github.com/micro/misc/lib/addr"
 
+	microregistry "github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -38,86 +46,86 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
-// WithGeneric adds a generic micro service handler to the current service
-func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...func(Service) (micro.Option, error)) ServiceOption {
+func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Micro = micro.NewService()
-
 		o.MicroInit = func(s Service) error {
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
+
+			name := s.Name()
+			ctx := servicecontext.WithServiceName(s.Options().Context, name)
+			ctx, cancel := context.WithCancel(ctx)
+
+			srv := f(
+				server.Name(name),
+				server.Address(s.Address()),
+			)
+
+			svc.Init(
+				micro.Client(defaults.NewClient()),
+				micro.Server(srv),
+				micro.Registry(defaults.Registry()),
+				micro.RegisterTTL(time.Second*30),
+				micro.RegisterInterval(time.Second*10),
+				// micro.RegisterTTL(10*time.Minute),
+				// micro.RegisterInterval(5*time.Minute),
+				micro.Transport(defaults.Transport()),
+				micro.Broker(defaults.Broker()),
+				micro.Context(ctx),
+				micro.AfterStart(func() error {
+					log.Logger(ctx).Info("started")
+
+					return nil
+				}),
+				micro.BeforeStop(func() error {
+					log.Logger(ctx).Info("stopping")
+
+					return nil
+				}),
+			)
+
+			s.Init(
+				Micro(svc),
+				Cancel(cancel),
+			)
+
+			return nil
+		}
+	}
+}
+
+// WithHTTP adds a http micro service handler to the current service
+func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.MicroInit = func(s Service) error {
+			svc := micro.NewService(
+				micro.Cmd(command),
+			)
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			o.Version = common.Version().String()
 
-			s.Options().Micro.Init(
-				micro.Client(defaults.NewClient()),
-				micro.Server(defaults.NewServer()),
-				micro.Registry(defaults.Registry()),
+			ctx, cancel := context.WithCancel(ctx)
+
+			srv := defaults.NewHTTPServer(
+				server.Name(name),
+				server.Id(uuid.New().String()),
 			)
 
-			// context is always added last - so that there is no override
-			for _, opt := range opts {
-				o, err := opt(s)
-				if err != nil {
-					log.Fatal("failed to init micro service ", zap.Error(err))
-				}
+			hd := srv.NewHandler(handlerFunc())
 
-				s.Options().Micro.Init(
-					o,
-				)
+			err := srv.Handle(hd)
+			if err != nil {
+				return err
 			}
 
-			s.Options().Micro.Init(
+			svc.Init(
+				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.Metadata(registry.BuildServiceMeta()),
-				micro.BeforeStart(func() error {
-					n := s.Options().Name
-					var runner Runner
-					var checker Checker
-					var stopper Stopper
-					var err error
-					loop := 0
-					for {
-						loop++
-						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
-						if err == nil || !errorUtils.IsServiceStartNeedsRetry(err) {
-							break
-						}
-						if loop == 1 {
-							log.Logger(s.Options().Context).Info("Runner generator returned ServiceStartNeedsRetry error, waiting for 10s")
-						}
-						<-time.After(10 * time.Second)
-					}
-					if err != nil {
-						return err
-					}
-
-					// Adding context watcher
-					go func() {
-						defer func() {
-							if e := recover(); e != nil {
-								fmt.Println("Panic recovered while stopping service", e)
-							}
-						}()
-						<-ctx.Done()
-						stopper.Stop()
-					}()
-					if runner == nil {
-						fmt.Printf("Nil runner before start for %s, call runner generator again\n", n)
-						runner, checker, stopper, err = f(s.Options().Context, s.Options().Cancel)
-						if err != nil {
-							return err
-						}
-					}
-					go runner.Run()
-
-					if err := Retry(checker.Check); err != nil {
-						stopper.Stop()
-					}
-
-					return nil
-				}),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 
@@ -131,16 +139,244 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
+				micro.Server(srv),
 			)
 
 			// newTracer(name, &options)
-			newConfigProvider(s.Options().Micro)
-			newLogProvider(s.Options().Micro)
+			newConfigProvider(svc)
+			newLogProvider(svc)
 
 			// We should actually offer that possibility
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
+			proto.RegisterServiceHandler(svc.Server(), &StatusHandler{s.Address()})
+
+			s.Init(
+				Micro(svc),
+				Cancel(cancel),
+			)
 
 			return nil
 		}
 	}
+}
+
+type genericServer struct {
+	srv interface{}
+
+	opts server.Options
+	sync.RWMutex
+	registered bool
+}
+
+func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
+	opts := server.Options{
+		Codecs:   make(map[string]codec.NewCodec),
+		Metadata: map[string]string{},
+	}
+
+	for _, o := range opt {
+		o(&opts)
+	}
+
+	return &genericServer{
+		srv:  srv,
+		opts: opts,
+	}
+}
+
+func (g *genericServer) Options() server.Options {
+	return g.opts
+}
+func (g *genericServer) Init(opts ...server.Option) error {
+	for _, opt := range opts {
+		opt(&g.opts)
+	}
+	return nil
+}
+func (g *genericServer) Handle(server.Handler) error {
+	return errors.New("not implemented")
+}
+func (g *genericServer) NewHandler(interface{}, ...server.HandlerOption) server.Handler {
+	return nil
+}
+func (g *genericServer) NewSubscriber(string, interface{}, ...server.SubscriberOption) server.Subscriber {
+	return nil
+}
+func (g *genericServer) Subscribe(server.Subscriber) error {
+	return errors.New("not implemented")
+}
+func (g *genericServer) Register() error {
+	// parse address for host, port
+	config := g.opts
+	var advt, host string
+	var port int
+
+	var nodes []*microregistry.Node
+	if a, ok := g.srv.(Addressable); ok {
+		for _, address := range a.Addresses() {
+			tcp, ok := address.(*net.TCPAddr)
+			if !ok {
+				continue
+			}
+			ip := tcp.IP.String()
+			if ip == "::" {
+				ip = "[::]"
+			}
+			addr, err := addr.Extract(ip)
+			if err != nil {
+				continue
+			}
+			// register service
+			node := &microregistry.Node{
+				Id:       config.Name + "-" + uuid.New().String(),
+				Address:  addr,
+				Port:     tcp.Port,
+				Metadata: config.Metadata,
+			}
+
+			node.Metadata["broker"] = config.Broker.String()
+			node.Metadata["registry"] = config.Registry.String()
+			node.Metadata["server"] = g.String()
+			node.Metadata["transport"] = g.String()
+
+			nodes = append(nodes, node)
+		}
+	} else {
+		// check the advertise address first
+		// if it exists then use it, otherwise
+		// use the address
+		if len(config.Advertise) > 0 {
+			advt = config.Advertise
+		} else {
+			advt = config.Address
+		}
+
+		parts := strings.Split(advt, ":")
+		if len(parts) > 1 {
+			host = strings.Join(parts[:len(parts)-1], ":")
+			port, _ = strconv.Atoi(parts[len(parts)-1])
+		} else {
+			host = parts[0]
+		}
+
+		addr, err := addr.Extract(host)
+		if err != nil {
+			return err
+		}
+
+		// register service
+		node := &microregistry.Node{
+			Id:       config.Name + "-" + config.Id,
+			Address:  addr,
+			Port:     port,
+			Metadata: config.Metadata,
+		}
+
+		node.Metadata["broker"] = config.Broker.String()
+		node.Metadata["registry"] = config.Registry.String()
+		node.Metadata["server"] = g.String()
+		node.Metadata["transport"] = g.String()
+
+		nodes = append(nodes, node)
+	}
+
+	service := &microregistry.Service{
+		Name:    config.Name,
+		Version: config.Version,
+		Nodes:   nodes,
+	}
+
+	g.Lock()
+	registered := g.registered
+	g.Unlock()
+
+	// create registry options
+	rOpts := []microregistry.RegisterOption{
+		microregistry.RegisterTTL(config.RegisterTTL),
+	}
+
+	if err := config.Registry.Register(service, rOpts...); err != nil {
+		return err
+	}
+
+	// already registered? don't need to register subscribers
+	if registered {
+		return nil
+	}
+
+	g.Lock()
+	defer g.Unlock()
+
+	g.registered = true
+
+	return nil
+}
+func (g *genericServer) Deregister() error {
+	config := g.opts
+	var advt, host string
+	var port int
+
+	// check the advertise address first
+	// if it exists then use it, otherwise
+	// use the address
+	if len(config.Advertise) > 0 {
+		advt = config.Advertise
+	} else {
+		advt = config.Address
+	}
+
+	parts := strings.Split(advt, ":")
+	if len(parts) > 1 {
+		host = strings.Join(parts[:len(parts)-1], ":")
+		port, _ = strconv.Atoi(parts[len(parts)-1])
+	} else {
+		host = parts[0]
+	}
+
+	addr, err := addr.Extract(host)
+	if err != nil {
+		return err
+	}
+
+	node := &microregistry.Node{
+		Id:      config.Name + "-" + config.Id,
+		Address: addr,
+		Port:    port,
+	}
+
+	service := &microregistry.Service{
+		Name:    config.Name,
+		Version: config.Version,
+		Nodes:   []*microregistry.Node{node},
+	}
+
+	if err := config.Registry.Deregister(service); err != nil {
+		return err
+	}
+
+	g.Lock()
+
+	if !g.registered {
+		g.Unlock()
+		return nil
+	}
+
+	g.registered = false
+
+	return nil
+}
+
+func (g *genericServer) Start() error {
+	if s, ok := g.srv.(Starter); ok {
+		return s.Start()
+	}
+	return nil
+}
+func (g *genericServer) Stop() error {
+	if s, ok := g.srv.(Stopper); ok {
+		return s.Stop()
+	}
+	return nil
+}
+func (g *genericServer) String() string {
+	return "generic"
 }

@@ -138,8 +138,7 @@ var Pydio = (function (_Observable) {
             this.WebSocketClient.open();
         }
         if (!this.Parameters.has('START_REPOSITORY')) {
-            var uri = window.location.href.replace(parameters.get('FRONTEND_URL'), '').replace(window.location.search, '');
-
+            var uri = this.getFrontendUrl().pathname;
             var loadUriParts = _utilLangUtils2['default'].trim(uri, '/').split('/');
             if (loadUriParts.length) {
                 var loadWs = loadUriParts[0];
@@ -568,6 +567,14 @@ var Pydio = (function (_Observable) {
 
     Pydio.prototype.getController = function getController() {
         return this.Controller;
+    };
+
+    /**
+     * @returns {URL}
+     */
+
+    Pydio.prototype.getFrontendUrl = function getFrontendUrl() {
+        return window.location;
     };
 
     /**

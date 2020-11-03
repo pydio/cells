@@ -24,6 +24,7 @@
 package grpc
 
 import (
+	"context"
 	"path/filepath"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -31,7 +32,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
@@ -44,33 +45,30 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Search Engine"),
 			service.RouterDependencies(),
 			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
-				var indexContent bool
 
 				cfg := servicecontext.GetConfig(m.Options().Context)
-				if indexConf := cfg.Get("indexContent"); indexConf != nil {
-					indexContent = cfg.Get("indexContent").(bool)
-				}
+				indexContent := cfg.Val("indexContent").Bool()
+
 				dir, _ := config.ServiceDataDir(Name)
 				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
 				bleveConfs := make(map[string]interface{})
-				if bA := cfg.Get("basenameAnalyzer"); bA != nil {
-					bleveConfs["basenameAnalyzer"] = bA
-				}
-				if cA := cfg.Get("contentAnalyzer"); cA != nil {
-					bleveConfs["contentAnalyzer"] = cA
-				}
+				bleveConfs["basenameAnalyzer"] = cfg.Val("basenameAnalyzer").String()
+				bleveConfs["contentAnalyzer"] = cfg.Val("contentAnalyzer").String()
+
 				bleveEngine, err := bleve.NewBleveEngine(indexContent, bleveConfs)
 				if err != nil {
 					return err
 				}
+
 				server := &SearchServer{
 					Engine:           bleveEngine,
 					TreeClient:       tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
@@ -79,6 +77,10 @@ func init() {
 
 				tree.RegisterSearcherHandler(m.Options().Server, server)
 				sync.RegisterSyncEndpointHandler(m.Options().Server, server)
+
+				m.Init(
+					micro.BeforeStop(bleveEngine.Close),
+				)
 
 				// Register Subscribers
 				if err := m.Options().Server.Subscribe(

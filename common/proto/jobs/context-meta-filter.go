@@ -16,7 +16,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/policy"
+	"github.com/pydio/cells/idm/policy/converter"
 )
 
 func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
@@ -44,6 +44,7 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 			servicecontext.HttpMetaContentType,
 			servicecontext.HttpMetaCookiesString,
 			servicecontext.HttpMetaProtocol,
+			servicecontext.HttpMetaHostname,
 			servicecontext.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
@@ -67,7 +68,7 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 					c.FieldName: c.Condition,
 				},
 			}
-			warden.Manager.Create(policy.ProtoToLadonPolicy(idPol))
+			warden.Manager.Create(converter.ProtoToLadonPolicy(idPol))
 		}
 	}
 	if err := warden.IsAllowed(&ladon.Request{

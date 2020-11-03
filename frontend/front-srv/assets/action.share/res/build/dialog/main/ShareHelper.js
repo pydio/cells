@@ -85,11 +85,12 @@ var ShareHelper = (function () {
         value: function buildPublicUrl(pydio, linkHash) {
             var shortForm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-            var pluginConfigs = pydio.Parameters;
+            var params = pydio.Parameters;
             if (shortForm) {
-                return '...' + pluginConfigs.get('PUBLIC_BASEURI') + '/' + linkHash;
+                return '...' + params.get('PUBLIC_BASEURI') + '/' + linkHash;
             } else {
-                return pluginConfigs.get('FRONTEND_URL') + pluginConfigs.get('PUBLIC_BASEURI') + '/' + linkHash;
+                var url = pydio.getFrontendUrl();
+                return url.protocol + '//' + url.host + params.get('PUBLIC_BASEURI') + '/' + linkHash;
             }
         }
 

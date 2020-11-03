@@ -27,20 +27,20 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
 	tmpDbFilePath string
-	conf          *config.Map
+	conf          configx.Values
 )
 
 func init() {
 	// Define parameters to shorten tests launch
 	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
-	conf = config.NewMap()
-	conf.Set("QueueMaxSize", int64(10))
+	conf = configx.New()
+	conf.Val("QueueMaxSize").Set(int64(10))
 }
 
 func TestEmptyDao(t *testing.T) {

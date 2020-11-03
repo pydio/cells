@@ -23,7 +23,6 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/micro/go-micro/client"
@@ -61,19 +60,19 @@ func (f *FakeAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "timer",
-					Type:        forms.ParamString,
+					Type:        forms.ParamInteger,
 					Label:       "Total time",
 					Description: "Total task time in seconds",
-					Default:     "10",
+					Default:     10,
 					Mandatory:   true,
 					Editable:    true,
 				},
 				&forms.FormField{
 					Name:        "ticker",
-					Type:        forms.ParamString,
+					Type:        forms.ParamInteger,
 					Label:       "Ticks",
 					Description: "Time between each ticks for incrementing progress, in seconds",
-					Default:     "3",
+					Default:     3,
 					Mandatory:   false,
 					Editable:    true,
 				},
@@ -122,14 +121,14 @@ func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	outputMessage := input
 
 	var timer, tick int64
-	if t, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.timer), 10, 64); err == nil {
+	if t, err := jobs.EvaluateFieldInt64(ctx, input, f.timer); err == nil {
 		timer = t
 	} else {
 		return input.WithError(err), err
 	}
 
 	if f.ticker != "" {
-		if t, err := strconv.ParseInt(jobs.EvaluateFieldStr(ctx, input, f.ticker), 10, 64); err == nil {
+		if t, err := jobs.EvaluateFieldInt64(ctx, input, f.ticker); err == nil {
 			tick = t
 		}
 	} else {
@@ -159,7 +158,7 @@ loop:
 		case <-channels.Pause:
 			log.TasksLogger(ctx).Info("fake task received pause from channels, should pause here")
 			<-channels.BlockUntilResume()
-			log.TasksLogger(ctx).Info("blockuntilresume passed, received resume, continue")
+			log.TasksLogger(ctx).Info("block-until-resume passed, received resume, continue")
 		case <-channels.Stop:
 			log.TasksLogger(ctx).Info("received stop from channels: interrupting")
 			ticker.Stop()

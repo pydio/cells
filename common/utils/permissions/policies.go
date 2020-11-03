@@ -25,6 +25,15 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"time"
+
+	"github.com/pydio/cells/idm/policy/converter"
+
+	"github.com/ory/ladon"
+	"github.com/ory/ladon/manager/memory"
+	"github.com/patrickmn/go-cache"
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/micro/go-micro/metadata"
 
@@ -40,8 +49,7 @@ const (
 	PolicyNodeMetaExtension = "NodeMetaExtension"
 	PolicyNodeMetaSize      = "NodeMetaSize"
 	PolicyNodeMetaMTime     = "NodeMetaMTime"
-	// Todo - Problem, usermeta are not loaded at this point
-	PolicyNodeMeta_ = "NodeMeta:"
+	PolicyNodeMeta_         = "NodeMeta:"
 )
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
@@ -84,6 +92,7 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 			servicecontext.HttpMetaUserAgent,
 			servicecontext.HttpMetaContentType,
 			servicecontext.HttpMetaProtocol,
+			servicecontext.HttpMetaHostname,
 			servicecontext.ClientTime,
 			servicecontext.ServerTime,
 		} {
@@ -99,7 +108,89 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	policyContext[PolicyNodeMetaName] = node.GetStringMeta("name")
 	policyContext[PolicyNodeMetaPath] = node.Path
-	policyContext[PolicyNodeMetaMTime] = string(node.MTime)
-	policyContext[PolicyNodeMetaSize] = string(node.Size)
+	policyContext[PolicyNodeMetaMTime] = fmt.Sprintf("%v", node.MTime)
+	policyContext[PolicyNodeMetaSize] = fmt.Sprintf("%v", node.Size)
 	policyContext[PolicyNodeMetaExtension] = strings.TrimLeft(path.Ext(node.Path), ".")
+	ms := node.GetMetaStore()
+	if ms == nil {
+		return
+	}
+	for k, _ := range ms {
+		policyContext[PolicyNodeMeta_+k] = node.GetStringMeta(k)
+	}
+}
+
+var checkersCache = cache.New(1*time.Minute, 10*time.Minute)
+
+func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
+
+	cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
+	r, e := cli.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+	if e != nil {
+		return nil, e
+	}
+	var policies []*idm.Policy
+	for _, g := range r.PolicyGroups {
+		for _, p := range g.Policies {
+			isType := false
+			for _, res := range p.Resources {
+				if res == resType {
+					isType = true
+					break
+				}
+			}
+			if isType {
+				policies = append(policies, p)
+			}
+		}
+	}
+	return policies, nil
+}
+
+func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
+
+	if ww, ok := checkersCache.Get(resType); ok {
+		return ww.(ladon.Warden), nil
+	}
+
+	w := &ladon.Ladon{
+		Manager: memory.NewMemoryManager(),
+	}
+	if policies, err := loadPoliciesByResourcesType(ctx, resType); err != nil {
+		return nil, nil
+	} else {
+		for _, pol := range policies {
+			w.Manager.Create(converter.ProtoToLadonPolicy(pol))
+		}
+	}
+
+	checkersCache.Set(resType, w, cache.DefaultExpiration)
+	return w, nil
+}
+
+func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+	checker, e := CachedPoliciesChecker(ctx, "acl")
+	if e != nil {
+		return nil, e
+	}
+	cx := ladon.Context{}
+	for k, v := range request.Context {
+		cx[k] = v
+	}
+	allow := false
+	for _, subject := range request.Subjects {
+		request := &ladon.Request{
+			Resource: request.Resource,
+			Subject:  subject,
+			Action:   request.Action,
+			Context:  cx,
+		}
+		if err := checker.IsAllowed(request); err != nil && err == ladon.ErrRequestForcefullyDenied {
+			break
+		} else if err == nil {
+			allow = true
+		} // Else "default deny" => continue checking
+	}
+	return &idm.PolicyEngineResponse{Allowed: allow}, nil
+
 }

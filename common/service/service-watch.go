@@ -1,51 +1,33 @@
 package service
 
 import (
-	"log"
-	"sync"
-
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/x/configx"
 )
 
-var (
-	watchOnce = &sync.Once{}
-	watchers  = make(map[string][]func(common.ConfigValues))
-)
+func registerWatchers(s Service, path string, fs []func(Service, configx.Values)) {
+	w, err := config.Watch(configx.StringToKeys(path)...)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-func initWatch() {
-	watchOnce.Do(func() {
-		w, err := config.Watch("services")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		go func() {
-			for {
+	go func(w configx.Receiver, s Service, fs []func(Service, configx.Values)) {
+		defer w.Stop()
+	loop:
+		for {
+			select {
+			case <-s.Done():
+				break loop
+			default:
 				res, err := w.Next()
 				if err != nil {
-					break
+					break loop
 				}
-
-				var c map[string]map[string]interface{}
-				if err := res.Scan(&c); err != nil {
-					continue
-				}
-
-				for name, fs := range watchers {
-					for _, f := range fs {
-						cfg := config.NewMap(c[name])
-						f(*cfg)
-					}
+				for _, f := range fs {
+					f(s, res)
 				}
 			}
-		}()
-	})
-
-}
-
-func registerWatchers(serviceName string, fs []func(common.ConfigValues)) {
-	initWatch()
-
-	watchers[serviceName] = fs
+		}
+	}(w, s, fs)
 }

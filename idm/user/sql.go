@@ -47,6 +47,7 @@ import (
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/sql/resources"
 	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 )
 
 const (
@@ -113,7 +114,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	s.DAO.Init(options)
@@ -142,7 +143,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	}
 
 	// Preparing the db statements
-	if options.Bool("prepare", true) {
+	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := s.Prepare(key, query); err != nil {
 				return fmt.Errorf("unable to prepare query[%s]: %s - error: %v", key, query, err)
@@ -269,7 +270,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes[idm.UserAttrLabelLike] = user.Login
+		user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Login)
 		if user.Attributes[idm.UserAttrDisplayName] != "" {
 			user.Attributes[idm.UserAttrLabelLike] = toASCII(user.Attributes[idm.UserAttrDisplayName])
 		}
@@ -390,7 +391,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	}
 	object := results[0]
 	user = object.(*idm.User)
-	if user.Login != userName {
+	if strings.ToLower(user.Login) != strings.ToLower(userName) {
 		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
 	}
 	hashedPass := user.Password

@@ -1,54 +1,36 @@
 #!/bin/sh
+
+# Exit immediatly in case of error
 set -e
 
-# first arg is `-f` or `--some-option`
-if [ "${1#-}" != "$1" ]; then
-	set -- cells "$@"
-fi
-
-if [ "$1" == "cells" ]; then
-	# This file acts as a flag to check if we can start Cells or if we want to perform the non-interactive install.
-	FILE="/$CELLS_WORKING_DIR/pydio.json"
-	if [ ! -f "$FILE" ] ; then 
-		
-		if [ -f "$CELLS_INSTALL_YAML" ] ; then 
-			# Non interactive install based on a yaml config file   	
-			cells install --yaml $CELLS_INSTALL_YAML "$@"
-
-		elif [ -f "$CELLS_INSTALL_JSON" ] ; then 
-			# Non interactive install based on a json config file   	
-			cells install --json $CELLS_INSTALL_JSON "$@"
-		
-		elif [ -z "$CELLS_NO_TLS" -o "$CELLS_NO_TLS" != "1" ]; then
-			
-			# Provided certificates
-			if [ -n "$CELLS_TLS_CERT_FILE" -a -n "$CELLS_TLS_KEY_FILE" ]; then
-				cells install --bind $CELLS_BIND --external $CELLS_EXTERNAL \
-					--tls_cert_file $CELLS_TLS_CERT_FILE --tls_key_file $CELLS_TLS_KEY_FILE "$@"
-			
-			# Use Let's encrypt
-			elif [ -n "$CELLS_TLS_MAIL" -a "$CELLS_ACCEPT_LETSENCRYPT_EULA" == "true" ]; then
-				STAGING=1 
-				if [ -z "$CELLS_USE_LETSENCRYPT_STAGING" -o "$CELLS_USE_LETSENCRYPT_STAGING" != "1" ]; then
-					STAGING=0
-				fi
-				cells install --bind $CELLS_BIND --external $CELLS_EXTERNAL \
-					--le_email $CELLS_TLS_MAIL --le_agree $CELLS_ACCEPT_LETSENCRYPT_EULA --le_staging $STAGING "$@"
-			
-			# Default: self signed certificate
-			else
-				cells install --bind $CELLS_BIND --external $CELLS_EXTERNAL "$@"
-			fi
-		
-		else
-			# No TLS
-			cells install --bind $CELLS_BIND --external $CELLS_EXTERNAL --no_tls "$@"
-		fi
-	
-	else
-		"$@"
-	fi
-
+## First check if the system is already installed:
+needInstall=false
+configFile="/$CELLS_WORKING_DIR/pydio.json"
+if [ ! -f "$configFile" ] ; then 
+	# No pydio.json => install
+	needInstall=true 
 else
-	exec "$@"
+	# Second finer check: default DS is set during installation finalisation
+    defaultDs=$(cat $configFile | jq .defaults.datasource)
+	if [ "$defaultDs" = "null" -o "$defaultDs" = "" ]; then 
+		needInstall=true 
+	fi
 fi
+
+if [ "$needInstall" = true -a "$1" = "cells" -a "$2" = "start" ]; then
+	set -- cells install
+fi
+
+# Check if First arg starts with a dash (typically `-f` or `--some-option`) 
+# And prefix arguments with 'cells' or 'cells install' command in such case 
+if [ "${1#-}" != "$1" ]; then
+	if [ "$needInstall" = true ]; then
+		set -- cells install "$@"
+	else
+		set -- cells "$@"
+	fi
+fi
+
+echo "Cells docker entrypoint, about to execute: [$@]"
+
+"$@"

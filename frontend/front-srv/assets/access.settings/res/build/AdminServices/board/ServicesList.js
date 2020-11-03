@@ -144,8 +144,10 @@ exports['default'] = _react2['default'].createClass({
 
         var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
+        this.setState({ loading: true });
         api.listServices().then(function (servicesCollection) {
             _pydio2['default'].endLoading();
+            _this.setState({ loading: false });
             _this.setState({ services: servicesCollection.Services });
             if (_this.props.onUpdatePeers) {
                 var peers = extractPeers(servicesCollection.Services);
@@ -153,6 +155,7 @@ exports['default'] = _react2['default'].createClass({
             }
         })['catch'](function () {
             _pydio2['default'].endLoading();
+            _this.setState({ loading: false });
         });
     },
     /**
@@ -211,7 +214,9 @@ exports['default'] = _react2['default'].createClass({
         var _props2 = this.props;
         var pydio = _props2.pydio;
         var details = _props2.details;
-        var services = this.state.services;
+        var _state = this.state;
+        var services = _state.services;
+        var loading = _state.loading;
 
         var blockStyle = {
             margin: 16,
@@ -319,7 +324,7 @@ exports['default'] = _react2['default'].createClass({
                                 columns: tableColumns,
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "Loading Services...",
+                                emptyStateString: pydio.MessageHash['ajxp_admin.services.empty.' + (loading ? 'loading' : 'noservice')],
                                 masterStyles: tableMaster
                             })
                         )

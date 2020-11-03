@@ -21,12 +21,10 @@
 import Pydio from 'pydio'
 import React from 'react'
 import {muiThemeable} from 'material-ui/styles'
-const {JobsStore} = Pydio.requireLib("boot");
 
 import JobBoard from './JobBoard'
-import debounce from 'lodash.debounce'
-import {JobsJob} from 'pydio/http/rest-api';
 import JobsList from "./JobsList";
+import Loader from './Loader';
 
 let Dashboard = React.createClass({
 
@@ -34,74 +32,41 @@ let Dashboard = React.createClass({
 
     getInitialState(){
         return {
+            jobs: [],
             Owner: null,
             Filter: null,
         }
     },
 
-    load(hideLoading = false){
-        const {Owner, Filter} = this.state;
-        if (!hideLoading) {
-            this.setState({loading: true});
-        }
-        JobsStore.getInstance().getAdminJobs(Owner, Filter, "", 1).then(jobs => {
-            this.setState({result: jobs, loading: false});
-        }).catch(reason => {
-            this.setState({error: reason.message, loading: false});
-        })
-    },
-
-    loadOne(jobID, hideLoading = false) {
-        // Merge job inside global results
-        const {result} = this.state;
-        if(!hideLoading){
-            this.setState({loading: true});
-        }
-        return JobsStore.getInstance().getAdminJobs(null, null, jobID).then(jobs => {
-            result.Jobs.forEach((v, k) => {
-                if (v.ID === jobID){
-                    result.Jobs[k] = jobs.Jobs[0];
-                }
-            });
-            this.setState({result, loading: false});
-            return result
-        }).catch(reason => {
-            this.setState({error: reason.message, loading: false});
-        });
+    reload(){
+        this.loader.load();
     },
 
     componentDidMount(){
-        this.load();
-        this._loadDebounced = debounce((jobId)=>{
-            if (jobId && this.state && this.state.selectJob === jobId){
-                this.loadOne(jobId, true);
-            } else {
-                this.load(true)
+        this.loader = new Loader();
+        this.loader.observe('loading',() => {
+            this.setState({loading: true})
+        })
+        this.loader.observe('loaded',(memo) => {
+            this.setState({loading: false})
+            if(memo.jobs){
+                this.setState({jobs: memo.jobs})
+            } else if(memo.error){
+                this.setState({error: memo.error})
             }
-        }, 500);
-        JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
-        this._poll = setInterval(()=>{
-            if (this.state && this.state.selectJob){
-                this.loadOne(this.state.selectJob, true);
-            } else {
-                this.load(true)
-            }
-        }, 10000);
+        })
+        this.loader.start();
     },
 
     componentWillUnmount(){
-        if(this._poll){
-            clearInterval(this._poll);
-        }
-        JobsStore.getInstance().stopObserving("tasks_updated");
+        this.loader.stop();
     },
 
     selectRows(rows){
         if(rows.length){
             const jobID = rows[0].ID;
-            this.loadOne(jobID).then(() => {
-                this.setState({selectJob:jobID});
-            });
+            this.loader.stop();
+            this.setState({selectJob:jobID});
         }
     },
 
@@ -111,23 +76,22 @@ let Dashboard = React.createClass({
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
-        const {result, loading, selectJob} = this.state;
+        const {jobs, loading, selectJob} = this.state;
 
-        if(selectJob && result && result.Jobs){
-            const found = result.Jobs.filter((j) => j.ID === selectJob);
+        if(selectJob && jobs){
+            const found = jobs.filter((j) => j.ID === selectJob);
+            console.log(selectJob, found);
             if(found.length){
                 return (
                     <JobBoard
                         pydio={pydio}
                         job={found[0]}
                         jobsEditable={jobsEditable}
-                        onSave={()=>{this.load(true)}}
+                        onSave={()=>{this.reload()}}
                         adminStyles={adminStyles}
-                        onRequestClose={(refresh)=>{
+                        onRequestClose={()=>{
+                            this.loader.start();
                             this.setState({selectJob: null});
-                            if(refresh){
-                                this.load();
-                            }
                         }}
                     />);
             }
@@ -138,13 +102,13 @@ let Dashboard = React.createClass({
                 <AdminComponents.Header
                     title={m('title')}
                     icon="mdi mdi-timetable"
-                    reloadAction={this.load.bind(this)}
+                    reloadAction={this.reload.bind(this)}
                     loading={loading}
                 />
                 <JobsList
                     pydio={pydio}
                     selectRows={(rows)=>{this.selectRows(rows)}}
-                    jobs={result ? result.Jobs : []}
+                    jobs={jobs}
                     loading={loading}
                 />
             </div>

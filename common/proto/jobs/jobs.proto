@@ -19,9 +19,13 @@ message NodesSelector {
     repeated string Pathes = 2;
     // Query to apply to select users (or filter a given node passed by event)
     service.Query Query = 4;
-    // Wether to trigger one action per node or one action
+    // Whether to trigger one action per node or one action
     // with all nodes as selection
     bool Collect = 5;
+    // Selector custom label
+    string Label = 6;
+    // Selector additional description
+    string Description = 7;
 }
 
 // Possible values for IdmSelector.Type
@@ -42,6 +46,10 @@ message IdmSelector {
     service.Query Query = 3;
     // Pass a slice of objects to one action, or trigger all actions in parallel
     bool Collect = 4;
+    // Selector custom label
+    string Label = 5;
+    // Selector additional description
+    string Description = 6;
 }
 
 // Select or filter users - should be replaced by more generic IdmSelector
@@ -55,12 +63,20 @@ message UsersSelector {
     // Wether to trigger one action per user or one action
     // with all user as a selection
     bool Collect = 5;
+    // Selector custom label
+    string Label = 6;
+    // Selector additional description
+    string Description = 7;
 }
 
 // ActionOutputFilter can be used to filter last message output
 message ActionOutputFilter {
     // Query built from ActionOutputSingleQuery
     service.Query Query = 1;
+    // Selector custom label
+    string Label = 2;
+    // Selector additional description
+    string Description = 3;
 }
 
 enum ContextMetaFilterType {
@@ -73,6 +89,10 @@ message ContextMetaFilter {
     ContextMetaFilterType Type = 1;
     // Can be built with ContextMetaSingleQuery
     service.Query Query = 2;
+    // Selector custom label
+    string Label = 3;
+    // Selector additional description
+    string Description = 4;
 }
 
 // ContextMetaSingleQuery uses idm.PolicyCondition
@@ -100,6 +120,11 @@ message Action {
     string Label = 13;
     // User-defined comment for this action
     string Description = 14;
+
+    // Bypass this action (forward input to output and do nothing)
+    bool Bypass = 15;
+    // Stop full chain now : do not carry on executing next actions
+    bool BreakAfter = 16;
 
     // Nodes Selector
     NodesSelector NodesSelector = 2;
@@ -142,6 +167,8 @@ message Job {
     string Owner = 3;
     // Admin can temporarily disable this job
     bool Inactive = 4;
+    // Job created by application or by administrator
+    bool Custom = 20;
     // Optional list of languages detected in the context at launch time
     repeated string Languages = 10;
 
@@ -364,6 +391,7 @@ enum Command {
     Active  = 7;
 }
 
+// Command sent to control a job or a task
 message CtrlCommand {
     // Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)
     Command Cmd = 1;
@@ -373,8 +401,11 @@ message CtrlCommand {
     string TaskId = 3;
     // Owner of the job
     string OwnerId = 4;
+    // Parameters used for RunOnce command
+    map<string,string> RunParameters = 5;
 }
 
+// Response to the CtrlCommand
 message CtrlCommandResponse {
     string Msg = 1;
 }
@@ -386,12 +417,19 @@ message ActionLog {
 }
 
 
-// Simple Event sent by the Timer Service
-// to trigger a JobID at a given time
+// Simple Event sent by the timer service to trigger a JobID at a given time
+// or to trigger a run now, with optional parameters
 message JobTriggerEvent {
+    // Id of the Job
     string JobID = 1;
+    // Schedule
     Schedule Schedule = 2;
+    // Start job now
     bool RunNow = 3;
+    // Impose the task unique ID for this run
+    string RunTaskId = 4;
+    // Use specific parameters values for this run
+    map<string,string> RunParameters = 5;
 }
 
 // Standard output of an action. Success value is required

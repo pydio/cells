@@ -90,7 +90,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 
 // Parse Upload Limits from config
 func (a *UploadLimitFilter) getUploadLimits() (limit int64, extensions []string) {
-	if v := config.Get("frontend", "plugin", "core.uploader").StringMap(map[string]string{}); v != nil {
+	if v := config.Get("frontend", "plugin", "core.uploader").StringMap(); v != nil {
 		if u, ok := v["UPLOAD_MAX_SIZE"]; ok {
 			if l, e := strconv.ParseInt(u, 10, 64); e == nil {
 				limit = l

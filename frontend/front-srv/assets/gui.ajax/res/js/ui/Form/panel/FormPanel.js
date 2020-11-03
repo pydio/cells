@@ -277,15 +277,16 @@ export default React.createClass({
 
     render(){
         let allGroups = [];
-        let values = this.getValues();
         let groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = {FIELDS:[]};
-        var replicationGroups = {};
+        const replicationGroups = {};
+        const {parameters, values, skipFieldsTypes, disabled, binary_context} = this.props;
+        const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
 
-        this.props.parameters.map(function(attributes){
+        parameters.map(function(attributes){
 
             let type = attributes['type'];
-            if(this.props.skipFieldsTypes && this.props.skipFieldsTypes.indexOf(type) > -1){
+            if(skipFieldsTypes && skipFieldsTypes.indexOf(type) > -1){
                 return;
             }
             var paramName = attributes['name'];
@@ -300,7 +301,7 @@ export default React.createClass({
                 allGroups[group] = {FIELDS:[], LABEL:group};
             }
 
-            var repGroup = attributes['replicationGroup'];
+            const {replicationGroup: repGroup} = attributes;
             if(repGroup) {
 
                 if (!replicationGroups[repGroup]) {
@@ -326,8 +327,8 @@ export default React.createClass({
                             {...this.props}
                             onChange={this.onSubformChange}
                             paramAttributes={attributes}
-                            parameters={this.props.parameters}
-                            values={this.props.values}
+                            parameters={parameters}
+                            values={values}
                             key={paramName}
                             onScrollCallback={null}
                             limitToGroups={null}
@@ -337,20 +338,21 @@ export default React.createClass({
 
                 }else if(attributes['type'] !== 'hidden'){
 
-                    var helperMark;
-                    if(this.props.setHelperData && this.props.checkHasHelper && this.props.checkHasHelper(attributes['name'], this.props.helperTestFor)){
-                        var showHelper = function(){
-                            this.props.setHelperData({
+                    let helperMark;
+                    const {setHelperData, checkHasHelper, helperTestFor} = this.props;
+                    if(setHelperData && checkHasHelper && checkHasHelper(attributes['name'], helperTestFor)){
+                        const showHelper = function(){
+                            setHelperData({
                                 paramAttributes:attributes,
                                 values:values,
                                 postValues:this.getValuesForPOST(values),
                                 applyButtonAction:this.applyButtonAction
-                            }, this.props.helperTestFor);
+                            }, helperTestFor);
                         }.bind(this);
                         helperMark = <span className="icon-question-sign" onClick={showHelper}></span>;
                     }
-                    var mandatoryMissing = false;
-                    var classLegend = "form-legend";
+                    let mandatoryMissing = false;
+                    let classLegend = "form-legend";
                     if(attributes['errorText']) {
                         classLegend = "form-legend mandatory-missing";
                     }else if(attributes['warningText']){
@@ -362,7 +364,7 @@ export default React.createClass({
                         }
                     }
 
-                    var props = {
+                    const props = {
                         ref:"form-element-" + paramName,
                         attributes:attributes,
                         name:paramName,
@@ -370,18 +372,19 @@ export default React.createClass({
                         onChange: (newValue, oldValue, additionalFormData) => {
                             this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
                         },
-                        disabled:this.props.disabled || attributes['readonly'],
+                        disabled:disabled || attributes['readonly'],
                         multiple:attributes['multiple'],
-                        binary_context:this.props.binary_context,
+                        binary_context:binary_context,
                         displayContext:'form',
                         applyButtonAction:this.applyButtonAction,
-                        errorText:mandatoryMissing? pydio.MessageHash['621']:( attributes.errorText?attributes.errorText:null )
+                        errorText:mandatoryMissing? pydio.MessageHash['621']:( attributes.errorText?attributes.errorText:null ),
+                        onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip
                     };
 
                     field = (
                         <div key={paramName} className={'form-entry-' + attributes['type']}>
-                            {FormManager.createFormElement(props)}
                             <div className={classLegend}>{attributes['warningText'] ? attributes['warningText'] : attributes['description']} {helperMark}</div>
+                            {FormManager.createFormElement(props)}
                         </div>
                     );
                 }else{
@@ -399,7 +402,7 @@ export default React.createClass({
 
         }.bind(this));
 
-        for(var rGroup in replicationGroups){
+        for(let rGroup in replicationGroups){
             if (!replicationGroups.hasOwnProperty(rGroup)) {
                 continue;
             }

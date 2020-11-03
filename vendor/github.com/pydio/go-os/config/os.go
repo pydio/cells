@@ -128,7 +128,6 @@ func (o *os) sync() {
 		}
 		sets = append(sets, ch)
 	}
-
 	set, err := o.opts.Reader.Parse(sets...)
 	if err != nil {
 		log.Printf("Failed to parse ChangeSets %v", err)
@@ -282,6 +281,7 @@ func (w *watcher) Next() (Value, error) {
 			if bytes.Equal(w.value.Bytes(), v.Bytes()) {
 				continue
 			}
+
 			w.value = v
 			return v, nil
 		}

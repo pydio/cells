@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/micro/go-config/source"
 	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/config/source"
 	"github.com/pydio/pydio-sdk-go/client/provisioning"
 	sdkconfig "github.com/pydio/pydio-sdk-go/config"
 	models2 "github.com/pydio/pydio-sdk-go/models"
@@ -326,7 +326,7 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 					log.Logger(context.Background()).Debug("JSON marshal error", zap.Error(err))
 				}
 			}
-			
+
 			// Load password
 			if resp, e := cV1.GetAdvancedUserInfo(user.Login, s.Config); e == nil {
 				user.Password = resp.Password

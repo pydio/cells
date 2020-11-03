@@ -32,13 +32,16 @@ class StepperDialog extends React.Component {
     }
 
     render(){
-        const {title, actions, open, onDismiss, onFilter, children, dialogProps} = this.props;
+        const {title, actions, open, onDismiss, onFilter, customFilter, children, dialogProps} = this.props;
 
         let tt = title;
-        if(onDismiss || onFilter){
+        if(onDismiss || onFilter || customFilter){
             tt = (
                 <div style={{position:'relative', display:'flex', alignItems:'center'}}>
                         <div style={{flex: 1}}>{title}</div>
+                    {customFilter &&
+                        <div style={{marginRight: 16}}>{customFilter}</div>
+                    }
                     {onFilter &&
                         <div style={{width: 210, height: 34, marginTop: -10, marginRight: onDismiss?50:0}}>
                             <ModernTextField hintText={"Filter list"} onChange={(e,v)=>{onFilter(v)}} fullWidth={true}/>

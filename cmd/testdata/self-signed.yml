@@ -4,8 +4,14 @@ proxyconfig:
   ## or can be used behind a reverse proxy in "insecure_skip_verify" (or equivalent) mode
   ## or by installing the locally generated Root CA in your reverse proxy
   ## replace "localhost:8080" by your IP address or the corresponding DNS registered domain name.
+<<<<<<< HEAD
     bindurl: https://localhost:8080
     externalurl: https://localhost:8080
+=======
+    binds: 
+        - localhost:8080
+    reverseproxyurl: https://localhost:8080
+>>>>>>> multi-bind
     redirecturls:
         - http://localhost:8080
     tlsconfig:

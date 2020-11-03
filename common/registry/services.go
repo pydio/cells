@@ -31,7 +31,7 @@ import (
 
 // Service defines the primary functions a service must be able to answer to for the registry
 type Service interface {
-	Start()
+	Start(context.Context)
 	Stop()
 
 	IsRunning() bool
@@ -56,7 +56,7 @@ type Service interface {
 	IsREST() bool
 
 	RequiresFork() bool
-	ForkStart(retries ...int)
+	ForkStart(ctx context.Context, retries ...int)
 	MustBeUnique() bool
 	AutoStart() bool
 

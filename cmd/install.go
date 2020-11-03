@@ -22,16 +22,17 @@ package cmd
 
 import (
 	"bytes"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
+
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/mholt/caddy/caddytls"
-	"github.com/micro/cli"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 
@@ -42,35 +43,35 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
 )
 
 const (
 	caddyfile = `
-		 {{.URL}} {
-			 root "{{.Root}}"
-			 proxy /install {{urls .Micro}}
-		 	{{if .TLS}}tls {{.TLS}}{{end}}
-			{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
-		 }
+{{range .Sites}}
+{{range .Binds}}{{.}} {{end}}{
+	root "{{$.WebRoot}}"
+	proxy /install {{urls $.Micro}}
+
+	{{if .TLS}}tls {{.TLS}}{{end}}
+	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
+}
+{{end}}
 	 `
 )
 
 var (
 	caddyconf = struct {
-		URL     *url.URL
-		Root    string
+		Sites   []caddy.SiteConf
+		WebRoot string
 		Micro   string
-		TLS     string
-		TLSCert string
-		TLSKey  string
 	}{}
 
 	niBindUrl          string
 	niExtUrl           string
 	niNoTls            bool
+	niModeCli          bool
 	niCertFile         string
 	niKeyFile          string
 	niLeEmailContact   string
@@ -129,9 +130,23 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		plugins.InstallInit()
+		plugins.InstallInit(cmd.Context())
 
 		initServices()
+
+		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
+		niBindUrl = viper.GetString("bind")
+		niExtUrl = viper.GetString("external")
+		niNoTls = viper.GetBool("no_tls")
+		niModeCli = viper.GetBool("install_cli")
+		niCertFile = viper.GetString("tls_cert_file")
+		niKeyFile = viper.GetString("tls_key_file")
+		niLeEmailContact = viper.GetString("le_email")
+		niLeAcceptEula = viper.GetBool("le_agree")
+		niLeUseStagingCA = viper.GetBool("le_staging")
+		niYamlFile = viper.GetString("install_yaml")
+		niJsonFile = viper.GetString("install_json")
+		niExitAfterInstall = viper.GetBool("exit_after_install")
 
 		return nil
 	},
@@ -149,7 +164,7 @@ var installCmd = &cobra.Command{
 		var err error
 
 		// Do this in a better way
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+		micro := config.Get("ports", common.SERVICE_MICRO_API).Int()
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
@@ -157,11 +172,11 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		if niYamlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
+		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
-			if installConf.InternalUrl != "" {
+			if installConf.FrontendLogin != "" {
 				// We assume we have completely configured Cells. Exit.
 				return
 			}
@@ -170,17 +185,31 @@ var installCmd = &cobra.Command{
 			proxyConf = installConf.GetProxyConfig()
 
 		} else {
-			// Ask user to choose between browser or CLI interactive install
-			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-			installIndex, _, err := p.Run()
-			fatalIfError(cmd, err)
+			if !niModeCli {
+				// Ask user to choose between browser or CLI interactive install
+				p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
+				installIndex, _, err := p.Run()
+				fatalIfError(cmd, err)
+				niModeCli = installIndex == 1
+			}
 
 			// Gather proxy information
-			proxyConf, err = promptAndApplyProxyConfig()
+			sites, err := config.LoadSites()
+			fatalIfError(cmd, err)
+			proxyConf = sites[0]
+			if proxyConf == config.DefaultBindingSite && niNoTls {
+				// Create a siteConf without TLS
+				noTlsConf := *proxyConf
+				noTlsConf.TLSConfig = nil
+				proxyConf = &noTlsConf
+				e := config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PYDIO_SYSTEM_USERNAME, "Create No TLS site at install")
+				fatalIfError(cmd, e)
+			}
+
 			fatalIfError(cmd, err)
 
 			// Prompt for config with CLI, apply and exit
-			if installIndex == 1 {
+			if niModeCli {
 				_, err := cliInstall(proxyConf)
 				fatalIfError(cmd, err)
 				return
@@ -201,7 +230,7 @@ var installCmd = &cobra.Command{
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		cmd.Println("")
 
-		plugins.Init()
+		plugins.Init(cmd.Context())
 
 		initServices()
 
@@ -218,6 +247,7 @@ var installCmd = &cobra.Command{
 			common.SERVICE_MICRO_API,
 			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
 		}
+
 		for _, service := range allServices {
 			ignore := false
 			for _, ex := range excludes {
@@ -233,15 +263,14 @@ var installCmd = &cobra.Command{
 					if !service.AutoStart() {
 						continue
 					}
-					go service.ForkStart()
+					go service.ForkStart(cmd.Context())
 				} else {
-					go service.Start()
+					go service.Start(cmd.Context())
 				}
 			}
 		}
 
-		wg.Add(1)
-		wg.Wait()
+		<-cmd.Context().Done()
 	},
 }
 
@@ -259,60 +288,44 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// config.Save("cli", "Install / Setting default Port")	cmd.Println("Got the assets, internal is ", internal.String())
 
-	// Manage TLS settings
-	var tls, tlsKey, tlsCert string
-	if config.Get("cert", "proxy", "ssl").Bool(false) {
-		if config.Get("cert", "proxy", "self").Bool(false) {
-			tls = "self_signed"
-		} else if config.Get("cert", "proxy", "email").String("") != "" {
-			tls = config.Get("cert", "proxy", "email").String("")
-			caddytls.Agreed = true
-			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
-		} else {
-			cert := config.Get("cert", "proxy", "certFile").String("")
-			key := config.Get("cert", "proxy", "keyFile").String("")
-			if cert != "" && key != "" {
-				tlsCert = cert
-				tlsKey = key
-			}
-		}
-	}
-
 	// config.Save("cli", "Install / Saving final configs")
 	// cmd.Println("final configs saved")
 
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
-	micro.Start()
+	micro.Start(cmd.Context())
 
 	// starting the installation REST service
-	install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
+	regService := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
 
-	installServ := install.(service.Service)
+	// installServ := regService.(service.Service)
 	// Strip some flag to avoid panic on re-registering a flag twice
-	flags := installServ.Options().Web.Options().Cmd.App().Flags
-	var newFlags []cli.Flag
-	for _, f := range flags {
-		if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-			continue
-		}
-		newFlags = append(newFlags, f)
-	}
-	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
+	// flags := installServ.Options().Web.Options().Cmd.App().Flags
+	// var newFlags []cli.Flag
+	// for _, f := range flags {
+	// 	if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+	// 		continue
+	// 	}
+	// 	newFlags = append(newFlags, f)
+	// }
+	// installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
 	// Starting service install
-	install.Start()
+	regService.Start(cmd.Context())
 
 	// Creating temporary caddy file
-	caddyconf.URL, err = url.Parse(proxyConf.GetBindURL())
-	caddyconf.Root = dir
-	caddyconf.Micro = common.SERVICE_MICRO_API
-	if tls != "" {
-		caddyconf.TLS = tls
-	} else if tlsCert != "" {
-		caddyconf.TLSCert = tlsCert
-		caddyconf.TLSKey = tlsKey
+	sites, err := config.LoadSites()
+	if err != nil {
+		cmd.Println("Could not start with fast restart:", err)
+		os.Exit(1)
 	}
+	var er error
+	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
+	if er != nil {
+		cmd.Println("Could not convert sites to caddy confs", er)
+	}
+	caddyconf.WebRoot = dir
+	caddyconf.Micro = common.SERVICE_MICRO_API
 
 	caddy.Enable(caddyfile, play)
 
@@ -323,17 +336,20 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	}
 
 	cmd.Println("")
-	cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + proxyConf.GetBindURL()))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + proxyConf.GetExternalURL()))
+	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
+	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetBinds()[0]))
 	cmd.Println("")
 
 	subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
 		cmd.Println("")
-		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetExternalURL()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+		cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetDefaultBindURL()) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")
 
-		open(proxyConf.GetExternalURL())
+		if proxyConf.ReverseProxyURL != "" {
+			open(proxyConf.ReverseProxyURL)
+		} else {
+			open(proxyConf.GetDefaultBindURL())
+		}
 
 		return nil
 	})
@@ -343,13 +359,24 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		os.Exit(1)
 	}
 
-	<-restartDone
-	instance := caddy.GetInstance()
-	instance.Wait()
+	instanceDone := make(chan struct{}, 1)
 
-	subscriber.Unsubscribe()
-	install.Stop()
+	go func() {
+		<-restartDone
+		instance := caddy.GetInstance()
+		instance.Wait()
+		instanceDone <- struct{}{}
+	}()
 
+	defer subscriber.Unsubscribe()
+	defer regService.Stop()
+
+	select {
+	case <-instanceDone:
+		return
+	case <-cmd.Context().Done():
+		os.Exit(0)
+	}
 }
 
 /* HELPERS */
@@ -384,26 +411,48 @@ func open(url string) error {
 
 func fatalIfError(cmd *cobra.Command, err error) {
 	if err != nil {
-		cmd.Help()
 		log.Fatal(err.Error())
+		cmd.Printf("Use \"%s [command] --help\" for more information.", os.Args[0])
 		os.Exit(1)
+	}
+}
+
+func fatalQuitIfError(cmd *cobra.Command, err error) {
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 }
 
 func init() {
 
 	flags := installCmd.PersistentFlags()
-	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niNoTls, "no_tls", false, "Configure the main gateway to rather use plain HTTP")
-	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
-	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
-	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
-	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "Accept Let's Encrypt EULA")
-	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
-	flags.StringVar(&niYamlFile, "yaml", "", "Points toward a configuration in YAML format")
-	flags.StringVar(&niJsonFile, "json", "", "Points toward a configuration in JSON format")
-	flags.BoolVar(&niExitAfterInstall, "exit_after_install", false, "Simply exits main process after the installation is done")
+
+	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	flags.Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
+	flags.Bool("cli", false, "Do not prompt for install mode, use CLI mode by default")
+	flags.String("tls_cert_file", "", "TLS cert file path")
+	flags.String("tls_key_file", "", "TLS key file path")
+	flags.String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
+	flags.Bool("le_agree", false, "Accept Let's Encrypt EULA")
+	flags.Bool("le_staging", false, "Rather use staging CA entry point")
+	flags.String("yaml", "", "Points toward a configuration in YAML format")
+	flags.String("json", "", "Points toward a configuration in JSON format")
+	flags.Bool("exit_after_install", false, "Simply exits main process after the installation is done")
+
+	replaceKeys := map[string]string{
+		"yaml": "install_yaml",
+		"json": "install_json",
+		"cli":  "install_cli",
+	}
+	flags.VisitAll(func(flag *pflag.Flag) {
+		key := flag.Name
+		if replace, ok := replaceKeys[flag.Name]; ok {
+			key = replace
+		}
+		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+		viper.BindPFlag(key, flag)
+	})
 
 	RootCmd.AddCommand(installCmd)
 }

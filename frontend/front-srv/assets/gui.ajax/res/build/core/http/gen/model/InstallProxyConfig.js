@@ -51,12 +51,14 @@ var InstallProxyConfig = (function () {
     function InstallProxyConfig() {
         _classCallCheck(this, InstallProxyConfig);
 
-        this.BindURL = undefined;
-        this.ExternalURL = undefined;
-        this.RedirectURLs = undefined;
+        this.Binds = undefined;
+        this.ReverseProxyURL = undefined;
         this.SelfSigned = undefined;
         this.LetsEncrypt = undefined;
         this.Certificate = undefined;
+        this.SSLRedirect = undefined;
+        this.Maintenance = undefined;
+        this.MaintenanceConditions = undefined;
     }
 
     /**
@@ -71,14 +73,11 @@ var InstallProxyConfig = (function () {
         if (data) {
             obj = obj || new InstallProxyConfig();
 
-            if (data.hasOwnProperty('BindURL')) {
-                obj['BindURL'] = _ApiClient2['default'].convertToType(data['BindURL'], 'String');
+            if (data.hasOwnProperty('Binds')) {
+                obj['Binds'] = _ApiClient2['default'].convertToType(data['Binds'], ['String']);
             }
-            if (data.hasOwnProperty('ExternalURL')) {
-                obj['ExternalURL'] = _ApiClient2['default'].convertToType(data['ExternalURL'], 'String');
-            }
-            if (data.hasOwnProperty('RedirectURLs')) {
-                obj['RedirectURLs'] = _ApiClient2['default'].convertToType(data['RedirectURLs'], ['String']);
+            if (data.hasOwnProperty('ReverseProxyURL')) {
+                obj['ReverseProxyURL'] = _ApiClient2['default'].convertToType(data['ReverseProxyURL'], 'String');
             }
             if (data.hasOwnProperty('SelfSigned')) {
                 obj['SelfSigned'] = _InstallTLSSelfSigned2['default'].constructFromObject(data['SelfSigned']);
@@ -89,12 +88,21 @@ var InstallProxyConfig = (function () {
             if (data.hasOwnProperty('Certificate')) {
                 obj['Certificate'] = _InstallTLSCertificate2['default'].constructFromObject(data['Certificate']);
             }
+            if (data.hasOwnProperty('SSLRedirect')) {
+                obj['SSLRedirect'] = _ApiClient2['default'].convertToType(data['SSLRedirect'], 'Boolean');
+            }
+            if (data.hasOwnProperty('Maintenance')) {
+                obj['Maintenance'] = _ApiClient2['default'].convertToType(data['Maintenance'], 'Boolean');
+            }
+            if (data.hasOwnProperty('MaintenanceConditions')) {
+                obj['MaintenanceConditions'] = _ApiClient2['default'].convertToType(data['MaintenanceConditions'], ['String']);
+            }
         }
         return obj;
     };
 
     /**
-    * @member {String} BindURL
+    * @member {Array.<String>} Binds
     */
     return InstallProxyConfig;
 })();
@@ -103,11 +111,7 @@ exports['default'] = InstallProxyConfig;
 module.exports = exports['default'];
 
 /**
-* @member {String} ExternalURL
-*/
-
-/**
-* @member {Array.<String>} RedirectURLs
+* @member {String} ReverseProxyURL
 */
 
 /**
@@ -120,4 +124,16 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/InstallTLSCertificate} Certificate
+*/
+
+/**
+* @member {Boolean} SSLRedirect
+*/
+
+/**
+* @member {Boolean} Maintenance
+*/
+
+/**
+* @member {Array.<String>} MaintenanceConditions
 */

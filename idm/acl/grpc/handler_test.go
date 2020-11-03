@@ -33,18 +33,18 @@ import (
 	// SQLite Driver
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/acl"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
 	ctx     context.Context
 	mockDAO acl.DAO
-	options config.Map
+	options = configx.New()
 
 	wg sync.WaitGroup
 )

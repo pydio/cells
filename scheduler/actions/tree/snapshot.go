@@ -46,7 +46,7 @@ var (
 type SnapshotAction struct {
 	Client  views.Handler
 	Target  string
-	IsLocal bool
+	IsLocal string
 }
 
 func (c *SnapshotAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -69,7 +69,7 @@ func (c *SnapshotAction) GetParametersForm() *forms.Form {
 			Fields: []forms.Field{
 				&forms.FormField{
 					Name:        "target_file",
-					Type:        "string",
+					Type:        forms.ParamString,
 					Label:       "Target File",
 					Description: "Full name of the file to write, either on FS or inside a datasource. If not specified, will be written in application temporary directory",
 					Default:     "",
@@ -77,7 +77,7 @@ func (c *SnapshotAction) GetParametersForm() *forms.Form {
 				},
 				&forms.FormField{
 					Name:        "is_fs",
-					Type:        "boolean",
+					Type:        forms.ParamBool,
 					Label:       "Local FS",
 					Description: "If set, target file is expected to be an absolute path on the server",
 					Mandatory:   false,
@@ -100,8 +100,8 @@ func (c *SnapshotAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	if target, ok := action.Parameters["target_file"]; ok {
 		c.Target = target
-		if loc, o := action.Parameters["is_local"]; o && loc == "true" {
-			c.IsLocal = true
+		if loc, o := action.Parameters["is_local"]; o {
+			c.IsLocal = loc
 		}
 	} else {
 		tmpDir := config.ApplicationWorkingDir()
@@ -118,6 +118,11 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 		err := fmt.Errorf("you must provide at least one node as input")
 		return input.WithError(err), err
 	}
+	isLocal, e := jobs.EvaluateFieldBool(ctx, input, c.IsLocal)
+	if e != nil {
+		return input.WithError(e), e
+	}
+	target := jobs.EvaluateFieldStr(ctx, input, c.Target)
 
 	streamer, err := c.Client.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      input.Nodes[0],
@@ -128,7 +133,7 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	defer streamer.Close()
 
-	nodesList := []*tree.Node{}
+	var nodesList []*tree.Node
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
@@ -142,12 +147,14 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	content, _ := json.Marshal(nodesList)
 	var writeErr error
-	if c.IsLocal {
-		os.Remove(c.Target)
-		writeErr = ioutil.WriteFile(c.Target, content, 0755)
+	if isLocal {
+		if e := os.Remove(target); e != nil {
+			return input.WithError(e), e
+		}
+		writeErr = ioutil.WriteFile(target, content, 0755)
 	} else {
 		router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
-		_, writeErr = router.PutObject(ctx, &tree.Node{Path: c.Target}, bytes.NewBuffer(content), &views.PutRequestData{
+		_, writeErr = router.PutObject(ctx, &tree.Node{Path: target}, bytes.NewBuffer(content), &views.PutRequestData{
 			Size: int64(len(content)),
 		})
 	}
@@ -155,11 +162,11 @@ func (c *SnapshotAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithError(writeErr), writeErr
 	}
 
-	log.TasksLogger(ctx).Info("Tree snapshot written to " + c.Target)
+	log.TasksLogger(ctx).Info("Tree snapshot written to " + target)
 	output := input.WithNode(nil)
 	output.AppendOutput(&jobs.ActionOutput{
 		Success:    true,
-		StringBody: "Tree snapshot written to " + c.Target,
+		StringBody: "Tree snapshot written to " + target,
 	})
 
 	return output, nil

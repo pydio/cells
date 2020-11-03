@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 
-	"github.com/micro/go-config/source"
+	"github.com/pydio/cells/common/config/source"
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"

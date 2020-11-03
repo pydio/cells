@@ -54,13 +54,13 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/filesystem"
 	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/x/configx"
 )
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
-func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.UpdateRequest) ([]*update.Package, error) {
-
-	urlConf := conf.String("updateUrl")
+func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
+	urlConf := conf.Val("updateUrl").Default(configx.Reference("#/defaults/update/updateUrl")).String()
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
 	}
@@ -71,10 +71,8 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 	if strings.Trim(parsed.Path, "/") == "" {
 		parsed.Path = "/a/update-server"
 	}
-	channel := conf.String("channel")
-	if channel == "" {
-		channel = "stable"
-	}
+
+	channel := conf.Val("channel").Default(configx.Reference("#/defaults/update/channel")).Default("stable").String()
 
 	// Set default values
 	if request.PackageName == "" {
@@ -173,7 +171,7 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 // ApplyUpdate uses the info of an update.Package to download the binary and replace
 // the current running binary. A restart is necessary afterward.
 // The dryRun option will download the binary and just put it in the /tmp folder
-func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValues, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
+func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
 
 	defer func() {
 		close(doneChan)
@@ -220,8 +218,8 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			return
 		}
 
-		pKey, ok := conf.Get("publicKey").(string)
-		if !ok || pKey == "" {
+		pKey := conf.Val("publicKey").Default("#/defaults/update/publicKey").String()
+		if pKey == "" {
 			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
 			return
 		}

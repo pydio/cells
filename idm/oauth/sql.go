@@ -21,8 +21,8 @@
 package oauth
 
 import (
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -32,7 +32,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	s.DAO.Init(options)

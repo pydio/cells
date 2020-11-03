@@ -28,7 +28,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/minio/cli"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	xhttp "github.com/pydio/minio-srv/cmd/http"
 	"github.com/pydio/minio-srv/cmd/logger"
 	"github.com/pydio/minio-srv/pkg/certs"

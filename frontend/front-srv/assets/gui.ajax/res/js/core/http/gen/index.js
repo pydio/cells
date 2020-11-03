@@ -69,6 +69,7 @@ import InstallCheckResult from './model/InstallCheckResult';
 import InstallGetAgreementResponse from './model/InstallGetAgreementResponse';
 import InstallGetDefaultsResponse from './model/InstallGetDefaultsResponse';
 import InstallInstallConfig from './model/InstallInstallConfig';
+import InstallInstallEventsResponse from './model/InstallInstallEventsResponse';
 import InstallInstallRequest from './model/InstallInstallRequest';
 import InstallInstallResponse from './model/InstallInstallResponse';
 import InstallPerformCheckRequest from './model/InstallPerformCheckRequest';
@@ -155,6 +156,7 @@ import RestListProcessesRequest from './model/RestListProcessesRequest';
 import RestListProcessesResponse from './model/RestListProcessesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
+import RestListSitesResponse from './model/RestListSitesResponse';
 import RestListStorageBucketsRequest from './model/RestListStorageBucketsRequest';
 import RestListTemplatesResponse from './model/RestListTemplatesResponse';
 import RestListUserMetaTagsResponse from './model/RestListUserMetaTagsResponse';
@@ -636,6 +638,12 @@ export {
      * @property {module:model/InstallInstallConfig}
      */
     InstallInstallConfig,
+
+    /**
+     * The InstallInstallEventsResponse model constructor.
+     * @property {module:model/InstallInstallEventsResponse}
+     */
+    InstallInstallEventsResponse,
 
     /**
      * The InstallInstallRequest model constructor.
@@ -1152,6 +1160,12 @@ export {
      * @property {module:model/RestListSharedResourcesResponse}
      */
     RestListSharedResourcesResponse,
+
+    /**
+     * The RestListSitesResponse model constructor.
+     * @property {module:model/RestListSitesResponse}
+     */
+    RestListSitesResponse,
 
     /**
      * The RestListStorageBucketsRequest model constructor.

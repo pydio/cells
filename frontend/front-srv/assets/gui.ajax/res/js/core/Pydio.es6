@@ -79,10 +79,7 @@ class Pydio extends Observable{
             this.WebSocketClient.open();
         }
         if(!this.Parameters.has('START_REPOSITORY')){
-            const uri = window.location.href.
-                replace(parameters.get('FRONTEND_URL'), '').
-                replace(window.location.search, '');
-
+            const uri = this.getFrontendUrl().pathname;
             const loadUriParts = LangUtils.trim(uri, '/').split('/');
             if(loadUriParts.length){
                 let [loadWs, ...other] = loadUriParts;
@@ -477,6 +474,13 @@ class Pydio extends Observable{
      */
     getController(){
         return this.Controller;
+    }
+
+    /**
+     * @returns {URL}
+     */
+    getFrontendUrl(){
+        return window.location;
     }
 
     /**

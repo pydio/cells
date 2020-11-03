@@ -1,0 +1,10 @@
+{
+  "FrontendLogin": "admin",
+  "FrontendPassword": "admin",
+  "ProxyConfig": {
+    "Binds": ["0.0.0.0:8080"],
+    "TLSConfig": {
+      "SelfSigned": {}
+    }
+  }
+}

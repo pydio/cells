@@ -22,13 +22,14 @@ package key
 
 import (
 	"fmt"
-	"github.com/pydio/cells/common/proto/encryption"
 	"testing"
+
+	"github.com/pydio/cells/common/proto/encryption"
+	"github.com/pydio/cells/x/configx"
 
 	"github.com/smartystreets/goconvey/convey"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -37,7 +38,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	var options config.Map
+	options := configx.New()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {

@@ -36,6 +36,8 @@ import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
 import {muiThemeable} from 'material-ui/styles'
+const {JobsStore, moment} = Pydio.requireLib("boot");
+import {debounce} from 'lodash'
 
 class DataSourcesBoard extends React.Component {
 
@@ -43,6 +45,7 @@ class DataSourcesBoard extends React.Component {
         super(props);
         this.state = {
             dataSources: [],
+            resyncJobs:{},
             versioningPolicies: [],
             dsLoaded: false,
             versionsLoaded: false,
@@ -67,11 +70,17 @@ class DataSourcesBoard extends React.Component {
                 this.setState({peerAddresses: res.PeerAddresses || []});
             })
         }, 2500);
+        setTimeout(() => {
+            this.syncPoller = setInterval(() => {
+                this.syncStatuses();
+            }, 2500);
+        }, 1250)
         this.load();
     }
 
     componentWillUnmount(){
         clearInterval(this.statusPoller);
+        clearInterval(this.syncPoller);
     }
 
     load(newDsName = null){
@@ -81,7 +90,7 @@ class DataSourcesBoard extends React.Component {
             newDsName:newDsName
         });
         DataSource.loadDatasources().then((data) => {
-            this.setState({dataSources: data.DataSources || [], dsLoaded: true});
+            this.setState({dataSources: data.DataSources || [], dsLoaded: true}, () => {this.syncStatuses()});
         });
         DataSource.loadVersioningPolicies().then((data) => {
             this.setState({versioningPolicies: data.Policies || [], versionsLoaded: true});
@@ -92,6 +101,22 @@ class DataSourcesBoard extends React.Component {
         if(this.refs && this.refs.encKeys){
             this.refs.encKeys.load();
         }
+    }
+
+    syncStatuses(){
+        const {dataSources} = this.state;
+        if(!dataSources || !dataSources.length){
+            return;
+        }
+        JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(d => 'resync-ds-' + d.Name), 1).then(response => {
+            const resyncJobs = {};
+            response.Jobs.forEach(job => {
+                if(job.Tasks && job.Tasks.length){
+                    resyncJobs[job.ID.replace('resync-ds-', '')] = job;
+                }
+            })
+            this.setState({resyncJobs});
+        })
     }
 
     closeEditor(){
@@ -116,6 +141,17 @@ class DataSourcesBoard extends React.Component {
                 reloadList:this.load.bind(this),
             }
         });
+    }
+
+    makeStatusLabel(level, message){
+        switch (level){
+            case 'error':
+                return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {message}</span>
+            case 'running':
+                return <span style={{color:'#ef6c00'}}><span className={"mdi mdi-timer-sand"}/> {message}</span>
+            default:
+                return <span style={{color: '#1b5e20'}}><span className={"mdi mdi-check"}/> {message}</span>
+        }
     }
 
     computeStatus(dataSource, asNumber = false) {
@@ -143,12 +179,12 @@ class DataSourcesBoard extends React.Component {
             if(asNumber){
                 return 0
             }
-            return <span style={{color: '#1b5e20'}}><span className={"mdi mdi-check"}/> {m('status.ok')}</span>;
+            return this.makeStatusLabel('ok', m('status.ok'));
         } else if (newDsName && dataSource.Name === newDsName) {
             if(asNumber){
                 return 1
             }
-            return <span style={{color:'#ef6c00'}}><span className={"mdi mdi-timer-sand"}/> {m('status.starting')}</span>;
+            return this.makeStatusLabel('running', m('status.starting'));
         } else if (!index && !sync && !object) {
             let koMessage = m('status.ko');
             if(peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
@@ -157,7 +193,7 @@ class DataSourcesBoard extends React.Component {
             if(asNumber){
                 return 2
             }
-            return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {koMessage}</span>;
+            return this.makeStatusLabel('error', koMessage)
         } else {
             let services = [];
             if(!index) {
@@ -172,8 +208,25 @@ class DataSourcesBoard extends React.Component {
             if(asNumber){
                 return 3
             }
-            return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {services.join(' - ')}</span>;
+            return this.makeStatusLabel('error', services.join(' - '));
         }
+    }
+
+    computeJobStatus(job){
+        const task = job.Tasks[0];
+        switch (task.Status) {
+            case 'Finished':
+                return this.makeStatusLabel('ok', moment(new Date(parseInt(task.EndTime) * 1000)).fromNow());
+            case 'Running':
+                return this.makeStatusLabel('running', task.StatusMessage || 'Running...');
+            case 'Error':
+                return this.makeStatusLabel('error', task.StatusMessage);
+            case 'Queued':
+                return this.makeStatusLabel('running', task.StatusMessage);
+            default:
+                break;
+        }
+        return this.makeStatusLabel('ok', task.StatusMessage);
     }
 
     openVersionPolicy(versionPolicies = undefined){
@@ -293,7 +346,7 @@ class DataSourcesBoard extends React.Component {
     }
 
     render(){
-        const {dataSources, versioningPolicies, m} = this.state;
+        const {dataSources, resyncJobs, versioningPolicies, m} = this.state;
         dataSources.sort(LangUtils.arraySorter('Name'));
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
@@ -305,14 +358,18 @@ class DataSourcesBoard extends React.Component {
 
         const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
-            {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}, sorter:{type:'string', default:true}},
+            {name:'Name', label:m('name'), style:{fontSize: 15, width: '15%'}, headerStyle:{width: '15%'}, sorter:{type:'string', default:true}},
             {name:'Status', label:m('status'),
                 renderCell:(row)=>{
                     return row.Disabled ? <span style={{color:'#757575'}}><span className={"mdi mdi-checkbox-blank-circle-outline"}/> {m('status.disabled')}</span> : this.computeStatus(row);
                 },
                 sorter:{type:'number', value:row=>this.computeStatus(row, true)}
             },
-            {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'20%'}, headerStyle:{width:'20%'}, renderCell:(row)=>{
+            {name: 'SyncStatus', label:m('syncStatus'),
+                renderCell:(row)=> (resyncJobs && resyncJobs[row.Name]) ? this.computeJobStatus(resyncJobs[row.Name]) : 'n/a',
+                sorter:{type:'number', value:(row) => resyncJobs && resyncJobs[row.Name]?resyncJobs[row.Name].Tasks[0].EndTime:0}
+            },
+            {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'15%'}, headerStyle:{width:'15%'}, renderCell:(row)=>{
                 let s = 'storage.fs';
                 switch (row.StorageType) {
                     case "S3":
@@ -329,7 +386,7 @@ class DataSourcesBoard extends React.Component {
                 }
                 return m(s);
             }, sorter:{type:'string'}},
-            {name:'VersioningPolicyName', label:m('versioning'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, renderCell:(row) => {
+            {name:'VersioningPolicyName', label:m('versioning'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
                     return pol.Name;
@@ -341,8 +398,8 @@ class DataSourcesBoard extends React.Component {
                 name:'EncryptionMode',
                 label:m('encryption'),
                 hideSmall:true,
-                style:{width:'10%', textAlign:'center'},
-                headerStyle:{width:'10%'},
+                style:{width:'8%', textAlign:'center'},
+                headerStyle:{width:'8%'},
                 renderCell:(row) => {
                     return row['EncryptionMode'] === 'MASTER' ? <span className={"mdi mdi-check"}/> : '-' ;
                 },
@@ -428,8 +485,9 @@ class DataSourcesBoard extends React.Component {
                                 onSelectRows={this.openDataSource.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
-                                emptyStateString={"No datasources created yet"}
+                                emptyStateString={m('ds.emptyState')}
                                 masterStyles={tableMaster}
+                                storageKey={'console.datasources.list'}
                             />
                         </Paper>
 
@@ -443,6 +501,7 @@ class DataSourcesBoard extends React.Component {
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
                                 masterStyles={tableMaster}
+                                storageKey={'console.versioning.policies.list'}
                             />
                         </Paper>
 

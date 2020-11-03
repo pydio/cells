@@ -21,6 +21,8 @@
 package index
 
 import (
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
@@ -33,9 +35,10 @@ var (
 )
 
 func init() {
-	plugins.Register(func() {
+	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
+			service.Context(ctx),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Starter for data sources indexes"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),

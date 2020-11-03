@@ -380,6 +380,9 @@ var Controller = (function (_Observable) {
      */
 
     Controller.prototype.fireAction = function fireAction(actionName) {
+        if (actionName === 'logout') {
+            console.trace();
+        }
         var action = this.actions.get(actionName);
         if (action != null) {
             var args = Array.from(arguments).slice(1);

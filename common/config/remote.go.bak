@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package config
+
+import (
+	"time"
+
+	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/x/filex"
+)
+
+// Config holds the main structure of a configuration
+type config struct {
+	im    configx.Values // in-memory data
+	store configx.Store  // underlying storage
+}
+
+// Save the config in the underlying storage
+func (c *config) Save(ctxUser string, ctxMessage string) error {
+	// if GetRemoteSource() {
+	// 	return nil
+	// }
+
+	data := c.im.Map()
+
+	if err := c.store.Save(data); err != nil {
+		return err
+	}
+
+	if VersionsStore != nil {
+		if err := VersionsStore.Put(&filex.Version{
+			Date: time.Now(),
+			User: ctxUser,
+			Log:  ctxMessage,
+			Data: data,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Watch for config changes for a specific path or underneath
+func (c *config) Watch(path ...string) (configx.Receiver, error) {
+	return c.store.Watch(path...)
+}
+
+// Get access to the underlying structure at a certain path
+func (c *config) Get(path ...string) configx.Values {
+	return c.im.Val(path)
+}
+
+// Set new values at a certain path
+func (c *config) Set(val interface{}, path ...string) {
+	// tmpConfig := Config{Config: config.NewConfig(config.WithSource(memory.NewSource(Default().Bytes())))}
+	// tmpConfig.Set(val, path...)
+
+	// // Make sure to init vault
+	// Vault()
+
+	// // Filter values
+	// hasFilter := false
+	// for _, p := range registeredVaultKeys {
+	// 	savedUuid := Default().Get(p...).String("")
+	// 	newConfig := tmpConfig.Get(p...).String("")
+	// 	if newConfig != savedUuid {
+	// 		hasFilter = true
+	// 		if savedUuid != "" {
+	// 			vaultSource.Delete(savedUuid, true)
+	// 		}
+	// 		if newConfig != "" {
+	// 			// Replace value with a secret Uuid
+	// 			fmt.Println("Replacing config value with a secret UUID", strings.Join(p, "/"))
+	// 			newUuid := NewKeyForSecret()
+	// 			e := vaultSource.Set(newUuid, newConfig, true)
+	// 			if e != nil {
+	// 				fmt.Println("Something went wrong when saving file!", e.Error())
+	// 			}
+	// 			tmpConfig.Set(newUuid, p...)
+	// 		}
+	// 	}
+	// }
+
+	// if hasFilter {
+	// 	// Replace fully from tmp
+	// 	// Does not work probably due to a bug in the underlying TP library
+	// 	// Default().Set(tmpConfig.Get())
+
+	// 	// Rather explicitly replace all values.
+	// 	var all map[string]interface{}
+	// 	json.Unmarshal(tmpConfig.Bytes(), &all)
+	// 	for k, v := range all {
+	// 		ApplicationConfig.Val(k).Set(v)
+	// 	}
+	// } else {
+	// Just update default config
+	c.im.Val(path).Set(val)
+	// }
+}
+
+// Del value at a certain path
+func (c *config) Del(path ...string) {
+	// if GetRemoteSource() {
+	// 	remote.DeleteRemote("config", path...)
+	// 	return
+	// }
+	c.im.Val(path).Del()
+}

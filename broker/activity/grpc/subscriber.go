@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common/auth"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -55,17 +57,19 @@ type MicroEventsSubscriber struct {
 	roleClient idm.RoleServiceClient
 	wsClient   idm.WorkspaceServiceClient
 
-	parentsCache *cache.Cache
-	changeEvents []*idm.ChangeEvent
-	aclsChan     chan *idm.ChangeEvent
-	dao          activity.DAO
+	parentsCache     *cache.Cache
+	accessListsCache *cache.Cache
+	changeEvents     []*idm.ChangeEvent
+	aclsChan         chan *idm.ChangeEvent
+	dao              activity.DAO
 }
 
 func NewEventsSubscriber(dao activity.DAO) *MicroEventsSubscriber {
 	m := &MicroEventsSubscriber{
-		dao:          dao,
-		aclsChan:     make(chan *idm.ChangeEvent),
-		parentsCache: cache.New(3*time.Minute, 10*time.Minute),
+		dao:              dao,
+		aclsChan:         make(chan *idm.ChangeEvent),
+		parentsCache:     cache.New(3*time.Minute, 10*time.Minute),
+		accessListsCache: cache.New(20*time.Second, 60*time.Second),
 	}
 	go m.DebounceAclsEvents()
 	return m
@@ -134,7 +138,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	ac, Node := activity.DocumentActivity(author, msg)
 	if Node != nil && Node.Uuid != "" {
 
-		loadedNode, parentUuids := e.ParentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
+		loadedNode, parentUuids := e.parentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
 		// Use reloaded node
 		if msg.Type == tree.NodeChangeEvent_UPDATE_USER_META {
 			if Node.MetaStore != nil {
@@ -207,9 +211,20 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 			if !((evread && ac.Type == activity2.ObjectType_Read) || (evchange && ac.Type != activity2.ObjectType_Read)) {
 				continue
 			}
-			dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
-			publishActivityEvent(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
-
+			accessList, user, er := permissions.AccessListFromUser(ctx, subscription.UserId, false)
+			if er != nil {
+				log.Logger(ctx).Error("Could not load access list", zap.Error(er))
+				continue
+			}
+			ancestors, ez := tree.BuildAncestorsListOrParent(auth.WithImpersonate(ctx, user), e.getTreeClient(), loadedNode)
+			if ez != nil {
+				log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
+				continue
+			}
+			if accessList.CanRead(ctx, ancestors...) {
+				dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
+				publishActivityEvent(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
+			}
 		}
 
 	}
@@ -237,7 +252,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	return nil
 }
 
-func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree.Node, isDel bool) (*tree.Node, []string) {
+func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree.Node, isDel bool) (*tree.Node, []string) {
 
 	e.Lock()
 	defer e.Unlock()

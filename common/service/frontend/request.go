@@ -3,14 +3,13 @@ package frontend
 import (
 	"net/http"
 
-	"github.com/pydio/cells/common/config"
-	config2 "github.com/pydio/go-os/config"
+	"github.com/pydio/cells/x/configx"
 )
 
 type RequestStatus struct {
-	Config        config2.Config
-	AclParameters *config.Map
-	AclActions    *config.Map
+	Config        configx.Values
+	AclParameters configx.Values
+	AclActions    configx.Values
 	WsScopes      []string
 
 	User     *User

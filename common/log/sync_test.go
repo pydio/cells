@@ -140,7 +140,7 @@ func TestLogSync(t *testing.T) {
 		cancel()
 
 		<-time.After(2 * time.Second)
-		So(runtime.NumGoroutine(), ShouldBeLessThan, 10)
+		So(runtime.NumGoroutine(), ShouldBeLessThanOrEqualTo, 15)
 		runtime.GC()
 	})
 }
