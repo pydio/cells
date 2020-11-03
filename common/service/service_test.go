@@ -50,7 +50,7 @@ func TestServiceChildrenRunner(t *testing.T) {
 			go startParentService()
 		}
 
-		<-time.After(5 * time.Second)
+		// <-time.After(5 * time.Second)
 	})
 }
 
@@ -61,7 +61,7 @@ func startParentService() {
 		Name("parent"),
 		Context(ctx),
 		WithMicro(func(m micro.Service) error {
-			runner := NewChildrenRunner(m, "parent", "parent.")
+			runner := NewChildrenRunner("parent", "parent.")
 			m.Init(
 				micro.BeforeStart(func() error {
 					fmt.Println("before start")
