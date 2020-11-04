@@ -39,41 +39,30 @@ func handleSignals() {
 	go func() {
 		for sig := range c {
 			switch sig {
+			case syscall.SIGTERM:
+				fallthrough
 			case syscall.SIGINT:
+				// Stopping the main context will trigger the stop of all services
+				log.Info("Cancelling main context")
+				cancel()
 
 				log.Info("Disconnecting broker")
 				// Disconnecting the broker so that we are not flooded with messages
 				broker.Disconnect()
 
-				log.Info("Stopping all services")
-				// Stop all services
-				for _, service := range allServices {
-					service.Stop()
-				}
-
-				log.Info("Exiting")
-				<-time.After(2 * time.Second)
-				os.Exit(0)
-
 			case syscall.SIGHUP:
 				// Stop all services
 				for _, service := range allServices {
-					if service.Name() == "nats" {
+					if service.RequiresFork() && !IsFork {
+						// Stopping here would kill the command and prevent proper de-registering of service
+						// Signal will be passed along and the fork will stop by itself.
 						continue
 					}
+
 					service.Stop()
-				}
 
-				initServices()
-
-				// Start all services
-				for _, service := range allServices {
-					if service.Name() == "nats" {
-						continue
-					}
-					service.Start()
+					service.Start(ctx)
 				}
 			}
-		}
 	}()
 }
