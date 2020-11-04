@@ -24,7 +24,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/micro/go-micro/broker"
 	"github.com/pydio/cells/common/log"
@@ -64,5 +63,6 @@ func handleSignals() {
 					service.Start(ctx)
 				}
 			}
+		}
 	}()
 }
