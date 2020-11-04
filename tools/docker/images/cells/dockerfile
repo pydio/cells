@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Handle certificate and download in a distinct stage to reduce image size
-=======
-# Handle certificate and downloads in another stage to reduce image size
->>>>>>> multi-bind
 FROM alpine as certs
 ARG version
 
