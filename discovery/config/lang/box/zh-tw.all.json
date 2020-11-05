@@ -1,15 +1,15 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "最长时间不超过30天"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "30天后移除数据"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "保留所有"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "永远保留所有数据"
   },
   "Regular Pruning": {
     "other": "Regular Pruning"
