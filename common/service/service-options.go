@@ -298,3 +298,13 @@ func Watch(fn func(Service, configx.Values)) ServiceOption {
 		o.Watchers[""] = append(watchers, fn)
 	}
 }
+
+func WatchPath(path string, fn func(Service, configx.Values)) ServiceOption {
+	return func(o *ServiceOptions) {
+		watchers, ok := o.Watchers[path]
+		if !ok {
+			watchers = []func(Service, configx.Values){}
+		}
+		o.Watchers[path] = append(watchers, fn)
+	}
+}

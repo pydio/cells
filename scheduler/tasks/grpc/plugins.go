@@ -27,6 +27,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/x/configx"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
@@ -46,6 +47,11 @@ func init() {
 				multiplexer := tasks.NewSubscriber(m.Options().Context, m.Options().Client, m.Options().Server)
 				multiplexer.Init()
 				return nil
+			}),
+			service.WatchPath("services/pydio.web.oauth/connectors", func(s service.Service, c configx.Values) {
+				s.Stop()
+
+				s.Start(ctx)
 			}),
 		)
 	})

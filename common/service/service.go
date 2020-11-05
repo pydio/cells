@@ -669,14 +669,14 @@ func (s *service) IsREST() bool {
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
-	ctx := s.Options().Context
-	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Val("autostart").Bool()
+	//ctx := s.Options().Context
+	return s.Options().AutoStart || config.Get("services", s.Options().Name, "autostart").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
-	ctx := s.Options().Context
-	return s.Options().Fork || servicecontext.GetConfig(ctx).Val("fork").Bool()
+	// ctx := s.Options().Context
+	return s.Options().Fork || config.Get("services", s.Options().Name, "fork").Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
