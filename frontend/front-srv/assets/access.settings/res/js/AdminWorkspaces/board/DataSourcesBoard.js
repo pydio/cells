@@ -485,7 +485,7 @@ class DataSourcesBoard extends React.Component {
                                 onSelectRows={this.openDataSource.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
-                                emptyStateString={m('ds.emptyState')}
+                                emptyStateString={m('emptyState')}
                                 masterStyles={tableMaster}
                                 storageKey={'console.datasources.list'}
                             />
