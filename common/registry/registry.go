@@ -31,6 +31,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
@@ -230,7 +231,9 @@ func (c *pydioregistry) BeforeInit() error {
 	}
 
 	for _, s := range services {
-		s.BeforeInit()
+		if (s.RequiresFork() && viper.GetBool("fork")) || !s.RequiresFork() {
+			s.BeforeInit()
+		}
 	}
 
 	return nil
@@ -244,7 +247,9 @@ func (c *pydioregistry) AfterInit() error {
 	}
 
 	for _, s := range services {
-		s.AfterInit()
+		if (s.RequiresFork() && viper.GetBool("is_fork")) || !s.RequiresFork() {
+			s.AfterInit()
+		}
 	}
 
 	return nil
