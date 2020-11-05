@@ -1,9 +1,9 @@
 {
   "Path": {
-    "other": "Path"
+    "other": "路徑"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "預設下載路徑"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
     "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
@@ -12,7 +12,7 @@
     "other": "Path to the folder on the server"
   },
   "Gateway": {
-    "other": "Gateway"
+    "other": "通道"
   },
   "Pydio S3 Gateway": {
     "other": "Pydio S3 Gateway"
