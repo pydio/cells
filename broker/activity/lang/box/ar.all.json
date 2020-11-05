@@ -1,86 +1,86 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "تم الوصول إليها بواسطة {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "تم الوصول إليها بواسطة {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "تم الوصول إلى {{.Object}} بواسطة {{.Actor}}"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "خلية"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "تم إنشاؤها بواسطة {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "تم إنشاء {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} تم إنشاؤه بواسطة {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "تم الحذف بواسطة {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "حذف {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} تم حذفه بواسطة {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "مشاركة في {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} شارك {{.Object}} معك"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "هذه هي خلاصة Pydio اليومية"
   },
   "Document": {
-    "other": "Document"
+    "other": "المستند"
   },
   "Folder": {
     "other": "المجلد"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "تم تعديله بواسطة {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "تم تعديل {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} تم تعديله بواسطة {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "تم تعديل البيانات الوصفية بواسطة {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "البيانات الوصفية المعدلة في {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} تم تعديل بيانات التعريف على {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "تم التعليق من قبل {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "تم التعليق على {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "نشر {{.Actor}} تعليق جديد على {{.Object}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "تم نقلها بواسطة {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "تم نقل {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "تم نقل {{.Object}} بواسطة {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "مساحة عمل"
   }
 }
