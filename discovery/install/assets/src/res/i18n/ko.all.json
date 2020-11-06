@@ -1,6 +1,6 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "이용약관"
   },
   "welcome.title": {
     "other": "Welcome to Pydio Cells Installation Wizard"
@@ -42,22 +42,22 @@
     "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "고급 설정"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "고급 설정 (선택)"
   },
   "advanced.legend": {
     "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "고급 설정 표시"
   },
   "advanced.default.datasource": {
     "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "기업 라이선스"
   },
   "license.title": {
     "other": "Pydio Cells Enterprise License"
@@ -105,43 +105,43 @@
     "other": "TCP"
   },
   "form.dbConnectionType.socket": {
-    "other": "Socket"
+    "other": "소켓"
   },
   "form.dbConnectionType.manual": {
     "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "호스트명"
   },
   "form.dbTCPHostname.legend": {
     "other": "Server where mysql is running"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "데이터베이스 이름"
   },
   "form.dbName.legend": {
     "other": "Database to use (will be created if it does not exist)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "포트"
   },
   "form.dbTCPPort.legend": {
     "other": "Port to connect to mysql"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "데이터베이스 사용자"
   },
   "form.dbUser.legend": {
     "other": "Leave blank if not required"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "데이터베이스 비밀번호"
   },
   "form.dbPassword.legend": {
     "other": "Leave blank if not required"
   },
   "form.dbSocketFile.label": {
-    "other": "Socket"
+    "other": "소켓"
   },
   "form.dbSocketFile.legend": {
     "other": "Enter the location of the socket file to use to connect"

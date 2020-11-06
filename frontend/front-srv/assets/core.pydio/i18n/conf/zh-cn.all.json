@@ -138,7 +138,7 @@
     "other": "Default Label"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "默认语言"
   },
   "Default Metasources": {
     "other": "Default Metasources"
@@ -150,7 +150,7 @@
     "other": "Default field to sort on"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Default language when a user does not have set his/her own."
+    "other": "用户没有设置自己的语言时的默认语言。"
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
     "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
@@ -297,7 +297,7 @@
     "other": "Login Redirect"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "主选项"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
@@ -342,7 +342,7 @@
     "other": "Public Base URI"
   },
   "Pydio Main Options": {
-    "other": "Pydio Main Options"
+    "other": "Pydio 主选项"
   },
   "Read Only": {
     "other": "Read Only"
@@ -486,7 +486,7 @@
     "other": "Write Only (upload)"
   },
   "Your application title": {
-    "other": "This title will appear as the window title, in the splash screen."
+    "other": "此标题将作为窗口标题出现在初始化界面中。"
   },
   "Zip Creation": {
     "other": "Zip Creation"

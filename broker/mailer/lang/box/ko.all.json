@@ -1,242 +1,242 @@
 {
   "Mail.Main.Copyright": {
-    "other": "피디오가 선도하는 파일 공유 플랫폼"
+    "other": "Pydio 가 선도하는 파일 공유 플랫폼"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "{ACTION} 버튼이 동작하지 않으면 아래의 URL을 복사하여 웹브라우저에 주소창에 붙여 넣고 엔터를 누르세요."
+    "other": "만약 {ACTION} 버튼이 동작하지 않으면 아래의 URL을 복사하여 주소창에 붙여 넣고 엔터를 누르세요."
   },
   "Mail.Main.Greeting": {
-    "other": "안녕하세요."
+    "other": "안녕하세요"
   },
   "Mail.Main.Signature": {
-    "other": "감사합니다."
+    "other": "감사합니다"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "{{.Configs.Title}}으로 비밀번호 재설정 요청"
+    "other": "{{.Configs.Title}} 비밀번호 재설정 요청"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "당신의 {{.Configs.Title}}으로 비밀번호 재설정을 요청 하였습니다."
+    "other": "{{.Configs.Title}} 계정의 비밀번호 재설정을 요청 하였습니다."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "비밀번호 변경이 필요치 않을 경우 무시해도 됩니다.\n반복적으로 이메일 요청이 들어올 경우 시스템 문제 이므로 관리자에게 문제점을 문의 하세요."
+    "other": "만약 본인이 요청한 것이 아니라면 무시하시면 됩니다. 계속 이러한 이메일을 받으실 경우, 보안 문제일수 있으므로 관리자에게 알려주세요."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "내 비밀번호 재설정"
+    "other": "비밀번호 재설정"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "여기를 누르면 비밀번호를 재설정 합니다."
+    "other": "여기를 눌러 비밀번호 재설정"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "{{.Configs.Title}}의 비밀번호가 재설정 되었습니다."
+    "other": "{{.Configs.Title}} 비밀번호가 재설정 되었습니다."
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "비밀번호 재설정 요청에 따라, {{.Configs.Title}} 계정의 비밀번호가 성공적으로 재설정되었습니다."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "본인이 요청한 것이 아니라면 보안 문제일수 있으므로 관리자에게 알려주세요."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "{{.Configs.Title}} 알림"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "아래는 {{.Configs.Title}} 에서 받은 알림의 요약입니다."
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} 님이 메시지를 보냈습니다!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} 님이 {{.Configs.Title}} 앱을 통해 메시지를 보냄: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} 에 오신걸 환영합니다"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "{{.Configs.Title}} 의 계정이 생성되었습니다.\n계정 이름: {{.TplData.Login}}\n{{if .TplData.Password}}비밀번호: {{.TplData.Password}}\n첫 로그인에 비밀번호를 변경하실 수 있습니다.{{end}}"
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "클릭하여 로그인하기"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "{{.Configs.Title}}로 로그인하기"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} 파일 공유 플랫폼은 당신의 팀과 효율적으로 협업하기 위해 사용되고 있습니다. 한 배에 타신걸 환영합니다!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} 님이 당신을 {{.Configs.Title}} 에 초대하셨습니다."
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "{{.TplData.Inviter}} 님에 의해 {{.Configs.Title}} 계정이 생성되었습니다.\n계정 이름: {{.TplData.Login}}\n{{if .TplData.Password}}비밀번호: {{.TplData.Password}}\n첫 로그인에 비밀번호를 변경하실 수 있습니다.{{end}}"
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "클릭하여 로그인하기"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "{{.Configs.Title}} 에 로그인"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다. 한 배에 타신걸 환영합니다!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} 님이 당신을 {{.TplData.Cell}} Cell 에 초대하셨습니다"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} 님이 {{.Configs.Title}} 에서 당신을 {{.TplData.Cell}} Cell에 추가하셨습니다! 이제 파일과 폴더를 함께 공유하며 효율적으로 협업할 수 있습니다."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "눌러서 Cell 열기"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "{{.TplData.Cell}} Cell 열기"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} 님이 당신과 파일을 공유하고 있습니다"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} 님이 당신과 파일을 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}} 에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "{{.TplData.FileName}} 열기"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "눌러서 브라우저에서 파일 미리보기"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} 님이 당신과 폴더를 공유하고 있습니다"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} 님이 당신과 폴더를 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}} 에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "{{.TplData.FolderName}} 열기"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "눌러서 브라우저에서 문서 미리보기"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} 님이 당신에게 테스트 이메일을 보내고 있습니다"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Cells 열기"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "눌러서 프런트엔드 열기"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} 파일 공유 플랫폼은 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "메일러"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "보내는 이메일 주소 기본값"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "이메일을 보낼때 기본값으로 사용할 주소입니다. 수신 불가 이메일 대신 제대로 된 지원 이메일을 사용하세요."
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "대기열 유형"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "전송 대기중인 이메일을 저장하기 위한 지속 레이어"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "On-file 데이터베이스 (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "메모리에 있음"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "메일러 엔진"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "이메일을 보낼때 사용되는 엔진"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "SMTP 서버"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "서버 호스트네임"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "SMTP 서버의 호스트, 예: smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "서버 포트"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "SMTP 서버의 포트, 예: 587 (비보안) 혹은 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "접속 유저"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "STMP 서버에 연결하려면 사용자 이름이 필요합니다"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "연결 비밀번호"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "STMP 서버에 연결하려면 비밀번호가 필요합니다"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "자체 서명 인증서"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "SMTP 서버의 인증서가 자체 서명일 경우 인증서 검증을 비활성화하세요"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "SendGrid 서비스"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "Api 키"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "SendGrid 에서 서비스에 연결하기 위해 받은 API 키"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "경고: 기본 실행 경로가 /usr/bin/sendmail 입니다. 이것을 변경해야 한다면, pydio.json 설정 파일에서 'defaults > sendmail' 키를 설정하세요."
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "실행 경로"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "서버의 sendmail 실행 경로"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "다른 경로 (pydio.json 설정 파일에서 수동 설정)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "보내는 사람 이름 기본값"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "이메일을 보낼때 사용할 보내는 사람 이름의 기본값"
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "사용할 보내는/받는 사람 주소와 이름"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "사용할 보내는/받는 사람 주소와 이름을 입력해주세요. 만약 이메일 주소가 설정되어있지 않다면 모든 경우에서 기본값이 사용됩니다."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "유저에게서 이메일 전송"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "유저를 대신해 이메일 전송"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "항상 보내는 사람 주소/이름 기본값을 사용해 전송하기"
   }
 }

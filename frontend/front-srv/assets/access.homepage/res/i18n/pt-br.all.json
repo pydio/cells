@@ -1,12 +1,12 @@
 {
   "39": {
-    "other": "Lista de áreas de trabalhos que possui acesso. Podem ser pessoais ou compartilhados com/por outros usuários."
+    "other": "Abaixo está uma lista dos espaços de trabalho que você pode acessar. Estes podem ser pessoais ou compartilhados com/por outros usuários."
   },
   "40": {
     "other": "Bem-vindo, %s! "
   },
   "41": {
-    "other": "Use esta área de trabalho por padrão"
+    "other": "Usar este espaço de trabalho como padrão"
   },
   "42": {
     "other": "Entrar"
@@ -15,7 +15,7 @@
     "other": "Meu Perfil"
   },
   "43t": {
-    "other": "Meus dados pessoais"
+    "other": "Todos os meus dados pessoais"
   },
   "44": {
     "other": "Minha Conta"

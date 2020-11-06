@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
+
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils/permissions"
@@ -38,26 +39,47 @@ var (
 	// AvailableLanguages stores a manually maintained maps with all languages
 	// that are currently supported by Cells front-end and can be chosen via the interface.
 	AvailableLanguages = map[string]string{
-		"en-us": "English",
-		"fr":    "Français",
 		"de":    "Deutsch",
+		"en-us": "English",
 		"es-es": "Español",
+		"fr":    "Français",
 		"it":    "Italiano",
-		"pt-br": "Português",
 		"lv":    "Latv",
 	}
 
+	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "loading..." message (in English).
 	LoadingStrings = map[string]string{
+		"ar":    "نحميل...",
+		"de":    "Wird geladen...",
 		"en-us": "Loading...",
-		"fr":    "Chargement...",
-		"de":    "Lade...",
-		"pt-br": "Carregando...",
-		"it":    "Caricamento...",
 		"es-en": "Cargando...",
+		"fr":    "Chargement...",
+		"it":    "Caricamento...",
+		"ja":    "読み込んでいます...",
+		"ko":    "로드 중 ...",
+		"lv":    "Ielādē...",
+		"nl":    "Bezig met laden...",
+		"pt-br": "Carregando...",
+		"ru":    "Загружается ...",
+		"sv-se": "Läser in...",
+		"vi-vn": "Đang tải...",
+		"zh-cn": "载入中...",
+		"zh-tw": "載入中...",
 	}
 
+	// WipLanguages lists languages that are only partially translated and only exposed
+	// in the end-user web UI when CELLS_ENABLE_WIP_LANGUAGES env variable is set to true.
 	WipLanguages = map[string]string{
-		"ru": "русский",
+		"ar":    "عربى", // Arabic
+		"ja":    "日本人",  //Japanese
+		"ko":    "한국어",
+		"nl":    "Nederlands",
+		"pt-br": "Português",
+		"ru":    "русский",    // Russian
+		"sv-se": "Svenska",    // Swedish
+		"vi-vn": "Tiếng Việt", // Vietnamese
+		"zh-cn": "简体中文",       // Chinese simplified
+		"zh-tw": "中國傳統的",      // Chinese traditional
 	}
 
 	LanguagesLegacyNames = map[string]string{

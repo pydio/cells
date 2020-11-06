@@ -1,15 +1,15 @@
 {
   "Path": {
-    "other": "Path"
+    "other": "المسار"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "تنسيق التحميل الافتراضي"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "عند تحميل مجلد أو تحديد متعدد، إنشاء أرشيف تلقائياً باستخدام هذا التنسيق"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "المسار إلى المجلد على الخادم"
   },
   "Gateway": {
     "other": "Gateway"
