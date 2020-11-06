@@ -1,12 +1,12 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "버전관리를 위한 이벤트 기반의 데이터 복제 작업"
   },
   "Job.Version.StatusFile": {
     "other": "Created version {{.Uuid}} inside version bucket "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "{{.Uuid}}에 대한 메타데이터를 생성했습니다."
   },
   "Job.Version.StatusPrune": {
     "one": "Pruned {{.Count}} version",
@@ -20,19 +20,19 @@
     "other": "Succesfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "정책"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "이름"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "정책 이름"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "설명"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "정책 설명"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
     "other": "Store"
@@ -47,7 +47,7 @@
     "other": "Bucket used inside this datasource"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "크기 제한"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
     "other": "Global size of all versions kept in this bucket"

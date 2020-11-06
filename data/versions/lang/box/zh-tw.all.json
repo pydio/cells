@@ -20,22 +20,22 @@
     "other": "Succesfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "策略"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "名称："
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "策略名称"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "說明"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "策略内容描述"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "儲存"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
     "other": "DataSource used to store versions"
@@ -47,7 +47,7 @@
     "other": "Bucket used inside this datasource"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "大小限制："
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
     "other": "Global size of all versions kept in this bucket"
