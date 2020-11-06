@@ -1,6 +1,6 @@
 {
   "title": {
-    "other": "Data Import"
+    "other": "数据导入"
   },
   "legend": {
     "other": "Import tool from Pydio 8"
@@ -60,7 +60,7 @@
     "other": "Connect"
   },
   "step.meta.title": {
-    "other": "Import Metadata"
+    "other": "导入元数据"
   },
   "step.meta.legend": {
     "other": "将元数据映射到资料库内部的功能。 从API或文件读取的全局元数据（监控或书签）将会直接从数据源内的.ajxp_meta文件转换而来。"
@@ -279,7 +279,7 @@
     "other": "New import job"
   },
   "dash.importing": {
-    "other": "Importing Data"
+    "other": "导入数据中"
   },
   "logs.legend": {
     "other": "Log recorded during task %s"

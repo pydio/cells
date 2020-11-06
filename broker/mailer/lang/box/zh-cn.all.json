@@ -84,7 +84,7 @@
     "other": "{{.TplData.Inviter}} 已将您加入了{{.Configs.Title}}上的 {{.TplData.Cell}} ！您可以开始一起分享文件和文件夹并高效地进行合作。"
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "点击打开Cell"
+    "other": "点击打开资料库"
   },
   "Mail.Cell.LinkLabel": {
     "other": "打开 {{.TplData.Cell}}"
@@ -126,7 +126,7 @@
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "打开Cells"
+    "other": "打开资料库"
   },
   "Mail.AdminTestMail.LinkInstructions": {
     "other": "点击打开前端"

@@ -1,18 +1,18 @@
 {
   "Android App URL": {
-    "other": "URL do APPLICATION_TITLE App para Android"
+    "other": "URL do aplicativo para Android"
   },
   "Display Server QRCode": {
     "other": "Exibir QRCode do Servidor"
   },
   "Enable Getting Started": {
-    "other": "Habilitar Primeiros passos"
+    "other": "Ativar primeiros passos/introdução"
   },
   "Enable Global Search": {
     "other": "Ativar configuração global"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Habilitar tabulação adicional para acessar vídeos de primeiros passos"
+    "other": "Ativar tabulação adicional para acessar vídeos de primeiros passos"
   },
   "Enable cross-workspaces search form on home page": {
     "other": "Ativar formulário de pesquisa entre os espaços de trabalho na página inicial"
@@ -30,16 +30,16 @@
     "other": "Abrir área de trabalho com clique único em vez de clique duplo."
   },
   "URL of the Android application": {
-    "other": "URL do APPLICATION_TITLE App para Android"
+    "other": "URL do APPLICATION_TITLE App para Android (deixe em branco se quiser ocultar o bloco)"
   },
   "URL of the iOS application": {
-    "other": "URL do APPLICATION_TITLE App para iOS"
+    "other": "URL do APPLICATION_TITLE App para iOS (deixe em branco se quiser ocultar o bloco)"
   },
   "URL of the mac sync application": {
-    "other": "URL do APPLICATION_TITLE Sync para Mac"
+    "other": "URL do APPLICATION_TITLE Sync para Mac (deixe em branco se quiser ocultar o bloco)"
   },
   "URL of the windows sync application": {
-    "other": "URL do APPLICATION_TITLE Sync para Windows"
+    "other": "URL do APPLICATION_TITLE Sync para Windows (deixe em branco se quiser ocultar o bloco)"
   },
   "Welcome Page": {
     "other": "Página de Boas-vindas"

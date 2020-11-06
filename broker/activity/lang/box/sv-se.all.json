@@ -6,13 +6,13 @@
     "other": "Accessed {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} har nåtts av {{.Actor}}"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Skapad av {{.Actor}}"
   },
   "CreatedObject": {
     "other": "Created {{.Object}}"

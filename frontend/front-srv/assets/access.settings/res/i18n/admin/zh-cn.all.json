@@ -117,7 +117,7 @@
     "other": "设置版本控制策略来保存文件内容修改历史。请注意它将使用额外的存储空间。"
   },
   "ds.editor.storage.legend.encryption": {
-    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+    "other": "静态加密可以用来确保文件永远不会以清晰的格式存储在存储器中。如果您不信任存储提供程序，这可能会很有用。"
   },
   "ds.editor.storage.readOnly": {
     "other": "只读模式"
@@ -738,7 +738,7 @@
     "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
   },
   "plugins.5": {
-    "other": "Save Changes"
+    "other": "保存更改"
   },
   "plugins.6": {
     "other": "还原"
@@ -780,7 +780,7 @@
     "other": "Edit Labels"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "保存更改"
   },
   "policies.policy.delete": {
     "other": "Delete policy"
@@ -1749,7 +1749,7 @@
     "other": "Send a test email"
   },
   "mailer.test.legend": {
-    "other": "Make sure to save your configuration changes before sending a test email."
+    "other": "请确保在发送测试邮件之前保存您的配置更改。"
   },
   "mailer.test.loading": {
     "other": "Loading Mailer Library..."
