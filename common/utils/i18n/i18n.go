@@ -24,14 +24,13 @@ package i18n
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"strings"
 
-	"github.com/pydio/cells/common/utils/permissions"
-
 	"github.com/emicklei/go-restful"
-
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/x/configx"
 )
 
@@ -46,6 +45,19 @@ var (
 		"it":    "Italiano",
 		"pt-br": "Português",
 		"lv":    "Latv",
+	}
+
+	LoadingStrings = map[string]string{
+		"en-us": "Loading...",
+		"fr":    "Chargement...",
+		"de":    "Lade...",
+		"pt-br": "Carregando...",
+		"it":    "Caricamento...",
+		"es-en": "Cargando...",
+	}
+
+	WipLanguages = map[string]string{
+		"ru": "русский",
 	}
 
 	LanguagesLegacyNames = map[string]string{
@@ -77,6 +89,14 @@ var (
 		"zh-tw": "zh-tw",
 	}
 )
+
+func init() {
+	if os.Getenv("CELLS_ENABLE_WIP_LANGUAGES") == "true" {
+		for k, v := range WipLanguages {
+			AvailableLanguages[k] = v
+		}
+	}
+}
 
 // GetDefaultLanguage reads default language from config
 func GetDefaultLanguage(conf configx.Values) string {

@@ -1,6 +1,10 @@
 package index
 
-import "html/template"
+import (
+	"html/template"
+
+	"github.com/pydio/cells/common/utils/i18n"
+)
 
 // TplConfFilterFunc takes a TplConf and modifies it
 type TplConfFilterFunc func(in *TplConf) *TplConf
@@ -39,18 +43,10 @@ type TplConf struct {
 
 // GetLoadingString sends an i18n string for "Loading..."
 func GetLoadingString(lang string) string {
-	loadingStrings := map[string]string{
-		"en-us": "Loading...",
-		"fr":    "Chargement...",
-		"de":    "Lade...",
-		"pt-br": "Carregando...",
-		"it":    "Caricamento...",
-		"es-en": "Cargando...",
-	}
-	if s, o := loadingStrings[lang]; o {
+	if s, o := i18n.LoadingStrings[lang]; o {
 		return s
 	} else {
-		return loadingStrings["en-us"]
+		return i18n.LoadingStrings["en-us"]
 	}
 }
 
