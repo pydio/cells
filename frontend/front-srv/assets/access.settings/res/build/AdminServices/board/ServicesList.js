@@ -215,7 +215,8 @@ exports['default'] = _react2['default'].createClass({
         var pydio = _props2.pydio;
         var details = _props2.details;
         var _state = this.state;
-        var services = _state.services;
+        var _state$services = _state.services;
+        var services = _state$services === undefined ? [] : _state$services;
         var loading = _state.loading;
 
         var blockStyle = {

@@ -177,7 +177,7 @@ export default React.createClass({
 
     render(){
         const {pydio, details} = this.props;
-        const {services, loading} = this.state;
+        const {services = [], loading} = this.state;
         const blockStyle = {
             margin:16,
             display:'flex',
