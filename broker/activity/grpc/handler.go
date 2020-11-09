@@ -23,6 +23,9 @@ package grpc
 import (
 	"fmt"
 	"sync"
+	"time"
+
+	"github.com/micro/go-micro/errors"
 
 	activity "github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common/log"
@@ -156,5 +159,27 @@ func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLa
 	} else {
 		return err
 	}
+
+}
+
+func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActivitiesRequest, response *proto.PurgeActivitiesResponse) error {
+
+	if request.BoxName != string(activity.BoxInbox) && request.BoxName != string(activity.BoxOutbox) {
+		return errors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
+	}
+	count := int32(0)
+	logger := func(s string) {
+		count++
+		log.TasksLogger(ctx).Info(s)
+	}
+	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+	var updated time.Time
+	if request.UpdatedBeforeTimestamp > 0 {
+		updated = time.Unix(int64(request.UpdatedBeforeTimestamp), 0)
+	}
+	dao.Purge(logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated)
+	response.Success = true
+	response.DeletedCount = count
+	return nil
 
 }

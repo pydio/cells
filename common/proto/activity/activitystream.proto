@@ -279,10 +279,33 @@ message UserLastActivityResponse {
     bool Success = 1;
 }
 
+message PurgeActivitiesRequest {
+    // ObjectType
+    OwnerType OwnerType = 1;
+    // Object Id, use * to browse all
+    string OwnerID = 2;
+    // Box Name
+    string BoxName = 3;
+    // Keep at least this number of records
+    int32 minCount = 4;
+    // Keep max number of records
+    int32 maxCount = 5;
+    // Remove records updated before...
+    int32 updatedBeforeTimestamp = 6;
+}
+
+message PurgeActivitiesResponse {
+    // If request succeeded
+    bool Success = 1;
+    // Number of rows deleted
+    int32 DeletedCount = 2;
+}
+
 service ActivityService {
     rpc PostActivity (stream PostActivityRequest) returns (PostActivityResponse){}
     rpc StreamActivities (StreamActivitiesRequest) returns (stream StreamActivitiesResponse){}
     rpc UnreadActivitiesNumber(UnreadActivitiesRequest) returns (UnreadActivitiesResponse) {}
+    rpc PurgeActivities(PurgeActivitiesRequest) returns (PurgeActivitiesResponse) {}
     rpc SetUserLastActivity(UserLastActivityRequest) returns (UserLastActivityResponse) {}
     rpc Subscribe (SubscribeRequest) returns (SubscribeResponse) {}
     rpc SearchSubscriptions(SearchSubscriptionsRequest) returns (stream SearchSubscriptionsResponse) {}

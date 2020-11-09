@@ -25,6 +25,8 @@
 package activity
 
 import (
+	"time"
+
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/activity"
@@ -65,6 +67,10 @@ type DAO interface {
 	// Should be wired to "USER_DELETE" and "NODE_DELETE" events
 	// to remove (or archive?) deprecated queues
 	Delete(ownerType activity.OwnerType, ownerId string) error
+
+	// Purge removes records based on a maximum number of records and/or based on the activity update date
+	// It keeps at least minCount record(s) - to see last activity - even if older than expected date
+	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error
 }
 
 func NewDAO(o dao.DAO) dao.DAO {

@@ -106,11 +106,9 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 		return errors.BadRequest(common.SERVICE_JOBS, "Missing parameters for RPC Action")
 	}
 	if jsonParams, o := action.Parameters["request"]; o {
-		var jsonData interface{}
-		e := json.Unmarshal([]byte(jsonParams), &jsonData)
-		if e == nil {
-			c.JsonRequest = jsonParams
-		}
+		c.JsonRequest = jsonParams
+	} else {
+		c.JsonRequest = "{}"
 	}
 	return nil
 }
@@ -119,7 +117,9 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	var jsonParams interface{}
-	json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams)
+	if e := json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams); e != nil {
+		return input.WithError(e), e
+	}
 
 	log.TasksLogger(ctx).Info("Sending json+grpc request to " + c.ServiceName + "." + c.MethodName)
 	req := c.Client.NewJsonRequest(jobs.EvaluateFieldStr(ctx, input, c.ServiceName), jobs.EvaluateFieldStr(ctx, input, c.MethodName), &jsonParams)

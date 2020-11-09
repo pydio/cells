@@ -23,6 +23,8 @@ It has these top-level messages:
 	UnreadActivitiesResponse
 	UserLastActivityRequest
 	UserLastActivityResponse
+	PurgeActivitiesRequest
+	PurgeActivitiesResponse
 */
 package activity
 
@@ -59,6 +61,7 @@ type ActivityServiceClient interface {
 	PostActivity(ctx context.Context, opts ...client.CallOption) (ActivityService_PostActivityClient, error)
 	StreamActivities(ctx context.Context, in *StreamActivitiesRequest, opts ...client.CallOption) (ActivityService_StreamActivitiesClient, error)
 	UnreadActivitiesNumber(ctx context.Context, in *UnreadActivitiesRequest, opts ...client.CallOption) (*UnreadActivitiesResponse, error)
+	PurgeActivities(ctx context.Context, in *PurgeActivitiesRequest, opts ...client.CallOption) (*PurgeActivitiesResponse, error)
 	SetUserLastActivity(ctx context.Context, in *UserLastActivityRequest, opts ...client.CallOption) (*UserLastActivityResponse, error)
 	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (*SubscribeResponse, error)
 	SearchSubscriptions(ctx context.Context, in *SearchSubscriptionsRequest, opts ...client.CallOption) (ActivityService_SearchSubscriptionsClient, error)
@@ -172,6 +175,16 @@ func (c *activityServiceClient) UnreadActivitiesNumber(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *activityServiceClient) PurgeActivities(ctx context.Context, in *PurgeActivitiesRequest, opts ...client.CallOption) (*PurgeActivitiesResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ActivityService.PurgeActivities", in)
+	out := new(PurgeActivitiesResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *activityServiceClient) SetUserLastActivity(ctx context.Context, in *UserLastActivityRequest, opts ...client.CallOption) (*UserLastActivityResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "ActivityService.SetUserLastActivity", in)
 	out := new(UserLastActivityResponse)
@@ -242,6 +255,7 @@ type ActivityServiceHandler interface {
 	PostActivity(context.Context, ActivityService_PostActivityStream) error
 	StreamActivities(context.Context, *StreamActivitiesRequest, ActivityService_StreamActivitiesStream) error
 	UnreadActivitiesNumber(context.Context, *UnreadActivitiesRequest, *UnreadActivitiesResponse) error
+	PurgeActivities(context.Context, *PurgeActivitiesRequest, *PurgeActivitiesResponse) error
 	SetUserLastActivity(context.Context, *UserLastActivityRequest, *UserLastActivityResponse) error
 	Subscribe(context.Context, *SubscribeRequest, *SubscribeResponse) error
 	SearchSubscriptions(context.Context, *SearchSubscriptionsRequest, ActivityService_SearchSubscriptionsStream) error
@@ -327,6 +341,10 @@ func (x *activityServiceStreamActivitiesStream) Send(m *StreamActivitiesResponse
 
 func (h *ActivityService) UnreadActivitiesNumber(ctx context.Context, in *UnreadActivitiesRequest, out *UnreadActivitiesResponse) error {
 	return h.ActivityServiceHandler.UnreadActivitiesNumber(ctx, in, out)
+}
+
+func (h *ActivityService) PurgeActivities(ctx context.Context, in *PurgeActivitiesRequest, out *PurgeActivitiesResponse) error {
+	return h.ActivityServiceHandler.PurgeActivities(ctx, in, out)
 }
 
 func (h *ActivityService) SetUserLastActivity(ctx context.Context, in *UserLastActivityRequest, out *UserLastActivityResponse) error {

@@ -27,6 +27,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/timestamp"
+
 	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -373,6 +375,93 @@ func TestDelete(t *testing.T) {
 
 		err = dao.Delete(activity.OwnerType_USER, "unknown")
 		So(err, ShouldBeNil)
+
+	})
+}
+
+func TestPurge(t *testing.T) {
+
+	defer os.Remove(tmpDbFilePath)
+	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao.Init(conf)
+	defer dao.CloseConn()
+
+	listJohn := func() ([]*activity.Object, error) {
+		var results []*activity.Object
+		resChan := make(chan *activity.Object)
+		doneChan := make(chan bool)
+		readResults := func(waiter *sync.WaitGroup) {
+			defer waiter.Done()
+			for {
+				select {
+				case act := <-resChan:
+					if act != nil {
+						results = append(results, act)
+					}
+				case <-doneChan:
+					return
+				}
+			}
+		}
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			readResults(wg)
+		}()
+		err := dao.ActivitiesFor(activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
+		wg.Wait()
+		return results, err
+	}
+
+	Convey("Test Purge Activities", t, func() {
+		logger := func(s string) {
+			t.Log(s)
+		}
+		threeDays := 3 * time.Hour * 24
+		ac1 := &activity.Object{Type: activity.ObjectType_Like, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Unix()}}
+		ac2 := &activity.Object{Type: activity.ObjectType_Accept, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Unix()}}
+		ac3 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
+		ac4 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
+		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac1)
+		So(err, ShouldBeNil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{})
+		So(err, ShouldBeNil)
+
+		results, err := listJohn()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 4)
+
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{})
+		So(err, ShouldBeNil)
+
+		results, err = listJohn()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 2)
+
+		// Now test purge by date
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+		sevenDays := 7 * time.Hour * 24
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
+		So(err, ShouldBeNil)
+		results, err = listJohn()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 2)
+
+		// Purge by date all users - re-add ac3, ac4 removed in previous step
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
+		So(err, ShouldBeNil)
+		results, err = listJohn()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 2)
 
 	})
 }

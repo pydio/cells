@@ -301,3 +301,9 @@ func (this *UserLastActivityRequest) Validate() error {
 func (this *UserLastActivityResponse) Validate() error {
 	return nil
 }
+func (this *PurgeActivitiesRequest) Validate() error {
+	return nil
+}
+func (this *PurgeActivitiesResponse) Validate() error {
+	return nil
+}

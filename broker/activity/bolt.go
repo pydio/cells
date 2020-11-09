@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common/boltdb"
@@ -368,6 +369,55 @@ func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) erro
 	})
 
 	return err
+}
+
+// Purge removes records based on a maximum number of records and/or based on the activity update date
+// It keeps at least minCount record(s) - to see last activity - even if older than expected date
+func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error {
+
+	purgeBucket := func(bucket *bolt.Bucket, owner string) {
+		c := bucket.Cursor()
+		i := int64(0)
+		totalLeft := int64(0)
+
+		for k, v := c.Last(); k != nil; k, v = c.Prev() {
+			if minCount > 0 && i < int64(minCount) {
+				i++
+				totalLeft++
+				continue
+			}
+			acObject := &activity.Object{}
+			if err := json.Unmarshal(v, acObject); err != nil {
+				logger("Purging unknown format object")
+				c.Delete()
+				continue
+			}
+			i++
+			stamp := acObject.GetUpdated()
+			if (maxCount > 0 && totalLeft >= int64(maxCount)) || (!updatedBefore.IsZero() && time.Unix(stamp.Seconds, 0).Before(updatedBefore)) {
+				logger(fmt.Sprintf("Purging activity %s for %s's %s", acObject.Id, owner, boxName))
+				c.Delete()
+				continue
+			}
+			totalLeft++
+		}
+	}
+
+	return dao.DB().Update(func(tx *bolt.Tx) error {
+		if ownerId == "*" {
+			mainBucket := tx.Bucket([]byte(ownerType.String()))
+			mainBucket.ForEach(func(k, v []byte) error {
+				b := mainBucket.Bucket(k).Bucket([]byte(boxName))
+				if b != nil {
+					purgeBucket(b, string(k))
+				}
+				return nil
+			})
+		} else if bucket, _ := dao.getBucket(tx, false, ownerType, ownerId, boxName); bucket != nil {
+			purgeBucket(bucket, ownerId)
+		}
+		return nil
+	})
 }
 
 func (dao *boltdbimpl) activitiesAreSimilar(acA *activity.Object, acB *activity.Object) bool {
