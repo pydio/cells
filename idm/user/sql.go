@@ -110,6 +110,9 @@ type sqlimpl struct {
 
 	*resources.ResourcesSQL
 	*index.IndexSQL
+
+	// Handle logins in Case-Insensitive fashion
+	loginCI bool
 }
 
 // Init handler for the SQL DAO
@@ -148,6 +151,10 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 				return fmt.Errorf("unable to prepare query[%s]: %s - error: %v", key, query, err)
 			}
 		}
+	}
+
+	if options.Bool("loginCI") {
+		s.loginCI = true
 	}
 
 	return nil
@@ -390,8 +397,14 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	}
 	object := results[0]
 	user = object.(*idm.User)
-	if strings.ToLower(user.Login) != strings.ToLower(userName) {
-		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+	if s.loginCI {
+		if strings.ToLower(user.Login) != strings.ToLower(userName) {
+			return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+		}
+	} else {
+		if user.Login != userName {
+			return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+		}
 	}
 	hashedPass := user.Password
 	// Check password
