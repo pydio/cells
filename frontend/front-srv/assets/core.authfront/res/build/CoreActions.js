@@ -243,8 +243,18 @@ var LoginPasswordDialog = React.createClass({
 
         var custom = this.props.pydio.Parameters.get('customWording');
         var logoUrl = custom.icon;
+        var loginTitle = pydio.MessageHash[passwordOnly ? 552 : 180];
+        var loginLegend = undefined;
         if (custom.iconBinary) {
             logoUrl = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + custom.iconBinary;
+        }
+        if (!passwordOnly) {
+            if (custom.loginTitle) {
+                loginTitle = custom.loginTitle;
+            }
+            if (custom.loginLegend) {
+                loginLegend = custom.loginLegend;
+            }
         }
 
         var logoStyle = {
@@ -266,8 +276,13 @@ var LoginPasswordDialog = React.createClass({
             React.createElement(
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },
-                pydio.MessageHash[passwordOnly ? 552 : 180],
+                loginTitle,
                 React.createElement(LanguagePicker, null)
+            ),
+            loginLegend && React.createElement(
+                'div',
+                null,
+                loginLegend
             ),
             errorMessage,
             additionalComponentsTop,

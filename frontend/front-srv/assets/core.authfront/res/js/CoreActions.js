@@ -182,8 +182,18 @@ let LoginPasswordDialog = React.createClass({
 
         const custom = this.props.pydio.Parameters.get('customWording');
         let logoUrl = custom.icon;
+        let loginTitle = pydio.MessageHash[passwordOnly ? 552 : 180];
+        let loginLegend;
         if(custom.iconBinary){
             logoUrl = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + custom.iconBinary;
+        }
+        if (!passwordOnly){
+            if(custom.loginTitle) {
+                loginTitle = custom.loginTitle;
+            }
+            if(custom.loginLegend) {
+                loginLegend = custom.loginLegend;
+            }
         }
 
         const logoStyle = {
@@ -202,9 +212,10 @@ let LoginPasswordDialog = React.createClass({
             <DarkThemeContainer>
                 {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
-                    {pydio.MessageHash[passwordOnly ? 552 : 180]}
+                    {loginTitle}
                     <LanguagePicker />
                 </div>
+                {loginLegend && <div>{loginLegend}</div>}
                 {errorMessage}
                 {additionalComponentsTop}
                 <form autoComplete={secureLoginForm?"off":"on"}>

@@ -24,9 +24,11 @@ type BackendConf struct {
 }
 
 type CustomWording struct {
-	Title      string `json:"title"`
-	Icon       string `json:"icon"`
-	IconBinary string `json:"iconBinary"`
+	Title       string `json:"title"`
+	Icon        string `json:"icon"`
+	IconBinary  string `json:"iconBinary"`
+	LoginTitle  string `json:"loginTitle"`
+	LoginLegend string `json:"loginLegend"`
 }
 
 type BootConf struct {
