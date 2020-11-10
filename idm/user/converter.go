@@ -46,6 +46,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 	converter := &queryConverter{
 		treeDao:       s.IndexSQL,
 		includeParent: includeParent,
+		loginCI:       s.loginCI,
 	}
 
 	var db *goqu.Database
@@ -103,6 +104,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 type queryConverter struct {
 	treeDao       index.DAO
 	includeParent bool
+	loginCI       bool
 }
 
 func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
@@ -128,7 +130,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			q.Login = toASCII(q.Login)
 			q.AttributeName = idm.UserAttrLabelLike
 			q.AttributeValue = q.Login
-		} else {
+		} else if c.loginCI {
 			// Use Equal but make sure it's case insensitive
 			var ex goqu.Expression
 			if q.Not {
@@ -138,6 +140,11 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 			}
 			expressions = append(expressions, ex)
+		} else {
+			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
+			if !q.Not {
+				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
+			}
 		}
 	}
 
