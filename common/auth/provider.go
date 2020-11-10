@@ -49,9 +49,6 @@ func InitConfiguration(values configx.Values) {
 	defer confMutex.Unlock()
 	initConnector := false
 	for hostName, rootUrl := range config.GetSitesAllowedHostnames() {
-		if _, o := confMap[hostName]; o { // avoid duplication
-			continue
-		}
 		p := NewProvider(rootUrl, values)
 		if !initConnector {
 			// Use first conf as default
@@ -61,6 +58,9 @@ func InitConfiguration(values configx.Values) {
 			}
 			initConnector = true
 		}
+		// if _, o := confMap[hostName]; o { // avoid duplication
+		// 	continue
+		// }
 		confMap[hostName] = p
 	}
 	confInit = true
