@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	v, _ := version.NewVersion("2.2.0-dev")
+	v, _ := version.NewVersion("2.1.99")
 	add(v, getMigration(updateDatabaseDefault))
 	add(v, getMigration(updateSites))
 }
