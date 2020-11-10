@@ -25,6 +25,7 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/x/configx"
@@ -48,10 +49,8 @@ func init() {
 				multiplexer.Init()
 				return nil
 			}),
-			service.WatchPath("services/pydio.web.oauth/connectors", func(s service.Service, c configx.Values) {
-				s.Stop()
-
-				s.Start(ctx)
+			service.WatchPath("services/pydio.web.oauth", func(s service.Service, c configx.Values) {
+				auth.InitConfiguration(c)
 			}),
 		)
 	})

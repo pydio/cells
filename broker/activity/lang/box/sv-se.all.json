@@ -42,7 +42,7 @@
     "other": "Document"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Mapp"
   },
   "ModifiedBy": {
     "other": "Modified by {{.Actor}}"

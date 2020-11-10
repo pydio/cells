@@ -56,12 +56,26 @@ func RegisterConnector(id, name, connectorType string, data proto.Message) {
 		return
 	}
 
-	connectors = append(connectors, &conn{
+	addConnector(&conn{
 		id:            id,
 		name:          name,
 		connectorType: connectorType,
 		conn:          c,
 	})
+}
+
+func addConnector(c *conn) {
+	replaced := false
+	for i, cc := range connectors {
+		if cc.ID() == c.id {
+			connectors[i] = c
+			replaced = true
+		}
+	}
+
+	if !replaced {
+		connectors = append(connectors, c)
+	}
 }
 
 // GetConnectors list all the connectors correctly configured
