@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -53,6 +54,7 @@ var (
 // They are cached for one minute to avoid too many requests on docstore service.
 type VirtualNodesManager struct {
 	VirtualNodes []*tree.Node
+	loginLower   bool
 }
 
 // GetVirtualNodesManager creates a new VirtualNodesManager.
@@ -107,6 +109,9 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 		}
 	}
 	vManagerCache.Set("###virtual-nodes###", m.VirtualNodes, cache.DefaultExpiration)
+	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
+		m.loginLower = true
+	}
 }
 
 // ByUuid finds a VirtualNode by its Uuid.
@@ -153,8 +158,12 @@ func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tr
 		for key, _ := range clientsPool.Sources {
 			datasourceKeys[key] = key
 		}
+		uName := vars["User.Name"]
+		if m.loginLower {
+			uName = strings.ToLower(uName)
+		}
 		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: strings.ToLower(vars["User.Name"])},
+			"User":        &permissions.JsUser{Name: uName},
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
