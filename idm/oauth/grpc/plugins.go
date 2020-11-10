@@ -63,26 +63,27 @@ func init() {
 			service.BeforeStart(initialize),
 		)
 
+		auth.OnConfigurationInit(func(scanner common.Scanner) {
+			var m []struct {
+				ID   string
+				Name string
+				Type string
+			}
+
+			if err := scanner.Scan(&m); err != nil {
+				log.Fatal("Wrong configuration ", err)
+			}
+
+			for _, mm := range m {
+				if mm.Type == "pydio" {
+					// Registering the first connector
+					auth.RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
+				}
+			}
+		})
+
 		// load configuration
 		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-
-		// And watch to know when we need to reload
-		// watcher, err := config.Watch("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH)
-		// if err != nil {
-		// 	log.Fatal("Could not initiate watcher")
-		// }
-
-		// go func() {
-		// 	defer watcher.Stop()
-		// 	for {
-		// 		_, err := watcher.Next()
-		// 		if err != nil {
-		// 			break
-		// 		}
-
-		// 		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-		// 	}
-		// }()
 
 		// Register the service as a GRPC Auth Provider
 		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
@@ -94,26 +95,6 @@ func initialize(s service.Service) error {
 	ctx := s.Options().Context
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
-
-	auth.OnConfigurationInit(func(scanner common.Scanner) {
-
-		var m []struct {
-			ID   string
-			Name string
-			Type string
-		}
-
-		if err := scanner.Scan(&m); err != nil {
-			log.Fatal("Wrong configuration ", err)
-		}
-
-		for _, mm := range m {
-			if mm.Type == "pydio" {
-				// Registering the first connector
-				auth.RegisterConnector(mm.ID, mm.Name, mm.Type, nil)
-			}
-		}
-	})
 
 	// Registry
 	auth.InitRegistry(dao)
