@@ -114,7 +114,7 @@
     "other": "No shared files or folders yet."
   },
   "132": {
-    "other": "Workspace"
+    "other": "작업 폴더"
   },
   "133": {
     "other": "As a public link"
@@ -165,7 +165,7 @@
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
   },
   "145": {
-    "other": "Description"
+    "other": "설명"
   },
   "146": {
     "other": "Will be displayed to the shared users"

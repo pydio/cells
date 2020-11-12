@@ -345,7 +345,7 @@
     "other": "Owner"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "名称："
   },
   "ds.status": {
     "other": "Status"
@@ -398,11 +398,17 @@
   "ds.versioning": {
     "other": "Versioning"
   },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
+  },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "說明"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "名称："
   },
   "ds.versioning.periods": {
     "other": "Retention Strategy"
@@ -597,7 +603,7 @@
     "other": "Label"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "名称："
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
@@ -753,7 +759,7 @@
     "other": "Id"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "說明"
   },
   "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
@@ -765,7 +771,7 @@
     "other": "Policy Description"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "策略名称"
   },
   "policies.policy.rules": {
     "other": "# Rules"
@@ -1427,11 +1433,17 @@
   "services.toggle.details": {
     "other": "Show Details"
   },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
+  },
   "services.column.name": {
     "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "說明"
   },
   "services.column.version": {
     "other": "Version"

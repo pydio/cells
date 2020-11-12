@@ -225,15 +225,15 @@
     "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Próximo"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Voltar"
   },
   "stepper.button.last": {
     "other": "Install Now"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "Atualizar"
   }
 }

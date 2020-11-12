@@ -1338,7 +1338,7 @@
     "other": "Document Property"
   },
   "499": {
-    "other": "File"
+    "other": "Файл"
   },
   "5": {
     "other": "Actions"
@@ -1356,13 +1356,13 @@
     "other": "Folders only"
   },
   "503": {
-    "other": "Size"
+    "other": "Размер"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "в"
   },
   "506": {
     "other": "Application parameters (users, workspaces, configurations)"
@@ -1422,7 +1422,7 @@
     "other": "User ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "524": {
     "other": "Update Password"
@@ -1434,7 +1434,7 @@
     "other": "Low-resolution version"
   },
   "527": {
-    "other": "Shared with"
+    "other": "Общие с..."
   },
   "528": {
     "other": "Internal users"
@@ -1914,7 +1914,7 @@
     "other": "Search"
   },
   "88": {
-    "other": "Download"
+    "other": "Скачивание"
   },
   "89": {
     "other": "Unable to open file"
@@ -1929,13 +1929,13 @@
     "other": "FLASH File"
   },
   "92": {
-    "other": "Language"
+    "other": "Язык"
   },
   "93": {
     "other": "To choose your language, your browser must accept cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Логин"
   },
   "95": {
     "other": "Select your language :"
@@ -1956,10 +1956,10 @@
     "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "B"
+    "other": "В"
   },
   "byte_unit_symbol": {
-    "other": "B"
+    "other": "В"
   },
   "copy_access_key": {
     "other": "C"

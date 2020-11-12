@@ -1608,7 +1608,7 @@
     "other": "No members"
   },
   "578": {
-    "other": "Team Label"
+    "other": "Nome da Equipe"
   },
   "579": {
     "other": "Create Team"
@@ -1656,7 +1656,7 @@
     "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Catálogo de endereços"
   },
   "593": {
     "other": "My Users"
@@ -1740,7 +1740,7 @@
     "other": "Mask"
   },
   "617": {
-    "other": "Enter"
+    "other": "Entrar"
   },
   "618": {
     "other": "Switch language..."
@@ -1776,7 +1776,7 @@
     "other": "Shares from remote servers"
   },
   "628": {
-    "other": "Revert"
+    "other": "Reverter"
   },
   "629": {
     "other": "No records yet"
@@ -1935,7 +1935,7 @@
     "other": "Para escolher seu idioma, seu navegador deve aceitar cookies."
   },
   "94": {
-    "other": "Login"
+    "other": "Usuário"
   },
   "95": {
     "other": "Escolha seu idioma :"
@@ -2022,7 +2022,7 @@
     "other": "F"
   },
   "folder_access_key": {
-    "other": "N"
+    "other": "A"
   },
   "languageLabel": {
     "other": "Português (Brasil)"
@@ -2160,7 +2160,7 @@
     "other": "Instant Messaging"
   },
   "plugtype.title.sec": {
-    "other": "Security"
+    "other": "Segurança"
   },
   "plugtype.title.shorten": {
     "other": "URL Shortening"
@@ -2187,7 +2187,7 @@
     "other": "u"
   },
   "settings_access_key": {
-    "other": "g"
+    "other": "G"
   },
   "svn_log_access_key": {
     "other": "L"
@@ -2277,13 +2277,13 @@
     "other": "Visibility"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Visualizar"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Editar"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Usuários"
   },
   "visibility.panel.list.teams": {
     "other": "Your Teams"
@@ -2316,7 +2316,7 @@
     "other": "Select group"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Confirmar"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2328,13 +2328,13 @@
     "other": "Rows per page"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "de"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Resetar"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"

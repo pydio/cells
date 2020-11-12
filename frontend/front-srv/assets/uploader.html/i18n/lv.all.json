@@ -1,12 +1,12 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Sākt"
   },
   "pause": {
     "other": "Pause"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Notīrīt"
   },
   "clear-header": {
     "other": "Clear list..."
@@ -42,7 +42,7 @@
     "other": "Rename folders, then conflicting files"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Pārsaukt tikai failus (apvienot direktorijas)"
   },
   "confirm.overwrite": {
     "other": "Merge folders and overwrite files"
@@ -69,7 +69,7 @@
     "other": "Drop files here"
   },
   "drop-or": {
-    "other": "or"
+    "other": "vai"
   },
   "drop-pick-file": {
     "other": "browse files"
@@ -84,7 +84,7 @@
     "other": "Pending"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Notika kļūda"
   },
   "status.pause": {
     "other": "Paused"
