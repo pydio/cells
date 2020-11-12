@@ -9,13 +9,13 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Name"
+    "other": "名称："
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Description"
+    "other": "說明"
   },
   "104": {
     "other": "Enabled"
@@ -468,7 +468,7 @@
     "other": "Personal data"
   },
   "79": {
-    "other": "Workspace"
+    "other": "工作空间"
   },
   "8": {
     "other": "Workspace Label"

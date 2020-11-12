@@ -16,5 +16,341 @@
   },
   "Prune versions regularly at various intervals": {
     "other": "Löschen alter Versionen in verschiedenen Abständen"
+  },
+  "aclAction.Name": {
+    "other": "Name"
+  },
+  "aclAction.Value": {
+    "other": "Wert"
+  },
+  "aclSingleQuery.Actions": {
+    "other": "Aktionen"
+  },
+  "aclSingleQuery.NodeIDs": {
+    "other": "Knoten-Identifier"
+  },
+  "aclSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "aclSingleQuery.RoleIDs": {
+    "other": "Rollen-Identifier"
+  },
+  "aclSingleQuery.WorkspaceIDs": {
+    "other": "Workspaces-Identifier"
+  },
+  "aclSingleQuery.not": {
+    "other": "nicht"
+  },
+  "actionOutputSingleQuery.ErrorStringRegexp": {
+    "other": "Suche im Fehlerstring (regexp)"
+  },
+  "actionOutputSingleQuery.IsSuccess": {
+    "other": "Ist Erfolg"
+  },
+  "actionOutputSingleQuery.JsonBodyHasKey": {
+    "other": "Json Körper hat Schlüssel..."
+  },
+  "actionOutputSingleQuery.JsonBodyRegexp": {
+    "other": "Suche im Json-Körper (regexp)"
+  },
+  "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
+    "other": "Die Größe des Json-Körpers ist größer als"
+  },
+  "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
+    "other": "Die Größe des Json-Körpers ist kleiner als"
+  },
+  "actionOutputSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "actionOutputSingleQuery.StringBodyRegexp": {
+    "other": "Suche im String-Körper (regexp)"
+  },
+  "actionOutputSingleQuery.StringBodySizeGreaterThan": {
+    "other": "Die Größe des Strings-Körpers ist größer als"
+  },
+  "actionOutputSingleQuery.StringBodySizeSmallerThan": {
+    "other": "Die Größe des String-Körpers ist kleiner als"
+  },
+  "actionOutputSingleQuery.TaskTimeGt": {
+    "other": "Aufgabenzeit größer als"
+  },
+  "actionOutputSingleQuery.TaskTimeLt": {
+    "other": "Aufgabenzeit kleiner als"
+  },
+  "conditionCIDRCondition.CIDR": {
+    "other": "CIDR"
+  },
+  "conditionCIDRCondition.cidr": {
+    "other": "cidr"
+  },
+  "conditionStringEqualCondition.Equals": {
+    "other": "Gleich"
+  },
+  "conditionStringEqualCondition.equals": {
+    "other": "gleich"
+  },
+  "conditionStringMatchCondition.Matches": {
+    "other": "Trefferliste"
+  },
+  "conditionStringMatchCondition.matches": {
+    "other": "trefferliste"
+  },
+  "contextMetaCondition.CIDRCondition": {
+    "other": "CIDRBedingung"
+  },
+  "contextMetaCondition.EqualsSubjectCondition": {
+    "other": "Betreff ist"
+  },
+  "contextMetaCondition.ResourceContainsCondition": {
+    "other": "Ressource enthält"
+  },
+  "contextMetaCondition.StringEqualCondition": {
+    "other": "String gleich"
+  },
+  "contextMetaCondition.StringMatchCondition": {
+    "other": "String entspricht"
+  },
+  "contextMetaCondition.StringPairsEqualCondition": {
+    "other": "StringPaare gleich"
+  },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "Die Zeichenfolge stimmt nicht überein"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Zeitraum"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Bürozeiten"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Datum ist nach"
+  },
+  "contextMetaField.ContentType": {
+    "other": "Inhaltstyp"
+  },
+  "contextMetaField.CookiesString": {
+    "other": "Cookie-String"
+  },
+  "contextMetaField.HttpProtocol": {
+    "other": "HTTP Protocol"
+  },
+  "contextMetaField.RemoteAddress": {
+    "other": "Remote-Adresse"
+  },
+  "contextMetaField.RequestHostname": {
+    "other": "Request Hostname"
+  },
+  "contextMetaField.RequestMethod": {
+    "other": "Request Methode"
+  },
+  "contextMetaField.RequestURI": {
+    "other": "Request URI"
+  },
+  "contextMetaField.ServerTime": {
+    "other": "Serverzeit"
+  },
+  "contextMetaField.UserAgent": {
+    "other": "Benutzer-Agent"
+  },
+  "contextMetaSingleQuery.Condition": {
+    "other": "Kondition"
+  },
+  "contextMetaSingleQuery.FieldName": {
+    "other": "Name des Feldes"
+  },
+  "roleSingleQuery.HasAutoApply": {
+    "other": "Hat Auto-Anwenden"
+  },
+  "roleSingleQuery.IsGroupRole": {
+    "other": "Ist Gruppenrolle"
+  },
+  "roleSingleQuery.IsTeam": {
+    "other": "Ist Team"
+  },
+  "roleSingleQuery.IsUserRole": {
+    "other": "Ist Benutzer-Rolle"
+  },
+  "roleSingleQuery.Label": {
+    "other": "Label"
+  },
+  "roleSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "roleSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "roleSingleQuery.not": {
+    "other": "nicht"
+  },
+  "treeQuery.Content": {
+    "other": "Inhalt"
+  },
+  "treeQuery.DurationDate": {
+    "other": "Änderungsdatum (Vergleich)"
+  },
+  "treeQuery.Extension": {
+    "other": "Dateiendung"
+  },
+  "treeQuery.FileName": {
+    "other": "Dateiname"
+  },
+  "treeQuery.FreeString": {
+    "other": "Bleve-ähnliche Suchzeichenkette"
+  },
+  "treeQuery.GeoQuery": {
+    "other": "Geolocation-Abfrage"
+  },
+  "treeQuery.MaxDate": {
+    "other": "Geändert vor"
+  },
+  "treeQuery.MaxSize": {
+    "other": "MaxSize"
+  },
+  "treeQuery.MinDate": {
+    "other": "Geändert seit"
+  },
+  "treeQuery.MinSize": {
+    "other": "Größer als"
+  },
+  "treeQuery.Not": {
+    "other": "Nicht"
+  },
+  "treeQuery.PathDepth": {
+    "other": "Path tiefe"
+  },
+  "treeQuery.PathPrefix": {
+    "other": "Path Prefix"
+  },
+  "treeQuery.Paths": {
+    "other": "Absolute Paths"
+  },
+  "treeQuery.Type": {
+    "other": "Typ"
+  },
+  "treeQuery.Type.COLLECTION": {
+    "other": "Ordner"
+  },
+  "treeQuery.Type.LEAF": {
+    "other": "Datei"
+  },
+  "treeQuery.Type.UNKNOWN": {
+    "other": "Jeder"
+  },
+  "treeQuery.UUIDs": {
+    "other": "Knoten UUIDs"
+  },
+  "userSingleQuery.AttributeAnyValue": {
+    "other": "Hat irgendeinen Wert"
+  },
+  "userSingleQuery.AttributeName": {
+    "other": "Attributname"
+  },
+  "userSingleQuery.AttributeValue": {
+    "other": "Attributwert"
+  },
+  "userSingleQuery.ConnectedSince": {
+    "other": "Verbunden seit"
+  },
+  "userSingleQuery.FullPath": {
+    "other": "Full Path"
+  },
+  "userSingleQuery.GroupPath": {
+    "other": "Group Path"
+  },
+  "userSingleQuery.HasProfile": {
+    "other": "Hat Profil"
+  },
+  "userSingleQuery.HasRole": {
+    "other": "Hat Rolle"
+  },
+  "userSingleQuery.Login": {
+    "other": "Benutzername"
+  },
+  "userSingleQuery.NodeType": {
+    "other": "Objekttyp"
+  },
+  "userSingleQuery.NodeType.GROUP": {
+    "other": "Gruppe"
+  },
+  "userSingleQuery.NodeType.UNKNOWN": {
+    "other": "Jeder"
+  },
+  "userSingleQuery.NodeType.USER": {
+    "other": "Benutzer"
+  },
+  "userSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "userSingleQuery.Password": {
+    "other": "Passwort"
+  },
+  "userSingleQuery.Recursive": {
+    "other": "Rekursiv"
+  },
+  "userSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "userSingleQuery.not": {
+    "other": "nicht"
+  },
+  "workspaceSingleQuery.AttributeName": {
+    "other": "Attributname"
+  },
+  "workspaceSingleQuery.AttributeValue": {
+    "other": "Attributwert"
+  },
+  "workspaceSingleQuery.Description": {
+    "other": "Beschreibung"
+  },
+  "workspaceSingleQuery.HasAttribute": {
+    "other": "Hat Attribut"
+  },
+  "workspaceSingleQuery.Label": {
+    "other": "Titel"
+  },
+  "workspaceSingleQuery.LastUpdated": {
+    "other": "Zuletzt aktualisiert"
+  },
+  "workspaceSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "workspaceSingleQuery.Scope": {
+    "other": "Zugriffsart"
+  },
+  "workspaceSingleQuery.Slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "workspaceSingleQuery.description": {
+    "other": "Beschreibung"
+  },
+  "workspaceSingleQuery.label": {
+    "other": "Label"
+  },
+  "workspaceSingleQuery.not": {
+    "other": "nicht"
+  },
+  "workspaceSingleQuery.scope": {
+    "other": "Typ des Workspaces"
+  },
+  "workspaceSingleQuery.scope.ADMIN": {
+    "other": "Workspace"
+  },
+  "workspaceSingleQuery.scope.ANY": {
+    "other": "Jeder"
+  },
+  "workspaceSingleQuery.scope.LINK": {
+    "other": "Öffentlicher Link"
+  },
+  "workspaceSingleQuery.scope.ROOM": {
+    "other": "Zelle"
+  },
+  "workspaceSingleQuery.slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.uuid": {
+    "other": "UUID"
   }
 }

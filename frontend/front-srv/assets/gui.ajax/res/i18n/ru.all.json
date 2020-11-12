@@ -27,10 +27,10 @@
     "other": "You can close this panel by using the info button in the display toolbar"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Файл"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Папка"
   },
   "tour.infopanel.search": {
     "other": "Search"
@@ -48,10 +48,10 @@
     "other": "Finish"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Следующий"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Пропустить"
   },
   "tour.openworkspace": {
     "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
@@ -75,7 +75,7 @@
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Пропустить"
   },
   "tour.welcomemodal.start": {
     "other": "Start the tour"

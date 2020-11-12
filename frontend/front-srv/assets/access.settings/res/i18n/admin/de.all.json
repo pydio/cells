@@ -398,6 +398,12 @@
   "ds.versioning": {
     "other": "Versionierung"
   },
+  "ds.syncStatus": {
+    "other": "Letzte Sync."
+  },
+  "ds.emptyState": {
+    "other": "Keine Datasource angelegt"
+  },
   "ds.versioning.description": {
     "other": "Beschreibung"
   },
@@ -1426,6 +1432,12 @@
   },
   "services.toggle.details": {
     "other": "Details anzeigen"
+  },
+  "services.empty.loading": {
+    "other": "Status der Dienste wird geladen"
+  },
+  "services.empty.noservice": {
+    "other": "Kein Dienst"
   },
   "services.column.name": {
     "other": "Dienstname"

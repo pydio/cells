@@ -30,7 +30,7 @@
     "other": "Administrator email, not used for the moment"
   },
   "Alias": {
-    "other": "Alias"
+    "other": "别名"
   },
   "Alias for replacing the generated unique id of the repository": {
     "other": "Alias for replacing the generated unique id of the workspace"
@@ -105,7 +105,7 @@
     "other": "Command-line Active"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "命令行PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
     "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
@@ -165,7 +165,7 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "Description"
+    "other": "说明"
   },
   "Digest Realm": {
     "other": "Digest Realm"
@@ -189,7 +189,7 @@
     "other": "Download Folder (Legacy)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "下载链接"
   },
   "Driver": {
     "other": "Driver"
@@ -216,7 +216,7 @@
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "File"
+    "other": "文件"
   },
   "File Type": {
     "other": "File Type"
@@ -315,7 +315,7 @@
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "组名"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -333,7 +333,7 @@
     "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "Password"
+    "other": "密码"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
@@ -450,7 +450,7 @@
     "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "User"
+    "other": "用户"
   },
   "User Credentials": {
     "other": "User Credentials"

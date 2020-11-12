@@ -21,9 +21,9 @@
     "other": "Absolute path to one or more root nodes"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Vienības lapā"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Ja ir ieslēgts lapu dalīšanas režīms uzrādiet cik objektus uzrādīt vienā lapā."
   }
 }

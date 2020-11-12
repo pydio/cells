@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "Adres boek"
   },
   "10": {
     "other": "Associated workspaces"
@@ -72,7 +72,7 @@
     "other": "Users created to access the delegated workspaces."
   },
   "31": {
-    "other": "Description"
+    "other": "Beschrijving"
   },
   "32": {
     "other": "Reset"
@@ -96,55 +96,55 @@
     "other": "Notifications"
   },
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Hieronder staat een lijst van de werkruimtes waar je toegang tot hebt. Deze kunnen persoonlijk zijn of gedeeld met andere gebruikers."
   },
   "4": {
     "other": "File Path"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Welkom, %s! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Deze werkruimte als standaard gebruiken"
   },
   "42": {
-    "other": "Enter"
+    "other": "Invoeren"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Mijn profiel"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Al mijn persoonlijke gegevens"
   },
   "44": {
-    "other": "My Account"
+    "other": "Mijn account"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Persoonlijke gegevens"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Adres boek"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Gebruikers en teams die je hebt aangemaakt"
   },
   "48": {
-    "other": "My Users"
+    "other": "Mijn gebruikers"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Externe gebruikers die je hebt aangemaakt"
   },
   "5": {
     "other": "Repository"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Mijn teams"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Teams van gebruikers, gebruikt als snelkoppeling bij het delen"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Weet je zeker dat je dit team wilt verwijderen? Dit zal geen gebruikers verwijderen."
   },
   "53": {
     "other": "Back to my workspaces"
@@ -228,6 +228,6 @@
     "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "My Account"
+    "other": "Mijn account"
   }
 }

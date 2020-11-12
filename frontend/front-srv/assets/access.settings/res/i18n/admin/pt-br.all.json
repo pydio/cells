@@ -6,7 +6,7 @@
     "other": "Activity"
   },
   "loading": {
-    "other": "Loading..."
+    "other": "Carregando..."
   },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
@@ -33,7 +33,7 @@
     "other": "Create a new workspace at the root of datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Nome"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -141,13 +141,13 @@
     "other": "This name is already in use, make sure to pick another one!"
   },
   "ds.editor.options": {
-    "other": "Main Options"
+    "other": "Opções Principais"
   },
   "ds.editor.datamanagement": {
     "other": "Data Management"
   },
   "ds.editor.options.enabled": {
-    "other": "Enabled"
+    "other": "Habilitado"
   },
   "ds.editor.options.id": {
     "other": "DataSource Identifier"
@@ -315,7 +315,7 @@
     "other": "Copy result to a file to save the key"
   },
   "ds.encryption.key.id": {
-    "other": "Identifier"
+    "other": "Login"
   },
   "ds.encryption.key.import": {
     "other": "Import Key"
@@ -339,13 +339,13 @@
     "other": "Key was successfully imported"
   },
   "ds.encryption.key.label": {
-    "other": "Label"
+    "other": "Nome"
   },
   "ds.encryption.key.owner": {
-    "other": "Owner"
+    "other": "Dono"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "ds.status": {
     "other": "Status"
@@ -393,16 +393,22 @@
     "other": "Google Cloud Storage"
   },
   "ds.storage.title": {
-    "other": "Storage"
+    "other": "DataSources"
   },
   "ds.versioning": {
     "other": "Versioning"
   },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
+  },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "Descrição"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "ds.versioning.periods": {
     "other": "Retention Strategy"
@@ -456,7 +462,7 @@
     "other": "Export from"
   },
   "logs.8": {
-    "other": "To"
+    "other": "Para"
   },
   "logs.9": {
     "other": "File will be export as CSV format with semi-colmuns (;) separators and fields enclosed in double-quotes (\")."
@@ -465,7 +471,7 @@
     "other": "Service"
   },
   "logs.message": {
-    "other": "Message"
+    "other": "Mensagem"
   },
   "logs.noentries": {
     "other": "No entries"
@@ -495,7 +501,7 @@
     "other": "Loggers"
   },
   "menu.14": {
-    "other": "Notifications"
+    "other": "Notificações"
   },
   "menu.15": {
     "other": "How users get notifications from various parts of the application."
@@ -522,7 +528,7 @@
     "other": "End-user parameters"
   },
   "menu.22": {
-    "other": "Welcome Page"
+    "other": "Página de Boas-vindas"
   },
   "menu.23": {
     "other": "Landing page for user after login. Configure displayed elements and links."
@@ -540,7 +546,7 @@
     "other": "Options for all files and folders sharing"
   },
   "menu.7": {
-    "other": "Editors"
+    "other": "Editores"
   },
   "menu.8": {
     "other": "Enable/disable editors and manage their parameters"
@@ -549,7 +555,7 @@
     "other": "Uploaders"
   },
   "menu.metadata": {
-    "other": "Metadata"
+    "other": "Metadados"
   },
   "menu.metadata.description": {
     "other": "User-editable fields attached to data"
@@ -594,10 +600,10 @@
     "other": "Indexable"
   },
   "metadata.label": {
-    "other": "Label"
+    "other": "Nome"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "Nome"
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
@@ -621,7 +627,7 @@
     "other": "Restrict edition to admins"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "Tipo"
   },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"
@@ -699,7 +705,7 @@
     "other": "Mailer Queue"
   },
   "perfs.more": {
-    "other": "More info"
+    "other": "Mais informações"
   },
   "perfs.opcache.description": {
     "other": "Checks that a PHP Opcode cache is active"
@@ -741,31 +747,31 @@
     "other": "Save Changes"
   },
   "plugins.6": {
-    "other": "Revert"
+    "other": "Reverter"
   },
   "plugins.list.column.enabled": {
-    "other": "Enabled"
+    "other": "Habilitado"
   },
   "plugins.list.column.label": {
-    "other": "Label"
+    "other": "Nome"
   },
   "plugins.list.column.id": {
     "other": "Id"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "Descrição"
   },
   "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "Criar"
   },
   "policies.policy.description": {
     "other": "Policy Description"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "Nome da Política"
   },
   "policies.policy.rules": {
     "other": "# Rules"
@@ -921,7 +927,7 @@
     "other": "Please provide a label for this role"
   },
   "user.19": {
-    "other": "Create a new user"
+    "other": "Criar novo usuario"
   },
   "user.2": {
     "other": "+ Group"
@@ -939,10 +945,10 @@
     "other": "Confirm password"
   },
   "user.24": {
-    "other": "Root Group"
+    "other": "Grupo Raiz"
   },
   "user.25": {
-    "other": "Root Group Role"
+    "other": "Papel Grupo Raiz"
   },
   "user.26": {
     "other": "%s Group Role"
@@ -951,10 +957,10 @@
     "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Groups"
+    "other": "Grupos"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "Papéis"
   },
   "user.5": {
     "other": "Groups & Users"
@@ -975,7 +981,7 @@
     "other": "Filter users list..."
   },
   "user.filter.internal": {
-    "other": "Internal users"
+    "other": "Usuários internos"
   },
   "user.filter.shared": {
     "other": "Shared users"
@@ -1029,10 +1035,10 @@
     "other": "+ Template Path"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Criar"
   },
   "virtual.label": {
-    "other": "Label"
+    "other": "Nome"
   },
   "virtual.col.id": {
     "other": "Template ID"
@@ -1107,7 +1113,7 @@
     "other": "Close DataSources"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "Criar"
   },
   "ws.21": {
     "other": "Template General Options"
@@ -1116,7 +1122,7 @@
     "other": "Workspace General Options"
   },
   "ws.23": {
-    "other": "Delete workspace"
+    "other": "Apagar área de trabalho"
   },
   "ws.24": {
     "other": "Children Workspaces"
@@ -1134,7 +1140,7 @@
     "other": "Summary"
   },
   "ws.29": {
-    "other": "Parameters"
+    "other": "Parametros"
   },
   "ws.3": {
     "other": "+ workspace"
@@ -1167,7 +1173,7 @@
     "other": "Shared Items in this workspace"
   },
   "ws.39": {
-    "other": "Owner"
+    "other": "Dono"
   },
   "ws.4": {
     "other": "+ datasource"
@@ -1239,10 +1245,10 @@
     "other": "Schedule every day at 4AM"
   },
   "ws.6": {
-    "other": "New Workspace"
+    "other": "Nova Área de Trabalho"
   },
   "ws.60": {
-    "other": "Workspace Activity"
+    "other": "Atividade da Área de Trabalho"
   },
   "ws.61": {
     "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
@@ -1299,7 +1305,7 @@
     "other": "Existing DataSource"
   },
   "ws.9": {
-    "other": "Datasource Nodes"
+    "other": "Opções do Controlador"
   },
   "ws.board.empty": {
     "other": "No workspaces defined"
@@ -1427,11 +1433,17 @@
   "services.toggle.details": {
     "other": "Show Details"
   },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
+  },
   "services.column.name": {
     "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Descrição"
   },
   "services.column.version": {
     "other": "Version"
@@ -1533,7 +1545,7 @@
     "other": "No jobs launched by users"
   },
   "scheduler.job.label": {
-    "other": "Label"
+    "other": "Nome"
   },
   "scheduler.job.endTime": {
     "other": "Last Execution"
@@ -1542,13 +1554,13 @@
     "other": "Status"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "Dono"
   },
   "scheduler.job.trigger": {
     "other": "Trigger"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Apagar"
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
@@ -1620,7 +1632,7 @@
     "other": "Stop Now"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "Apagar"
   },
   "scheduler.task.action.enable": {
     "other": "Enable Job"
@@ -1647,7 +1659,7 @@
     "other": "Status"
   },
   "scheduler.task.message": {
-    "other": "Message"
+    "other": "Mensagem"
   },
   "scheduler.tasks.running": {
     "other": "Running Tasks"

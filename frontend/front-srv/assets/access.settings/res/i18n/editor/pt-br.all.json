@@ -33,7 +33,7 @@
     "other": "always overrides"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Habilitado"
   },
   "20": {
     "other": "+ add role"
@@ -78,7 +78,7 @@
     "other": "Specific profile. May imply some roles automatically applied."
   },
   "33": {
-    "other": "Close"
+    "other": "Fechar"
   },
   "34": {
     "other": "Access Controls"
@@ -93,7 +93,7 @@
     "other": "Customize Parameters"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Parâmetros de Aplicação"
   },
   "39": {
     "other": "All workspaces parameters"

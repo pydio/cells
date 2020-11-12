@@ -66,7 +66,7 @@
     "other": "In-app upgrade Cells Enterprise (license required)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Papildu"
   },
   "welc.btn.parameters": {
     "other": "Par parametriem"
@@ -75,10 +75,10 @@
     "other": "Sākt"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Lietotāji"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Darbvirsmas"
   },
   "welc.guide": {
     "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"

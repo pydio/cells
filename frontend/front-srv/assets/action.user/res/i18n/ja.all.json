@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "アドレス帳"
   },
   "10": {
     "other": "Associated workspaces"
@@ -72,7 +72,7 @@
     "other": "Users created to access the delegated workspaces."
   },
   "31": {
-    "other": "Description"
+    "other": "備考"
   },
   "32": {
     "other": "Reset"
@@ -96,55 +96,55 @@
     "other": "Notifications"
   },
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "下のリストはあなたがアクセスできるワークスペースの一覧です。そのワークスペースは個人用か他のユーザーと共有されてるかもしれません。"
   },
   "4": {
     "other": "File Path"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "ようこそ、%sさん! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "このワークスペースをデフォルトとして使用"
   },
   "42": {
-    "other": "Enter"
+    "other": "続行"
   },
   "43": {
-    "other": "My Profile"
+    "other": "プロフィール"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "全てのパーソナルデータ"
   },
   "44": {
-    "other": "My Account"
+    "other": "マイアカウント"
   },
   "45": {
-    "other": "Personal data"
+    "other": "パーソナルデータ"
   },
   "46": {
-    "other": "Address Book"
+    "other": "アドレス帳"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "あなたが作成したユーザーとチーム"
   },
   "48": {
-    "other": "My Users"
+    "other": "マイユーザー"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "あなたの作成した外部のユーザー"
   },
   "5": {
     "other": "Repository"
   },
   "50": {
-    "other": "My Teams"
+    "other": "マイチーム"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "共有時ショートカット利用時のユーザー規約"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "本当にこのチームを削除しますか？この操作ではユーザーは削除しません。"
   },
   "53": {
     "other": "Back to my workspaces"
@@ -228,6 +228,6 @@
     "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "My Account"
+    "other": "マイアカウント"
   }
 }

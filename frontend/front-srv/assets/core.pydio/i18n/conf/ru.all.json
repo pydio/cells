@@ -297,7 +297,7 @@
     "other": "Login Redirect"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "Основные параметры"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
@@ -315,7 +315,7 @@
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "Наименование"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -333,7 +333,7 @@
     "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
@@ -345,10 +345,10 @@
     "other": "Pydio Main Options"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "Только чтение"
   },
   "Read and Write": {
-    "other": "Read and Write"
+    "other": "Чтение и запись"
   },
   "Recycle Bin Folder": {
     "other": "Recycle Bin Folder"
@@ -411,7 +411,7 @@
     "other": "Small Icon"
   },
   "Template Options": {
-    "other": "Template Options"
+    "other": "Параметры шаблона"
   },
   "Temporary Folder": {
     "other": "Temporary Folder"
@@ -450,7 +450,7 @@
     "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "User"
+    "other": "Пользователь"
   },
   "User Credentials": {
     "other": "User Credentials"
@@ -462,7 +462,7 @@
     "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
   },
   "User password": {
-    "other": "User password"
+    "other": "Пароль пользователя"
   },
   "User password - Can be overriden on a per-user basis.": {
     "other": "User password - Can be overriden on a per-user basis."

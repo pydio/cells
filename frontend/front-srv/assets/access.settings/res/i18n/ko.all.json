@@ -9,13 +9,13 @@
     "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Name"
+    "other": "이름"
   },
   "102": {
     "other": "Identifier"
   },
   "103": {
-    "other": "Description"
+    "other": "설명"
   },
   "104": {
     "other": "Enabled"
@@ -468,7 +468,7 @@
     "other": "Personal data"
   },
   "79": {
-    "other": "Workspace"
+    "other": "작업 폴더"
   },
   "8": {
     "other": "Workspace Label"
