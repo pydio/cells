@@ -71,7 +71,7 @@ func init() {
 				}
 
 				for id, json := range defaults() {
-					if doc, e := store.GetDocument(common.DOCSTORE_ID_VIRTUALNODES, id); e == nil && doc != nil {
+					if doc, e := store.GetDocument(common.DocstoreIdVirtualnodes, id); e == nil && doc != nil {
 						var reStore bool
 						if id == "my-files" {
 							// Check if my-files is up-to-date
@@ -93,7 +93,7 @@ func init() {
 						}
 					}
 					handler.PutDocument(context.Background(),
-						&proto.PutDocumentRequest{StoreID: common.DOCSTORE_ID_VIRTUALNODES, DocumentID: id, Document: &proto.Document{
+						&proto.PutDocumentRequest{StoreID: common.DocstoreIdVirtualnodes, DocumentID: id, Document: &proto.Document{
 							ID:    id,
 							Owner: common.PYDIO_SYSTEM_USERNAME,
 							Data:  json,

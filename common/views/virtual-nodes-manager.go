@@ -83,7 +83,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	m.VirtualNodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	stream, e := cli.ListDocuments(context.Background(), &docstore.ListDocumentsRequest{
-		StoreID: common.DOCSTORE_ID_VIRTUALNODES,
+		StoreID: common.DocstoreIdVirtualnodes,
 		Query:   &docstore.DocumentQuery{},
 	})
 	if e != nil {

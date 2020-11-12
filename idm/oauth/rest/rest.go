@@ -126,7 +126,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	})
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
 	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
-		StoreID: common.DOCSTORE_ID_RESET_PASS_KEYS,
+		StoreID: common.DocstoreIdResetPassKeys,
 		Document: &docstore.Document{
 			ID:            token,
 			Owner:         u.Login,
@@ -177,7 +177,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	token := input.ResetPasswordToken
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    common.DOCSTORE_ID_RESET_PASS_KEYS,
+		StoreID:    common.DocstoreIdResetPassKeys,
 		DocumentID: token,
 	})
 	if e != nil || docResp.Document == nil || docResp.Document.Data == "" {
@@ -188,7 +188,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		return
 	}
 	// Delete in store token now
-	cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DOCSTORE_ID_RESET_PASS_KEYS, DocumentID: token})
+	cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocstoreIdResetPassKeys, DocumentID: token})
 
 	jsonData := docResp.Document.Data
 	var storedToken ResetToken

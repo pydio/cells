@@ -448,7 +448,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	data, _ := json.Marshal(input.Nodes)
 	if _, e := dcClient.PutDocument(ctx, &docstore.PutDocumentRequest{
-		StoreID:    common.DOCSTORE_ID_SELECTIONS,
+		StoreID:    common.DocstoreIdSelections,
 		DocumentID: selectionUuid,
 		Document: &docstore.Document{
 			Owner: username,

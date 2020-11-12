@@ -268,7 +268,7 @@ func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.
 
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
+		StoreID:    common.DocstoreIdVersioningPolicies,
 		DocumentID: policyName,
 	})
 	if e != nil || r.Document == nil {

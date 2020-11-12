@@ -205,11 +205,11 @@ var (
 
 // DocStore constants for StoreID's
 const (
-	DOCSTORE_ID_SELECTIONS          = "selections"
-	DOCSTORE_ID_VIRTUALNODES        = "virtualnodes"
-	DOCSTORE_ID_VERSIONING_POLICIES = "versioningPolicies"
-	DOCSTORE_ID_SHARES              = "share"
-	DOCSTORE_ID_RESET_PASS_KEYS     = "resetPasswordKeys"
+	DocstoreIdSelections         = "selections"
+	DocstoreIdVirtualnodes       = "virtualnodes"
+	DocstoreIdVersioningPolicies = "versioningPolicies"
+	DocstoreIdShares             = "share"
+	DocstoreIdResetPassKeys      = "resetPasswordKeys"
 )
 
 // Define constants for Loggging configuration

@@ -144,7 +144,7 @@ func InitDefaults(ctx context.Context) error {
 
 		dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
+			StoreID:    common.DocstoreIdVersioningPolicies,
 			DocumentID: "default-policy",
 			Document: &docstore.Document{
 				ID:    "default-policy",
@@ -158,7 +158,7 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
+			StoreID:    common.DocstoreIdVersioningPolicies,
 			DocumentID: "keep-all",
 			Document: &docstore.Document{
 				ID:    "keep-all",
@@ -172,7 +172,7 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
+			StoreID:    common.DocstoreIdVersioningPolicies,
 			DocumentID: "regular-pruning",
 			Document: &docstore.Document{
 				ID:    "regular-pruning",
