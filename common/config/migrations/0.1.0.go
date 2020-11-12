@@ -11,7 +11,7 @@ func init() {
 	add(v, getMigration(renameKeys))
 }
 
-func renameKeys(config configx.Values) (bool, error) {
+func renameKeys(config configx.Values) error {
 	return UpdateKeys(config, map[string]string{
 		"services/pydio.api.websocket":            "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		"services/pydio.grpc.gateway.data":        "services/" + common.SERVICE_GATEWAY_DATA,

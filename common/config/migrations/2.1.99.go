@@ -1,6 +1,8 @@
 package migrations
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/url"
 
 	"github.com/hashicorp/go-version"
@@ -12,37 +14,42 @@ func init() {
 	v, _ := version.NewVersion("2.1.99")
 	add(v, getMigration(updateDatabaseDefault))
 	add(v, getMigration(updateSites))
+	add(v, getMigration(updateSourceKeys))
 }
 
-func updateDatabaseDefault(config configx.Values) (bool, error) {
+func updateDatabaseDefault(config configx.Values) error {
 	def := config.Val("defaults/database")
 
 	if v := def.StringMap(); len(v) > 0 {
-		return false, nil
+		return nil
 	}
 
 	if v := def.String(); v != "" {
 		err := def.Set(configx.Reference("databases/" + v))
-		return true, err
+		return err
 	}
 
-	return false, nil
+	return nil
 }
 
-func updateSites(config configx.Values) (bool, error) {
+func updateSites(config configx.Values) error {
+
+	urlInternal := config.Val("defaults", "urlInternal").String()
+	urlExternal := config.Val("defaults", "url").String()
+	// Do not store an empty site
+	if urlInternal == "" && urlExternal == "" {
+		return nil
+	}
 
 	site := configx.New()
-	urlInternal := config.Val("defaults", "urlInternal").String()
 	if urlInternal != "" {
 		u, err := url.Parse(urlInternal)
 		if err != nil {
-			return false, err
+			return err
 		}
 
 		site.Val("Binds").Set([]string{u.Host})
 	}
-
-	urlExternal := config.Val("defaults", "url").String()
 	if urlExternal != "" {
 		site.Val("ReverseProxyURL").Set(urlExternal)
 	}
@@ -85,5 +92,31 @@ func updateSites(config configx.Values) (bool, error) {
 	config.Val("defaults/urlInternal").Del()
 	config.Val("cert").Del()
 
-	return false, nil
+	return nil
+}
+
+func updateSourceKeys(config configx.Values) error {
+
+	fmt.Println("[Configs] Upgrading source keys")
+	asSlice := func(s string) (sl []string, er error) {
+		er = json.Unmarshal([]byte(s), &sl)
+		return
+	}
+
+	indexSources := config.Val("services", "pydio.grpc.data.index", "sources")
+	if sl, er := asSlice(indexSources.String()); er == nil {
+		indexSources.Set(sl)
+	}
+
+	objectSources := config.Val("services", "pydio.grpc.data.objects", "sources")
+	if sl, er := asSlice(objectSources.String()); er == nil {
+		objectSources.Set(sl)
+	}
+
+	syncSources := config.Val("services", "pydio.grpc.data.sync", "sources")
+	if sl, er := asSlice(syncSources.String()); er == nil {
+		syncSources.Set(sl)
+	}
+
+	return nil
 }

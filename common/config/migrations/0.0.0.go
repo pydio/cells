@@ -20,13 +20,11 @@ func init() {
 	// add(&migrations.Migration{TargetVersion: common.Version(), Up: getMigration(updateLeCaURL)})
 }
 
-func setDefaultConfig(config configx.Values) (bool, error) {
-	var save bool
-
+func setDefaultConfig(config configx.Values) error {
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	secret, err := x.GenerateSecret(32)
 	if err != nil {
-		return false, err
+		return err
 	}
 	var syncRedirects = []string{
 		"http://localhost:3000/servers/callback", // SYNC UX DEBUG PORT
@@ -97,15 +95,14 @@ func setDefaultConfig(config configx.Values) (bool, error) {
 			d, f := path.Split(p)
 			fmt.Println(d, f, def)
 			config.Val(d, f).Set(def)
-			save = true
 		}
 	}
 
-	return save, nil
+	return nil
 }
 
-func forceDefaultConfig(config configx.Values) (bool, error) {
-	var save bool
+func forceDefaultConfig(config configx.Values) error {
+
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	external := config.Val("defaults/url").String()
 
@@ -121,7 +118,6 @@ func forceDefaultConfig(config configx.Values) (bool, error) {
 			fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
 			d, f := path.Split(p)
 			config.Val(d, f).Set(def)
-			save = true
 		}
 	}
 
@@ -137,7 +133,6 @@ func forceDefaultConfig(config configx.Values) (bool, error) {
 			fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
 			d, f := path.Split(p)
 			config.Val(d, f).Set(def)
-			save = true
 		}
 	}
 
@@ -192,11 +187,10 @@ func forceDefaultConfig(config configx.Values) (bool, error) {
 		if saveStatics {
 			fmt.Println("[Configs] Upgrading: updating staticClients")
 			config.Val("services/" + oauthSrv + "/staticClients").Set(data)
-			save = true
 		}
 	}
 
-	return save, nil
+	return nil
 }
 
 // // updateLeCaURL changes the URL of acme API endpoint for Let's Encrypt certificate generation to v2 if it is used.
