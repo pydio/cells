@@ -246,7 +246,7 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 		Crepositories: &Crepositories{},
 		Cpreferences:  &Cpreferences{},
 	}
-	if u.Claims.Profile == common.PYDIO_PROFILE_ADMIN {
+	if u.Claims.Profile == common.PydioProfileAdmin {
 		reg.Cspecial_rights = &Cspecial_rights{
 			Attris_admin: "1",
 		}

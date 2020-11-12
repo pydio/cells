@@ -92,7 +92,7 @@ func (l *Local) GetEndpointInfo() model.EndpointInfo {
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
-		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
+		Ignores:               []string{common.PydioSyncHiddenFile},
 	}
 }
 
@@ -132,5 +132,5 @@ func (f *localRouterFactory) GetNodeProviderStreamClient(context.Context) (conte
 }
 
 func (f *localRouterFactory) userToContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	return context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 }

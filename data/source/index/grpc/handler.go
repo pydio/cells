@@ -88,7 +88,7 @@ func NewTreeServer(dsn string) *TreeServer {
 func (s *TreeServer) updateMeta(dao index.DAO, node *mtree.TreeNode, reqNode *tree.Node) (previousEtag string, contentChange bool, err error) {
 	if node.IsLeaf() {
 		previousEtag = node.Etag
-		if previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
+		if previousEtag != common.NodeFlagEtagTemporary {
 			contentChange = true
 		}
 	}
@@ -135,7 +135,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
-				if content && previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
+				if content && previousEtag != common.NodeFlagEtagTemporary {
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
 				node.Path = req.GetNode().GetPath()
@@ -178,7 +178,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
 			} else {
 				previousEtag = etag
-				if content && previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
+				if content && previousEtag != common.NodeFlagEtagTemporary {
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
 			}
@@ -207,7 +207,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	// Updating Commits - This is never used, avoid overhead of an insert
 	/*
 		newEtag := req.GetNode().GetEtag()
-		if node.IsLeaf() && newEtag != common.NODE_FLAG_ETAG_TEMPORARY && (previousEtag == "" || newEtag != previousEtag) {
+		if node.IsLeaf() && newEtag != common.NodeFlagEtagTemporary && (previousEtag == "" || newEtag != previousEtag) {
 			if err := dao.PushCommit(node); err != nil {
 				log.Logger(ctx).Error("Error while pushing commit for node", node.Zap(), zap.Error(err))
 			}
@@ -575,7 +575,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		c := dao.GetNodeTree(path)
 		names := strings.Split(reqPath, "/")
 		for child := range c {
-			if child.Name() == common.PYDIO_SYNC_HIDDEN_FILE_META {
+			if child.Name() == common.PydioSyncHiddenFile {
 				continue
 			}
 			if child.Level > cap(names) {

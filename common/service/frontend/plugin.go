@@ -253,7 +253,7 @@ func (plugin *Cplugin) FilterActions(status RequestStatus, pool *PluginsPool, ac
 			if (ctx.AttruserLogged == "false" || ctx.AttruserLogged == "hidden") && !status.NoClaims {
 				continue
 			}
-			if ctx.AttradminOnly == "true" && (status.NoClaims || (status.User.Claims.Profile != common.PYDIO_PROFILE_ADMIN)) {
+			if ctx.AttradminOnly == "true" && (status.NoClaims || (status.User.Claims.Profile != common.PydioProfileAdmin)) {
 				continue
 			}
 		}

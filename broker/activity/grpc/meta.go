@@ -45,11 +45,11 @@ func (m *MetaProvider) ReadNodeStream(ctx context.Context, streamer tree.NodePro
 	// Extract current user Id from X-Pydio-User key
 	var userId string
 	if meta, ok := metadata.FromContext(ctx); ok {
-		if value, ok2 := meta[common.PYDIO_CONTEXT_USER_KEY]; ok2 {
+		if value, ok2 := meta[common.PydioContextUserKey]; ok2 {
 			userId = value
 		}
 		// TODO - WTF WITH LOWER CASE ?
-		if value, ok2 := meta[strings.ToLower(common.PYDIO_CONTEXT_USER_KEY)]; ok2 {
+		if value, ok2 := meta[strings.ToLower(common.PydioContextUserKey)]; ok2 {
 			userId = value
 		}
 	}

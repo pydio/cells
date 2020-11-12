@@ -69,7 +69,7 @@ func VersionHash() string {
 	if vSeed == "" {
 		vSeed = uuid.New()
 		config.Set(vSeed, "frontend", "versionSeed")
-		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating version seed")
+		config.Save(common.PydioSystemUsername, "Generating version seed")
 	}
 	md := md5.New()
 	md.Write([]byte(vSeed + common.Version().String()))

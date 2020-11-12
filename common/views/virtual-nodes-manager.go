@@ -83,7 +83,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	m.VirtualNodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	stream, e := cli.ListDocuments(context.Background(), &docstore.ListDocumentsRequest{
-		StoreID: common.DocstoreIdVirtualnodes,
+		StoreID: common.DocStoreIdVirtualNodes,
 		Query:   &docstore.DocumentQuery{},
 	})
 	if e != nil {
@@ -236,9 +236,9 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			// Silently create the .pydio file if necessary
 			router := NewStandardRouter(RouterOptions{AdminView: true})
 			newNode := createResp.Node.Clone()
-			newNode.Path = path.Join(newNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+			newNode.Path = path.Join(newNode.Path, common.PydioSyncHiddenFile)
 			nodeUuid := newNode.Uuid
-			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			_, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
 			if pE != nil {
 				log.Logger(ctx).Warn("Creating hidden file for resolved node (may not be required)", newNode.Zap("resolved"), zap.Error(pE))

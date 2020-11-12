@@ -65,7 +65,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 						md[k] = v
 					}
 				}
-				md[common.PYDIO_CONTEXT_USER_KEY] = valid.Claims.Name
+				md[common.PydioContextUserKey] = valid.Claims.Name
 				ctx = metadata.NewContext(ctx, md)
 
 				r = r.WithContext(context.WithValue(ctx, claim.ContextKey, valid.Claims))

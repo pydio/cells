@@ -44,7 +44,7 @@ func getDefaultJobs() []*jobs.Job {
 
 	thumbnailsJob := &jobs.Job{
 		ID:                "thumbs-job",
-		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Owner:             common.PydioSystemUsername,
 		Label:             "Jobs.Default.Thumbs",
 		Inactive:          false,
 		MaxConcurrency:    5,
@@ -78,7 +78,7 @@ func getDefaultJobs() []*jobs.Job {
 
 	cleanThumbsJob := &jobs.Job{
 		ID:                "clean-thumbs-job",
-		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Owner:             common.PydioSystemUsername,
 		Label:             "Jobs.Default.ThumbsCache",
 		Inactive:          false,
 		MaxConcurrency:    5,
@@ -101,7 +101,7 @@ func getDefaultJobs() []*jobs.Job {
 
 	stuckTasksJob := &jobs.Job{
 		ID:             "internal-prune-jobs",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Owner:          common.PydioSystemUsername,
 		Label:          "Jobs.Default.PruneJobs",
 		MaxConcurrency: 1,
 		Schedule: &jobs.Schedule{
@@ -117,7 +117,7 @@ func getDefaultJobs() []*jobs.Job {
 
 	cleanUserDataJob := &jobs.Job{
 		ID:                "clean-user-data",
-		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Owner:             common.PydioSystemUsername,
 		Label:             "Clean or transfer user data on deletion",
 		Inactive:          false,
 		MaxConcurrency:    5,

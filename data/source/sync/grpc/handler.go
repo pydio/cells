@@ -176,7 +176,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
 				return e
 			}
-			testCtx := metadata.NewContext(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			testCtx := metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			if syncConfig.ObjectsBucket == "" {
 				_, err = mc.ListBucketsWithContext(testCtx)
 				if err != nil {
@@ -387,7 +387,7 @@ func (s *Handler) watchErrors() {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
 				md := make(map[string]string)
-				md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
+				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				ctx := metadata.NewContext(context.Background(), md)
 				client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 					JobID:  "resync-ds-" + s.dsName,
@@ -445,7 +445,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		statusChan = make(chan model.Status)
 		doneChan = make(chan interface{})
 
-		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
+		subCtx := context2.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)
 		taskChan := make(chan interface{}, 1000)
@@ -508,7 +508,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 	// Copy context
 	bg := context.Background()
-	bg = context2.WithUserNameMetadata(bg, common.PYDIO_SYSTEM_USERNAME)
+	bg = context2.WithUserNameMetadata(bg, common.PydioSystemUsername)
 	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
 	bg = servicecontext.WithServiceColor(bg, servicecontext.GetServiceColor(c))
 	if s, o := servicecontext.SpanFromContext(c); o {

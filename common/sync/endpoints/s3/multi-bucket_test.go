@@ -46,7 +46,7 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 		var first *tree.Node
 		for _, d := range fullData {
 			//t.Log(d.Path, "\t\t", d.Type)
-			if d.IsLeaf() && first == nil && path.Base(d.Path) != common.PYDIO_SYNC_HIDDEN_FILE_META {
+			if d.IsLeaf() && first == nil && path.Base(d.Path) != common.PydioSyncHiddenFile {
 				first = d
 			}
 		}

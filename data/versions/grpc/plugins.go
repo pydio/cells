@@ -144,11 +144,11 @@ func InitDefaults(ctx context.Context) error {
 
 		dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocstoreIdVersioningPolicies,
+			StoreID:    common.DocStoreIdVersioningPolicies,
 			DocumentID: "default-policy",
 			Document: &docstore.Document{
 				ID:    "default-policy",
-				Owner: common.PYDIO_SYSTEM_USERNAME,
+				Owner: common.PydioSystemUsername,
 				Type:  docstore.DocumentType_JSON,
 				Data:  string(max30),
 			},
@@ -158,11 +158,11 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocstoreIdVersioningPolicies,
+			StoreID:    common.DocStoreIdVersioningPolicies,
 			DocumentID: "keep-all",
 			Document: &docstore.Document{
 				ID:    "keep-all",
-				Owner: common.PYDIO_SYSTEM_USERNAME,
+				Owner: common.PydioSystemUsername,
 				Type:  docstore.DocumentType_JSON,
 				Data:  string(keepAll),
 			},
@@ -172,11 +172,11 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocstoreIdVersioningPolicies,
+			StoreID:    common.DocStoreIdVersioningPolicies,
 			DocumentID: "regular-pruning",
 			Document: &docstore.Document{
 				ID:    "regular-pruning",
-				Owner: common.PYDIO_SYSTEM_USERNAME,
+				Owner: common.PydioSystemUsername,
 				Type:  docstore.DocumentType_JSON,
 				Data:  string(regular),
 			},

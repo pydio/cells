@@ -73,7 +73,7 @@ func FromMetadata(ctx context.Context) (c claim.Claims, o bool) {
 	if c.Name != "" && c.Roles == rolesRequireReload {
 		// Create a ctx for this request or it will loop on rolesRequireReload!
 		internalContext := metadata.NewContext(context.Background(), map[string]string{
-			common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME,
+			common.PydioContextUserKey: common.PydioSystemUsername,
 		})
 		u, err := permissions.SearchUniqueUser(internalContext, c.Name, "")
 		if err != nil {

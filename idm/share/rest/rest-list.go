@@ -63,7 +63,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	admin := false
 	var userId string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		admin = claims.Profile == common.PYDIO_PROFILE_ADMIN
+		admin = claims.Profile == common.PydioProfileAdmin
 		userId = claims.Subject
 	}
 	if request.Subject != "" {

@@ -43,7 +43,7 @@ func getDefaultJobs() []*jobs.Job {
 	return []*jobs.Job{
 		{
 			ID:                "versioning-job",
-			Owner:             common.PYDIO_SYSTEM_USERNAME,
+			Owner:             common.PydioSystemUsername,
 			Label:             T("Job.Version.Title"),
 			Inactive:          false,
 			MaxConcurrency:    5,
@@ -65,7 +65,7 @@ func getDefaultJobs() []*jobs.Job {
 		},
 		{
 			ID:             "prune-versions-job",
-			Owner:          common.PYDIO_SYSTEM_USERNAME,
+			Owner:          common.PydioSystemUsername,
 			Label:          T("Job.Pruning.Title"),
 			Inactive:       false,
 			MaxConcurrency: 1,

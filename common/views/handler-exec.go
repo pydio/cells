@@ -114,9 +114,9 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 	if !node.IsLeaf() {
 		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 		newNode := &tree.Node{
-			Path: strings.TrimRight(node.Path, "/") + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
+			Path: strings.TrimRight(node.Path, "/") + "/" + common.PydioSyncHiddenFile,
 		}
-		newNode.SetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PYDIO_SYNC_HIDDEN_FILE_META)
+		newNode.SetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PydioSyncHiddenFile)
 		meta := make(map[string]string)
 		if session := in.IndexationSession; session != "" {
 			meta[common.XPydioSessionUuid] = session
@@ -307,20 +307,20 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			requestData.Metadata = make(map[string]string)
 		}
 		// Copy Pydio specific metadata along
-		if cs := src.Metadata.Get(common.X_AMZ_META_CONTENT_MD5); cs != "" {
-			requestData.Metadata[common.X_AMZ_META_CONTENT_MD5] = cs
+		if cs := src.Metadata.Get(common.XAmzMetaContentMd5); cs != "" {
+			requestData.Metadata[common.XAmzMetaContentMd5] = cs
 		}
-		if cs := src.Metadata.Get(common.X_AMZ_META_CLEAR_SIZE); cs != "" {
-			requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = cs
+		if cs := src.Metadata.Get(common.XAmzMetaClearSize); cs != "" {
+			requestData.Metadata[common.XAmzMetaClearSize] = cs
 		}
-		directive, dirOk := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]
+		directive, dirOk := requestData.Metadata[common.XAmzMetaDirective]
 		if dirOk {
-			delete(requestData.Metadata, common.X_AMZ_META_DIRECTIVE)
+			delete(requestData.Metadata, common.XAmzMetaDirective)
 		}
 		var err error
 		if destInfo.StorageType == object.StorageType_S3 && src.Size > s3.MaxCopyObjectSize {
 			if dirOk {
-				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.X_AMZ_META_DIRECTIVE: directive})
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XAmzMetaDirective: directive})
 			}
 			err = s3.CopyObjectMultipart(ctx, destClient, src, srcBucket, fromPath, destBucket, toPath, requestData.Metadata, requestData.Progress)
 		} else {
@@ -331,7 +331,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 				sourceInfo.Headers.Set(k, strings.Join(v, ""))
 			}
 			if dirOk {
-				sourceInfo.Headers.Set(common.X_AMZ_META_DIRECTIVE, directive)
+				sourceInfo.Headers.Set(common.XAmzMetaDirective, directive)
 			}
 			err = destClient.CopyObjectWithProgress(destinationInfo, sourceInfo, requestData.Progress)
 		}
@@ -359,8 +359,8 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		}
 		defer reader.Close()
 		if requestData.Metadata != nil {
-			if dir, o := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]; o && dir == "COPY" {
-				requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid
+			if dir, o := requestData.Metadata[common.XAmzMetaDirective]; o && dir == "COPY" {
+				requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid
 			}
 			// append metadata to the context as well, as it may switch to putObjectMultipart
 			ctxMeta := make(map[string]string)

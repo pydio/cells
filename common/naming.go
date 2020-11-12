@@ -21,8 +21,6 @@
 package common
 
 import (
-	"time"
-
 	hashiversion "github.com/hashicorp/go-version"
 	"go.uber.org/zap/zapcore"
 )
@@ -151,46 +149,45 @@ const (
 
 // Additional constants for authentication/authorization aspects
 const (
-	PYDIO_CONTEXT_USER_KEY       = "X-Pydio-User"
-	PYDIO_SYSTEM_USERNAME        = "pydio.system.user"
-	PYDIO_S3ANON_USERNAME        = "pydio.anon.user"
-	PYDIO_S3ANON_PROFILE         = "anon"
-	PYDIO_SYNC_HIDDEN_FILE_META  = ".pydio"
-	X_AMZ_META_CLEAR_SIZE        = "X-Amz-Meta-Pydio-Clear-Size"
-	X_AMZ_META_CLEAR_SIZE_UNKOWN = "unknown"
-	X_AMZ_META_NODE_UUID         = "X-Amz-Meta-Pydio-Node-Uuid"
-	X_AMZ_META_CONTENT_MD5       = "X-Amz-Meta-Content-Md5"
-	X_AMZ_META_DIRECTIVE         = "X-Amz-Metadata-Directive"
-	XPydioClientUuid             = "X-Pydio-Client-Uuid"
-	XPydioSessionUuid            = "X-Pydio-Session"
-	XPydioIndexationSessionUuid  = "X-Pydio-Indexation-Session"
-	XPydioFrontendSessionUuid    = "X-Pydio-Frontend-Session"
-	XPydioMoveUuid               = "X-Pydio-Move"
-	SyncSessionClose_            = "close-"
-	SyncSessionPrefixCopy        = "copy-"
-	SyncSessionPrefixMove        = "move-"
+	PydioContextUserKey         = "X-Pydio-User"
+	PydioSystemUsername         = "pydio.system.user"
+	PydioS3AnonUsername         = "pydio.anon.user"
+	PydioSyncHiddenFile         = ".pydio"
+	XAmzMetaClearSize           = "X-Amz-Meta-Pydio-Clear-Size"
+	XAmzMetaClearSizeUnkown     = "unknown"
+	XAmzMetaNodeUuid            = "X-Amz-Meta-Pydio-Node-Uuid"
+	XAmzMetaContentMd5          = "X-Amz-Meta-Content-Md5"
+	XAmzMetaDirective           = "X-Amz-Metadata-Directive"
+	XPydioClientUuid            = "X-Pydio-Client-Uuid"
+	XPydioSessionUuid           = "X-Pydio-Session"
+	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
+	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
+	XPydioMoveUuid              = "X-Pydio-Move"
+	SyncSessionClose_           = "close-"
+	SyncSessionPrefixCopy       = "copy-"
+	SyncSessionPrefixMove       = "move-"
 
-	PYDIO_PROFILE_ADMIN    = "admin"
-	PYDIO_PROFILE_STANDARD = "standard"
-	PYDIO_PROFILE_SHARED   = "shared"
-	PYDIO_PROFILE_ANON     = "anon"
+	PydioProfileAdmin    = "admin"
+	PydioProfileStandard = "standard"
+	PydioProfileShared   = "shared"
+	PydioProfileAnon     = "anon"
 
-	KEYRING_MASTER_KEY              = "keyring.master"
-	META_FLAG_READONLY              = "node_readonly"
-	META_FLAG_LEVEL_READONLY        = "level_readonly"
-	META_FLAG_ENCRYPTED             = "datasource_encrypted"
-	META_FLAG_VERSIONING            = "datasource_versioning"
-	META_FLAG_WORKSPACE_ROOT        = "ws_root"
-	META_FLAG_WORKSPACE_SCOPE       = "ws_scope"
-	META_FLAG_WORKSPACE_SYNCABLE    = "ws_syncable"
-	META_FLAG_WORKSPACE_PERMISSIONS = "ws_permissions"
-	META_FLAG_WORKSPACE_LABEL       = "ws_label"
-	META_FLAG_WORKSPACE_DESCRIPTION = "ws_description"
-	META_FLAG_WORKSPACE_SLUG        = "ws_slug"
-	META_FLAG_WORKSPACE_UUID        = "ws_uuid"
-	META_FLAG_VIRTUAL_ROOT          = "virtual_root"
-	META_FLAG_BUCKET                = "ds_bucket"
-	NODE_FLAG_ETAG_TEMPORARY        = "temporary"
+	KeyringMasterKey             = "keyring.master"
+	MetaFlagReadonly             = "node_readonly"
+	MetaFlagLevelReadonly        = "level_readonly"
+	MetaFlagEncrypted            = "datasource_encrypted"
+	MetaFlagVersioning           = "datasource_versioning"
+	MetaFlagWorkspaceRoot        = "ws_root"
+	MetaFlagWorkspaceScope       = "ws_scope"
+	MetaFlagWorkspaceSyncable    = "ws_syncable"
+	MetaFlagWorkspacePermissions = "ws_permissions"
+	MetaFlagWorkspaceLabel       = "ws_label"
+	MetaFlagWorkspaceDescription = "ws_description"
+	MetaFlagWorkspaceSlug        = "ws_slug"
+	MetaFlagWorkspaceUuid        = "ws_uuid"
+	MetaFlagVirtualRoot          = "virtual_root"
+	MetaFlagBucket               = "ds_bucket"
+	NodeFlagEtagTemporary        = "temporary"
 )
 
 var (
@@ -205,25 +202,17 @@ var (
 
 // DocStore constants for StoreID's
 const (
-	DocstoreIdSelections         = "selections"
-	DocstoreIdVirtualnodes       = "virtualnodes"
-	DocstoreIdVersioningPolicies = "versioningPolicies"
-	DocstoreIdShares             = "share"
-	DocstoreIdResetPassKeys      = "resetPasswordKeys"
+	DocStoreIdSelections         = "selections"
+	DocStoreIdVirtualNodes       = "virtualnodes"
+	DocStoreIdVersioningPolicies = "versioningPolicies"
+	DocStoreIdShares             = "share"
+	DocStoreIdResetPassKeys      = "resetPasswordKeys"
 )
 
 // Define constants for Loggging configuration
 const (
 	LogConfigConsole    LogConfigType = "console"
 	LogConfigProduction LogConfigType = "production"
-)
-
-// Defaults for DB connexions.
-const (
-	DB_NUM_RESERVED_CONNECTIONS = 10
-	DB_MAX_OPEN_CONNS           = 20
-	DB_MAX_IDLE_CONNS           = 20
-	DB_CONN_MAX_LIFETIME        = 24 * time.Hour
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'
@@ -256,10 +245,10 @@ var (
 var (
 	// PydioUserProfiles order reflects the level of authorizations
 	PydioUserProfiles = []string{
-		PYDIO_PROFILE_ANON,
-		PYDIO_PROFILE_SHARED,
-		PYDIO_PROFILE_STANDARD,
-		PYDIO_PROFILE_ADMIN,
+		PydioProfileAnon,
+		PydioProfileShared,
+		PydioProfileStandard,
+		PydioProfileAdmin,
 	}
 )
 

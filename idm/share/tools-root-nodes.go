@@ -122,7 +122,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 	// First check of incoming ACLs
 	var hasReadonly bool
 	for _, root := range shareRequest.Room.RootNodes {
-		if root.GetStringMeta(common.META_FLAG_READONLY) != "" {
+		if root.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
 	}
@@ -167,7 +167,7 @@ func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
 				continue
 			}
 			if !resp.Node.IsLeaf() {
-				resp.Node.Path += "/" + common.PYDIO_SYNC_HIDDEN_FILE_META
+				resp.Node.Path += "/" + common.PydioSyncHiddenFile
 			}
 			log.Logger(ctx).Debug("Deleting room node associated to workspace", realNode.Zap())
 			if _, err := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
@@ -176,7 +176,7 @@ func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
 			}
 		}
 
-		if _, err := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: realNode.Path + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META}}); err != nil {
+		if _, err := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: realNode.Path + "/" + common.PydioSyncHiddenFile}}); err != nil {
 			return err
 		}
 	}
@@ -198,7 +198,7 @@ func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) error {
 			return errors.NotFound(common.SERVICE_SHARE, "cannot find root node")
 		}
 		link.RootNodes[i] = resp.Node
-		if resp.Node.GetStringMeta(common.META_FLAG_READONLY) != "" {
+		if resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
 	}

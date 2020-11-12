@@ -24,9 +24,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	servicecontext "github.com/pydio/cells/common/service/context"
 	context2 "github.com/pydio/cells/common/utils/context"
-	"strings"
 
 	"github.com/pydio/cells/common"
 
@@ -94,7 +95,7 @@ func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.
 	} else if ok {
 		branchInfo.Workspace = *ws
 		ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
-			servicecontext.CtxWorkspaceUuid:ws.UUID,
+			servicecontext.CtxWorkspaceUuid: ws.UUID,
 		})
 		return WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
@@ -150,24 +151,24 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 						Path: ws.Slug,
 					}
 					// Pass workspace data along in node MetaStore
-					node.SetMeta(common.META_FLAG_WORKSPACE_SCOPE, ws.Scope.String())
-					node.SetMeta(common.META_FLAG_WORKSPACE_PERMISSIONS, wsPermissions)
-					node.SetMeta(common.META_FLAG_WORKSPACE_LABEL, ws.Label)
-					node.SetMeta(common.META_FLAG_WORKSPACE_DESCRIPTION, ws.Description)
-					node.SetMeta(common.META_FLAG_WORKSPACE_SLUG, ws.Slug)
-					node.SetMeta(common.META_FLAG_WORKSPACE_UUID, ws.UUID)
+					node.SetMeta(common.MetaFlagWorkspaceScope, ws.Scope.String())
+					node.SetMeta(common.MetaFlagWorkspacePermissions, wsPermissions)
+					node.SetMeta(common.MetaFlagWorkspaceLabel, ws.Label)
+					node.SetMeta(common.MetaFlagWorkspaceDescription, ws.Description)
+					node.SetMeta(common.MetaFlagWorkspaceSlug, ws.Slug)
+					node.SetMeta(common.MetaFlagWorkspaceUuid, ws.UUID)
 					if common.PackageType == "PydioHome" && ws.Scope == idm.WorkspaceScope_ADMIN {
-						node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+						node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
 					} else {
 						if ws.Attributes != "" && ws.Attributes != "{}" {
 							var aa map[string]interface{}
 							if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
 								if canSync, ok := aa["ALLOW_SYNC"]; ok {
 									if b, o := canSync.(bool); o && b {
-										node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+										node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
 									} else if s, o := canSync.(string); o {
 										if s == "true" {
-											node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+											node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
 										}
 									}
 								}

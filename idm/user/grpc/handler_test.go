@@ -248,7 +248,7 @@ func TestUser(t *testing.T) {
 				}}}, resp)
 		So(err, ShouldBeNil)
 
-		updatedContext := context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, "emma")
+		updatedContext := context.WithValue(ctx, common.PydioContextUserKey, "emma")
 		err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
 			User: &idm.User{
 				Login:       "emma",

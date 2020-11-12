@@ -177,12 +177,12 @@ func (v *VaultSource) initMasterPassword() {
 	var kPass []byte
 	if !v.skipKeyring {
 		var e error
-		kPass, e = crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, false)
+		kPass, e = crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KeyringMasterKey, false)
 		// Keyring seems accessible - use it
 		if e == nil && len(kPass) == 0 {
 			// Check if it may have been already initiated without keyring previously
 			if fPass := v.getStorePassword(false); len(fPass) > 0 {
-				if e := crypto.SetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, fPass); e == nil {
+				if e := crypto.SetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KeyringMasterKey, fPass); e == nil {
 					fmt.Println("Migrated master key from local storage to keyring - removing stored file")
 					os.Remove(v.vaultKeyPath)
 					kPass = fPass
@@ -191,7 +191,7 @@ func (v *VaultSource) initMasterPassword() {
 				}
 			} else {
 				fmt.Println("Generating a new master key from keyring")
-				if kPass, e = crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, true); e != nil {
+				if kPass, e = crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KeyringMasterKey, true); e != nil {
 					fmt.Println("Tried to generate master key in keyring but it failed - switching to local storage")
 				}
 			}

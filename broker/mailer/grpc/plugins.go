@@ -106,7 +106,7 @@ func RegisterQueueJob(ctx context.Context) error {
 	job := &jobs.Job{
 		ID:             "flush-mailer-queue",
 		Label:          "Flush Mails Queue",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Owner:          common.PydioSystemUsername,
 		MaxConcurrency: 1,
 		AutoStart:      false,
 		Schedule: &jobs.Schedule{

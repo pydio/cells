@@ -51,10 +51,10 @@ import (
 )
 
 var profilesLevel = map[string]int{
-	common.PYDIO_PROFILE_ANON:     0,
-	common.PYDIO_PROFILE_SHARED:   1,
-	common.PYDIO_PROFILE_STANDARD: 2,
-	common.PYDIO_PROFILE_ADMIN:    3,
+	common.PydioProfileAnon:     0,
+	common.PydioProfileShared:   1,
+	common.PydioProfileStandard: 2,
+	common.PydioProfileAdmin:    3,
 }
 
 type UserHandler struct {
@@ -414,13 +414,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	if h, o := inputUser.Attributes["hidden"]; o && h == "true" {
 		isHidden = true
 	}
-	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && !isHidden {
+	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PydioProfileAdmin && !isHidden {
 		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
 		return
 	}
 
 	if inputUser.IsGroup {
-		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN {
+		if ctxClaims.Profile != common.PydioProfileAdmin {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create groups"))
 			return
 		}
@@ -428,7 +428,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	} else {
 		// Add a default profile
 		if _, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok {
-			inputUser.Attributes[idm.UserAttrProfile] = common.PYDIO_PROFILE_SHARED
+			inputUser.Attributes[idm.UserAttrProfile] = common.PydioProfileShared
 		}
 		// Check profile is not higher than current user profile
 		if profilesLevel[inputUser.Attributes[idm.UserAttrProfile]] > profilesLevel[ctxClaims.Profile] {
@@ -619,8 +619,8 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			},
 		}
 		c := context.Background()
-		if u := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); u != nil {
-			c = context.WithValue(c, common.PYDIO_CONTEXT_USER_KEY, u)
+		if u := ctx.Value(common.PydioContextUserKey); u != nil {
+			c = context.WithValue(c, common.PydioContextUserKey, u)
 		}
 		go func() {
 			_, er := mailCli.SendMail(c, &mailer.SendMailRequest{

@@ -120,12 +120,12 @@ func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, node *tree
 		if sLen == 1 {
 			// The root of the datasource is at the bucket level, set flag readonly
 			n := node.Clone()
-			n.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
+			n.SetMeta(common.MetaFlagLevelReadonly, "true")
 			return ctx, n, nil
 		} else if sLen == 2 {
 			// Set a specific flag that can adapt the display
 			n := node.Clone()
-			n.SetMeta(common.META_FLAG_BUCKET, "true")
+			n.SetMeta(common.MetaFlagBucket, "true")
 			return ctx, n, nil
 		}
 	}

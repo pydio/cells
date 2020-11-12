@@ -28,7 +28,7 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 	if node.IsLeaf() {
 		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node.Clone()})
 	} else {
-		pFile := path.Join(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+		pFile := path.Join(node.Path, common.PydioSyncHiddenFile)
 		// Now list all children and delete them all
 		stream, err := h.next.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
 		if err != nil {
@@ -47,7 +47,7 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 				continue
 			}
 			if !resp.Node.IsLeaf() {
-				//				resp.Node.Path = path.Join(resp.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+				//				resp.Node.Path = path.Join(resp.Node.Path, common.PydioSyncHiddenFile)
 				//				resp.Node.Type = tree.NodeType_LEAF
 				continue
 			}
@@ -59,7 +59,7 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 		fakeChild := node.Clone()
 		fakeChild.Path = pFile
 		initMetaPath := fakeChild.GetStringMeta(common.MetaNamespaceDatasourcePath)
-		fakeChild.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(initMetaPath, common.PYDIO_SYNC_HIDDEN_FILE_META))
+		fakeChild.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(initMetaPath, common.PydioSyncHiddenFile))
 		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: fakeChild})
 	}
 	if err != nil {

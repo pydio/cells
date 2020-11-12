@@ -481,7 +481,7 @@ func OwnerResourcePolicies(ctx context.Context, ownerUser *idm.User, resourceId 
 		},
 		{
 			Resource: resourceId,
-			Subject:  fmt.Sprintf("profile:%s", common.PYDIO_PROFILE_ADMIN),
+			Subject:  fmt.Sprintf("profile:%s", common.PydioProfileAdmin),
 			Action:   service.ResourcePolicyAction_WRITE,
 			Effect:   service.ResourcePolicy_allow,
 		},

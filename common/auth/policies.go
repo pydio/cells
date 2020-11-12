@@ -81,7 +81,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 			return subjects, errors.BadRequest("resources", "Only admin profiles can list resources of other users")
 		}
 		claims := value.(claim.Claims)
-		if claims.Profile != common.PYDIO_PROFILE_ADMIN {
+		if claims.Profile != common.PydioProfileAdmin {
 			return subjects, errors.Forbidden("resources", "Only admin profiles can list resources with ANY or NONE filter")
 		}
 		return subjects, nil
@@ -116,8 +116,8 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 				for _, r := range u.Roles {
 					subjects = append(subjects, r.Uuid)
 				}
-			} else if uName == common.PYDIO_SYSTEM_USERNAME {
-				subjects = append(subjects, "profile:"+common.PYDIO_PROFILE_ADMIN)
+			} else if uName == common.PydioSystemUsername {
+				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
 			} else {
 				log.Logger(ctx).Error("Cannot find user " + uName + ", although in context")
 			}
@@ -136,7 +136,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 			return subjects, errors.BadRequest("resources", "Only admin profiles can list resources of other users")
 		}
 		claims := value.(claim.Claims)
-		if claims.Profile != common.PYDIO_PROFILE_ADMIN {
+		if claims.Profile != common.PydioProfileAdmin {
 			return subjects, errors.Forbidden("resources", "Only admin profiles can list resources of other users")
 		}
 		subjects = append(subjects, "*")

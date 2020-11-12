@@ -288,9 +288,9 @@ func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin
 
 // MostRecentNode compares two nodes Modification Time and returns the most recent one
 func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
-	if n1.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	if n1.Etag == common.NodeFlagEtagTemporary {
 		return n2
-	} else if n2.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	} else if n2.Etag == common.NodeFlagEtagTemporary {
 		return n1
 	} else if n1.MTime > n2.MTime {
 		return n1

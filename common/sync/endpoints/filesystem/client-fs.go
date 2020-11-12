@@ -217,7 +217,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 		folderUuid := operation.GetNode().Uuid
 		c.updateSnapshot.CreateNode(ctx, &tree.Node{
 			Uuid:  uuid.New(),
-			Path:  path.Join(operation.GetNode().Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+			Path:  path.Join(operation.GetNode().Path, common.PydioSyncHiddenFile),
 			Etag:  model.StringContentToETag(folderUuid),
 			Size:  int64(len(folderUuid)),
 			MTime: operation.GetNode().MTime,
@@ -236,7 +236,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
-		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
+		//		Ignores:               []string{common.PydioSyncHiddenFile},
 	}
 
 }
@@ -383,9 +383,9 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	if os.IsNotExist(e) {
 		err = c.FS.MkdirAll(fPath, 0777)
 		if node.Uuid != "" && !c.options.BrowseOnly && err == nil {
-			err = afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
+			err = afero.WriteFile(c.FS, filepath.Join(fPath, common.PydioSyncHiddenFile), []byte(node.Uuid), 0777)
 			if err == nil {
-				_ = c.SetHidden(filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), true)
+				_ = c.SetHidden(filepath.Join(fPath, common.PydioSyncHiddenFile), true)
 			}
 		}
 		if c.updateSnapshot != nil && err == nil {
@@ -394,7 +394,7 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 				// Create associated .pydio in snapshot as well
 				c.updateSnapshot.CreateNode(ctx, &tree.Node{
 					Uuid:  uuid.New(),
-					Path:  path.Join(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+					Path:  path.Join(node.Path, common.PydioSyncHiddenFile),
 					Etag:  model.StringContentToETag(node.Uuid),
 					Size:  int64(len(node.Uuid)),
 					MTime: node.MTime,
@@ -469,7 +469,7 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node
 func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 	p := c.denormalize(node.Path)
 	var err error
-	pFile := filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)
+	pFile := filepath.Join(p, common.PydioSyncHiddenFile)
 	if err = c.FS.Remove(pFile); err == nil {
 		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
 		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
@@ -483,7 +483,7 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree
 func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	// Ignore .pydio except for root folder .pydio
-	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if filepath.Base(path) == common.PydioSyncHiddenFile && strings.Trim(path, "/") != common.PydioSyncHiddenFile {
 		w := &Discarder{}
 		return w, writeDone, writeErr, nil
 	}
@@ -559,7 +559,7 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 	if c.options.BrowseOnly {
 		return uuid.New(), nil
 	}
-	hiddenFilePath := filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+	hiddenFilePath := filepath.Join(path, common.PydioSyncHiddenFile)
 
 	_, uidErr := c.FS.Stat(hiddenFilePath)
 	if uidErr != nil && os.IsNotExist(uidErr) {
@@ -664,7 +664,7 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 				if i, e := os.Stat(osPathname); e == nil {
 					totalSize += i.Size()
 				}
-				if directoryEntry.Name() != common.PYDIO_SYNC_HIDDEN_FILE_META {
+				if directoryEntry.Name() != common.PydioSyncHiddenFile {
 					files++
 				}
 			}

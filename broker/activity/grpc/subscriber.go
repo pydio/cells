@@ -117,18 +117,18 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
 
-	author := common.PYDIO_SYSTEM_USERNAME
+	author := common.PydioSystemUsername
 	meta, ok := metadata.FromContext(ctx)
 	if ok {
-		user, exists := meta[common.PYDIO_CONTEXT_USER_KEY]
-		user1, exists1 := meta[strings.ToLower(common.PYDIO_CONTEXT_USER_KEY)]
+		user, exists := meta[common.PydioContextUserKey]
+		user1, exists1 := meta[strings.ToLower(common.PydioContextUserKey)]
 		if exists {
 			author = user
 		} else if exists1 {
 			author = user1
 		}
 	}
-	if author == common.PYDIO_SYSTEM_USERNAME {
+	if author == common.PydioSystemUsername {
 		// Ignore events triggered by initial sync
 		return nil
 	}
@@ -343,7 +343,7 @@ func (e *MicroEventsSubscriber) ProcessBuffer(cE ...*idm.ChangeEvent) {
 	}
 
 	// Load resources
-	ctx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
+	ctx := context2.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 	if er := e.LoadResources(ctx, roles, users, workspaces); er != nil {
 		return
 	}

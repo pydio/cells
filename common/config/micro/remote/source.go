@@ -143,7 +143,7 @@ func UpdateRemote(configId string, val interface{}, path ...string) error {
 			Id:        configId,
 			Path:      strings.Join(path, "/"),
 			Timestamp: time.Now().Unix(),
-			Author:    common.PYDIO_SYSTEM_USERNAME,
+			Author:    common.PydioSystemUsername,
 			ChangeSet: &go_micro_os_config.ChangeSet{
 				Data:      string(data),
 				Checksum:  checksum,

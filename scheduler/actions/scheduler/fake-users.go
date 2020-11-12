@@ -159,7 +159,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 				GroupLabel: groupName,
 				GroupPath:  "/" + groupName,
 				Attributes: map[string]string{"displayName": g},
-				Policies:   builder.Reset().WithProfileRead(common.PYDIO_PROFILE_STANDARD).WithProfileWrite(common.PYDIO_PROFILE_ADMIN).Policies(),
+				Policies:   builder.Reset().WithProfileRead(common.PydioProfileStandard).WithProfileWrite(common.PydioProfileAdmin).Policies(),
 			},
 		}); e == nil {
 			rolesServiceClient.CreateRole(ctx, &idm.CreateRoleRequest{

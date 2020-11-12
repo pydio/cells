@@ -47,8 +47,8 @@ func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 			}
 		}
 	}
-	if user := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); user != nil {
-		md[common.PYDIO_CONTEXT_USER_KEY] = user.(string)
+	if user := ctx.Value(common.PydioContextUserKey); user != nil {
+		md[common.PydioContextUserKey] = user.(string)
 	}
 	return md, len(md) > 0
 }
@@ -76,10 +76,10 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 			md[k] = v
 		}
 	}
-	md[common.PYDIO_CONTEXT_USER_KEY] = userName
+	md[common.PydioContextUserKey] = userName
 	ctx = metadata.NewContext(ctx, md)
 	// Add it as value for easier use inside the gateway, but this will not be transmitted
-	ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, userName)
+	ctx = context.WithValue(ctx, common.PydioContextUserKey, userName)
 	return ctx
 }
 

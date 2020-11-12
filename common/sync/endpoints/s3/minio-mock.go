@@ -138,8 +138,8 @@ func NewS3Mock(bucketName ...string) *Client {
 		Key:  "file",
 		ETag: "filemd5",
 	}
-	mock.objects["folder/"+common.PYDIO_SYNC_HIDDEN_FILE_META] = minio.ObjectInfo{
-		Key: "folder/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
+	mock.objects["folder/"+common.PydioSyncHiddenFile] = minio.ObjectInfo{
+		Key: "folder/" + common.PydioSyncHiddenFile,
 	}
 	mock.bucketTags["cell1"] = append(mock.bucketTags["cell1"], minio.Tag{
 		Key:   "TagName",

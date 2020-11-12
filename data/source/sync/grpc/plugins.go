@@ -108,7 +108,7 @@ func init() {
 
 						// Now post a job to start indexation in background
 						md := make(map[string]string)
-						md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
+						md[common.PydioContextUserKey] = common.PydioSystemUsername
 						ctx = metadata.NewContext(ctx, md)
 						e = service.Retry(func() error {
 							jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
@@ -122,7 +122,7 @@ func init() {
 								log.Logger(ctx).Info("Creating job in scheduler to trigger re-indexation")
 								job := &jobs.Job{
 									ID:             "resync-ds-" + datasource,
-									Owner:          common.PYDIO_SYSTEM_USERNAME,
+									Owner:          common.PydioSystemUsername,
 									Label:          "Sync DataSource " + datasource,
 									Inactive:       false,
 									MaxConcurrency: 1,

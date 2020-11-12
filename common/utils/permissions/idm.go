@@ -353,14 +353,14 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 	if ctx.Value(claim.ContextKey) != nil {
 		claims = ctx.Value(claim.ContextKey).(claim.Claims)
 		userName = claims.Name
-	} else if ctx.Value(common.PYDIO_CONTEXT_USER_KEY) != nil {
-		userName = ctx.Value(common.PYDIO_CONTEXT_USER_KEY).(string)
-	} else if ctx.Value(strings.ToLower(common.PYDIO_CONTEXT_USER_KEY)) != nil {
-		userName = ctx.Value(strings.ToLower(common.PYDIO_CONTEXT_USER_KEY)).(string)
+	} else if ctx.Value(common.PydioContextUserKey) != nil {
+		userName = ctx.Value(common.PydioContextUserKey).(string)
+	} else if ctx.Value(strings.ToLower(common.PydioContextUserKey)) != nil {
+		userName = ctx.Value(strings.ToLower(common.PydioContextUserKey)).(string)
 	} else if meta, ok := metadata.FromContext(ctx); ok {
-		if value, exists := meta[common.PYDIO_CONTEXT_USER_KEY]; exists {
+		if value, exists := meta[common.PydioContextUserKey]; exists {
 			userName = value
-		} else if value, exists := meta[strings.ToLower(common.PYDIO_CONTEXT_USER_KEY)]; exists {
+		} else if value, exists := meta[strings.ToLower(common.PydioContextUserKey)]; exists {
 			userName = value
 		}
 	}

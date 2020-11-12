@@ -75,7 +75,7 @@ func Ignores(endpoint Endpoint, name string) bool {
 
 // IsFolderHiddenFile checks if file is .pydio
 func IsFolderHiddenFile(name string) bool {
-	return path.Base(name) == common.PYDIO_SYNC_HIDDEN_FILE_META
+	return path.Base(name) == common.PydioSyncHiddenFile
 }
 
 //EndpointInfo provides static info about a given Endpoint (returned by GetEndpointInfo method)

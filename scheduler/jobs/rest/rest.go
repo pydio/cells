@@ -87,7 +87,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		uName = claims.Name
 		profile = claims.Profile
 	}
-	if request.Owner == "*" && profile == common.PYDIO_PROFILE_ADMIN {
+	if request.Owner == "*" && profile == common.PydioProfileAdmin {
 		request.Owner = ""
 	} else {
 		request.Owner = uName

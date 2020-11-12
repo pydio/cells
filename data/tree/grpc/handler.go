@@ -455,7 +455,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				return err
 			}
 
-			isHidden := strings.HasSuffix(clientResponse.Node.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META)
+			isHidden := strings.HasSuffix(clientResponse.Node.GetPath(), common.PydioSyncHiddenFile)
 
 			if offset > 0 && offset > *cursorIndex {
 				if !isHidden {

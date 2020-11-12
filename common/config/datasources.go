@@ -111,7 +111,7 @@ func TouchSourceNamesForDataServices(dataSrvType string) {
 	sources := SourceNamesForDataServices(dataSrvType)
 	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
 	Set(sources, configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType, "sources"))
-	Save(common.PYDIO_SYSTEM_USERNAME, "Touch sources update date for "+dataSrvType)
+	Save(common.PydioSystemUsername, "Touch sources update date for "+dataSrvType)
 }
 
 // MinioConfigNamesToConfig saves objects sources to config

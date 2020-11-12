@@ -284,7 +284,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 			md[k] = v
 		}
 	}
-	md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
+	md[common.PydioContextUserKey] = claims.Name
 	ctx = metadata.NewContext(ctx, md)
 	ctx = ToMetadata(ctx, *claims)
 
@@ -393,7 +393,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 			c.Email = e
 		}
 	}
-	ctx = context2.WithMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: user.Login})
+	ctx = context2.WithMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 

@@ -47,7 +47,7 @@ var (
 )
 
 type DeleteAction struct {
-	Client             views.Handler
+	Client            views.Handler
 	childrenOnlyParam string
 }
 
@@ -143,7 +143,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			if e != nil {
 				break
 			}
-			if resp.Node.Path == path.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && childrenOnly {
+			if resp.Node.Path == path.Join(sourceNode.Path, common.PydioSyncHiddenFile) && childrenOnly {
 				// Do not delete first .pydio!
 				continue
 			}
@@ -157,7 +157,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				}()
 				log.Logger(ctx).Debug("Deleting node in background", n.ZapPath())
 				statusPath := strings.TrimPrefix(n.GetPath(), sourceNode.GetPath()+"/")
-				if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+				if path.Base(statusPath) == common.PydioSyncHiddenFile {
 					statusPath = path.Dir(statusPath)
 				}
 				channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)

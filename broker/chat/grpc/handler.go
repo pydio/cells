@@ -123,7 +123,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	go func() {
 		for _, m := range resp.Messages {
 			bgCtx := metadata.NewContext(context.Background(), map[string]string{
-				common.PYDIO_CONTEXT_USER_KEY: m.Author,
+				common.PydioContextUserKey: m.Author,
 			})
 			client.Publish(bgCtx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 				Message: m,

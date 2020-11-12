@@ -82,7 +82,7 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 		MTime: time.Now().Unix(),
 		Size:  size,
 		Type:  tree.NodeType_LEAF,
-		Etag:  common.NODE_FLAG_ETAG_TEMPORARY,
+		Etag:  common.NodeFlagEtagTemporary,
 	}
 
 	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
@@ -159,7 +159,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 		return m.next.PutObject(ctx, node, reader, requestData)
 	}
 
-	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		if test, e := m.GetObject(ctx, node, &GetRequestData{Length: -1}); e == nil {
 			data, _ := ioutil.ReadAll(test)
 			log.Logger(ctx).Error("Cannot override the content of .pydio as it already has the ID " + string(data))
@@ -180,7 +180,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	if node.Uuid != "" {
 
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
-		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
+		requestData.Metadata[common.XAmzMetaNodeUuid] = node.Uuid
 		return m.next.PutObject(ctx, node, reader, requestData)
 
 	} else {
@@ -191,12 +191,12 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 			return 0, nodeErr
 		}
 		if !newNode.IsLeaf() {
-			// This was a PYDIO_SYNC_HIDDEN_FILE_META and the folder already exists, replace the content
+			// This was a PydioSyncHiddenFile and the folder already exists, replace the content
 			// with the actual folder Uuid to avoid replacing it We should never pass there???
 			reader = bytes.NewBufferString(newNode.Uuid)
 		}
 
-		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = newNode.Uuid
+		requestData.Metadata[common.XAmzMetaNodeUuid] = newNode.Uuid
 		node.Uuid = newNode.Uuid
 		size, err := m.next.PutObject(ctx, node, reader, requestData)
 		if err != nil && onErrorFunc != nil {
@@ -215,7 +215,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	log.Logger(ctx).Debug("PUT - MULTIPART CREATE: before middle ware method")
 
 	// What is it? to be checked
-	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		return m.next.MultipartCreate(ctx, node, requestData)
 	}
 
@@ -225,7 +225,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	var createErroFunc onCreateErrorFunc
 	if node.Uuid == "" { // PreCreate a node in the tree.
 		var size int64
-		if metaSize, ok := requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE]; ok {
+		if metaSize, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
 		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, size)
@@ -244,7 +244,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 		log.Logger(ctx).Debug("PUT - MULTIPART CREATE: Appending node Uuid to request metadata: " + node.Uuid)
 	}
 
-	requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
+	requestData.Metadata[common.XAmzMetaNodeUuid] = node.Uuid
 
 	// Call next handler
 	multipartId, err := m.next.MultipartCreate(ctx, node, requestData)
@@ -269,7 +269,7 @@ func (m *PutHandler) MultipartAbort(ctx context.Context, target *tree.Node, uplo
 			Path: treePath,
 		},
 	})
-	if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NodeFlagEtagTemporary {
 		log.Logger(ctx).Info("Received MultipartAbort - Clean temporary node:", existingResp.Node.Zap())
 		// Delete Temporary Node Now!
 		treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{

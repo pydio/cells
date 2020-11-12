@@ -173,7 +173,7 @@ func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
 
 	confirm := promptui.Prompt{Label: "Do you want to save this configuration", IsConfirm: true}
 	if _, e := confirm.Run(); e == nil {
-		e = config.SaveSites(sites, common.PYDIO_SYSTEM_USERNAME, "Updating config sites")
+		e = config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
 		if e != nil {
 			cmd.Println("***********************************************")
 			cmd.Println("[ERROR] Could not save config : " + e.Error())

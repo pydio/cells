@@ -38,10 +38,10 @@ var (
 	userProfileLogin  string
 	userTargetProfile string
 	knownProfiles     = []string{
-		common.PYDIO_PROFILE_ADMIN,
-		common.PYDIO_PROFILE_STANDARD,
-		common.PYDIO_PROFILE_SHARED,
-		common.PYDIO_PROFILE_ANON,
+		common.PydioProfileAdmin,
+		common.PydioProfileStandard,
+		common.PydioProfileShared,
+		common.PydioProfileAnon,
 	}
 )
 
@@ -62,12 +62,12 @@ EXAMPLE
 $ %s user set-profile -u 'USER_LOGIN' --profile '%s'
 
 `,
-		common.PYDIO_PROFILE_ADMIN,
-		common.PYDIO_PROFILE_STANDARD,
-		common.PYDIO_PROFILE_SHARED,
-		common.PYDIO_PROFILE_ANON,
+		common.PydioProfileAdmin,
+		common.PydioProfileStandard,
+		common.PydioProfileShared,
+		common.PydioProfileAnon,
 		os.Args[0],
-		common.PYDIO_PROFILE_STANDARD,
+		common.PydioProfileStandard,
 	),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userProfileLogin == "" {

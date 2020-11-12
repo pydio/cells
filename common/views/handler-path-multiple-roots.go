@@ -94,10 +94,10 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 	branch, set := GetBranchInfo(ctx, identifier)
 	if set && branch.UUID != "ROOT" {
 		if branch.EncryptionMode != object.EncryptionMode_CLEAR {
-			node.SetMeta(common.META_FLAG_ENCRYPTED, "true")
+			node.SetMeta(common.MetaFlagEncrypted, "true")
 		}
 		if branch.VersioningPolicyName != "" {
-			node.SetMeta(common.META_FLAG_VERSIONING, "true")
+			node.SetMeta(common.MetaFlagVersioning, "true")
 		}
 	}
 	if !set || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
@@ -121,7 +121,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 	}
 	out.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
 	if firstLevel {
-		out.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
+		out.SetMeta(common.MetaFlagWorkspaceRoot, "true")
 	}
 	return ctx, out, nil
 }
@@ -155,7 +155,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
 					node.SetMeta(common.MetaNamespaceNodeName, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
 				}
-				node.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
+				node.SetMeta(common.MetaFlagWorkspaceRoot, "true")
 				log.Logger(ctx).Debug("[Multiple Root] Sending back node", node.Zap())
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
@@ -192,9 +192,9 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 			}
 		}
 		fakeNode.SetMeta(common.MetaNamespaceNodeName, branch.Workspace.Label)
-		fakeNode.SetMeta(common.META_FLAG_VIRTUAL_ROOT, "true")
+		fakeNode.SetMeta(common.MetaFlagVirtualRoot, "true")
 		if branch.Workspace.Scope != idm.WorkspaceScope_LINK {
-			fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
+			fakeNode.SetMeta(common.MetaFlagLevelReadonly, "true")
 		}
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}

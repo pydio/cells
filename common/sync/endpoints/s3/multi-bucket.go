@@ -156,11 +156,11 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			walknFc(bucket.Name, fNode, nil)
 			if !m.options.BrowseOnly {
 				// Walk associated .pydio file
-				metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
+				metaId, metaHash, metaSize, er := bC.getFileHash(common.PydioSyncHiddenFile)
 				if er != nil {
 					log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
 				}
-				metaFilePath := path.Join(bucket.Name, common.PYDIO_SYNC_HIDDEN_FILE_META)
+				metaFilePath := path.Join(bucket.Name, common.PydioSyncHiddenFile)
 				walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
 			}
 			// Walk children

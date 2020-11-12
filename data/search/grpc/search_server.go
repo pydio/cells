@@ -87,7 +87,7 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
 		// Let's extract the basic information from the tree and store it
-		if e.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, e.Target) {
+		if e.Target.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, false, excludes)

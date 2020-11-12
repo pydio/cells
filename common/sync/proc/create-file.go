@@ -117,7 +117,7 @@ func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Ope
 		if operation.Type() == merger.OpUpdateFile || operation.GetNode().Uuid != "" {
 			update = true
 		}
-		if operation.Type() == merger.OpCreateFile && strings.HasSuffix(operation.GetNode().Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+		if operation.Type() == merger.OpCreateFile && strings.HasSuffix(operation.GetNode().Path, common.PydioSyncHiddenFile) {
 			if n, e := operation.Source().LoadNode(ctx, operation.GetNode().Path); e == nil {
 				log.Logger(ctx).Debug("Reload .pydio Node data to make sure eTag is up-to-date", operation.GetNode().Zap("opNode"), n.Zap("sourceNode"))
 				operation.SetNode(n)

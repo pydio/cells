@@ -81,7 +81,7 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp
 	}
 
 	// TODO: Extract user / password info from Context
-	user := common.PYDIO_SYSTEM_USERNAME
+	user := common.PydioSystemUsername
 	pwd := config.Vault().Val("masterPassword").Bytes()
 
 	rsp.Key, err = dao.GetKey(user, req.KeyID)
@@ -102,7 +102,7 @@ func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKe
 		return err
 	}
 
-	rsp.Keys, err = keyDao.ListKeys(common.PYDIO_SYSTEM_USERNAME)
+	rsp.Keys, err = keyDao.ListKeys(common.PydioSystemUsername)
 	return err
 }
 
@@ -113,7 +113,7 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 		return err
 	}
 
-	if _, err := keyDao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID); err != nil {
+	if _, err := keyDao.GetKey(common.PydioSystemUsername, req.KeyID); err != nil {
 		if errors.Parse(err.Error()).Code == 404 {
 			return createSystemKey(keyDao, req.KeyID, req.Label)
 		} else {
@@ -130,7 +130,7 @@ func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDelet
 	if err != nil {
 		return err
 	}
-	return dao.DeleteKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID)
+	return dao.DeleteKey(common.PydioSystemUsername, req.KeyID)
 }
 
 func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest, rsp *enc.AdminImportKeyResponse) error {
@@ -143,7 +143,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	k, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.Key.ID)
+	k, err = dao.GetKey(common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
 		if errors.Parse(err.Error()).Code != 404 {
 			return err
@@ -163,7 +163,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = sealWithMasterKey(req.Key)
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to encrypt %s.%s for export, cause: %s", common.PYDIO_SYSTEM_USERNAME, req.Key.ID, err.Error())
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
 	}
 
 	if req.Key.CreationDate == 0 {
@@ -175,7 +175,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	}
 
 	if len(req.Key.Owner) == 0 {
-		req.Key.Owner = common.PYDIO_SYSTEM_USERNAME
+		req.Key.Owner = common.PydioSystemUsername
 	}
 
 	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
@@ -192,7 +192,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	}
 
 	req.Key.Info.Imports = append(req.Key.Info.Imports, &enc.Import{
-		By:   common.PYDIO_SYSTEM_USERNAME,
+		By:   common.PydioSystemUsername,
 		Date: int32(time.Now().Unix()),
 	})
 
@@ -216,7 +216,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 		return err
 	}
 
-	rsp.Key, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID)
+	rsp.Key, err = dao.GetKey(common.PydioSystemUsername, req.KeyID)
 	if err != nil {
 		return err
 	}
@@ -227,7 +227,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 		rsp.Key.Info.Exports = []*enc.Export{}
 	}
 	rsp.Key.Info.Exports = append(rsp.Key.Info.Exports, &enc.Export{
-		By:   common.PYDIO_SYSTEM_USERNAME,
+		By:   common.PydioSystemUsername,
 		Date: int32(time.Now().Unix()),
 	})
 
@@ -239,12 +239,12 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 
 	err = openWithMasterKey(rsp.Key)
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to decrypt for %s with key %s, cause: %s", common.PYDIO_SYSTEM_USERNAME, req.KeyID, err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
 
 	err = seal(rsp.Key, []byte(req.StrPassword))
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to encrypt for %s with key %s for export, cause: %s", common.PYDIO_SYSTEM_USERNAME, req.KeyID, err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to encrypt for %s with key %s for export, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
 	return nil
 }
@@ -253,7 +253,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 	systemKey := &enc.Key{
 		ID:           keyID,
-		Owner:        common.PYDIO_SYSTEM_USERNAME,
+		Owner:        common.PydioSystemUsername,
 		Label:        keyLabel,
 		CreationDate: int32(time.Now().Unix()),
 	}
@@ -282,7 +282,7 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 func sealWithMasterKey(k *enc.Key) error {
 	masterPasswordBytes, err := getMasterPassword()
 	if len(masterPasswordBytes) == 0 {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get %s password, cause: %s", common.PYDIO_SYSTEM_USERNAME, err.Error())
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get %s password, cause: %s", common.PydioSystemUsername, err.Error())
 	}
 	return seal(k, masterPasswordBytes)
 }
@@ -290,7 +290,7 @@ func sealWithMasterKey(k *enc.Key) error {
 func openWithMasterKey(k *enc.Key) error {
 	masterPasswordBytes, err := getMasterPassword()
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get %s password, cause: %s", common.PYDIO_SYSTEM_USERNAME, err.Error())
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get %s password, cause: %s", common.PydioSystemUsername, err.Error())
 	}
 	return open(k, masterPasswordBytes)
 }

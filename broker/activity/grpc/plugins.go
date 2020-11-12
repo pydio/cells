@@ -128,7 +128,7 @@ func RegisterDigestJob(ctx context.Context) error {
 	job := &jobs.Job{
 		ID:             "users-activity-digest",
 		Label:          "Users activities digest",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Owner:          common.PydioSystemUsername,
 		MaxConcurrency: 1,
 		AutoStart:      false,
 		Schedule: &jobs.Schedule{

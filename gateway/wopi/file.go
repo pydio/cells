@@ -150,7 +150,7 @@ func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 			f.UserId = claims.Name
 			f.UserFriendlyName = claims.DisplayName
 
-			pydioReadOnly := n.GetStringMeta(common.META_FLAG_READONLY)
+			pydioReadOnly := n.GetStringMeta(common.MetaFlagReadonly)
 			if pydioReadOnly == "true" {
 				f.UserCanWrite = false
 			} else {

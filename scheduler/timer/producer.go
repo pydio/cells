@@ -52,7 +52,7 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 		EventChan: make(chan *jobs.JobTriggerEvent),
 	}
 
-	e.Context = context.WithValue(rootCtx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	e.Context = context.WithValue(rootCtx, common.PydioContextUserKey, common.PydioSystemUsername)
 
 	go func() {
 		defer close(e.StopChan)

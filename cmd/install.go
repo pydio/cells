@@ -202,7 +202,7 @@ var installCmd = &cobra.Command{
 				noTlsConf := *proxyConf
 				noTlsConf.TLSConfig = nil
 				proxyConf = &noTlsConf
-				e := config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PYDIO_SYSTEM_USERNAME, "Create No TLS site at install")
+				e := config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Create No TLS site at install")
 				fatalIfError(cmd, e)
 			}
 

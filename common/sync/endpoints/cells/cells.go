@@ -161,7 +161,7 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 			return e
 		}
 		n := resp.Node
-		if n.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+		if n.Etag == common.NodeFlagEtagTemporary {
 			continue
 		}
 		n.Path = c.unrooted(resp.Node.Path)
@@ -170,10 +170,10 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 		}
 		if c.options.BrowseOnly {
 			var s string
-			if e := n.GetMeta(common.META_FLAG_WORKSPACE_SCOPE, &s); e == nil && s != "" {
+			if e := n.GetMeta(common.MetaFlagWorkspaceScope, &s); e == nil && s != "" {
 				// This is a workspace or a cell. Check it has the syncable flag
 				var canSync bool
-				if e2 := n.GetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, &canSync); e2 != nil || !canSync {
+				if e2 := n.GetMeta(common.MetaFlagWorkspaceSyncable, &canSync); e2 != nil || !canSync {
 					log.Logger(ctx).Info("Skipping workspace as it is not flagged as syncable", n.ZapPath())
 					continue
 				}
@@ -258,13 +258,13 @@ func (c *abstract) changeValidPath(n *tree.Node) bool {
 	if n == nil {
 		return true
 	}
-	if n.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	if n.Etag == common.NodeFlagEtagTemporary {
 		return false
 	}
 	if strings.Trim(n.Path, "/") == "" {
 		return false
 	}
-	if path.Base(n.Path) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if path.Base(n.Path) == common.PydioSyncHiddenFile {
 		return false
 	}
 	return true
@@ -275,7 +275,7 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
 	now := time.Now().UTC().Format(TimeFormatFS)
-	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PydioSyncHiddenFile {
 		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
 		c.updateSnapshot.CreateNode(c.globalCtx, change.Target, true)
 	}
@@ -404,7 +404,7 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 // will happen on the gateway side. It may take some time, thus a request timeout of 5 minutes.
 func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	// Ignore .pydio files !
-	if path.Base(name) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if path.Base(name) == common.PydioSyncHiddenFile {
 		log.Logger(ctx).Debug("[router] Ignoring " + name)
 		return nil
 	}
@@ -458,7 +458,7 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 	}
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
-	if path.Base(p) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if path.Base(p) == common.PydioSyncHiddenFile {
 		log.Logger(c.globalCtx).Debug("[router] Ignoring " + p)
 		defer close(writeDone)
 		defer close(writeErr)

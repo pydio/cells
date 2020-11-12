@@ -157,8 +157,8 @@ func (s *Pydio8Store) getRoles(ctx context.Context, teams bool, userStore models
 			if targetUser, _, e := userStore.GetUserInfo(ctx, role.OwnerId, map[string]interface{}{}); e == nil {
 				idmRole.IsTeam = true
 				builder = builder.WithOwner(targetUser.Uuid)
-				builder = builder.WithProfileRead(common.PYDIO_PROFILE_ADMIN)
-				builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+				builder = builder.WithProfileRead(common.PydioProfileAdmin)
+				builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 				builder = builder.WithUserRead(role.OwnerId)
 				builder = builder.WithUserWrite(role.OwnerId)
 			} else {
@@ -168,7 +168,7 @@ func (s *Pydio8Store) getRoles(ctx context.Context, teams bool, userStore models
 		} else {
 			// SET DEFAULT POLICIES
 			builder = builder.WithResourcePolicy(&service.ResourcePolicy{Subject: "*", Action: service.ResourcePolicyAction_READ})
-			builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		}
 		idmRole.Policies = builder.Policies()
 		roles = append(roles, idmRole)
@@ -337,14 +337,14 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 						user.GroupPath = "/" + strings.Replace(contextDomain, ",", ".", -1)
 					}
 				}
-				if resp.Profile == common.PYDIO_PROFILE_STANDARD || resp.Profile == common.PYDIO_PROFILE_SHARED || resp.Profile == common.PYDIO_PROFILE_ADMIN {
+				if resp.Profile == common.PydioProfileStandard || resp.Profile == common.PydioProfileShared || resp.Profile == common.PydioProfileAdmin {
 					user.Attributes[idm.UserAttrProfile] = resp.Profile
 				}
-				if resp.Profile == common.PYDIO_PROFILE_SHARED && resp.OwnerLogin != "" {
+				if resp.Profile == common.PydioProfileShared && resp.OwnerLogin != "" {
 					builder.Reset()
 					builder = builder.WithUserRead(resp.OwnerLogin).WithUserWrite(resp.OwnerLogin)
 					builder = builder.WithUserRead(user.Login).WithUserWrite(user.Login)
-					builder = builder.WithProfileRead(common.PYDIO_PROFILE_ADMIN).WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+					builder = builder.WithProfileRead(common.PydioProfileAdmin).WithProfileWrite(common.PydioProfileAdmin)
 					user.Policies = builder.Policies()
 				}
 				log.Logger(ctx).Info("Loaded advanced user info", zap.String("login", user.Login), user.Zap())

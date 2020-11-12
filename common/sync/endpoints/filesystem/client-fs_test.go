@@ -134,13 +134,13 @@ func TestCreateFolderId(t *testing.T) {
 		}, true)
 		So(err, ShouldBeNil)
 		var exist bool
-		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile)
 		So(exist, ShouldBeFalse)
 		s, _ := c.readOrCreateFolderId("/folder")
 		So(s, ShouldNotBeNil)
-		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		exist, _ = afero.Exists(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile)
 		So(exist, ShouldBeTrue)
-		byteContent, _ := afero.ReadFile(c.FS, "/folder/"+servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		byteContent, _ := afero.ReadFile(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile)
 		So(string(byteContent), ShouldEqual, s)
 
 	})
@@ -149,7 +149,7 @@ func TestCreateFolderId(t *testing.T) {
 
 		c := EmptyMockedClient()
 		c.FS.Mkdir("/folder", 0777)
-		afero.WriteFile(c.FS, "/folder/"+servicescommon.PYDIO_SYNC_HIDDEN_FILE_META, []byte("unique-id"), 0777)
+		afero.WriteFile(c.FS, "/folder/"+servicescommon.PydioSyncHiddenFile, []byte("unique-id"), 0777)
 		s, _ := c.readOrCreateFolderId("/folder")
 		So(s, ShouldEqual, "unique-id")
 
@@ -349,7 +349,7 @@ func TestWalkFS(t *testing.T) {
 		}()
 		wg.Wait()
 
-		// Will include the root and the PYDIO_SYNC_HIDDEN_FILE_META files
+		// Will include the root and the PydioSyncHiddenFile files
 		So(objects, ShouldHaveLength, 13)
 		So(objects["folder"].Uuid, ShouldNotBeEmpty)
 		So(objects["folder"].Etag, ShouldBeEmpty)
@@ -383,7 +383,7 @@ func TestWalkWithRoot(t *testing.T) {
 		}()
 		wg.Wait()
 
-		// Will include the root and the PYDIO_SYNC_HIDDEN_FILE_META files
+		// Will include the root and the PydioSyncHiddenFile files
 		So(objects, ShouldHaveLength, 2)
 	})
 }

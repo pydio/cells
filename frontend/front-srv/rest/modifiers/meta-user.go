@@ -38,7 +38,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 	searchableRenderers := make(map[string]string)
 	var crtAdmin bool
 	if status.User.Logged && status.User.UserObject.Attributes != nil {
-		if p, ok := status.User.UserObject.Attributes[idm.UserAttrProfile]; ok && p == common.PYDIO_PROFILE_ADMIN {
+		if p, ok := status.User.UserObject.Attributes[idm.UserAttrProfile]; ok && p == common.PydioProfileAdmin {
 			crtAdmin = true
 		}
 	}

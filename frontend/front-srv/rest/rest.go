@@ -347,7 +347,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 	if readNode != nil {
 		// If anonymous GET, add system user in context before querying object service
 		if ctxUser, _ := permissions.FindUserNameInContext(ctx); ctxUser == "" {
-			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 		ctx = ctxWithoutCookies(ctx)
 		if req.QueryParameter("dim") != "" {
@@ -415,7 +415,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		fileInput = bytes.NewBuffer(filtered)
 		fileSize = int64(len(filtered))
 		// USER binaries can only be edited by context user or by admin
-		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && ctxUser != binaryUuid {
+		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
 			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
 			return
 		}

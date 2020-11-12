@@ -36,7 +36,7 @@ type EventsSubscriber struct {
 // Handle the events received and send them to the subscriber
 func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
-	if msg.GetType() == tree.NodeChangeEvent_CREATE && (msg.GetTarget().Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, msg.GetTarget())) {
+	if msg.GetType() == tree.NodeChangeEvent_CREATE && (msg.GetTarget().Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, msg.GetTarget())) {
 		return nil
 	}
 

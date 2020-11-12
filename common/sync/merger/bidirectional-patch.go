@@ -468,7 +468,7 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 			return
 		}
 		log.Logger(p.ctx).Info("-- DataOperation detected on both sides, versions differ - keep both")
-		if path.Base(initialPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+		if path.Base(initialPath) == common.PydioSyncHiddenFile {
 			if p.ignoreUUIDConflicts {
 				log.Logger(p.ctx).Info("-- Conflict found on .pydio but patch must ignore")
 				return

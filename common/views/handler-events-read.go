@@ -121,7 +121,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 				newData, _ := json.Marshal(linkData)
 				doc.Data = string(newData)
 				store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
-				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocstoreIdShares, DocumentID: doc.ID, Document: doc})
+				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
 				if e3 == nil {
 					logger.Debug("Updated share download count " + doc.ID)
 				} else {
@@ -139,7 +139,7 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 
 	userLogin, claims := permissions.FindUserNameInContext(ctx)
 	// TODO - Have the 'hidden' info directly in claims => could it be a profile instead ?
-	if claims.Profile != common.PYDIO_PROFILE_SHARED {
+	if claims.Profile != common.PydioProfileShared {
 		return
 	}
 	bgContext := context.Background()
@@ -151,7 +151,7 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 
 	// SEARCH WITH PRESET_LOGIN
-	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",
 	}})
 	if e != nil {
@@ -169,7 +169,7 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 
 	if doc == nil {
 		// SEARCH WITH PRELOG_USER
-		stream2, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+		stream2, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + userLogin + "",
 		}})
 		if e != nil {

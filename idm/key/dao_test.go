@@ -45,7 +45,7 @@ func GetDAO(t *testing.T) DAO {
 		return mockDAO
 	}
 
-	err := crypto.DeleteKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY)
+	err := crypto.DeleteKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KeyringMasterKey)
 	if err != nil {
 		log.Println(err)
 	}

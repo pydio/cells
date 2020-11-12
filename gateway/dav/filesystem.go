@@ -179,7 +179,7 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 				Mode:  0777,
 				Type:  tree.NodeType_LEAF,
 				MTime: time.Now().Unix(),
-				Etag:  common.NODE_FLAG_ETAG_TEMPORARY,
+				Etag:  common.NodeFlagEtagTemporary,
 			}})
 			if createErr != nil {
 				return &File{}, createErr

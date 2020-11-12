@@ -46,7 +46,7 @@ import (
 func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		if claims.Profile == common.PYDIO_PROFILE_ADMIN { // Always allow for admins
+		if claims.Profile == common.PydioProfileAdmin { // Always allow for admins
 			return nil
 		}
 	}

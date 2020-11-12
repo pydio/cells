@@ -85,7 +85,7 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 
 	PubSub = pubsub.New(0)
 
-	s.RootContext = context.WithValue(parentContext, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	s.RootContext = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
 	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
@@ -225,8 +225,8 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	// Add System User if necessary
 	if addSystemUser {
 		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-			ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+			ctx = metadata.NewContext(ctx, metadata.Metadata{common.PydioContextUserKey: common.PydioSystemUsername})
+			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 	}
 
@@ -297,7 +297,7 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 	}
 
 	// Always ignore events on Temporary nodes
-	if event.Target != nil && event.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	if event.Target != nil && event.Target.Etag == common.NodeFlagEtagTemporary {
 		return nil
 	}
 
@@ -468,7 +468,7 @@ func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}
 	}
 	// Append user login
 	user, _ := permissions.FindUserNameInContext(ctx)
-	if user != "" && user != common.PYDIO_SYSTEM_USERNAME {
+	if user != "" && user != common.PydioSystemUsername {
 		msg += " (triggered by user " + user + ")"
 	}
 	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{

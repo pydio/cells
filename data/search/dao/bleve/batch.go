@@ -147,16 +147,16 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 
 func (b *Batch) createBackgroundContext() context.Context {
 	bgClaim := claim.Claims{
-		Name:      common.PYDIO_SYSTEM_USERNAME,
-		Profile:   common.PYDIO_PROFILE_ADMIN,
+		Name:      common.PydioSystemUsername,
+		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
 	}
 	md := map[string]string{
-		common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME,
+		common.PydioContextUserKey: common.PydioSystemUsername,
 	}
 	ctx := context.WithValue(context.Background(), claim.ContextKey, bgClaim)
 	ctx = auth.ToMetadata(ctx, bgClaim)
-	ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, bgClaim.Name)
+	ctx = context.WithValue(ctx, common.PydioContextUserKey, bgClaim.Name)
 	ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH)
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	ctx = context2.WithAdditionalMetadata(ctx, md)

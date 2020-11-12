@@ -180,7 +180,7 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 		if requestData.Metadata == nil {
 			requestData.Metadata = make(map[string]string, 1)
 		}
-		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid // Make sure to keep Uuid!
+		requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid // Make sure to keep Uuid!
 		from = &tree.Node{
 			Path: from.Uuid + "__" + requestData.SrcVersionId,
 		}

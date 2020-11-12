@@ -77,7 +77,7 @@ func (r *ResourcePoliciesBuilder) WithOwner(userUuid string) *ResourcePoliciesBu
 }
 
 func (r *ResourcePoliciesBuilder) WithStandardUserPolicies(userLogin string) *ResourcePoliciesBuilder {
-	r.WithProfileWrite(common.PYDIO_PROFILE_ADMIN).WithProfileRead(common.PYDIO_PROFILE_STANDARD).WithUserWrite(userLogin)
+	r.WithProfileWrite(common.PydioProfileAdmin).WithProfileRead(common.PydioProfileStandard).WithUserWrite(userLogin)
 	return r
 }
 

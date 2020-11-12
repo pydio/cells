@@ -159,7 +159,7 @@ func (s *SynchronousCacheHandler) cacheDel(ctx context.Context, node *tree.Node)
 	// Update diff
 	diff := NewCacheDiff()
 	p := node.GetPath()
-	if path.Base(p) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if path.Base(p) == common.PydioSyncHiddenFile {
 		p = path.Dir(p)
 	}
 	dir := path.Dir(p)

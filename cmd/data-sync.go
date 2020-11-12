@@ -67,7 +67,7 @@ This can be currently used for datasource indexes and search engine.`,
 		client := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 		defer cancel()
-		c = context2.WithUserNameMetadata(c, common.PYDIO_SYSTEM_USERNAME)
+		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
 		resp, err := client.TriggerResync(c, &sync.ResyncRequest{Path: syncPath})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())

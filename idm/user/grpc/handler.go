@@ -404,7 +404,7 @@ func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.
 	if usr.Attributes != nil {
 		if profile, ok := usr.Attributes[idm.UserAttrProfile]; ok {
 			// For shared users, disable group roles inheritance
-			if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
+			if profile == common.PydioProfileShared || profile == common.PydioProfileAnon {
 				var newRoles []*idm.Role
 				for _, role := range usr.Roles {
 					if !role.GroupRole {

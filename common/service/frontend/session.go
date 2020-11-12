@@ -39,7 +39,7 @@ func loadKey() []byte {
 		knownKey = securecookie.GenerateRandomKey(64)
 		val = base64.StdEncoding.EncodeToString(key)
 		config.Get("frontend", "session", "secureKey").Set(val)
-		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating session random key")
+		config.Save(common.PydioSystemUsername, "Generating session random key")
 	} else {
 		knownKey, _ = base64.StdEncoding.DecodeString(val)
 	}

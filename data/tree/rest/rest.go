@@ -212,8 +212,8 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				if er != nil {
 					break
 				}
-				if strings.HasSuffix(r.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
-					delete(folderChecks, strings.TrimRight(strings.TrimSuffix(r.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META), "/"))
+				if strings.HasSuffix(r.Node.Path, common.PydioSyncHiddenFile) {
+					delete(folderChecks, strings.TrimRight(strings.TrimSuffix(r.Node.Path, common.PydioSyncHiddenFile), "/"))
 				}
 			}
 			if len(folderChecks) > 0 {
@@ -448,7 +448,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	data, _ := json.Marshal(input.Nodes)
 	if _, e := dcClient.PutDocument(ctx, &docstore.PutDocumentRequest{
-		StoreID:    common.DocstoreIdSelections,
+		StoreID:    common.DocStoreIdSelections,
 		DocumentID: selectionUuid,
 		Document: &docstore.Document{
 			Owner: username,

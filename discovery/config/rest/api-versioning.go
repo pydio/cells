@@ -45,7 +45,7 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
-		StoreID: common.DocstoreIdVersioningPolicies,
+		StoreID: common.DocStoreIdVersioningPolicies,
 	})
 	if er != nil {
 		service.RestError500(req, resp, er)
@@ -74,7 +74,7 @@ func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Respon
 	policyId := req.PathParameter("Uuid")
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	if r, e := dc.GetDocument(req.Request.Context(), &docstore.GetDocumentRequest{
-		StoreID:    common.DocstoreIdVersioningPolicies,
+		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyId,
 	}); e != nil {
 		service.RestError404(req, resp, e)

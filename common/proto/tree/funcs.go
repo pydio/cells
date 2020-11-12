@@ -56,5 +56,5 @@ func BuildAncestorsListOrParent(ctx context.Context, treeClient NodeProviderClie
 // outputs sent to end user (typically websocket events, activities, etc)
 func IgnoreNodeForOutput(ctx context.Context, node *Node) bool {
 	base := path.Base(node.Path)
-	return base == common.PYDIO_SYNC_HIDDEN_FILE_META || strings.HasPrefix(base, ".")
+	return base == common.PydioSyncHiddenFile || strings.HasPrefix(base, ".")
 }

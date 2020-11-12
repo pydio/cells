@@ -158,7 +158,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, errors.NotFound(common.SERVICE_USER_META, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
-		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.META_FLAG_READONLY) != "" {
+		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this node"))
 			return
 		}

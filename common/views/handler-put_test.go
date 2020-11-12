@@ -94,7 +94,7 @@ func TestMkfileHandler_PutObject(t *testing.T) {
 
 	h, ctx, _ := testMkFileResources()
 	Convey("PutObject 1", t, func() {
-		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/" + common.PYDIO_SYNC_HIDDEN_FILE_META}, strings.NewReader(""), &PutRequestData{})
+		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/" + common.PydioSyncHiddenFile}, strings.NewReader(""), &PutRequestData{})
 		So(err, ShouldBeNil)
 		So(size, ShouldBeZeroValue)
 

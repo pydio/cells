@@ -50,7 +50,7 @@ func (a *BinaryStoreHandler) isStorePath(nodePath string) bool {
 }
 
 func (a *BinaryStoreHandler) checkContextForAnonRead(ctx context.Context) error {
-	if u := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); (u == nil || u == common.PYDIO_S3ANON_USERNAME) && !a.AllowAnonRead {
+	if u := ctx.Value(common.PydioContextUserKey); (u == nil || u == common.PydioS3AnonUsername) && !a.AllowAnonRead {
 		return errors.Forbidden(VIEWS_LIBRARY_NAME, "you are not allowed to access this content")
 	}
 	return nil

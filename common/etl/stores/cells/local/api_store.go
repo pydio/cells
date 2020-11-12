@@ -93,7 +93,7 @@ func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*
 		identity.Attributes = make(map[string]string)
 	}
 	if _, ok := identity.Attributes[idm.UserAttrProfile]; !ok {
-		identity.Attributes[idm.UserAttrProfile] = common.PYDIO_PROFILE_STANDARD
+		identity.Attributes[idm.UserAttrProfile] = common.PydioProfileStandard
 	}
 
 	log.Logger(ctx).Info("Now storing", identity.Zap())
@@ -102,7 +102,7 @@ func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*
 
 		builder = service.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
-		builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		builder = builder.WithUserRead(identity.Login)
 		builder = builder.WithUserWrite(identity.Login)
 
@@ -238,7 +238,7 @@ func (apiStore *ApiStore) PutGroup(ctx context.Context, identity *idm.User) erro
 	if resp, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: (*idm.User)(identity)}); e == nil {
 		builder = service.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
-		builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		builder = builder.WithUserRead(identity.Login)
 		builder = builder.WithUserWrite(identity.Login)
 
@@ -464,7 +464,7 @@ func (apiStore *ApiStore) GetUserInfo(ctx context.Context, userName string, para
 			user:       user,
 			accessList: access,
 		}
-		usrCtx := context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, userName)
+		usrCtx := context.WithValue(ctx, common.PydioContextUserKey, userName)
 		usrCtx = context.WithValue(usrCtx, views.CtxUserAccessListKey{}, access)
 		usrCtx = context.WithValue(usrCtx, views.CtxKeepAccessListKey{}, true)
 		loaded.ctx = usrCtx

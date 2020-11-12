@@ -90,7 +90,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	node := input.Nodes[0]
 
-	if node.Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, node) {
+	if node.Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))

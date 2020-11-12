@@ -71,7 +71,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if values, ok := r.Header[common.PYDIO_CONTEXT_USER_KEY]; !a.gateway && ok && len(values) > 0 {
+	if values, ok := r.Header[common.PydioContextUserKey]; !a.gateway && ok && len(values) > 0 {
 
 		userName = strings.Join(values, "")
 
@@ -92,14 +92,14 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	} else if agent, aOk := r.Header["User-Agent"]; aOk && strings.Contains(strings.Join(agent, ""), "pydio.sync.client.s3") {
 
-		userName = common.PYDIO_SYSTEM_USERNAME
+		userName = common.PydioSystemUsername
 
 	} else {
 
 		if a.gateway {
 
-			if user, er := permissions.SearchUniqueUser(ctx, common.PYDIO_S3ANON_USERNAME, ""); er == nil {
-				userName = common.PYDIO_S3ANON_USERNAME
+			if user, er := permissions.SearchUniqueUser(ctx, common.PydioS3AnonUsername, ""); er == nil {
+				userName = common.PydioS3AnonUsername
 				var s []string
 				for _, role := range user.Roles {
 					if role.UserRole { // Just append the User Role
@@ -107,7 +107,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				anonClaim := claim.Claims{
-					Name:      common.PYDIO_S3ANON_USERNAME,
+					Name:      common.PydioS3AnonUsername,
 					Roles:     strings.Join(s, ","),
 					Profile:   "anon",
 					GroupPath: "/",

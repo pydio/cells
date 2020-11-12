@@ -218,7 +218,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 		}
 		if newConfig != initialConfig {
 			config.Get("services", servicecontext.GetServiceName(ctx), "valid").Set(true)
-			config.Save(common.PYDIO_SYSTEM_USERNAME, "Update mailer valid config")
+			config.Save(common.PydioSystemUsername, "Update mailer valid config")
 		}
 	}()
 

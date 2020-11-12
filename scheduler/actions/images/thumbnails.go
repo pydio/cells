@@ -144,7 +144,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.
 // Run the actual action code.
 func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	if len(input.Nodes) == 0 || input.Nodes[0].Size == -1 || input.Nodes[0].Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+	if len(input.Nodes) == 0 || input.Nodes[0].Size == -1 || input.Nodes[0].Etag == common.NodeFlagEtagTemporary {
 		// Nothing to do
 		log.Logger(ctx).Debug("[THUMB EXTRACTOR] task ignored")
 		return input.WithIgnore(), nil

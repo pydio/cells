@@ -111,15 +111,15 @@ func InitDefaults(ctx context.Context) error {
 		newUser, err := CreateIfNotExists(ctx, dao, &idm.User{
 			Login:      login,
 			Password:   pwd,
-			Attributes: map[string]string{"profile": common.PYDIO_PROFILE_ADMIN},
+			Attributes: map[string]string{"profile": common.PydioProfileAdmin},
 		})
 		if err != nil {
 			return err
 		} else if newUser != nil {
 			builder := service2.NewResourcePoliciesBuilder()
-			builder = builder.WithProfileRead(common.PYDIO_PROFILE_STANDARD)
+			builder = builder.WithProfileRead(common.PydioProfileStandard)
 			builder = builder.WithUserWrite(login)
-			builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 			if err2 := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err2 != nil {
 				return err2
 			}
@@ -140,9 +140,9 @@ func InitDefaults(ctx context.Context) error {
 	log.Logger(ctx).Info("Initialization: creating s3 anonymous user")
 
 	newAnon, err := CreateIfNotExists(ctx, dao, &idm.User{
-		Login:      common.PYDIO_S3ANON_USERNAME,
-		Password:   common.PYDIO_S3ANON_USERNAME,
-		Attributes: map[string]string{"profile": common.PYDIO_S3ANON_PROFILE},
+		Login:      common.PydioS3AnonUsername,
+		Password:   common.PydioS3AnonUsername,
+		Attributes: map[string]string{"profile": common.PydioProfileAnon},
 	})
 	if err != nil {
 		return err
@@ -150,9 +150,9 @@ func InitDefaults(ctx context.Context) error {
 
 	if newAnon != nil {
 		builder := service2.NewResourcePoliciesBuilder()
-		builder = builder.WithUserRead(common.PYDIO_S3ANON_USERNAME)
-		builder = builder.WithProfileRead(common.PYDIO_PROFILE_ADMIN)
-		builder = builder.WithProfileWrite(common.PYDIO_PROFILE_ADMIN)
+		builder = builder.WithUserRead(common.PydioS3AnonUsername)
+		builder = builder.WithProfileRead(common.PydioProfileAdmin)
+		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		if err2 := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err2 != nil {
 			return err2
 		}

@@ -57,7 +57,7 @@ func InsertPruningJob(ctx context.Context) error {
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 		_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
 			ID:    pruneTokensActionName,
-			Owner: common.PYDIO_SYSTEM_USERNAME,
+			Owner: common.PydioSystemUsername,
 			Label: T("Auth.PruneJob.Title"),
 			Schedule: &jobs.Schedule{
 				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT5M", // Every 5 minutes

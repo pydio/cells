@@ -378,7 +378,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 
 	job := &jobs.Job{
 		ID:             jobUuid,
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Owner:          common.PydioSystemUsername,
 		Label:          T("Jobs.User.ResyncDS", map[string]string{"DsName": dsName}),
 		Inactive:       false,
 		Languages:      languages,
@@ -528,7 +528,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 func p8migration(ctx context.Context, jsonParams string) (string, error) {
 
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	if claims.Profile != common.PYDIO_PROFILE_ADMIN {
+	if claims.Profile != common.PydioProfileAdmin {
 		return "", errors.Forbidden("user.job.forbidden", "you are not allowed to create this job")
 	}
 	jobUuid := "pydio8-data-import"
@@ -544,7 +544,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 	job := &jobs.Job{
 		ID:       jobUuid,
 		Label:    "Import Data from Pydio 8",
-		Owner:    common.PYDIO_SYSTEM_USERNAME,
+		Owner:    common.PydioSystemUsername,
 		Inactive: false,
 		//AutoStart:         true,
 		MaxConcurrency: 1,

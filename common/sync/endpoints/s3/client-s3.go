@@ -166,7 +166,7 @@ func (c *Client) Stat(path string) (i os.FileInfo, err error) {
 	objectInfo, e := c.Mc.StatObject(c.Bucket, c.getFullPath(path), minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
-		folderInfo, e2 := c.Mc.StatObject(c.Bucket, c.getFullPath(path)+"/"+servicescommon.PYDIO_SYNC_HIDDEN_FILE_META, minio.StatObjectOptions{})
+		folderInfo, e2 := c.Mc.StatObject(c.Bucket, c.getFullPath(path)+"/"+servicescommon.PydioSyncHiddenFile, minio.StatObjectOptions{})
 		if e2 != nil {
 			return nil, e
 		}
@@ -179,7 +179,7 @@ func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	if node.IsLeaf() {
 		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
-	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
 	_, err = c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	return err
 }
@@ -357,7 +357,7 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 			return objectInfo.Err
 		}
 		folderKey := path.Dir(objectInfo.Key)
-		if strings.HasSuffix(objectInfo.Key, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META) {
+		if strings.HasSuffix(objectInfo.Key, servicescommon.PydioSyncHiddenFile) {
 			// Create Fake Folder
 			// log.Print("Folder Key is " , folderKey)
 			if folderKey == "" || folderKey == "." {
@@ -392,7 +392,7 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 	return nil
 }
 
-// Will try to create PYDIO_SYNC_HIDDEN_FILE_META to avoid missing empty folders
+// Will try to create PydioSyncHiddenFile to avoid missing empty folders
 func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
 	// Do not create hidden files in BrowseOnly mode
@@ -467,7 +467,7 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 	// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
 	// TODO : SHOULD NOT BE NECESSARY FOR REAL MINIO ON FS (but required for Minio as S3 gateway or real S3)
 	if objectInfo.Size > MaxCopyObjectSize {
-		if checksum := oi.Metadata.Get(servicescommon.X_AMZ_META_CONTENT_MD5); checksum != "" {
+		if checksum := oi.Metadata.Get(servicescommon.XAmzMetaContentMd5); checksum != "" {
 			objectInfo.ETag = checksum
 			return objectInfo, nil
 		}
@@ -481,8 +481,8 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 			return objectInfo, err
 		}
 		checksum := fmt.Sprintf("%x", h.Sum(nil))
-		existingMeta[servicescommon.X_AMZ_META_DIRECTIVE] = "REPLACE"
-		existingMeta[servicescommon.X_AMZ_META_CONTENT_MD5] = checksum
+		existingMeta[servicescommon.XAmzMetaDirective] = "REPLACE"
+		existingMeta[servicescommon.XAmzMetaContentMd5] = checksum
 		cl, ok := c.Mc.(*minio.Client)
 		if !ok {
 			return objectInfo, fmt.Errorf("cannot convert MockableMinio to minio.Client")
@@ -498,7 +498,7 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 		var sourceInfo minio.SourceInfo
 		destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, existingMeta)
 		sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
-		sourceInfo.Headers.Set(servicescommon.X_AMZ_META_DIRECTIVE, "REPLACE")
+		sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE")
 		copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
 		if copyErr != nil {
 			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
@@ -573,8 +573,8 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 
 	if node.IsLeaf() {
 		d, e := minio.NewDestinationInfo(c.Bucket, c.getFullPath(node.Path), nil, map[string]string{
-			servicescommon.X_AMZ_META_DIRECTIVE: "REPLACE",
-			servicescommon.X_AMZ_META_NODE_UUID: node.Uuid,
+			servicescommon.XAmzMetaDirective: "REPLACE",
+			servicescommon.XAmzMetaNodeUuid:  node.Uuid,
 		})
 		if e != nil {
 			return nil, e
@@ -583,7 +583,7 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 		err := c.Mc.CopyObject(d, s)
 		return node, err
 	} else {
-		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
 		_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 		return node, err
 	}
@@ -602,7 +602,7 @@ func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag str
 func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
 
 	// Find existing .pydio
-	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PydioSyncHiddenFile)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
 	if err == nil {
@@ -652,9 +652,9 @@ func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int
 	if e != nil {
 		return "", "", metaSize, e
 	}
-	uid = objectInfo.Metadata.Get(servicescommon.X_AMZ_META_NODE_UUID)
-	if size := objectInfo.Metadata.Get(servicescommon.X_AMZ_META_CLEAR_SIZE); size != "" {
-		if size == servicescommon.X_AMZ_META_CLEAR_SIZE_UNKOWN {
+	uid = objectInfo.Metadata.Get(servicescommon.XAmzMetaNodeUuid)
+	if size := objectInfo.Metadata.Get(servicescommon.XAmzMetaClearSize); size != "" {
+		if size == servicescommon.XAmzMetaClearSizeUnkown {
 			if c.plainSizeComputer != nil {
 				if plain, er := c.plainSizeComputer(uid); er == nil {
 					metaSize = plain
@@ -733,7 +733,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 				objectPath := key
 				folder := false
 				var additionalCreate string
-				if strings.HasSuffix(key, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META) {
+				if strings.HasSuffix(key, servicescommon.PydioSyncHiddenFile) {
 					additionalCreate = objectPath
 					objectPath = path.Dir(key)
 					folder = true
@@ -759,7 +759,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 						Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
 					}
 					if additionalCreate != "" {
-						// Send also the PYDIO_SYNC_HIDDEN_FILE_META event
+						// Send also the PydioSyncHiddenFile event
 						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.String("path", additionalCreate))
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,

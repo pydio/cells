@@ -155,11 +155,11 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 	})
 	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
 		AttributeName:  idm.UserAttrProfile,
-		AttributeValue: common.PYDIO_PROFILE_SHARED,
+		AttributeValue: common.PydioProfileShared,
 		Not:            true,
 	})
 	q3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
-		Login: common.PYDIO_S3ANON_USERNAME,
+		Login: common.PydioS3AnonUsername,
 		Not:   true,
 	})
 	st, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{
@@ -303,14 +303,14 @@ func ComputeContextForUser(ctx context.Context, name string, user *idm.User) (co
 		if e != nil {
 			return nil, e
 		}
-		userCtx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, name)
+		userCtx = context.WithValue(ctx, common.PydioContextUserKey, name)
 		userCtx = context.WithValue(userCtx, views.CtxUserAccessListKey{}, accessList)
 	} else {
 		accessList, e := permissions.AccessListFromRoles(ctx, user.Roles, false, true)
 		if e != nil {
 			return nil, e
 		}
-		userCtx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, user.Login)
+		userCtx = context.WithValue(ctx, common.PydioContextUserKey, user.Login)
 		userCtx = context.WithValue(userCtx, views.CtxUserAccessListKey{}, accessList)
 	}
 	userCtx = context.WithValue(userCtx, views.CtxKeepAccessListKey{}, true)

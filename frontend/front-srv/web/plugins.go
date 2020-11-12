@@ -124,7 +124,7 @@ func DropLegacyStatics(ctx context.Context) error {
 	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String() == "" {
 		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
 	}
-	if e := config.Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade to 1.2.0"); e == nil {
+	if e := config.Save(common.PydioSystemUsername, "Upgrade to 1.2.0"); e == nil {
 		log.Logger(ctx).Info("[Upgrade] Cleaned unused configurations")
 	}
 

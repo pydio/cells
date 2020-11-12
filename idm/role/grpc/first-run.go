@@ -52,7 +52,7 @@ var (
 		},
 		{
 			Action:  service.ResourcePolicyAction_WRITE,
-			Subject: "profile:" + common.PYDIO_PROFILE_ADMIN,
+			Subject: "profile:" + common.PydioProfileAdmin,
 			Effect:  service.ResourcePolicy_allow,
 		},
 	}
@@ -64,7 +64,7 @@ var (
 		},
 		{
 			Action:  service.ResourcePolicyAction_WRITE,
-			Subject: "profile:" + common.PYDIO_PROFILE_STANDARD,
+			Subject: "profile:" + common.PydioProfileStandard,
 			Effect:  service.ResourcePolicy_allow,
 		},
 	}
@@ -95,7 +95,7 @@ func InitRoles(ctx context.Context) error {
 			Role: &idm.Role{
 				Uuid:        "ADMINS",
 				Label:       "Administrators",
-				AutoApplies: []string{common.PYDIO_PROFILE_ADMIN},
+				AutoApplies: []string{common.PydioProfileAdmin},
 				Policies:    rootPolicies,
 			},
 			Acls: []*idm.ACL{
@@ -107,7 +107,7 @@ func InitRoles(ctx context.Context) error {
 			Role: &idm.Role{
 				Uuid:        "EXTERNAL_USERS",
 				Label:       "External Users",
-				AutoApplies: []string{common.PYDIO_PROFILE_SHARED},
+				AutoApplies: []string{common.PydioProfileShared},
 				Policies:    externalPolicies,
 			},
 			Acls: []*idm.ACL{

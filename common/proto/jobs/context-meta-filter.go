@@ -94,7 +94,7 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in context")
 		return input, false
 	}
-	if username == common.PYDIO_SYSTEM_USERNAME {
+	if username == common.PydioSystemUsername {
 		user = &idm.User{Login: username}
 	} else if u, err := permissions.SearchUniqueUser(ctx, username, "", &idm.UserSingleQuery{Login: username}); err == nil {
 		user = u

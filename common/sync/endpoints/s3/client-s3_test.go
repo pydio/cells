@@ -55,7 +55,7 @@ func TestStat(t *testing.T) {
 		fileInfo, err := c.Stat("folder")
 		fakeFolderInfo := &S3FileInfo{
 			Object: minio.ObjectInfo{
-				Key: "folder/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
+				Key: "folder/" + common.PydioSyncHiddenFile,
 			},
 			isDir: true,
 		}

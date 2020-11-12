@@ -324,7 +324,7 @@ func nodeToUser(t *mtree.TreeNode) *idm.User {
 	var gRoles []string
 	t.GetMeta("GroupRoles", &gRoles)
 	// Do not apply inheritance to anonymous user
-	if t.Name() == common.PYDIO_S3ANON_USERNAME {
+	if t.Name() == common.PydioS3AnonUsername {
 		u.Roles = []*idm.Role{}
 		return u
 	}

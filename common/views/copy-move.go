@@ -287,7 +287,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		deleteMeta := make(map[string]string)
 		closeSession := common.SyncSessionClose_ + session
 		if move {
-			copyMeta[common.X_AMZ_META_DIRECTIVE] = "COPY"
+			copyMeta[common.XAmzMetaDirective] = "COPY"
 			deleteMeta[common.XPydioSessionUuid] = closeSession
 			if crossDs {
 				copyMeta[common.XPydioSessionUuid] = closeSession
@@ -298,7 +298,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				copyMeta[common.XPydioSessionUuid] = session
 			}
 		} else {
-			copyMeta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
+			copyMeta[common.XAmzMetaDirective] = "REPLACE"
 			copyMeta[common.XPydioSessionUuid] = closeSession
 		}
 		statusChan <- copyMoveStatusKey(sourceNode.Path, move, tFunc...)
@@ -368,7 +368,7 @@ func updateLockerForByteSize(ctx context.Context, locker permissions.SessionLock
 
 func copyMoveStatusKey(keyPath string, move bool, tFunc ...i18n.TranslateFunc) string {
 	var statusPath = keyPath
-	if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	if path.Base(statusPath) == common.PydioSyncHiddenFile {
 		statusPath = path.Dir(statusPath)
 	}
 	statusPath = path.Base(statusPath)
@@ -396,7 +396,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 	var justCopied *tree.Node
 	justCopied = nil
 	// Copy files - For "Copy" operation, do NOT copy .pydio files
-	if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
+	if childNode.IsLeaf() && (move || path.Base(childPath) != common.PydioSyncHiddenFile) {
 
 		logger.Debug("Copy " + childNode.Path + " to " + targetPath)
 
@@ -404,9 +404,9 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 
 		meta := make(map[string]string, 1)
 		if move {
-			meta[common.X_AMZ_META_DIRECTIVE] = "COPY"
+			meta[common.XAmzMetaDirective] = "COPY"
 		} else {
-			meta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
+			meta[common.XAmzMetaDirective] = "REPLACE"
 		}
 		meta[common.XPydioSessionUuid] = session
 		if crossDs {

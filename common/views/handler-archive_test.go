@@ -122,7 +122,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	mock.Nodes["path/folder"] = &tree.Node{Path: "path/folder", Type: tree.NodeType_COLLECTION, Size: 30}
 	mock.Nodes["path/folder/file1"] = &tree.Node{Path: "path/folder/file1", Type: tree.NodeType_LEAF, Size: 10}
 	mock.Nodes["path/folder/file2"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
-	mock.Nodes["path/folder/"+common.PYDIO_SYNC_HIDDEN_FILE_META] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
+	mock.Nodes["path/folder/"+common.PydioSyncHiddenFile] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
 	mock.Nodes["path/folder/subfolder_ignored"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_COLLECTION}
 
 	selMock := newMockSelectionProvider()

@@ -232,7 +232,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		uName, _ := session.Get(SessionUsernameKey)
 		metaCtx := context.Background()
 		metaCtx = metadata.NewContext(metaCtx, map[string]string{
-			common.PYDIO_CONTEXT_USER_KEY: uName.(string),
+			common.PydioContextUserKey: uName.(string),
 		})
 		if md, o := session.Get(SessionMetaContext); o {
 			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
@@ -301,14 +301,14 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {
 		var isAdmin, o bool
 		var v interface{}
-		if v, o = session.Get(SessionProfileKey); o && v == common.PYDIO_PROFILE_ADMIN {
+		if v, o = session.Get(SessionProfileKey); o && v == common.PydioProfileAdmin {
 			isAdmin = true
 		}
 		value, ok := session.Get(SessionUsernameKey)
 		if !ok || value == nil {
 			return false
 		}
-		isOwner := value.(string) == taskOwner || (taskOwner == common.PYDIO_SYSTEM_USERNAME && isAdmin)
+		isOwner := value.(string) == taskOwner || (taskOwner == common.PydioSystemUsername && isAdmin)
 		if isOwner {
 			log.Logger(ctx).Debug("Should Broadcast Task Event : ", zap.Any("task", event.TaskUpdated), zap.Any("job", event.Job))
 		} else {

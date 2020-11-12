@@ -107,7 +107,7 @@ func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsReque
 		result.Log("PutObject without X-Pydio-User header returned error", e)
 	}
 
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 	_, e = core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
 	if e != nil {
 		return result, fmt.Errorf("PutObject error (with X-Pydio-User Header): " + e.Error())
@@ -132,8 +132,8 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 		return result, er
 	}
 	opts := minio.StatObjectOptions{}
-	opts.Set(common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+	opts.Set(common.PydioContextUserKey, common.PydioSystemUsername)
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	var localFolder string
 	var ok bool
@@ -240,8 +240,8 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 	}
 
 	opts := minio.StatObjectOptions{}
-	opts.Set(common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+	opts.Set(common.PydioContextUserKey, common.PydioSystemUsername)
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	result.Log("Setting up events listener")
 	done := make(chan struct{})
@@ -288,7 +288,7 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 			continue
 		}
 		if k == key {
-			if v, ok := r.RequestParameters[common.PYDIO_CONTEXT_USER_KEY]; ok && v == common.PYDIO_SYSTEM_USERNAME {
+			if v, ok := r.RequestParameters[common.PydioContextUserKey]; ok && v == common.PydioSystemUsername {
 				metaFound = true
 			}
 		}

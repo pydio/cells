@@ -163,7 +163,7 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 			return input.WithError(err), err
 		}
 		for k, u := range usersDiff.Delete {
-			if u.Login == cellAdmin || u.Login == common.PYDIO_S3ANON_USERNAME || u.Uuid == "ROOT_GROUP" {
+			if u.Login == cellAdmin || u.Login == common.PydioS3AnonUsername || u.Uuid == "ROOT_GROUP" {
 				delete(usersDiff.Delete, k)
 			}
 		}

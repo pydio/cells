@@ -87,10 +87,10 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 		Data:          string(hashDocMarshaled),
 		IndexableMeta: string(hashDocMarshaled),
 	}
-	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{Document: doc, DocumentID: doc.ID, StoreID: common.DocstoreIdShares})
+	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{Document: doc, DocumentID: doc.ID, StoreID: common.DocStoreIdShares})
 
 	if removeHash != "" {
-		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocstoreIdShares, DocumentID: removeHash})
+		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdShares, DocumentID: removeHash})
 	}
 
 	return e
@@ -100,7 +100,7 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
 	store := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
-	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareLink.Uuid + "\" +SHARE_TYPE:minisite",
 	}})
 	if er != nil {
@@ -169,7 +169,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 func DeleteHashDocument(ctx context.Context, shareId string) error {
 
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
-	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareId + "\" +SHARE_TYPE:minisite",
 	}})
 	if err != nil {
@@ -189,7 +189,7 @@ func SearchHashDocumentForUser(ctx context.Context, userLogin string) (*docstore
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 
 	// SEARCH PUBLIC
-	streamer, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+	streamer, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+PRELOG_USER:\"" + userLogin + "\" +SHARE_TYPE:minisite",
 	}})
 	if err != nil {
@@ -214,7 +214,7 @@ func SearchHashDocumentForUser(ctx context.Context, userLogin string) (*docstore
 	}
 
 	// SEARCH PASSWORD PROTECTED
-	streamer1, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocstoreIdShares, Query: &docstore.DocumentQuery{
+	streamer1, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+PRESET_LOGIN:\"" + userLogin + "\" +SHARE_TYPE:minisite",
 	}})
 	if err != nil {

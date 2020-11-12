@@ -80,7 +80,7 @@ $ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
 			Login:      userCreateLogin,
 			Password:   userCreatePassword,
 			Policies:   policies,
-			Attributes: map[string]string{"profile": common.PYDIO_PROFILE_STANDARD},
+			Attributes: map[string]string{"profile": common.PydioProfileStandard},
 		}
 
 		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
