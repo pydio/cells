@@ -59,6 +59,7 @@ func TestMain(m *testing.M) {
 		return
 	}
 
+	ctx = context.Background()
 	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	ctx = metadata.NewContext(ctx, map[string]string{})
 

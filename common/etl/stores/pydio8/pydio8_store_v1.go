@@ -125,7 +125,7 @@ type GetConfigOK struct {
 }
 
 func (o *GetConfigOK) Error() string {
-	return fmt.Sprintf("[GET /settings/get_plugin_manifest/][%d] getCoreAuthOK  %+v", 200, o)
+	return fmt.Sprintf("[GET /settings/get_plugin_manifest/][%d] getCoreAuthOK  %+v", 200, o.PluginSettingsValues)
 }
 
 func (o *GetConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
