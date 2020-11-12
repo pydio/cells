@@ -43,7 +43,7 @@ import (
 // NewRoleHandler creates and configure a new RoleHandler
 func NewRoleHandler() *RoleHandler {
 	handler := new(RoleHandler)
-	handler.ServiceName = common.SERVICE_ROLE
+	handler.ServiceName = common.ServiceRole
 	handler.ResourceName = "role"
 	handler.PoliciesLoader = handler.PoliciesForRole
 	return handler
@@ -72,7 +72,7 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
 		Uuid: []string{uuid},
 	})
-	cl := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &serviceproto.Query{
 			SubQueries: []*any.Any{query},
@@ -98,7 +98,7 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 	if !found {
-		service.RestError404(req, rsp, errors.NotFound(common.SERVICE_ROLE, "cannot find role for uuid "+uuid))
+		service.RestError404(req, rsp, errors.NotFound(common.ServiceRole, "cannot find role for uuid "+uuid))
 		return
 	}
 }
@@ -132,7 +132,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 		service.RestError403(req, rsp, er)
 		return
 	}
-	cl := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{Query: query})
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("While fetching roles", zap.Error(err))
@@ -163,7 +163,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 	uuid := req.PathParameter("Uuid")
 	log.Logger(ctx).Debug("Received Role.Delete API request", zap.String("name", uuid))
 
-	cl := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil {
 		service.RestError403(req, rsp, checkError)
 		return
@@ -199,7 +199,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	ctx := req.Request.Context()
-	cl := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
 
 	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && errors.Parse(checkError.Error()).Code != 404 {
@@ -247,7 +247,7 @@ func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, re
 		break
 	}
 	if role == nil {
-		return policies, errors.NotFound(common.SERVICE_ROLE, "cannot find role with id "+resourceId)
+		return policies, errors.NotFound(common.ServiceRole, "cannot find role with id "+resourceId)
 	}
 	return
 }

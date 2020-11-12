@@ -59,21 +59,21 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				zap.String(common.KEY_USER_UUID, user.Uuid),
 			)
 			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
-			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" has been blocked. Contact your sysadmin.")
+			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" has been blocked. Contact your sysadmin.")
 		}
 
 		// Reset failed connections
 		if user.Attributes != nil {
 			if _, ok := user.Attributes["failedConnections"]; ok {
 				log.Logger(ctx).Info("[WrapWithUserLocks] Resetting user failedConnections", user.ZapLogin())
-				userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+				userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 				delete(user.Attributes, "failedConnections")
 				userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 			}
 		}
 
 		// Checking policies
-		cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
+		cli := idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
 		policyContext := make(map[string]string)
 		permissions.PolicyContextFromMetadata(policyContext, ctx)
 		subjects := permissions.PolicyRequestSubjectsFromUser(user)
@@ -95,7 +95,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 				zap.Error(err),
 			)
 			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KEY_POLICY_REQUEST, policyRequest), zap.Error(err))
-			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
+			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" is not authorized to log in")
 		}
 
 		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
@@ -181,7 +181,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		}
 
 		log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", user.GetLogin()), user.ZapLogin())
-		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 		if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user}); e != nil {
 			log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))
 		}

@@ -89,7 +89,7 @@ func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableC
 		return input.WithError(e), e
 	}
 	q, _ := ptypes.MarshalAny(singleQ)
-	uCl := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
+	uCl := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
 	_, e := uCl.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}, client.WithRequestTimeout(30*time.Minute))
 	if e != nil {
 		input = input.WithError(e)

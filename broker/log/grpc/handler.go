@@ -114,7 +114,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		theTask := request.Task
 		theTask.StartTime = int32(time.Now().Unix())
 		closeTask = func(e error) {
-			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
+			taskClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient(client.Retries(3)))
 			theTask.EndTime = int32(time.Now().Unix())
 			if e != nil {
 				theTask.StatusMessage = "Error " + e.Error()

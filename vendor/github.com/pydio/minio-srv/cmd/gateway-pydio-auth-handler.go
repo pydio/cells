@@ -42,9 +42,9 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx = servicecontext.HttpRequestInfoToMetadata(ctx, r)
 	if a.gateway {
-		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GATEWAY_DATA)
+		ctx = servicecontext.WithServiceName(ctx, common.ServiceGatewayData)
 	} else {
-		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS)
+		ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceDataObjects)
 	}
 	storeJwtInGlobalIAM := false
 	jwt := r.URL.Query().Get("pydio_jwt")

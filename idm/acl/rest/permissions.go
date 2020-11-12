@@ -73,7 +73,7 @@ func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 // in the current context
 func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 
-	cli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	cli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: []string{roleID}})
 	stream, err := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if err != nil {
@@ -93,12 +93,12 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 		break
 	}
 	if role == nil {
-		return errors.NotFound(common.SERVICE_ACL, "Role not found!")
+		return errors.NotFound(common.ServiceAcl, "Role not found!")
 	}
 	if !a.MatchPolicies(ctx, role.Uuid, role.Policies, service.ResourcePolicyAction_WRITE) {
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), zap.Any("subjects", subjects))
-		return errors.Forbidden(common.SERVICE_ACL, "You are not allowed to edit this role ACLs")
+		return errors.Forbidden(common.ServiceAcl, "You are not allowed to edit this role ACLs")
 	}
 	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.Any("roleId", roleID))
 	return nil
@@ -113,7 +113,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 		return err
 	}
 
-	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
 	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      &tree.Node{Uuid: nodeID},
@@ -165,7 +165,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 
 	if !check {
 		log.Logger(ctx).Error("Checking acl on parent nodes FAILED", zap.Any("action", action), accessList.Zap(), zap.Any("parentNodes", parentNodes))
-		return errors.Forbidden(common.SERVICE_ACL, "You are not authorized to open rights on this node")
+		return errors.Forbidden(common.ServiceAcl, "You are not authorized to open rights on this node")
 	}
 
 	return nil

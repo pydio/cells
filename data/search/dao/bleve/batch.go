@@ -157,7 +157,7 @@ func (b *Batch) createBackgroundContext() context.Context {
 	ctx := context.WithValue(context.Background(), claim.ContextKey, bgClaim)
 	ctx = auth.ToMetadata(ctx, bgClaim)
 	ctx = context.WithValue(ctx, common.PydioContextUserKey, bgClaim.Name)
-	ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH)
+	ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	ctx = context2.WithAdditionalMetadata(ctx, md)
 	return ctx

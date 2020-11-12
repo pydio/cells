@@ -57,7 +57,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test
 
 	// Assume there is a "cellsdata" datasource
 	var dsConf *object.DataSource
-	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + "cellsdata"
+	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "cellsdata"
 	if e := config.Get("services", srvName).Scan(&dsConf); e != nil {
 		return fmt.Errorf("cannot read config for " + srvName)
 	}
@@ -67,7 +67,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test
 
 	// Try same tests on a gateway
 	var gatewayConf *object.DataSource
-	gatewayName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + "s3ds"
+	gatewayName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "s3ds"
 	if e := config.Get("services", gatewayName).Scan(&gatewayConf); e != nil || gatewayConf == nil {
 		res := test.NewTestResult("Testing on gateways3 datasource")
 		res.Log("[SKIPPED] Cannot read config for " + gatewayName + " - Please create an S3 datasource named gateways3")

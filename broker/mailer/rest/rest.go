@@ -77,7 +77,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	cli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
+	cli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {

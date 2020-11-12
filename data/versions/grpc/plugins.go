@@ -41,7 +41,7 @@ import (
 )
 
 var (
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS
+	Name = common.ServiceGrpcNamespace_ + common.ServiceVersions
 )
 
 func init() {
@@ -52,11 +52,11 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("Versioning service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -66,7 +66,7 @@ func init() {
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
-				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
+				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceVersions)
 				if e != nil {
 					return e
 				}
@@ -81,7 +81,7 @@ func init() {
 
 				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
 
-				jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+				jobsClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
 				ctx, cancel := context.WithTimeout(m.Options().Context, time.Second*1)
 				defer cancel()
 				for _, j := range getDefaultJobs() {
@@ -142,7 +142,7 @@ func InitDefaults(ctx context.Context) error {
 
 	return service.Retry(func() error {
 
-		dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+		dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
 			StoreID:    common.DocStoreIdVersioningPolicies,
 			DocumentID: "default-policy",

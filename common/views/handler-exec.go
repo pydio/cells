@@ -484,7 +484,7 @@ func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.No
 
 func (e *Executor) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
 
-	cli := tree.NewNodeChangesStreamerClient(registry.GetClient(common.SERVICE_TREE))
+	cli := tree.NewNodeChangesStreamerClient(registry.GetClient(common.ServiceTree))
 	return cli.StreamChanges(ctx, in, opts...)
 
 }

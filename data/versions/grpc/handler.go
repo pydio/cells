@@ -167,7 +167,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 
 func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersionsRequest, resp *tree.PruneVersionsResponse) error {
 
-	cl := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	cl := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
 	var idsToDelete []string
 
@@ -218,7 +218,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	} else {
 
-		return errors.BadRequest(common.SERVICE_VERSIONS, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
+		return errors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
 
 	}
 
@@ -257,7 +257,7 @@ func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.
 	}
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-	policyName := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, "VersioningPolicyName").String()
+	policyName := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
 	if policyName == "" {
 		return nil
 	}
@@ -266,7 +266,7 @@ func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.
 		return v.(*tree.VersioningPolicy)
 	}
 
-	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyName,

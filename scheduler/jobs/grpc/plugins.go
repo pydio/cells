@@ -49,9 +49,9 @@ var (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceJobs),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_SCHEDULER),
+			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
 			service.Unique(true),
 			service.Fork(true),
@@ -74,7 +74,7 @@ func init() {
 				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
-				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS)
+				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceJobs)
 				if e != nil {
 					return e
 				}

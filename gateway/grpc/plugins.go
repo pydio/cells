@@ -42,9 +42,9 @@ func init() {
 
 	// Build options - optionally force port
 	baseOpts := []service.ServiceOption{
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.Dependency(common.SERVICE_GATEWAY_PROXY, []string{}),
+		service.Tag(common.ServiceTagGateway),
+		service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
+		service.Dependency(common.ServiceGatewayProxy, []string{}),
 		/*
 			service.WithMicro(func(m micro.Service) error {
 				m.Init(micro.WrapHandler(jwtWrapper(m.Options().Context), httpMetaWrapper()))
@@ -61,11 +61,11 @@ func init() {
 		*/
 	}
 	tlsOpts := append(baseOpts,
-		service.Name(common.SERVICE_GATEWAY_GRPC),
+		service.Name(common.ServiceGatewayGrpc),
 		service.Description("External gRPC Access (tls)"),
 	)
 	clearOpts := append(baseOpts,
-		service.Name(common.SERVICE_GATEWAY_GRPC_CLEAR),
+		service.Name(common.ServiceGatewayGrpcClear),
 		service.Description("External gRPC Access (clear)"),
 	)
 	plugins.Register(func(ctx context.Context) {
@@ -85,7 +85,7 @@ func init() {
 			} else {
 				p = fmt.Sprintf("%d", net.GetAvailablePort())
 			}
-			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.SERVICE_GATEWAY_GRPC_CLEAR), servicecontext.ServiceColorGrpc)
+			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear), servicecontext.ServiceColorGrpc)
 			clearOpts = append(clearOpts,
 				service.Port(p),
 				service.Context(ctx),
@@ -94,13 +94,13 @@ func init() {
 			service.NewService(clearOpts...)
 		}
 		if hasTls {
-			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.SERVICE_GATEWAY_GRPC), servicecontext.ServiceColorGrpc)
+			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc), servicecontext.ServiceColorGrpc)
 			tlsOpts = append(tlsOpts,
 				service.Context(ctx),
 				service.WithMicro(microServiceWithLog(logCtx, "Activating self-signed configuration for gRPC gateway to allow full TLS chain.")),
 			)
 			localConfig := &install.ProxyConfig{
-				Binds:     []string{common.SERVICE_GATEWAY_GRPC},
+				Binds:     []string{common.ServiceGatewayGrpc},
 				TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 			}
 			if tls, e := providers.LoadTLSServerConfig(localConfig); e == nil {
@@ -111,7 +111,7 @@ func init() {
 		/*
 			if len(ss) == 1 && !ss[0].HasTLS() {
 				// This is a simple config without TLS - Access will be direct not through proxy
-				//fmt.Println("[NO-TLS] " + common.SERVICE_GATEWAY_GRPC + " served as HTTP and should be accessed directly (no TLS)")
+				//fmt.Println("[NO-TLS] " + common.ServiceGatewayGrpc + " served as HTTP and should be accessed directly (no TLS)")
 				if port := viper.Get("grpc_external"); port != nil {
 					log.Logger(ctx).Info("Using HTTP configuration for gRPC gateway. Should be accessed directly through port " + port.(string))
 					tlsOpts = append(tlsOpts, service.Port(port.(string)))
@@ -121,11 +121,11 @@ func init() {
 			} else {
 				log.Logger(ctx).Info("Activating self-signed configuration for gRPC gateway to allow full TLS chain.")
 				localConfig := &install.ProxyConfig{
-					Binds:     []string{common.SERVICE_GATEWAY_GRPC},
+					Binds:     []string{common.ServiceGatewayGrpc},
 					TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 				}
 				if tls, e := providers.LoadTLSServerConfig(localConfig); e == nil {
-					//fmt.Println("[TLS] Activating self-signed TLS on " + common.SERVICE_GATEWAY_GRPC)
+					//fmt.Println("[TLS] Activating self-signed TLS on " + common.ServiceGatewayGrpc)
 					tlsOpts = append(tlsOpts, service.WithTLSConfig(tls))
 				}
 			}

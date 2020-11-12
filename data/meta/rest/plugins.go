@@ -35,11 +35,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_META),
+			service.Name(common.ServiceRestNamespace_+common.ServiceMeta),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.RouterDependencies(),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.Description("RESTful Gateway to metadata storage"),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)

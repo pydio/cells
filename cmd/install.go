@@ -164,10 +164,10 @@ var installCmd = &cobra.Command{
 		var err error
 
 		// Do this in a better way
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int()
+		micro := config.Get("ports", common.ServiceMicroApi).Int()
 		if micro == 0 {
 			micro = net.GetAvailablePort()
-			config.Set(micro, "ports", common.SERVICE_MICRO_API)
+			config.Set(micro, "ports", common.ServiceMicroApi)
 			err = config.Save("cli", "Install / Setting default Ports")
 			fatalIfError(cmd, err)
 		}
@@ -244,8 +244,8 @@ var installCmd = &cobra.Command{
 
 		// Start all services
 		excludes := []string{
-			common.SERVICE_MICRO_API,
-			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
+			common.ServiceMicroApi,
+			common.ServiceRestNamespace_ + common.ServiceInstall,
 		}
 
 		for _, service := range allServices {
@@ -292,11 +292,11 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	// cmd.Println("final configs saved")
 
 	// starting the micro service
-	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
+	micro := registry.Default.GetServiceByName(common.ServiceMicroApi)
 	micro.Start(cmd.Context())
 
 	// starting the installation REST service
-	regService := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
+	regService := registry.Default.GetServiceByName(common.ServiceInstall)
 
 	// installServ := regService.(service.Service)
 	// Strip some flag to avoid panic on re-registering a flag twice
@@ -325,7 +325,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		cmd.Println("Could not convert sites to caddy confs", er)
 	}
 	caddyconf.WebRoot = dir
-	caddyconf.Micro = common.SERVICE_MICRO_API
+	caddyconf.Micro = common.ServiceMicroApi
 
 	caddy.Enable(caddyfile, play)
 

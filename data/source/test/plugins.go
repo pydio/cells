@@ -30,17 +30,17 @@ import (
 	"github.com/pydio/cells/common/service"
 )
 
-var name = common.SERVICE_TEST_NAMESPACE_ + "objects"
+var name = common.ServiceTestNamespace_ + "objects"
 
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, []string{}),
+			service.Tag(common.ServiceTagData),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataIndex, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataObjects, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataSync, []string{}),
 			service.Description("Test Objects Service conformance"),
 			service.WithMicro(func(m micro.Service) error {
 				test.RegisterTesterHandler(m.Server(), NewHandler())

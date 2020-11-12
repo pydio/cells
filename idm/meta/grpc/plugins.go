@@ -39,7 +39,7 @@ import (
 )
 
 var (
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META
+	Name = common.ServiceGrpcNamespace_ + common.ServiceUserMeta
 )
 
 func init() {
@@ -47,7 +47,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
 			service.Unique(true),

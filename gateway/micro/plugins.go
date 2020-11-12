@@ -44,15 +44,15 @@ func init() {
 
 func register(ctx context.Context) {
 	service.NewService(
-		service.Name(common.SERVICE_MICRO_API),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.Name(common.ServiceMicroApi),
+		service.Tag(common.ServiceTagGateway),
 		service.Description("Proxy handler to dispatch REST requests to the underlying services"),
 		service.WithHTTP(func() http.Handler {
 
 			r := mux.NewRouter()
-			rt := router.NewRouter(router.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")), router.WithHandler(api.Http))
+			rt := router.NewRouter(router.WithNamespace(strings.TrimRight(common.ServiceRestNamespace_, ".")), router.WithHandler(api.Http))
 			ht := ahttp.NewHandler(
-				ahandler.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")),
+				ahandler.WithNamespace(strings.TrimRight(common.ServiceRestNamespace_, ".")),
 				ahandler.WithRouter(rt),
 				// ahandler.WithService(s.Options().Micro.(micro.Service)),
 			)

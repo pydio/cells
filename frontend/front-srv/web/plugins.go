@@ -44,7 +44,7 @@ import (
 )
 
 var (
-	Name         = common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS
+	Name         = common.ServiceWebNamespace_ + common.ServiceFrontStatics
 	RobotsString = `User-agent: *
 Disallow: /`
 )
@@ -55,7 +55,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_FRONTEND),
+			service.Tag(common.ServiceTagFrontend),
 			service.Description("WEB service for serving statics"),
 			service.Migrations([]*service.Migration{
 				{

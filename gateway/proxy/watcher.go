@@ -16,8 +16,8 @@ import (
 
 var (
 	servicesPrefix = []string{
-		common.SERVICE_GATEWAY_NAMESPACE_,
-		common.SERVICE_WEB_NAMESPACE_,
+		common.ServiceGatewayNamespace_,
+		common.ServiceWebNamespace_,
 	}
 )
 

@@ -217,7 +217,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 		}
 	}
 
-	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	for _, root := range workspace.RootUUIDs {
 
 		if virtual, exists := vManager.ByUuid(root); exists {
@@ -254,7 +254,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 // given by the orderedRoles list.
 func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.Workspace, orderedRoles []string) (maxQuota int64, currentUsage int64, err error) {
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{WorkspaceIDs: []string{workspace.UUID}})
 	stream, er := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q2}}})
 	if er != nil {
@@ -298,7 +298,7 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 	vManager := GetVirtualNodesManager()
 	if maxQuota > 0 {
 		log.Logger(ctx).Debug("Found Quota", zap.Any("q", maxQuota), zap.Any("roots", detectedRoots))
-		treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+		treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 		for nodeId, _ := range detectedRoots {
 			var rootNode *tree.Node
 			if root, exists := vManager.ByUuid(nodeId); exists {

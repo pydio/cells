@@ -39,7 +39,7 @@ func UpgradeTo120(ctx context.Context) error {
 
 	// ADD recycle_root on workspaces
 	log.Logger(ctx).Info("Upgrading ACLs for recycle_root flags")
-	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+	metaClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
 			{Name: permissions.AclWsrootActionName},
@@ -86,7 +86,7 @@ func UpgradeTo120(ctx context.Context) error {
 		}
 	}
 
-	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	// Special case for personal files: browse existing folders, assume they are users personal workspaces and add recycle root
 	service2.Retry(func() error {
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})

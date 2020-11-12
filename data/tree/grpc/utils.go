@@ -41,18 +41,18 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer) {
 	}
 
 	syncServices := filterServices(otherServices, func(v string) bool {
-		return strings.Contains(v, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
+		return strings.Contains(v, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 	})
 
 	dataSources := make(map[string]DataSource, len(syncServices))
 
 	for _, syncService := range syncServices {
-		dataSourceName := strings.TrimPrefix(syncService, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
+		dataSourceName := strings.TrimPrefix(syncService, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 
 		if dataSourceName == "" {
 			continue
 		}
-		indexService := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dataSourceName
+		indexService := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + dataSourceName
 
 		ds := DataSource{
 			Name:   dataSourceName,
@@ -89,7 +89,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		result, err := watcher.Next()
 		if result != nil && err == nil {
 			srv := result.Service
-			if strings.Contains(srv.Name(), common.SERVICE_DATA_SYNC_) {
+			if strings.Contains(srv.Name(), common.ServiceDataSync_) {
 				updateServicesList(ctx, treeServer)
 			}
 		} else if err != nil {

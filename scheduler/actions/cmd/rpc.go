@@ -103,7 +103,7 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 	c.ServiceName = action.Parameters["service"]
 	c.MethodName = action.Parameters["method"]
 	if c.ServiceName == "" || c.MethodName == "" {
-		return errors.BadRequest(common.SERVICE_JOBS, "Missing parameters for RPC Action")
+		return errors.BadRequest(common.ServiceJobs, "Missing parameters for RPC Action")
 	}
 	if jsonParams, o := action.Parameters["request"]; o {
 		c.JsonRequest = jsonParams

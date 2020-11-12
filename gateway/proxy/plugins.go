@@ -231,22 +231,22 @@ var (
 		PluginTemplates []caddy.TemplateFunc
 		PluginPathes    []string
 	}{
-		MicroService:     common.SERVICE_MICRO_API,
-		OAuthService:     common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
-		GatewayService:   common.SERVICE_GATEWAY_DATA,
-		WebSocketService: common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
-		FrontendService:  common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
-		WebDAVService:    common.SERVICE_GATEWAY_DAV,
-		GrpcService:      common.SERVICE_GATEWAY_GRPC,
+		MicroService:     common.ServiceMicroApi,
+		OAuthService:     common.ServiceWebNamespace_ + common.ServiceOAuth,
+		GatewayService:   common.ServiceGatewayData,
+		WebSocketService: common.ServiceGatewayNamespace_ + common.ServiceWebSocket,
+		FrontendService:  common.ServiceWebNamespace_ + common.ServiceFrontStatics,
+		WebDAVService:    common.ServiceGatewayDav,
+		GrpcService:      common.ServiceGatewayGrpc,
 	}
 )
 
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GATEWAY_PROXY),
+			service.Name(common.ServiceGatewayProxy),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Tag(common.ServiceTagGateway),
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
 			service.WithGeneric(func(opts ...server.Option) server.Server {
 				srv := &gatewayProxyServer{context.TODO()}

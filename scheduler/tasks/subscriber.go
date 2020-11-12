@@ -116,7 +116,7 @@ func (s *Subscriber) Init() error {
 
 	go service.Retry(func() error {
 		// Load Jobs Definitions
-		jobClients := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, s.Client)
+		jobClients := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, s.Client)
 		streamer, e := jobClients.ListJobs(s.RootContext, &jobs.ListJobsRequest{})
 		if e != nil {
 			return e
@@ -183,7 +183,7 @@ func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {
 		maxWorkers = int(job.MaxConcurrency)
 	}
 	tags := map[string]string{
-		"service": common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_TASKS,
+		"service": common.ServiceGrpcNamespace_ + common.ServiceTasks,
 		"jobID":   job.ID,
 	}
 	dispatcher := NewDispatcher(maxWorkers, tags)
@@ -263,7 +263,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	j, ok := s.JobsDefinitions[jobId]
 	if !ok {
 		// Try to load definition directly for JobsService
-		jobClients := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, s.Client)
+		jobClients := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, s.Client)
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
 			return nil

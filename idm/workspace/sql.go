@@ -93,7 +93,7 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 
 	workspace, ok := in.(*idm.Workspace)
 	if !ok {
-		return false, errors.BadRequest(common.SERVICE_WORKSPACE, "Wrong type")
+		return false, errors.BadRequest(common.ServiceWorkspace, "Wrong type")
 	}
 	update := false
 	stmt, er := s.GetStmt("ExistsWorkspace")

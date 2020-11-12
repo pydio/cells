@@ -130,7 +130,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if format == "" || format == detectFormat {
 		format = strings.ToLower(strings.TrimLeft(ext, "."))
 		if format != zipFormat && format != tarFormat && format != tarGzFormat {
-			e := fmt.Errorf("Could not extract format from file extension (" + ext +")")
+			e := fmt.Errorf("Could not extract format from file extension (" + ext + ")")
 			return input.WithError(e), e
 		}
 	}
@@ -160,7 +160,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 		err = reader.ExtractAllTar(ctx, true, archiveNode, targetNode, channels.StatusMsg)
 		break
 	default:
-		err = errors.BadRequest(common.SERVICE_JOBS, "Unsupported archive format:"+format)
+		err = errors.BadRequest(common.ServiceJobs, "Unsupported archive format:"+format)
 	}
 	if err != nil {
 		// Remove failed extraction folder ?

@@ -7,5 +7,5 @@ import (
 
 // GetUpdatesConfigs gather update configs from correct location
 func GetUpdatesConfigs() configx.Values {
-	return Get(configx.FormatPath("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE))
+	return Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceUpdate))
 }

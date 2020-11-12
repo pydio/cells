@@ -54,7 +54,7 @@ func InsertPruningJob(ctx context.Context) error {
 
 	return service.Retry(func() error {
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
 			ID:    pruneTokensActionName,
 			Owner: common.PydioSystemUsername,
@@ -113,7 +113,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	output := input
 
 	// Prune revoked tokens
-	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.SERVICE_OAUTH))
+	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.ServiceOAuth))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
@@ -122,7 +122,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	}
 
 	// Prune reset password tokens
-	docCli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
+	docCli := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
 	deleteResponse, er := docCli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 		StoreID: "resetPasswordKeys",
 		Query: &docstore.DocumentQuery{

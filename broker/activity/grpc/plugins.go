@@ -50,7 +50,7 @@ import (
 )
 
 var (
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY
+	Name = common.ServiceGrpcNamespace_ + common.ServiceActivity
 )
 
 func init() {
@@ -58,10 +58,10 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("Activity Service is collecting activity for users and nodes"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -149,7 +149,7 @@ func RegisterDigestJob(ctx context.Context) error {
 	}
 
 	return service.Retry(func() error {
-		cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
 		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return e
 	}, 5*time.Second, 20*time.Second)

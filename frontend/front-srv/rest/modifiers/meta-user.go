@@ -15,7 +15,7 @@ import (
 // MetaUserRegModifier adds/updates some registry contributions for rendering metadata.
 func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, registry *frontend.Cpydio_registry) error {
 
-	client := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
+	client := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
 	respStream, e := client.ListUserMetaNamespace(ctx, &idm.ListUserMetaNamespaceRequest{})
 	if e != nil {
 		return e

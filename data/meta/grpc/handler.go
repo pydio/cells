@@ -47,7 +47,7 @@ type MetaServer struct {
 
 func NewMetaServer() *MetaServer {
 	m := &MetaServer{}
-	m.cache = cache.NewInstrumentedCache(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_META)
+	m.cache = cache.NewInstrumentedCache(common.ServiceGrpcNamespace_ + common.ServiceMeta)
 	return m
 }
 
@@ -75,7 +75,7 @@ func (s *MetaServer) initEventsChannel(parentContext context.Context) {
 	s.eventsChannel = make(chan *event.EventWithContext)
 	go func() {
 		for eventWCtx := range s.eventsChannel {
-			newCtx := servicecontext.WithServiceName(eventWCtx.Context, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+			newCtx := servicecontext.WithServiceName(eventWCtx.Context, common.ServiceGrpcNamespace_+common.ServiceMeta)
 			newCtx = servicecontext.WithServiceColor(newCtx, serviceColor)
 			s.processEvent(newCtx, eventWCtx.Event)
 		}
@@ -137,7 +137,7 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 // ReadNode information off the meta server
 func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) (err error) {
 	if req.Node == nil || req.Node.Uuid == "" {
-		return errors.BadRequest(common.SERVICE_META, "Please provide a Node with a Uuid")
+		return errors.BadRequest(common.ServiceMeta, "Please provide a Node with a Uuid")
 	}
 
 	if s.cache != nil {
@@ -163,13 +163,13 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	}
 
 	if servicecontext.GetDAO(ctx) == nil {
-		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
+		return errors.InternalServerError(common.ServiceMeta, "No DAO found Wrong initialization")
 	}
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 
 	metadata, err := dao.GetMetadata(req.Node.Uuid)
 	if metadata == nil || err != nil {
-		return errors.NotFound(common.SERVICE_META, "Node with Uuid "+req.Node.Uuid+" not found")
+		return errors.NotFound(common.ServiceMeta, "Node with Uuid "+req.Node.Uuid+" not found")
 	}
 
 	if s.cache != nil {
@@ -266,7 +266,7 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) (err error) {
 
 	if servicecontext.GetDAO(ctx) == nil {
-		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
+		return errors.InternalServerError(common.ServiceMeta, "No DAO found Wrong initialization")
 	}
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)

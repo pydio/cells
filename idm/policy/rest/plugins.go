@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_POLICY),
+			service.Name(common.ServiceRestNamespace_+common.ServicePolicy),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful service for managing policies"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServicePolicy, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(PolicyHandler)
 			}),

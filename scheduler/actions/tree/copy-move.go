@@ -97,7 +97,7 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 					Description: "Copy or move",
 					Mandatory:   true,
 					Editable:    true,
-					Default: "copy",
+					Default:     "copy",
 					ChoicePresetList: []map[string]string{
 						{"copy": "Copy"},
 						{"move": "Move"},
@@ -152,12 +152,12 @@ func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	}
 
 	if action.Parameters == nil {
-		return errors.InternalServerError(common.SERVICE_JOBS, "Could not find parameters for CopyMove action")
+		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
 	var tOk bool
 	c.TargetPlaceholder, tOk = action.Parameters["target"]
 	if !tOk {
-		return errors.InternalServerError(common.SERVICE_JOBS, "Could not find parameters for CopyMove action")
+		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
 	c.Move = false
 	if actionType, ok := action.Parameters["type"]; ok && actionType == "move" {
@@ -240,7 +240,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *
 
 	if r, e := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil {
 		pNode = r.GetNode()
-		aclClient := idm.NewACLServiceClient(registry.GetClient(common.SERVICE_ACL))
+		aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			Actions: []*idm.ACLAction{{Name: permissions.AclChildLock.Name + ":*"}},
 			NodeIDs: []string{pNode.GetUuid()},

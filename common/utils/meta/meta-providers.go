@@ -143,8 +143,8 @@ func getMetaProviderStreamers(ctx context.Context) ([]tree.NodeProviderStreamerC
 	var names []string
 
 	// Load core Meta
-	result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)))
-	names = append(names, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META)
+	result = append(result, tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceMeta)))
+	names = append(names, common.ServiceGrpcNamespace_+common.ServiceMeta)
 
 	// Load User meta (if claims are not empty!)
 	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {

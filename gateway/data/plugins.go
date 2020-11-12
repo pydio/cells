@@ -60,9 +60,9 @@ func init() {
 	plugins.Register(func(ctx context.Context) {
 		port := net.GetAvailablePort()
 		service.NewService(
-			service.Name(common.SERVICE_GATEWAY_DATA),
+			service.Name(common.ServiceGatewayData),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Tag(common.ServiceTagGateway),
 			// service.RouterDependencies(),
 			service.Description("S3 Gateway to tree service"),
 			service.Port(fmt.Sprintf("%d", port)),

@@ -32,12 +32,12 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_USER),
+			service.Name(common.ServiceRestNamespace_+common.ServiceUser),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful Gateway to users service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return NewUserHandler()
 			}),

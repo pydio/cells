@@ -40,7 +40,7 @@ type VersionHandler struct {
 
 func (v *VersionHandler) getVersionClient() tree.NodeVersionerClient {
 	if v.versionClient == nil {
-		v.versionClient = tree.NewNodeVersionerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS, defaults.NewClient())
+		v.versionClient = tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	}
 	return v.versionClient
 }

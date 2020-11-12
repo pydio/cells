@@ -80,7 +80,7 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 func (e *EventProducer) Start() error {
 
 	// Load all schedules
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	streamer, err := cli.ListJobs(e.Context, &jobs.ListJobsRequest{TimersOnly: true})
 	if err != nil {
 		return err

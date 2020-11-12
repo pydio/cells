@@ -53,7 +53,7 @@ const MetaTagsDocStoreId = "user_meta_tags"
 
 func NewUserMetaHandler() *UserMetaHandler {
 	handler := new(UserMetaHandler)
-	handler.ServiceName = common.SERVICE_USER_META
+	handler.ServiceName = common.ServiceUserMeta
 	handler.ResourceName = "userMeta"
 	handler.PoliciesLoader = handler.PoliciesForMeta
 	return handler
@@ -77,7 +77,7 @@ func (s *UserMetaHandler) Filter() func(string) string {
 func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
 	log.Logger(ctx).Info("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
 	nodeUuid := meta.NodeUuid
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
 		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
@@ -127,7 +127,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	ctx := req.Request.Context()
-	userMetaClient := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
+	userMetaClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
 	nsList, e := s.ListAllNamespaces(ctx, userMetaClient)
 	if e != nil {
 		service.RestError500(req, rsp, e)
@@ -155,7 +155,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			return
 		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
-			service.RestError404(req, rsp, errors.NotFound(common.SERVICE_USER_META, "Namespace "+meta.Namespace+" is not defined!"))
+			service.RestError404(req, rsp, errors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
 		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
@@ -164,7 +164,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not authorized to write on namespace "+meta.Namespace))
+			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not authorized to write on namespace "+meta.Namespace))
 			return
 		}
 		if meta.Uuid != "" {
@@ -220,7 +220,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				continue
 			}
 			if !s.MatchPolicies(ctx, resp.UserMeta.Uuid, resp.UserMeta.Policies, serviceproto.ResourcePolicyAction_WRITE) {
-				service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not authorized to edit this meta "+resp.UserMeta.Namespace))
+				service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not authorized to edit this meta "+resp.UserMeta.Namespace))
 				return
 			}
 		}
@@ -297,7 +297,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		if value := ctx.Value(claim.ContextKey); value != nil {
 			claims := value.(claim.Claims)
 			if claims.Profile != "admin" {
-				service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not allowed to edit namespaces"))
+				service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not allowed to edit namespaces"))
 				return
 			}
 		}
@@ -319,7 +319,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		}
 	}
 
-	nsClient := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
+	nsClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
 	response, err := nsClient.UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -331,7 +331,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 
 func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restful.Response) {
 
-	nsClient := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
+	nsClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
 	output := &rest.UserMetaNamespaceCollection{}
 	if ns, err := s.ListAllNamespaces(req.Request.Context(), nsClient); err == nil {
 		for _, n := range ns {
@@ -369,7 +369,7 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 }
 
 func (s *UserMetaHandler) listTagsForNamespace(ctx context.Context, namespace string) ([]string, *docstore.Document) {
-	docClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	var tags []string
 	var doc *docstore.Document
 	r, e := docClient.GetDocument(ctx, &docstore.GetDocumentRequest{
@@ -406,7 +406,7 @@ func (s *UserMetaHandler) putTagsIfNecessary(ctx context.Context, namespace stri
 	if changes {
 		// Now store back
 		jsonData, _ := json.Marshal(currentTags)
-		docClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		if storeDocument != nil {
 			storeDocument.Data = string(jsonData)
 		} else {
@@ -433,7 +433,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ctx := req.Request.Context()
 	log.Logger(ctx).Info("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
-		docClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		if _, e := docClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 			StoreID:    MetaTagsDocStoreId,
 			DocumentID: ns,
@@ -459,7 +459,7 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		Subjects: subjects,
 	}
 
-	userMetaClient := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
+	userMetaClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
 	stream, er := userMetaClient.SearchUserMeta(ctx, request)
 	if er != nil {
 		return nil, e

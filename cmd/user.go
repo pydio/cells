@@ -103,7 +103,7 @@ func deleteUser(ctx context.Context, login string) error {
 	}
 	query, _ := ptypes.MarshalAny(singleQ)
 	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
 	if err != nil {
@@ -123,7 +123,7 @@ func deleteUser(ctx context.Context, login string) error {
 		// if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
 		// 	msg := fmt.Sprintf("forbidden action: you are not allowed to delete user %s", login)
 		// 	log.Auditer(ctx).Error( msg, log.GetAuditId(common.AUDIT_USER_DELETE))
-		// 	return  errors.Forbidden(common.SERVICE_USER, msg)
+		// 	return  errors.Forbidden(common.ServiceUser, msg)
 		// }
 		break
 	}

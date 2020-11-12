@@ -37,7 +37,7 @@ func (p *pydioconnector) Prompt() string {
 
 func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password string) (Identity, bool, error) {
 	// Check the user has successfully logged in
-	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	c := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
 		errr := errors.Parse(err.Error())

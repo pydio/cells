@@ -38,9 +38,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceAcl),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
 			service.WithStorage(acl.NewDAO, "idm_acl"),
 			service.Migrations([]*service.Migration{

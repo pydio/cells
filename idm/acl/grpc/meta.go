@@ -44,7 +44,7 @@ import (
 func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
-	workspaceClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	workspaceClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	defer stream.Close()
 
 	for {

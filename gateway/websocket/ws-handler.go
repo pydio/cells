@@ -237,7 +237,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		if md, o := session.Get(SessionMetaContext); o {
 			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
 		}
-		metaCtx = servicecontext.WithServiceName(metaCtx, common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET)
+		metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 		metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 
 		if event.refreshTarget && event.Target != nil {

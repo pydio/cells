@@ -31,12 +31,12 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SEARCH),
+			service.Name(common.ServiceRestNamespace_+common.ServiceSearch),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to search engine"),
 			service.RouterDependencies(),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceSearch, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),

@@ -35,9 +35,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceConfig),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Main service loading configurations for all other services."),
 			service.WithStorage(config.NewDAO),
 			service.WithMicro(func(m micro.Service) error {

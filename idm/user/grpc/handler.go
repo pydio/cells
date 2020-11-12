@@ -334,7 +334,7 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 			h.applyAutoApplies(usr, autoApplies)
 			response.Send(&idm.SearchUserResponse{User: usr})
 		} else {
-			return errors.InternalServerError(common.SERVICE_USER, "wrong type received, should have been idm.User or idm.Group")
+			return errors.InternalServerError(common.ServiceUser, "wrong type received, should have been idm.User or idm.Group")
 		}
 	}
 
@@ -464,7 +464,7 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	}
 
 	autoApplies = make(map[string][]*idm.Role)
-	roleCli := idm.NewRoleServiceClient(registry.GetClient(common.SERVICE_ROLE))
+	roleCli := idm.NewRoleServiceClient(registry.GetClient(common.ServiceRole))
 	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{HasAutoApply: true})
 	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {

@@ -117,7 +117,7 @@ func (h *IndexHandler) detectFrontendService() bool {
 	if h.frontendDetected {
 		return true
 	}
-	if s, e := defaults.Registry().GetService(common.SERVICE_REST_NAMESPACE_ + common.SERVICE_FRONTEND); e == nil && len(s) > 0 {
+	if s, e := defaults.Registry().GetService(common.ServiceRestNamespace_ + common.ServiceFrontend); e == nil && len(s) > 0 {
 		h.frontendDetected = true
 		return true
 	}

@@ -54,15 +54,15 @@ func init() {
 
 	plugins.Register(func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_SYNC)
+		sources := config.SourceNamesForDataServices(common.ServiceDataSync)
 
 		for _, datasource := range sources {
 
 			var sOptions []service.ServiceOption
 			sOptions = append(sOptions,
-				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+datasource),
+				service.Name(common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource),
 				service.Context(ctx),
-				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Tag(common.ServiceTagDatasource),
 				service.Description("Synchronization service between objects and index for a given datasource"),
 				service.Source(datasource),
 				service.Fork(true),
@@ -111,7 +111,7 @@ func init() {
 						md[common.PydioContextUserKey] = common.PydioSystemUsername
 						ctx = metadata.NewContext(ctx, md)
 						e = service.Retry(func() error {
-							jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+							jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 							if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 								log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
 								client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
@@ -131,7 +131,7 @@ func init() {
 										{
 											ID: "actions.cmd.resync",
 											Parameters: map[string]string{
-												"service": common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + datasource,
+												"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource,
 											},
 										},
 									},
@@ -174,7 +174,7 @@ func init() {
 }
 
 func WithStorage(source string) service.ServiceOption {
-	mapperType := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+source, "StorageConfiguration", "checksumMapper").String()
+	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
 		prefix := "data_sync_" + source

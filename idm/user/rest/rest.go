@@ -64,7 +64,7 @@ type UserHandler struct {
 func NewUserHandler() *UserHandler {
 	h := &UserHandler{}
 	h.PoliciesLoader = h.PoliciesForUserId
-	h.ServiceName = common.SERVICE_USER
+	h.ServiceName = common.ServiceUser
 	h.ResourceName = "user"
 	return h
 }
@@ -100,7 +100,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 	query.ResourcePolicyQuery, _ = s.RestToServiceResourcePolicy(ctx, nil)
 	var result *idm.User
 
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
@@ -174,7 +174,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			query.SubQueries = append(query.SubQueries, anyfied)
 		}
 	}
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	resp, err := cli.CountUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
@@ -236,14 +236,14 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are about to delete your own group!"))
+			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are about to delete your own group!"))
 			return
 		}
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
 		if uName == login {
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "Please make sure not to delete yourself!"))
+			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "Please make sure not to delete yourself!"))
 			return
 		}
 		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
@@ -251,7 +251,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	}
 	query, _ := ptypes.MarshalAny(singleQ)
 	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 
 	// Search first to check policies
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
@@ -274,7 +274,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 				log.GetAuditId(common.AUDIT_USER_DELETE),
 				response.User.ZapUuid(),
 			)
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are not allowed to edit this resource"))
+			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are not allowed to edit this resource"))
 			return
 		}
 		break
@@ -302,7 +302,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -342,7 +342,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	log.Logger(req.Request.Context()).Debug("Received User.Put API request", inputUser.ZapLogin())
 	var update *idm.User
 	if inputUser.Uuid != "" {
@@ -365,11 +365,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				update.ZapUuid(),
 			)
-			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are not allowed to edit this user!"))
+			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are not allowed to edit this user!"))
 			return
 		}
 		// Check ADD/REMOVE Roles Policies
-		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 		rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 		removes := s.diffRoles(update.Roles, inputUser.Roles)
 		log.Logger(ctx).Debug("ADD/REMOVE ROLES", zap.Any("add", rolesToCheck), zap.Any("remove", removes), zap.Any("new", inputUser.Roles), zap.Any("existings", update.Roles))
@@ -498,7 +498,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				},
 			}
 		}
-		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -543,7 +543,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	u := response.User
 
 	if len(acls) > 0 {
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 		if len(deleteAclActions) > 0 {
 			delQuery := &service2.Query{Operation: service2.OperationType_OR}
 			for _, action := range deleteAclActions {
@@ -605,7 +605,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	_, hasEmailAddress := u.Attributes["email"]
 	if sendEmail && hasEmailAddress {
 		// Now send email to user in background
-		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
+		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
 		email := &mailer.Mail{
 			To: []*mailer.User{{
 				Uuid:    u.Uuid,
@@ -648,19 +648,19 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received User.PutRoles API request", inputUser.ZapLogin())
 
 	if inputUser.Uuid == "" {
-		service.RestError500(req, rsp, errors.BadRequest(common.SERVICE_USER, "Please provide a user ID"))
+		service.RestError500(req, rsp, errors.BadRequest(common.ServiceUser, "Please provide a user ID"))
 		return
 	}
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	var update *idm.User
 	var exists bool
 	if update, exists = s.userById(ctx, inputUser.Uuid, cli); !exists {
-		service.RestError404(req, rsp, errors.NotFound(common.SERVICE_USER, "user not found"))
+		service.RestError404(req, rsp, errors.NotFound(common.ServiceUser, "user not found"))
 		return
 	}
 
 	// Check ADD/REMOVE Roles Policies
-	roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 	removes := s.diffRoles(update.Roles, inputUser.Roles)
 	log.Logger(ctx).Debug("ADD/REMOVE ROLES", zap.Any("add", rolesToCheck), zap.Any("remove", removes), zap.Any("new", inputUser.Roles), zap.Any("existings", update.Roles))
@@ -704,7 +704,7 @@ func (s *UserHandler) PoliciesForUserId(ctx context.Context, resourceId string, 
 
 	user, exists := s.userById(ctx, resourceId, resourceClient.(idm.UserServiceClient))
 	if !exists {
-		return policies, errors.NotFound(common.SERVICE_USER, "cannot find user with id "+resourceId)
+		return policies, errors.NotFound(common.ServiceUser, "cannot find user with id "+resourceId)
 	}
 	policies = user.Policies
 	return
@@ -738,7 +738,7 @@ func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role
 		}
 		if !s.MatchPolicies(ctx, rsp.Role.Uuid, rsp.Role.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Logger(ctx).Error("trying to assign a role that is not writeable in the context", zap.Any("r", rsp.Role))
-			return errors.Forbidden(common.SERVICE_USER, "You are not allowed to assign this role "+rsp.Role.Uuid)
+			return errors.Forbidden(common.ServiceUser, "You are not allowed to assign this role "+rsp.Role.Uuid)
 		}
 	}
 	return nil

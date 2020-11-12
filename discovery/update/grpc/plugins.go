@@ -35,12 +35,12 @@ import (
 func init() {
 
 	plugins.Register(func(ctx context.Context) {
-		config.RegisterExposedConfigs(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, ExposedConfigs)
+		config.RegisterExposedConfigs(common.ServiceGrpcNamespace_+common.ServiceUpdate, ExposedConfigs)
 
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceUpdate),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Update checker service"),
 			service.WithMicro(func(m micro.Service) error {
 				handler := new(Handler)

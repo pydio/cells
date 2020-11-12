@@ -61,7 +61,7 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 			log.Logger(c).Debug("No Claims Found", zap.Any("ctx", c))
 		}
 
-		client := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
+		client := idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
 		request := &idm.PolicyEngineRequest{
 			Subjects: subjects,
 			Resource: "rest:" + r.RequestURI,

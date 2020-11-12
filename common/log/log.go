@@ -73,7 +73,7 @@ func Init() {
 		if common.LogConfig == common.LogConfigProduction {
 
 			// Forwards logs to the pydio.grpc.logs service to store them
-			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG))
+			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
 
 			// Additional logger: stores messages in local file
 			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
@@ -146,7 +146,7 @@ func Init() {
 							}
 							fields = append(fields, zap.String(exp, parsed[i]))
 						}
-						logger.Named(common.SERVICE_MICRO_API).Debug("Rest Api Call", fields...)
+						logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
 					} else {
 						// Log the stdout line to my event logger
 						logger.Info(line)

@@ -107,11 +107,11 @@ func (s *BoltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 		bucket := tx.Bucket(jobsBucketKey)
 		data := bucket.Get([]byte(jobId))
 		if data == nil {
-			return errors.NotFound(common.SERVICE_JOBS, "Job ID not found")
+			return errors.NotFound(common.ServiceJobs, "Job ID not found")
 		}
 		err := json.Unmarshal(data, j)
 		if err != nil {
-			return errors.InternalServerError(common.SERVICE_JOBS, "Cannot deserialize job")
+			return errors.InternalServerError(common.ServiceJobs, "Cannot deserialize job")
 		}
 		if withTasks != jobs.TaskStatus_Unknown {
 			j.Tasks = []*jobs.Task{}

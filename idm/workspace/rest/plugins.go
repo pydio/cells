@@ -31,9 +31,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_WORKSPACE),
+			service.Name(common.ServiceRestNamespace_+common.ServiceWorkspace),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful Gateway to workspaces service"),
 			service.Migrations([]*service.Migration{
 				{

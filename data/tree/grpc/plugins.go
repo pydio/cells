@@ -38,10 +38,10 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceTree),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.Tag(common.ServiceTagData),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.Description("Aggregator of all datasources into one master tree"),
 			service.WithMicro(func(m micro.Service) error {
 
@@ -51,7 +51,7 @@ func init() {
 				treeServer := &TreeServer{
 					ConfigsMutex: &sync.Mutex{},
 					DataSources:  dataSources,
-					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
+					meta:         tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient()),
 				}
 
 				eventSubscriber := NewEventSubscriber(treeServer, defaults.NewClient())

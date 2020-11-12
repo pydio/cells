@@ -172,7 +172,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return errors.Forbidden(common.SERVICE_TREE, "Cannot write to root node or to datasource node")
+		return errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 
 	if ds, ok := s.DataSources[dsName]; ok {
@@ -278,7 +278,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 		if dsName == "" && dsPath == "" {
 			// ROOT NODE
-			return errors.BadRequest(common.SERVICE_TREE, "Cannot get ancestors on ROOT node!")
+			return errors.BadRequest(common.ServiceTree, "Cannot get ancestors on ROOT node!")
 
 		}
 
@@ -310,7 +310,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				Ancestors: true,
 			})
 			if err != nil {
-				return errors.InternalServerError(common.SERVICE_TREE, "Cannot send List request to underlying datasource")
+				return errors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource")
 			}
 
 			defer streamer.Close()
@@ -510,10 +510,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	dsNameFrom, dsPathFrom := s.treeNodeToDataSourcePath(from)
 	dsNameTo, dsPathTo := s.treeNodeToDataSourcePath(to)
 	if dsNameFrom == "" || dsNameTo == "" || dsPathFrom == "" || dsPathTo == "" {
-		return errors.Forbidden(common.SERVICE_TREE, "Cannot write to root node or to datasource node")
+		return errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 	if dsNameFrom != dsNameTo {
-		return errors.Forbidden(common.SERVICE_TREE, "Cannot move between two different datasources")
+		return errors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
 	}
 
 	if ds, ok := s.DataSources[dsNameTo]; ok {
@@ -531,7 +531,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return nil
 	}
 
-	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
+	return errors.Forbidden(common.ServiceTree, "Unknown data source")
 }
 
 // DeleteNode implementation for the TreeServer
@@ -542,7 +542,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	node := req.GetNode()
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return errors.Forbidden(common.SERVICE_TREE, "Cannot delete root node or datasource node")
+		return errors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
 	}
 
 	if ds, ok := s.DataSources[dsName]; ok {
@@ -556,7 +556,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return nil
 	}
 
-	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
+	return errors.Forbidden(common.ServiceTree, "Unknown data source")
 }
 
 func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
@@ -712,7 +712,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 	if foundNode != nil {
 		return foundNode, nil
 	} else {
-		return nil, errors.NotFound(common.SERVICE_TREE, fmt.Sprintf("Node %s Not found in tree!", uuid))
+		return nil, errors.NotFound(common.ServiceTree, fmt.Sprintf("Node %s Not found in tree!", uuid))
 	}
 
 }

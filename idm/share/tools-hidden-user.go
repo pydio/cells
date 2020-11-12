@@ -27,15 +27,15 @@ import (
 func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, passwordEnabled bool, updatePassword string, passwordHashed bool) (user *idm.User, err error) {
 
 	// Create or Load corresponding Hidden User
-	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	if link.UserLogin == "" {
 		newUuid := uuid.New()
 		login := strings.Replace(newUuid, "-", "", -1)[0:16]
 		password := login + PasswordComplexitySuffix
 		if passwordEnabled {
 			if len(updatePassword) == 0 {
-				return nil, errors.BadRequest(common.SERVICE_SHARE, "Please provide a non empty password!")
+				return nil, errors.BadRequest(common.ServiceShare, "Please provide a non empty password!")
 			}
 			password = updatePassword
 		}
@@ -115,7 +115,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 		}
 	}
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	if update {
 		// Delete all existing acls for existing user
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{RoleIDs: []string{roleId}})
@@ -177,7 +177,7 @@ func DeleteHiddenUser(ctx context.Context, link *rest.ShareLink) error {
 	if link.UserLogin == "" {
 		return nil
 	}
-	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: link.UserLogin})
 	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
 	_, e := uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{
@@ -194,7 +194,7 @@ func ClearLostHiddenUsers(ctx context.Context) error {
 	log.Logger(ctx).Info("Migration: looking for hidden users unlinked from any public link")
 
 	// List hidden users and check for their associated links
-	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
 	stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {

@@ -36,9 +36,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceChat),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO, "broker_chat"),
 			service.Unique(true),

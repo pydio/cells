@@ -36,11 +36,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceEncKey),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.WithStorage(key.NewDAO, "data_key"),
 			service.WithMicro(func(m micro.Service) error {
 				h := &NodeKeyManagerHandler{}

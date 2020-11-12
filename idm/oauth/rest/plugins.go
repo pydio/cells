@@ -32,13 +32,13 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_AUTH),
+			service.Name(common.ServiceRestNamespace_+common.ServiceAuth),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful Gateway to token service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_MAILER, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMailer, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(TokenHandler)
 			}),

@@ -141,7 +141,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				node.Path = req.GetNode().GetPath()
 				node.SetMeta(common.MetaNamespaceDatasourceName, s.DataSourceName)
 				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
-					return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents: %s", err.Error())
+					return errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}
 				resp.Success = true
 				resp.Node = node.Node
@@ -218,7 +218,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	node.SetMeta(common.MetaNamespaceDatasourceName, s.DataSourceName)
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
-		return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents: %s", err.Error())
+		return errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
 	resp.Success = true
@@ -534,7 +534,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		newNode.SetMeta(common.MetaNamespaceDatasourceName, s.DataSourceName)
 
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
-			return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "error while updating parents:  %s", err.Error())
+			return errors.InternalServerError(common.ServiceDataIndex_, "error while updating parents:  %s", err.Error())
 		}
 	}
 
@@ -604,7 +604,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
-		return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents: %s", err.Error())
+		return errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
 	if len(childrenEvents) > 0 {

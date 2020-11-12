@@ -110,7 +110,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		} else {
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
 			var grpcPorts []string
-			if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC_CLEAR); e == nil {
+			if ss, e := registry.GetService(common.ServiceGatewayGrpcClear); e == nil {
 				for _, s := range ss {
 					for _, n := range s.Nodes {
 						grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))

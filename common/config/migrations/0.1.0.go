@@ -13,14 +13,14 @@ func init() {
 
 func renameKeys(config configx.Values) error {
 	return UpdateKeys(config, map[string]string{
-		"services/pydio.api.websocket":            "services/" + common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
-		"services/pydio.grpc.gateway.data":        "services/" + common.SERVICE_GATEWAY_DATA,
-		"services/pydio.grpc.gateway.proxy":       "services/" + common.SERVICE_GATEWAY_PROXY,
-		"services/pydio.rest.gateway.dav":         "services/" + common.SERVICE_GATEWAY_DAV,
-		"services/pydio.rest.gateway.wopi":        "services/" + common.SERVICE_GATEWAY_WOPI,
-		"ports/micro.api":                         "ports/" + common.SERVICE_MICRO_API,
-		"services/micro.api":                      "services/" + common.SERVICE_MICRO_API,
-		"services/pydio.api.front-plugins":        "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
-		"services/pydio.grpc.auth/dex/connectors": "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors",
+		"services/pydio.api.websocket":            "services/" + common.ServiceGatewayNamespace_ + common.ServiceWebSocket,
+		"services/pydio.grpc.gateway.data":        "services/" + common.ServiceGatewayData,
+		"services/pydio.grpc.gateway.proxy":       "services/" + common.ServiceGatewayProxy,
+		"services/pydio.rest.gateway.dav":         "services/" + common.ServiceGatewayDav,
+		"services/pydio.rest.gateway.wopi":        "services/" + common.ServiceGatewayWopi,
+		"ports/micro.api":                         "ports/" + common.ServiceMicroApi,
+		"services/micro.api":                      "services/" + common.ServiceMicroApi,
+		"services/pydio.api.front-plugins":        "services/" + common.ServiceWebNamespace_ + common.ServiceFrontStatics,
+		"services/pydio.grpc.auth/dex/connectors": "services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors",
 	})
 }

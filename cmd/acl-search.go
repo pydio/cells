@@ -43,7 +43,7 @@ var searchAclCmd = &cobra.Command{
 Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {

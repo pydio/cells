@@ -43,14 +43,14 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceDocStore),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
-				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DOCSTORE)
+				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDocStore)
 				if e != nil {
 					return e
 				}

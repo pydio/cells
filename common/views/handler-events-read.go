@@ -120,7 +120,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 				linkData.DownloadCount++
 				newData, _ := json.Marshal(linkData)
 				doc.Data = string(newData)
-				store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+				store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DocStoreIdShares, DocumentID: doc.ID, Document: doc})
 				if e3 == nil {
 					logger.Debug("Updated share download count " + doc.ID)
@@ -148,7 +148,7 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 		return
 	}
 	// This is a unique hidden user - search corresponding link and update download number
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 
 	// SEARCH WITH PRESET_LOGIN
 	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{

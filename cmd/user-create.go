@@ -83,7 +83,7 @@ $ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
 			Attributes: map[string]string{"profile": common.PydioProfileStandard},
 		}
 
-		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 		response, err := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: newUser})
 		if err != nil {
 			cmd.Println(err.Error())
@@ -99,7 +99,7 @@ $ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
 			Label:    "User " + u.Login + " role",
 		}
 
-		roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 		if _, err := roleClient.CreateRole(context.Background(), &idm.CreateRoleRequest{
 			Role: &newRole,
 		}); err != nil {

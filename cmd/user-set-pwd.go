@@ -90,7 +90,7 @@ $ %s user set-pwd -u 'USER_LOGIN' -p 'NEW_PASSWORD'
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		client := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 
 		users, err := searchUser(context.Background(), client, userPwdLogin)
 		if err != nil {

@@ -18,31 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
- package cmd
+package cmd
 
- import (
-	 "os"
-	 "context"
-	 
-	 "github.com/spf13/cobra"
- 
-	 "github.com/pydio/cells/common"
-	 defaults "github.com/pydio/cells/common/micro"
-	 "github.com/pydio/cells/common/proto/tree"
+import (
+	"context"
+	"os"
+
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/tree"
 	// service "github.com/pydio/cells/common/service/proto"
- )
- 
- var lsCmd = &cobra.Command{
-	 Use:   "ls",
-	 Short: "List files",
-	 Long: `List ACLs currently stored in the acl micro-service.
+)
+
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List files",
+	Long: `List ACLs currently stored in the acl micro-service.
  
  Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
  `,
-	 Run: func(cmd *cobra.Command, args []string) {
-		 client := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	Run: func(cmd *cobra.Command, args []string) {
+		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
-		 // List all children and move them all
+		// List all children and move them all
 		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}})
 		if err != nil {
 			cmd.Println(err)
@@ -59,11 +59,10 @@
 			}
 
 			cmd.Println(node)
-		 }
-	 },
- }
- 
- func init() {
-	 RootCmd.AddCommand(lsCmd)
- }
- 
+		}
+	},
+}
+
+func init() {
+	RootCmd.AddCommand(lsCmd)
+}

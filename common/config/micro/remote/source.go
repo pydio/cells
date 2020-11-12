@@ -46,7 +46,7 @@ func (s *remotesource) Read() (*config.ChangeSet, error) {
 	var changeset *config.ChangeSet
 
 	err := Retry(func() error {
-		cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+		cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -82,7 +82,7 @@ func (s *remotesource) String() string {
 }
 
 func (s *remotesource) Watch() (config.SourceWatcher, error) {
-	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
+	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, nil)
 	stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
 		Id: s.opts.Name,
 	})
@@ -132,7 +132,7 @@ func (w *sourceWatcher) Stop() error {
 // UpdateRemote sends an Update request to a remote Config Service
 func UpdateRemote(configId string, val interface{}, path ...string) error {
 
-	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	cl := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
 	data, _ := json.Marshal(val)
 	hasher := md5.New()
 	hasher.Write(data)
@@ -157,7 +157,7 @@ func UpdateRemote(configId string, val interface{}, path ...string) error {
 
 // DeleteRemote sends an Delete request to a remote Config Service
 func DeleteRemote(configId string, path ...string) error {
-	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
+	cl := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, nil)
 
 	_, e := cl.Delete(context.Background(), &proto.DeleteRequest{
 		Change: &proto.Change{

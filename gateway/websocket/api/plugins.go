@@ -47,7 +47,7 @@ import (
 var (
 	ws   *websocket.WebsocketHandler
 	chat *websocket.ChatHandler
-	name = common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET
+	name = common.ServiceGatewayNamespace_ + common.ServiceWebSocket
 )
 
 func publicationContext(publication broker.Publication) context.Context {
@@ -62,9 +62,9 @@ func init() {
 		service.NewService(
 			service.Name(name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Tag(common.ServiceTagGateway),
 			service.Fork(true),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceChat, []string{}),
 			service.Description("WebSocket server pushing event to the clients"),
 			service.WithHTTP(func() http.Handler {
 

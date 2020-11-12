@@ -33,9 +33,9 @@ import (
 func init() {
 	plugins.RegisterInstall(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL),
+			service.Name(common.ServiceRestNamespace_+common.ServiceInstall),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Description("RESTful Installation server"),
 			service.WithWeb(func() service.WebHandler {
 				eventManager, _ := golongpoll.StartLongpoll(golongpoll.Options{})

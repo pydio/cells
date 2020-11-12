@@ -63,7 +63,7 @@ func (s *Handler) getRouter() *views.Router {
 
 func (s *Handler) getClient() tree.SearcherClient {
 	if s.client == nil {
-		s.client = tree.NewSearcherClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH, defaults.NewClient())
+		s.client = tree.NewSearcherClient(common.ServiceGrpcNamespace_+common.ServiceSearch, defaults.NewClient())
 	}
 	return s.client
 }

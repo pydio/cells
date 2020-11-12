@@ -111,7 +111,7 @@ func AclsToCellAcls(ctx context.Context, acls []*idm.ACL) map[string]*rest.CellA
 func LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl, checker ContextEditableChecker) error {
 
 	log.Logger(ctx).Debug("LoadCellAclsObjects", zap.Any("acls", roomAcls))
-	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	var roleIds []string
 	for _, acl := range roomAcls {
 		roleIds = append(roleIds, acl.RoleId)
@@ -145,7 +145,7 @@ func LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl,
 			userQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: roleId})
 			subQueries = append(subQueries, userQ)
 		}
-		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 		stream, err := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: subQueries}})
 		if err != nil {
 			return err
@@ -350,11 +350,11 @@ func GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid strin
 
 	log.Logger(ctx).Debug("GetOrCreateWorkspace", zap.String("wsUuid", wsUuid), zap.Any("scope", scope.String()), zap.Bool("updateIfNeeded", updateIfNeeded))
 
-	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	var create bool
 	if wsUuid == "" {
 		if label == "" {
-			return nil, false, errors.BadRequest(common.SERVICE_SHARE, "please provide a non-empty label for this workspace")
+			return nil, false, errors.BadRequest(common.ServiceShare, "please provide a non-empty label for this workspace")
 		}
 		// Create Workspace
 		wsUuid = uuid.NewUUID().String()
@@ -393,7 +393,7 @@ func GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid strin
 			workspace = wsResp.Workspace
 		}
 		if workspace == nil {
-			return workspace, false, errors.NotFound(common.SERVICE_SHARE, "Cannot find workspace with Uuid "+wsUuid)
+			return workspace, false, errors.NotFound(common.ServiceShare, "Cannot find workspace with Uuid "+wsUuid)
 		}
 		if (label != "" && workspace.Label != label) || (description != "" && workspace.Description != description) {
 			workspace.Label = label
@@ -442,7 +442,7 @@ func DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.Workspa
 		}
 	}
 	// Deleting workspace will delete associated policies and associated ACLs
-	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 		Uuid: workspaceId,
 	})

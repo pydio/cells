@@ -84,7 +84,7 @@ func (e *ExifProcessor) GetName() string {
 // Init passes parameters to the action
 func (e *ExifProcessor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
-	e.metaClient = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
+	e.metaClient = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
 	return nil
 }
 
@@ -168,7 +168,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 
 	// Open the test image.
 	if !node.HasSource() {
-		return nil, errors.InternalServerError(common.SERVICE_JOBS, "Node does not have enough metadata")
+		return nil, errors.InternalServerError(common.ServiceJobs, "Node does not have enough metadata")
 	}
 
 	var reader io.ReadCloser

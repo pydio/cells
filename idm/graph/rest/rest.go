@@ -77,7 +77,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 	accessListWsNodes := accessList.GetWorkspacesNodes()
 	state.WorkspacesAccesses = accessList.GetAccessibleWorkspaces(ctx)
 
-	wsCli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsCli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	query := &service2.Query{
 		SubQueries: []*any.Any{},
 		Operation:  service2.OperationType_OR,
@@ -147,7 +147,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Common Workspaces", zap.Any("common", commonWorkspaces), zap.Any("context", contextWorkspaces), zap.Any("target", targetWorkspaces))
 
-	wsCli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsCli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	query := &service2.Query{
 		SubQueries: []*any.Any{},
 		Operation:  service2.OperationType_OR,
@@ -190,7 +190,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Load the current user teams, to check if the current user is part of one of them
-	roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	var uuids []string
 	for _, role := range targetUserAccessList.OrderedRoles {
 		uuids = append(uuids, role.Uuid)

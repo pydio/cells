@@ -38,7 +38,7 @@ func (s *ReconnectingClient) Stop() {
 func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 
 	go func() {
-		taskClient := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		taskClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		ctx, cancel := context.WithTimeout(s.parentCtx, 5*time.Minute)
 		defer cancel()
 

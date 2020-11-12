@@ -83,7 +83,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		return 404, tplConf
 	}
 
-	cl := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	cl := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 		Uuid: linkData.RepositoryId,
 	})
@@ -139,7 +139,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		uField = linkData.PresetLogin
 	}
 	if uField != "" {
-		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_WEB_NAMESPACE_+common.SERVICE_FRONTEND)
+		ctx = servicecontext.WithServiceName(ctx, common.ServiceWebNamespace_+common.ServiceFrontend)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Public Link %s accessed", linkId),
 			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
@@ -185,7 +185,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Load link from Docstore
 func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstore.ShareDocument, error) {
 
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	resp, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{DocumentID: linkUuid, StoreID: common.DocStoreIdShares})
 	if e != nil {
 		return nil, e

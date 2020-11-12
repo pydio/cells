@@ -86,9 +86,9 @@ func (m *MailDigestAction) Init(job *jobs.Job, cl client.Client, action *jobs.Ac
 	if email, ok := action.Parameters["dryMail"]; ok && email != "" {
 		m.dryMail = email
 	}
-	m.mailerClient = mailer.NewMailerServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_MAILER, cl)
-	m.activityClient = activity.NewActivityServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACTIVITY, cl)
-	m.userClient = idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, cl)
+	m.mailerClient = mailer.NewMailerServiceClient(common.ServiceGrpcNamespace_+common.ServiceMailer, cl)
+	m.activityClient = activity.NewActivityServiceClient(common.ServiceGrpcNamespace_+common.ServiceActivity, cl)
+	m.userClient = idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, cl)
 	return nil
 }
 

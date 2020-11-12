@@ -25,7 +25,7 @@ func init() {
 
 func initTasksLogger() *zap.Logger {
 	// Logger that forwards the messages to a bleve DB via gRPC
-	serverSync := zapcore.AddSync(log.NewLogSyncer(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS))
+	serverSync := zapcore.AddSync(log.NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceJobs))
 
 	logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
 

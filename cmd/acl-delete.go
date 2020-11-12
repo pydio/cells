@@ -42,7 +42,7 @@ var deleteAclCmd = &cobra.Command{
 Flags allow you to query the grpc service for deleting the resulting ACLs
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {

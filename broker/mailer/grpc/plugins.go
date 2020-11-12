@@ -42,7 +42,7 @@ import (
 
 var (
 	// Name is the identifier of this service
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_MAILER
+	Name = common.ServiceGrpcNamespace_ + common.ServiceMailer
 )
 
 func init() {
@@ -53,9 +53,9 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("MailSender Service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
 			service.Unique(true),
 			service.AutoRestart(true),
 			service.Migrations([]*service.Migration{
@@ -124,7 +124,7 @@ func RegisterQueueJob(ctx context.Context) error {
 		},
 	}
 	return service.Retry(func() error {
-		cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
 		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return e
 	}, 5*time.Second, 20*time.Second)

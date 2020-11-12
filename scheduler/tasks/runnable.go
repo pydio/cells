@@ -135,7 +135,7 @@ func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, actions
 func (r *Runnable) RunAction(Queue chan Runnable) error {
 
 	if r.Implementation == nil {
-		return errors.NotFound(common.SERVICE_JOBS, fmt.Sprintf("cannot run action: no concrete implementation found for ID %s, are you sure this action has been correctly registered?", r.Action.ID))
+		return errors.NotFound(common.ServiceJobs, fmt.Sprintf("cannot run action: no concrete implementation found for ID %s, are you sure this action has been correctly registered?", r.Action.ID))
 	}
 
 	taskUpdateDelegated := false

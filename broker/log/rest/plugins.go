@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_LOG),
+			service.Name(common.ServiceRestNamespace_+common.ServiceLog),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to search in the log repositories"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceLog, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),

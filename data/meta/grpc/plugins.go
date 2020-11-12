@@ -36,9 +36,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceMeta),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.WithStorage(meta.NewDAO, "data_meta"),
 			service.Unique(true),

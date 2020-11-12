@@ -31,9 +31,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_TREE),
+			service.Name(common.ServiceRestNamespace_+common.ServiceTree),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to tree service"),
 			service.RouterDependencies(),
 			service.WithWeb(func() service.WebHandler {

@@ -67,7 +67,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 		service2.RestError403(req, rsp, er)
 	}
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	response, er := aclClient.CreateACL(req.Request.Context(), &idm.CreateACLRequest{
 		ACL: &inputACL,
 	})
@@ -114,7 +114,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 		SubQueries: []*any.Any{acQ},
 	}
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	response, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
 		Query: query,
 	})
@@ -158,7 +158,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 		query.SubQueries = append(query.SubQueries, anyfied)
 	}
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	streamer, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: query,
 	})

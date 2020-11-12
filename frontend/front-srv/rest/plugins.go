@@ -97,9 +97,9 @@ func init() {
 		frontend.WrapAuthMiddleware(modifiers.LoginFailedWrapper)
 
 		s := service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
+			service.Name(common.ServiceRestNamespace_+common.ServiceFrontend),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_FRONTEND),
+			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(BasePluginsBox),
 			service.WithWeb(func() service.WebHandler {

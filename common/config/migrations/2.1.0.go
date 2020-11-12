@@ -18,7 +18,7 @@ func init() {
 
 func moveConnectors(config configx.Values) error {
 	return UpdateKeys(config, map[string]string{
-		"services/pydio.grpc.auth/dex/connectors": "services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors",
+		"services/pydio.grpc.auth/dex/connectors": "services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors",
 	})
 }
 
@@ -27,7 +27,7 @@ func movePydioConnectors(config configx.Values) error {
 	var c interface{}
 	var connectors []map[string]interface{}
 
-	err := config.Val("services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors").Scan(&c)
+	err := config.Val("services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors").Scan(&c)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func movePydioConnectors(config configx.Values) error {
 
 	}
 
-	d, f := path.Split("services/" + common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH + "/connectors")
+	d, f := path.Split("services/" + common.ServiceWebNamespace_ + common.ServiceOAuth + "/connectors")
 	config.Val(d, f).Set(connectors)
 
 	return nil

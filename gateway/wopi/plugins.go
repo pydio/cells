@@ -38,9 +38,9 @@ var (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GATEWAY_WOPI),
+			service.Name(common.ServiceGatewayWopi),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Tag(common.ServiceTagGateway),
 			service.RouterDependencies(),
 			service.Description("WOPI REST Gateway to tree service"),
 			service.WithHTTP(func() http.Handler {

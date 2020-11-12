@@ -44,24 +44,24 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	save := false
 
 	// OAuth web
-	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
+	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
 	secret, err := x.GenerateSecret(32)
 	if err != nil {
 		return err
 	}
 
 	// Adding the config for activities and chat
-	acDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY)
-	chatDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT)
+	acDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceActivity)
+	chatDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceChat)
 
 	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
-		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY + "/driver": "boltdb",
-		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_ACTIVITY + "/dsn":    filepath.Join(acDir, "activities.db"),
-		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT + "/driver":     "boltdb",
-		"databases/" + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_CHAT + "/dsn":        filepath.Join(chatDir, "chat.db"),
-		"services/" + oauthWeb + "/insecureRedirects":                                       []string{"#insecure_binds...#/auth/callback"},
-		"services/" + oauthWeb + "/secret":                                                  string(secret),
+		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/driver": "boltdb",
+		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/dsn":    filepath.Join(acDir, "activities.db"),
+		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceChat + "/driver":     "boltdb",
+		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceChat + "/dsn":        filepath.Join(chatDir, "chat.db"),
+		"services/" + oauthWeb + "/insecureRedirects":                                    []string{"#insecure_binds...#/auth/callback"},
+		"services/" + oauthWeb + "/secret":                                               string(secret),
 	}
 
 	for path, def := range configKeys {

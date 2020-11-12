@@ -105,7 +105,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			return
 		}
 		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
-		rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
+		rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
@@ -319,7 +319,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
 
-	sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
+	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
 	var dataSources []*object.DataSource
 	for _, src := range sources {
 		if ds, err := s.loadDataSource(ctx, src); err == nil {
@@ -333,7 +333,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	var ds *object.DataSource
 
-	err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dsName).Scan(&ds)
+	err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName).Scan(&ds)
 	if err != nil {
 		return nil, err
 	}
@@ -345,7 +345,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 
 	if ds.StorageConfiguration != nil {
 		if folder, ok := ds.StorageConfiguration["folder"]; ok {
-			rootPrefix := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String()
+			rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}
@@ -365,9 +365,9 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 	// List all workspaces
 	// List all ACLs
 	// Check if Nodes belong to datasource => break
-	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	wsSearch, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 		Scope: idm.WorkspaceScope_ADMIN,
 	})

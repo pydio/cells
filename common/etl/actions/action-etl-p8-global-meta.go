@@ -125,8 +125,8 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 		log.TasksLogger(ctx).Error("Cannot load access list for user", zap.Any("login", c.cellAdmin), zap.Error(e))
 		return e
 	}
-	subClient := activity.NewActivityServiceClient(registry.GetClient(common.SERVICE_ACTIVITY))
-	metaClient := idm.NewUserMetaServiceClient(registry.GetClient(common.SERVICE_USER_META))
+	subClient := activity.NewActivityServiceClient(registry.GetClient(common.ServiceActivity))
+	metaClient := idm.NewUserMetaServiceClient(registry.GetClient(common.ServiceUserMeta))
 	log.TasksLogger(ctx).Info("Global Meta", zap.Any("data length", len(data)))
 	for wsId, users := range data {
 		slug := c.FindSlug(ctx, wsId)
@@ -286,7 +286,7 @@ func (c *MigrateGlobalMetaAction) FindSlug(ctx context.Context, p8WsId string) s
 		return ""
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: mapped})
 	s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {

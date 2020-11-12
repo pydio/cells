@@ -95,7 +95,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if e != nil {
 		return input.WithError(e), e
 	}
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
 		Since: 60 * 60 * 6,

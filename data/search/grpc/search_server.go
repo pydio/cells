@@ -66,7 +66,7 @@ func (s *SearchServer) initEventsChannel() {
 	s.eventsChannel = make(chan *event.EventWithContext)
 	go func() {
 		for eventWCtx := range s.eventsChannel {
-			ctx := servicecontext.WithServiceName(eventWCtx.Context, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH)
+			ctx := servicecontext.WithServiceName(eventWCtx.Context, common.ServiceGrpcNamespace_+common.ServiceSearch)
 			s.processEvent(ctx, eventWCtx.Event)
 		}
 	}()

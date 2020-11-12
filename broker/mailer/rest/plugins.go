@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_MAILER),
+			service.Name(common.ServiceRestNamespace_+common.ServiceMailer),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("REST send email service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_MAILER, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMailer, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(MailerHandler)
 			}),

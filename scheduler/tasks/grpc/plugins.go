@@ -38,11 +38,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceTasks),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_SCHEDULER),
+			service.Tag(common.ServiceTagScheduler),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
 			service.WithMicro(func(m micro.Service) error {
 				jobs.RegisterTaskServiceHandler(m.Options().Server, new(Handler))
 				multiplexer := tasks.NewSubscriber(m.Options().Context, m.Options().Client, m.Options().Server)

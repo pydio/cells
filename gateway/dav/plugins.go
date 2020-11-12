@@ -40,9 +40,9 @@ var (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GATEWAY_DAV),
+			service.Name(common.ServiceGatewayDav),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Tag(common.ServiceTagGateway),
 			service.RouterDependencies(),
 			service.Description("DAV Gateway to tree service"),
 			service.WithHTTP(func() http.Handler {

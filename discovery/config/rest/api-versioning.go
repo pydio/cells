@@ -43,7 +43,7 @@ VERSIONING POLICIES MANAGEMENT
 // ListVersioningPolicies list all defined policies.
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) {
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
-	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVersioningPolicies,
 	})
@@ -72,7 +72,7 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) {
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	policyId := req.PathParameter("Uuid")
-	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	if r, e := dc.GetDocument(req.Request.Context(), &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyId,

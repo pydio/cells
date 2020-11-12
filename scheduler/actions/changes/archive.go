@@ -88,7 +88,7 @@ func (a *ArchiveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Actio
 // Run the actual action code
 func (a *ArchiveAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	c := service.NewArchiverService(registry.GetClient(common.SERVICE_CHANGES))
+	c := service.NewArchiverService(registry.GetClient(common.ServiceChanges))
 
 	log.TasksLogger(ctx).Info(fmt.Sprintf("Launching archive action with param RemainingRows=%d", a.RemainingRows))
 

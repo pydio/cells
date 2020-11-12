@@ -46,9 +46,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH),
+			service.Name(common.ServiceWebNamespace_+common.ServiceOAuth),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
 			service.WithHTTP(func() http.Handler {
@@ -94,7 +94,7 @@ func initialize(s service.Service) error {
 	ctx := s.Options().Context
 
 	// Configuration
-	auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+	auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 
 	// Registry
 	auth.InitRegistry(servicecontext.GetDAO(ctx).(sql.DAO))

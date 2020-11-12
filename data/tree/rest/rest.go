@@ -253,7 +253,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	router := h.GetRouter()
 
 	deleteJobs := newDeleteJobs()
-	metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+	metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 
 	for _, node := range input.Nodes {
 		if read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); er != nil {
@@ -336,7 +336,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	moveLabel := T("Jobs.User.MoveRecycle")
 	fullPathRouter := views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
@@ -445,7 +445,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
 	selectionUuid := uuid.New()
-	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	dcClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	data, _ := json.Marshal(input.Nodes)
 	if _, e := dcClient.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID:    common.DocStoreIdSelections,
@@ -489,7 +489,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	moveLabel := T("Jobs.User.DirMove")
 
 	router := h.GetRouter()
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	restoreTargets := make(map[string]struct{}, len(input.Nodes))
 
 	e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {

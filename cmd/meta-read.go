@@ -71,7 +71,7 @@ $ ` + os.Args[0] + ` meta read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 
 		response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{
 			Node: &tree.Node{

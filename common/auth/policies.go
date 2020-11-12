@@ -143,7 +143,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 		subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
 			Uuid: q.UserId,
 		})
-		uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 		if stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{
 			Query: &service.Query{SubQueries: []*any.Any{subQ}},
 		}); e == nil {

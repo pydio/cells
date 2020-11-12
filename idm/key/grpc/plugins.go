@@ -36,9 +36,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceUserKey),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
 			service.WithStorage(key.NewDAO, "idm_key"),
 			service.WithMicro(func(m micro.Service) error {

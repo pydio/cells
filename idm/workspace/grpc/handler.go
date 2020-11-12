@@ -140,7 +140,7 @@ func (h *Handler) SearchWorkspace(ctx context.Context, request *idm.SearchWorksp
 			continue
 		}
 		if !ok {
-			response.SendMsg(errors.InternalServerError(common.SERVICE_WORKSPACE, "Wrong type"))
+			response.SendMsg(errors.InternalServerError(common.ServiceWorkspace, "Wrong type"))
 		} else {
 			response.Send(&idm.SearchWorkspaceResponse{Workspace: ws})
 		}

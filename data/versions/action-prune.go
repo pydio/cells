@@ -84,7 +84,7 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	}
 	// Prepare ctx with info about the target branch
 	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
-	versionClient := tree.NewNodeVersionerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS, defaults.NewClient())
+	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		for _, versionFileId := range response.DeletedVersions {
 			err := source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)

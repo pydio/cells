@@ -94,7 +94,7 @@ func (c *MetaAction) GetName() string {
 // Init passes parameters to the action
 func (c *MetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 
-	c.Client = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
+	c.Client = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
 	c.MetaNamespace = action.Parameters["metaName"]
 	c.MetaValue = action.Parameters["metaValue"]
 

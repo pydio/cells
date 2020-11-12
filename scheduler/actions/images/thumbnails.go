@@ -136,7 +136,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.
 	} else {
 		t.thumbSizes = map[string]int{"sm": 300}
 	}
-	t.metaClient = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
+	t.metaClient = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
 	t.Client = cl
 	return nil
 }

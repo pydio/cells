@@ -41,7 +41,7 @@ Use this command to manually grant a permission on a given node for a given role
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		client := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 
 		response, err := client.CreateACL(context.Background(), &idm.CreateACLRequest{
 			ACL: &idm.ACL{

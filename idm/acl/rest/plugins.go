@@ -32,12 +32,12 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ACL),
+			service.Name(common.ServiceRestNamespace_+common.ServiceAcl),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTFul - Access Control List service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),

@@ -51,8 +51,8 @@ func NewMockFromMicroService(rs *registry.Service) *mockService {
 	if m.microMetadata == nil {
 		m.microMetadata = make(map[string]string)
 	}
-	if strings.HasPrefix(rs.Name, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_) {
-		m.tags = []string{common.SERVICE_TAG_DATASOURCE}
+	if strings.HasPrefix(rs.Name, common.ServiceGrpcNamespace_+common.ServiceData_) {
+		m.tags = []string{common.ServiceTagDatasource}
 	}
 	return m
 }
@@ -112,13 +112,13 @@ func (m *mockService) ExposedConfigs() common.XMLSerializableForm {
 	return nil
 }
 func (m *mockService) IsGeneric() bool {
-	return !strings.HasPrefix(m.name, common.SERVICE_GRPC_NAMESPACE_) && !strings.HasPrefix(m.name, common.SERVICE_REST_NAMESPACE_)
+	return !strings.HasPrefix(m.name, common.ServiceGrpcNamespace_) && !strings.HasPrefix(m.name, common.ServiceRestNamespace_)
 }
 func (m *mockService) IsGRPC() bool {
-	return strings.HasPrefix(m.name, common.SERVICE_GRPC_NAMESPACE_)
+	return strings.HasPrefix(m.name, common.ServiceGrpcNamespace_)
 }
 func (m *mockService) IsREST() bool {
-	return strings.HasPrefix(m.name, common.SERVICE_REST_NAMESPACE_)
+	return strings.HasPrefix(m.name, common.ServiceRestNamespace_)
 }
 func (m *mockService) RequiresFork() bool {
 	return false

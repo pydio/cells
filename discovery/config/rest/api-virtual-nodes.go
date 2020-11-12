@@ -39,7 +39,7 @@ VERSIONING POLICIES MANAGEMENT
 // ListVersioningPolicies list all defined policies.
 func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response) {
 	//T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
-	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
 	})

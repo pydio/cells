@@ -86,28 +86,28 @@ func publishActivityEvent(ctx context.Context, ownerType activity2.OwnerType, ow
 
 func (e *MicroEventsSubscriber) getTreeClient() tree.NodeProviderClient {
 	if e.treeClient == nil {
-		e.treeClient = tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+		e.treeClient = tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
 	}
 	return e.treeClient
 }
 
 func (e *MicroEventsSubscriber) getUserClient() idm.UserServiceClient {
 	if e.usrClient == nil {
-		e.usrClient = idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
+		e.usrClient = idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
 	}
 	return e.usrClient
 }
 
 func (e *MicroEventsSubscriber) getRoleClient() idm.RoleServiceClient {
 	if e.roleClient == nil {
-		e.roleClient = idm.NewRoleServiceClient(registry.GetClient(common.SERVICE_ROLE))
+		e.roleClient = idm.NewRoleServiceClient(registry.GetClient(common.ServiceRole))
 	}
 	return e.roleClient
 }
 
 func (e *MicroEventsSubscriber) getWorkspaceClient() idm.WorkspaceServiceClient {
 	if e.wsClient == nil {
-		e.wsClient = idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+		e.wsClient = idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
 	}
 	return e.wsClient
 }

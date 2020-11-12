@@ -66,7 +66,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 		return roles
 	}
 
-	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 
 	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
 		Uuid: roleIds,
@@ -140,7 +140,7 @@ func GetRoles(ctx context.Context, names []string) []*idm.Role {
 	}
 
 	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: names})
-	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+	roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	stream, err := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{query}}})
 
 	if err != nil {
@@ -203,7 +203,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 		return acls
 	}
 	//s := time.Now()
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
 			SubQueries: []*any.Any{q1Any, q2Any},
@@ -241,7 +241,7 @@ func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...
 	q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: actions})
 	subQueries = append(subQueries, q1, q2)
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
 			SubQueries: subQueries,
@@ -279,7 +279,7 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 		return workspaces
 	}
 
-	workspaceClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	workspaceClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 
 	var queries []*any.Any
 	for workspaceID := range workspaceNodes {
@@ -322,7 +322,7 @@ func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*
 	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: actions})
 	subQueries = append(subQueries, q1)
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
 			SubQueries: subQueries,
@@ -444,7 +444,7 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		}
 	}
 
-	userCli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	userCli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	var searchRequests []*any.Any
 	if uuid != "" {
 		searchRequest, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: uuid})
@@ -479,7 +479,7 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		break
 	}
 	if user == nil {
-		return nil, errors.NotFound(common.SERVICE_USER, "Cannot find user with this login or uuid")
+		return nil, errors.NotFound(common.ServiceUser, "Cannot find user with this login or uuid")
 	}
 	// Store to quick cache
 	if len(queries) == 0 {
@@ -554,7 +554,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 		userName = claims.Name
 	}
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	// Look for "quota" ACLs on this node
 	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: AclContentLock.Name}}}
 	//log.Logger(ctx).Debug("SEARCHING FOR LOCKS IN ACLS", zap.Any("q", singleQ))

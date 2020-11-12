@@ -50,7 +50,7 @@ type WorkspaceHandler struct {
 // NewWorkspaceHandler simply creates and configures a handler.
 func NewWorkspaceHandler() *WorkspaceHandler {
 	h := new(WorkspaceHandler)
-	h.ServiceName = common.SERVICE_WORKSPACE
+	h.ServiceName = common.ServiceWorkspace
 	h.ResourceName = "workspace"
 	h.PoliciesLoader = h.loadPoliciesForResource
 	return h
@@ -78,12 +78,12 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	}
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
 
-	cli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	update := false
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
 		update = true
 		if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service.ResourcePolicyAction_WRITE) {
-			service2.RestError403(req, rsp, errors.Forbidden(common.SERVICE_WORKSPACE, "You are not allowed to edit this workspace"))
+			service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace"))
 			return
 		}
 		// Check that slug is not already in use
@@ -154,7 +154,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	serviceQuery := &service.Query{SubQueries: []*any.Any{query}}
 
 	ctx := req.Request.Context()
-	cli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 
 	if stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery}); e == nil {
 		defer stream.Close()
@@ -171,7 +171,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 					fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
 					log.GetAuditId(common.AUDIT_WS_DELETE),
 				)
-				service2.RestError403(req, rsp, errors.Forbidden(common.SERVICE_WORKSPACE, "You are not allowed to edit this workspace!"))
+				service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace!"))
 				return
 			}
 		}
@@ -220,7 +220,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	cli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 
 	streamer, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: query,

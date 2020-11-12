@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Name(common.ServiceRestNamespace_+common.ServiceUpdate),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Gateway to check for available updates"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUpdate, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),

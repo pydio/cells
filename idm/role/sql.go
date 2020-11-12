@@ -114,7 +114,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 		role.Uuid = uuid.NewUUID().String()
 	}
 	if role.Label == "" {
-		return nil, false, errors.BadRequest(common.SERVICE_ROLE, "Role cannot have an empty label")
+		return nil, false, errors.BadRequest(common.ServiceRole, "Role cannot have an empty label")
 	}
 	if role.LastUpdated == 0 {
 		role.LastUpdated = int32(time.Now().Unix())

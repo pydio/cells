@@ -84,7 +84,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 		// If paths are preset, just load nodes and do not go further
 		if len(q.Paths) > 0 {
-			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+			sCli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
 			for _, p := range q.Paths {
 				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
 					objects <- r.GetNode()
@@ -94,7 +94,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 		// If UUIDs are preset, just load nodes and do not go further
 		if len(q.UUIDs) > 0 {
-			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+			sCli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
 			for _, uuid := range q.UUIDs {
 				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
 					objects <- r.GetNode()
@@ -103,12 +103,12 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			return nil
 		}
 		// For simple/quick requests
-		sName := common.SERVICE_TREE
+		sName := common.ServiceTree
 		if q.FreeString != "" || q.Content != "" {
 			// Use the Search Service instead
-			sName = common.SERVICE_SEARCH
+			sName = common.ServiceSearch
 		}
-		treeClient := tree.NewSearcherClient(common.SERVICE_GRPC_NAMESPACE_+sName, cl)
+		treeClient := tree.NewSearcherClient(common.ServiceGrpcNamespace_+sName, cl)
 		sStream, eR := treeClient.Search(ctx, &tree.SearchRequest{
 			Query:   q,
 			Details: true,

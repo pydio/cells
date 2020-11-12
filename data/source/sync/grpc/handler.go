@@ -142,14 +142,14 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		defer wg.Done()
 		service.Retry(func() error {
 			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
-			c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + dataSource))
+			c := protoservice.NewService(registry.GetClient(common.ServiceDataIndex_ + dataSource))
 			r, err := c.Status(context.Background(), &empty.Empty{})
 			if err != nil {
 				return err
 			}
 
 			if !r.GetOK() {
-				log.Logger(ctx).Info(common.SERVICE_DATA_INDEX_ + dataSource + " not yet available")
+				log.Logger(ctx).Info(common.ServiceDataIndex_ + dataSource + " not yet available")
 				return fmt.Errorf("index not reachable")
 			}
 			indexOK = true
@@ -161,10 +161,10 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		defer wg.Done()
 		service.Retry(func() error {
 			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
-			cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
+			cli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
-				log.Logger(ctx).Debug(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName + " not yet available")
+				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 				return err
 			}
 			minioConfig = resp.MinioConfig
@@ -213,7 +213,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
 	var computer func(string) (int64, error)
 	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
-		keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.SERVICE_ENC_KEY))
+		keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.ServiceEncKey))
 		computer = func(nodeUUID string) (i int64, e error) {
 			if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
 				NodeId: nodeUUID,
@@ -313,7 +313,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		source = s3client
 	}
 
-	indexName, indexClient := registry.GetClient(common.SERVICE_DATA_INDEX_ + dataSource)
+	indexName, indexClient := registry.GetClient(common.ServiceDataIndex_ + dataSource)
 	indexClientWrite := tree.NewNodeReceiverClient(indexName, indexClient)
 	indexClientRead := tree.NewNodeProviderClient(indexName, indexClient)
 	sessionClient := tree.NewSessionIndexerClient(indexName, indexClient)
@@ -401,7 +401,7 @@ func (s *Handler) watchErrors() {
 }
 
 func (s *Handler) watchConfigs() {
-	serviceName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + s.dsName
+	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.dsName
 	watcher, e := config.Watch("services", serviceName)
 	if e != nil {
 		return
@@ -424,7 +424,7 @@ func (s *Handler) watchConfigs() {
 				s.SyncConfig.EncryptionMode = cfg.EncryptionMode
 				s.SyncConfig.EncryptionKey = cfg.EncryptionKey
 				<-time.After(2 * time.Second)
-				config.TouchSourceNamesForDataServices(common.SERVICE_DATA_SYNC)
+				config.TouchSourceNamesForDataServices(common.ServiceDataSync)
 			}
 		} else {
 			log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))
@@ -518,7 +518,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
-			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
+			taskClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient(client.Retries(3)))
 			theTask.StatusMessage = "Error"
 			theTask.HasProgress = true
 			theTask.Progress = 1
@@ -571,8 +571,8 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 	}
 
 	serviceName := servicecontext.GetServiceName(ctx)
-	dsName := strings.TrimPrefix(serviceName, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
-	taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+	dsName := strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
+	taskClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)
 	if _, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,

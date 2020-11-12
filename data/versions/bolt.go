@@ -87,7 +87,7 @@ func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err er
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
-			return errors.NotFound(common.SERVICE_VERSIONS, "Bucket not found, this is not normal")
+			return errors.NotFound(common.ServiceVersions, "Bucket not found, this is not normal")
 		}
 		nodeBucket := bucket.Bucket([]byte(nodeUuid))
 		if nodeBucket == nil {
@@ -124,11 +124,11 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan boo
 			}()
 			bucket := tx.Bucket(bucketName)
 			if bucket == nil {
-				return errors.NotFound(common.SERVICE_VERSIONS, "Bucket not found, this is not normal")
+				return errors.NotFound(common.ServiceVersions, "Bucket not found, this is not normal")
 			}
 			nodeBucket := bucket.Bucket([]byte(nodeUuid))
 			if nodeBucket == nil {
-				return errors.NotFound(common.SERVICE_VERSIONS, "No bucket found for this node")
+				return errors.NotFound(common.ServiceVersions, "No bucket found for this node")
 			}
 			c := nodeBucket.Cursor()
 
@@ -160,7 +160,7 @@ func (b *BoltStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
-			return errors.NotFound(common.SERVICE_VERSIONS, "bucket not found")
+			return errors.NotFound(common.ServiceVersions, "bucket not found")
 		}
 		nodeBucket, err := bucket.CreateBucketIfNotExists([]byte(nodeUuid))
 		if err != nil {
@@ -188,7 +188,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
-			return errors.NotFound(common.SERVICE_VERSIONS, "bucket not found")
+			return errors.NotFound(common.ServiceVersions, "bucket not found")
 		}
 		nodeBucket := bucket.Bucket([]byte(nodeUuid))
 		if nodeBucket == nil {
@@ -216,7 +216,7 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
-			return errors.NotFound(common.SERVICE_VERSIONS, "bucket not found")
+			return errors.NotFound(common.ServiceVersions, "bucket not found")
 		}
 		nodeBucket := bucket.Bucket([]byte(nodeUuid))
 		if nodeBucket != nil {
@@ -273,7 +273,7 @@ func (b *BoltStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan e
 			}()
 			bucket := tx.Bucket(bucketName)
 			if bucket == nil {
-				return errors.NotFound(common.SERVICE_VERSIONS, "version bucket not found")
+				return errors.NotFound(common.ServiceVersions, "version bucket not found")
 			}
 			c := bucket.Cursor()
 			for k, _ := c.First(); k != nil; k, _ = c.Next() {

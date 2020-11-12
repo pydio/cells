@@ -303,7 +303,7 @@ func (h *boltdbimpl) PostMessage(msg *chat.ChatMessage) (*chat.ChatMessage, erro
 func (h *boltdbimpl) DeleteMessage(message *chat.ChatMessage) error {
 
 	if message.Uuid == "" {
-		return errors.BadRequest(common.SERVICE_CHAT, "Cannot delete a message without Uuid")
+		return errors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")
 	}
 
 	err := h.DB().Update(func(tx *bolt.Tx) error {

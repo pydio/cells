@@ -100,7 +100,7 @@ func TestLogSync(t *testing.T) {
 
 	// Forwards logs to the pydio.grpc.logs service to store them
 	var syncers []zapcore.WriteSyncer
-	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG)))
+	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.ServiceGrpcNamespace_+common.ServiceLog)))
 
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = RFC3369TimeEncoder

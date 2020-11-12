@@ -58,7 +58,7 @@ var (
 	}
 	restartChan     chan bool
 	restartRequired bool
-	gatewayCtx      = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.SERVICE_GATEWAY_PROXY)
+	gatewayCtx      = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.ServiceGatewayProxy)
 )
 
 func init() {

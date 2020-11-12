@@ -113,14 +113,14 @@ func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.TreeClient != nil {
 		return p.TreeClient
 	}
-	return tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	return tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
 func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 	if p.TreeClientWrite != nil {
 		return p.TreeClientWrite
 	}
-	return tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	return tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
@@ -190,7 +190,7 @@ func (p *ClientsPool) listDatasources() {
 	}
 
 	indexServices := filterServices(otherServices, func(v string) bool {
-		return strings.Contains(v, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
+		return strings.Contains(v, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 	})
 
 	cli := defaults.NewClient()
@@ -203,17 +203,17 @@ func (p *ClientsPool) listDatasources() {
 
 	ctx := context.Background()
 	for _, indexService := range indexServices {
-		dataSourceName := strings.TrimPrefix(indexService, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
+		dataSourceName := strings.TrimPrefix(indexService, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 		if dataSourceName == "" {
 			continue
 		}
-		s3endpointClient := object.NewDataSourceEndpointClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, cli)
+		s3endpointClient := object.NewDataSourceEndpointClient(common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, cli)
 		response, err := s3endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
 			log.Logger(ctx).Debug("Creating client for datasource " + dataSourceName)
 			p.createClientsForDataSource(dataSourceName, response.DataSource)
 		} else {
-			log.Logger(context.Background()).Debug("no answer from endpoint, maybe not ready yet? "+common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dataSourceName, zap.Any("r", response), zap.Error(err))
+			log.Logger(context.Background()).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, zap.Any("r", response), zap.Error(err))
 		}
 	}
 
@@ -247,8 +247,8 @@ func (p *ClientsPool) watchRegistry() {
 		result, err := watcher.Next()
 		if result != nil && err == nil {
 			srv := result.Service
-			if strings.Contains(srv.Name(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_) {
-				dsName := strings.TrimPrefix(srv.Name(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
+			if strings.Contains(srv.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) {
+				dsName := strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 
 				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
 				if _, ok := p.Sources[dsName]; ok && result.Action == "stopped" {
@@ -265,7 +265,7 @@ func (p *ClientsPool) watchRegistry() {
 
 func (p *ClientsPool) watchConfigChanges() {
 
-	watcher, err := config.Watch("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
+	watcher, err := config.Watch("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
 	if err != nil {
 		return
 	}

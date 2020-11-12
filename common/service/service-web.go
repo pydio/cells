@@ -114,7 +114,7 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				}),
 			)
 
-			rootPath := "/" + strings.TrimPrefix(s.Options().Name, common.SERVICE_REST_NAMESPACE_)
+			rootPath := "/" + strings.TrimPrefix(s.Options().Name, common.ServiceRestNamespace_)
 
 			ws := new(restful.WebService)
 			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
@@ -199,8 +199,8 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 func WithWebAuth() ServiceOption {
 	return func(o *ServiceOptions) {
 
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.ServiceGrpcNamespace_ + common.ServicePolicy, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.ServiceGrpcNamespace_ + common.ServiceUser, []string{}})
 
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
 			wrapped := servicecontext.NewMetricsHttpWrapper(handler)

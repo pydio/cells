@@ -43,7 +43,7 @@ import (
 )
 
 var (
-	bgContext = servicecontext.WithServiceColor(servicecontext.WithServiceName(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS), servicecontext.ServiceColorGrpc)
+	bgContext = servicecontext.WithServiceColor(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceJobs), servicecontext.ServiceColorGrpc)
 )
 
 // JobsHandler implements the JobService API
@@ -213,7 +213,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 
 	job, e := j.store.GetJob(request.Task.JobID, 0)
 	if e != nil {
-		return errors.NotFound(common.SERVICE_JOBS, "Cannot append task to a non existing job ("+request.Task.JobID+")")
+		return errors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 	}
 
 	err := j.store.PutTask(request.Task)
@@ -298,7 +298,7 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 		if !ok {
 			job, e := j.store.GetJob(t.JobID, 0)
 			if e != nil {
-				return errors.NotFound(common.SERVICE_JOBS, "Cannot append task to a non existing job ("+request.Task.JobID+")")
+				return errors.NotFound(common.ServiceJobs, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 			}
 			j.jobsBuffLock.Lock()
 			j.jobsBuff[t.JobID] = job
@@ -404,7 +404,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 	} else {
 
-		return errors.BadRequest(common.SERVICE_JOBS, "DeleteTasks: provide either status values or jobId/taskId parameters")
+		return errors.BadRequest(common.ServiceJobs, "DeleteTasks: provide either status values or jobId/taskId parameters")
 
 	}
 

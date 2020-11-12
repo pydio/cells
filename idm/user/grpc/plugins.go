@@ -57,11 +57,11 @@ func init() {
 
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceUser),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -125,7 +125,7 @@ func InitDefaults(ctx context.Context) error {
 			}
 			// Create user role
 			service.Retry(func() error {
-				roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+				roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 					Uuid:     newUser.Uuid,
 					Label:    newUser.Login + " role",
@@ -158,7 +158,7 @@ func InitDefaults(ctx context.Context) error {
 		}
 		// Create user role
 		service.Retry(func() error {
-			roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+			roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 				Uuid:     newAnon.Uuid,
 				Label:    newAnon.Login + " role",

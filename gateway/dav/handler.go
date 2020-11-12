@@ -49,7 +49,7 @@ type ValidUser struct {
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		c := servicecontext.WithServiceName(r.Context(), common.SERVICE_GATEWAY_DAV)
+		c := servicecontext.WithServiceName(r.Context(), common.ServiceGatewayDav)
 		c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
 		r = r.WithContext(c)
 		log.Logger(c).Debug("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))

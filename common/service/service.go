@@ -187,7 +187,7 @@ func NewService(opts ...ServiceOption) Service {
 		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
 
 		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
-		if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
+		if s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
 			s.Init(WithWebAuth())
 		}
 	} else {
@@ -653,18 +653,18 @@ func (s *service) DAO() interface{} {
 }
 
 func (s *service) IsGeneric() bool {
-	return !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_) &&
-		!strings.HasPrefix(s.Name(), common.SERVICE_WEB_NAMESPACE_) &&
-		!strings.HasPrefix(s.Name(), common.SERVICE_REST_NAMESPACE_)
+	return !strings.HasPrefix(s.Name(), common.ServiceGrpcNamespace_) &&
+		!strings.HasPrefix(s.Name(), common.ServiceWebNamespace_) &&
+		!strings.HasPrefix(s.Name(), common.ServiceRestNamespace_)
 }
 
 func (s *service) IsGRPC() bool {
-	return strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
+	return strings.HasPrefix(s.Name(), common.ServiceGrpcNamespace_)
 }
 
 func (s *service) IsREST() bool {
-	return strings.HasPrefix(s.Name(), common.SERVICE_WEB_NAMESPACE_) ||
-		strings.HasPrefix(s.Name(), common.SERVICE_REST_NAMESPACE_)
+	return strings.HasPrefix(s.Name(), common.ServiceWebNamespace_) ||
+		strings.HasPrefix(s.Name(), common.ServiceRestNamespace_)
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.

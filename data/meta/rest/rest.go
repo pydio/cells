@@ -289,7 +289,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
+		cli := tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
 			return er
@@ -327,7 +327,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
+		cli := tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			return er
 		}
@@ -354,7 +354,7 @@ func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nod
 	var err error
 	if nodeUuid != "" {
 		log.Logger(ctx).Debug("Querying Meta Service by Uuid", zap.Bool("withExtended", loadExtended))
-		cli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_META))
+		cli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceMeta))
 		response, err = cli.ReadNode(ctx, &tree.ReadNodeRequest{
 			WithExtendedStats: loadExtended,
 			Node: &tree.Node{

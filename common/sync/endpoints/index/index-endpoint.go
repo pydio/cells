@@ -261,6 +261,6 @@ func NewClient(dsName string, reader tree.NodeProviderClient, writer tree.NodeRe
 		writerClient:  writer,
 		sessionClient: sessionClient,
 		dsName:        dsName,
-		//streamer:      NewStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
+		//streamer:      NewStreamer(common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + dsName),
 	}
 }

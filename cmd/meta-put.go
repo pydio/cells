@@ -58,7 +58,7 @@ $ ` + os.Args[0] + ` meta put --uuid=NODE_UUID --key=metaname --value='{"key":"v
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+		client := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 
 		response, err := client.UpdateNode(context.Background(), &tree.UpdateNodeRequest{
 			To: &tree.Node{

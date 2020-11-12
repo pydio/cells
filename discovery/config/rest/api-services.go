@@ -118,7 +118,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 		service.RestError500(req, resp, e)
 		return
 	}
-	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
+	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjects
 	cl := tree.NewNodeProviderClient(srvName, defaults.NewClient())
 	var opts []client.CallOption
 	if listReq.PeerAddress != "" {
@@ -156,7 +156,7 @@ func (h *Handler) CreatePeerFolder(req *restful.Request, resp *restful.Response)
 		service.RestError500(req, resp, e)
 		return
 	}
-	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
+	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjects
 	cl := tree.NewNodeReceiverClient(srvName, defaults.NewClient())
 	var opts []client.CallOption
 	if createReq.PeerAddress != "" {
@@ -223,7 +223,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
 
 	folder := newSource.StorageConfiguration["folder"]
-	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
+	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjects
 	var opts []client.CallOption
 	if newSource.PeerAddress != "" && newSource.PeerAddress != "0.0.0.0" {
 		selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
@@ -325,7 +325,7 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	}
 	//configAddress := ""
 	//c := config.Default().Get("defaults", "url").String("")
-	//if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
+	//if srv.Name() == common.ServiceGatewayProxy && c != "" {
 	//	configAddress = c
 	//}
 	protoSrv := &ctl.Service{

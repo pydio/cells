@@ -117,7 +117,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
@@ -195,7 +195,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
@@ -302,7 +302,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
 		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
-			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+			metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 			for _, n := range loadedNodes {
 				metaNode := &tree.Node{Uuid: n.GetUuid()}
 				metaNode.SetMeta(common.MetaNamespaceRecycleRestore, n.Path)
@@ -348,7 +348,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return er
 
@@ -362,7 +362,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 	T := lang.Bundle().GetTranslationFunc(languages...)
 
 	jobUuid := "resync-ds-" + dsName
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
 		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
@@ -388,7 +388,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 			{
 				ID: "actions.cmd.resync",
 				Parameters: map[string]string{
-					"service": common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + dsName,
+					"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + dsName,
 				},
 			},
 		},
@@ -432,7 +432,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 				return err
 			}
 			if !accessList.CanWrite(ctx, parents...) {
-				return errors.Forbidden(common.SERVICE_JOBS, "Parent Node is not writeable")
+				return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
 			}
 			fullPathParentNode = realParent
 		}
@@ -450,7 +450,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if bl != "" {
 		blackList = strings.Split(bl, ",")
 	}
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	for _, u := range urls {
 		parsed, e := url.Parse(u)
 		if e != nil {
@@ -487,7 +487,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 					return err
 				}
 				if !accessList.CanWrite(ctx, parents...) {
-					return errors.Forbidden(common.SERVICE_JOBS, "Parent Node is not writeable")
+					return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
 				}
 			}
 			return nil
@@ -565,7 +565,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 
 	log.Logger(ctx).Info("Posting Job", zap.Any("job", job))
 
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
 		<-time.After(2 * time.Second)
 		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{

@@ -121,7 +121,7 @@ $ ` + os.Args[0] + ` ps -t=broker
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
-			re := regexp.MustCompile(common.SERVICE_INSTALL)
+			re := regexp.MustCompile(common.ServiceInstall)
 
 			if re.MatchString(s.Name()) {
 				return true

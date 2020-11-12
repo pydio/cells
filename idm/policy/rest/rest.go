@@ -46,7 +46,7 @@ func (h *PolicyHandler) Filter() func(string) string {
 }
 
 func (h *PolicyHandler) getClient() idm.PolicyEngineServiceClient {
-	return idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
+	return idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
 }
 
 // List Policy Groups

@@ -35,8 +35,8 @@ import (
 )
 
 var (
-	Name        = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
-	ChildPrefix = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS_
+	Name        = common.ServiceGrpcNamespace_ + common.ServiceDataObjects
+	ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataObjects_
 )
 
 func init() {
@@ -44,7 +44,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for different sources objects"),
 			service.WithMicro(func(m micro.Service) error {
 				runner := service.NewChildrenRunner(Name, ChildPrefix)

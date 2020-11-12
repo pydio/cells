@@ -43,9 +43,9 @@ func init() {
 	plugins.Register(func(ctx context.Context) {
 
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceOAuth),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
 			service.WithMicro(func(m micro.Service) error {
@@ -83,10 +83,10 @@ func init() {
 		})
 
 		// load configuration
-		auth.InitConfiguration(config.Get("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 
 		// Register the service as a GRPC Auth Provider
-		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
+		auth.RegisterGRPCProvider(common.ServiceGrpcNamespace_ + common.ServiceOAuth)
 	})
 }
 

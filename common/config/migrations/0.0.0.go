@@ -21,7 +21,7 @@ func init() {
 }
 
 func setDefaultConfig(config configx.Values) error {
-	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
+	oauthSrv := common.ServiceWebNamespace_ + common.ServiceOAuth
 	secret, err := x.GenerateSecret(32)
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func setDefaultConfig(config configx.Values) error {
 
 func forceDefaultConfig(config configx.Values) error {
 
-	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
+	oauthSrv := common.ServiceWebNamespace_ + common.ServiceOAuth
 	external := config.Val("defaults/url").String()
 
 	// Easy finding usage of srvUrl

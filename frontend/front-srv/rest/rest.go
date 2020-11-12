@@ -458,7 +458,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			user.Attributes = map[string]string{}
 		}
 		user.Attributes["avatar"] = binaryId
-		cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 		if e != nil {
 			service.RestError404(req, rsp, e)

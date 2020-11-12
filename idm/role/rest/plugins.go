@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ROLE),
+			service.Name(common.ServiceRestNamespace_+common.ServiceRole),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("REST gateway to role service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return NewRoleHandler()
 			}),

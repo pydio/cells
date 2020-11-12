@@ -47,9 +47,9 @@ func init() {
 		}
 
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_HEALTHCHECK),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceHealthCheck),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Port(port),
 			service.Description("Healthcheck for services"),
 			service.WithHTTP(func() http.Handler {

@@ -73,7 +73,7 @@ func play() (*bytes.Buffer, error) {
 
 	e := new(EditorLibreOffice)
 
-	e.WOPI = common.SERVICE_GATEWAY_WOPI
+	e.WOPI = common.ServiceGatewayWopi
 
 	if err := getCollaboraConfig(&e.Collabora); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))

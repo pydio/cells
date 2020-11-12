@@ -40,14 +40,14 @@ func init() {
 
 	plugins.Register(func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_OBJECTS)
+		sources := config.SourceNamesForDataServices(common.ServiceDataObjects)
 
 		for _, datasource := range sources {
 
 			service.NewService(
-				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
+				service.Name(common.ServiceGrpcNamespace_+common.ServiceDataObjects_+datasource),
 				service.Context(ctx),
-				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Tag(common.ServiceTagDatasource),
 				service.Description("S3 Object service for a given datasource"),
 				service.Source(datasource),
 				service.Fork(true),

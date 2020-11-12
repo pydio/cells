@@ -62,11 +62,11 @@ import (
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
 	urlConf := conf.Val("updateUrl").Default(configx.Reference("#/defaults/update/updateUrl")).String()
 	if urlConf == "" {
-		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
+		return nil, errors.BadRequest(common.ServiceUpdate, "cannot find update url")
 	}
 	parsed, e := url.Parse(urlConf)
 	if e != nil {
-		return nil, errors.BadRequest(common.SERVICE_UPDATE, e.Error())
+		return nil, errors.BadRequest(common.ServiceUpdate, e.Error())
 	}
 	if strings.Trim(parsed.Path, "/") == "" {
 		parsed.Path = "/a/update-server"
@@ -268,7 +268,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 		}
 
 		// Now try to move previous version to the services folder. Do not break on error, just Warn in the logs.
-		dataDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_UPDATE)
+		dataDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceUpdate)
 		backupPath := filepath.Join(dataDir, filepath.Base(backupFile))
 		if err := filesystem.SafeRenameFile(backupFile, backupPath); err != nil {
 			log.Logger(ctx).Warn("Update successfully applied but previous binary could not be moved to backup folder", zap.Error(err))

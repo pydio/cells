@@ -111,7 +111,7 @@ func (c *ResyncAction) SetTask(task *jobs.Task) {
 func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	if c.ServiceName == "" {
-		return errors.BadRequest(common.SERVICE_JOBS, "Missing parameters for Sync Action")
+		return errors.BadRequest(common.ServiceJobs, "Missing parameters for Sync Action")
 	}
 	if path, ok := action.Parameters["path"]; ok {
 		c.Path = path

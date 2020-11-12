@@ -103,7 +103,7 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 }
 
 func (c *ChatHandler) getChatClient() chat.ChatServiceClient {
-	return chat.NewChatServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, defaults.NewClient())
+	return chat.NewChatServiceClient(common.ServiceGrpcNamespace_+common.ServiceChat, defaults.NewClient())
 }
 
 func (c *ChatHandler) initHandlers(serviceCtx context.Context) {

@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ACTIVITY),
+			service.Name(common.ServiceRestNamespace_+common.ServiceActivity),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to Activity service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACTIVITY, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceActivity, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return NewActivityHandler()
 			}),

@@ -60,7 +60,7 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 	}
 	switch m.Type {
 	case IdmSelectorType_User:
-		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, cl)
+		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, cl)
 		s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 		if e != nil {
 			return e
@@ -77,7 +77,7 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			objects <- resp.User
 		}
 	case IdmSelectorType_Role:
-		roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, cl)
+		roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, cl)
 		if s, e := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -94,7 +94,7 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			}
 		}
 	case IdmSelectorType_Workspace:
-		wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, cl)
+		wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, cl)
 		if s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -111,7 +111,7 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			}
 		}
 	case IdmSelectorType_Acl:
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, cl)
+		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, cl)
 		if s, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -348,7 +348,7 @@ func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Works
 	if !o {
 		return nil, false
 	}
-	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
 	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {

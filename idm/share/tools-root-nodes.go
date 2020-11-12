@@ -24,7 +24,7 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 
 	rootNodes = make(map[string]*tree.Node)
 	router := views.NewUuidRouter(views.RouterOptions{})
-	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+	metaClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 	eventFilter := views.NewRouterEventFilter(views.RouterOptions{AdminView: false})
 	accessList, _ := permissions.AccessListFromContextClaims(ctx)
 	for _, rootId := range detectedRoots {
@@ -107,16 +107,16 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 			}
 			// Update node meta
 			createResp.Node.SetMeta("CellNode", true)
-			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+			metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
 			createdNode = createResp.Node
 		} else {
-			return errors.InternalServerError(common.SERVICE_SHARE, "Wrong configuration, missing rooms virtual node"), nil, false
+			return errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node"), nil, false
 		}
 	}
 	if len(shareRequest.Room.RootNodes) == 0 {
-		return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing RootNodes in CellRequest"), nil, false
+		return errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest"), nil, false
 	}
 
 	// First check of incoming ACLs
@@ -130,7 +130,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 		for _, a := range shareRequest.Room.GetACLs() {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
-					return errors.Forbidden(common.SERVICE_SHARE, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
+					return errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
 				}
 			}
 		}
@@ -195,7 +195,7 @@ func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) error {
 			return e
 		}
 		if resp.Node == nil {
-			return errors.NotFound(common.SERVICE_SHARE, "cannot find root node")
+			return errors.NotFound(common.ServiceShare, "cannot find root node")
 		}
 		link.RootNodes[i] = resp.Node
 		if resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
@@ -205,7 +205,7 @@ func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) error {
 	if hasReadonly {
 		for _, p := range link.Permissions {
 			if p == rest.ShareLinkAccessType_Upload {
-				return errors.Forbidden(common.SERVICE_SHARE, "This resource is not writeable, you are not allowed to set this permission.")
+				return errors.Forbidden(common.ServiceShare, "This resource is not writeable, you are not allowed to set this permission.")
 			}
 		}
 	}

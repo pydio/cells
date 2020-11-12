@@ -84,7 +84,7 @@ func (s *BoltStore) GetStore(tx *bolt.Tx, storeID string, mode string) (*bolt.Bu
 		if bucket := tx.Bucket(key); bucket != nil {
 			return bucket, nil
 		} else {
-			return nil, errors.NotFound(common.SERVICE_DOCSTORE, "Store Not Found")
+			return nil, errors.NotFound(common.ServiceDocStore, "Store Not Found")
 		}
 	} else {
 		return tx.CreateBucketIfNotExists(key)
@@ -123,11 +123,11 @@ func (s *BoltStore) GetDocument(storeID string, docId string) (*docstore.Documen
 		}
 		data := bucket.Get([]byte(docId))
 		if data == nil {
-			return errors.NotFound(common.SERVICE_DOCSTORE, "Doc ID not found")
+			return errors.NotFound(common.ServiceDocStore, "Doc ID not found")
 		}
 		err = json.Unmarshal(data, j)
 		if err != nil {
-			return errors.InternalServerError(common.SERVICE_DOCSTORE, "Cannot deserialize document")
+			return errors.InternalServerError(common.ServiceDocStore, "Cannot deserialize document")
 		}
 		return nil
 	})

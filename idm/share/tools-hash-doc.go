@@ -40,7 +40,7 @@ const PasswordComplexitySuffix = "#$!Az1"
 
 func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, updateHash ...string) error {
 
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 
 	hashDoc := &docstore.ShareDocument{
 		OwnerId:       ownerUser.Login,
@@ -99,7 +99,7 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 
 func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
-	store := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
+	store := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
 	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareLink.Uuid + "\" +SHARE_TYPE:minisite",
 	}})
@@ -119,7 +119,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 		}
 	}
 	if linkDoc == nil {
-		return errors.NotFound(common.SERVICE_DOCSTORE, "Cannot find link associated to this workspace")
+		return errors.NotFound(common.ServiceDocStore, "Cannot find link associated to this workspace")
 	}
 	shareLink.LinkHash = linkDoc.ID
 	var linkData *docstore.ShareDocument
@@ -168,7 +168,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 
 func DeleteHashDocument(ctx context.Context, shareId string) error {
 
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareId + "\" +SHARE_TYPE:minisite",
 	}})
@@ -176,7 +176,7 @@ func DeleteHashDocument(ctx context.Context, shareId string) error {
 		return err
 	}
 	if !resp.Success || resp.DeletionCount == 0 {
-		return errors.NotFound(common.SERVICE_SHARE, "Could not delete hash associated to this workspace "+shareId)
+		return errors.NotFound(common.ServiceShare, "Could not delete hash associated to this workspace "+shareId)
 	}
 	return nil
 
@@ -186,7 +186,7 @@ func DeleteHashDocument(ctx context.Context, shareId string) error {
 // the passed userLogin value.
 func SearchHashDocumentForUser(ctx context.Context, userLogin string) (*docstore.ShareDocument, error) {
 
-	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 
 	// SEARCH PUBLIC
 	streamer, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{

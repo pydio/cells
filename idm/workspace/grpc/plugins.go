@@ -38,11 +38,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceWorkspace),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
 			service.WithStorage(workspace.NewDAO, "idm_workspace"),
 			service.WithMicro(func(m micro.Service) error {
 				ctx := m.Options().Context

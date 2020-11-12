@@ -82,13 +82,13 @@ func GetSender(t string, conf configx.Values) (Sender, error) {
 	}
 
 	if sender == nil {
-		return nil, errors.NotFound(common.SERVICE_MAILER, "cannot find sender for type %s", t)
+		return nil, errors.NotFound(common.ServiceMailer, "cannot find sender for type %s", t)
 	}
 
 	err := sender.Configure(nil, conf)
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure sender for type %s", t)
+		return nil, errors.InternalServerError(common.ServiceMailer, "cannot configure sender for type %s", t)
 	}
 
 	return sender, nil

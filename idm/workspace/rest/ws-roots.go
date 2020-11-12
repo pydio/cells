@@ -30,7 +30,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUI
 	for _, a := range acls {
 		wsAcls[a.WorkspaceID] = append(wsAcls[a.WorkspaceID], a)
 	}
-	streamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_TREE))
+	streamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
@@ -87,7 +87,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *id
 	if len(acls) == 0 {
 		return nil
 	}
-	treeClient := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+	treeClient := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
 	for _, a := range acls {
 		r, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
 		if e == nil && r != nil {
@@ -107,7 +107,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *id
 func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
 
 	reassign := make(map[string][]*idm.ACLAction)
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 
 	if update {
 		// Delete current Root Nodes ACLs
@@ -219,7 +219,7 @@ func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *
 
 func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*idm.Workspace) error {
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	// Load RootRole ACLs and append to Attributes
 	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		WorkspaceIDs: uuids,
@@ -286,7 +286,7 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 
 func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, rightsValue string, newQuota string) error {
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	if read {
 		// Load RootRole ACLs and append to Attributes
 		q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -407,7 +407,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 
 func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.Workspace) error {
 
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 
 	if ctx.Value(claim.ContextKey) != nil {
 		claims := ctx.Value(claim.ContextKey).(claim.Claims)

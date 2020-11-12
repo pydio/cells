@@ -394,17 +394,17 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	s.Search(&service.Query{SubQueries: []*any.Any{qA}}, &results)
 	if len(results) == 0 {
 		// The error code is actually very important
-		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+		return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 	}
 	object := results[0]
 	user = object.(*idm.User)
 	if s.loginCI {
 		if strings.ToLower(user.Login) != strings.ToLower(userName) {
-			return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	} else {
 		if user.Login != userName {
-			return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
+			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	}
 	hashedPass := user.Password
@@ -419,7 +419,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 		return user, nil
 	}
 
-	return nil, errors.Forbidden(common.SERVICE_USER, "password does not match")
+	return nil, errors.Forbidden(common.ServiceUser, "password does not match")
 
 }
 

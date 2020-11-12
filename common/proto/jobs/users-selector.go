@@ -64,7 +64,7 @@ func (m *UsersSelector) Select(cl client.Client, ctx context.Context, input Acti
 	if query == nil {
 		return nil
 	}
-	userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, cl)
+	userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, cl)
 	s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 	if e != nil {
 		return e

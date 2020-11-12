@@ -41,13 +41,13 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG),
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceLog),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
-				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG)
+				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceLog)
 				if e != nil {
 					return e
 				}

@@ -112,7 +112,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	// Prepare ctx with info about the target branch
 	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
 
-	versionClient := tree.NewNodeVersionerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS, defaults.NewClient())
+	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	request := &tree.CreateVersionRequest{Node: node}
 	var ce tree.NodeChangeEvent
 	if input.Event != nil {

@@ -59,7 +59,7 @@ type SharesHandler struct {
 // NewSharesHandler simply creates a new SharesHandler.
 func NewSharesHandler() *SharesHandler {
 	h := new(SharesHandler)
-	h.ServiceName = common.SERVICE_WORKSPACE
+	h.ServiceName = common.ServiceWorkspace
 	h.ResourceName = "rooms"
 	//h.PoliciesLoader = h.loadPoliciesForResource
 	return h
@@ -127,7 +127,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Now set ACLs on Workspace
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	var currentAcls []*idm.ACL
 	var currentRoots []string
 	if !wsCreated {
@@ -189,7 +189,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 
 	// Now update workspace
 	log.Logger(ctx).Debug("Updating workspace", zap.Any("workspace", workspace))
-	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	if _, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -311,7 +311,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	var user *idm.User
 	var err error
 	var create bool
-	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	if link.Uuid == "" {
 		create = true
 		workspace, _, err = share.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, link.Description, false)
@@ -363,7 +363,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			Action:   service2.ResourcePolicyAction_READ,
 			Effect:   service2.ResourcePolicy_allow,
 		})
-		wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+		wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 		wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
 		track("CreateWorkspace")
 	} else {
@@ -386,7 +386,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			saveUser = true
 		}
 		if saveUser {
-			uCli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+			uCli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 			_, err := uCli.CreateUser(ctx, &idm.CreateUserRequest{
 				User: user,
 			})
@@ -528,7 +528,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		return
 	}
 	ctx := req.Request.Context()
-	cli := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+	cli := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 		Uuid: input.Uuid,
 	})
@@ -581,7 +581,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 }
 
 func (h *SharesHandler) docStoreStatus() error {
-	s := service2.NewService(registry.GetClient(common.SERVICE_DOCSTORE))
+	s := service2.NewService(registry.GetClient(common.ServiceDocStore))
 	_, err := s.Status(context.Background(), &empty.Empty{})
 	return err
 }

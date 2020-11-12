@@ -60,7 +60,7 @@ func (kt *userKeyTool) keyByID(ctx context.Context, id string) ([]byte, error) {
 		return k, nil
 	}
 
-	client := encryption.NewUserKeyStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, defaults.NewClient())
+	client := encryption.NewUserKeyStoreClient(common.ServiceGrpcNamespace_+common.ServiceUserKey, defaults.NewClient())
 	rsp, err := client.GetKey(ctx, &encryption.GetKeyRequest{KeyID: id})
 	if err != nil {
 		return nil, err

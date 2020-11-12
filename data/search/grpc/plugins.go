@@ -41,7 +41,7 @@ import (
 )
 
 var (
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_SEARCH
+	Name = common.ServiceGrpcNamespace_ + common.ServiceSearch
 )
 
 func init() {
@@ -49,7 +49,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATA),
+			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
 			service.RouterDependencies(),
 			service.Fork(true),
@@ -71,7 +71,7 @@ func init() {
 
 				server := &SearchServer{
 					Engine:           bleveEngine,
-					TreeClient:       tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+					TreeClient:       tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient()),
 					ReIndexThrottler: make(chan struct{}, 5),
 				}
 

@@ -36,9 +36,9 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY),
+			service.Name(common.ServiceGrpcNamespace_+common.ServicePolicy),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_IDM),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
 			service.WithStorage(policy.NewDAO, "idm_policy"),
 			service.Migrations([]*service.Migration{

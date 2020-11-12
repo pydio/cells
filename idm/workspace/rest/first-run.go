@@ -54,7 +54,7 @@ func FirstRun(ctx context.Context) error {
 	var hasPersonal bool
 	var commonDS string
 	// List datasources from configs
-	sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
+	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
 	for _, s := range sources {
 		if s == "personal" {
 			hasPersonal = true
@@ -69,7 +69,7 @@ func FirstRun(ctx context.Context) error {
 		return nil
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 
 	if hasPersonal {
 		log.Logger(ctx).Info("Creating a Personal workspace")
@@ -136,7 +136,7 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	}
 	service2.Retry(func() error {
 		log.Logger(ctx).Info("Settings ACLS for workspace")
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 		for _, acl := range acls {
 			_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 			if e != nil {

@@ -23,14 +23,14 @@ func NewClientWithMeta(dsName string, reader tree.NodeProviderClient, writer tre
 	m := &ClientWithMeta{}
 	c := NewClient(dsName, reader, writer, sessionClient)
 	m.Client = *c
-	m.metaClient = tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
+	m.metaClient = tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
 	return m
 }
 
 // Walk wraps the initial Walk function to load metadata on the fly
 func (m *ClientWithMeta) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
-	metaClient := tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META))
+	metaClient := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceMeta))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	metaStreamer, e := metaClient.ReadNodeStream(ctx)

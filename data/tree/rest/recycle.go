@@ -56,7 +56,7 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
 	recycleAcls := map[string]bool{}
-	cl := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	s, e := cl.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{SubQueries: []*any.Any{q}},
 	})

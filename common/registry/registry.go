@@ -189,7 +189,7 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 
 // GetClient returns the default client for the service name
 func GetClient(name string) (string, client.Client) {
-	return common.SERVICE_GRPC_NAMESPACE_ + name, defaults.NewClient()
+	return common.ServiceGrpcNamespace_ + name, defaults.NewClient()
 }
 
 // Filter the service out of the registry

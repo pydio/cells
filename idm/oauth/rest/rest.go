@@ -68,13 +68,13 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	var input rest.RevokeRequest
 	e := req.ReadEntity(&input)
 	if e != nil {
-		service.RestError500(req, resp, errors.BadRequest(common.SERVICE_AUTH, "Cannot decode input request"))
+		service.RestError500(req, resp, errors.BadRequest(common.ServiceAuth, "Cannot decode input request"))
 		return
 	}
 
 	revokeRequest := &auth.RevokeTokenRequest{}
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
-	revokerClient := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH, defaults.NewClient())
+	revokerClient := auth.NewAuthTokenRevokerClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return
@@ -124,7 +124,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 		UserEmail:  u.Attributes["email"],
 		Expiration: int32(expiration),
 	})
-	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
+	cli := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
 	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID: common.DocStoreIdResetPassKeys,
 		Document: &docstore.Document{
@@ -143,7 +143,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	}
 
 	// Send email
-	mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
+	mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
 	mailCli.SendMail(ctx, &mailer.SendMailRequest{
 		InQueue: false,
 		Mail: &mailer.Mail{
@@ -175,7 +175,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
-	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
+	cli := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdResetPassKeys,
 		DocumentID: token,
@@ -216,7 +216,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	uLang := i18n.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().GetTranslationFunc(uLang)
 	u.Password = input.NewPassword
-	userClient := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
+	userClient := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
 		service.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
 		return
@@ -224,7 +224,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	go func() {
 		// Send email
-		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
+		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
 		mailCli.SendMail(ctx, &mailer.SendMailRequest{
 			InQueue: false,
 			Mail: &mailer.Mail{

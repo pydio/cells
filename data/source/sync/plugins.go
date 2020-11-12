@@ -33,8 +33,8 @@ import (
 )
 
 var (
-	Name        = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC
-	ChildPrefix = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_
+	Name        = common.ServiceGrpcNamespace_ + common.ServiceDataSync
+	ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataSync_
 )
 
 func init() {
@@ -42,7 +42,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
 			service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
 		)

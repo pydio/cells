@@ -32,12 +32,12 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_JOBS),
+			service.Name(common.ServiceRestNamespace_+common.ServiceJobs),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_SCHEDULER),
+			service.Tag(common.ServiceTagScheduler),
 			service.Description("REST gateway to the scheduler service"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTasks, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(JobsHandler)
 			}),

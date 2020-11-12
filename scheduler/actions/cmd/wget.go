@@ -106,7 +106,7 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 	if urlParam, ok := action.Parameters["url"]; ok {
 		w.SourceUrl = urlParam
 	} else {
-		return errors.BadRequest(common.SERVICE_TASKS, "missing parameter url in Action")
+		return errors.BadRequest(common.ServiceTasks, "missing parameter url in Action")
 	}
 	w.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	return nil

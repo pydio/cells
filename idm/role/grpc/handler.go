@@ -112,7 +112,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest, re
 	dao := servicecontext.GetDAO(ctx).(role.DAO)
 
 	if req.Query == nil {
-		return errors.BadRequest(common.SERVICE_ROLE, "cannot send a DeleteRole request with an empty query")
+		return errors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
 	}
 
 	var roles []*idm.Role

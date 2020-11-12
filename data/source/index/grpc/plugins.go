@@ -42,16 +42,16 @@ func init() {
 
 	plugins.Register(func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
+		sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
 
 		for _, source := range sources {
 
-			name := common.SERVICE_DATA_INDEX_ + source
+			name := common.ServiceDataIndex_ + source
 
 			service.NewService(
-				service.Name(common.SERVICE_GRPC_NAMESPACE_+name),
+				service.Name(common.ServiceGrpcNamespace_+name),
 				service.Context(ctx),
-				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Tag(common.ServiceTagDatasource),
 				service.Description("Datasource indexation service"),
 				service.Source(source),
 				service.Fork(true),

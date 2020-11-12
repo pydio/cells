@@ -60,7 +60,7 @@ $ ` + os.Args[0] + ` user search -u "*"
 	// },
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		client := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 
 		if userSearchLogin == "*" {
 			userSearchLogin = ""

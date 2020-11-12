@@ -48,7 +48,7 @@ type Handler struct {
 
 func NewHandler() *Handler {
 	h := &Handler{}
-	h.searchCache = cache.NewInstrumentedCache(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META)
+	h.searchCache = cache.NewInstrumentedCache(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
 	return h
 }
 

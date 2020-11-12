@@ -32,11 +32,11 @@ import (
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_CONFIG),
+			service.Name(common.ServiceRestNamespace_+common.ServiceConfig),
 			service.Context(ctx),
-			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Configuration"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, []string{}),
+			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceConfig, []string{}),
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),
