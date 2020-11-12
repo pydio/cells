@@ -162,7 +162,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 
 							log.Logger(ctx).Error("Found node that does not exists, send event to make sure all is sync'ed.", zap.String("uuid", node.Uuid))
 
-							client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+							client.Publish(ctx, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
 								Type:   tree.NodeChangeEvent_DELETE,
 								Source: node,
 							}))

@@ -60,7 +60,7 @@ func init() {
 				// Register Subscribers
 				if err := m.Options().Server.Subscribe(
 					m.Options().Server.NewSubscriber(
-						common.TOPIC_TREE_CHANGES,
+						common.TopicTreeChanges,
 						engine.CreateNodeChangeSubscriber(ctx),
 					),
 				); err != nil {

@@ -31,11 +31,9 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
-	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
@@ -257,49 +255,29 @@ func init() {
 			}),
 			service.AfterStart(func(s service.Service) error {
 
-				needsRestart := func(sName string) bool {
-					return strings.HasPrefix(sName, common.SERVICE_GATEWAY_NAMESPACE_) || strings.HasPrefix(sName, common.SERVICE_WEB_NAMESPACE_)
+				logFunc := log.Logger(s.Options().Context).Debug
+				restartFunc := func() {
+					caddy.Restart()
 				}
+				watcher := newWatcher(logFunc, restartFunc)
 
-				// Adding subscriber
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STARTED, func(p broker.Publication) error {
-					sName := string(p.Message().Body)
-					if needsRestart(sName) {
-						log.Logger(s.Options().Context).Debug("Received Start Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
-
-						return caddy.Restart()
-					}
-					return nil
-				}); err != nil {
-					return err
-				}
-				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOPPED, func(p broker.Publication) error {
-					sName := string(p.Message().Body)
-					if needsRestart(sName) {
-						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", sName))
-						return caddy.Restart()
-					}
-					return nil
-				}); err != nil {
+				// Watching broker events
+				if err := watcher.subscribeToBroker(); err != nil {
 					return err
 				}
 
 				// Watching plugins
 				for _, cPath := range caddy.GetConfigPaths() {
-					if w, err := config.Watch(cPath...); err != nil {
+					err := watcher.subscribeToConfigs(cPath...)
+					if err != nil {
 						return err
-					} else {
-						go func() {
-							defer w.Stop()
-							for {
-								_, err := w.Next()
-								if err != nil {
-									break
-								}
-								caddy.Restart()
-							}
-						}()
 					}
+				}
+
+				// Watching sites
+				err := watcher.subscribeToConfigs("defaults", "sites")
+				if err != nil {
+					return err
 				}
 
 				return nil

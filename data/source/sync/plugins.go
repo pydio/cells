@@ -56,7 +56,7 @@ func onDataSourceDelete(ctx context.Context, deletedSource string) {
 
 	log.Logger(ctx).Info("Sync = Send Event Server-wide for " + deletedSource)
 	cl := defaults.NewClient()
-	cl.Publish(ctx, cl.NewPublication(common.TOPIC_DATASOURCE_EVENT, &object.DataSourceEvent{
+	cl.Publish(ctx, cl.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
 		Type: object.DataSourceEvent_DELETE,
 		Name: deletedSource,
 	}))

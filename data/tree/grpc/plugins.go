@@ -69,7 +69,7 @@ func init() {
 
 				if err := m.Options().Server.Subscribe(
 					m.Options().Server.NewSubscriber(
-						common.TOPIC_INDEX_CHANGES,
+						common.TopicIndexChanges,
 						eventSubscriber,
 						func(o *server.SubscriberOptions) {
 							o.Queue = "tree"

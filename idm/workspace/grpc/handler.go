@@ -60,7 +60,7 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 
 	if update {
 		// Propagate creation or update event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type:      idm.ChangeEventType_UPDATE,
 			Workspace: req.Workspace,
 		}))
@@ -71,7 +71,7 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 		)
 	} else {
 		// Propagate creation or update event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type:      idm.ChangeEventType_CREATE,
 			Workspace: req.Workspace,
 		}))
@@ -109,7 +109,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 			continue
 		}
 
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type:      idm.ChangeEventType_DELETE,
 			Workspace: w.(*idm.Workspace),
 		}))

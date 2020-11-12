@@ -46,7 +46,7 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest, resp
 	}
 
 	resp.ACL = req.ACL
-	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 		Type: idm.ChangeEventType_UPDATE,
 		Acl:  req.ACL,
 	}))
@@ -83,7 +83,7 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest, resp
 	if err == nil {
 		for _, in := range *acls {
 			if val, ok := in.(*idm.ACL); ok {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+				client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 					Type: idm.ChangeEventType_DELETE,
 					Acl:  val,
 				}))

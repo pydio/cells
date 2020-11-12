@@ -128,7 +128,13 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		for _, n := range srv.Nodes {
 			c.GetPeer(n).Add(srv, fmt.Sprintf("%d", n.Port))
 			c.registerProcessFromNode(n, srv.Name)
-			defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(srv.Name)})
+			defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
+				Body: []byte(common.EventTypeServiceRegistered),
+				Header: map[string]string{
+					common.EventHeaderServiceRegisterService: srv.Name,
+					common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
+				},
+			})
 		}
 	}
 
@@ -157,14 +163,26 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			case "create":
 				for _, n := range s.Nodes {
 					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
-						defaults.Broker().Publish(common.TOPIC_SERVICE_STARTED, &broker.Message{Body: []byte(s.Name)})
+						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
+							Body: []byte(common.EventTypeServiceRegistered),
+							Header: map[string]string{
+								common.EventHeaderServiceRegisterService: s.Name,
+								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
+							},
+						})
 					}
 					c.registerProcessFromNode(n, s.Name)
 				}
 			case "delete":
 				for _, n := range s.Nodes {
 					if c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port)) {
-						defaults.Broker().Publish(common.TOPIC_SERVICE_STOPPED, &broker.Message{Body: []byte(s.Name)})
+						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
+							Body: []byte(common.EventTypeServiceUnregistered),
+							Header: map[string]string{
+								common.EventHeaderServiceRegisterService: s.Name,
+								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
+							},
+						})
 					}
 					c.deregisterProcessFromNode(n, s.Name)
 				}

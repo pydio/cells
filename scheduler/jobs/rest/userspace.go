@@ -107,7 +107,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			AutoClean:      true,
 			Actions: []*jobs.Action{
 				{
-					ID: "actions.archive.compress",
+					ID:         "actions.archive.compress",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Collect: true,
@@ -186,7 +186,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			AutoClean:      true,
 			Actions: []*jobs.Action{
 				{
-					ID: "actions.archive.extract",
+					ID:         "actions.archive.extract",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Pathes: []string{archiveNode},
@@ -364,14 +364,14 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 	jobUuid := "resync-ds-" + dsName
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
 			RunNow: true,
 		}))
 		return jobUuid, nil
 	}
 	if e := disallowTemplate(map[string]string{
-		"dsName":         dsName,
+		"dsName": dsName,
 	}); e != nil {
 		return "", e
 	}
@@ -568,7 +568,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
 		<-time.After(2 * time.Second)
-		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:  jobUuid,
 			RunNow: true,
 		}))

@@ -78,7 +78,7 @@ func init() {
 				ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
 				brok := defaults.Broker()
 
-				brok.Subscribe(common.TOPIC_TREE_CHANGES, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicTreeChanges, func(publication broker.Publication) error {
 					var event tree.NodeChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
@@ -86,7 +86,7 @@ func init() {
 					return nil
 				})
 
-				brok.Subscribe(common.TOPIC_META_CHANGES, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicMetaChanges, func(publication broker.Publication) error {
 					var event tree.NodeChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
@@ -94,7 +94,7 @@ func init() {
 					return nil
 				})
 
-				brok.Subscribe(common.TOPIC_JOB_TASK_EVENT, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicJobTaskEvent, func(publication broker.Publication) error {
 					var event jobs.TaskChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return ws.BroadcastTaskChangeEvent(publicationContext(publication), &event)
@@ -102,7 +102,7 @@ func init() {
 					return nil
 				})
 
-				brok.Subscribe(common.TOPIC_IDM_EVENT, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicIdmEvent, func(publication broker.Publication) error {
 					var event idm.ChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return ws.BroadcastIDMChangeEvent(publicationContext(publication), &event)
@@ -110,7 +110,7 @@ func init() {
 					return nil
 				})
 
-				brok.Subscribe(common.TOPIC_ACTIVITY_EVENT, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicActivityEvent, func(publication broker.Publication) error {
 					var event activity.PostActivityEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return ws.BroadcastActivityEvent(publicationContext(publication), &event)
@@ -118,7 +118,7 @@ func init() {
 					return nil
 				})
 
-				brok.Subscribe(common.TOPIC_CHAT_EVENT, func(publication broker.Publication) error {
+				brok.Subscribe(common.TopicChatEvent, func(publication broker.Publication) error {
 					var event chat2.ChatEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
 						return chat.BroadcastChatMessage(publicationContext(publication), &event)

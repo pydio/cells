@@ -75,7 +75,7 @@ func NewSynchronousCacheHandler() *SynchronousCacheHandler {
 		c.MaxEntrySize = 200
 		c.HardMaxCacheSize = 8
 		syncCache = cache.NewInstrumentedCache(VIEWS_LIBRARY_NAME, c)
-		defaults.Broker().Subscribe(common.TOPIC_TREE_CHANGES, func(publication broker.Publication) error {
+		defaults.Broker().Subscribe(common.TopicTreeChanges, func(publication broker.Publication) error {
 			var event tree.NodeChangeEvent
 			if e := proto.Unmarshal(publication.Message().Body, &event); e == nil && !event.Optimistic {
 				if event.Type == tree.NodeChangeEvent_CREATE || event.Type == tree.NodeChangeEvent_UPDATE_PATH || event.Type == tree.NodeChangeEvent_DELETE {

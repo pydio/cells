@@ -73,7 +73,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 
 	if update {
 		// Propagate event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_UPDATE,
 			Role: r,
 		}))
@@ -88,7 +88,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 			r.ZapUuid(),
 		)
 	} else {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_CREATE,
 			Role: r,
 		}))
@@ -141,7 +141,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest, re
 		}
 
 		// propagate event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_DELETE,
 			Role: r,
 		}))

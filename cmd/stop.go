@@ -69,13 +69,13 @@ var stopCmd = &cobra.Command{
 				req := new(proto.StopEvent)
 				req.ServiceName = srv.Name()
 
-				p := micro.NewPublisher(common.TOPIC_SERVICE_STOP, defaults.NewClient())
+				p := micro.NewPublisher(common.TopicServiceStop, defaults.NewClient())
 				p.Publish(context.Background(), req)
 			} else {
 				req := new(proto.StopEvent)
 				req.ServiceName = srv.Name()
 
-				p := micro.NewPublisher(common.TOPIC_SERVICE_STOP, defaults.NewClient())
+				p := micro.NewPublisher(common.TopicServiceStop, defaults.NewClient())
 				if err := p.Publish(context.Background(), req); err != nil {
 					log.Fatal(err)
 				}

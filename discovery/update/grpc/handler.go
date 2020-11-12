@@ -107,7 +107,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		TaskUpdated: task,
 		Job:         job,
 	}
-	client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+	client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
 	go func() {
 		defer close(pgChan)
 		defer close(errorChan)
@@ -121,11 +121,11 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				} else {
 					task.StatusMessage = "Download finished, now verifying package..."
 				}
-				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
 			case e := <-errorChan:
 				task.Status = jobs.TaskStatus_Error
 				task.StatusMessage = e.Error()
-				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
 				return
 			case <-doneChan:
 				task.Status = jobs.TaskStatus_Finished
@@ -148,7 +148,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
 					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
 				}
-				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
 				return
 			}
 		}

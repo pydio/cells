@@ -46,6 +46,10 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
+const (
+	caddyRestartDebounce = 5 * time.Second
+)
+
 var (
 	mainCaddy = &Caddy{}
 	FuncMap   = template.FuncMap{
@@ -73,7 +77,7 @@ func watchRestart() {
 		case <-restartChan:
 			log.Logger(context.Background()).Debug("Received Proxy Restart Event")
 			restartRequired = true
-		case <-time.After(10 * time.Second):
+		case <-time.After(caddyRestartDebounce):
 			if restartRequired {
 				log.Logger(context.Background()).Debug("Restarting Proxy Now")
 				restartRequired = false
@@ -228,7 +232,7 @@ func restart() error {
 
 	mainCaddy.instance = instance
 
-	broker.Publish(common.TOPIC_PROXY_RESTART, &broker.Message{Body: []byte("")})
+	broker.Publish(common.TopicProxyRestarted, &broker.Message{Body: []byte("")})
 
 	return nil
 }

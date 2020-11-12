@@ -340,7 +340,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetBinds()[0]))
 	cmd.Println("")
 
-	subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
+	subscriber, err := broker.Subscribe(common.TopicProxyRestarted, func(p broker.Publication) error {
 		cmd.Println("")
 		cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetDefaultBindURL()) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")

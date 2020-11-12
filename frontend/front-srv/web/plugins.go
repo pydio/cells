@@ -88,7 +88,7 @@ func init() {
 				)
 
 				// Adding subscriber
-				if _, err := defaults.Broker().Subscribe(common.TOPIC_ASSETS_RELOAD, func(p broker.Publication) error {
+				if _, err := defaults.Broker().Subscribe(common.TopicReloadAssets, func(p broker.Publication) error {
 					// Reload FS
 					log.Info("Reloading PluginFS")
 					frontend.HotReload()

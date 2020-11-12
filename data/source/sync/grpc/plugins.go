@@ -70,7 +70,7 @@ func init() {
 				service.AutoStart(false),
 				service.WithMicro(func(m micro.Service) error {
 
-					m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_INDEX_EVENT, func(ctx context.Context, msg *tree.IndexEvent) error {
+					m.Server().Subscribe(m.Server().NewSubscriber(common.TopicIndexEvent, func(ctx context.Context, msg *tree.IndexEvent) error {
 						if syncHandler == nil {
 							return nil
 						}
@@ -114,7 +114,7 @@ func init() {
 							jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 							if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 								log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
-								client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+								client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 									JobID:  "resync-ds-" + datasource,
 									RunNow: true,
 								}))

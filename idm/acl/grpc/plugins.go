@@ -58,10 +58,10 @@ func init() {
 				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
 
 				// Clean acls on Ws or Roles deletion
-				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_IDM_EVENT, &WsRolesCleaner{handler}))
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicIdmEvent, &WsRolesCleaner{handler}))
 
 				// Clean acls on Nodes deletion
-				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicTreeChanges, &NodesCleaner{Handler: handler}))
 
 				// For when it will be used: clean locks at startup
 				/*

@@ -98,7 +98,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			return errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
 		}
 
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_LOGIN,
 			User: user,
 		}))

@@ -69,7 +69,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			go func() {
 				<-time.After(10 * time.Second)
 				log.Logger(ctx).Info("Forcing close session " + session + " and unlock")
-				client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+				client.Publish(context.Background(), client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
 					SessionForceClose: session,
 				}))
 				if locker != nil {
@@ -81,7 +81,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	// TODO - should be its own function really ?
 	publishError := func(dsName, errorPath string) {
-		client.Publish(context.Background(), client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+		client.Publish(context.Background(), client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
 			ErrorDetected:  true,
 			DataSourceName: dsName,
 			ErrorPath:      errorPath,
@@ -342,7 +342,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			optimisticTarget.Path = targetNode.Path
 			optimisticTarget.SetMeta("name", path.Base(targetNode.Path))
 			log.Logger(ctx).Debug("Finished move - Sending Optimistic Event", sourceNode.Zap("from"), optimisticTarget.Zap("to"))
-			client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+			client.Publish(ctx, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
 				Optimistic: true,
 				Type:       tree.NodeChangeEvent_UPDATE_PATH,
 				Source:     sourceNode,

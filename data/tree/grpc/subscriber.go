@@ -49,7 +49,7 @@ func NewEventSubscriber(t *TreeServer, c client.Client) *EventSubscriber {
 }
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
-	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
+	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TopicTreeChanges, msg))
 	s.TreeServer.PublishChange(msg)
 }
 

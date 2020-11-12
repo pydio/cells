@@ -68,7 +68,7 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		if node.Uuid != "" {
 			c := context2.WithMetaCopy(ctx)
 			go func() {
-				client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+				client.Publish(c, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
 					Target: node,
 				}))
@@ -108,7 +108,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 		if eventNode.Uuid != "" {
 			c := context2.WithMetaCopy(ctx)
 			go func() {
-				client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+				client.Publish(c, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
 					Target: eventNode,
 				}))

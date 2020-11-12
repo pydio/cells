@@ -42,9 +42,12 @@ func (c *ChatHandler) PutRoom(ctx context.Context, req *chat.PutRoomRequest, res
 
 	db := servicecontext.GetDAO(ctx).(chat2.DAO)
 	newRoom, err := db.PutRoom(req.Room)
+	if err != nil {
+		return err
+	}
 	resp.Room = newRoom
 	log.Logger(ctx).Debug("Put Room", newRoom.Zap())
-	client.Publish(ctx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 		Room:    resp.Room,
 		Details: "PUT",
 	}))
@@ -65,7 +68,7 @@ func (c *ChatHandler) DeleteRoom(ctx context.Context, req *chat.DeleteRoomReques
 	}
 
 	response.Success = true
-	client.Publish(ctx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 		Room:    req.Room,
 		Details: "DELETE",
 	}))
@@ -122,12 +125,12 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 			bgCtx := metadata.NewContext(context.Background(), map[string]string{
 				common.PYDIO_CONTEXT_USER_KEY: m.Author,
 			})
-			client.Publish(bgCtx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
+			client.Publish(bgCtx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 				Message: m,
 			}))
 			// For comments on nodes, publish an UPDATE_USER_META event
 			if room, err := db.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
-				client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+				client.Publish(bgCtx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
 					Type: tree.NodeChangeEvent_UPDATE_USER_META,
 					Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
 						"comments": `"` + m.Message + `"`,
@@ -149,7 +152,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 		if err != nil {
 			return err
 		}
-		client.Publish(ctx, client.NewPublication(common.TOPIC_CHAT_EVENT, &chat.ChatEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 			Message: m,
 			Details: "DELETE",
 		}))

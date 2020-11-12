@@ -389,7 +389,7 @@ func (s *Handler) watchErrors() {
 				md := make(map[string]string)
 				md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
 				ctx := metadata.NewContext(context.Background(), md)
-				client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+				client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 					JobID:  "resync-ds-" + s.dsName,
 					RunNow: true,
 				}))

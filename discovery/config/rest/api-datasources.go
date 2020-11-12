@@ -167,7 +167,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			eventType = object.DataSourceEvent_UPDATE
 		}
 
-		if err = client.Publish(ctx, client.NewPublication(common.TOPIC_DATASOURCE_EVENT, &object.DataSourceEvent{
+		if err = client.Publish(ctx, client.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
 			Name:   dsName,
 			Type:   eventType,
 			Config: &ds,
@@ -235,7 +235,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		return
 	}
 	cl := defaults.NewClient()
-	cl.Publish(req.Request.Context(), cl.NewPublication(common.TOPIC_DATASOURCE_EVENT, &object.DataSourceEvent{
+	cl.Publish(req.Request.Context(), cl.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
 		Name: dsName,
 		Type: object.DataSourceEvent_DELETE,
 	}))

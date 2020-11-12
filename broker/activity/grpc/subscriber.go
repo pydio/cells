@@ -76,7 +76,7 @@ func NewEventsSubscriber(dao activity.DAO) *MicroEventsSubscriber {
 }
 
 func publishActivityEvent(ctx context.Context, ownerType activity2.OwnerType, ownerId string, boxName activity.BoxName, activity *activity2.Object) {
-	client.Publish(ctx, client.NewPublication(common.TOPIC_ACTIVITY_EVENT, &activity2.PostActivityEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicActivityEvent, &activity2.PostActivityEvent{
 		OwnerType: ownerType,
 		OwnerId:   ownerId,
 		BoxName:   string(boxName),

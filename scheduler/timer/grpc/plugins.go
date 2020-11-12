@@ -49,7 +49,7 @@ func init() {
 				}
 				m.Options().Server.Subscribe(
 					m.Options().Server.NewSubscriber(
-						common.TOPIC_JOB_CONFIG_EVENT,
+						common.TopicJobConfigEvent,
 						subscriber,
 					),
 				)

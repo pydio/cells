@@ -74,7 +74,7 @@ func init() {
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
 					return err
 				}
 				return nil

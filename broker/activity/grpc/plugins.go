@@ -85,7 +85,7 @@ func init() {
 					batcher.Stop()
 					return nil
 				}))
-				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_TREE_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+				if err := s.Subscribe(s.NewSubscriber(common.TopicTreeChanges, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
 					if msg.Optimistic {
 						return nil
 					}
@@ -94,7 +94,7 @@ func init() {
 				})); err != nil {
 					return err
 				}
-				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+				if err := s.Subscribe(s.NewSubscriber(common.TopicMetaChanges, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
 					if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 						return nil
 					}
@@ -104,7 +104,7 @@ func init() {
 					return err
 				}
 
-				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_IDM_EVENT, func(ctx context.Context, msg *idm.ChangeEvent) error {
+				if err := s.Subscribe(s.NewSubscriber(common.TopicIdmEvent, func(ctx context.Context, msg *idm.ChangeEvent) error {
 					return subscriber.HandleIdmChange(ctx, msg)
 				})); err != nil {
 					return err

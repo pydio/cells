@@ -45,7 +45,7 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				h := &NodeKeyManagerHandler{}
 				encryption.RegisterNodeKeyManagerHandler(m.Options().Server, h)
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, h.HandleTreeChanges)); err != nil {
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicTreeChanges, h.HandleTreeChanges)); err != nil {
 					return err
 				}
 				return nil

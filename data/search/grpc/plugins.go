@@ -85,7 +85,7 @@ func init() {
 				// Register Subscribers
 				if err := m.Options().Server.Subscribe(
 					m.Options().Server.NewSubscriber(
-						common.TOPIC_META_CHANGES,
+						common.TopicMetaChanges,
 						server.CreateNodeChangeSubscriber(),
 					),
 				); err != nil {

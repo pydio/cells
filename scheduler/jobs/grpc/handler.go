@@ -87,11 +87,11 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest, 
 		return err
 	}
 	response.Job = request.Job
-	client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicJobConfigEvent, &proto.JobChangeEvent{
 		JobUpdated: request.Job,
 	}))
 	if request.Job.AutoStart && !request.Job.Inactive {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &proto.JobTriggerEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &proto.JobTriggerEvent{
 			JobID:  response.Job.ID,
 			RunNow: true,
 		}))
@@ -118,7 +118,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			response.Success = false
 			return err
 		}
-		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicJobConfigEvent, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		}))
 		go func() {
@@ -170,7 +170,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			if e := j.store.DeleteJob(id); e == nil {
 				deleted++
 				log.Logger(ctx).Info("Deleting AutoClean Job " + id)
-				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
+				client.Publish(ctx, client.NewPublication(common.TopicJobConfigEvent, &proto.JobChangeEvent{
 					JobRemoved: id,
 				}))
 				go func() {
@@ -225,7 +225,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	T := lang.Bundle().GetTranslationFunc()
 	job.Label = T(job.Label)
 	if !job.TasksSilentUpdate {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 			TaskUpdated: request.Task,
 			Job:         job,
 		}))
@@ -314,7 +314,7 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 		T := lang.Bundle().GetTranslationFunc()
 		tJob.Label = T(tJob.Label)
 		if !tJob.TasksSilentUpdate {
-			client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+			client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 				TaskUpdated: request.Task,
 				Job:         tJob,
 			}))

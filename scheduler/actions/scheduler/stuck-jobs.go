@@ -110,6 +110,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 		Status: []jobs.TaskStatus{
 			jobs.TaskStatus_Finished,
 			jobs.TaskStatus_Interrupted,
+			jobs.TaskStatus_Error,
 		},
 		PruneLimit: int32(pruneLimit),
 	})

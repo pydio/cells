@@ -190,7 +190,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		// has triggered creation of parents, send notifications for parents as well
 		for _, parent := range created[:len(created)-1] {
 			parent.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
-			client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, &tree.NodeChangeEvent{
+			client.Publish(ctx, client.NewPublication(common.TopicIndexChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_CREATE,
 				Target: parent.Node,
 			}))
@@ -617,9 +617,9 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		}
 		for _, ev := range childrenEvents {
 			if batcher != nil {
-				batcher.Notify(common.TOPIC_INDEX_CHANGES, ev)
+				batcher.Notify(common.TopicIndexChanges, ev)
 			} else {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, ev))
+				client.Publish(ctx, client.NewPublication(common.TopicIndexChanges, ev))
 			}
 		}
 
@@ -760,9 +760,9 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	// Publish either to batcher or to broker directly
 	if batcher != nil && session != nil {
 		event.Silent = session.Silent
-		batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
+		batcher.Notify(common.TopicIndexChanges, event)
 	} else {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
+		client.Publish(ctx, client.NewPublication(common.TopicIndexChanges, event))
 	}
 
 	return nil

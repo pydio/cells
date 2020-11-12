@@ -53,7 +53,7 @@ func init() {
 	}
 
 	// listen to tree node events and invalidate cache
-	defaults.Broker().Subscribe(common.TOPIC_TREE_CHANGES, func(publication broker.Publication) error {
+	defaults.Broker().Subscribe(common.TopicTreeChanges, func(publication broker.Publication) error {
 		var event tree.NodeChangeEvent
 		if e := proto.Unmarshal(publication.Message().Body, &event); e == nil && !event.Optimistic {
 			switch event.Type {

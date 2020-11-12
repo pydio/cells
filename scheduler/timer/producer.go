@@ -65,7 +65,7 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 				if e.TestChan != nil {
 					e.TestChan <- event
 				} else {
-					client.Publish(e.Context, client.NewPublication(common.TOPIC_TIMER_EVENT, event))
+					client.Publish(e.Context, client.NewPublication(common.TopicTimerEvent, event))
 				}
 			case <-e.StopChan:
 				return

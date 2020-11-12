@@ -93,17 +93,17 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 	opts := func(o *server.SubscriberOptions) {
 		o.Queue = "tasks"
 	}
-	srv.Subscribe(srv.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
+	srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TopicTreeChanges, s.nodeEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TopicMetaChanges, func(ctx context.Context, e *tree.NodeChangeEvent) error {
 		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
 			return s.nodeEvent(ctx, e)
 		} else {
 			return nil
 		}
 	}, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TopicTimerEvent, s.timerEvent, opts))
+	srv.Subscribe(srv.NewSubscriber(common.TopicIdmEvent, s.idmEvent, opts))
 
 	s.ListenToMainQueue()
 	s.TaskChannelSubscription()

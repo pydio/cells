@@ -140,7 +140,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			newClaimsProvider(svc)
 
 			proto.RegisterServiceHandler(srv, &StatusHandler{s.Address()})
-			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, srv, &StopHandler{s})
+			micro.RegisterSubscriber(common.TopicServiceStop, srv, &StopHandler{s})
 
 			s.Init(
 				Micro(svc),

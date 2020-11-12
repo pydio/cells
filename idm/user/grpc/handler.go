@@ -156,7 +156,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 
 	if len(createdNodes) == 0 {
 		// Propagate creation event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_UPDATE,
 			User: out,
 		}))
@@ -175,7 +175,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		}
 	} else {
 		// Propagate creation event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_CREATE,
 			User: out,
 		}))
@@ -252,7 +252,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 					}
 
 					// Propagate deletion event
-					client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+					client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 						Type: idm.ChangeEventType_DELETE,
 						User: deleted,
 					}))

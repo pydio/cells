@@ -158,7 +158,7 @@ func (p *NamespacesProvider) Clear() {
 }
 
 func (p *NamespacesProvider) Watch() {
-	defaults.Broker().Subscribe(common.TOPIC_IDM_EVENT, func(publication broker.Publication) error {
+	defaults.Broker().Subscribe(common.TopicIdmEvent, func(publication broker.Publication) error {
 		var ce idm.ChangeEvent
 		if e := proto.Unmarshal(publication.Message().Body, &ce); e == nil {
 			if ce.MetaNamespace != nil {

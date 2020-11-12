@@ -112,7 +112,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 					node.MetaStore[val.Namespace] = val.JsonValue
 				}
 			}
-			client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+			client.Publish(bgCtx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_UPDATE_USER_META,
 				Target: node,
 			}))
@@ -190,7 +190,7 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 		if err := dao.Del(metaNameSpace); err != nil {
 			return err
 		} else {
-			client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 				Type:          idm.ChangeEventType_DELETE,
 				MetaNamespace: metaNameSpace,
 			}))
@@ -201,7 +201,7 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 			if err := dao.Add(metaNameSpace); err != nil {
 				return err
 			} else {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+				client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 					Type:          idm.ChangeEventType_CREATE,
 					MetaNamespace: metaNameSpace,
 				}))

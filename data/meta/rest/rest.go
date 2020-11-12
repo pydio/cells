@@ -221,7 +221,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 					if e != nil {
 						return e
 					}
-					client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+					client.Publish(c, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
 						Type:   tree.NodeChangeEvent_READ,
 						Target: n,
 					}))

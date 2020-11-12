@@ -32,7 +32,6 @@ import (
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	micro "github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
 	"github.com/rs/cors"
 
@@ -105,9 +104,6 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				// micro.RegisterTTL(10*time.Minute),
 				// micro.RegisterInterval(5*time.Minute),
 				micro.Context(ctx),
-				micro.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
-				}),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 					return nil

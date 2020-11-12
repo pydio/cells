@@ -105,7 +105,7 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			Silent: e.Silent,
 		}, &tree.UpdateNodeResponse{}); er == nil {
 			// UpdateNode will trigger an UPDATE_META, forward UPDATE_PATH event as well
-			client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, e))
+			client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, e))
 		}
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
@@ -253,7 +253,7 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	resp.Success = true
 
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
 		Type:   tree.NodeChangeEvent_UPDATE_META,
 		Target: req.Node,
 		Silent: req.Silent,
@@ -295,7 +295,7 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 			req.To.MetaStore[k] = v
 		}
 	}
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
 		Type:   tree.NodeChangeEvent_UPDATE_META,
 		Target: req.To,
 		Silent: req.Silent,
@@ -321,7 +321,7 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	result.Success = true
 
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+	client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
 		Type:   tree.NodeChangeEvent_DELETE,
 		Source: request.Node,
 		Silent: request.Silent,

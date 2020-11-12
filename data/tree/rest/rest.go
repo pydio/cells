@@ -146,7 +146,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				service.RestError500(req, resp, e)
 				if session != "" {
 					// Make sure to close the session
-					client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+					client.Publish(ctx, client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
 						SessionForceClose: session,
 					}))
 				}

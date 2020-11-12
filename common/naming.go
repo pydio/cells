@@ -112,23 +112,27 @@ const (
 
 // Define constants for Event Bus Topics
 const (
-	TOPIC_PROXY_RESTART    = "topic.pydio.proxy.restart"
-	TOPIC_SERVICE_START    = "topic.pydio.service.start"
-	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
-	TOPIC_SERVICE_STARTED  = "topic.pydio.service.started"
-	TOPIC_SERVICE_STOPPED  = "topic.pydio.service.stopped"
-	TOPIC_ASSETS_RELOAD    = "topic.pydio.assets.reload"
-	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
-	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
-	TOPIC_META_CHANGES     = "topic.pydio.meta.nodes.changes"
-	TOPIC_TIMER_EVENT      = "topic.pydio.meta.timer.event"
-	TOPIC_JOB_CONFIG_EVENT = "topic.pydio.jobconfig.event"
-	TOPIC_JOB_TASK_EVENT   = "topic.pydio.jobconfig.event"
-	TOPIC_IDM_EVENT        = "topic.pydio.idm.event"
-	TOPIC_ACTIVITY_EVENT   = "topic.pydio.activity.event"
-	TOPIC_CHAT_EVENT       = "topic.pydio.chat.event"
-	TOPIC_DATASOURCE_EVENT = "topic.pydio.datasource.event"
-	TOPIC_INDEX_EVENT      = "topic.pydio.index.event"
+	TopicServiceRegistration = "topic.pydio.service.registration"
+	TopicProxyRestarted      = "topic.pydio.proxy.restarted"
+	TopicServiceStop         = "topic.pydio.service.stop" // @todo This is used in "stop" command but probably out-of-date
+
+	EventTypeServiceRegistered        = "registered"
+	EventTypeServiceUnregistered      = "unregistered"
+	EventHeaderServiceRegisterService = "x-service-name"
+	EventHeaderServiceRegisterPeer    = "x-service-peer"
+
+	TopicReloadAssets    = "topic.pydio.assets.reload"
+	TopicIndexChanges    = "topic.pydio.index.nodes.changes"
+	TopicTreeChanges     = "topic.pydio.tree.nodes.changes"
+	TopicMetaChanges     = "topic.pydio.meta.nodes.changes"
+	TopicTimerEvent      = "topic.pydio.meta.timer.event"
+	TopicJobConfigEvent  = "topic.pydio.jobconfig.event"
+	TopicJobTaskEvent    = "topic.pydio.jobconfig.event"
+	TopicIdmEvent        = "topic.pydio.idm.event"
+	TopicActivityEvent   = "topic.pydio.activity.event"
+	TopicChatEvent       = "topic.pydio.chat.event"
+	TopicDatasourceEvent = "topic.pydio.datasource.event"
+	TopicIndexEvent      = "topic.pydio.index.event"
 )
 
 // Define constants for metadata and fixed datasources

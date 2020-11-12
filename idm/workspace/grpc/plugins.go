@@ -52,7 +52,7 @@ func init() {
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				wsCleaner := NewWsCleaner(h, ctx)
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, wsCleaner)); err != nil {
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, wsCleaner)); err != nil {
 					return err
 				}
 
@@ -65,7 +65,7 @@ func init() {
 					},
 					LogCtx: ctx,
 				}
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
 					return err
 				}
 

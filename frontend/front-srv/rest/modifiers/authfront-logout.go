@@ -37,7 +37,7 @@ func LogoutAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 		}
 
 		// Send Event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_LOGOUT,
 			User: &idm.User{Login: cl.Name},
 		}))
