@@ -121,11 +121,11 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 			var uuid = move
 			if source != nil {
 				uuid = source.Uuid
-				s.TreeServer.updateDataSourceNode(source, source.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME))
+				s.TreeServer.updateDataSourceNode(source, source.GetStringMeta(common.MetaNamespaceDatasourceName))
 			}
 			if target != nil {
 				uuid = target.Uuid
-				s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME))
+				s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.MetaNamespaceDatasourceName))
 			}
 			//log.Logger(ctx).Info("Got move metadata from context - Skip event", zap.Any("uuid", uuid), zap.Any("event", msg))
 			s.enqueueMoves(ctx, uuid, msg)
@@ -134,10 +134,10 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 	}
 	// Update Source & Target Nodes
 	if source != nil {
-		s.TreeServer.updateDataSourceNode(source, source.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME))
+		s.TreeServer.updateDataSourceNode(source, source.GetStringMeta(common.MetaNamespaceDatasourceName))
 	}
 	if target != nil {
-		s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME))
+		s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.MetaNamespaceDatasourceName))
 	}
 
 	s.publish(ctx, msg)

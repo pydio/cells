@@ -113,7 +113,7 @@ func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, req
 		if er == nil {
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			filter := node.Clone()
-			filter.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			filter.SetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
 			return a.next.GetObject(ctx, filter, requestData)
 		}
 	}
@@ -149,7 +149,7 @@ func (a *BinaryStoreHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			clone := in.Node.Clone()
 			dsKey = path.Base(in.Node.Path)
-			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsKey)
+			clone.SetMeta(common.MetaNamespaceDatasourcePath, dsKey)
 			in.Node = clone
 		}
 	}
@@ -177,7 +177,7 @@ func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, rea
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			clone := node.Clone()
 			clone.Uuid = path.Base(node.Path)
-			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			clone.SetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
 			return a.next.PutObject(ctx, clone, reader, requestData)
 		} else {
 			log.Logger(ctx).Debug("Putting Node Inside Binary Store Cannot find DS Info?", zap.Error(er))

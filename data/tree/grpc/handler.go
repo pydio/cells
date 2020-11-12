@@ -141,7 +141,7 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
 	newPath := dataSourceName + "/" + dsPath
 
 	node.Path = newPath
-	node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath)
+	node.SetMeta(common.MetaNamespaceDatasourcePath, dsPath)
 	if node.Uuid == "ROOT" {
 		node.Uuid = "DATASOURCE:" + dataSourceName
 	}

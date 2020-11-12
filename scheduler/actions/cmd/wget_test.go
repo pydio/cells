@@ -101,7 +101,7 @@ func TestWGetAction_Run(t *testing.T) {
 			Type: tree.NodeType_LEAF,
 			Uuid: uuidNode,
 		}
-		node.SetMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER, tmpDir)
+		node.SetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
 
 		status := make(chan string)
 		progress := make(chan float32)

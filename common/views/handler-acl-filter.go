@@ -267,7 +267,7 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "from", false, true, true)
 		// For delete operations, ignore write permissions as recycle can be outside of authorized paths
-		if operation.GetTarget().GetStringMeta(common.RECYCLE_BIN_NAME) != "true" {
+		if operation.GetTarget().GetStringMeta(common.RecycleBinName) != "true" {
 			rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "to", true, false, true)
 		}
 

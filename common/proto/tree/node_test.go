@@ -108,7 +108,7 @@ func TestNodeMeta(t *testing.T) {
 	Convey("Test node HasSource function", t, func() {
 
 		node := &Node{}
-		node.setMetaString(common.META_NAMESPACE_DATASOURCE_NAME, "ds1")
+		node.setMetaString(common.MetaNamespaceDatasourceName, "ds1")
 		So(node.HasSource(), ShouldBeTrue)
 
 	})

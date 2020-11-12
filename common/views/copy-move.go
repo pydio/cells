@@ -100,16 +100,16 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	// Read root of target to detect if it is on the same datasource as sourceNode
 	var crossDs bool
 	var sourceDs, targetDs string
-	sourceDs = sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	sourceDs = sourceNode.GetStringMeta(common.MetaNamespaceDatasourceName)
 	if move {
-		if tDs := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME); tDs != "" {
+		if tDs := targetNode.GetStringMeta(common.MetaNamespaceDatasourceName); tDs != "" {
 			targetDs = tDs
 			crossDs = targetDs != sourceDs
 		} else {
 			parts := strings.Split(strings.Trim(targetNode.Path, "/"), "/")
 			if len(parts) > 0 {
 				if testRoot, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parts[0]}}); e == nil {
-					targetDs = testRoot.Node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+					targetDs = testRoot.Node.GetStringMeta(common.MetaNamespaceDatasourceName)
 					crossDs = targetDs != sourceDs
 				}
 			}
@@ -142,7 +142,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 		prefixPathSrc := strings.TrimRight(sourceNode.Path, "/")
 		prefixPathTarget := strings.TrimRight(targetNode.Path, "/")
-		targetDsPath := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+		targetDsPath := targetNode.GetStringMeta(common.MetaNamespaceDatasourcePath)
 
 		// List all children and move them all
 		streamer, err := router.ListNodes(ctx, &tree.ListNodesRequest{
@@ -203,7 +203,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				folderNode.Path = targetPath
 				folderNode.Uuid = uuid.New()
 				if targetDsPath != "" {
-					folderNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(targetDsPath, relativePath))
+					folderNode.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(targetDsPath, relativePath))
 				}
 				_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session, UpdateIfExists: true})
 				if e != nil {
@@ -391,7 +391,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 	targetPath := prefixPathTarget + "/" + relativePath
 	targetNode := &tree.Node{Path: targetPath}
 	if targetDsPath != "" {
-		targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(targetDsPath, relativePath))
+		targetNode.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(targetDsPath, relativePath))
 	}
 	var justCopied *tree.Node
 	justCopied = nil

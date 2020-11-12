@@ -51,8 +51,8 @@ func (v *UuidDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 		return ctx, node, nil
 	}
 
-	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	dsPath := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
+	dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 	if len(dsPath) == 0 || len(dsName) == 0 {
 		// Ignore this step
 		return ctx, node, nil

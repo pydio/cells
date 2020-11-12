@@ -56,9 +56,9 @@ func (v *WorkspaceRootResolver) updateInputBranch(ctx context.Context, node *tre
 	out := node.Clone()
 	wsRoot := branchInfo.Root
 	originalPath := node.Path
-	dsPath := wsRoot.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+	dsPath := wsRoot.GetStringMeta(common.MetaNamespaceDatasourcePath)
 	out.Path = path.Join(wsRoot.Path, originalPath)
-	out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(dsPath, originalPath))
+	out.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(dsPath, originalPath))
 	return ctx, out, nil
 
 }

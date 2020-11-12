@@ -59,10 +59,10 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 	// TMP - TO BE FIXED
 	var configKey string
 	switch storeNamespace {
-	case common.PYDIO_DOCSTORE_BINARIES_NAMESPACE:
+	case common.PydioDocstoreBinariesNamespace:
 		configKey = "pydio.docstore-binaries"
 		break
-	case common.PYDIO_THUMBSTORE_NAMESPACE:
+	case common.PydioThumbstoreNamespace:
 		configKey = "pydio.thumbs_store"
 		break
 	default:

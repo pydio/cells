@@ -58,8 +58,8 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 		}
 		fakeChild := node.Clone()
 		fakeChild.Path = pFile
-		initMetaPath := fakeChild.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
-		fakeChild.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(initMetaPath, common.PYDIO_SYNC_HIDDEN_FILE_META))
+		initMetaPath := fakeChild.GetStringMeta(common.MetaNamespaceDatasourcePath)
+		fakeChild.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(initMetaPath, common.PYDIO_SYNC_HIDDEN_FILE_META))
 		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: fakeChild})
 	}
 	if err != nil {
@@ -83,9 +83,9 @@ func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.Update
 	if f, ok := GetBranchInfo(ctx, "from"); ok {
 		ctx = WithBranchInfo(ctx, "in", f)
 		// Make sure DATASOURCE_NAME is set
-		if source.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME) == "" {
+		if source.GetStringMeta(common.MetaNamespaceDatasourceName) == "" {
 			log.Logger(ctx).Info("[SyncFolderTasksHandler] Updating DS name in Source")
-			source.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, f.Name)
+			source.SetMeta(common.MetaNamespaceDatasourceName, f.Name)
 		}
 	}
 	go func() {

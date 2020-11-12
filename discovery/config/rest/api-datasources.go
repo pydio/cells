@@ -402,7 +402,7 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 		}
 		if resp != nil && resp.ACL.NodeID != "" {
 			nodeResp, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: resp.ACL.NodeID}})
-			if e == nil && nodeResp.Node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME) == dsName {
+			if e == nil && nodeResp.Node.GetStringMeta(common.MetaNamespaceDatasourceName) == dsName {
 				return true, nil
 			}
 		}

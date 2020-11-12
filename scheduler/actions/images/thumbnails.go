@@ -286,7 +286,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	var thumbsBucket string
 	objectName := fmt.Sprintf("%s-%d.jpg", node.Uuid, targetSize)
 
-	if localFolder = node.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder = node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		localTest = true
 	}
 	logger := log.Logger(ctx)
@@ -294,7 +294,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	if !localTest {
 
 		var e error
-		thumbsClient, thumbsBucket, e = views.GetGenericStoreClient(ctx, common.PYDIO_THUMBSTORE_NAMESPACE, t.Client)
+		thumbsClient, thumbsBucket, e = views.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace, t.Client)
 		if e != nil {
 			logger.Error("Cannot find client for thumbstore", zap.Error(e))
 			return false, e
@@ -377,7 +377,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 }
 
 func getNodeLocalPath(node *tree.Node) string {
-	if localFolder := node.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		baseName := node.GetStringMeta("name")
 		targetFileName := filepath.Join(localFolder, baseName)
 		return targetFileName

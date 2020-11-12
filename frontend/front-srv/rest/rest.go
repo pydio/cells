@@ -330,14 +330,14 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if avatarId, ok := user.Attributes["avatar"]; ok {
 
 			readNode = &tree.Node{
-				Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + user.Login + "-" + avatarId,
+				Path: common.PydioDocstoreBinariesNamespace + "/users_binaries." + user.Login + "-" + avatarId,
 			}
 			extension = strings.Split(avatarId, ".")[1]
 		}
 	} else if binaryType == "GLOBAL" {
 
 		readNode = &tree.Node{
-			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryUuid,
+			Path: common.PydioDocstoreBinariesNamespace + "/global_binaries." + binaryUuid,
 		}
 		if strings.Contains(binaryUuid, ".") {
 			extension = strings.Split(binaryUuid, ".")[1]
@@ -431,14 +431,14 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 
 		node := &tree.Node{
-			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + binaryId,
+			Path: common.PydioDocstoreBinariesNamespace + "/users_binaries." + binaryUuid + "-" + binaryId,
 		}
 
 		if user.Attributes != nil {
 			if av, ok := user.Attributes["avatar"]; ok && av != "" {
 				// There is an existing avatar, remove it
 				oldNode := &tree.Node{
-					Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + av,
+					Path: common.PydioDocstoreBinariesNamespace + "/users_binaries." + binaryUuid + "-" + av,
 				}
 				if _, e = router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: oldNode}); e != nil {
 					log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
@@ -468,7 +468,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 
 		router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
 		node := &tree.Node{
-			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryId,
+			Path: common.PydioDocstoreBinariesNamespace + "/global_binaries." + binaryId,
 		}
 		if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
 			log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))

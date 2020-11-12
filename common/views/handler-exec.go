@@ -112,11 +112,11 @@ func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opt
 func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	node := in.Node
 	if !node.IsLeaf() {
-		dsPath := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 		newNode := &tree.Node{
 			Path: strings.TrimRight(node.Path, "/") + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
 		}
-		newNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath+"/"+common.PYDIO_SYNC_HIDDEN_FILE_META)
+		newNode.SetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PYDIO_SYNC_HIDDEN_FILE_META)
 		meta := make(map[string]string)
 		if session := in.IndexationSession; session != "" {
 			meta[common.XPydioSessionUuid] = session
@@ -470,7 +470,7 @@ func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, upl
 			opts.Set(k, v)
 		}
 	}
-	return info.Client.StatObject(info.ObjectsBucket, target.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH), opts)
+	return info.Client.StatObject(info.ObjectsBucket, target.GetStringMeta(common.MetaNamespaceDatasourcePath), opts)
 }
 
 func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (lpi minio.ListObjectPartsResult, err error) {
@@ -495,7 +495,7 @@ func (e *Executor) WrappedCanApply(_ context.Context, _ context.Context, _ *tree
 
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {
 
-	path := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+	path := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 	if branchInfo.ObjectsBaseFolder != "" {
 		path = strings.TrimLeft(branchInfo.ObjectsBaseFolder, "/") + path
 	}

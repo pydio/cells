@@ -78,7 +78,7 @@ func (c *PruneVersionsAction) Init(job *jobs.Job, cl client.Client, action *jobs
 // Run processes the actual action code.
 func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	source, e := c.Pool.GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
+	source, e := c.Pool.GetDataSourceInfo(common.PydioVersionsNamespace)
 	if e != nil {
 		return input.WithError(e), e
 	}

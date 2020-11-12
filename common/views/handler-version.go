@@ -132,7 +132,7 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 	}
 	if len(requestData.VersionId) > 0 {
 
-		source, e := v.clientsPool.GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
+		source, e := v.clientsPool.GetDataSourceInfo(common.PydioVersionsNamespace)
 		if e != nil {
 			return nil, e
 		}
@@ -147,7 +147,7 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 		node = &tree.Node{
 			Path: node.Uuid + "__" + requestData.VersionId,
 		}
-		node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, node.Path)
+		node.SetMeta(common.MetaNamespaceDatasourcePath, node.Path)
 		branchInfo := BranchInfo{LoadedSource: source}
 		ctx = WithBranchInfo(ctx, "in", branchInfo)
 		log.Logger(ctx).Debug("GetObject With VersionId", zap.Any("node", node))
@@ -165,7 +165,7 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 	log.Logger(ctx).Debug("CopyObject Has VersionId?", zap.Any("from", from), zap.Any("to", to), zap.Any("requestData", requestData))
 	if len(requestData.SrcVersionId) > 0 {
 
-		source, e := v.clientsPool.GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
+		source, e := v.clientsPool.GetDataSourceInfo(common.PydioVersionsNamespace)
 		if e != nil {
 			return 0, e
 		}
@@ -184,7 +184,7 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 		from = &tree.Node{
 			Path: from.Uuid + "__" + requestData.SrcVersionId,
 		}
-		from.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, from.Path)
+		from.SetMeta(common.MetaNamespaceDatasourcePath, from.Path)
 		branchInfo := BranchInfo{LoadedSource: source}
 		ctx = WithBranchInfo(ctx, "from", branchInfo)
 		log.Logger(ctx).Debug("CopyObject With VersionId", zap.Any("from", from), zap.Any("branchInfo", branchInfo), zap.Any("to", to))

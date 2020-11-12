@@ -174,7 +174,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 	var reader io.ReadCloser
 
 	var rer error
-	if localFolder := node.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		baseName := node.GetStringMeta("name")
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)

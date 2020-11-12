@@ -300,12 +300,12 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		}
 
 		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
-		if move && strings.Contains(targetNodePath, common.RECYCLE_BIN_NAME) {
+		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
 			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 			for _, n := range loadedNodes {
 				metaNode := &tree.Node{Uuid: n.GetUuid()}
-				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, n.Path)
+				metaNode.SetMeta(common.MetaNamespaceRecycleRestore, n.Path)
 				_, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode})
 				if e != nil {
 					log.Logger(ctx).Error("Error while saving recycle_restore meta", zap.Error(e))

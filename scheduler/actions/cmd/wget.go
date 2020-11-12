@@ -139,7 +139,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	defer httpResponse.Body.Close()
 	var written int64
 	var er error
-	if localFolder := targetNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := targetNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		var localFile *os.File
 		localFile, er = os.OpenFile(filepath.Join(localFolder, targetNode.Uuid), os.O_CREATE|os.O_WRONLY, 0755)
 		if er == nil {

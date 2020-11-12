@@ -133,7 +133,7 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 
 // slugExists check in the DB if the slug already exists.
 func (s *sqlimpl) slugExists(slug string) bool {
-	if slug == common.PYDIO_DOCSTORE_BINARIES_NAMESPACE || slug == common.PYDIO_THUMBSTORE_NAMESPACE || slug == common.PYDIO_VERSIONS_NAMESPACE {
+	if slug == common.PydioDocstoreBinariesNamespace || slug == common.PydioThumbstoreNamespace || slug == common.PydioVersionsNamespace {
 		return true
 	}
 

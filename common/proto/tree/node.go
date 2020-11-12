@@ -65,7 +65,7 @@ func (node *Node) GetModTime() time.Time {
 
 // HasSource checks if node has a DataSource and Object Service metadata set
 func (node *Node) HasSource() bool {
-	return node.HasMetaKey(common.META_NAMESPACE_DATASOURCE_NAME)
+	return node.HasMetaKey(common.MetaNamespaceDatasourceName)
 }
 
 /* METADATA MANAGEMENT */

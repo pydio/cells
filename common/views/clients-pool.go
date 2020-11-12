@@ -217,9 +217,9 @@ func (p *ClientsPool) listDatasources() {
 		}
 	}
 
-	p.registerAlternativeClient(common.PYDIO_THUMBSTORE_NAMESPACE)
-	p.registerAlternativeClient(common.PYDIO_DOCSTORE_BINARIES_NAMESPACE)
-	p.registerAlternativeClient(common.PYDIO_VERSIONS_NAMESPACE)
+	p.registerAlternativeClient(common.PydioThumbstoreNamespace)
+	p.registerAlternativeClient(common.PydioDocstoreBinariesNamespace)
+	p.registerAlternativeClient(common.PydioVersionsNamespace)
 }
 
 func (p *ClientsPool) registerAlternativeClient(namespace string) error {

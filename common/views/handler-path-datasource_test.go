@@ -43,8 +43,8 @@ func newTestHandlerBranchTranslator(pool *ClientsPool) (*PathDataSourceHandler, 
 		Path:      "datasource/root",
 		MetaStore: make(map[string]string),
 	}
-	testRootNode.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "datasource")
-	testRootNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, "root")
+	testRootNode.SetMeta(common.MetaNamespaceDatasourceName, "datasource")
+	testRootNode.SetMeta(common.MetaNamespaceDatasourcePath, "root")
 	b := NewPathDataSourceHandler()
 	b.RootNodesCache = cache.New(1*time.Second, 10*time.Second)
 	b.RootNodesCache.Set("root-node-uuid", testRootNode, cache.DefaultExpiration)
@@ -105,7 +105,7 @@ func makeFakeClientsPool() *ClientsPool {
 func makeFakeTestContext(identifier string, root ...*tree.Node) context.Context {
 
 	fakeRoot := &tree.Node{Path: "datasource/root"}
-	fakeRoot.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "datasource")
+	fakeRoot.SetMeta(common.MetaNamespaceDatasourceName, "datasource")
 	c := context.Background()
 	b := BranchInfo{
 		Workspace: idm.Workspace{
@@ -166,7 +166,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		So(e, ShouldNotBeNil)
 		belowNode := mock.Nodes["in"]
 		So(belowNode.Path, ShouldEqual, "datasource/root/path")
-		So(belowNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH), ShouldEqual, "root/path")
+		So(belowNode.GetStringMeta(common.MetaNamespaceDatasourcePath), ShouldEqual, "root/path")
 		outputBranch, ok := GetBranchInfo(mock.Context, "in")
 		So(ok, ShouldBeTrue)
 		So(outputBranch.LoadedSource.ObjectsBucket, ShouldEqual, "bucket")
@@ -189,7 +189,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		belowNode := mock.Nodes["in"]
 		So(belowNode, ShouldNotBeNil)
 		So(belowNode.Path, ShouldEqual, "datasource/root/inner/path")
-		//So(belowNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH), ShouldEqual, "inner/path")
+		//So(belowNode.GetStringMeta(common.MetaNamespaceDatasourcePath), ShouldEqual, "inner/path")
 		outputBranch, ok := GetBranchInfo(mock.Context, "in")
 		So(ok, ShouldBeTrue)
 		So(outputBranch.Workspace.UUID, ShouldEqual, "test-workspace")

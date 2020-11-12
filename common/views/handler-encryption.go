@@ -84,16 +84,16 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		return nil, errors.NotFound("views.handler.encryption.GetObject", "node Uuid and size are both required")
 	}
 
-	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := clone.GetStringMeta(common.MetaNamespaceDatasourceName)
 	if dsName == "" {
 		if branchInfo.Root != nil {
-			dsName = branchInfo.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+			dsName = branchInfo.Root.GetStringMeta(common.MetaNamespaceDatasourceName)
 		} else if branchInfo.Name != "" {
 			dsName = branchInfo.Name
 		} else {
 			return nil, errors.New("views.handler.encryption.GetObject", "cannot find datasource name", 500)
 		}
-		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+		clone.SetMeta(common.MetaNamespaceDatasourceName, dsName)
 	}
 
 	info, offset, length, skipBytesCount, err := e.getNodeInfoForRead(ctx, clone, requestData)
@@ -193,9 +193,9 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		clone.Uuid = rsp.Node.Uuid
 	}
 
-	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := clone.GetStringMeta(common.MetaNamespaceDatasourceName)
 	if dsName == "" {
-		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+		_ = clone.SetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
 	}
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
@@ -409,9 +409,9 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 		clone.Uuid = rsp.Node.Uuid
 	}
 
-	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := clone.GetStringMeta(common.MetaNamespaceDatasourceName)
 	if dsName == "" {
-		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+		_ = clone.SetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
 	}
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
@@ -494,9 +494,9 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		clone.Uuid = rsp.Node.Uuid
 	}
 
-	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := clone.GetStringMeta(common.MetaNamespaceDatasourceName)
 	if dsName == "" {
-		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+		_ = clone.SetMeta(common.MetaNamespaceDatasourceName, branchInfo.Name)
 	}
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
@@ -569,7 +569,7 @@ func (e *EncryptionHandler) getNodeInfoForRead(ctx context.Context, node *tree.N
 	}
 
 	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == node.Size)
-	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	rsp, err := nodeEncryptionClient.GetNodeInfo(ctx, &encryption.GetNodeInfoRequest{
 		UserId:      fmt.Sprintf("ds:%s", dsName),
 		NodeId:      node.Uuid,
@@ -589,7 +589,7 @@ func (e *EncryptionHandler) getNodeInfoForWrite(ctx context.Context, node *tree.
 		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY, defaults.NewClient())
 	}
 
-	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	rsp, err := nodeEncryptionClient.GetNodeInfo(ctx, &encryption.GetNodeInfoRequest{
 		UserId:    fmt.Sprintf("ds:%s", dsName),
 		NodeId:    node.Uuid,
@@ -610,7 +610,7 @@ func (e *EncryptionHandler) getNodeInfo(ctx context.Context, request *encryption
 }
 
 func (e *EncryptionHandler) createNodeInfo(ctx context.Context, node *tree.Node) (*encryption.NodeInfo, error) {
-	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
 	user := fmt.Sprintf("ds:%s", dsName)
 	info := new(encryption.NodeInfo)
 

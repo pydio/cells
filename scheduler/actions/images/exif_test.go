@@ -91,8 +91,8 @@ func TestExifProcessor_Run(t *testing.T) {
 			Uuid: uuidNode,
 		}
 		node.SetMeta("name", uuidNode+".jpg")
-		node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "dsname")
-		node.SetMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER, tmpDir)
+		node.SetMeta(common.MetaNamespaceDatasourceName, "dsname")
+		node.SetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
 
 		status := make(chan string)
 		progress := make(chan float32)

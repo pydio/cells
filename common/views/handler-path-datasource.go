@@ -67,7 +67,7 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 			log.Logger(ctx).Debug("updateInput", zap.Any("source", source))
 			if len(parts) > 1 {
 				dsPath := strings.Join(parts[1:], "/")
-				out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath)
+				out.SetMeta(common.MetaNamespaceDatasourcePath, dsPath)
 			}
 			if source.ObjectsBucket == "" {
 				parts := strings.Split(strings.Trim(node.Path, "/"), "/")
@@ -75,7 +75,7 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 					// Read bucket name from second segment
 					source = WithBucketName(source, parts[1])
 					// Remove from datasource_path
-					out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[2:], "/"))
+					out.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[2:], "/"))
 				}
 			}
 			branchInfo.LoadedSource = source
@@ -85,7 +85,7 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 	} else if branchInfo.Root != nil {
 
 		wsRoot := branchInfo.Root
-		dsName := wsRoot.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		dsName := wsRoot.GetStringMeta(common.MetaNamespaceDatasourceName)
 		source, err := v.clientsPool.GetDataSourceInfo(dsName)
 		if err != nil {
 			log.Logger(ctx).Error("Cannot find DataSourceInfo for "+dsName, zap.Error(err))
@@ -97,7 +97,7 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 				// Read bucket name from second segment
 				source = WithBucketName(source, parts[1])
 				// Remove from datasource_path
-				out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[2:], "/"))
+				out.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[2:], "/"))
 			}
 		}
 		branchInfo.LoadedSource = source

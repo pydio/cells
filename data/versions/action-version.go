@@ -95,7 +95,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 	var hasPolicy bool
-	if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)); e == nil {
+	if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.MetaNamespaceDatasourceName)); e == nil {
 		if nodeSource.VersioningPolicyName != "" {
 			hasPolicy = true
 		}
@@ -105,7 +105,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	// TODO: find clients from pool so that they are considered the same by the CopyObject request
-	source, e := getRouter().GetClientsPool().GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
+	source, e := getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
 	if e != nil {
 		return input.WithError(e), e
 	}
@@ -132,7 +132,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	targetNode := &tree.Node{
 		Path: node.Uuid + "__" + resp.Version.Uuid,
 	}
-	targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, targetNode.Path)
+	targetNode.SetMeta(common.MetaNamespaceDatasourcePath, targetNode.Path)
 	sourceNode := proto.Clone(node).(*tree.Node)
 	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
 
@@ -150,7 +150,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		for _, version := range response.PruneVersions {
 			ctx = views.WithBranchInfo(ctx, "in", views.BranchInfo{LoadedSource: source})
 			deleteNode := &tree.Node{Path: node.Uuid + "__" + version.Uuid}
-			deleteNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, deleteNode.Path)
+			deleteNode.SetMeta(common.MetaNamespaceDatasourcePath, deleteNode.Path)
 			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})
 			if errDel != nil {
 				return input.WithError(errDel), errDel

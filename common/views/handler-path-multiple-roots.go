@@ -153,7 +153,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 				node = t.Node
 				node.Path = rKey
 				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
-					node.SetMeta(common.META_NAMESPACE_NODENAME, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
+					node.SetMeta(common.MetaNamespaceNodeName, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
 				}
 				node.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
 				log.Logger(ctx).Debug("[Multiple Root] Sending back node", node.Zap())
@@ -191,7 +191,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 				fakeNode.MTime = node.MTime
 			}
 		}
-		fakeNode.SetMeta(common.META_NAMESPACE_NODENAME, branch.Workspace.Label)
+		fakeNode.SetMeta(common.MetaNamespaceNodeName, branch.Workspace.Label)
 		fakeNode.SetMeta(common.META_FLAG_VIRTUAL_ROOT, "true")
 		if branch.Workspace.Scope != idm.WorkspaceScope_LINK {
 			fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")

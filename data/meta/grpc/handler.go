@@ -357,7 +357,7 @@ func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string
 
 	filtered := make(map[string]string)
 	for k, v := range metaStore {
-		if k == common.META_NAMESPACE_DATASOURCE_NAME || k == common.META_NAMESPACE_DATASOURCE_PATH {
+		if k == common.MetaNamespaceDatasourceName || k == common.MetaNamespaceDatasourcePath {
 			continue
 		}
 		filtered[k] = v

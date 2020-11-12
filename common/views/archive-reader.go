@@ -48,7 +48,7 @@ func (a *ArchiveReader) openArchiveStream(ctx context.Context, archiveNode *tree
 
 	var archive io.ReadCloser
 	var openErr error
-	if localFolder := archiveNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archive, openErr = os.Open(filepath.Join(localFolder, archiveNode.Uuid))
 	} else {
 		archive, openErr = a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
@@ -157,7 +157,7 @@ func (a *ArchiveReader) ReadChildZip(ctx context.Context, archiveNode *tree.Node
 
 	// We have to download whole archive to read its content
 	var archiveName string
-	if localFolder := archiveNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archiveName = filepath.Join(localFolder, archiveNode.Uuid)
 	} else {
 		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
@@ -199,7 +199,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 
 	// We have to download whole archive to read its content
 	var archiveName string
-	if localFolder := archiveNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archiveName = filepath.Join(localFolder, archiveNode.Uuid)
 	} else {
 		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
@@ -376,7 +376,7 @@ func (a *ArchiveReader) ReadChildTar(ctx context.Context, gzipFormat bool, write
 	// We have to download whole archive to read its content
 	var inputStream io.ReadCloser
 	var openErr error
-	if localFolder := archiveNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		inputStream, openErr = os.Open(filepath.Join(localFolder, archiveNode.Uuid))
 	} else {
 		inputStream, openErr = a.openArchiveStream(ctx, archiveNode)
@@ -422,7 +422,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 	// We have to download whole archive to read its content
 	var inputStream io.ReadCloser
 	var openErr error
-	if localFolder := archiveNode.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
+	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		inputStream, openErr = os.Open(filepath.Join(localFolder, archiveNode.Uuid))
 	} else {
 		inputStream, openErr = a.openArchiveStream(ctx, archiveNode)

@@ -297,10 +297,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			} else if recycleRoot, e := findRecycleForSource(ctx, filtered, ancestors); e == nil {
 				// Moving to recycle bin
 				log.Logger(ctx).Info(fmt.Sprintf("Deletion: moving [%s] to recycle bin", node.GetPath()), zap.Any("RecycleRoot", recycleRoot))
-				rPath := strings.TrimSuffix(recycleRoot.Path, "/") + "/" + common.RECYCLE_BIN_NAME
+				rPath := strings.TrimSuffix(recycleRoot.Path, "/") + "/" + common.RecycleBinName
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
-				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, ancestors[0].Path)
+				metaNode.SetMeta(common.MetaNamespaceRecycleRestore, ancestors[0].Path)
 				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode, Silent: true}); e != nil {
 					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
 				}
@@ -313,7 +313,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				srcCtx, srcNode, _ := inputFilter(ctx, node, "from")
 				_, recycleOut, _ := outputFilter(ctx, deleteJobs.RecyclesNodes[rPath], "to")
 				targetCtx, recycleIn, _ := inputFilter(ctx, recycleOut, "to")
-				recycleIn.SetMeta(common.RECYCLE_BIN_NAME, "true")
+				recycleIn.SetMeta(common.RecycleBinName, "true")
 				if er := router.WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: srcNode, Target: recycleIn}); er != nil {
 					return er
 				}
@@ -501,7 +501,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				return e
 			}
 			currentFullPath := filtered.Path
-			originalFullPath := r.GetNode().GetStringMeta(common.META_NAMESPACE_RECYCLE_RESTORE)
+			originalFullPath := r.GetNode().GetStringMeta(common.MetaNamespaceRecycleRestore)
 			if originalFullPath == "" {
 				return fmt.Errorf("cannot find restore location for selected node")
 			}

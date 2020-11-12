@@ -78,7 +78,7 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil
 	}
 
-	thumbsClient, thumbsBucket, e := views.GetGenericStoreClient(ctx, common.PYDIO_THUMBSTORE_NAMESPACE, c.Client)
+	thumbsClient, thumbsBucket, e := views.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace, c.Client)
 	if e != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
 		return input.WithError(e), e

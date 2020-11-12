@@ -114,7 +114,7 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
 	}
-	parentNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Dir(parentNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)))
+	parentNode.SetMeta(common.MetaNamespaceDatasourcePath, path.Dir(parentNode.GetStringMeta(common.MetaNamespaceDatasourcePath)))
 	parentNode.Type = tree.NodeType_COLLECTION
 	if _, e := m.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
 		if er := m.CreateParent(ctx, parentNode); er != nil {

@@ -137,16 +137,16 @@ const (
 
 // Define constants for metadata and fixed datasources
 const (
-	META_NAMESPACE_DATASOURCE_NAME        = "pydio:meta-data-source-name"
-	META_NAMESPACE_DATASOURCE_PATH        = "pydio:meta-data-source-path"
-	META_NAMESPACE_NODE_TEST_LOCAL_FOLDER = "pydio:test:local-folder-storage"
-	META_NAMESPACE_RECYCLE_RESTORE        = "pydio:recycle_restore"
-	META_NAMESPACE_NODENAME               = "name"
-	RECYCLE_BIN_NAME                      = "recycle_bin"
+	MetaNamespaceDatasourceName      = "pydio:meta-data-source-name"
+	MetaNamespaceDatasourcePath      = "pydio:meta-data-source-path"
+	MetaNamespaceNodeTestLocalFolder = "pydio:test:local-folder-storage"
+	MetaNamespaceRecycleRestore      = "pydio:recycle_restore"
+	MetaNamespaceNodeName            = "name"
+	RecycleBinName                   = "recycle_bin"
 
-	PYDIO_THUMBSTORE_NAMESPACE        = "pydio-thumbstore"
-	PYDIO_DOCSTORE_BINARIES_NAMESPACE = "pydio-binaries"
-	PYDIO_VERSIONS_NAMESPACE          = "versions-store"
+	PydioThumbstoreNamespace       = "pydio-thumbstore"
+	PydioDocstoreBinariesNamespace = "pydio-binaries"
+	PydioVersionsNamespace         = "versions-store"
 )
 
 // Additional constants for authentication/authorization aspects
