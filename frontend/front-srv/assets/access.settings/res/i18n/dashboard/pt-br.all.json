@@ -66,19 +66,19 @@
     "other": "In-app upgrade Cells Enterprise (license required)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Avançado"
   },
   "welc.btn.parameters": {
     "other": "About Parameters"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "Primeiros passos"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Usuários"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Áreas de Trabalho"
   },
   "welc.guide": {
     "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"

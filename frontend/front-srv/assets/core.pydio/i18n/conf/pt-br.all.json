@@ -165,7 +165,7 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "Description"
+    "other": "Descrição"
   },
   "Digest Realm": {
     "other": "Digest Realm"
@@ -189,7 +189,7 @@
     "other": "Download Folder (Legacy)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "URL de Transferência"
   },
   "Driver": {
     "other": "Driver"
@@ -216,7 +216,7 @@
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "File"
+    "other": "Arquivo"
   },
   "File Type": {
     "other": "File Type"
@@ -297,7 +297,7 @@
     "other": "Login Redirect"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "Opções Principais"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
@@ -315,7 +315,7 @@
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -333,7 +333,7 @@
     "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "Password"
+    "other": "Senha"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
@@ -450,7 +450,7 @@
     "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "User"
+    "other": "Usuário"
   },
   "User Credentials": {
     "other": "User Credentials"

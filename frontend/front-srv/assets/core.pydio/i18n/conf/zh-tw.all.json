@@ -165,7 +165,7 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "Description"
+    "other": "說明"
   },
   "Digest Realm": {
     "other": "Digest Realm"
@@ -315,7 +315,7 @@
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "名称："
   },
   "OAuth Commons": {
     "other": "OAuth Commons"

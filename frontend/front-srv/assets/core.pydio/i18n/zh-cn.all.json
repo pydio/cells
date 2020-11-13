@@ -246,7 +246,7 @@
     "other": "从APPLICATION_TITLE断开连接"
   },
   "17": {
-    "other": "REAL file"
+    "other": "REAL 文件"
   },
   "170": {
     "other": "当前文件夹"
@@ -1218,7 +1218,7 @@
     "other": "Switch to list view"
   },
   "462": {
-    "other": "Preview"
+    "other": "预览"
   },
   "463": {
     "other": "全部下载"
@@ -1230,7 +1230,7 @@
     "other": "Show alternative URLs (mount workspaces separately)"
   },
   "466": {
-    "other": "Loading..."
+    "other": "加载中..."
   },
   "467": {
     "other": "All Shared Elements"
@@ -1338,7 +1338,7 @@
     "other": "Document Property"
   },
   "499": {
-    "other": "File"
+    "other": "文件"
   },
   "5": {
     "other": "Actions"
@@ -1362,7 +1362,7 @@
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "到"
   },
   "506": {
     "other": "Application parameters (users, workspaces, configurations)"
@@ -1608,7 +1608,7 @@
     "other": "No members"
   },
   "578": {
-    "other": "Team Label"
+    "other": "团队标签"
   },
   "579": {
     "other": "Create Team"
@@ -1956,10 +1956,10 @@
     "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "B"
+    "other": "字节"
   },
   "byte_unit_symbol": {
-    "other": "B"
+    "other": "字节"
   },
   "copy_access_key": {
     "other": "C"
@@ -2316,7 +2316,7 @@
     "other": "选择组"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "确认"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2328,13 +2328,13 @@
     "other": "Rows per page"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "的"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "重置"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"

@@ -16,5 +16,341 @@
   },
   "Prune versions regularly at various intervals": {
     "other": "Sfoltire regolarmente le versioni a diversi intervalli"
+  },
+  "aclAction.Name": {
+    "other": "Nome"
+  },
+  "aclAction.Value": {
+    "other": "Valore"
+  },
+  "aclSingleQuery.Actions": {
+    "other": "Azioni"
+  },
+  "aclSingleQuery.NodeIDs": {
+    "other": "Node Identifiers"
+  },
+  "aclSingleQuery.Not": {
+    "other": "Not"
+  },
+  "aclSingleQuery.RoleIDs": {
+    "other": "Role Identifiers"
+  },
+  "aclSingleQuery.WorkspaceIDs": {
+    "other": "Workspace Identifiers"
+  },
+  "aclSingleQuery.not": {
+    "other": "not"
+  },
+  "actionOutputSingleQuery.ErrorStringRegexp": {
+    "other": "Search on error string (regexp)"
+  },
+  "actionOutputSingleQuery.IsSuccess": {
+    "other": "Is Success"
+  },
+  "actionOutputSingleQuery.JsonBodyHasKey": {
+    "other": "Json body has key..."
+  },
+  "actionOutputSingleQuery.JsonBodyRegexp": {
+    "other": "Search on Json body (regexp)"
+  },
+  "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
+    "other": "Size of Json body is greater than"
+  },
+  "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
+    "other": "Size of Json body is smaller than"
+  },
+  "actionOutputSingleQuery.Not": {
+    "other": "Not"
+  },
+  "actionOutputSingleQuery.StringBodyRegexp": {
+    "other": "Search on String body (regexp)"
+  },
+  "actionOutputSingleQuery.StringBodySizeGreaterThan": {
+    "other": "Size of string body is greater than"
+  },
+  "actionOutputSingleQuery.StringBodySizeSmallerThan": {
+    "other": "Size of string body is smaller than"
+  },
+  "actionOutputSingleQuery.TaskTimeGt": {
+    "other": "Task time greater than"
+  },
+  "actionOutputSingleQuery.TaskTimeLt": {
+    "other": "Task time lower than"
+  },
+  "conditionCIDRCondition.CIDR": {
+    "other": "CIDR"
+  },
+  "conditionCIDRCondition.cidr": {
+    "other": "cidr"
+  },
+  "conditionStringEqualCondition.Equals": {
+    "other": "Equals"
+  },
+  "conditionStringEqualCondition.equals": {
+    "other": "equals"
+  },
+  "conditionStringMatchCondition.Matches": {
+    "other": "Matches"
+  },
+  "conditionStringMatchCondition.matches": {
+    "other": "matches"
+  },
+  "contextMetaCondition.CIDRCondition": {
+    "other": "CIDRCondition"
+  },
+  "contextMetaCondition.EqualsSubjectCondition": {
+    "other": "Subject equals"
+  },
+  "contextMetaCondition.ResourceContainsCondition": {
+    "other": "Resource contains"
+  },
+  "contextMetaCondition.StringEqualCondition": {
+    "other": "String equals"
+  },
+  "contextMetaCondition.StringMatchCondition": {
+    "other": "String matches"
+  },
+  "contextMetaCondition.StringPairsEqualCondition": {
+    "other": "StringPairs equals"
+  },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "String does not match"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Date period"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Office Hours"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Date after"
+  },
+  "contextMetaField.ContentType": {
+    "other": "Content Type"
+  },
+  "contextMetaField.CookiesString": {
+    "other": "Cookies String"
+  },
+  "contextMetaField.HttpProtocol": {
+    "other": "HTTP Protocol"
+  },
+  "contextMetaField.RemoteAddress": {
+    "other": "Indirizzo Remoto"
+  },
+  "contextMetaField.RequestHostname": {
+    "other": "Request Hostname"
+  },
+  "contextMetaField.RequestMethod": {
+    "other": "Request Method"
+  },
+  "contextMetaField.RequestURI": {
+    "other": "Request URI"
+  },
+  "contextMetaField.ServerTime": {
+    "other": "Server Time"
+  },
+  "contextMetaField.UserAgent": {
+    "other": "User Agent"
+  },
+  "contextMetaSingleQuery.Condition": {
+    "other": "Condition"
+  },
+  "contextMetaSingleQuery.FieldName": {
+    "other": "Field Name"
+  },
+  "roleSingleQuery.HasAutoApply": {
+    "other": "Has AutoApply"
+  },
+  "roleSingleQuery.IsGroupRole": {
+    "other": "Is Group Role"
+  },
+  "roleSingleQuery.IsTeam": {
+    "other": "Is Team"
+  },
+  "roleSingleQuery.IsUserRole": {
+    "other": "Is User Role"
+  },
+  "roleSingleQuery.Label": {
+    "other": "Etichetta Workspace"
+  },
+  "roleSingleQuery.Not": {
+    "other": "Not"
+  },
+  "roleSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "roleSingleQuery.not": {
+    "other": "not"
+  },
+  "treeQuery.Content": {
+    "other": "Contenuti"
+  },
+  "treeQuery.DurationDate": {
+    "other": "Modification date (use comparison)"
+  },
+  "treeQuery.Extension": {
+    "other": "File Extension"
+  },
+  "treeQuery.FileName": {
+    "other": "File name"
+  },
+  "treeQuery.FreeString": {
+    "other": "Bleve-like search string"
+  },
+  "treeQuery.GeoQuery": {
+    "other": "Geolocation Query"
+  },
+  "treeQuery.MaxDate": {
+    "other": "Modified before"
+  },
+  "treeQuery.MaxSize": {
+    "other": "MaxSize"
+  },
+  "treeQuery.MinDate": {
+    "other": "Modified since"
+  },
+  "treeQuery.MinSize": {
+    "other": "Size greater than"
+  },
+  "treeQuery.Not": {
+    "other": "Not"
+  },
+  "treeQuery.PathDepth": {
+    "other": "Path Depth"
+  },
+  "treeQuery.PathPrefix": {
+    "other": "Path Prefix"
+  },
+  "treeQuery.Paths": {
+    "other": "Absolute Paths"
+  },
+  "treeQuery.Type": {
+    "other": "Tipo"
+  },
+  "treeQuery.Type.COLLECTION": {
+    "other": "Cartella"
+  },
+  "treeQuery.Type.LEAF": {
+    "other": "File"
+  },
+  "treeQuery.Type.UNKNOWN": {
+    "other": "Any"
+  },
+  "treeQuery.UUIDs": {
+    "other": "Node UUIDs"
+  },
+  "userSingleQuery.AttributeAnyValue": {
+    "other": "Has any value"
+  },
+  "userSingleQuery.AttributeName": {
+    "other": "Attribute Name"
+  },
+  "userSingleQuery.AttributeValue": {
+    "other": "Attribute Value"
+  },
+  "userSingleQuery.ConnectedSince": {
+    "other": "Connected Since"
+  },
+  "userSingleQuery.FullPath": {
+    "other": "Full Path"
+  },
+  "userSingleQuery.GroupPath": {
+    "other": "Percorso del Gruppo"
+  },
+  "userSingleQuery.HasProfile": {
+    "other": "Has Profile"
+  },
+  "userSingleQuery.HasRole": {
+    "other": "Has Role"
+  },
+  "userSingleQuery.Login": {
+    "other": "Nome Utente"
+  },
+  "userSingleQuery.NodeType": {
+    "other": "Object Type"
+  },
+  "userSingleQuery.NodeType.GROUP": {
+    "other": "Gruppo"
+  },
+  "userSingleQuery.NodeType.UNKNOWN": {
+    "other": "Any"
+  },
+  "userSingleQuery.NodeType.USER": {
+    "other": "Utente"
+  },
+  "userSingleQuery.Not": {
+    "other": "Not"
+  },
+  "userSingleQuery.Password": {
+    "other": "Password"
+  },
+  "userSingleQuery.Recursive": {
+    "other": "Recursive"
+  },
+  "userSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "userSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.AttributeName": {
+    "other": "Attribute Name"
+  },
+  "workspaceSingleQuery.AttributeValue": {
+    "other": "Attribute Value"
+  },
+  "workspaceSingleQuery.Description": {
+    "other": "Descrizione"
+  },
+  "workspaceSingleQuery.HasAttribute": {
+    "other": "Has Attribute"
+  },
+  "workspaceSingleQuery.Label": {
+    "other": "Etichetta Workspace"
+  },
+  "workspaceSingleQuery.LastUpdated": {
+    "other": "Ultimo aggiornamento"
+  },
+  "workspaceSingleQuery.Not": {
+    "other": "Not"
+  },
+  "workspaceSingleQuery.Scope": {
+    "other": "Scopo"
+  },
+  "workspaceSingleQuery.Slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "workspaceSingleQuery.description": {
+    "other": "Descrizione"
+  },
+  "workspaceSingleQuery.label": {
+    "other": "Etichetta Workspace"
+  },
+  "workspaceSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.scope": {
+    "other": "Workspace Type"
+  },
+  "workspaceSingleQuery.scope.ADMIN": {
+    "other": "Workspace"
+  },
+  "workspaceSingleQuery.scope.ANY": {
+    "other": "Any"
+  },
+  "workspaceSingleQuery.scope.LINK": {
+    "other": "Public Link"
+  },
+  "workspaceSingleQuery.scope.ROOM": {
+    "other": "Cell"
+  },
+  "workspaceSingleQuery.slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.uuid": {
+    "other": "Uuid"
   }
 }

@@ -2250,7 +2250,7 @@
     "other": "Saving bookmark status"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Iekšā"
   },
   "mkfile.empty.template.label": {
     "other": "Tukšs fails"
@@ -2316,7 +2316,7 @@
     "other": "Select group"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Apstiprināt"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2328,13 +2328,13 @@
     "other": "Rows per page"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "no"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Atiestatīt"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"

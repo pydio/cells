@@ -398,6 +398,12 @@
   "ds.versioning": {
     "other": "Версии"
   },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
+  },
   "ds.versioning.description": {
     "other": "Описание"
   },
@@ -1427,6 +1433,12 @@
   "services.toggle.details": {
     "other": "Показать детали"
   },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
+  },
   "services.column.name": {
     "other": "Имя сервиса"
   },
@@ -1506,10 +1518,10 @@
     "other": "Datasource is synchronizing data from objects layer to index DB."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "Индексация"
   },
   "scheduler.title": {
-    "other": "Scheduler"
+    "other": "Планировщик"
   },
   "scheduler.legend": {
     "other": "Jobs running in background on a periodical basis or triggered by events"

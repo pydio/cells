@@ -30,7 +30,7 @@
     "other": "Avatar"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "选择配置插件"
   },
   "Configuration Store Instance": {
     "other": "Configuration Store Instance"
@@ -48,7 +48,7 @@
     "other": "Create external users"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "默认工作区"
   },
   "Default start repository": {
     "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
@@ -105,7 +105,7 @@
     "other": "Internal / External Users"
   },
   "Language": {
-    "other": "Language"
+    "other": "语言"
   },
   "Let user create repositories": {
     "other": "Let user create workspaces"
@@ -135,7 +135,7 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "组名"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"
@@ -144,7 +144,7 @@
     "other": "Remember guest preferences"
   },
   "Role Label": {
-    "other": "Role Label"
+    "other": "角色标签"
   },
   "Role/Group Listing": {
     "other": "Role/Group Listing"
