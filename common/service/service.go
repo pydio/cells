@@ -132,6 +132,10 @@ type Addressable interface {
 	Addresses() []net.Addr
 }
 
+type NonAddressable interface {
+	NoAddress() string
+}
+
 type Starter interface {
 	Start() error
 }

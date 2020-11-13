@@ -221,14 +221,14 @@ func (g *genericServer) Register() error {
 			if ip == "::" {
 				ip = "[::]"
 			}
-			addr, err := addr.Extract(ip)
+			ad, err := addr.Extract(ip)
 			if err != nil {
 				continue
 			}
 			// register service
 			node := &microregistry.Node{
 				Id:       config.Name + "-" + uuid.New().String(),
-				Address:  addr,
+				Address:  ad,
 				Port:     tcp.Port,
 				Metadata: config.Metadata,
 			}
@@ -258,7 +258,7 @@ func (g *genericServer) Register() error {
 			host = parts[0]
 		}
 
-		addr, err := addr.Extract(host)
+		ad, err := addr.Extract(host)
 		if err != nil {
 			return err
 		}
@@ -266,7 +266,7 @@ func (g *genericServer) Register() error {
 		// register service
 		node := &microregistry.Node{
 			Id:       config.Name + "-" + config.Id,
-			Address:  addr,
+			Address:  ad,
 			Port:     port,
 			Metadata: config.Metadata,
 		}
@@ -275,6 +275,10 @@ func (g *genericServer) Register() error {
 		node.Metadata["registry"] = config.Registry.String()
 		node.Metadata["server"] = g.String()
 		node.Metadata["transport"] = g.String()
+
+		if na, ok := g.srv.(NonAddressable); ok {
+			node.Metadata["non-addressable"] = na.NoAddress()
+		}
 
 		nodes = append(nodes, node)
 	}
