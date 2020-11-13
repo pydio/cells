@@ -41,7 +41,7 @@ func handleSignals() {
 				log.Info("Disconnecting broker")
 				// Disconnecting the broker so that we are not flooded with messages
 				broker.Disconnect()
-			case syscall.SIGUSR1:
+			case syscall.SIGUSR1, syscall.SIGUSR2:
 
 				if !profiling {
 
@@ -53,21 +53,23 @@ func handleSignals() {
 					}
 					targetDir := filepath.Join(config.ApplicationWorkingDir(config.ApplicationDirLogs), "profiles", startTags)
 					os.MkdirAll(targetDir, 0755)
-					tStamp := fmt.Sprintf("%d", time.Now().Unix())
+					tStamp := time.Now().Format("2006-01-02T15-04")
 
-					pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+					if sig == syscall.SIGUSR1 { // SIGUSR2 will NOT write to Stdout
+						pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+					}
 
-					if routinesFile, err := os.OpenFile(filepath.Join(targetDir, "goroutines-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+					if routinesFile, err := os.OpenFile(filepath.Join(targetDir, tStamp+"-goroutines"), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
 						pprof.Lookup("goroutine").WriteTo(routinesFile, 1)
 						routinesFile.Close()
 					}
 
-					if fheap, err := os.OpenFile(filepath.Join(targetDir, "heap-profile-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+					if fheap, err := os.OpenFile(filepath.Join(targetDir, tStamp+"-heap-profile"), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
 						pprof.WriteHeapProfile(fheap)
 						fheap.Close()
 					}
 
-					if fcpu, err := os.OpenFile(filepath.Join(targetDir, "cpu-profile-"+tStamp), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
+					if fcpu, err := os.OpenFile(filepath.Join(targetDir, tStamp+"-cpu-profile"), os.O_WRONLY|os.O_CREATE, 0755); err == nil {
 						pprof.StartCPUProfile(fcpu)
 						profile = fcpu
 						profiling = true
