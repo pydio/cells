@@ -17,7 +17,7 @@ type migrationConfig struct {
 	up     migrationConfigFunc
 }
 
-type migrationConfigFunc func(configx.Values) func(context.Context) error
+type migrationConfigFunc func(*configx.Values) func(context.Context) error
 type migrationFunc func(configx.Values) error
 
 var (
@@ -33,9 +33,9 @@ func add(target *version.Version, m migrationConfigFunc) {
 }
 
 func getMigration(f migrationFunc) migrationConfigFunc {
-	return func(c configx.Values) func(context.Context) error {
+	return func(c *configx.Values) func(context.Context) error {
 		return func(context.Context) error {
-			return f(c)
+			return f(*c)
 		}
 	}
 }
@@ -59,7 +59,7 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 	for _, m := range configMigrations {
 		mm = append(mm, &migrations.Migration{
 			TargetVersion: m.target,
-			Up:            m.up(config),
+			Up:            m.up(&config),
 		})
 	}
 
@@ -86,7 +86,7 @@ func UpdateKeys(config configx.Values, m map[string]string) error {
 		newVal := config.Val(newPath)
 		if oldVal.Get() != nil && newVal.Get() == nil {
 			fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
-			newVal.Set(oldVal)
+			newVal.Set(oldVal.Get())
 			oldVal.Del()
 		}
 	}

@@ -52,6 +52,6 @@ func TestMigration2_1_0(t *testing.T) {
 		PrettyPrint(conf.Map())
 		So(conf, ShouldNotBeNil)
 
-		So(conf.Val("services/pydio.api.websocket").Get(), ShouldBeNil)
+		So(conf.Val("services/pydio.api.websocket").Get(), ShouldNotBeNil)
 	})
 }

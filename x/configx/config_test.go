@@ -198,6 +198,47 @@ func TestReference(t *testing.T) {
 	})
 }
 
+func TestGetSet(t *testing.T) {
+	Convey("Testing get / set", t, func() {
+		var m config
+		err := json.Unmarshal(data, &m)
+		So(err, ShouldBeNil)
+
+		oldArray := m.Val("service/arrayMap")
+		newArray := m.Val("service/newarrayMap")
+		newArray.Set(oldArray.Get())
+		oldArray.Del()
+
+		So(oldArray.Get(), ShouldBeNil)
+		So(newArray.Get(), ShouldNotBeNil)
+	})
+}
+
+func TestGetSetWithFunc(t *testing.T) {
+	Convey("Testing get / set", t, func() {
+		var m config
+		err := json.Unmarshal(data, &m)
+		So(err, ShouldBeNil)
+
+		copy := func(c Values, old, new string) {
+			o := c.Val(old)
+			n := c.Val(new)
+			n.Set(o)
+			o.Del()
+		}
+
+		v := m.Val("service")
+		copy(v, "array", "newArray")
+		copy(v, "arrayMap", "newArrayMap")
+
+		So(m.Val("service/array").Get(), ShouldBeNil)
+		So(m.Val("service/arrayMap").Get(), ShouldBeNil)
+		So(m.Val("service/newArray").Get(), ShouldNotBeNil)
+		So(m.Val("service/newArrayMap").Get(), ShouldNotBeNil)
+	})
+
+}
+
 func TestString(t *testing.T) {
 	Convey("Testing reference", t, func() {
 		m := New(WithJSON())

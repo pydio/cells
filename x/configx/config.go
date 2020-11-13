@@ -204,6 +204,12 @@ func (v *config) Set(data interface{}) error {
 		}
 	}
 
+	switch d := data.(type) {
+	case *config:
+		data = d.v
+		break
+	}
+
 	if len(v.k) == 0 {
 		v.v = data
 		return nil
@@ -221,6 +227,8 @@ func (v *config) Set(data interface{}) error {
 		m[k] = data
 	}
 	p.Set(m)
+
+	v.v = data
 
 	return nil
 }
