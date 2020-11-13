@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -43,6 +44,7 @@ type RpcAction struct {
 	ServiceName string
 	MethodName  string
 	JsonRequest string
+	Timeout     string
 }
 
 func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -87,6 +89,15 @@ func (c *RpcAction) GetParametersForm() *forms.Form {
 					Mandatory:   false,
 					Editable:    true,
 				},
+				&forms.FormField{
+					Name:        "timeout",
+					Type:        forms.ParamString,
+					Label:       "Request Timeout",
+					Description: "Set a duration (10s, 10m, 1h...)",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
 			},
 		},
 	}}
@@ -110,6 +121,9 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 	} else {
 		c.JsonRequest = "{}"
 	}
+	if t, ok := action.Parameters["timeout"]; ok && t != "" {
+		c.Timeout = t
+	}
 	return nil
 }
 
@@ -124,7 +138,16 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	log.TasksLogger(ctx).Info("Sending json+grpc request to " + c.ServiceName + "." + c.MethodName)
 	req := c.Client.NewJsonRequest(jobs.EvaluateFieldStr(ctx, input, c.ServiceName), jobs.EvaluateFieldStr(ctx, input, c.MethodName), &jsonParams)
 	var response json.RawMessage
-	e := c.Client.Call(ctx, req, &response)
+	var opts []client.CallOption
+	if c.Timeout != "" {
+		timeout := jobs.EvaluateFieldStr(ctx, input, c.Timeout)
+		if dur, er := time.ParseDuration(timeout); er == nil {
+			opts = append(opts, client.WithRequestTimeout(dur))
+		} else {
+			log.TasksLogger(ctx).Error("Cannot parse duration " + timeout + ": " + er.Error())
+		}
+	}
+	e := c.Client.Call(ctx, req, &response, opts...)
 	if e != nil {
 		return input.WithError(e), e
 	}
