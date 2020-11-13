@@ -208,6 +208,8 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 			if e := ptypes.UnmarshalAny(q, singleQuery); e != nil {
 				continue
 			}
+			singleQuery.Content = EvaluateFieldStr(ctx, input, singleQuery.Content)
+			singleQuery.DurationDate = EvaluateFieldStr(ctx, input, singleQuery.DurationDate)
 			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
 			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
 			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
