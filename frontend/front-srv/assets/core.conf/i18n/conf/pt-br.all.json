@@ -105,7 +105,7 @@
     "other": "Internal / External Users"
   },
   "Language": {
-    "other": "Language"
+    "other": "Idioma"
   },
   "Let user create repositories": {
     "other": "Let user create workspaces"
@@ -135,7 +135,7 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"

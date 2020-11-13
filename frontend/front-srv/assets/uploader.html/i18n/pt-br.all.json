@@ -6,7 +6,7 @@
     "other": "Pause"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Limpar lista"
   },
   "clear-header": {
     "other": "Clear list..."
@@ -69,7 +69,7 @@
     "other": "Drop files here"
   },
   "drop-or": {
-    "other": "or"
+    "other": "ou"
   },
   "drop-pick-file": {
     "other": "browse files"

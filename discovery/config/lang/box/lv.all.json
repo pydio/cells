@@ -16,5 +16,341 @@
   },
   "Prune versions regularly at various intervals": {
     "other": "Regulāri tīrīt versijas noteiktos intervālos"
+  },
+  "aclAction.Name": {
+    "other": "Nosaukums"
+  },
+  "aclAction.Value": {
+    "other": "Vērtība"
+  },
+  "aclSingleQuery.Actions": {
+    "other": "Darbības"
+  },
+  "aclSingleQuery.NodeIDs": {
+    "other": "Node Identifiers"
+  },
+  "aclSingleQuery.Not": {
+    "other": "Not"
+  },
+  "aclSingleQuery.RoleIDs": {
+    "other": "Role Identifiers"
+  },
+  "aclSingleQuery.WorkspaceIDs": {
+    "other": "Workspace Identifiers"
+  },
+  "aclSingleQuery.not": {
+    "other": "not"
+  },
+  "actionOutputSingleQuery.ErrorStringRegexp": {
+    "other": "Search on error string (regexp)"
+  },
+  "actionOutputSingleQuery.IsSuccess": {
+    "other": "Is Success"
+  },
+  "actionOutputSingleQuery.JsonBodyHasKey": {
+    "other": "Json body has key..."
+  },
+  "actionOutputSingleQuery.JsonBodyRegexp": {
+    "other": "Search on Json body (regexp)"
+  },
+  "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
+    "other": "Size of Json body is greater than"
+  },
+  "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
+    "other": "Size of Json body is smaller than"
+  },
+  "actionOutputSingleQuery.Not": {
+    "other": "Not"
+  },
+  "actionOutputSingleQuery.StringBodyRegexp": {
+    "other": "Search on String body (regexp)"
+  },
+  "actionOutputSingleQuery.StringBodySizeGreaterThan": {
+    "other": "Size of string body is greater than"
+  },
+  "actionOutputSingleQuery.StringBodySizeSmallerThan": {
+    "other": "Size of string body is smaller than"
+  },
+  "actionOutputSingleQuery.TaskTimeGt": {
+    "other": "Task time greater than"
+  },
+  "actionOutputSingleQuery.TaskTimeLt": {
+    "other": "Task time lower than"
+  },
+  "conditionCIDRCondition.CIDR": {
+    "other": "CIDR"
+  },
+  "conditionCIDRCondition.cidr": {
+    "other": "cidr"
+  },
+  "conditionStringEqualCondition.Equals": {
+    "other": "Equals"
+  },
+  "conditionStringEqualCondition.equals": {
+    "other": "equals"
+  },
+  "conditionStringMatchCondition.Matches": {
+    "other": "Matches"
+  },
+  "conditionStringMatchCondition.matches": {
+    "other": "matches"
+  },
+  "contextMetaCondition.CIDRCondition": {
+    "other": "CIDRCondition"
+  },
+  "contextMetaCondition.EqualsSubjectCondition": {
+    "other": "Subject equals"
+  },
+  "contextMetaCondition.ResourceContainsCondition": {
+    "other": "Resource contains"
+  },
+  "contextMetaCondition.StringEqualCondition": {
+    "other": "String equals"
+  },
+  "contextMetaCondition.StringMatchCondition": {
+    "other": "String matches"
+  },
+  "contextMetaCondition.StringPairsEqualCondition": {
+    "other": "StringPairs equals"
+  },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "String does not match"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Date period"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Office Hours"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Date after"
+  },
+  "contextMetaField.ContentType": {
+    "other": "Content Type"
+  },
+  "contextMetaField.CookiesString": {
+    "other": "Cookies String"
+  },
+  "contextMetaField.HttpProtocol": {
+    "other": "HTTP Protocol"
+  },
+  "contextMetaField.RemoteAddress": {
+    "other": "Attālinātā adrese"
+  },
+  "contextMetaField.RequestHostname": {
+    "other": "Request Hostname"
+  },
+  "contextMetaField.RequestMethod": {
+    "other": "Request Method"
+  },
+  "contextMetaField.RequestURI": {
+    "other": "Request URI"
+  },
+  "contextMetaField.ServerTime": {
+    "other": "Server Time"
+  },
+  "contextMetaField.UserAgent": {
+    "other": "User Agent"
+  },
+  "contextMetaSingleQuery.Condition": {
+    "other": "Condition"
+  },
+  "contextMetaSingleQuery.FieldName": {
+    "other": "Field Name"
+  },
+  "roleSingleQuery.HasAutoApply": {
+    "other": "Has AutoApply"
+  },
+  "roleSingleQuery.IsGroupRole": {
+    "other": "Is Group Role"
+  },
+  "roleSingleQuery.IsTeam": {
+    "other": "Is Team"
+  },
+  "roleSingleQuery.IsUserRole": {
+    "other": "Is User Role"
+  },
+  "roleSingleQuery.Label": {
+    "other": "Nosaukums"
+  },
+  "roleSingleQuery.Not": {
+    "other": "Not"
+  },
+  "roleSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "roleSingleQuery.not": {
+    "other": "not"
+  },
+  "treeQuery.Content": {
+    "other": "Saturs"
+  },
+  "treeQuery.DurationDate": {
+    "other": "Modification date (use comparison)"
+  },
+  "treeQuery.Extension": {
+    "other": "File Extension"
+  },
+  "treeQuery.FileName": {
+    "other": "File name"
+  },
+  "treeQuery.FreeString": {
+    "other": "Bleve-like search string"
+  },
+  "treeQuery.GeoQuery": {
+    "other": "Geolocation Query"
+  },
+  "treeQuery.MaxDate": {
+    "other": "Modified before"
+  },
+  "treeQuery.MaxSize": {
+    "other": "MaxSize"
+  },
+  "treeQuery.MinDate": {
+    "other": "Modified since"
+  },
+  "treeQuery.MinSize": {
+    "other": "Size greater than"
+  },
+  "treeQuery.Not": {
+    "other": "Not"
+  },
+  "treeQuery.PathDepth": {
+    "other": "Path Depth"
+  },
+  "treeQuery.PathPrefix": {
+    "other": "Path Prefix"
+  },
+  "treeQuery.Paths": {
+    "other": "Absolute Paths"
+  },
+  "treeQuery.Type": {
+    "other": "Veids"
+  },
+  "treeQuery.Type.COLLECTION": {
+    "other": "Direktorija"
+  },
+  "treeQuery.Type.LEAF": {
+    "other": "Fails"
+  },
+  "treeQuery.Type.UNKNOWN": {
+    "other": "Any"
+  },
+  "treeQuery.UUIDs": {
+    "other": "Node UUIDs"
+  },
+  "userSingleQuery.AttributeAnyValue": {
+    "other": "Has any value"
+  },
+  "userSingleQuery.AttributeName": {
+    "other": "Attribute Name"
+  },
+  "userSingleQuery.AttributeValue": {
+    "other": "Attribute Value"
+  },
+  "userSingleQuery.ConnectedSince": {
+    "other": "Connected Since"
+  },
+  "userSingleQuery.FullPath": {
+    "other": "Full Path"
+  },
+  "userSingleQuery.GroupPath": {
+    "other": "Grupas ceļš"
+  },
+  "userSingleQuery.HasProfile": {
+    "other": "Has Profile"
+  },
+  "userSingleQuery.HasRole": {
+    "other": "Has Role"
+  },
+  "userSingleQuery.Login": {
+    "other": "Pieslēgties"
+  },
+  "userSingleQuery.NodeType": {
+    "other": "Object Type"
+  },
+  "userSingleQuery.NodeType.GROUP": {
+    "other": "Grupa"
+  },
+  "userSingleQuery.NodeType.UNKNOWN": {
+    "other": "Any"
+  },
+  "userSingleQuery.NodeType.USER": {
+    "other": "Lietotājs"
+  },
+  "userSingleQuery.Not": {
+    "other": "Not"
+  },
+  "userSingleQuery.Password": {
+    "other": "Parole"
+  },
+  "userSingleQuery.Recursive": {
+    "other": "Recursive"
+  },
+  "userSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "userSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.AttributeName": {
+    "other": "Attribute Name"
+  },
+  "workspaceSingleQuery.AttributeValue": {
+    "other": "Attribute Value"
+  },
+  "workspaceSingleQuery.Description": {
+    "other": "Apraksts"
+  },
+  "workspaceSingleQuery.HasAttribute": {
+    "other": "Has Attribute"
+  },
+  "workspaceSingleQuery.Label": {
+    "other": "Nosaukums"
+  },
+  "workspaceSingleQuery.LastUpdated": {
+    "other": "Pēdējo reizi atjaunots"
+  },
+  "workspaceSingleQuery.Not": {
+    "other": "Not"
+  },
+  "workspaceSingleQuery.Scope": {
+    "other": "Darbības lauks"
+  },
+  "workspaceSingleQuery.Slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.Uuid": {
+    "other": "Uuid"
+  },
+  "workspaceSingleQuery.description": {
+    "other": "Apraksts"
+  },
+  "workspaceSingleQuery.label": {
+    "other": "Nosaukums"
+  },
+  "workspaceSingleQuery.not": {
+    "other": "not"
+  },
+  "workspaceSingleQuery.scope": {
+    "other": "Workspace Type"
+  },
+  "workspaceSingleQuery.scope.ADMIN": {
+    "other": "Darbvirsma"
+  },
+  "workspaceSingleQuery.scope.ANY": {
+    "other": "Any"
+  },
+  "workspaceSingleQuery.scope.LINK": {
+    "other": "Public Link"
+  },
+  "workspaceSingleQuery.scope.ROOM": {
+    "other": "Šūna"
+  },
+  "workspaceSingleQuery.slug": {
+    "other": "Slug"
+  },
+  "workspaceSingleQuery.uuid": {
+    "other": "Uuid"
   }
 }

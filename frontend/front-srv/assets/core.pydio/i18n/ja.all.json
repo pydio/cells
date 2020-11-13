@@ -168,7 +168,7 @@
     "other": "Reload"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML ページ"
   },
   "150": {
     "other": "Display"
@@ -321,7 +321,7 @@
     "other": "List"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "サムネイル"
   },
   "194": {
     "other": "Change Password"
@@ -342,7 +342,7 @@
     "other": "Confirm"
   },
   "2": {
-    "other": "Size"
+    "other": "サイズ"
   },
   "20": {
     "other": "WAV file"
@@ -432,7 +432,7 @@
     "other": "Rename bookmark"
   },
   "226": {
-    "other": "Details"
+    "other": "詳細"
   },
   "227": {
     "other": "Switch to detailed table view"
@@ -675,7 +675,7 @@
     "other": "Workspaces"
   },
   "3": {
-    "other": "Type"
+    "other": "種別"
   },
   "30": {
     "other": "Write a name for the directory then click on &quot;Create&quot;"
@@ -1152,7 +1152,7 @@
     "other": "No"
   },
   "442": {
-    "other": "My Account"
+    "other": "マイアカウント"
   },
   "443": {
     "other": "Update your personal information"
@@ -1356,7 +1356,7 @@
     "other": "Folders only"
   },
   "503": {
-    "other": "Size"
+    "other": "サイズ"
   },
   "504": {
     "other": "1k,1M,1G"
@@ -1656,7 +1656,7 @@
     "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Address Book"
+    "other": "アドレス帳"
   },
   "593": {
     "other": "Shared Users"
@@ -1740,7 +1740,7 @@
     "other": "Mask"
   },
   "617": {
-    "other": "Enter"
+    "other": "続行"
   },
   "618": {
     "other": "Switch language..."

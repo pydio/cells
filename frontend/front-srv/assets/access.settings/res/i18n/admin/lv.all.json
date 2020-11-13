@@ -6,7 +6,7 @@
     "other": "Aktivitāte"
   },
   "loading": {
-    "other": "Loading..."
+    "other": "Ielādē..."
   },
   "ds.board.ds.legend": {
     "other": "Datu avoti ir konkrētas uzglabāšanas vietas kuras tiek veidotas Pydio direktoriju kokā. Tās var būtizvietotas uz atsevišķiem datu nesējiem pēc nepieciešamības."
@@ -33,10 +33,10 @@
     "other": "Create a new workspace at the root of datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Nosaukums"
   },
   "ds.board.wsfromds.defaultPrefix": {
-    "other": "DataSource %s"
+    "other": "Datu avots %s"
   },
   "ds.editor.delete.warning": {
     "other": "Vai vēlaties dzēst šo datu avotu? Tas ir neatgriezenisks process un Jūs varat zaudēt visus datus kas saistīti ar šiem avotiem!"
@@ -397,6 +397,12 @@
   },
   "ds.versioning": {
     "other": "Versiju veidošana"
+  },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
   },
   "ds.versioning.description": {
     "other": "Apraksts"
@@ -780,7 +786,7 @@
     "other": "Edit Labels"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Saglabāt"
   },
   "policies.policy.delete": {
     "other": "Delete policy"
@@ -1386,7 +1392,7 @@
     "other": "(personal workspaces only)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "Uzmanību!"
   },
   "ws.editor.sync.warning.validate": {
     "other": "I understand"
@@ -1426,6 +1432,12 @@
   },
   "services.toggle.details": {
     "other": "Vairāk informācijas"
+  },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
   },
   "services.column.name": {
     "other": "Servisa nosaukums"
@@ -1548,7 +1560,7 @@
     "other": "Palaist"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Dzēst"
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this job? This operation cannot be reverted!"

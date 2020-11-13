@@ -36,13 +36,13 @@
     "other": "Pārbaudīt"
   },
   "package.version": {
-    "other": "Version"
+    "other": "Versija"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Nosaukums"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Papildu informācija"
   },
   "package.changelog": {
     "other": "Show Changelog"

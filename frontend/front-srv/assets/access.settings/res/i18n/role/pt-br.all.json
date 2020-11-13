@@ -54,7 +54,7 @@
     "other": "Role updated successfully"
   },
   "21": {
-    "other": "User ID"
+    "other": "ID do usuário"
   },
   "22": {
     "other": "Special Profile"
@@ -63,10 +63,10 @@
     "other": "Default Workspace"
   },
   "24": {
-    "other": "User Roles"
+    "other": "Papéis de Usuário"
   },
   "25": {
-    "other": "Change Password"
+    "other": "Alterar senha"
   },
   "26": {
     "other": "Lock out user"
@@ -87,7 +87,7 @@
     "other": "Account Info"
   },
   "30": {
-    "other": "Confirm"
+    "other": "Confirmar"
   },
   "31": {
     "other": "Role ID"
@@ -126,7 +126,7 @@
     "other": "Enable"
   },
   "41": {
-    "other": "Remove"
+    "other": "Remover"
   },
   "42": {
     "other": "Role custom data"
@@ -147,10 +147,10 @@
     "other": "Search Roles"
   },
   "5": {
-    "other": "Actions"
+    "other": "Ações"
   },
   "6": {
-    "other": "Parameters"
+    "other": "Parametros"
   },
   "7": {
     "other": "Internal Data"

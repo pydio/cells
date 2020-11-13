@@ -12,7 +12,7 @@
     "other": "Authentication"
   },
   "Both": {
-    "other": "Both"
+    "other": "Ambos"
   },
   "Cache master users": {
     "other": "Cache master users"
@@ -132,7 +132,7 @@
     "other": "Will be shown to the user at login"
   },
   "Security": {
-    "other": "Security"
+    "other": "Segurança"
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
     "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."

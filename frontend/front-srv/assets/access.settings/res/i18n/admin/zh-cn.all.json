@@ -315,7 +315,7 @@
     "other": "Copy result to a file to save the key"
   },
   "ds.encryption.key.id": {
-    "other": "Identifier"
+    "other": "识别码"
   },
   "ds.encryption.key.import": {
     "other": "Import Key"
@@ -397,6 +397,12 @@
   },
   "ds.versioning": {
     "other": "创建版本中"
+  },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
   },
   "ds.versioning.description": {
     "other": "描述"
@@ -492,10 +498,10 @@
     "other": "Configs Backends"
   },
   "menu.13": {
-    "other": "Loggers"
+    "other": "日志"
   },
   "menu.14": {
-    "other": "Notifications"
+    "other": "通知"
   },
   "menu.15": {
     "other": "How users get notifications from various parts of the application."
@@ -513,7 +519,7 @@
     "other": "Available Plugins"
   },
   "menu.2": {
-    "other": "Server Logs"
+    "other": "服务器日志"
   },
   "menu.20": {
     "other": "User Features"
@@ -522,7 +528,7 @@
     "other": "End-user parameters"
   },
   "menu.22": {
-    "other": "Welcome Page"
+    "other": "欢迎页面"
   },
   "menu.23": {
     "other": "Landing page for user after login. Configure displayed elements and links."
@@ -540,7 +546,7 @@
     "other": "Options for all files and folders sharing"
   },
   "menu.7": {
-    "other": "Editors"
+    "other": "编辑"
   },
   "menu.8": {
     "other": "Enable/disable editors and manage their parameters"
@@ -594,10 +600,10 @@
     "other": "Indexable"
   },
   "metadata.label": {
-    "other": "Label"
+    "other": "标签"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "组名"
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
@@ -621,7 +627,7 @@
     "other": "Restrict edition to admins"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "类型"
   },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"
@@ -699,7 +705,7 @@
     "other": "Mailer Queue"
   },
   "perfs.more": {
-    "other": "More info"
+    "other": "更多信息"
   },
   "perfs.opcache.description": {
     "other": "Checks that a PHP Opcode cache is active"
@@ -744,28 +750,28 @@
     "other": "还原"
   },
   "plugins.list.column.enabled": {
-    "other": "Enabled"
+    "other": "已启用"
   },
   "plugins.list.column.label": {
-    "other": "Label"
+    "other": "标签"
   },
   "plugins.list.column.id": {
     "other": "Id"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "说明"
   },
   "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "创建"
   },
   "policies.policy.description": {
     "other": "Policy Description"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "策略名称"
   },
   "policies.policy.rules": {
     "other": "# Rules"
@@ -840,7 +846,7 @@
     "other": "Show resulting tree"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "批量操作"
   },
   "react.3": {
     "other": "Search Results for '%s'"
@@ -939,10 +945,10 @@
     "other": "Confirm password"
   },
   "user.24": {
-    "other": "Root Group"
+    "other": "根群组"
   },
   "user.25": {
-    "other": "Root Group Role"
+    "other": "根组角色"
   },
   "user.26": {
     "other": "%s Group Role"
@@ -951,10 +957,10 @@
     "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Groups"
+    "other": "群组"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "角色"
   },
   "user.5": {
     "other": "Groups & Users"
@@ -975,7 +981,7 @@
     "other": "Filter users list..."
   },
   "user.filter.internal": {
-    "other": "Internal users"
+    "other": "内部用户"
   },
   "user.filter.shared": {
     "other": "Shared users"
@@ -984,7 +990,7 @@
     "other": "Admins only"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "所有用户"
   },
   "user.filter.anon": {
     "other": "Show anonymous"
@@ -1029,10 +1035,10 @@
     "other": "+ Template Path"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "创建"
   },
   "virtual.label": {
-    "other": "Label"
+    "other": "标签"
   },
   "virtual.col.id": {
     "other": "Template ID"
@@ -1050,7 +1056,7 @@
     "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
   },
   "virtual.title": {
-    "other": "Template Paths"
+    "other": "模板路径"
   },
   "virtual.save": {
     "other": "Save template"
@@ -1107,7 +1113,7 @@
     "other": "Close DataSources"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "创建"
   },
   "ws.21": {
     "other": "Template General Options"
@@ -1116,7 +1122,7 @@
     "other": "Workspace General Options"
   },
   "ws.23": {
-    "other": "Delete workspace"
+    "other": "删除工作区"
   },
   "ws.24": {
     "other": "Children Workspaces"
@@ -1134,7 +1140,7 @@
     "other": "Summary"
   },
   "ws.29": {
-    "other": "Parameters"
+    "other": "参数"
   },
   "ws.3": {
     "other": "+ workspace"
@@ -1167,7 +1173,7 @@
     "other": "Shared Items in this workspace"
   },
   "ws.39": {
-    "other": "Owner"
+    "other": "所有者"
   },
   "ws.4": {
     "other": "+ datasource"
@@ -1239,10 +1245,10 @@
     "other": "Schedule every day at 4AM"
   },
   "ws.6": {
-    "other": "New Workspace"
+    "other": "新工作区"
   },
   "ws.60": {
-    "other": "Workspace Activity"
+    "other": "工作区活动"
   },
   "ws.61": {
     "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
@@ -1272,7 +1278,7 @@
     "other": "Template-based workspace"
   },
   "ws.7": {
-    "other": "New DataSource"
+    "other": "新建数据源"
   },
   "ws.70": {
     "other": "Driver-based workspace"
@@ -1299,7 +1305,7 @@
     "other": "Existing DataSource"
   },
   "ws.9": {
-    "other": "Datasource Nodes"
+    "other": "数据源节点"
   },
   "ws.board.empty": {
     "other": "No workspaces defined"
@@ -1386,7 +1392,7 @@
     "other": "(personal workspaces only)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "警告！"
   },
   "ws.editor.sync.warning.validate": {
     "other": "I understand"
@@ -1427,11 +1433,17 @@
   "services.toggle.details": {
     "other": "Show Details"
   },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
+  },
   "services.column.name": {
     "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "说明"
   },
   "services.column.version": {
     "other": "Version"
@@ -1461,7 +1473,7 @@
     "other": "Services handling data and metadata."
   },
   "services.tag.idm.title": {
-    "other": "Identity Management"
+    "other": "身份管理"
   },
   "services.tag.idm.description": {
     "other": "All services related to authentication and authorizations, roles, security policies, etc."
@@ -1533,22 +1545,22 @@
     "other": "No jobs launched by users"
   },
   "scheduler.job.label": {
-    "other": "Label"
+    "other": "标签"
   },
   "scheduler.job.endTime": {
     "other": "Last Execution"
   },
   "scheduler.job.status": {
-    "other": "Status"
+    "other": "状态"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "所有者"
   },
   "scheduler.job.trigger": {
     "other": "Trigger"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "删除"
   },
   "scheduler.job.delete.confirm": {
     "other": "您确定要删除此作业吗？此操作不能还原！"
@@ -1620,7 +1632,7 @@
     "other": "Stop Now"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "删除"
   },
   "scheduler.task.action.enable": {
     "other": "Enable Job"
@@ -1644,10 +1656,10 @@
     "other": "Duration"
   },
   "scheduler.task.status": {
-    "other": "Status"
+    "other": "状态"
   },
   "scheduler.task.message": {
-    "other": "Message"
+    "other": "信息"
   },
   "scheduler.tasks.running": {
     "other": "Running Tasks"

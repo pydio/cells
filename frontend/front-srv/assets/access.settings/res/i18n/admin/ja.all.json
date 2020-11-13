@@ -207,13 +207,13 @@
     "other": "Azure Secret Key"
   },
   "ds.editor.storage.azure.bucket": {
-    "other": "Bucket Name"
+    "other": "バケット名"
   },
   "ds.editor.storage.gcs.credentials": {
     "other": "Paste content of GCS JSON credentials file"
   },
   "ds.editor.storage.gcs.bucket": {
-    "other": "Bucket Name"
+    "other": "バケット名"
   },
   "ds.editor.storage.s3.api": {
     "other": "S3 APIキー"
@@ -345,7 +345,7 @@
     "other": "Owner"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "名前"
   },
   "ds.status": {
     "other": "Status"
@@ -398,11 +398,17 @@
   "ds.versioning": {
     "other": "Versioning"
   },
+  "ds.syncStatus": {
+    "other": "Last Sync"
+  },
+  "ds.emptyState": {
+    "other": "No datasources created yet"
+  },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "備考"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "名前"
   },
   "ds.versioning.periods": {
     "other": "Retention Strategy"
@@ -522,7 +528,7 @@
     "other": "End-user parameters"
   },
   "menu.22": {
-    "other": "Welcome Page"
+    "other": "ウェルカムページ"
   },
   "menu.23": {
     "other": "Landing page for user after login. Configure displayed elements and links."
@@ -597,7 +603,7 @@
     "other": "Label"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "名前"
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
@@ -621,7 +627,7 @@
     "other": "Restrict edition to admins"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "種別"
   },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"
@@ -753,7 +759,7 @@
     "other": "Id"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "備考"
   },
   "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
@@ -765,7 +771,7 @@
     "other": "Policy Description"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "ポリシー名"
   },
   "policies.policy.rules": {
     "other": "# Rules"
@@ -936,7 +942,7 @@
     "other": "User password"
   },
   "user.23": {
-    "other": "Confirm password"
+    "other": "パスワードの確認"
   },
   "user.24": {
     "other": "Root Group"
@@ -1386,7 +1392,7 @@
     "other": "(personal workspaces only)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "警告！"
   },
   "ws.editor.sync.warning.validate": {
     "other": "I understand"
@@ -1427,11 +1433,17 @@
   "services.toggle.details": {
     "other": "Show Details"
   },
+  "services.empty.loading": {
+    "other": "Loading services status"
+  },
+  "services.empty.noservice": {
+    "other": "No service"
+  },
   "services.column.name": {
     "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "備考"
   },
   "services.column.version": {
     "other": "Version"

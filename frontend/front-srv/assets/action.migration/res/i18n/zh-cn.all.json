@@ -6,10 +6,10 @@
     "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Next"
+    "other": "下一步"
   },
   "back": {
-    "other": "Back"
+    "other": "后退"
   },
   "step.categories.choose": {
     "other": "Choose features to import"
@@ -153,7 +153,7 @@
     "other": "All set! Let's start"
   },
   "step.shares.feature.links": {
-    "other": "Public Links"
+    "other": "公共链接"
   },
   "step.shares.feature.cells": {
     "other": "共享文件夹"
@@ -261,7 +261,7 @@
     "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."
   },
   "dash.feature.workspaces": {
-    "other": "Workspaces"
+    "other": "工作区"
   },
   "dash.feature.acls": {
     "other": "Workspaces ACLs"
@@ -300,7 +300,7 @@
     "other": "Cells"
   },
   "action.createws.head.status": {
-    "other": "Status"
+    "other": "状态"
   },
   "action.createws.notexists": {
     "other": "Create/Update"

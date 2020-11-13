@@ -27,31 +27,31 @@
     "other": "You can close this panel by using the info button in the display toolbar"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Arquivo"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Pasta"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Buscar"
   },
   "tour.infopanel.title": {
     "other": "Info Panel"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Voltar"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Fechar"
   },
   "tour.locale.last": {
     "other": "Finish"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Próximo"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Prosseguir"
   },
   "tour.openworkspace": {
     "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
@@ -75,7 +75,7 @@
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Prosseguir"
   },
   "tour.welcomemodal.start": {
     "other": "Start the tour"
