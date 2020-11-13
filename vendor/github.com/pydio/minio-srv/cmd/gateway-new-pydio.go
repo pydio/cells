@@ -55,7 +55,8 @@ func StartPydioGateway(ctx context.Context, gw Gateway, gatewayAddr string, acce
 		return
 	case <-ctx.Done():
 		log.Info("Received ctx.Done()")
-		stopProcess()
+		go stopProcess()
+		<-globalHTTPServerErrorCh
 		return
 	}
 
