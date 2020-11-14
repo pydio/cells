@@ -31,6 +31,8 @@ if [ "${1#-}" != "$1" ]; then
 	fi
 fi
 
-echo "Cells docker entrypoint, about to execute: [$@]"
+echo "######## Pydio Cells docker entrypoint"
+echo "### Cells version: $(cells version)"
+echo "### About to execute: [$@]"
 
 "$@"
