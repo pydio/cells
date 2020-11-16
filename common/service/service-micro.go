@@ -93,8 +93,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				// micro.RegisterTTL(10*time.Minute),
+				// micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)
