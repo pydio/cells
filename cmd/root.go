@@ -79,6 +79,8 @@ var (
 	IsFork       bool
 	EnvPrefixOld = "pydio"
 	EnvPrefixNew = "cells"
+
+	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 
 const startTagUnique = "unique"
@@ -134,22 +136,23 @@ You can customize the various storage locations with the following ENV variables
 		}
 
 		// These commands do not need to init the configuration
-		switch cmd.Name() {
-		case "version", "completion", "doc", "help", "bash", "zsh", os.Args[0]:
-			return
-		default:
-			// Initialise the default registry
-			handleRegistry()
-
-			// Initialise the default broker
-			handleBroker()
-
-			// Initialise the default transport
-			handleTransport()
-
-			// Making sure we capture the signals
-			handleSignals()
+		for _, skip := range infoCommands {
+			if cmd.Name() == skip {
+				return
+			}
 		}
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		// Making sure we capture the signals
+		handleSignals()
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -158,10 +161,23 @@ You can customize the various storage locations with the following ENV variables
 }
 
 func init() {
-	cobra.OnInitialize(
-		initLogLevel,
-		initConfig,
-	)
+	skipCoreInit := false
+	if len(os.Args) > 1 {
+		for _, skip := range infoCommands {
+			if os.Args[1] == skip {
+				skipCoreInit = true
+				break
+			}
+		}
+	} else if len(os.Args) == 1 {
+		skipCoreInit = true
+	}
+	if !skipCoreInit {
+		cobra.OnInitialize(
+			initLogLevel,
+			initConfig,
+		)
+	}
 	initEnvPrefixes()
 	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()
@@ -225,24 +241,6 @@ func Execute() {
 }
 
 func initConfig() {
-	// TODO - do something about that
-	// VersionsStore = filex.NewStore(PydioConfigDir)
-	// written, err := filex.WriteIfNotExists(filepath.Join(PydioConfigDir, PydioConfigFile), SampleConfig)
-	// if err != nil {
-	// 	fmt.Println("Error while trying to create default config file")
-	// 	os.Exit(1)
-	// }
-	// if written && VersionsStore != nil {
-	// 	var data interface{}
-	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
-	// 		VersionsStore.Put(&filex.Version{
-	// 			User: "cli",
-	// 			Date: time.Now(),
-	// 			Log:  "Initialize with sample config",
-	// 			Data: data,
-	// 		})
-	// 	}
-	// }
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
 
@@ -294,18 +292,6 @@ func initConfig() {
 			)
 	}
 
-	// if written && VersionsStore != nil {
-	// 	var data interface{}
-	// 	if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
-	// 		VersionsStore.Put(&filex.Version{
-	// 			User: "cli",
-	// 			Date: time.Now(),
-	// 			Log:  "Initialize with sample config",
-	// 			Data: data,
-	// 		})
-	// 	}
-	// }
-
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {
 		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
@@ -315,26 +301,6 @@ func initConfig() {
 	config.Register(defaultConfig)
 	config.RegisterVault(vaultConfig)
 
-	//if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
-	// 				e2 := Save(common.PydioSystemUsername, "Configs upgrades applied")
-	// 				if e2 != nil {
-	// 					fmt.Println("[Configs] Error while saving upgraded configs")
-	// 				} else {
-	// 					fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
-	// 				}
-	// 				// Reload fully from source to make sure it's in sync with JSON
-	// 				defaultConfig = &Config{config.NewConfig(
-	// 					config.WithSource(newLocalSource()),
-	// 					config.PollInterval(10*time.Second),
-	// 				)}
-	// 			} else if e != nil {
-	// case "etcd":
-	// 	config.Register(
-	// 		config.New(etcd.NewSource(clientv3.Config{
-	// 			Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
-	// 			DialTimeout: 5 * time.Second,
-	// 		})))
-	// }
 }
 
 func initLogLevel() {

@@ -224,11 +224,13 @@ export default React.createClass({
                 {name:'RunningPeers', label: m2('peers'), hideSmall: true, renderCell:(service)=>{
                     let peers = [];
                     if(service.Status === 'STARTED' && service.RunningPeers) {
-                        service.RunningPeers.map(p => {
-                            if(p.Port){
-                                peers.push(p.Address + ':' + p.Port);
+                        peers = service.RunningPeers.map(p => {
+                            if(p.Metadata && p.Metadata['non-addressable']){
+                                return p.Metadata['non-addressable'];
+                            } else if(p.Port) {
+                                return p.Address + ':' + p.Port;
                             } else {
-                                peers.push(p.Address);
+                                return p.Address;
                             }
                         });
                     } else {
