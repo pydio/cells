@@ -6,10 +6,10 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
-	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/registry/nats"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/micro/selector/cache"
 	"github.com/spf13/viper"
 )
 
