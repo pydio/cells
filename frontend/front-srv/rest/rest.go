@@ -104,7 +104,11 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		Lang:          lang,
 		Request:       req.Request,
 	}
-	registry := pool.RegistryForStatus(ctx, status)
+	registry, er := pool.RegistryForStatus(ctx, status)
+	if er != nil {
+		service.RestErrorDetect(req, rsp, er)
+		return
+	}
 	rsp.WriteAsXml(registry)
 }
 
@@ -122,7 +126,11 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 	if e := user.Load(req.Request.Context()); e == nil && user.Logged {
 		showVersion = true
 	}
-	bootConf := frontend.ComputeBootConf(pool, showVersion)
+	bootConf, e := frontend.ComputeBootConf(pool, showVersion)
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
 	rsp.WriteAsJson(bootConf)
 
 }

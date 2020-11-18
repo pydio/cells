@@ -52,8 +52,16 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Lang:          "en",
 		Request:       r,
 	}
-	registry := pool.RegistryForStatus(ctx, status)
-	bootConf := frontend.ComputeBootConf(pool)
+	registry, e := pool.RegistryForStatus(ctx, status)
+	if e != nil {
+		w.WriteHeader(500)
+		return
+	}
+	bootConf, e := frontend.ComputeBootConf(pool)
+	if e != nil {
+		w.WriteHeader(500)
+		return
+	}
 
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
