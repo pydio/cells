@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
+// WithMicroChildrenRunner option to define a micro server that runs children services
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
 	// TODO - should be a generic server
 	return WithMicro(func(m micro.Service) error {
@@ -84,7 +85,7 @@ func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
 	return c
 }
 
-// For Regexp based service
+// ChildrenRunner For Regexp based service
 type ChildrenRunner struct {
 	mutex             *sync.Mutex
 	services          map[string]*exec.Cmd
@@ -96,6 +97,7 @@ type ChildrenRunner struct {
 	initialCtx        context.Context
 }
 
+// OnDeleteConfig defines what's happening when the config related to the service is deleted
 func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) {
 	c.afterDeleteChan = make(chan string)
 	go func() {
@@ -204,6 +206,7 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 	return nil
 }
 
+// StopAll services
 func (c *ChildrenRunner) StopAll(ctx context.Context) {
 	for name, cmd := range c.services {
 		log.Logger(ctx).Debug("stopping sub-process " + c.childPrefix + name)

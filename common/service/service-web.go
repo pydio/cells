@@ -45,11 +45,12 @@ import (
 )
 
 var (
-	swaggerJsonStrings = []string{rest.SwaggerJson}
+	swaggerJSONStrings = []string{rest.SwaggerJson}
 )
 
-func RegisterSwaggerJson(json string) {
-	swaggerJsonStrings = append(swaggerJsonStrings, json)
+// RegisterSwaggerJSON receives a json string and adds it to the swagger definition
+func RegisterSwaggerJSON(json string) {
+	swaggerJSONStrings = append(swaggerJSONStrings, json)
 }
 
 func init() {
@@ -101,8 +102,8 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
@@ -178,10 +179,10 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				wrapped = wrap(wrapped)
 			}
 
-			if wrapped, e = NewConfigHttpHandlerWrapper(wrapped, name); e != nil {
+			if wrapped, e = NewConfigHTTPHandlerWrapper(wrapped, name); e != nil {
 				return e
 			}
-			wrapped = NewLogHttpHandlerWrapper(wrapped, name, servicecontext.GetServiceColor(ctx))
+			wrapped = NewLogHTTPHandlerWrapper(wrapped, name, servicecontext.GetServiceColor(ctx))
 
 			wrapped = cors.Default().Handler(wrapped)
 
@@ -204,7 +205,7 @@ func WithWebAuth() ServiceOption {
 
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
 			wrapped := servicecontext.NewMetricsHttpWrapper(handler)
-			wrapped = PolicyHttpWrapper(wrapped)
+			wrapped = PolicyHTTPWrapper(wrapped)
 			wrapped = JWTHttpWrapper(wrapped)
 			wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 			wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
@@ -214,6 +215,7 @@ func WithWebAuth() ServiceOption {
 	}
 }
 
+// WithWebSession option for a service
 func WithWebSession(excludes ...string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
@@ -222,6 +224,7 @@ func WithWebSession(excludes ...string) ServiceOption {
 	}
 }
 
+// WithWebHandler option for a service
 func WithWebHandler(h func(http.Handler) http.Handler) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.webHandlerWraps = append(o.webHandlerWraps, h)
@@ -265,10 +268,11 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 	return
 }
 
+// SwaggerSpec returns the swagger specification as a document
 func SwaggerSpec() *loads.Document {
 
 	var sp *loads.Document
-	for _, data := range swaggerJsonStrings {
+	for _, data := range swaggerJSONStrings {
 		// Reading swagger json
 		rawMessage := new(json.RawMessage)
 		json.Unmarshal([]byte(data), rawMessage)

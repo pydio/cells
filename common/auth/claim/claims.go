@@ -30,8 +30,10 @@ import (
 )
 
 const (
-	ContextKey = "pydio-claims"
+	ContextKey contextKey = "pydio-claims"
 )
+
+type contextKey string
 
 type Claims struct {
 	ClientApp   interface{} `json:"aud" mapstructure:"aud"`

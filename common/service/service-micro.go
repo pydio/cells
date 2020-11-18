@@ -45,18 +45,25 @@ var (
 	command = &Cmd{}
 )
 
+// Cmd definition to pass as default for a micro server
 type Cmd struct{}
 
+// App for default cmd
 func (c *Cmd) App() *cli.App {
 	return nil
 }
+
+// Init for default cmd
 func (c *Cmd) Init(opts ...cmd.Option) error {
 	return nil
 }
+
+// Options for default cmd
 func (c *Cmd) Options() cmd.Options {
 	return cmd.Options{}
 }
 
+// Micro service option
 func Micro(m micro.Service) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Micro = m
@@ -93,8 +100,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)

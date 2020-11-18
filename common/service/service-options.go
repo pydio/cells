@@ -41,10 +41,6 @@ type dependency struct {
 	Tag  []string
 }
 
-type Runnable interface {
-	Run() error
-}
-
 // ServiceOptions stores all options for a pydio service
 type ServiceOptions struct {
 	Name string
@@ -78,9 +74,8 @@ type ServiceOptions struct {
 
 	Registry registry.Registry
 
-	Regexp  *regexp.Regexp
-	Flags   pflag.FlagSet
-	Checker Checker
+	Regexp *regexp.Regexp
+	Flags  pflag.FlagSet
 
 	MinNumberOfNodes int
 
@@ -106,6 +101,7 @@ type ServiceOptions struct {
 	Watchers map[string][]func(Service, configx.Values)
 }
 
+// ServiceOption function to set ServiceOptions
 type ServiceOption func(*ServiceOptions)
 
 func newOptions(opts ...ServiceOption) ServiceOptions {
@@ -122,54 +118,63 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 	return opt
 }
 
+// Name option for a service
 func Name(n string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Name = n
 	}
 }
 
+// Version option for a service
 func Version(v string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = v
 	}
 }
 
+// Migrations option for a service
 func Migrations(migrations []*Migration) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Migrations = migrations
 	}
 }
 
+// Tag option for a service
 func Tag(t ...string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Tags = append(o.Tags, t...)
 	}
 }
 
+// Description option for a service
 func Description(d string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Description = d
 	}
 }
 
+// Source option for a service
 func Source(s string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Source = s
 	}
 }
 
+// Context option for a service
 func Context(c context.Context) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Context = c
 	}
 }
 
+// Cancel option for a service
 func Cancel(c context.CancelFunc) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Cancel = c
 	}
 }
 
+// Regexp option for a service
 func Regexp(r string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Name = r // We temporary save the regexp as name to ensure it's different from one service to another
@@ -177,54 +182,56 @@ func Regexp(r string) ServiceOption {
 	}
 }
 
+// Port option for a service
 func Port(p string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Port = p
 	}
 }
 
+// WithTLSConfig option for a service
 func WithTLSConfig(c *tls.Config) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.TLSConfig = c
 	}
 }
 
-func WithChecker(c Checker) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.Checker = c
-	}
-}
-
+// AutoStart option for a service
 func AutoStart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AutoStart = b
 	}
 }
 
+// Fork option for a service
 func Fork(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Fork = b
 	}
 }
 
+// Unique option for a service
 func Unique(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Unique = b
 	}
 }
 
+// Cluster option for a service
 func Cluster(c registry.Cluster) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Cluster = c
 	}
 }
 
+// Dependency option for a service
 func Dependency(n string, t []string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Dependencies = append(o.Dependencies, &dependency{n, t})
 	}
 }
 
+// RouterDependencies option for a service
 func RouterDependencies() ServiceOption {
 	return func(o *ServiceOptions) {
 		routerDependencies := []string{
@@ -239,6 +246,7 @@ func RouterDependencies() ServiceOption {
 	}
 }
 
+// PluginBoxes option for a service
 func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Dependencies = append(o.Dependencies, &dependency{common.ServiceWebNamespace_ + common.ServiceFrontStatics, []string{}})
@@ -246,49 +254,56 @@ func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	}
 }
 
-// Before and Afters
+// BeforeInit option for a service
 func BeforeInit(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.BeforeInit = append(o.BeforeInit, fn)
 	}
 }
 
+// AfterInit option for a service
 func AfterInit(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AfterInit = append(o.AfterInit, fn)
 	}
 }
 
+// BeforeStart option for a service
 func BeforeStart(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.BeforeStart = append(o.BeforeStart, fn)
 	}
 }
 
+// BeforeStop option for a service
 func BeforeStop(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.BeforeStop = append(o.BeforeStop, fn)
 	}
 }
 
+// AfterStart option for a service
 func AfterStart(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AfterStart = append(o.AfterStart, fn)
 	}
 }
 
+// AfterStop option for a service
 func AfterStop(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AfterStop = append(o.AfterStop, fn)
 	}
 }
 
+// AutoRestart option for a service
 func AutoRestart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AutoRestart = b
 	}
 }
 
+// Watch option for a service
 func Watch(fn func(Service, configx.Values)) ServiceOption {
 	return func(o *ServiceOptions) {
 		watchers, ok := o.Watchers[""]
@@ -299,6 +314,7 @@ func Watch(fn func(Service, configx.Values)) ServiceOption {
 	}
 }
 
+// WatchPath option for a service
 func WatchPath(path string, fn func(Service, configx.Values)) ServiceOption {
 	return func(o *ServiceOptions) {
 		watchers, ok := o.Watchers[path]
