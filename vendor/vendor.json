@@ -2585,6 +2585,12 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
+			"checksumSHA1": "40/VZqLjzYZalZEehqROuWAuzMU=",
+			"path": "github.com/json-iterator/go",
+			"revision": "53b9d06ba7ca7edaa0d08a1c5acb0ef75c91eed4",
+			"revisionTime": "2020-03-30T08:42:45Z"
+		},
+		{
 			"checksumSHA1": "cIiyvAduLLFvu+tg1Qr5Jw3jeWo=",
 			"path": "github.com/jtolds/gls",
 			"revision": "b4936e06046bbecbb94cae9c18127ebe510a2cb9",
