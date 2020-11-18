@@ -259,6 +259,7 @@ func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.Runnab
 			case op := <-progress:
 				channels.StatusMsg <- op.Description
 				log.Logger(ctx).Info("[Migration acls]", zap.Any("op", op.Description))
+				log.TasksLogger(ctx).Info(op.Description)
 				if op.Total > 0 {
 					channels.Progress <- float32(op.Cursor) / float32(op.Total)
 				}
