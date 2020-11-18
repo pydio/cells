@@ -1,10 +1,11 @@
 package models
 
 import (
-	"encoding/json"
 	"errors"
 	"reflect"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/imdario/mergo"
 	"github.com/pydio/cells/common/config/source"

@@ -22,7 +22,8 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"

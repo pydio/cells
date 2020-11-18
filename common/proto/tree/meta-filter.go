@@ -21,20 +21,21 @@
 package tree
 
 import (
-	"encoding/json"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
-	MetaFilterGrep = "grep"
+	MetaFilterGrep   = "grep"
 	MetaFilterNoGrep = "no-grep"
-	MetaFilterTime = "time"
-	MetaFilterSize = "size"
-	MetaFilterDepth = "depth"
+	MetaFilterTime   = "time"
+	MetaFilterSize   = "size"
+	MetaFilterDepth  = "depth"
 )
 
 var (
@@ -51,9 +52,9 @@ type cmp struct {
 type MetaFilter struct {
 	reqNode *Node
 
-	grep     *regexp.Regexp
+	grep         *regexp.Regexp
 	negativeGrep *regexp.Regexp
-	intComps []cmp
+	intComps     []cmp
 }
 
 func NewMetaFilter(node *Node) *MetaFilter {

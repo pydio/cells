@@ -22,9 +22,10 @@ package merger
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 

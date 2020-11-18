@@ -1,8 +1,9 @@
 package pydio8
 
 import (
-	"encoding/json"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"context"
 

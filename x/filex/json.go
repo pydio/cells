@@ -1,9 +1,10 @@
 package filex
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 // Save writes configs to json file

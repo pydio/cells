@@ -23,7 +23,8 @@ package lib
 
 import (
 	"context"
-	"encoding/json"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"

@@ -1,11 +1,12 @@
 package frontend
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"strconv"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/jinzhu/copier"
 

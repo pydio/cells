@@ -3,10 +3,11 @@ package grpc
 import (
 	"context"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"

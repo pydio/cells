@@ -2,8 +2,9 @@ package configx
 
 import (
 	"bytes"
-	"encoding/json"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"

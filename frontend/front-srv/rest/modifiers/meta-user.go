@@ -2,12 +2,13 @@ package modifiers
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/pydio/cells/common/service/proto"
+	json "github.com/pydio/cells/x/jsonx"
+
+	service "github.com/pydio/cells/common/service/proto"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/frontend"
 )

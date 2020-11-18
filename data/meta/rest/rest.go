@@ -22,12 +22,13 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
 	"math"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"

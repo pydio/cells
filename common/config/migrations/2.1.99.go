@@ -1,9 +1,10 @@
 package migrations
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/hashicorp/go-version"
 	"github.com/pydio/cells/common/caddy"

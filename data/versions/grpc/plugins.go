@@ -23,9 +23,10 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"path"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"

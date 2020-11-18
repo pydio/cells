@@ -108,6 +108,7 @@ func Embedded(orig, flat json.RawMessage) (*Document, error) {
 
 // Spec loads a new spec document
 func Spec(path string) (*Document, error) {
+
 	specURL, err := url.Parse(path)
 	if err != nil {
 		return nil, err

@@ -22,8 +22,9 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"

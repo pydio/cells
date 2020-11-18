@@ -22,9 +22,10 @@ package jobs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"regexp"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/ptypes/any"
 

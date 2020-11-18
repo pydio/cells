@@ -2,8 +2,9 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"

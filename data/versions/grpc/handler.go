@@ -22,10 +22,11 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"net/url"
 	"sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"

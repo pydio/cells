@@ -22,12 +22,13 @@ package images
 
 import (
 	"context"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"

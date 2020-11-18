@@ -53,7 +53,7 @@ func handleSignals() {
 					}
 					targetDir := filepath.Join(config.ApplicationWorkingDir(config.ApplicationDirLogs), "profiles", startTags)
 					os.MkdirAll(targetDir, 0755)
-					tStamp := time.Now().Format("2006-01-02T15-04")
+					tStamp := time.Now().Format("2006-01-02T15:04:05")
 
 					if sig == syscall.SIGUSR1 { // SIGUSR2 will NOT write to Stdout
 						pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)

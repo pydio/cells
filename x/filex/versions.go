@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"encoding/binary"
-	"encoding/json"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	bolt "github.com/etcd-io/bbolt"
 )

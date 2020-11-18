@@ -1,7 +1,7 @@
 package configx
 
 import (
-	"encoding/json"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type ref struct {

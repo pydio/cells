@@ -23,12 +23,13 @@ package memory
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"golang.org/x/text/unicode/norm"
 
@@ -63,7 +64,7 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "memdb://" + c.testPathURI,
+		URI:                   "memdb://" + c.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 		Ignores:               c.ignores,

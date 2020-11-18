@@ -22,12 +22,13 @@ package scheduler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/dchest/uniuri"
 	"github.com/gosimple/slug"
@@ -39,7 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/scheduler/actions"
 )
 

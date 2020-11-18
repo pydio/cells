@@ -22,13 +22,14 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"

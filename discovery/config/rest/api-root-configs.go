@@ -21,9 +21,10 @@
 package rest
 
 import (
-	"encoding/json"
 	"errors"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"

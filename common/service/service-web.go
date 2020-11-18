@@ -26,7 +26,10 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
+
+	// json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/loads"
@@ -34,6 +37,7 @@ import (
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 	"github.com/rs/cors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -45,16 +49,35 @@ import (
 )
 
 var (
-	swaggerJSONStrings = []string{rest.SwaggerJson}
+	swaggerSyncOnce    = &sync.Once{}
+	swaggerJSONStrings []string
+	swaggerDocuments   []*loads.Document
 )
+
+func InitSwaggerJSON() {
+	swaggerSyncOnce.Do(func() {
+		swaggerDocuments = swaggerDocuments[:0]
+		for _, data := range append([]string{rest.SwaggerJson}, swaggerJSONStrings...) {
+			// Reading swagger json
+			rawMessage := new(json.RawMessage)
+			json.Unmarshal([]byte(data), rawMessage)
+			j, err := loads.Analyzed(*rawMessage, "")
+			if err != nil {
+				log.Fatal("Failed to load swagger", zap.Error(err))
+			}
+
+			swaggerDocuments = append(swaggerDocuments, j)
+		}
+	})
+}
 
 // RegisterSwaggerJSON receives a json string and adds it to the swagger definition
 func RegisterSwaggerJSON(json string) {
+	swaggerSyncOnce = &sync.Once{}
 	swaggerJSONStrings = append(swaggerJSONStrings, json)
 }
 
 func init() {
-
 	// Instanciate restful framework
 	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
@@ -102,8 +125,8 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				// micro.RegisterTTL(10*time.Minute),
+				// micro.RegisterInterval(5*time.Minute),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
@@ -271,45 +294,40 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 // SwaggerSpec returns the swagger specification as a document
 func SwaggerSpec() *loads.Document {
 
+	InitSwaggerJSON()
+
 	var sp *loads.Document
-	for _, data := range swaggerJSONStrings {
-		// Reading swagger json
-		rawMessage := new(json.RawMessage)
-		json.Unmarshal([]byte(data), rawMessage)
-		if j, err := loads.Analyzed(*rawMessage, ""); err != nil {
-			continue
-		} else {
-			if sp == nil { // First pass
-				sp = j
-			} else { // other passes : merge all Paths
-				for p, i := range j.Spec().Paths.Paths {
-					if existing, ok := sp.Spec().Paths.Paths[p]; ok {
-						if i.Get != nil {
-							existing.Get = i.Get
-						}
-						if i.Put != nil {
-							existing.Put = i.Put
-						}
-						if i.Post != nil {
-							existing.Post = i.Post
-						}
-						if i.Options != nil {
-							existing.Options = i.Options
-						}
-						if i.Delete != nil {
-							existing.Delete = i.Delete
-						}
-						if i.Head != nil {
-							existing.Head = i.Head
-						}
-						sp.Spec().Paths.Paths[p] = existing
-					} else {
-						sp.Spec().Paths.Paths[p] = i
+	for _, j := range swaggerDocuments {
+		if sp == nil { // First pass
+			sp = j
+		} else { // other passes : merge all Paths
+			for p, i := range j.Spec().Paths.Paths {
+				if existing, ok := sp.Spec().Paths.Paths[p]; ok {
+					if i.Get != nil {
+						existing.Get = i.Get
 					}
+					if i.Put != nil {
+						existing.Put = i.Put
+					}
+					if i.Post != nil {
+						existing.Post = i.Post
+					}
+					if i.Options != nil {
+						existing.Options = i.Options
+					}
+					if i.Delete != nil {
+						existing.Delete = i.Delete
+					}
+					if i.Head != nil {
+						existing.Head = i.Head
+					}
+					sp.Spec().Paths.Paths[p] = existing
+				} else {
+					sp.Spec().Paths.Paths[p] = i
 				}
-				for name, schema := range j.Spec().Definitions {
-					sp.Spec().Definitions[name] = schema
-				}
+			}
+			for name, schema := range j.Spec().Definitions {
+				sp.Spec().Definitions[name] = schema
 			}
 		}
 	}

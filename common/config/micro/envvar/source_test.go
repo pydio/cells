@@ -21,9 +21,10 @@
 package envvar
 
 import (
-	"encoding/json"
 	"os"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/go-os/config"
 	. "github.com/smartystreets/goconvey/convey"

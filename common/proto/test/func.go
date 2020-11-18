@@ -1,6 +1,6 @@
 package test
 
-import "encoding/json"
+import json "github.com/pydio/cells/x/jsonx"
 
 // NewTestResult creates a new TestResult
 func NewTestResult(testName string) *TestResult {
