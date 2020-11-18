@@ -21,9 +21,10 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/proto/tree"
 )

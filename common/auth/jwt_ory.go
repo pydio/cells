@@ -22,9 +22,10 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"net/url"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"

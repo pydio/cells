@@ -13,6 +13,7 @@ type StatusHandler struct {
 	address string
 }
 
+// SetAddress for a service
 func (sh *StatusHandler) SetAddress(a string) {
 	sh.address = a
 }
@@ -25,15 +26,17 @@ func (sh *StatusHandler) Status(ctx context.Context, in *empty.Empty, out *proto
 	return nil
 }
 
-// StatusHandler provides functionality for stopping a service
+// StopHandler provides functionality for stopping a service
 type StopHandler struct {
 	s Service
 }
 
+// SetService handler
 func (s *StopHandler) SetService(srv Service) {
 	s.s = srv
 }
 
+// ProcessEvent handler
 func (s *StopHandler) ProcessEvent(ctx context.Context, in *proto.StopEvent) error {
 	if s.s.Name() == in.ServiceName {
 		s.s.Stop()

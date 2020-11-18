@@ -2,8 +2,9 @@ package actions
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/forms"
 

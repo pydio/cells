@@ -3,14 +3,15 @@ package views
 import (
 	"context"
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/idm/key"
-	"strings"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (

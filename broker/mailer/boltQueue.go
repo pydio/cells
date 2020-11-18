@@ -23,11 +23,12 @@ package mailer
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	bolt "github.com/etcd-io/bbolt"
 

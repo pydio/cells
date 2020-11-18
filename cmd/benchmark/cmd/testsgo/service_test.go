@@ -22,7 +22,6 @@ package tests
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -37,6 +36,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/utils/std"
 

@@ -3,12 +3,13 @@ package index
 import (
 	"compress/gzip"
 	"context"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"

@@ -22,10 +22,11 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"

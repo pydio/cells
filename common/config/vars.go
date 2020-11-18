@@ -22,12 +22,13 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/spf13/cobra"
 
@@ -73,7 +74,7 @@ func initVersionStore() {
 	}
 	if written && VersionsStore != nil {
 		var data interface{}
-		if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+		if e := json.Unmarshal([]byte(SampleConfig), &data); e == nil {
 			VersionsStore.Put(&filex.Version{
 				User: "cli",
 				Date: time.Now(),

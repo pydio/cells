@@ -1,10 +1,11 @@
 package modifiers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"

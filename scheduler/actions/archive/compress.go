@@ -22,11 +22,12 @@ package archive
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/forms"

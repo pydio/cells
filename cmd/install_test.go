@@ -21,11 +21,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"gopkg.in/yaml.v2"

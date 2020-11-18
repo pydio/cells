@@ -2,12 +2,13 @@ package frontend
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/jinzhu/copier"
 	"github.com/philopon/go-toposort"

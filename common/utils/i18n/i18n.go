@@ -23,9 +23,10 @@ package i18n
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 

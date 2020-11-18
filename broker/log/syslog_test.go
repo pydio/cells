@@ -21,12 +21,13 @@
 package log
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pborman/uuid"
 

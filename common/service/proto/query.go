@@ -21,13 +21,14 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
+
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/protobuf/jsonpb"
 	"github.com/micro/protobuf/proto"
 	"github.com/micro/protobuf/ptypes"
 	"github.com/mitchellh/mapstructure"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type ConcreteQuery struct {

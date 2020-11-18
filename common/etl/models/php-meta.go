@@ -1,8 +1,9 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 )

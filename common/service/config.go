@@ -67,8 +67,8 @@ func NewConfigHandlerWrapper(service micro.Service) server.HandlerWrapper {
 	}
 }
 
-// NewConfigHttpHandlerWrapper is the same as ConfigHandlerWrapper but for pure http
-func NewConfigHttpHandlerWrapper(h http.Handler, serviceName string) (http.Handler, error) {
+// NewConfigHTTPHandlerWrapper is the same as ConfigHandlerWrapper but for pure http
+func NewConfigHTTPHandlerWrapper(h http.Handler, serviceName string) (http.Handler, error) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c := r.Context()
 		c = servicecontext.WithConfig(c, config.Get("services", serviceName))

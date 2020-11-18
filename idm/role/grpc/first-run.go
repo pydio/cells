@@ -22,9 +22,10 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"

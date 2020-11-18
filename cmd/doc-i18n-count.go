@@ -21,13 +21,14 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/spf13/cobra"
 

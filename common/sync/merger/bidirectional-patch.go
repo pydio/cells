@@ -22,11 +22,12 @@ package merger
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/gobwas/glob"
 	"go.uber.org/zap"

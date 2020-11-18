@@ -2,7 +2,8 @@ package converter
 
 import (
 	"context"
-	"encoding/json"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/ory/ladon"

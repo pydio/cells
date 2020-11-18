@@ -25,6 +25,7 @@ import (
 	"time"
 )
 
+// Retry function
 func Retry(f func() error, seconds ...time.Duration) error {
 
 	if err := f(); err == nil {

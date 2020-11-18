@@ -3,12 +3,13 @@ package registry
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	stdlog "log"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"go.uber.org/zap"
 

@@ -22,11 +22,12 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 

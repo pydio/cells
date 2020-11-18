@@ -22,10 +22,11 @@ package websocket
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	context2 "github.com/pydio/cells/common/utils/context"
 

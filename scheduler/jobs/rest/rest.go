@@ -21,8 +21,9 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"

@@ -45,18 +45,25 @@ var (
 	command = &Cmd{}
 )
 
+// Cmd definition to pass as default for a micro server
 type Cmd struct{}
 
+// App for default cmd
 func (c *Cmd) App() *cli.App {
 	return nil
 }
+
+// Init for default cmd
 func (c *Cmd) Init(opts ...cmd.Option) error {
 	return nil
 }
+
+// Options for default cmd
 func (c *Cmd) Options() cmd.Options {
 	return cmd.Options{}
 }
 
+// Micro service option
 func Micro(m micro.Service) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Micro = m

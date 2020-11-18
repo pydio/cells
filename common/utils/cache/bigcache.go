@@ -22,9 +22,11 @@
 package cache
 
 import (
+	"errors"
 	"time"
 
 	"github.com/allegro/bigcache"
+	"github.com/dgraph-io/ristretto"
 	"github.com/uber-go/tally"
 
 	"github.com/pydio/cells/common/service/metrics"
@@ -33,24 +35,29 @@ import (
 // NewInstrumentedCache creates a BigCache instance with a regular report of statistics
 func NewInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *InstrumentedCache {
 	scope := metrics.GetMetricsForService(serviceName)
-	conf := DefaultBigCacheConfig()
-	if len(cacheConfig) > 0 {
-		conf = cacheConfig[0]
-	}
-	c, _ := bigcache.NewBigCache(conf)
+	// conf := DefaultBigCacheConfig()
+	// if len(cacheConfig) > 0 {
+	// 	conf = cacheConfig[0]
+	// }
+	c, _ := ristretto.NewCache(&ristretto.Config{
+		NumCounters: 1e7,     // number of keys to track frequency of (10M).
+		MaxCost:     1 << 30, // maximum cost of cache (1GB).
+		BufferItems: 64,      // number of keys per Get buffer.
+	})
 	i := &InstrumentedCache{}
-	i.BigCache = *c
+	i.Cache = *c
 	i.scope = scope
 	i.ticker = time.NewTicker(30 * time.Second)
 	go func() {
 		for range i.ticker.C {
-			s := c.Stats()
-			i.scope.Gauge("bigcache_capacity").Update(float64(i.Capacity()))
-			i.scope.Gauge("bigcache_hits").Update(float64(s.Hits))
-			i.scope.Gauge("bigcache_collisions").Update(float64(s.Collisions))
-			i.scope.Gauge("bigcache_delHits").Update(float64(s.DelHits))
-			i.scope.Gauge("bigcache_delMisses").Update(float64(s.DelMisses))
-			i.scope.Gauge("bigcache_misses").Update(float64(s.Misses))
+			m := c.Metrics
+			// s := c.Stats()
+			//i.scope.Gauge("bigcache_capacity").Update(float64(m..Capacity()))
+			i.scope.Gauge("bigcache_hits").Update(float64(m.Hits()))
+			// i.scope.Gauge("bigcache_collisions").Update(float64(s.Collisions))
+			// i.scope.Gauge("bigcache_delHits").Update(float64(s.DelHits))
+			// i.scope.Gauge("bigcache_delMisses").Update(float64(s.DelMisses))
+			i.scope.Gauge("bigcache_misses").Update(float64(m.Misses()))
 		}
 	}()
 	return i
@@ -58,7 +65,7 @@ func NewInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *I
 
 // InstrumentCache wraps BigCache with metrics
 type InstrumentedCache struct {
-	bigcache.BigCache
+	ristretto.Cache
 	scope  tally.Scope
 	ticker *time.Ticker
 }
@@ -69,19 +76,37 @@ func (i *InstrumentedCache) Close() {
 }
 
 // Set adds a key/value to the cache.
+func (i *InstrumentedCache) Get(key string) ([]byte, error) {
+	r, ok := i.Cache.Get(key)
+	if !ok {
+		return nil, errors.New("not found")
+	}
+
+	return r.([]byte), nil
+}
+
+// Set adds a key/value to the cache.
 func (i *InstrumentedCache) Set(key string, entry []byte) error {
 	i.scope.Counter("bigcache_add").Inc(int64(len(entry)))
-	return i.BigCache.Set(key, entry)
+
+	i.Cache.Set(key, entry, 1)
+
+	return nil
+}
+
+func (i *InstrumentedCache) Delete(key string) error {
+	i.Cache.Del(key)
+	return nil
 }
 
 //DefaultBigCacheConfig returns a bigcache default config with an
 // eviction time of 30minutes and a HadMaxCachesize of 20MB
-func DefaultBigCacheConfig() bigcache.Config {
-	c := bigcache.DefaultConfig(30 * time.Minute)
-	c.CleanWindow = 10 * time.Minute
-	c.Shards = 64
-	c.MaxEntriesInWindow = 10 * 60 * 64
-	c.MaxEntrySize = 200
-	c.HardMaxCacheSize = 8
-	return c
-}
+// func DefaultBigCacheConfig() bigcache.Config {
+// 	c := bigcache.DefaultConfig(30 * time.Minute)
+// 	c.CleanWindow = 10 * time.Minute
+// 	c.Shards = 64
+// 	c.MaxEntriesInWindow = 10 * 60 * 64
+// 	c.MaxEntrySize = 200
+// 	c.HardMaxCacheSize = 8
+// 	return c
+// }

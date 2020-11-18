@@ -35,12 +35,14 @@ import (
 )
 
 var (
-	HttpMetaJwtClientApp = "JwtClientApp"
-	HttpMetaJwtIssuer    = "JwtIssuer"
+	// HTTPMetaJwtClientApp constant
+	HTTPMetaJwtClientApp = "JwtClientApp"
+	// HTTPMetaJwtIssuer constant
+	HTTPMetaJwtIssuer = "JwtIssuer"
 )
 
-// PolicyHttpWrapper applies relevant policy rules and blocks the request if necessary
-func PolicyHttpWrapper(h http.Handler) http.Handler {
+// PolicyHTTPWrapper applies relevant policy rules and blocks the request if necessary
+func PolicyHTTPWrapper(h http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -53,8 +55,8 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 		if cValue := c.Value(claim.ContextKey); cValue != nil {
 			if claims, ok := cValue.(claim.Claims); ok {
 				log.Logger(c).Debug("Got Claims", zap.Any("claims", claims))
-				policyRequestContext[HttpMetaJwtClientApp] = claims.GetClientApp()
-				policyRequestContext[HttpMetaJwtIssuer] = claims.Issuer
+				policyRequestContext[HTTPMetaJwtClientApp] = claims.GetClientApp()
+				policyRequestContext[HTTPMetaJwtIssuer] = claims.Issuer
 				subjects = permissions.PolicyRequestSubjectsFromClaims(claims)
 			}
 		} else {

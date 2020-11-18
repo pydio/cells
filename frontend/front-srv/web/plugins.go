@@ -63,6 +63,7 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
+			service.Fork(true),
 			service.WithHTTP(func() http.Handler {
 				httpFs := frontend.GetPluginsFS()
 				fs := gzipped.FileServer(httpFs)

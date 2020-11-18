@@ -21,7 +21,7 @@
 package rest
 
 import (
-	"encoding/json"
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
 

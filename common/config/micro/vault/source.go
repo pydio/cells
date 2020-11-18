@@ -3,11 +3,12 @@ package vault
 import (
 	"crypto/md5"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"os"
 

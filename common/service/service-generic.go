@@ -46,6 +46,7 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
+// WithGeneric runs a micro server
 func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.MicroInit = func(s Service) error {
@@ -62,6 +63,8 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				server.Address(s.Address()),
 			)
 
+			//
+
 			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
@@ -70,6 +73,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.RegisterInterval(time.Second*10),
 				// micro.RegisterTTL(10*time.Minute),
 				// micro.RegisterInterval(5*time.Minute),
+				micro.Metadata(registry.BuildServiceMeta()),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -171,6 +175,7 @@ type genericServer struct {
 	registered bool
 }
 
+// NewGenericServer wraps a micro server out of a simple interface
 func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
 	opts := server.Options{
 		Codecs:   make(map[string]codec.NewCodec),

@@ -21,9 +21,10 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/ptypes"
 	ptypes_any "github.com/golang/protobuf/ptypes/any"

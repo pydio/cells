@@ -21,10 +21,11 @@
 package forms
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"log"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

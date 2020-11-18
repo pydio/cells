@@ -27,7 +27,6 @@ import (
 	"crypto/rsa"
 	"encoding/asn1"
 	"encoding/base64"
-	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
@@ -39,6 +38,8 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/hashicorp/go-version"

@@ -22,9 +22,10 @@ package views
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
 	context2 "github.com/pydio/cells/common/utils/context"

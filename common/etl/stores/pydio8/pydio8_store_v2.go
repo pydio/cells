@@ -2,11 +2,12 @@ package pydio8
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"

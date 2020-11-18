@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"encoding/json"
 	"io/ioutil"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

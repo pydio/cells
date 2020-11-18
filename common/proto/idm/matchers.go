@@ -1,12 +1,13 @@
 package idm
 
 import (
-	"encoding/json"
 	"fmt"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	service "github.com/pydio/cells/common/service/proto"
 )

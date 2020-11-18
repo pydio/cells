@@ -65,6 +65,7 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
+// Service definition
 type Service interface {
 	registry.Service
 
@@ -106,46 +107,43 @@ type service struct {
 	done chan (struct{})
 }
 
-// Checker is a function that checks if the service is correctly Running
-type Checker interface {
-	Check() error
-}
-
-type CheckerFunc func() error
-
-// Check implements the Chercker interface
-func (f CheckerFunc) Check() error {
-	return f()
-}
-
-type Runner interface {
+// Runnable service definition
+type Runnable interface {
 	Run() error
 }
 
-type RunnerFunc func() error
+// RunnableFunc provides ability to use a function as a run service
+type RunnableFunc func() error
 
-func (f RunnerFunc) Run() error {
+// Run function as a service
+func (f RunnableFunc) Run() error {
 	return f()
 }
 
+// Addressable service definition
 type Addressable interface {
 	Addresses() []net.Addr
 }
 
+// NonAddressable service definition
 type NonAddressable interface {
 	NoAddress() string
 }
 
+// Starter service definition
 type Starter interface {
 	Start() error
 }
 
+// Stopper service definiion
 type Stopper interface {
 	Stop() error
 }
 
+// StopperFunc allows to use a function as a stopper service
 type StopperFunc func() error
 
+// Stop service with recover
 func (f StopperFunc) Stop() error {
 	defer func() {
 		recover()
@@ -153,6 +151,7 @@ func (f StopperFunc) Stop() error {
 	return f()
 }
 
+// StopFunctionKey definition
 type StopFunctionKey struct{}
 
 // HandlerProvider returns a handler function from a micro service
@@ -506,13 +505,12 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	}
 	if r >= 4 {
 		log.Logger(ctx).Error("SubProcess finished: but reached max retries")
-		// cancel()
 		return
-	} else {
-		<-time.After(2 * time.Second)
-		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
-		s.ForkStart(ctx, r+1)
 	}
+
+	<-time.After(2 * time.Second)
+	log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
+	s.ForkStart(ctx, r+1)
 }
 
 // Start a service and its dependencies

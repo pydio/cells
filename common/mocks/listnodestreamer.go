@@ -24,8 +24,9 @@
 package mocks
 
 import (
-	"encoding/json"
 	"io"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/proto/tree"
 )

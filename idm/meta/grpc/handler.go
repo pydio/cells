@@ -22,9 +22,10 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
@@ -35,8 +36,8 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/idm/meta"
 )
@@ -256,23 +257,23 @@ func (h *Handler) clearCacheForNode(nodeId string) {
 	if h.searchCache == nil {
 		return
 	}
-	it := h.searchCache.Iterator()
-	var clears []string
-	for {
-		if !it.SetNext() {
-			break
-		}
-		info, e := it.Value()
-		if e != nil {
-			break
-		}
-		if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
-			clears = append(clears, info.Key())
-		}
-	}
-	for _, k := range clears {
-		//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
-		h.searchCache.Delete(k)
-	}
+	// it := h.searchCache.Iterator()
+	// var clears []string
+	// for {
+	// 	if !it.SetNext() {
+	// 		break
+	// 	}
+	// 	info, e := it.Value()
+	// 	if e != nil {
+	// 		break
+	// 	}
+	// 	if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
+	// 		clears = append(clears, info.Key())
+	// 	}
+	// }
+	// for _, k := range clears {
+	// 	//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
+	// 	h.searchCache.Delete(k)
+	// }
 
 }

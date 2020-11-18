@@ -21,10 +21,11 @@
 package namespace
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"

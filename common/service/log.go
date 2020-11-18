@@ -27,7 +27,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func newLogProvider(service micro.Service) error {
@@ -59,9 +59,8 @@ func NewLogHandlerWrapper(name string, color uint64) server.HandlerWrapper {
 	}
 }
 
-// Same but for http
-func NewLogHttpHandlerWrapper(h http.Handler, serviceName string, serviceColor uint64) http.Handler {
-
+// NewLogHTTPHandlerWrapper wraps a db connection to the HTTP Handler
+func NewLogHTTPHandlerWrapper(h http.Handler, serviceName string, serviceColor uint64) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()

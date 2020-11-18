@@ -22,11 +22,12 @@ package views
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"path"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"

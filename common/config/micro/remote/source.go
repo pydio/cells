@@ -24,17 +24,18 @@ package remote
 import (
 	"context"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
+	json "github.com/pydio/cells/x/jsonx"
+
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	proto "github.com/pydio/config-srv/proto/config"
 	"github.com/pydio/go-os/config"
 
-	"github.com/pydio/go-os/config/proto"
+	go_micro_os_config "github.com/pydio/go-os/config/proto"
 )
 
 type remotesource struct {
