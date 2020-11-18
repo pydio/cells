@@ -257,23 +257,23 @@ func (h *Handler) clearCacheForNode(nodeId string) {
 	if h.searchCache == nil {
 		return
 	}
-	// it := h.searchCache.Iterator()
-	// var clears []string
-	// for {
-	// 	if !it.SetNext() {
-	// 		break
-	// 	}
-	// 	info, e := it.Value()
-	// 	if e != nil {
-	// 		break
-	// 	}
-	// 	if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
-	// 		clears = append(clears, info.Key())
-	// 	}
-	// }
-	// for _, k := range clears {
-	// 	//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
-	// 	h.searchCache.Delete(k)
-	// }
+	it := h.searchCache.Iterator()
+	var clears []string
+	for {
+		if !it.SetNext() {
+			break
+		}
+		info, e := it.Value()
+		if e != nil {
+			break
+		}
+		if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
+			clears = append(clears, info.Key())
+		}
+	}
+	for _, k := range clears {
+		//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
+		h.searchCache.Delete(k)
+	}
 
 }
