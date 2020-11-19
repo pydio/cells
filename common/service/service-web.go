@@ -78,7 +78,6 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 
 		opts = append([]micro.Option{
 			micro.Name(o.Name),
-			micro.Metadata(registry.BuildServiceMeta()),
 		}, opts...)
 
 		o.Micro = micro.NewService(
@@ -119,6 +118,10 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 					log.Logger(ctx).Info("stopping")
 					return nil
 				}),
+			)
+
+			svc.Init(
+				micro.Metadata(registry.BuildServiceMeta()),
 			)
 
 			rootPath := "/" + strings.TrimPrefix(s.Options().Name, common.ServiceRestNamespace_)

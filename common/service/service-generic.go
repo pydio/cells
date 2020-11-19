@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/codec"
 	"github.com/micro/go-micro/server"
@@ -63,8 +62,6 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				server.Address(s.Address()),
 			)
 
-			//
-
 			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
@@ -73,7 +70,6 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.RegisterInterval(time.Second*10),
 				// micro.RegisterTTL(10*time.Minute),
 				// micro.RegisterInterval(5*time.Minute),
-				micro.Metadata(registry.BuildServiceMeta()),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -87,6 +83,11 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 					return nil
 				}),
+			)
+
+			// Make sure to add after
+			svc.Init(
+				micro.Metadata(registry.BuildServiceMeta()),
 			)
 
 			s.Init(
@@ -129,7 +130,6 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
-				micro.Metadata(registry.BuildServiceMeta()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
 				// micro.RegisterTTL(10*time.Minute),
@@ -148,6 +148,11 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 					return UpdateServiceVersion(s)
 				}),
 				micro.Server(srv),
+			)
+
+			// Make sure to add after
+			svc.Init(
+				micro.Metadata(registry.BuildServiceMeta()),
 			)
 
 			// newTracer(name, &options)
