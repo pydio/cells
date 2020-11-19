@@ -6,7 +6,7 @@ GITREV:=$(shell git rev-parse HEAD)
 CELLS_VERSION?="${DEV_VERSION}.${TIMESTAMP}"
 
 XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
-XGO_IMAGE?=pydio/xgo:latest
+XGO_IMAGE?=pydio/xgo:1.15.5
 
 .PHONY: all clean build main dev
 
@@ -31,7 +31,7 @@ main:
 	 .
 
 xgo:
-	${GOPATH}/bin/xgo -go 1.13 \
+	${GOPATH}/bin/xgo -go 1.15 \
 	 --image  ${XGO_IMAGE}\
 	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
