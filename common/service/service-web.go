@@ -49,27 +49,10 @@ import (
 )
 
 var (
-	swaggerSyncOnce    = &sync.Once{}
-	swaggerJSONStrings []string
-	swaggerDocuments   []*loads.Document
+	swaggerSyncOnce       = &sync.Once{}
+	swaggerJSONStrings    []string
+	swaggerMergedDocument *loads.Document
 )
-
-func InitSwaggerJSON() {
-	swaggerSyncOnce.Do(func() {
-		swaggerDocuments = swaggerDocuments[:0]
-		for _, data := range append([]string{rest.SwaggerJson}, swaggerJSONStrings...) {
-			// Reading swagger json
-			rawMessage := new(json.RawMessage)
-			json.Unmarshal([]byte(data), rawMessage)
-			j, err := loads.Analyzed(*rawMessage, "")
-			if err != nil {
-				log.Fatal("Failed to load swagger", zap.Error(err))
-			}
-
-			swaggerDocuments = append(swaggerDocuments, j)
-		}
-	})
-}
 
 // RegisterSwaggerJSON receives a json string and adds it to the swagger definition
 func RegisterSwaggerJSON(json string) {
@@ -293,47 +276,59 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 
 // SwaggerSpec returns the swagger specification as a document
 func SwaggerSpec() *loads.Document {
+	swaggerSyncOnce.Do(func() {
+		var swaggerDocuments []*loads.Document
+		for _, data := range append([]string{rest.SwaggerJson}, swaggerJSONStrings...) {
+			// Reading swagger json
+			rawMessage := new(json.RawMessage)
+			json.Unmarshal([]byte(data), rawMessage)
+			j, err := loads.Analyzed(*rawMessage, "")
+			if err != nil {
+				log.Fatal("Failed to load swagger", zap.Error(err))
+			}
 
-	InitSwaggerJSON()
+			swaggerDocuments = append(swaggerDocuments, j)
+		}
 
-	var sp *loads.Document
-	for _, j := range swaggerDocuments {
-		if sp == nil { // First pass
-			sp = j
-		} else { // other passes : merge all Paths
-			for p, i := range j.Spec().Paths.Paths {
-				if existing, ok := sp.Spec().Paths.Paths[p]; ok {
-					if i.Get != nil {
-						existing.Get = i.Get
+		for _, j := range swaggerDocuments {
+			if swaggerMergedDocument == nil { // First pass
+				swaggerMergedDocument = j
+			} else { // other passes : merge all Paths
+				for p, i := range j.Spec().Paths.Paths {
+					if existing, ok := swaggerMergedDocument.Spec().Paths.Paths[p]; ok {
+						if i.Get != nil {
+							existing.Get = i.Get
+						}
+						if i.Put != nil {
+							existing.Put = i.Put
+						}
+						if i.Post != nil {
+							existing.Post = i.Post
+						}
+						if i.Options != nil {
+							existing.Options = i.Options
+						}
+						if i.Delete != nil {
+							existing.Delete = i.Delete
+						}
+						if i.Head != nil {
+							existing.Head = i.Head
+						}
+						swaggerMergedDocument.Spec().Paths.Paths[p] = existing
+					} else {
+						swaggerMergedDocument.Spec().Paths.Paths[p] = i
 					}
-					if i.Put != nil {
-						existing.Put = i.Put
-					}
-					if i.Post != nil {
-						existing.Post = i.Post
-					}
-					if i.Options != nil {
-						existing.Options = i.Options
-					}
-					if i.Delete != nil {
-						existing.Delete = i.Delete
-					}
-					if i.Head != nil {
-						existing.Head = i.Head
-					}
-					sp.Spec().Paths.Paths[p] = existing
-				} else {
-					sp.Spec().Paths.Paths[p] = i
+				}
+				for name, schema := range j.Spec().Definitions {
+					swaggerMergedDocument.Spec().Definitions[name] = schema
 				}
 			}
-			for name, schema := range j.Spec().Definitions {
-				sp.Spec().Definitions[name] = schema
-			}
 		}
-	}
+	})
 
-	if sp == nil {
+	if swaggerMergedDocument == nil {
 		log.Logger(nil).Fatal("Could not find any valid json spec for swagger")
 	}
-	return sp
+
+	return swaggerMergedDocument
 }
