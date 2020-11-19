@@ -3,12 +3,13 @@ package index
 import (
 	"compress/gzip"
 	"context"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -121,7 +122,11 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
-	bootConf := frontend.ComputeBootConf(pool)
+	bootConf, er := frontend.ComputeBootConf(pool)
+	if er != nil {
+		tplConf.ErrorMessage = "Internal server error"
+		return 500, tplConf
+	}
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,

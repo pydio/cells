@@ -1,16 +1,12 @@
 package frontend
 
 import (
-	"context"
 	"crypto/md5"
 	"encoding/hex"
 
 	"github.com/pborman/uuid"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/utils/i18n"
 )
 
@@ -89,7 +85,7 @@ func VersionHash() string {
 // 	return intVal
 // }
 
-func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
+func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 	sessionTimeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
@@ -146,9 +142,9 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 	}
 
 	if e := ApplyBootConfModifiers(b); e != nil {
-		log.Logger(context.Background()).Error("Error while applying BootConf modifiers", zap.Error(e))
+		return nil, e
 	}
 
-	return b
+	return b, nil
 
 }

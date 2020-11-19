@@ -1,10 +1,11 @@
 package file
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/x/filex"
 	"github.com/pydio/go-os/config"

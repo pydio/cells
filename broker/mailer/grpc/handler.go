@@ -22,8 +22,9 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/matcornic/hermes"

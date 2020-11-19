@@ -24,10 +24,10 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/mwitkow/go-proto-validators"
+	validator "github.com/mwitkow/go-proto-validators"
 )
 
-// EntityReaderWriter can read and write values using an encoding such as JSON,XML.
+// ProtoEntityReaderWriter can read and write values using an encoding such as JSON,XML.
 type ProtoEntityReaderWriter struct {
 }
 

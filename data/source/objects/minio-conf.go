@@ -21,9 +21,10 @@
 package objects
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"

@@ -1,8 +1,9 @@
 package configx
 
 import (
-	"encoding/json"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

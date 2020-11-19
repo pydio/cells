@@ -3,8 +3,9 @@ package frontend
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"go.uber.org/zap"
 

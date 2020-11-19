@@ -23,11 +23,12 @@ package activity
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common/boltdb"

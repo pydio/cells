@@ -22,7 +22,8 @@ package share
 
 import (
 	"context"
-	"encoding/json"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/go-openapi/errors"
 

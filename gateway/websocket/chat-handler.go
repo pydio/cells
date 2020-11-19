@@ -22,10 +22,11 @@ package websocket
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"context"
 
@@ -36,7 +37,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/views"
 )

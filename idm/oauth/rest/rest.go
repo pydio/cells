@@ -21,9 +21,10 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"

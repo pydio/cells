@@ -22,10 +22,11 @@ package log
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 	"sync/atomic"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"

@@ -23,7 +23,6 @@ package images
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"image"
 	"io"
@@ -33,6 +32,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/disintegration/imaging"
 	"github.com/golang/protobuf/proto"

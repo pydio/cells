@@ -22,9 +22,10 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
@@ -35,8 +36,8 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/idm/meta"
 )

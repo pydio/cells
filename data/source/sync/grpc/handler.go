@@ -22,13 +22,14 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
 	sync2 "sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/sync/merger"
 

@@ -22,13 +22,14 @@ package cells
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	muerrors "github.com/micro/go-micro/errors"

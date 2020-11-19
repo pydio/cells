@@ -24,12 +24,13 @@ package wopi
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"

@@ -21,7 +21,7 @@
 package websocket
 
 import (
-	"encoding/json"
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/proto/chat"
 )

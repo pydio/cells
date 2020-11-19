@@ -1,9 +1,10 @@
 package migrations
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"

@@ -22,12 +22,13 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/handler/openid"

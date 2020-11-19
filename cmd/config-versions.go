@@ -21,11 +21,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"

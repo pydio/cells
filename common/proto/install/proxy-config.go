@@ -1,10 +1,11 @@
 package install
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/utils/net"
 )

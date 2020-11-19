@@ -21,12 +21,13 @@
 package tree
 
 import (
-	"encoding/json"
 	"fmt"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"

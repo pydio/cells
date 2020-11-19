@@ -2,8 +2,9 @@ package actions
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/forms"
 
@@ -209,10 +210,14 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 	} else {
 		progress <- etl.MergeOperation{Description: "Loading all roles for syncing ACLs"}
 		for i, apiRole := range apiRoles {
-			leftRolesAcls, _ := left.ListACLs(ctx, map[string]interface{}{
+			leftRolesAcls, err := left.ListACLs(ctx, map[string]interface{}{
 				"path":   apiRole.GetUuid(),
 				"roleID": apiRole.GetUuid(),
 			})
+			if err != nil {
+				progress <- etl.MergeOperation{Error: err}
+				continue
+			}
 			log.Logger(ctx).Info("Loaded ACLs for role "+apiRole.GetUuid(), zap.Any("acls", leftRolesAcls))
 			for _, acl := range leftRolesAcls {
 				if a, ok := wsMapping[acl.GetWorkspaceID()]; ok {
@@ -235,7 +240,7 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 
 	aclsDiff := new(models.ACLDiff)
 	merger.Diff(pydio8ACLs, acls, aclsDiff)
-	log.Logger(ctx).Info("After merge ACLs", zap.Any("add", aclsDiff.ToAdd()))
+	log.Logger(ctx).Info("After merge ACLs", zap.Any("add", len(aclsDiff.ToAdd())))
 	merger.Save(ctx, aclsDiff, progress)
 }
 
@@ -255,6 +260,8 @@ func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.Runnab
 			select {
 			case op := <-progress:
 				channels.StatusMsg <- op.Description
+				log.Logger(ctx).Info("[Migration acls]", zap.Any("op", op.Description))
+				log.TasksLogger(ctx).Info(op.Description)
 				if op.Total > 0 {
 					channels.Progress <- float32(op.Cursor) / float32(op.Total)
 				}

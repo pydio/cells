@@ -21,12 +21,13 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"sync"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/broker/nats"

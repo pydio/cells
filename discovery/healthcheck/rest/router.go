@@ -21,13 +21,14 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/gorilla/mux"
 	"github.com/pydio/cells/common/proto/ctl"

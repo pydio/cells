@@ -22,8 +22,9 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/metadata"
 

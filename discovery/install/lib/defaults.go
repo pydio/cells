@@ -21,8 +21,9 @@
 package lib
 
 import (
-	"encoding/json"
 	"fmt"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"

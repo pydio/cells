@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/codec"
 	"github.com/micro/go-micro/server"
@@ -46,6 +45,7 @@ import (
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
+// WithGeneric runs a micro server
 func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.MicroInit = func(s Service) error {
@@ -83,6 +83,11 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 					return nil
 				}),
+			)
+
+			// Make sure to add after
+			svc.Init(
+				micro.Metadata(registry.BuildServiceMeta()),
 			)
 
 			s.Init(
@@ -125,7 +130,6 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
-				micro.Metadata(registry.BuildServiceMeta()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),
 				// micro.RegisterTTL(10*time.Minute),
@@ -144,6 +148,11 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 					return UpdateServiceVersion(s)
 				}),
 				micro.Server(srv),
+			)
+
+			// Make sure to add after
+			svc.Init(
+				micro.Metadata(registry.BuildServiceMeta()),
 			)
 
 			// newTracer(name, &options)
@@ -171,6 +180,7 @@ type genericServer struct {
 	registered bool
 }
 
+// NewGenericServer wraps a micro server out of a simple interface
 func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
 	opts := server.Options{
 		Codecs:   make(map[string]codec.NewCodec),

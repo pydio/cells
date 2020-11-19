@@ -22,8 +22,9 @@ package views
 
 import (
 	"context"
-	"encoding/json"
 	"io"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -31,7 +32,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"

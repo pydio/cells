@@ -23,11 +23,12 @@ package envvar
 
 import (
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/imdario/mergo"
 	"github.com/pydio/go-os/config"

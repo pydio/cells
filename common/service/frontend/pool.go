@@ -2,12 +2,13 @@ package frontend
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/jinzhu/copier"
 	"github.com/philopon/go-toposort"
@@ -68,7 +69,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 
 }
 
-func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatus) *Cpydio_registry {
+func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatus) (*Cpydio_registry, error) {
 
 	plugins := p.pluginsForStatus(ctx, status)
 	registry := &Cpydio_registry{}
@@ -146,10 +147,10 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	}
 
 	if e := ApplyRegModifiers(ctx, status, registry); e != nil {
-		log.Logger(ctx).Error("Error while applying modifiers to registry!", zap.Error(e))
+		return nil, e
 	}
 
-	return registry
+	return registry, nil
 
 }
 

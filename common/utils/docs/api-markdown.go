@@ -2,7 +2,6 @@ package docs
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var tocTemplate = `

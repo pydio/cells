@@ -2,11 +2,12 @@ package actions
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/forms"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )

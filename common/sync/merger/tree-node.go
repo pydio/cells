@@ -23,12 +23,13 @@ package merger
 import (
 	"context"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"path"
 	"sort"
 	"strings"
 	"sync"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/gobwas/glob"
 	"go.uber.org/zap"

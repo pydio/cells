@@ -22,9 +22,10 @@ package docstore
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"strings"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/scorch"

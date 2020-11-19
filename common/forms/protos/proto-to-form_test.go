@@ -1,11 +1,12 @@
 package protos
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"os"
 	"sort"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/ory/ladon"
 

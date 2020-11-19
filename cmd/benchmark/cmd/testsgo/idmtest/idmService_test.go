@@ -22,7 +22,6 @@ package idmtest
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -35,6 +34,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/utils/std"
 
