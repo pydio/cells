@@ -36,6 +36,7 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/oauth"
+	"github.com/pydio/cells/x/configx"
 )
 
 func init() {
@@ -59,6 +60,9 @@ func init() {
 				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, &Handler{})
 
 				return nil
+			}),
+			service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
+				auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 			}),
 			service.BeforeStart(initialize),
 		)
