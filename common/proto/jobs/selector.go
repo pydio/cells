@@ -73,6 +73,9 @@ func EvaluateFieldStrSlice(ctx context.Context, input ActionMessage, values []st
 
 func EvaluateFieldBool(ctx context.Context, input ActionMessage, value string) (bool, error) {
 	strVal := EvaluateFieldStr(ctx, input, value)
+	if strVal == "" { // consider empty string is false
+		return false, nil
+	}
 	return strconv.ParseBool(strVal)
 }
 

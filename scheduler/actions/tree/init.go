@@ -39,8 +39,4 @@ func init() {
 		return &MetaAction{}
 	})
 
-	manager.Register(snapshotActionName, func() actions.ConcreteAction {
-		return &SnapshotAction{}
-	})
-
 }
