@@ -6,7 +6,7 @@ GITREV:=$(shell git rev-parse HEAD)
 CELLS_VERSION?="${DEV_VERSION}.${TIMESTAMP}"
 
 XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
-XGO_IMAGE?=pydio/xgo:1.15.5
+XGO_IMAGE?=pydio/xgo:latest
 
 .PHONY: all clean build main dev
 
