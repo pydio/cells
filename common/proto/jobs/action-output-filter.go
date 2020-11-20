@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strconv"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -54,9 +55,6 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (A
 	if n.Query == nil || len(n.Query.SubQueries) == 0 {
 		return output, true
 	}
-	if input.GetLastOutput() == nil {
-		return output, true
-	}
 
 	multi := &service.MultiMatcher{}
 	if er := multi.Parse(n.Query, func(o *any.Any) (service.Matcher, error) {
@@ -70,26 +68,6 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (A
 		return output, false
 	}
 	return output, multi.Matches(input.GetLastOutput())
-	/*
-		var results []bool
-
-		for _, q := range n.GetQuery().GetSubQueries() {
-
-			var outputQuery ActionOutputSingleQuery
-			err := ptypes.UnmarshalAny(q, &outputQuery)
-			if err == nil && input.GetLastOutput() != nil {
-				pass := match(n.cloneEval(ctx, input, &outputQuery), input.GetLastOutput())
-				if outputQuery.Not {
-					pass = !pass
-				}
-				results = append(results, pass)
-			}
-
-		}
-		// Copy and return
-		output := input
-		return output, service.ReduceQueryBooleans(results, n.Query.Operation)
-	*/
 }
 
 func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {
@@ -101,10 +79,23 @@ func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage,
 	res.JsonBodyRegexp = EvaluateFieldStr(ctx, input, res.JsonBodyRegexp)
 	res.ErrorStringRegexp = EvaluateFieldStr(ctx, input, res.ErrorStringRegexp)
 	res.JsonBodyHasKey = EvaluateFieldStr(ctx, input, res.JsonBodyHasKey)
+	res.FreeCondition = EvaluateFieldStr(ctx, input, res.FreeCondition)
 	return res
 }
 
 func match(query *ActionOutputSingleQuery, output *ActionOutput) bool {
+
+	if query.FreeCondition != "" {
+		if b, e := strconv.ParseBool(query.FreeCondition); e == nil {
+			return b
+		} else {
+			return false
+		}
+	}
+
+	if output == nil {
+		return true
+	}
 
 	if query.IsSuccess && !output.Success {
 		return false

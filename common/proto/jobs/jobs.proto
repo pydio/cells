@@ -480,6 +480,9 @@ message ActionOutputSingleQuery {
     // Check occurrence on error string
     string ErrorStringRegexp = 11;
 
+    // FreeCondition can be built using templates or gval
+    string FreeCondition = 13;
+
     // Invert condition
     bool Not = 12;
 }
