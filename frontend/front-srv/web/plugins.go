@@ -30,6 +30,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
@@ -38,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/common/proto/front"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
@@ -52,6 +54,17 @@ Disallow: /`
 func init() {
 
 	plugins.Register(func(ctx context.Context) {
+		service.NewService(
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceFrontStatics),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagFrontend),
+			service.Description("Grpc service for internal requests about frontend manifest"),
+			service.WithMicro(func(m micro.Service) error {
+				mH := &index.ManifestHandler{}
+				front.RegisterManifestServiceHandler(m.Server(), mH)
+				return nil
+			}),
+		)
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),

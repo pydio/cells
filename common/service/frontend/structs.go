@@ -563,7 +563,7 @@ type Cajxpcore struct {
 type Cadmin_data struct {
 	XMLName                 xml.Name                 `xml:"admin_data,omitempty" json:"admin_data,omitempty"`
 	Cajxpcore               *Cajxpcore               `xml:"ajxpcore,omitempty" json:"ajxpcore,omitempty"`
-	Cplugin_settings_values *Cplugin_settings_values `xml:"plugin_settings_values,omitempty" json:"ajxpcore,omitempty"`
+	Cplugin_settings_values *Cplugin_settings_values `xml:"plugin_settings_values,omitempty" json:"plugin_settings_values,omitempty"`
 }
 
 type Cplugin_settings_values struct {
