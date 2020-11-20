@@ -25,11 +25,13 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -37,13 +39,13 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/front"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils/permissions"
@@ -834,21 +836,38 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
+var cachedParams *cache.Cache
+
 func allowedAclKey(k string, contextEditable bool) bool {
-	pool, e := frontend.GetPluginsPool()
-	if e != nil {
-		log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
+	var params []*front.ExposedParameter
+	if cachedParams == nil {
+		cachedParams = cache.New(20*time.Second, 1*time.Minute)
 	}
+	if pp, ok := cachedParams.Get("params"); ok {
+		params = pp.([]*front.ExposedParameter)
+	} else {
+		mC := front.NewManifestServiceClient(registry.GetClient(common.ServiceFrontStatics))
+		resp, e := mC.ExposedParameters(context.Background(), &front.ExposedParametersRequest{
+			Scope:   "user",
+			Exposed: true,
+		})
+		if e != nil {
+			log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
+			return false
+		}
+		params = resp.Parameters
+		cachedParams.Set("params", resp.Parameters, cache.DefaultExpiration)
+	}
+
 	// Find params that contain user scope but not only that scope
-	params := pool.ExposedParametersByScope("user", true)
 	for _, param := range params {
-		if param.Attrscope == "user" {
+		if param.Scope == "user" {
 			continue
 		}
 		if !contextEditable && k != "parameter:core.conf:lang" && k != "parameter:core.conf:country" {
 			continue
 		}
-		if k == "parameter:"+param.PluginId+":"+param.Attrname {
+		if k == "parameter:"+param.PluginId+":"+param.Name {
 			return true
 		}
 	}
