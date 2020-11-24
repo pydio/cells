@@ -294,6 +294,9 @@ var SitesParameters = (function (_React$Component) {
                                 tls = "Certificate";
                             } else {
                                 tls = "No TLS";
+                                if (s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
+                                    tls = "No TLS behind Proxy";
+                                }
                             }
                             return _react2['default'].createElement(
                                 'tr',

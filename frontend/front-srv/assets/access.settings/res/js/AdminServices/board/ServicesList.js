@@ -203,8 +203,8 @@ export default React.createClass({
                 }},
                 {name:'Name', label: m2('name'), style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
                 {name:'Description', label: m2('description'), style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},
-                {name:'Version', label: m2('version'), style:{width: 80}, headerStyle:{width: 80}, hideSmall: true},
-                {name:'Type', label:m2('tag'), style:{width: 140}, headerStyle:{width: 140}, hideSmall: true, renderCell:(service)=>{
+                {name:'Version', label: m2('version'), style:{width: 110}, headerStyle:{width: 110}, hideSmall: true},
+                {name:'Type', label:m2('tag'), style:{width: 120}, headerStyle:{width: 120}, hideSmall: true, renderCell:(service)=>{
                         const isGrpc = service.Name.startsWith('pydio.grpc.');
                         let legend = isGrpc ? "Grpc" : "Rest";
                         const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
