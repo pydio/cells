@@ -1,6 +1,7 @@
 package frontend
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"net/url"
@@ -34,15 +35,21 @@ func loadKey() []byte {
 		return knownKey
 	}
 	val := config.Get("frontend", "session", "secureKey").String()
-	var key []byte
-	if val == "" {
-		knownKey = securecookie.GenerateRandomKey(64)
-		val = base64.StdEncoding.EncodeToString(key)
-		config.Get("frontend", "session", "secureKey").Set(val)
-		config.Save(common.PydioSystemUsername, "Generating session random key")
-	} else {
-		knownKey, _ = base64.StdEncoding.DecodeString(val)
+	if val != "" {
+		if kk, e := base64.StdEncoding.DecodeString(val); e == nil {
+			knownKey = kk
+			return knownKey
+		} else {
+			log.Logger(context.Background()).Error("Failed loading secure key from config, session may not be persisted after restart!", zap.Error(e))
+		}
 	}
+	knownKey = securecookie.GenerateRandomKey(64)
+	val = base64.StdEncoding.EncodeToString(knownKey)
+	config.Get("frontend", "session", "secureKey").Set(val)
+	if e := config.Save(common.PydioSystemUsername, "Generating session random key"); e != nil {
+		log.Logger(context.Background()).Error("Failed saving secure key to config, session will not be persisted after restart!", zap.Error(e))
+	}
+
 	return knownKey
 }
 
