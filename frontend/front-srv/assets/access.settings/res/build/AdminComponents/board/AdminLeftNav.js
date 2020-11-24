@@ -133,6 +133,7 @@ var AdminMenu = (function (_React$Component) {
                     autoWidth: false,
                     width: 256,
                     desktop: true,
+                    disableAutoFocus: true,
                     listStyle: (0, _stylesAdminStyles2['default'])(muiTheme.palette).menu.listStyle,
                     value: contextNode
                 },

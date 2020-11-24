@@ -46,7 +46,7 @@ class CodeEditorField extends React.Component {
     }
 
     render() {
-        const {value} = this.props;
+        const {value, editorOptions} = this.props;
 
         let options = {
             lineNumbers: true,
@@ -66,6 +66,9 @@ class CodeEditorField extends React.Component {
                 ...options,
                 mode: 'application/json'
             };
+        }
+        if(editorOptions){
+            options = {...options, ...editorOptions};
         }
 
         return (

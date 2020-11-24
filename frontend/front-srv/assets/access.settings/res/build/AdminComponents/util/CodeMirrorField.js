@@ -89,7 +89,9 @@ var CodeEditorField = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var value = this.props.value;
+            var _props = this.props;
+            var value = _props.value;
+            var editorOptions = _props.editorOptions;
 
             var options = {
                 lineNumbers: true,
@@ -107,6 +109,9 @@ var CodeEditorField = (function (_React$Component) {
                 options = _extends({}, options, {
                     mode: 'application/json'
                 });
+            }
+            if (editorOptions) {
+                options = _extends({}, options, editorOptions);
             }
 
             return _react2['default'].createElement(_reactCodemirror2['default'], {

@@ -173,10 +173,13 @@ var SitesParameters = (function (_React$Component) {
             });
             sites.forEach(function (s) {
                 var scheme = s.SelfSigned || s.LetsEncrypt || s.Certificate ? "https://" : "http://";
+                var re = new RegExp(':80$|:443$');
                 s.Binds.forEach(function (v) {
-                    urls[scheme + v] = scheme + v;
+                    var url = scheme + v;
+                    url = url.replace(re, '');
+                    urls[url] = url;
                     if (!defaultSite) {
-                        defaultSite = scheme + v;
+                        defaultSite = url;
                     }
                 });
                 if (s.ReverseProxyURL) {

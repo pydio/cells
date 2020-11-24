@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {AutoComplete, Divider, Subheader} from 'material-ui'
+import {AutoComplete, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
 const {ModernStyles} = Pydio.requireLib('hoc');
@@ -103,10 +103,13 @@ class SitesParameters extends React.Component {
         })
         sites.forEach(s => {
             const scheme = (s.SelfSigned||s.LetsEncrypt||s.Certificate) ? "https://" : "http://";
+            const re = new RegExp(':80$|:443$');
             s.Binds.forEach(v => {
-                urls[scheme + v] = scheme+v;
+                let url = scheme+v
+                url = url.replace(re, '')
+                urls[url] = url;
                 if(!defaultSite){
-                    defaultSite = scheme+v;
+                    defaultSite = url;
                 }
             })
             if (s.ReverseProxyURL){

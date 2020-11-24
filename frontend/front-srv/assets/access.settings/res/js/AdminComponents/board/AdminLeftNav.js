@@ -75,6 +75,7 @@ class AdminMenu extends React.Component{
                 autoWidth={false}
                 width={256}
                 desktop={true}
+                disableAutoFocus={true}
                 listStyle={AdminStyles(muiTheme.palette).menu.listStyle}
                 value={contextNode}
             >{menuItems}</Menu>
