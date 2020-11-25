@@ -117,8 +117,8 @@ exports['default'] = _react2['default'].createClass({
             { style: { display: 'flex', alignItems: 'center', width: '100%' } },
             _react2['default'].createElement(
                 'div',
-                { style: { width: 150, marginRight: 8 } },
-                _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: _extends({ width: 150 }, ModernStyles.toggleField.style) })
+                { style: { width: 170, marginRight: 8 } },
+                _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: _extends({ width: 170 }, ModernStyles.toggleField.style) })
             ),
             peers.length > 0 && _react2['default'].createElement(
                 'div',

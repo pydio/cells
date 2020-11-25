@@ -77,8 +77,8 @@ export default React.createClass({
 
         const buttonContainer = (
             <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                <div style={{width: 150, marginRight: 8}}>
-                    <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150, ...ModernStyles.toggleField.style}}/>
+                <div style={{width: 170, marginRight: 8}}>
+                    <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 170, ...ModernStyles.toggleField.style}}/>
                 </div>
                 {peers.length > 0 &&
                     <div style={{width: 150, height:14, marginRight: 8}}>
