@@ -25,6 +25,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -92,7 +93,7 @@ func init() {
 				})
 				router.Handle("/gui", indexHandler)
 				router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
-				router.Handle("/public/{link}", index.NewPublicHandler())
+				router.Handle(path.Join(config.GetPublicBaseUri(), "{link}"), index.NewPublicHandler())
 
 				routerWithTimeout := http.TimeoutHandler(
 					router,

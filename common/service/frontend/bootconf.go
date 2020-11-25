@@ -106,7 +106,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 		ENDPOINT_REST_API:            "/a",
 		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           "/ws/event",
-		PUBLIC_BASEURI:               "/public",
+		PUBLIC_BASEURI:               config.GetPublicBaseUri(),
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
 		UsersEditable:                true,

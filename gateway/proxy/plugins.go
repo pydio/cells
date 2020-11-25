@@ -122,13 +122,13 @@ var (
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /public/ {{$.FrontendService | urls}} {
+	proxy {{$.PublicBaseUri}}/ {{$.FrontendService | urls}} {
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /public/plug/ {{$.FrontendService | urls}} {
-		without /public
+	proxy {{$.PublicBaseUri}}/plug/ {{$.FrontendService | urls}} {
+		without {{$.PublicBaseUri}}
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -186,7 +186,7 @@ var (
 		{{range $.PluginPathes}}
 		if {path} not_starts_with "{{.}}"
 		{{end}}
-		if {path} not_starts_with "/public/"
+		if {path} not_starts_with "{{$.PublicBaseUri}}/"
 		if {path} not_starts_with "/user/reset-password"
 		if {path} not_starts_with "/robots.txt"
 		to {path} {path}/ /login
@@ -223,6 +223,8 @@ var (
 		GrpcService      string
 		// Custom webroot - Generally pointing to a non-existing folder
 		WebRoot string
+		// Public links base URI
+		PublicBaseUri string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
 		// Front service is pre-checked before template generation
@@ -401,6 +403,7 @@ func LoadCaddyConf() error {
 
 	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 	caddyconf.WebRoot = "/" + uuid.New()
+	caddyconf.PublicBaseUri = config.GetPublicBaseUri()
 
 	caddyconf.FrontReady = caddy.ServiceReady(caddyconf.FrontendService)
 	if !caddyconf.FrontReady {

@@ -22,6 +22,8 @@ package share
 
 import (
 	"context"
+	"net/url"
+	"path"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -161,7 +163,13 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 		}
 	}
 
-	shareLink.LinkUrl = config.Get("defaults", "url").String() + "/public/" + shareLink.LinkHash
+	shareLink.LinkUrl = path.Join(config.GetPublicBaseUri(), shareLink.LinkHash)
+	if configBase := config.Get("services", common.ServiceRestNamespace_+common.ServiceShare, "url").String(); configBase != "" {
+		if cfu, e := url.Parse(configBase); e == nil {
+			cfu.Path = path.Join(config.GetPublicBaseUri(), shareLink.LinkHash)
+			shareLink.LinkUrl = cfu.String()
+		}
+	}
 
 	return nil
 
