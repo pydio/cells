@@ -399,10 +399,10 @@
     "other": "Versioning"
   },
   "ds.syncStatus": {
-    "other": "Last Sync"
+    "other": "Dernière synchro."
   },
   "ds.emptyState": {
-    "other": "No datasources created yet"
+    "other": "Aucune datasource n'a encore été créée"
   },
   "ds.versioning.description": {
     "other": "Description"
@@ -763,6 +763,9 @@
   },
   "plugins.list.action.edit": {
     "other": "Editer les paramètres du plugin"
+  },
+  "plugins.documentation": {
+    "other": "Documentation"
   },
   "policies.policy.create": {
     "other": "Créer"
@@ -1434,10 +1437,10 @@
     "other": "Voir les détails"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Chargement du statut des services"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Aucun service"
   },
   "services.column.name": {
     "other": "Nom du Service"
@@ -1765,5 +1768,50 @@
   },
   "mailer.test.loading": {
     "other": "Chargement de la bibliothèque d'envoi de courriel..."
+  },
+  "sites.title": {
+    "other": "Sites et URLs"
+  },
+  "sites.mailer.url": {
+    "other": "URL externe utilisée pour les liens dans les e-mails"
+  },
+  "sites.links.url": {
+    "other": "Forcer l'URL des liens publics"
+  },
+  "sites.no-defaults": {
+    "other": "Pas de valeur par défaut"
+  },
+  "sites.enter-to-save": {
+    "other": "(appuyez sur Entrée pour sauvegarder)"
+  },
+  "sites.configs.title": {
+    "other": "Sites actuellement définis"
+  },
+  "sites.configs.command": {
+    "other": "Utilisez la commande './cells config sites' pour éditer les sites."
+  },
+  "sites.column.bind": {
+    "other": "Bind"
+  },
+  "sites.column.tls": {
+    "other": "TLS"
+  },
+  "sites.column.external": {
+    "other": "Reverse Proxy"
+  },
+  "sites.configs.tls.letsencrypt": {
+    "other": "Let's Encrypt"
+  },
+  "sites.configs.tls.self": {
+    "other": "Auto-signé"
+  },
+  "sites.configs.tls.certificate": {
+    "other": "Certificat"
+  },
+  "sites.configs.tls.notls": {
+    "other": "Pas de TLS"
+  },
+  "sites.configs.tls.notls-reverse": {
+    "other": "Pas de TLS derrière le proxy"
   }
 }
