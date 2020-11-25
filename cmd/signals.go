@@ -56,6 +56,7 @@ func handleSignals() {
 					tStamp := time.Now().Format("2006-01-02T15:04:05")
 
 					if sig == syscall.SIGUSR1 { // SIGUSR2 will NOT write to Stdout
+						fmt.Printf("[Received SIGUSR1] Starting profiling session for process %d\n", os.Getpid())
 						pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 					}
 
@@ -75,17 +76,19 @@ func handleSignals() {
 						profiling = true
 					}
 					// Close profiling session after 30s if user forgot to send a second call
-					go func() {
+					go func(print bool) {
 						<-time.After(20 * time.Second)
 						if profiling {
-							fmt.Println("Closing CPU Profiling session to avoid growing profile file!")
+							if print {
+								fmt.Printf("Profiling session dumped to %s for process %d\n", targetDir, os.Getpid())
+							}
 							pprof.StopCPUProfile()
 							if err := profile.Close(); err != nil {
 								log.Fatal("Cannot close cpu profile", zap.Error(err))
 							}
 							profiling = false
 						}
-					}()
+					}(sig == syscall.SIGUSR1)
 
 				} else {
 
