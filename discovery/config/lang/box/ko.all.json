@@ -77,6 +77,9 @@
   "actionOutputSingleQuery.TaskTimeLt": {
     "other": "Task time lower than"
   },
+  "actionOutputSingleQuery.FreeCondition": {
+    "other": "Free Condition"
+  },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
   },
@@ -336,7 +339,7 @@
     "other": "Workspace Type"
   },
   "workspaceSingleQuery.scope.ADMIN": {
-    "other": "작업 폴더"
+    "other": "작업 공간"
   },
   "workspaceSingleQuery.scope.ANY": {
     "other": "Any"
