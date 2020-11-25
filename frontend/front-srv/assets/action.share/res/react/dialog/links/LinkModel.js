@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Observable from 'pydio/lang/observable'
 import ShareHelper from '../main/ShareHelper'
@@ -69,7 +70,7 @@ class LinkModel extends Observable {
      * @return {String}
      */
     getPublicUrl(){
-        return ShareHelper.buildPublicUrl(pydio, this.link.LinkHash);
+        return ShareHelper.buildPublicUrl(Pydio.getInstance(), this.link);
     }
 
     /**

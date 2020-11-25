@@ -74,7 +74,7 @@ let PublicLinkField = React.createClass({
         if(this.refs['copy-button']){
             this._clip = new Clipboard(this.refs['copy-button'], {
                 text: function(trigger) {
-                    return ShareHelper.buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+                    return ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
                 }.bind(this)
             });
             this._clip.on('success', function(){
@@ -120,7 +120,7 @@ let PublicLinkField = React.createClass({
 
     render: function(){
         const {linkModel, pydio} = this.props;
-        const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+        const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
         const auth = ShareHelper.getAuthorizations(pydio);
         const editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
         if(this.state.editLink && editAllowed){

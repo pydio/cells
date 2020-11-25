@@ -125,7 +125,7 @@ var PublicLinkField = _react2['default'].createClass({
         if (this.refs['copy-button']) {
             this._clip = new _clipboard2['default'](this.refs['copy-button'], {
                 text: (function (trigger) {
-                    return _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+                    return _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink());
                 }).bind(this)
             });
             this._clip.on('success', (function () {
@@ -176,7 +176,7 @@ var PublicLinkField = _react2['default'].createClass({
         var linkModel = _props3.linkModel;
         var pydio = _props3.pydio;
 
-        var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+        var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink());
         var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
         var editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
         if (this.state.editLink && editAllowed) {

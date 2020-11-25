@@ -77,12 +77,10 @@ class SitesParameters extends React.Component {
         const {pydio} = this.props;
         const loader = Loader.getInstance(pydio);
         if(type === 'mailer'){
-            console.log('Saving mailer', mailerConfig);
             loader.saveServiceConfigs("pydio.grpc.mailer", mailerConfig).then(() => {
                 this.setState({mailDirty: false});
             })
         } else {
-            console.log('Saving share', shareConfig);
             loader.saveServiceConfigs("pydio.rest.share", shareConfig).then(() => {
                 this.setState({shareDirty: false});
             });

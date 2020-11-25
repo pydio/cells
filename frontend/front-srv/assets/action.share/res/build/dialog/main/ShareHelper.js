@@ -82,15 +82,18 @@ var ShareHelper = (function () {
         }
     }, {
         key: 'buildPublicUrl',
-        value: function buildPublicUrl(pydio, linkHash) {
+        value: function buildPublicUrl(pydio, link) {
             var shortForm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
             var params = pydio.Parameters;
             if (shortForm) {
-                return '...' + params.get('PUBLIC_BASEURI') + '/' + linkHash;
+                return '...' + params.get('PUBLIC_BASEURI') + '/' + link.LinkHash;
             } else {
+                if (link.LinkUrl && link.LinkUrl.match(new RegExp('^http:\/\/|^https:\/\/'))) {
+                    return link.LinkUrl;
+                }
                 var url = pydio.getFrontendUrl();
-                return url.protocol + '//' + url.host + params.get('PUBLIC_BASEURI') + '/' + linkHash;
+                return url.protocol + '//' + url.host + params.get('PUBLIC_BASEURI') + '/' + link.LinkHash;
             }
         }
 

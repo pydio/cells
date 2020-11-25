@@ -63,7 +63,7 @@ class CompositeCard extends React.Component {
         if(this.refs['copy-button']){
             this._clip = new Clipboard(this.refs['copy-button'], {
                 text: function(trigger) {
-                    return ShareHelper.buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+                    return ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
                 }.bind(this)
             });
             this._clip.on('success', function(){
@@ -257,7 +257,7 @@ class CompositeCard extends React.Component {
                         <GenericLine iconClassName={"mdi mdi-alert-outline"} legend={"Error"} data={err.Detail || err.Msg || err}/>
                     );
                 } else if(ln.getLink()){
-                    const publicLink = ShareHelper.buildPublicUrl(pydio, ln.getLink().LinkHash, mode === 'infoPanel');
+                    const publicLink = ShareHelper.buildPublicUrl(pydio, ln.getLink(), mode === 'infoPanel');
                     lines.push(
                         <GenericLine iconClassName="mdi mdi-link" legend={m(121)} style={{overflow:'visible'}} dataStyle={{overflow:'visible'}} data={
                             <div

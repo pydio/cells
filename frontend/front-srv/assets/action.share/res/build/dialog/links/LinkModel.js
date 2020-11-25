@@ -34,6 +34,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -104,7 +108,7 @@ var LinkModel = (function (_Observable) {
     }, {
         key: 'getPublicUrl',
         value: function getPublicUrl() {
-            return _mainShareHelper2['default'].buildPublicUrl(pydio, this.link.LinkHash);
+            return _mainShareHelper2['default'].buildPublicUrl(_pydio2['default'].getInstance(), this.link);
         }
 
         /**
@@ -264,7 +268,7 @@ var LinkModel = (function (_Observable) {
                 _this4.notify('save');
             })['catch'](function (err) {
                 var msg = err.Detail || err.message || err;
-                Pydio.getInstance().UI.displayMessage('ERROR', msg);
+                _pydio2['default'].getInstance().UI.displayMessage('ERROR', msg);
             });
         }
 

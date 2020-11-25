@@ -51,13 +51,16 @@ class ShareHelper {
         return authorizations;
     }
 
-    static buildPublicUrl(pydio, linkHash, shortForm = false){
+    static buildPublicUrl(pydio, link, shortForm = false){
         const params = pydio.Parameters;
         if(shortForm) {
-            return '...' + params.get('PUBLIC_BASEURI') + '/' + linkHash;
+            return '...' + params.get('PUBLIC_BASEURI') + '/' + link.LinkHash;
         } else {
+            if (link.LinkUrl && link.LinkUrl.match(new RegExp('^http:\/\/|^https:\/\/'))) {
+                return link.LinkUrl;
+            }
             const url = pydio.getFrontendUrl();
-            return `${url.protocol}//${url.host}` + params.get('PUBLIC_BASEURI') + '/' + linkHash;
+            return `${url.protocol}//${url.host}` + params.get('PUBLIC_BASEURI') + '/' + link.LinkHash;
         }
     }
 

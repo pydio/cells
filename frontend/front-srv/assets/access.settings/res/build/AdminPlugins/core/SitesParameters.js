@@ -138,12 +138,10 @@ var SitesParameters = (function (_React$Component) {
 
             var loader = _Loader2['default'].getInstance(pydio);
             if (type === 'mailer') {
-                console.log('Saving mailer', mailerConfig);
                 loader.saveServiceConfigs("pydio.grpc.mailer", mailerConfig).then(function () {
                     _this4.setState({ mailDirty: false });
                 });
             } else {
-                console.log('Saving share', shareConfig);
                 loader.saveServiceConfigs("pydio.rest.share", shareConfig).then(function () {
                     _this4.setState({ shareDirty: false });
                 });

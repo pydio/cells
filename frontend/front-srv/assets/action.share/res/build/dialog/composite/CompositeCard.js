@@ -137,7 +137,7 @@ var CompositeCard = (function (_React$Component) {
             if (this.refs['copy-button']) {
                 this._clip = new _clipboard2['default'](this.refs['copy-button'], {
                     text: (function (trigger) {
-                        return _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink().LinkHash);
+                        return _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink());
                     }).bind(this)
                 });
                 this._clip.on('success', (function () {
@@ -361,7 +361,7 @@ var CompositeCard = (function (_React$Component) {
                             var err = ln.hasError();
                             lines.push(_react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-alert-outline", legend: "Error", data: err.Detail || err.Msg || err }));
                         } else if (ln.getLink()) {
-                            var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, ln.getLink().LinkHash, mode === 'infoPanel');
+                            var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, ln.getLink(), mode === 'infoPanel');
                             lines.push(_react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-link', legend: m(121), style: { overflow: 'visible' }, dataStyle: { overflow: 'visible' }, data: _react2['default'].createElement(
                                     'div',
                                     {
