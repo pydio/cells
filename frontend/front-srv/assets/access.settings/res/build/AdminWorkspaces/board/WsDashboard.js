@@ -192,7 +192,7 @@ var WsDashboard = _react2['default'].createClass({
             _react2['default'].createElement(
                 'div',
                 { style: { width: 190 } },
-                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: 'Search workspaces', value: searchString, onChange: function (e, v) {
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('ws.filter.workspaces'), value: searchString, onChange: function (e, v) {
                         return _this3.setState({ searchString: v });
                     } })
             )
