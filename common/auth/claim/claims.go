@@ -36,20 +36,22 @@ const (
 type contextKey string
 
 type Claims struct {
-	ClientApp   interface{} `json:"aud" mapstructure:"aud"`
-	Issuer      string      `json:"iss" mapstructure:"iss"`
-	SessionID   string      `json:"sid" mapstructure:"sid"`
-	Subject     string      `json:"sub" mapstructure:"sub"`
-	Nonce       string      `json:"nonce" mapstructure:"nonce"`
-	Name        string      `json:"name" mapstructure:"name"`
-	Email       string      `json:"email" mapstructure:"email"`
-	Profile     string      `json:"profile" mapstructure:"profile"`
-	Verified    bool        `json:"email_verified" mapstructure:"email_verified"`
-	Roles       string      `json:"roles" mapstructure:"roles"`
-	Expiry      time.Time   `json:"expiry" mapstructure:"expiry"`
-	AuthSource  string      `json:"authSource" mapstructure:"authSource"`
-	DisplayName string      `json:"displayName" mapstructure:"displayName"`
-	GroupPath   string      `json:"groupPath" mapstructure:"groupPath"`
+	ClientApp      interface{} `json:"aud" mapstructure:"aud"`
+	Issuer         string      `json:"iss" mapstructure:"iss"`
+	SessionID      string      `json:"sid" mapstructure:"sid"`
+	Subject        string      `json:"sub" mapstructure:"sub"`
+	Nonce          string      `json:"nonce" mapstructure:"nonce"`
+	Name           string      `json:"name" mapstructure:"name"`
+	Email          string      `json:"email" mapstructure:"email"`
+	Profile        string      `json:"profile" mapstructure:"profile"`
+	Verified       bool        `json:"email_verified" mapstructure:"email_verified"`
+	Roles          string      `json:"roles" mapstructure:"roles"`
+	Expiry         time.Time   `json:"expiry" mapstructure:"expiry"`
+	AuthSource     string      `json:"authSource" mapstructure:"authSource"`
+	DisplayName    string      `json:"displayName" mapstructure:"displayName"`
+	GroupPath      string      `json:"groupPath" mapstructure:"groupPath"`
+	ProvidesScopes bool        `json:"providesScopes" mapstructure:"providesScopes"`
+	Scopes         []string    `json:"scopes" mapstructure:"scopes"`
 }
 
 // Decode Subject field of the claims

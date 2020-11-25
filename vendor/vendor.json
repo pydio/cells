@@ -5932,6 +5932,14 @@
 			"versionExact": "v2.3.1"
 		},
 		{
+			"checksumSHA1": "ArWEYi3WR6KVH3dZcElUJTi+pdA=",
+			"path": "gopkg.in/square/go-jose.v2/jwt",
+			"revision": "730df5f748271903322feb182be83b43ebbbe27d",
+			"revisionTime": "2019-04-10T21:58:30Z",
+			"version": "v2.3.1",
+			"versionExact": "v2.3.1"
+		},
+		{
 			"checksumSHA1": "AnKBN2Q4AWaSNb0JyINBQbnpxGM=",
 			"path": "gopkg.in/yaml.v2",
 			"revision": "7f97868eec74b32b0982dd158a51a446d1da7eb5",

@@ -58,6 +58,7 @@ const (
 	ServiceUser      = "user"
 	ServiceAuth      = "auth"
 	ServiceOAuth     = "oauth"
+	ServiceToken     = "token"
 	ServiceWorkspace = "workspace"
 	ServicePolicy    = "policy"
 	ServiceGraph     = "graph"

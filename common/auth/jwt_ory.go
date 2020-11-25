@@ -404,3 +404,7 @@ func (t *orytoken) Claims(v interface{}) error {
 
 	return nil
 }
+
+func (t *orytoken) ScopedClaims(claims *claim.Claims) error {
+	return nil
+}

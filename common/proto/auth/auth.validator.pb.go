@@ -130,3 +130,31 @@ func (this *RefreshTokenRequest) Validate() error {
 func (this *RefreshTokenResponse) Validate() error {
 	return nil
 }
+func (this *PersonalAccessToken) Validate() error {
+	return nil
+}
+func (this *PatGenerateRequest) Validate() error {
+	return nil
+}
+func (this *PatGenerateResponse) Validate() error {
+	return nil
+}
+func (this *PatListRequest) Validate() error {
+	return nil
+}
+func (this *PatListResponse) Validate() error {
+	for _, item := range this.Tokens {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Tokens", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *PatRevokeRequest) Validate() error {
+	return nil
+}
+func (this *PatRevokeResponse) Validate() error {
+	return nil
+}

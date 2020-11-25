@@ -47,6 +47,7 @@ const (
 	ProviderTypeDex ProviderType = iota
 	ProviderTypeOry
 	ProviderTypeGrpc
+	ProviderTypePAT
 )
 
 type Provider interface {
@@ -108,6 +109,7 @@ type LogoutProvider interface {
 
 type IDToken interface {
 	Claims(interface{}) error
+	ScopedClaims(claims *claim.Claims) error
 }
 
 var (
@@ -142,6 +144,10 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	if err := token.Claims(claims); err != nil {
 		log.Logger(ctx).Error("cannot extract custom claims from idToken", zap.Error(err))
 		return err
+	}
+
+	if err := token.ScopedClaims(claims); err != nil {
+		log.Logger(ctx).Error("cannot extract custom Scopes from claims", zap.Error(err))
 	}
 
 	// Search by name or by email

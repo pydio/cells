@@ -50,14 +50,15 @@ func init() {
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
 			service.WithMicro(func(m micro.Service) error {
-				proto.RegisterLoginProviderHandler(m.Options().Server, &Handler{})
-				proto.RegisterConsentProviderHandler(m.Options().Server, &Handler{})
-				proto.RegisterLogoutProviderHandler(m.Options().Server, &Handler{})
-				proto.RegisterAuthCodeProviderHandler(m.Options().Server, &Handler{})
-				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, &Handler{})
-				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, &Handler{})
-				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, &Handler{})
-				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, &Handler{})
+				h := &Handler{}
+				proto.RegisterLoginProviderHandler(m.Options().Server, h)
+				proto.RegisterConsentProviderHandler(m.Options().Server, h)
+				proto.RegisterLogoutProviderHandler(m.Options().Server, h)
+				proto.RegisterAuthCodeProviderHandler(m.Options().Server, h)
+				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, h)
+				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, h)
+				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, h)
+				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, h)
 
 				return nil
 			}),
@@ -65,6 +66,20 @@ func init() {
 				auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 			}),
 			service.BeforeStart(initialize),
+		)
+
+		service.NewService(
+			service.Name(common.ServiceGrpcNamespace_+common.ServiceToken),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagIdm),
+			service.Description("Personal Access Token Provider"),
+			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
+			service.WithMicro(func(m micro.Service) error {
+				pat := &PatHandler{}
+				proto.RegisterPersonalAccessTokenServiceHandler(m.Options().Server, pat)
+				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, pat)
+				return nil
+			}),
 		)
 
 		auth.OnConfigurationInit(func(scanner common.Scanner) {
@@ -91,6 +106,7 @@ func init() {
 
 		// Register the service as a GRPC Auth Provider
 		auth.RegisterGRPCProvider(common.ServiceGrpcNamespace_ + common.ServiceOAuth)
+		auth.RegisterPersonalAccessTokenProvider(common.ServiceGrpcNamespace_ + common.ServiceToken)
 	})
 }
 

@@ -23,12 +23,20 @@ package oauth
 
 import (
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/sql"
 )
 
 // DAO interface
 type DAO interface {
 	dao.DAO
+}
+
+type PatDao interface {
+	Load(idToken string) (*auth.PersonalAccessToken, error)
+	Store(token *auth.PersonalAccessToken) error
+	Delete(idToken string) error
+	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {

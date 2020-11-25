@@ -198,3 +198,57 @@ message RefreshTokenResponse {
     string RefreshToken = 3 [json_name="refresh_token"];
     int64 Expiry = 4 [json_name="expiry"];
 }
+
+enum PatType {
+    ANY = 0;
+    PERSONAL = 1;
+    DOCUMENT = 2;
+}
+
+service PersonalAccessTokenService {
+    rpc Generate(PatGenerateRequest) returns (PatGenerateResponse) {}
+    rpc Revoke(PatRevokeRequest) returns (PatRevokeResponse){}
+    rpc List(PatListRequest) returns (PatListResponse){}
+}
+message PersonalAccessToken {
+    string Uuid = 1;
+    PatType Type = 2;
+    string Label = 3;
+    string UserLogin = 4;
+    repeated string Scopes = 5;
+    int32 AutoRefreshWindow = 11;
+    int64 ExpiresAt = 6;
+    string IDToken = 7;
+    string CreatedBy = 8;
+    int64 CreatedAt = 9;
+    int64 UpdatedAt = 10;
+}
+
+message PatGenerateRequest{
+    PatType Type = 1;
+    string UserUuid = 2;
+    string UserLogin = 3;
+    string Label = 4;
+    int32 AutoRefreshWindow = 5;
+    int64 ExpiresAt = 6;
+    string Issuer = 7;
+    repeated string Scopes = 8;
+}
+message PatGenerateResponse{
+    string IDToken = 1;
+}
+
+message PatListRequest{
+    PatType Type = 1;
+    string ByUserLogin = 2;
+}
+message PatListResponse{
+    repeated PersonalAccessToken Tokens = 1;
+}
+
+message PatRevokeRequest{
+    string IDToken = 1;
+}
+message PatRevokeResponse{
+    bool Success = 1;
+}

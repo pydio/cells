@@ -38,6 +38,13 @@ It has these top-level messages:
 	ExchangeResponse
 	RefreshTokenRequest
 	RefreshTokenResponse
+	PersonalAccessToken
+	PatGenerateRequest
+	PatGenerateResponse
+	PatListRequest
+	PatListResponse
+	PatRevokeRequest
+	PatRevokeResponse
 */
 package auth
 
@@ -583,4 +590,88 @@ type AuthTokenRefresher struct {
 
 func (h *AuthTokenRefresher) Refresh(ctx context.Context, in *RefreshTokenRequest, out *RefreshTokenResponse) error {
 	return h.AuthTokenRefresherHandler.Refresh(ctx, in, out)
+}
+
+// Client API for PersonalAccessTokenService service
+
+type PersonalAccessTokenServiceClient interface {
+	Generate(ctx context.Context, in *PatGenerateRequest, opts ...client.CallOption) (*PatGenerateResponse, error)
+	Revoke(ctx context.Context, in *PatRevokeRequest, opts ...client.CallOption) (*PatRevokeResponse, error)
+	List(ctx context.Context, in *PatListRequest, opts ...client.CallOption) (*PatListResponse, error)
+}
+
+type personalAccessTokenServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewPersonalAccessTokenServiceClient(serviceName string, c client.Client) PersonalAccessTokenServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &personalAccessTokenServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *personalAccessTokenServiceClient) Generate(ctx context.Context, in *PatGenerateRequest, opts ...client.CallOption) (*PatGenerateResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PersonalAccessTokenService.Generate", in)
+	out := new(PatGenerateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *personalAccessTokenServiceClient) Revoke(ctx context.Context, in *PatRevokeRequest, opts ...client.CallOption) (*PatRevokeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PersonalAccessTokenService.Revoke", in)
+	out := new(PatRevokeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *personalAccessTokenServiceClient) List(ctx context.Context, in *PatListRequest, opts ...client.CallOption) (*PatListResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PersonalAccessTokenService.List", in)
+	out := new(PatListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for PersonalAccessTokenService service
+
+type PersonalAccessTokenServiceHandler interface {
+	Generate(context.Context, *PatGenerateRequest, *PatGenerateResponse) error
+	Revoke(context.Context, *PatRevokeRequest, *PatRevokeResponse) error
+	List(context.Context, *PatListRequest, *PatListResponse) error
+}
+
+func RegisterPersonalAccessTokenServiceHandler(s server.Server, hdlr PersonalAccessTokenServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&PersonalAccessTokenService{hdlr}, opts...))
+}
+
+type PersonalAccessTokenService struct {
+	PersonalAccessTokenServiceHandler
+}
+
+func (h *PersonalAccessTokenService) Generate(ctx context.Context, in *PatGenerateRequest, out *PatGenerateResponse) error {
+	return h.PersonalAccessTokenServiceHandler.Generate(ctx, in, out)
+}
+
+func (h *PersonalAccessTokenService) Revoke(ctx context.Context, in *PatRevokeRequest, out *PatRevokeResponse) error {
+	return h.PersonalAccessTokenServiceHandler.Revoke(ctx, in, out)
+}
+
+func (h *PersonalAccessTokenService) List(ctx context.Context, in *PatListRequest, out *PatListResponse) error {
+	return h.PersonalAccessTokenServiceHandler.List(ctx, in, out)
 }

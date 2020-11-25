@@ -23,15 +23,15 @@ package auth
 import (
 	"context"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
 	"golang.org/x/oauth2"
 
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/auth/hydra"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type grpcprovider struct {
@@ -40,10 +40,6 @@ type grpcprovider struct {
 
 type grpctoken struct {
 	claims *jwt.IDTokenClaims
-}
-
-type grpcclaims interface {
-	ToMap() map[string]interface{}
 }
 
 func RegisterGRPCProvider(service string) {
@@ -84,4 +80,18 @@ func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, 
 
 func (t *grpctoken) Claims(v interface{}) error {
 	return mapstructure.Decode(t.claims.ToMap(), &v)
+}
+
+func (t *grpctoken) ScopedClaims(claims *claim.Claims) error {
+	if ss := t.claims.Get("scopes"); ss != nil {
+		m, _ := json.Marshal(ss)
+		var parsed []string
+		if e := json.Unmarshal(m, &parsed); e == nil {
+			claims.ProvidesScopes = true
+			claims.Scopes = append(claims.Scopes, parsed...)
+		} else {
+			return e
+		}
+	}
+	return nil
 }
