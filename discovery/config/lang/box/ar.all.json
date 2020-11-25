@@ -77,6 +77,9 @@
   "actionOutputSingleQuery.TaskTimeLt": {
     "other": "Task time lower than"
   },
+  "actionOutputSingleQuery.FreeCondition": {
+    "other": "Free Condition"
+  },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
   },

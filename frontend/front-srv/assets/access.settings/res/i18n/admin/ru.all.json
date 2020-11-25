@@ -764,6 +764,9 @@
   "plugins.list.action.edit": {
     "other": "Изменить параметры плагина"
   },
+  "plugins.documentation": {
+    "other": "Документация"
+  },
   "policies.policy.create": {
     "other": "Создать"
   },
@@ -1765,5 +1768,50 @@
   },
   "mailer.test.loading": {
     "other": "Загрузка библиотеки почты..."
+  },
+  "sites.title": {
+    "other": "Sites and URLs"
+  },
+  "sites.mailer.url": {
+    "other": "External URL used for links in emails"
+  },
+  "sites.links.url": {
+    "other": "Force share links URL"
+  },
+  "sites.no-defaults": {
+    "other": "No defaults set"
+  },
+  "sites.enter-to-save": {
+    "other": "(hit enter to save)"
+  },
+  "sites.configs.title": {
+    "other": "Sites currently defined"
+  },
+  "sites.configs.command": {
+    "other": "Use './cells config sites' command to edit sites."
+  },
+  "sites.column.bind": {
+    "other": "Bind"
+  },
+  "sites.column.tls": {
+    "other": "TLS"
+  },
+  "sites.column.external": {
+    "other": "Reverse Proxy"
+  },
+  "sites.configs.tls.letsencrypt": {
+    "other": "Let's Encrypt"
+  },
+  "sites.configs.tls.self": {
+    "other": "Self Signed"
+  },
+  "sites.configs.tls.certificate": {
+    "other": "Certificate"
+  },
+  "sites.configs.tls.notls": {
+    "other": "No TLS"
+  },
+  "sites.configs.tls.notls-reverse": {
+    "other": "No TLS behind proxy"
   }
 }
