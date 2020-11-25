@@ -289,7 +289,7 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.bottom = additionalPanes.bottom.slice();
         }
         if (pluginId === 'core.pydio') {
-            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio }));
+            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio, m: this.context.getMessage }));
         }
 
         var doc = documentation;
@@ -305,7 +305,7 @@ var PluginEditor = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'h3',
                     null,
-                    'Documentation'
+                    this.context.getMessage('plugins.documentation')
                 ),
                 _react2['default'].createElement('div', { className: 'plugin-doc-pane', dangerouslySetInnerHTML: readDoc() })
             );

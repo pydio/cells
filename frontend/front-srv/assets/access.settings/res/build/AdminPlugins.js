@@ -55093,7 +55093,7 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.bottom = additionalPanes.bottom.slice();
         }
         if (pluginId === 'core.pydio') {
-            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio }));
+            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio, m: this.context.getMessage }));
         }
 
         var doc = documentation;
@@ -55109,7 +55109,7 @@ var PluginEditor = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'h3',
                     null,
-                    'Documentation'
+                    this.context.getMessage('plugins.documentation')
                 ),
                 _react2['default'].createElement('div', { className: 'plugin-doc-pane', dangerouslySetInnerHTML: readDoc() })
             );
@@ -56027,7 +56027,9 @@ var SitesParameters = (function (_React$Component) {
         value: function render() {
             var _this5 = this;
 
-            var muiTheme = this.props.muiTheme;
+            var _props = this.props;
+            var muiTheme = _props.muiTheme;
+            var m = _props.m;
             var _state3 = this.state;
             var sites = _state3.sites;
             var shareConfig = _state3.shareConfig;
@@ -56062,13 +56064,14 @@ var SitesParameters = (function (_React$Component) {
             var completeValues = Object.keys(urls).map(function (k) {
                 return { text: k, value: k };
             });
+
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'div',
                     { style: hStyle },
-                    'Sites and URLs'
+                    m('sites.title')
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -56076,11 +56079,11 @@ var SitesParameters = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: "form-legend" },
-                        'External URL used for links in emails',
-                        mailDirty && " (hit enter to save)"
+                        m('sites.mailer.url'),
+                        mailDirty && " " + m('sites.enter-to-save')
                     ),
                     _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
-                        hintText: defaultSite || "No defaults set",
+                        hintText: defaultSite || m('sites.no-defaults'),
                         dataSource: completeValues,
                         filter: function (searchText, key) {
                             return searchText === '' || key.indexOf(searchText) === 0;
@@ -56102,11 +56105,11 @@ var SitesParameters = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: "form-legend" },
-                        'Force share links URL',
-                        shareDirty && " (hit enter to save)"
+                        m('sites.links.url'),
+                        shareDirty && " " + m('sites.enter-to-save')
                     ),
                     _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
-                        hintText: defaultSite || "No defaults set",
+                        hintText: defaultSite || m('sites.no-defaults'),
                         dataSource: completeValues,
                         filter: function (searchText, key) {
                             return searchText === '' || key.indexOf(searchText) === 0;
@@ -56125,12 +56128,12 @@ var SitesParameters = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.Subheader,
                     { style: _extends({}, hStyle, { borderTop: hStyle.borderBottom }) },
-                    'Sites currently defined'
+                    m('sites.configs.title')
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, paddingBottom: 8 }, className: "form-legend" },
-                    'Use \'./cells config sites\' command to edit sites.'
+                    m('sites.configs.command')
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -56144,31 +56147,31 @@ var SitesParameters = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'th',
                                 { style: styles.th },
-                                'Bind'
+                                m('sites.column.bind')
                             ),
                             _react2['default'].createElement(
                                 'th',
                                 { style: styles.th },
-                                'TLS'
+                                m('sites.column.tls')
                             ),
                             _react2['default'].createElement(
                                 'th',
                                 { style: styles.th },
-                                'External'
+                                m('sites.column.external')
                             )
                         ),
                         sites.map(function (s) {
                             var tls = undefined;
                             if (s.LetsEncrypt) {
-                                tls = "Let's Encrypt";
+                                tls = m('sites.configs.tls.letsencrypt');
                             } else if (s.SelfSigned) {
-                                tls = "Self Signed";
+                                tls = m('sites.configs.tls.self');
                             } else if (s.Certificate) {
-                                tls = "Certificate";
+                                tls = m('sites.configs.tls.certificate');
                             } else {
-                                tls = "No TLS";
+                                tls = m('sites.configs.tls.notls');
                                 if (s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
-                                    tls = "No TLS behind Proxy";
+                                    tls = m('sites.configs.tls.notls-reverse');
                                 }
                             }
                             return _react2['default'].createElement(

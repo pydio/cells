@@ -245,7 +245,7 @@ let PluginEditor = React.createClass({
         }
         if(pluginId === 'core.pydio'){
             addPanes.bottom.push(
-                <SitesParameters pydio={pydio}/>
+                <SitesParameters pydio={pydio} m={this.context.getMessage}/>
             );
         }
 
@@ -258,7 +258,7 @@ let PluginEditor = React.createClass({
             };
             const docPane = (
                 <div className={"plugin-doc" + (this.state.docOpen?' plugin-doc-open':'')}>
-                    <h3>Documentation</h3>
+                    <h3>{this.context.getMessage('plugins.documentation')}</h3>
                     <div className="plugin-doc-pane" dangerouslySetInnerHTML={readDoc()}></div>
                 </div>
             );

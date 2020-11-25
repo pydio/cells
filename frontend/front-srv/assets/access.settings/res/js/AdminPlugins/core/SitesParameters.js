@@ -88,7 +88,7 @@ class SitesParameters extends React.Component {
     }
 
     render(){
-        const {muiTheme} = this.props;
+        const {muiTheme, m} = this.props;
         const {sites, shareConfig, mailerConfig, mailDirty, shareDirty} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
         const hStyle = adminStyles.body.block.headerFull;
@@ -115,14 +115,15 @@ class SitesParameters extends React.Component {
             }
         })
         const completeValues = Object.keys(urls).map(k => {return {text:k, value:k}});
+
         return (
             <div>
-                <div style={hStyle}>Sites and URLs</div>
+                <div style={hStyle}>{m('sites.title')}</div>
                 <div style={{padding: '8px 16px 2px'}}>
-                    <div className={"form-legend"}>External URL used for links in emails{mailDirty && " (hit enter to save)"}</div>
+                    <div className={"form-legend"}>{m('sites.mailer.url')}{mailDirty && " " + m('sites.enter-to-save')}</div>
                     <AutoComplete
                         {...ModernStyles.textField}
-                        hintText={defaultSite || "No defaults set"}
+                        hintText={defaultSite || m('sites.no-defaults')}
                         dataSource={completeValues}
                         filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                         fullWidth={true}
@@ -133,10 +134,10 @@ class SitesParameters extends React.Component {
                     />
                 </div>
                 <div style={{padding: '0 16px 16px'}}>
-                    <div className={"form-legend"}>Force share links URL{shareDirty && " (hit enter to save)"}</div>
+                    <div className={"form-legend"}>{m('sites.links.url')}{shareDirty && " " + m('sites.enter-to-save')}</div>
                     <AutoComplete
                         {...ModernStyles.textField}
-                        hintText={defaultSite || "No defaults set"}
+                        hintText={defaultSite || m('sites.no-defaults')}
                         dataSource={completeValues}
                         filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                         fullWidth={true}
@@ -146,29 +147,27 @@ class SitesParameters extends React.Component {
                         onNewRequest={(v) => {this.onNewRequest('share', v)}}
                     />
                 </div>
-                <Subheader style={{...hStyle, borderTop:hStyle.borderBottom}}>
-                    Sites currently defined
-                </Subheader>
-                <div style={{padding:16, paddingBottom: 8}} className={"form-legend"}>Use './cells config sites' command to edit sites.</div>
+                <Subheader style={{...hStyle, borderTop:hStyle.borderBottom}}>{m('sites.configs.title')}</Subheader>
+                <div style={{padding:16, paddingBottom: 8}} className={"form-legend"}>{m('sites.configs.command')}</div>
                 <div style={{backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3}}>
                     <table style={{width: '100%'}}>
                         <tr>
-                            <th style={styles.th}>Bind</th>
-                            <th style={styles.th}>TLS</th>
-                            <th style={styles.th}>External</th>
+                            <th style={styles.th}>{m('sites.column.bind')}</th>
+                            <th style={styles.th}>{m('sites.column.tls')}</th>
+                            <th style={styles.th}>{m('sites.column.external')}</th>
                         </tr>
                         {sites.map(s => {
                             let tls;
                             if(s.LetsEncrypt) {
-                                tls = "Let's Encrypt"
+                                tls = m('sites.configs.tls.letsencrypt')
                             } else if(s.SelfSigned) {
-                                tls = "Self Signed"
+                                tls = m('sites.configs.tls.self')
                             } else if(s.Certificate) {
-                                tls = "Certificate"
+                                tls = m('sites.configs.tls.certificate')
                             } else {
-                                tls = "No TLS"
+                                tls = m('sites.configs.tls.notls')
                                 if(s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
-                                    tls = "No TLS behind Proxy"
+                                    tls = m('sites.configs.tls.notls-reverse')
                                 }
                             }
                             return (
