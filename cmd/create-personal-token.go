@@ -18,6 +18,7 @@ var (
 	tokUserLogin   string
 	tokExpireTime  string
 	tokAutoRefresh int
+	tokScopes      []string
 )
 
 var pTokCmd = &cobra.Command{
@@ -44,7 +45,7 @@ var pTokCmd = &cobra.Command{
 			Label:             "Command generated token",
 			ExpiresAt:         expire.Unix(),
 			AutoRefreshWindow: int32(tokAutoRefresh),
-			Scopes:            []string{"sample-scope1", "sample-scope2"},
+			Scopes:            tokScopes,
 		})
 		if e != nil {
 			log.Fatal(e.Error())
@@ -60,4 +61,5 @@ func init() {
 	pTokCmd.Flags().StringVarP(&tokUserLogin, "user", "u", "", "User login")
 	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after ... ")
 	pTokCmd.Flags().IntVarP(&tokAutoRefresh, "auto", "a", 0, "Auto-refresh (in seconds)")
+	pTokCmd.Flags().StringSliceVarP(&tokScopes, "scope", "s", []string{}, "Optional scopes (multiple)")
 }

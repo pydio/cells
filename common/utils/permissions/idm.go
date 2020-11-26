@@ -404,6 +404,10 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))
 	accessList.Flatten(ctx)
 
+	if claims.ProvidesScopes {
+		accessList.AppendClaimsScopes(claims.Scopes)
+	}
+
 	idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
 	for _, workspace := range idmWorkspaces {
 		accessList.Workspaces[workspace.UUID] = workspace

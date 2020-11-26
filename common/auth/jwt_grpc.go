@@ -43,9 +43,9 @@ func (p *grpcVerifier) GetType() ProviderType {
 	return ProviderTypePAT
 }
 
-func (c *grpcVerifier) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+func (p *grpcVerifier) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
 
-	cli := auth.NewAuthTokenVerifierClient(c.service, defaults.NewClient())
+	cli := auth.NewAuthTokenVerifierClient(p.service, defaults.NewClient())
 
 	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
 		Token: rawIDToken,
@@ -71,7 +71,7 @@ func (p *grpcProvider) GetType() ProviderType {
 	return ProviderTypeGrpc
 }
 
-func (c *grpcProvider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func (p *grpcProvider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	return hydra.Exchange(ctx, code)
 }
 
@@ -84,15 +84,10 @@ func (t *grpcToken) Claims(v interface{}) error {
 }
 
 func (t *grpcToken) ScopedClaims(claims *claim.Claims) error {
+	// Check key from claims.Extra to set ProvidesScopes flag
+	// Content is already parsed into Scopes field
 	if ss := t.claims.Get("scopes"); ss != nil {
-		m, _ := json.Marshal(ss)
-		var parsed []string
-		if e := json.Unmarshal(m, &parsed); e == nil {
-			claims.ProvidesScopes = true
-			claims.Scopes = append(claims.Scopes, parsed...)
-		} else {
-			return e
-		}
+		claims.ProvidesScopes = true
 	}
 	return nil
 }

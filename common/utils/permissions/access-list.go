@@ -76,6 +76,9 @@ type AccessList struct {
 	FrontPluginsValues []*idm.ACL
 
 	nodesPathsAcls map[string]Bitmask
+
+	hasClaimsScopes bool
+	claimsScopes    map[string]Bitmask
 }
 
 // NewAccessList creates a new AccessList.
@@ -93,6 +96,13 @@ func NewAccessList(orderedRoles []*idm.Role, Acls ...[]*idm.ACL) *AccessList {
 // Append appends an additional list of ACLs.
 func (a *AccessList) Append(acls []*idm.ACL) {
 	a.Acls = append(a.Acls, acls...)
+}
+
+// AppendClaimsScopes appends some specific permissions passed through claims.
+// Currently only strings like "node:uuid:perm" are supported
+func (a *AccessList) AppendClaimsScopes(ss []string) {
+	a.hasClaimsScopes = true
+	a.parseClaimScopes(ss)
 }
 
 // HasPolicyBasedAcls checks if there are policy based acls.
@@ -118,6 +128,7 @@ func (a *AccessList) GetWorkspacesNodes() map[string]map[string]Bitmask {
 	return a.WorkspacesNodes
 }
 
+// GetNodesBitmasks returns internal bitmask
 func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
 	return a.NodesAcls
 }
@@ -145,12 +156,18 @@ func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]str
 
 // CanRead checks if a node has READ access.
 func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
+	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
+		return false
+	}
 	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
 }
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
+	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
+		return false
+	}
 	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
 }
@@ -389,6 +406,39 @@ func (a *AccessList) firstMaskForChildren(ctx context.Context, node *tree.Node) 
 		}
 	}
 	return Bitmask{}
+}
+
+// parseClaimScopes parse scopes and store them internally
+func (a *AccessList) parseClaimScopes(ss []string) {
+	if a.claimsScopes == nil {
+		a.claimsScopes = make(map[string]Bitmask)
+	}
+	for _, s := range ss {
+		// Look for scopes like "node:uuid:perm"
+		parts := strings.Split(s, ":")
+		if len(parts) != 3 || parts[0] != "node" {
+			continue
+		}
+		uuid := parts[1]
+		flag := Bitmask{}
+		if strings.Contains(parts[2], "r") {
+			flag.AddFlag(FlagRead)
+		}
+		if strings.Contains(parts[2], "w") {
+			flag.AddFlag(FlagWrite)
+		}
+		a.claimsScopes[uuid] = flag
+	}
+}
+
+// claimsScopesDeny checks if claimsScopes are set and verify node UUID against them
+func (a *AccessList) claimsScopesDeny(ctx context.Context, node *tree.Node, perm BitmaskFlag) bool {
+	if a.hasClaimsScopes {
+		if flag, o := a.claimsScopes[node.Uuid]; !o || !flag.HasFlag(ctx, perm) {
+			return true
+		}
+	}
+	return false
 }
 
 // right is a tool struct to compute right strings
