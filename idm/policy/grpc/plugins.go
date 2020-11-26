@@ -74,6 +74,10 @@ func init() {
 					TargetVersion: service.ValidVersion("2.0.99"),
 					Up:            policy.Upgrade210,
 				},
+				{
+					TargetVersion: service.ValidVersion("2.1.99"),
+					Up:            policy.Upgrade220,
+				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
 				handler := new(Handler)

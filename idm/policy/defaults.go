@@ -141,6 +141,7 @@ var (
 						"rest:/tree/stat/<.+>",
 						"rest:/tree/stats",
 						"rest:/templates",
+						"rest:/auth/token/document",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
@@ -695,6 +696,32 @@ func Upgrade210(ctx context.Context) error {
 				}),
 			)
 			group.Policies = newPolicies
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+	}
+	return nil
+}
+
+func Upgrade220(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.Id == "user-default-policy" {
+					p.Resources = append(p.Resources, "rest:/auth/token/document")
+				}
+			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
 				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
 			} else {
