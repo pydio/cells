@@ -44,8 +44,7 @@ import (
 type ProviderType int
 
 const (
-	ProviderTypeDex ProviderType = iota
-	ProviderTypeOry
+	ProviderTypeOry ProviderType = iota
 	ProviderTypeGrpc
 	ProviderTypePAT
 )

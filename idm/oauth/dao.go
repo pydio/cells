@@ -33,9 +33,9 @@ type DAO interface {
 }
 
 type PatDao interface {
-	Load(idToken string) (*auth.PersonalAccessToken, error)
-	Store(token *auth.PersonalAccessToken) error
-	Delete(idToken string) error
+	Load(accessToken string) (*auth.PersonalAccessToken, error)
+	Store(accessToken string, token *auth.PersonalAccessToken) error
+	Delete(patUuid string) error
 	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
 }
 

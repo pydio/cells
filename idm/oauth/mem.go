@@ -20,28 +20,30 @@ func NewMemDao() PatDao {
 	return m
 }
 
-func (m *MemDAO) Load(idToken string) (*auth.PersonalAccessToken, error) {
+func (m *MemDAO) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	m.tLock.Lock()
 	defer m.tLock.Unlock()
-	if t, o := m.tokens[idToken]; o {
+	if t, o := m.tokens[accessToken]; o {
 		return t, nil
 	} else {
 		return nil, fmt.Errorf("not.found")
 	}
 }
 
-func (m *MemDAO) Store(token *auth.PersonalAccessToken) error {
+func (m *MemDAO) Store(accessToken string, token *auth.PersonalAccessToken) error {
 	m.tLock.Lock()
 	defer m.tLock.Unlock()
-	m.tokens[token.IDToken] = token
+	m.tokens[accessToken] = token
 	return nil
 }
 
-func (m *MemDAO) Delete(idToken string) error {
+func (m *MemDAO) Delete(patUuid string) error {
 	m.tLock.Lock()
 	defer m.tLock.Unlock()
-	if _, o := m.tokens[idToken]; o {
-		delete(m.tokens, idToken)
+	for k, v := range m.tokens {
+		if v.Uuid == patUuid {
+			delete(m.tokens, k)
+		}
 	}
 	return nil
 }

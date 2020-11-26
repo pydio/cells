@@ -34,31 +34,16 @@ import (
 	json "github.com/pydio/cells/x/jsonx"
 )
 
-type grpcprovider struct {
+type grpcVerifier struct {
+	pType   ProviderType
 	service string
 }
 
-type grpctoken struct {
-	claims *jwt.IDTokenClaims
+func (p *grpcVerifier) GetType() ProviderType {
+	return ProviderTypePAT
 }
 
-func RegisterGRPCProvider(service string) {
-	p := new(grpcprovider)
-
-	p.service = service
-
-	addProvider(p)
-}
-
-func (p *grpcprovider) GetType() ProviderType {
-	return ProviderTypeGrpc
-}
-
-func (c *grpcprovider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
-	return hydra.Exchange(ctx, code)
-}
-
-func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+func (c *grpcVerifier) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
 
 	cli := auth.NewAuthTokenVerifierClient(c.service, defaults.NewClient())
 
@@ -69,7 +54,7 @@ func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, 
 		return nil, err
 	}
 
-	token := new(grpctoken)
+	token := new(grpcToken)
 
 	if err := json.Unmarshal(resp.GetData(), &token.claims); err != nil {
 		return nil, err
@@ -78,11 +63,27 @@ func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, 
 	return token, nil
 }
 
-func (t *grpctoken) Claims(v interface{}) error {
+type grpcProvider struct {
+	grpcVerifier
+}
+
+func (p *grpcProvider) GetType() ProviderType {
+	return ProviderTypeGrpc
+}
+
+func (c *grpcProvider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+	return hydra.Exchange(ctx, code)
+}
+
+type grpcToken struct {
+	claims *jwt.IDTokenClaims
+}
+
+func (t *grpcToken) Claims(v interface{}) error {
 	return mapstructure.Decode(t.claims.ToMap(), &v)
 }
 
-func (t *grpctoken) ScopedClaims(claims *claim.Claims) error {
+func (t *grpcToken) ScopedClaims(claims *claim.Claims) error {
 	if ss := t.claims.Get("scopes"); ss != nil {
 		m, _ := json.Marshal(ss)
 		var parsed []string
@@ -94,4 +95,19 @@ func (t *grpctoken) ScopedClaims(claims *claim.Claims) error {
 		}
 	}
 	return nil
+}
+
+func RegisterGRPCProvider(pType ProviderType, service string) {
+
+	switch pType {
+	case ProviderTypeGrpc:
+		p := new(grpcProvider)
+		p.service = service
+		addProvider(p)
+	case ProviderTypePAT:
+		p := new(grpcVerifier)
+		p.service = service
+		addProvider(p)
+	}
+
 }

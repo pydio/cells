@@ -104,9 +104,9 @@ func init() {
 		// load configuration
 		auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 
-		// Register the service as a GRPC Auth Provider
-		auth.RegisterGRPCProvider(common.ServiceGrpcNamespace_ + common.ServiceOAuth)
-		auth.RegisterPersonalAccessTokenProvider(common.ServiceGrpcNamespace_ + common.ServiceToken)
+		// Register the services as GRPC Auth Providers
+		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
+		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
 }
 

@@ -7,14 +7,12 @@ import (
 
 	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
-	"gopkg.in/square/go-jose.v2/jwt"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/auth"
 )
 
 func init() {
-	tokensKey = []byte("secret")
+	tokensKey = []byte("secretersecretersecretersecreter") // 32 bytes long
 }
 
 func TestPatHandler_Generate(t *testing.T) {
@@ -37,25 +35,11 @@ func TestPatHandler_Generate(t *testing.T) {
 			Label:     "Personal token for admin",
 			ExpiresAt: time.Now().Add(2 * time.Second).Unix(),
 			Issuer:    "https://0.0.0.0:8080",
-			Scopes:    []string{"doc:rw:uuid", "rest:r:/toto"},
+			Scopes:    []string{"doc:rw:uuid", "rest:r:/toto", "policy:uuid"}, // ?? POLICY
 		}, rsp)
 		So(e, ShouldBeNil)
-		So(rsp.IDToken, ShouldNotBeEmpty)
-		generatedToken := rsp.IDToken
-		tok, err := jwt.ParseSigned(rsp.IDToken)
-		So(err, ShouldBeNil)
-		out := jwt.Claims{}
-		err = tok.Claims(tokensKey, &out)
-		So(err, ShouldBeNil)
-		So(out.Audience, ShouldContain, common.ServiceGrpcNamespace_+common.ServiceToken)
-		So(out.Issuer, ShouldEqual, "https://0.0.0.0:8080")
-		So(out.Subject, ShouldEqual, "admin-uuid")
-		// Try to parse other claims ?
-		custom := PatScopeClaims{}
-		err = tok.Claims(tokensKey, &custom)
-		So(err, ShouldBeNil)
-		So(custom.Scopes, ShouldHaveLength, 2)
-
+		So(rsp.AccessToken, ShouldNotBeEmpty)
+		generatedToken := rsp.AccessToken
 		verifyResponse := &auth.VerifyTokenResponse{}
 		er1 := pat.Verify(ctx, &auth.VerifyTokenRequest{Token: "unknownToken"}, verifyResponse)
 		So(er1, ShouldNotBeNil)
@@ -84,7 +68,7 @@ func TestPatHandler_Generate(t *testing.T) {
 			AutoRefreshWindow: 2, // Refresh every 2s
 		}, rsp)
 		So(e, ShouldBeNil)
-		generatedToken := rsp.IDToken
+		generatedToken := rsp.AccessToken
 
 		verifyResponse := &auth.VerifyTokenResponse{}
 		er := pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken}, verifyResponse)
@@ -130,13 +114,14 @@ func TestPatHandler_Revoke(t *testing.T) {
 			ExpiresAt: time.Now().Add(5 * time.Second).Unix(),
 		}, rsp)
 		So(e, ShouldBeNil)
-		idToken := rsp.IDToken
-		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: idToken}, &auth.VerifyTokenResponse{})
+		accessToken := rsp.AccessToken
+		tokenUuid := rsp.TokenUuid
+		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken}, &auth.VerifyTokenResponse{})
 		So(e, ShouldBeNil)
-		// Revoke and recheck
-		e = pat.Revoke(ctx, &auth.PatRevokeRequest{IDToken: idToken}, &auth.PatRevokeResponse{})
+		// Revoke and recheck - TODO - how do we get the Uuid?
+		e = pat.Revoke(ctx, &auth.PatRevokeRequest{Uuid: tokenUuid}, &auth.PatRevokeResponse{})
 		So(e, ShouldBeNil)
-		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: idToken}, &auth.VerifyTokenResponse{})
+		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken}, &auth.VerifyTokenResponse{})
 		So(e, ShouldNotBeNil)
 	})
 }

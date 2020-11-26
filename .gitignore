@@ -27,4 +27,3 @@ discovery/metrics
 
 *.ank
 /cmd/jobs-*
-/cmd/create-personal-token.go

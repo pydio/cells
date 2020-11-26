@@ -5,20 +5,19 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/micro/go-micro/errors"
-	jwt2 "github.com/ory/fosite/token/jwt"
-	"github.com/pborman/uuid"
+	"github.com/ory/fosite/token/hmac"
+	"github.com/ory/fosite/token/jwt"
 	"go.uber.org/zap"
-	"gopkg.in/square/go-jose.v2"
-	"gopkg.in/square/go-jose.v2/jwt"
 
+	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
-	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/oauth"
 	json "github.com/pydio/cells/x/jsonx"
@@ -31,7 +30,8 @@ type PatScopeClaims struct {
 }
 
 type PatHandler struct {
-	memDao oauth.PatDao
+	memDao   oauth.PatDao
+	strategy *hmac.HMACStrategy
 }
 
 func (p *PatHandler) getDao(ctx context.Context) oauth.PatDao {
@@ -41,15 +41,25 @@ func (p *PatHandler) getDao(ctx context.Context) oauth.PatDao {
 	return p.memDao
 }
 
-func (p *PatHandler) getKey(ctx context.Context) []byte {
+func (p *PatHandler) getStrategy() *hmac.HMACStrategy {
+	if p.strategy == nil {
+		p.strategy = &hmac.HMACStrategy{
+			TokenEntropy:         32,
+			GlobalSecret:         p.getKey(),
+			RotatedGlobalSecrets: nil,
+			Mutex:                sync.Mutex{},
+		}
+	}
+	return p.strategy
+}
+
+func (p *PatHandler) getKey() []byte {
 
 	if len(tokensKey) > 0 {
 		return tokensKey
 	}
 
-	conf := servicecontext.GetConfig(ctx)
-	cVal := conf.Val("personalTokensKey")
-
+	cVal := config.Get("defaults", "personalTokensKey")
 	if cVal.String() == "" {
 		tokensKey = p.generateRandomKey(32)
 		strKey := base64.StdEncoding.EncodeToString(tokensKey)
@@ -58,43 +68,41 @@ func (p *PatHandler) getKey(ctx context.Context) []byte {
 	} else if t, e := base64.StdEncoding.DecodeString(cVal.String()); e == nil {
 		tokensKey = t
 	} else {
-		log.Logger(ctx).Error("Could not read generated key for personal tokens!", zap.Error(e))
+		log.Logger(context.Background()).Error("Could not read generated key for personal tokens!", zap.Error(e))
 	}
 	return tokensKey
 }
 
 func (p *PatHandler) Verify(ctx context.Context, request *auth.VerifyTokenRequest, response *auth.VerifyTokenResponse) error {
 	dao := p.getDao(ctx)
-	token, e := dao.Load(request.Token)
+	if err := p.getStrategy().Validate(request.Token); err != nil {
+		return errors.Unauthorized("token.invalid", "Cannot validate token")
+	}
+	pat, e := dao.Load(request.Token)
 	if e != nil {
 		return errors.Unauthorized("token.not.found", "Cannot find corresponding Personal Access Token")
 	}
 	// Check Expiration Date
-	if time.Unix(token.ExpiresAt, 0).Before(time.Now()) {
+	if time.Unix(pat.ExpiresAt, 0).Before(time.Now()) {
 		return errors.Unauthorized("token.expired", "Personal token is expired")
 	}
-	if token.AutoRefreshWindow > 0 {
+	if pat.AutoRefreshWindow > 0 {
 		// Recompute expire date
-		token.ExpiresAt = time.Now().Add(time.Duration(token.AutoRefreshWindow) * time.Second).Unix()
-		if er := dao.Store(token); er != nil {
+		pat.ExpiresAt = time.Now().Add(time.Duration(pat.AutoRefreshWindow) * time.Second).Unix()
+		if er := dao.Store(request.Token, pat); er != nil {
 			return errors.BadRequest("internal.error", "Cannot store updated token")
 		}
 	}
-	tok, _ := jwt.ParseSigned(request.Token)
-	var coreClaims jwt.Claims
-	e = tok.Claims(p.getKey(ctx), &coreClaims)
-	if e != nil {
-		return e
+
+	cl := jwt.IDTokenClaims{
+		Subject:   pat.UserUuid,
+		Issuer:    "local",
+		ExpiresAt: time.Unix(pat.ExpiresAt, 0),
+		Audience:  []string{common.ServiceGrpcNamespace_ + common.ServiceToken},
 	}
-	cl := jwt2.IDTokenClaims{
-		Subject:   coreClaims.Subject,
-		Issuer:    coreClaims.Issuer,
-		ExpiresAt: time.Unix(token.ExpiresAt, 0),
-		Audience:  coreClaims.Audience,
-	}
-	if len(token.Scopes) > 0 {
+	if len(pat.Scopes) > 0 {
 		cl.Extra = map[string]interface{}{
-			"scopes": token.Scopes,
+			"scopes": pat.Scopes,
 		}
 	}
 	m, _ := json.Marshal(cl)
@@ -109,6 +117,7 @@ func (p *PatHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 		Uuid:              uuid.New(),
 		Type:              request.Type,
 		Label:             request.Label,
+		UserUuid:          request.UserUuid,
 		UserLogin:         request.UserLogin,
 		Scopes:            request.Scopes,
 		AutoRefreshWindow: request.AutoRefreshWindow,
@@ -126,21 +135,21 @@ func (p *PatHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	if uName, _ := permissions.FindUserNameInContext(ctx); uName != "" {
 		token.CreatedBy = uName
 	}
-	idToken, err := p.createToken(request, p.getKey(ctx))
+	accessToken, _, err := p.getStrategy().Generate()
 	if err != nil {
 		return err
 	}
-	token.IDToken = idToken
-	if err := dao.Store(token); err != nil {
+	if err := dao.Store(accessToken, token); err != nil {
 		return err
 	}
-	response.IDToken = token.IDToken
+	response.TokenUuid = token.Uuid
+	response.AccessToken = accessToken
 	return nil
 }
 
 func (p *PatHandler) Revoke(ctx context.Context, request *auth.PatRevokeRequest, response *auth.PatRevokeResponse) error {
 	dao := p.getDao(ctx)
-	return dao.Delete(request.IDToken)
+	return dao.Delete(request.GetUuid())
 }
 
 func (p *PatHandler) List(ctx context.Context, request *auth.PatListRequest, response *auth.PatListResponse) error {
@@ -151,33 +160,6 @@ func (p *PatHandler) List(ctx context.Context, request *auth.PatListRequest, res
 	}
 	response.Tokens = tt
 	return nil
-}
-
-func (p *PatHandler) createToken(request *auth.PatGenerateRequest, key []byte) (string, error) {
-
-	sig, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.HS256, Key: key}, (&jose.SignerOptions{}).WithType("JWT").WithHeader("nonce", uuid.New()))
-	if err != nil {
-		return "", err
-	}
-
-	cl := jwt.Claims{
-		Subject:  request.UserUuid,
-		Issuer:   request.Issuer,
-		Audience: jwt.Audience{common.ServiceGrpcNamespace_ + common.ServiceToken},
-		IssuedAt: jwt.NewNumericDate(time.Now()),
-	}
-	if request.AutoRefreshWindow == 0 {
-		cl.Expiry = jwt.NewNumericDate(time.Unix(request.ExpiresAt, 0))
-	}
-
-	builder := jwt.Signed(sig).Claims(cl)
-	if len(request.Scopes) > 0 {
-		privateCl := &PatScopeClaims{Scopes: request.Scopes}
-		builder = builder.Claims(privateCl)
-	}
-
-	return builder.CompactSerialize()
-
 }
 
 func (p *PatHandler) generateRandomKey(length int) []byte {

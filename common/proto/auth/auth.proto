@@ -214,14 +214,14 @@ message PersonalAccessToken {
     string Uuid = 1;
     PatType Type = 2;
     string Label = 3;
-    string UserLogin = 4;
-    repeated string Scopes = 5;
-    int32 AutoRefreshWindow = 11;
-    int64 ExpiresAt = 6;
-    string IDToken = 7;
-    string CreatedBy = 8;
-    int64 CreatedAt = 9;
-    int64 UpdatedAt = 10;
+    string UserUuid = 4;
+    string UserLogin = 5;
+    repeated string Scopes = 6;
+    int32 AutoRefreshWindow = 7;
+    int64 ExpiresAt = 8;
+    string CreatedBy = 9;
+    int64 CreatedAt = 10;
+    int64 UpdatedAt = 11;
 }
 
 message PatGenerateRequest{
@@ -235,7 +235,8 @@ message PatGenerateRequest{
     repeated string Scopes = 8;
 }
 message PatGenerateResponse{
-    string IDToken = 1;
+    string AccessToken = 1;
+    string TokenUuid = 2;
 }
 
 message PatListRequest{
@@ -247,7 +248,7 @@ message PatListResponse{
 }
 
 message PatRevokeRequest{
-    string IDToken = 1;
+    string Uuid = 1;
 }
 message PatRevokeResponse{
     bool Success = 1;
