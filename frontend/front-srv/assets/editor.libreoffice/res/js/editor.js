@@ -19,8 +19,8 @@
  */
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
+import {RestDocumentAccessTokenRequest, TokenServiceApi} from 'pydio/http/rest-api'
 import React, {Component} from 'react'
-import {compose} from 'redux'
 import {connect} from 'react-redux'
 
 const {EditorActions} = Pydio.requireLib('hoc');
@@ -50,18 +50,21 @@ export default class Editor extends React.Component {
 
         const iframeUrl = "/loleaflet/dist/loleaflet.html";
         const frontUrl = Pydio.getInstance().getFrontendUrl();
-        const protocol = frontUrl.protocol === 'https:' ? 'wss' : 'ws';
+        const protocol = frontUrl.protocol === 'https:' ? 'wss:' : 'ws:';
         const webSocketUrl = `${protocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
 
         // Check current action state for permission
         const readonly = Pydio.getInstance().getController().getActionByName("move").deny;
         const permission = readonly ? "readonly" : "edit"
         const uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
-        const fileSrcUrl = encodeURIComponent(`${host}${uri}`);
+        const fileSrcUrl = encodeURIComponent(`${frontUrl.protocol}//${frontUrl.host}${uri}`);
 
-        PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
-            this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${jwt}&permission=${permission}`});
-        });
+        const api = new TokenServiceApi(PydioApi.getRestClient())
+        const req = new RestDocumentAccessTokenRequest();
+        req.Path = Pydio.getInstance().user.getActiveRepositoryObject().getSlug() + this.props.node.getPath();
+        api.generateDocumentAccessToken(req).then(response => {
+            this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${response.AccessToken}&permission=${permission}`});
+        })
     }
 
     componentWillUnmount() {

@@ -23,6 +23,14 @@ var _ApiClient = require("../ApiClient");
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _modelRestDocumentAccessTokenRequest = require('../model/RestDocumentAccessTokenRequest');
+
+var _modelRestDocumentAccessTokenRequest2 = _interopRequireDefault(_modelRestDocumentAccessTokenRequest);
+
+var _modelRestDocumentAccessTokenResponse = require('../model/RestDocumentAccessTokenResponse');
+
+var _modelRestDocumentAccessTokenResponse2 = _interopRequireDefault(_modelRestDocumentAccessTokenResponse);
+
 var _modelRestResetPasswordRequest = require('../model/RestResetPasswordRequest');
 
 var _modelRestResetPasswordRequest2 = _interopRequireDefault(_modelRestResetPasswordRequest);
@@ -64,6 +72,45 @@ var TokenServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
+
+  /**
+   * Generate a temporary access token for a specific document for the current user
+   * @param {module:model/RestDocumentAccessTokenRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDocumentAccessTokenResponse} and HTTP response
+   */
+
+  TokenServiceApi.prototype.generateDocumentAccessTokenWithHttpInfo = function generateDocumentAccessTokenWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling generateDocumentAccessToken");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestDocumentAccessTokenResponse2['default'];
+
+    return this.apiClient.callApi('/auth/token/document', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Generate a temporary access token for a specific document for the current user
+   * @param {module:model/RestDocumentAccessTokenRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDocumentAccessTokenResponse}
+   */
+
+  TokenServiceApi.prototype.generateDocumentAccessToken = function generateDocumentAccessToken(body) {
+    return this.generateDocumentAccessTokenWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
 
   /**
    * Finish up the reset password process by providing the unique token

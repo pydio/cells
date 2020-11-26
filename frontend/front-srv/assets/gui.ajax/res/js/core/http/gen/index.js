@@ -137,6 +137,8 @@ import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
+import RestDocumentAccessTokenRequest from './model/RestDocumentAccessTokenRequest';
+import RestDocumentAccessTokenResponse from './model/RestDocumentAccessTokenResponse';
 import RestError from './model/RestError';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
@@ -1046,6 +1048,18 @@ export {
      * @property {module:model/RestDiscoveryResponse}
      */
     RestDiscoveryResponse,
+
+    /**
+     * The RestDocumentAccessTokenRequest model constructor.
+     * @property {module:model/RestDocumentAccessTokenRequest}
+     */
+    RestDocumentAccessTokenRequest,
+
+    /**
+     * The RestDocumentAccessTokenResponse model constructor.
+     * @property {module:model/RestDocumentAccessTokenResponse}
+     */
+    RestDocumentAccessTokenResponse,
 
     /**
      * The RestError model constructor.

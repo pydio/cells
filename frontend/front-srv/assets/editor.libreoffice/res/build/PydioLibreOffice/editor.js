@@ -36,11 +36,11 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
+var _restApi = require('pydio/http/rest-api');
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _redux = require('redux');
 
 var _reactRedux = require('react-redux');
 
@@ -89,17 +89,21 @@ var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class 
             _pydio2.default.getInstance().notify('longtask_starting');
 
             var iframeUrl = "/loleaflet/dist/loleaflet.html";
-            var host = pydio.Parameters.get('FRONTEND_URL');
-            var webSocketUrl = host.replace(/^http/gi, 'ws');
+            var frontUrl = _pydio2.default.getInstance().getFrontendUrl();
+            var protocol = frontUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+            var webSocketUrl = protocol + '//' + frontUrl.host; //host.replace(/^http/gi, 'ws');
 
             // Check current action state for permission
             var readonly = _pydio2.default.getInstance().getController().getActionByName("move").deny;
             var permission = readonly ? "readonly" : "edit";
             var uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
-            var fileSrcUrl = encodeURIComponent('' + host + uri);
+            var fileSrcUrl = encodeURIComponent(frontUrl.protocol + '//' + frontUrl.host + uri);
 
-            _api2.default.getRestClient().getOrUpdateJwt().then(function (jwt) {
-                _this2.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + jwt + '&permission=' + permission });
+            var api = new _restApi.TokenServiceApi(_api2.default.getRestClient());
+            var req = new _restApi.RestDocumentAccessTokenRequest();
+            req.Path = _pydio2.default.getInstance().user.getActiveRepositoryObject().getSlug() + this.props.node.getPath();
+            api.generateDocumentAccessToken(req).then(function (response) {
+                _this2.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + response.AccessToken + '&permission=' + permission });
             });
         }
     }, {

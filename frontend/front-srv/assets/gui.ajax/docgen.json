@@ -15498,6 +15498,48 @@
             "description": "Constructs a new TokenServiceApi."
           },
           {
+            "name": "generateDocumentAccessTokenWithHttpInfo",
+            "docblock": "Generate a temporary access token for a specific document for the current user\n@param {module:model/RestDocumentAccessTokenRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDocumentAccessTokenResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestDocumentAccessTokenRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDocumentAccessTokenResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generate a temporary access token for a specific document for the current user"
+          },
+          {
+            "name": "generateDocumentAccessToken",
+            "docblock": "Generate a temporary access token for a specific document for the current user\n@param {module:model/RestDocumentAccessTokenRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDocumentAccessTokenResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestDocumentAccessTokenRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDocumentAccessTokenResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generate a temporary access token for a specific document for the current user"
+          },
+          {
             "name": "resetPasswordWithHttpInfo",
             "docblock": "Finish up the reset password process by providing the unique token\n@param {module:model/RestResetPasswordRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestResetPasswordResponse} and HTTP response",
             "modifiers": [],
@@ -22145,6 +22187,98 @@
               }
             },
             "description": "Constructs a <code>RestDiscoveryResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestDocumentAccessTokenRequest.js": [
+      {
+        "description": "The RestDocumentAccessTokenRequest model module.\n@module model/RestDocumentAccessTokenRequest\n@version 1.0",
+        "displayName": "RestDocumentAccessTokenRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDocumentAccessTokenRequest</code>.\n@alias module:model/RestDocumentAccessTokenRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDocumentAccessTokenRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDocumentAccessTokenRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDocumentAccessTokenRequest} obj Optional instance to populate.\n@return {module:model/RestDocumentAccessTokenRequest} The populated <code>RestDocumentAccessTokenRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDocumentAccessTokenRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDocumentAccessTokenRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestDocumentAccessTokenRequest"
+              }
+            },
+            "description": "Constructs a <code>RestDocumentAccessTokenRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestDocumentAccessTokenResponse.js": [
+      {
+        "description": "The RestDocumentAccessTokenResponse model module.\n@module model/RestDocumentAccessTokenResponse\n@version 1.0",
+        "displayName": "RestDocumentAccessTokenResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDocumentAccessTokenResponse</code>.\n@alias module:model/RestDocumentAccessTokenResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDocumentAccessTokenResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDocumentAccessTokenResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDocumentAccessTokenResponse} obj Optional instance to populate.\n@return {module:model/RestDocumentAccessTokenResponse} The populated <code>RestDocumentAccessTokenResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDocumentAccessTokenResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDocumentAccessTokenResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestDocumentAccessTokenResponse"
+              }
+            },
+            "description": "Constructs a <code>RestDocumentAccessTokenResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

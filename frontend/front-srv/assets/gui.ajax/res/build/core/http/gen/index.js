@@ -517,6 +517,14 @@ var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
 
+var _modelRestDocumentAccessTokenRequest = require('./model/RestDocumentAccessTokenRequest');
+
+var _modelRestDocumentAccessTokenRequest2 = _interopRequireDefault(_modelRestDocumentAccessTokenRequest);
+
+var _modelRestDocumentAccessTokenResponse = require('./model/RestDocumentAccessTokenResponse');
+
+var _modelRestDocumentAccessTokenResponse2 = _interopRequireDefault(_modelRestDocumentAccessTokenResponse);
+
 var _modelRestError = require('./model/RestError');
 
 var _modelRestError2 = _interopRequireDefault(_modelRestError);
@@ -1926,6 +1934,20 @@ exports.
  * @property {module:model/RestDiscoveryResponse}
  */
 RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
+exports.
+
+/**
+ * The RestDocumentAccessTokenRequest model constructor.
+ * @property {module:model/RestDocumentAccessTokenRequest}
+ */
+RestDocumentAccessTokenRequest = _modelRestDocumentAccessTokenRequest2['default'];
+exports.
+
+/**
+ * The RestDocumentAccessTokenResponse model constructor.
+ * @property {module:model/RestDocumentAccessTokenResponse}
+ */
+RestDocumentAccessTokenResponse = _modelRestDocumentAccessTokenResponse2['default'];
 exports.
 
 /**

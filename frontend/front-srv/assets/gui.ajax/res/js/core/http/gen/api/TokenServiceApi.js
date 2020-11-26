@@ -13,6 +13,8 @@
 
 
 import ApiClient from "../ApiClient";
+import RestDocumentAccessTokenRequest from '../model/RestDocumentAccessTokenRequest';
+import RestDocumentAccessTokenResponse from '../model/RestDocumentAccessTokenResponse';
 import RestResetPasswordRequest from '../model/RestResetPasswordRequest';
 import RestResetPasswordResponse from '../model/RestResetPasswordResponse';
 import RestResetPasswordTokenResponse from '../model/RestResetPasswordTokenResponse';
@@ -37,6 +39,54 @@ export default class TokenServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * Generate a temporary access token for a specific document for the current user
+     * @param {module:model/RestDocumentAccessTokenRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDocumentAccessTokenResponse} and HTTP response
+     */
+    generateDocumentAccessTokenWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling generateDocumentAccessToken");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestDocumentAccessTokenResponse;
+
+      return this.apiClient.callApi(
+        '/auth/token/document', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Generate a temporary access token for a specific document for the current user
+     * @param {module:model/RestDocumentAccessTokenRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDocumentAccessTokenResponse}
+     */
+    generateDocumentAccessToken(body) {
+      return this.generateDocumentAccessTokenWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**
