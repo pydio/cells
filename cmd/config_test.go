@@ -3,13 +3,11 @@ package cmd
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	microconfig "github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/memory"
 	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/x/filex"
@@ -393,9 +391,7 @@ func TestConfigUpgrade(t *testing.T) {
 
 	_ = vaultConfig
 
-	memorySource := file.NewSource(
-		microconfig.SourceName("/tmp/whatever/test"),
-	)
+	memorySource := memory.NewSource(memory.WithJSON(data))
 
 	conf := config.NewVault(
 		config.New(
@@ -404,7 +400,6 @@ func TestConfigUpgrade(t *testing.T) {
 					microconfig.WithSource(
 						memorySource,
 					),
-					microconfig.PollInterval(10*time.Second),
 				),
 			),
 			)),
