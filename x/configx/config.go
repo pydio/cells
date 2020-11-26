@@ -208,7 +208,6 @@ func (v *config) Set(data interface{}) error {
 	switch d := data.(type) {
 	case *config:
 		data = d.v
-		break
 	}
 
 	if len(v.k) == 0 {
@@ -410,4 +409,8 @@ func (c *config) UnmarshalJSON(data []byte) error {
 	c.v = m
 
 	return nil
+}
+
+func (c *config) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.v)
 }

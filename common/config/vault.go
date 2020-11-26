@@ -151,6 +151,15 @@ func (v *vaultvalues) Set(val interface{}) error {
 		}
 	}
 
+	vval, ok := val.(configx.Values)
+	if ok {
+		if vval.Get() == nil {
+			// Nothing to set
+			return nil
+		}
+		return v.Values.Set(vval.Get())
+	}
+
 	return v.Values.Set(val)
 }
 
@@ -186,4 +195,7 @@ func (v *vaultvalues) Slice() []interface{} {
 }
 func (v *vaultvalues) Map() map[string]interface{} {
 	return v.Get().Map()
+}
+func (v *vaultvalues) MarshalJSON() ([]byte, error) {
+	return []byte(v.Values.String()), nil
 }

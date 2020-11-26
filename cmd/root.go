@@ -292,15 +292,15 @@ func initConfig() {
 			)
 	}
 
+	config.Register(defaultConfig)
+	config.RegisterVault(vaultConfig)
+
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {
 		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
 			log.Fatal("Could not save config migrations", zap.Error(err))
 		}
 	}
-	config.Register(defaultConfig)
-	config.RegisterVault(vaultConfig)
-
 }
 
 func initLogLevel() {
