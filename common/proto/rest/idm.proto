@@ -212,3 +212,12 @@ message ResetPasswordResponse {
     bool Success = 1;
     string Message = 2;
 }
+
+message DocumentAccessTokenRequest {
+    string Path = 1;
+    string ClientID = 2;
+}
+
+message DocumentAccessTokenResponse {
+    string AccessToken = 1;
+}

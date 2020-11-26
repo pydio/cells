@@ -182,3 +182,9 @@ func (this *ResetPasswordRequest) Validate() error {
 func (this *ResetPasswordResponse) Validate() error {
 	return nil
 }
+func (this *DocumentAccessTokenRequest) Validate() error {
+	return nil
+}
+func (this *DocumentAccessTokenResponse) Validate() error {
+	return nil
+}

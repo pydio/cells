@@ -21,33 +21,32 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"time"
-
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/idm/oauth/lang"
-
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils/i18n"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/idm/oauth/lang"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type TokenHandler struct{}
@@ -246,4 +245,51 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	resp.WriteEntity(response)
 
+}
+
+// GenerateDocumentAccessToken generates a temporary access token for a specific document for the current user
+func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *restful.Response) {
+
+	var datRequest rest.DocumentAccessTokenRequest
+	if e := req.ReadEntity(&datRequest); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	router := views.NewStandardRouter(views.RouterOptions{})
+	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
+	if e != nil {
+		service.RestErrorDetect(req, resp, e)
+		return
+	}
+	uName, claims := permissions.FindUserNameInContext(ctx)
+	uUuid := claims.Subject
+	permission := "r" // Must be read at least by default !
+	if readResp.Node.GetStringMeta(common.MetaFlagReadonly) == "" {
+		permission = "rw"
+	}
+	scope := fmt.Sprintf("node:%s:%s", readResp.Node.GetUuid(), permission)
+
+	generateRequest := &auth.PatGenerateRequest{
+		Type:              auth.PatType_DOCUMENT,
+		UserUuid:          uUuid,
+		UserLogin:         uName,
+		Label:             "Temporary access token for document " + readResp.Node.Path,
+		AutoRefreshWindow: 30 * 60, // 30mn TODO CONFIGURE
+		Issuer:            req.Request.URL.String(),
+		Scopes:            []string{scope},
+	}
+	a.GenerateAndWrite(ctx, generateRequest, req, resp)
+
+}
+
+func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
+	cli := auth.NewPersonalAccessTokenServiceClient(registry.GetClient(common.ServiceToken))
+	//log.Logger(ctx).Info("Sending generate request", zap.Any("req", genReq))
+	genResp, e := cli.Generate(ctx, genReq)
+	if e != nil {
+		service.RestErrorDetect(req, resp, e)
+		return
+	}
+	resp.WriteEntity(&rest.DocumentAccessTokenResponse{AccessToken: genResp.AccessToken})
 }

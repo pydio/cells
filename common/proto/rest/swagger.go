@@ -259,6 +259,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/auth/token/document": {
+      "post": {
+        "summary": "Generate a temporary access token for a specific document for the current user",
+        "operationId": "GenerateDocumentAccessToken",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restDocumentAccessTokenResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restDocumentAccessTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TokenService"
+        ]
+      }
+    },
     "/auth/token/revoke": {
       "post": {
         "summary": "Revoke a JWT token",
@@ -6296,6 +6323,25 @@ var SwaggerJson = `{
             "type": "string"
           },
           "title": "List of endpoints and their corresponding URL access. Special case for grpc that just send back its port"
+        }
+      }
+    },
+    "restDocumentAccessTokenRequest": {
+      "type": "object",
+      "properties": {
+        "Path": {
+          "type": "string"
+        },
+        "ClientID": {
+          "type": "string"
+        }
+      }
+    },
+    "restDocumentAccessTokenResponse": {
+      "type": "object",
+      "properties": {
+        "AccessToken": {
+          "type": "string"
         }
       }
     },

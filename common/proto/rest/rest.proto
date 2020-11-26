@@ -416,6 +416,13 @@ service TokenService{
             body: "*"
         };
     };
+    // Generate a temporary access token for a specific document for the current user
+    rpc GenerateDocumentAccessToken(DocumentAccessTokenRequest) returns(DocumentAccessTokenResponse) {
+        option (google.api.http) =  {
+            post: "/auth/token/document"
+            body: "*"
+        };
+    }
 }
 
 // Mailer Service provides simple access to mail functions

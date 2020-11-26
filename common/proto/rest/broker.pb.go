@@ -131,6 +131,8 @@ It has these top-level messages:
 	ResetPasswordTokenResponse
 	ResetPasswordRequest
 	ResetPasswordResponse
+	DocumentAccessTokenRequest
+	DocumentAccessTokenResponse
 	UserJobRequest
 	UserJobResponse
 	UserJobsCollection
