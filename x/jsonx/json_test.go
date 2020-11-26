@@ -1,11 +1,8 @@
 package jsonx
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
-
-	"github.com/pydio/cells/x/configx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -24,5 +21,4 @@ func TestJSON(t *testing.T) {
 
 	})
 
-	
 }
