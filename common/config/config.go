@@ -176,6 +176,10 @@ func (c *cacheValues) Val(s ...string) configx.Values {
 	return &cacheValues{c.Values.Val(s...), c.store, append(c.path, s...)}
 }
 
+func (c *cacheValues) Get() configx.Value {
+	return c.Values.Get()
+}
+
 // We store it in the cache and in the store
 func (c *cacheValues) Set(v interface{}) error {
 	err := c.Values.Set(v)
@@ -184,4 +188,8 @@ func (c *cacheValues) Set(v interface{}) error {
 	}
 
 	return c.store.Val(c.path...).Set(v)
+}
+
+func (c *cacheValues) MarshalJSON() ([]byte, error) {
+	return []byte(c.Values.String()), nil
 }
