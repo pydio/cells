@@ -593,10 +593,13 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest,
 			continue
 		}
 
-		if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
+		if res, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
 			return nil
 		} else if err != nil {
 			return sqlcon.HandleError(err)
+		} else {
+			i, _ := res.RowsAffected()
+			out.Count = int32(i)
 		}
 	}
 

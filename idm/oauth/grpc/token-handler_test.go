@@ -2,24 +2,56 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/auth"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/idm/oauth"
+	"github.com/pydio/cells/x/configx"
 )
 
 func init() {
 	tokensKey = []byte("secretersecretersecretersecreter") // 32 bytes long
 }
 
+var (
+	options = configx.New()
+	ctx     context.Context
+	wg      sync.WaitGroup
+)
+
+func TestMain(m *testing.M) {
+
+	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_oauth_")
+	if dao == nil {
+		fmt.Print("Could not start sqlite3 DAO")
+		return
+	}
+
+	mockDAO := oauth.NewDAO(dao).(oauth.DAO)
+	if err := mockDAO.Init(options); err != nil {
+		fmt.Print("Could not init DAO ", err)
+		return
+	}
+
+	ctx = servicecontext.WithDAO(context.Background(), mockDAO)
+
+	m.Run()
+	wg.Wait()
+}
+
 func TestPatHandler_Generate(t *testing.T) {
 
 	Convey("Test Personal Access Tokens", t, func() {
 		pat := &PatHandler{}
-		ctx := context.Background()
 		rsp := &auth.PatGenerateResponse{}
 		e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
@@ -40,6 +72,10 @@ func TestPatHandler_Generate(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(rsp.AccessToken, ShouldNotBeEmpty)
 		generatedToken := rsp.AccessToken
+		defer func(uuid string) {
+			pat.Revoke(ctx, &auth.PatRevokeRequest{Uuid: uuid}, &auth.PatRevokeResponse{})
+		}(rsp.TokenUuid)
+
 		verifyResponse := &auth.VerifyTokenResponse{}
 		er1 := pat.Verify(ctx, &auth.VerifyTokenRequest{Token: "unknownToken"}, verifyResponse)
 		So(er1, ShouldNotBeNil)
@@ -56,9 +92,10 @@ func TestPatHandler_Generate(t *testing.T) {
 
 	})
 
+}
+func TestPatHandler_AutoRefresh(t *testing.T) {
 	Convey("Test AutoRefresh Access Tokens", t, func() {
 		pat := &PatHandler{}
-		ctx := context.Background()
 		rsp := &auth.PatGenerateResponse{}
 		e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
@@ -69,6 +106,9 @@ func TestPatHandler_Generate(t *testing.T) {
 		}, rsp)
 		So(e, ShouldBeNil)
 		generatedToken := rsp.AccessToken
+		defer func(uuid string) {
+			pat.Revoke(ctx, &auth.PatRevokeRequest{Uuid: uuid}, &auth.PatRevokeResponse{})
+		}(rsp.TokenUuid)
 
 		verifyResponse := &auth.VerifyTokenResponse{}
 		er := pat.Verify(ctx, &auth.VerifyTokenRequest{Token: generatedToken}, verifyResponse)
@@ -104,7 +144,6 @@ func TestPatHandler_Generate(t *testing.T) {
 func TestPatHandler_Revoke(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
 		pat := &PatHandler{}
-		ctx := context.Background()
 		rsp := &auth.PatGenerateResponse{}
 		e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
@@ -118,7 +157,6 @@ func TestPatHandler_Revoke(t *testing.T) {
 		tokenUuid := rsp.TokenUuid
 		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken}, &auth.VerifyTokenResponse{})
 		So(e, ShouldBeNil)
-		// Revoke and recheck - TODO - how do we get the Uuid?
 		e = pat.Revoke(ctx, &auth.PatRevokeRequest{Uuid: tokenUuid}, &auth.PatRevokeResponse{})
 		So(e, ShouldBeNil)
 		e = pat.Verify(ctx, &auth.VerifyTokenRequest{Token: accessToken}, &auth.VerifyTokenResponse{})
@@ -129,7 +167,6 @@ func TestPatHandler_Revoke(t *testing.T) {
 func TestPathHandler_List(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
 		pat := &PatHandler{}
-		ctx := context.Background()
 		rsp := &auth.PatGenerateResponse{}
 		pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,

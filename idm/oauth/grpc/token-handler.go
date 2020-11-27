@@ -18,6 +18,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/oauth"
 	json "github.com/pydio/cells/x/jsonx"
@@ -30,15 +31,11 @@ type PatScopeClaims struct {
 }
 
 type PatHandler struct {
-	memDao   oauth.PatDao
 	strategy *hmac.HMACStrategy
 }
 
-func (p *PatHandler) getDao(ctx context.Context) oauth.PatDao {
-	if p.memDao == nil {
-		p.memDao = oauth.NewMemDao()
-	}
-	return p.memDao
+func (p *PatHandler) getDao(ctx context.Context) oauth.DAO {
+	return servicecontext.GetDAO(ctx).(oauth.DAO)
 }
 
 func (p *PatHandler) getStrategy() *hmac.HMACStrategy {
@@ -59,7 +56,7 @@ func (p *PatHandler) getKey() []byte {
 		return tokensKey
 	}
 
-	cVal := config.Get("defaults", "personalTokensKey")
+	cVal := config.Get("defaults", "personalTokens", "secureKey")
 	if cVal.String() == "" {
 		tokensKey = p.generateRandomKey(32)
 		strKey := base64.StdEncoding.EncodeToString(tokensKey)
@@ -89,8 +86,8 @@ func (p *PatHandler) Verify(ctx context.Context, request *auth.VerifyTokenReques
 	if pat.AutoRefreshWindow > 0 {
 		// Recompute expire date
 		pat.ExpiresAt = time.Now().Add(time.Duration(pat.AutoRefreshWindow) * time.Second).Unix()
-		if er := dao.Store(request.Token, pat); er != nil {
-			return errors.BadRequest("internal.error", "Cannot store updated token")
+		if er := dao.Store(request.Token, pat, true); er != nil {
+			return errors.BadRequest("internal.error", "Cannot store updated token "+er.Error())
 		}
 	}
 
@@ -139,7 +136,7 @@ func (p *PatHandler) Generate(ctx context.Context, request *auth.PatGenerateRequ
 	if err != nil {
 		return err
 	}
-	if err := dao.Store(accessToken, token); err != nil {
+	if err := dao.Store(accessToken, token, false); err != nil {
 		return err
 	}
 	response.TokenUuid = token.Uuid
@@ -159,6 +156,15 @@ func (p *PatHandler) List(ctx context.Context, request *auth.PatListRequest, res
 		return nil
 	}
 	response.Tokens = tt
+	return nil
+}
+
+func (p *PatHandler) PruneTokens(ctx context.Context, request *auth.PruneTokensRequest, response *auth.PruneTokensResponse) error {
+	i, e := p.getDao(ctx).PruneExpired()
+	if e != nil {
+		return e
+	}
+	response.Count = int32(i)
 	return nil
 }
 

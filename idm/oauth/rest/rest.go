@@ -270,12 +270,20 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 	}
 	scope := fmt.Sprintf("node:%s:%s", readResp.Node.GetUuid(), permission)
 
+	cVal := config.Get("defaults", "personalTokens", "documentTokensRefresh").Default("30m").String()
+	var refresh int32
+	if d, e := time.ParseDuration(cVal); e != nil {
+		refresh = 30 * 60
+	} else {
+		refresh = int32(d.Seconds())
+	}
+
 	generateRequest := &auth.PatGenerateRequest{
 		Type:              auth.PatType_DOCUMENT,
 		UserUuid:          uUuid,
 		UserLogin:         uName,
 		Label:             "Temporary access token for document " + readResp.Node.Path,
-		AutoRefreshWindow: 30 * 60, // 30mn TODO CONFIGURE
+		AutoRefreshWindow: refresh,
 		Issuer:            req.Request.URL.String(),
 		Scopes:            []string{scope},
 	}
@@ -285,7 +293,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 
 func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
 	cli := auth.NewPersonalAccessTokenServiceClient(registry.GetClient(common.ServiceToken))
-	//log.Logger(ctx).Info("Sending generate request", zap.Any("req", genReq))
+	log.Logger(ctx).Info("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)

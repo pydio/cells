@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -49,28 +50,33 @@ func init() {
 
 func InsertPruningJob(ctx context.Context) error {
 
-	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	return service.Retry(func() error {
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+		if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
+			return nil // Already exists
+		} else if e != nil && errors.Parse(e.Error()).Id == "go.micro.client" {
+			return e // not ready yet, retry
+		}
+		log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 		_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
 			ID:    pruneTokensActionName,
 			Owner: common.PydioSystemUsername,
 			Label: T("Auth.PruneJob.Title"),
 			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT5M", // Every 5 minutes
+				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
 			},
 			AutoStart:      false,
 			MaxConcurrency: 1,
 			Actions: []*jobs.Action{{
-				ID: "actions.auth.prune.tokens",
+				ID: pruneTokensActionName,
 			}},
 		}})
 
 		return e
-	})
+	}, 5*time.Second)
 }
 
 var (
@@ -112,12 +118,21 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 
 	output := input
 
-	// Prune revoked tokens
-	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.ServiceOAuth))
+	// Prune revoked tokens on OAuth service
+	cli := auth.NewAuthTokenPrunerClient(registry.GetClient(common.ServiceOAuth))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
-		log.TasksLogger(ctx).Info(T("Auth.PruneJob.Revoked", struct{ Count int }{Count: len(pruneResp.Tokens)}))
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
+	}
+
+	// Prune revoked tokens on OAuth service
+	cli2 := auth.NewAuthTokenPrunerClient(registry.GetClient(common.ServiceToken))
+	if pruneResp, e := cli2.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
+		return input.WithError(e), e
+	} else {
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.Revoked", struct{ Count int32 }{Count: pruneResp.GetCount()}))
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 

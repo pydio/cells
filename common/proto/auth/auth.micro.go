@@ -79,8 +79,6 @@ var _ server.Option
 type AuthTokenRevokerClient interface {
 	// Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
 	Revoke(ctx context.Context, in *RevokeTokenRequest, opts ...client.CallOption) (*RevokeTokenResponse, error)
-	// PruneTokens clear revoked tokens
-	PruneTokens(ctx context.Context, in *PruneTokensRequest, opts ...client.CallOption) (*PruneTokensResponse, error)
 }
 
 type authTokenRevokerClient struct {
@@ -111,23 +109,11 @@ func (c *authTokenRevokerClient) Revoke(ctx context.Context, in *RevokeTokenRequ
 	return out, nil
 }
 
-func (c *authTokenRevokerClient) PruneTokens(ctx context.Context, in *PruneTokensRequest, opts ...client.CallOption) (*PruneTokensResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "AuthTokenRevoker.PruneTokens", in)
-	out := new(PruneTokensResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for AuthTokenRevoker service
 
 type AuthTokenRevokerHandler interface {
 	// Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
 	Revoke(context.Context, *RevokeTokenRequest, *RevokeTokenResponse) error
-	// PruneTokens clear revoked tokens
-	PruneTokens(context.Context, *PruneTokensRequest, *PruneTokensResponse) error
 }
 
 func RegisterAuthTokenRevokerHandler(s server.Server, hdlr AuthTokenRevokerHandler, opts ...server.HandlerOption) {
@@ -142,8 +128,58 @@ func (h *AuthTokenRevoker) Revoke(ctx context.Context, in *RevokeTokenRequest, o
 	return h.AuthTokenRevokerHandler.Revoke(ctx, in, out)
 }
 
-func (h *AuthTokenRevoker) PruneTokens(ctx context.Context, in *PruneTokensRequest, out *PruneTokensResponse) error {
-	return h.AuthTokenRevokerHandler.PruneTokens(ctx, in, out)
+// Client API for AuthTokenPruner service
+
+type AuthTokenPrunerClient interface {
+	// PruneTokens clear revoked tokens
+	PruneTokens(ctx context.Context, in *PruneTokensRequest, opts ...client.CallOption) (*PruneTokensResponse, error)
+}
+
+type authTokenPrunerClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewAuthTokenPrunerClient(serviceName string, c client.Client) AuthTokenPrunerClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &authTokenPrunerClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *authTokenPrunerClient) PruneTokens(ctx context.Context, in *PruneTokensRequest, opts ...client.CallOption) (*PruneTokensResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "AuthTokenPruner.PruneTokens", in)
+	out := new(PruneTokensResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AuthTokenPruner service
+
+type AuthTokenPrunerHandler interface {
+	// PruneTokens clear revoked tokens
+	PruneTokens(context.Context, *PruneTokensRequest, *PruneTokensResponse) error
+}
+
+func RegisterAuthTokenPrunerHandler(s server.Server, hdlr AuthTokenPrunerHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&AuthTokenPruner{hdlr}, opts...))
+}
+
+type AuthTokenPruner struct {
+	AuthTokenPrunerHandler
+}
+
+func (h *AuthTokenPruner) PruneTokens(ctx context.Context, in *PruneTokensRequest, out *PruneTokensResponse) error {
+	return h.AuthTokenPrunerHandler.PruneTokens(ctx, in, out)
 }
 
 // Client API for LoginProvider service

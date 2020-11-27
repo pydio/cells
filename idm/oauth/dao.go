@@ -30,19 +30,17 @@ import (
 // DAO interface
 type DAO interface {
 	dao.DAO
-}
-
-type PatDao interface {
 	Load(accessToken string) (*auth.PersonalAccessToken, error)
-	Store(accessToken string, token *auth.PersonalAccessToken) error
+	Store(accessToken string, token *auth.PersonalAccessToken, update bool) error
 	Delete(patUuid string) error
 	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
+	PruneExpired() (int, error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}
+		return &sqlImpl{Handler: v.(*sql.Handler)}
 	}
 	return nil
 }

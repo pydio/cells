@@ -13,7 +13,9 @@ message Token {
 service AuthTokenRevoker {
     // Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
     rpc Revoke (RevokeTokenRequest) returns (RevokeTokenResponse) {};
+}
 
+service AuthTokenPruner {
     // PruneTokens clear revoked tokens
     rpc PruneTokens (PruneTokensRequest) returns (PruneTokensResponse) {};
 }
@@ -32,6 +34,7 @@ message PruneTokensRequest {
 
 message PruneTokensResponse {
     repeated string tokens = 1;
+    int32 Count = 2;
 }
 
 service LoginProvider {

@@ -59,6 +59,7 @@ func init() {
 				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, h)
 				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, h)
 				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, h)
+				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, h)
 
 				return nil
 			}),
@@ -78,6 +79,11 @@ func init() {
 				pat := &PatHandler{}
 				proto.RegisterPersonalAccessTokenServiceHandler(m.Options().Server, pat)
 				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, pat)
+				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, pat)
+				return nil
+			}),
+			service.AfterStart(func(s service.Service) error {
+				oauth.InsertPruningJob(s.Options().Context)
 				return nil
 			}),
 		)
