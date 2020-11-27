@@ -55,7 +55,8 @@ func InsertPruningJob(ctx context.Context) error {
 	return service.Retry(func() error {
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
-		if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
+		timeout := registry.ShortRequestTimeout()
+		if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}, timeout); e == nil && resp.Job != nil {
 			return nil // Already exists
 		} else if e != nil && errors.Parse(e.Error()).Id == "go.micro.client" {
 			return e // not ready yet, retry
@@ -73,7 +74,7 @@ func InsertPruningJob(ctx context.Context) error {
 			Actions: []*jobs.Action{{
 				ID: pruneTokensActionName,
 			}},
-		}})
+		}}, timeout)
 
 		return e
 	}, 5*time.Second)

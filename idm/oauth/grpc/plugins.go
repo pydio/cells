@@ -49,6 +49,12 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            oauth.InsertPruningJob,
+				},
+			}),
 			service.WithMicro(func(m micro.Service) error {
 				h := &Handler{}
 				proto.RegisterLoginProviderHandler(m.Options().Server, h)
@@ -80,10 +86,6 @@ func init() {
 				proto.RegisterPersonalAccessTokenServiceHandler(m.Options().Server, pat)
 				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, pat)
 				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, pat)
-				return nil
-			}),
-			service.AfterStart(func(s service.Service) error {
-				oauth.InsertPruningJob(s.Options().Context)
 				return nil
 			}),
 		)

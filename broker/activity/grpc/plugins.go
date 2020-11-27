@@ -29,6 +29,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/registry"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro"
@@ -150,7 +152,7 @@ func RegisterDigestJob(ctx context.Context) error {
 
 	return service.Retry(func() error {
 		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
-		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}, registry.ShortRequestTimeout())
 		return e
 	}, 5*time.Second, 20*time.Second)
 

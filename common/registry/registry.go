@@ -26,6 +26,7 @@ package registry
 
 import (
 	"sync"
+	"time"
 
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/client"
@@ -190,6 +191,11 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 // GetClient returns the default client for the service name
 func GetClient(name string) (string, client.Client) {
 	return common.ServiceGrpcNamespace_ + name, defaults.NewClient()
+}
+
+// GetShortRequestTime returns a 1s RequestTimeout option
+func ShortRequestTimeout() client.CallOption {
+	return client.WithRequestTimeout(1 * time.Second)
 }
 
 // Filter the service out of the registry

@@ -138,7 +138,7 @@ func init() {
 								}
 								_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{
 									Job: job,
-								})
+								}, registry.ShortRequestTimeout())
 								return e
 							} else {
 								log.Logger(ctx).Debug("Could not get info about job, retrying...")

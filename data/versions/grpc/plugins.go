@@ -26,6 +26,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/pydio/cells/common/registry"
+
 	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro"
@@ -82,12 +84,12 @@ func init() {
 
 				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
 
-				jobsClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
-				ctx, cancel := context.WithTimeout(m.Options().Context, time.Second*1)
-				defer cancel()
+				jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+				to := registry.ShortRequestTimeout()
+				ctx := m.Options().Context
 				for _, j := range getDefaultJobs() {
-					if _, err := jobsClient.GetJob(m.Options().Context, &jobs.GetJobRequest{JobID: j.ID}); err != nil {
-						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
+					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
+						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
 					}
 				}
 
