@@ -146,12 +146,12 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 	}
 
 	rows, err := getStmt.Query(owner)
-
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var list = []*encryption.Key{}
+	var list []*encryption.Key
 
 	for rows.Next() {
 		var bytes []byte
@@ -160,7 +160,6 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 
 		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
 		if err != nil {
-			rows.Close()
 			return nil, err
 		}
 
