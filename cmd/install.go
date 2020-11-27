@@ -381,7 +381,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 /* HELPERS */
 
-func play() (*bytes.Buffer, error) {
+func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	template := caddy.Get().GetTemplate()
 
 	buf := bytes.NewBuffer([]byte{})

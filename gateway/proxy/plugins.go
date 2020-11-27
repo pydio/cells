@@ -56,6 +56,7 @@ var (
 {{$Maintenance := .Maintenance}}
 {{$MaintenanceConditions := .MaintenanceConditions}}
 {{$SiteWebRoot := .WebRoot}}
+{{$Site := .}}
 {{range .Binds}}{{.}} {{end}}{
 	{{if $Maintenance}}
 	redir { 
@@ -172,7 +173,7 @@ var (
 	}
 	
 	{{range $.PluginTemplates}}
-	{{call .}}
+	{{call . $Site}}
 	{{end}}
 	
 	rewrite {
@@ -381,7 +382,7 @@ func (g *gatewayProxyServer) Stop() error {
 	return nil
 }
 
-func play() (*bytes.Buffer, error) {
+func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	LoadCaddyConf()
 
 	template := caddy.Get().GetTemplate()

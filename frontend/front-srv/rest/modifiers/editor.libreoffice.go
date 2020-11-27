@@ -21,6 +21,9 @@ var (
 	editorLibreOfficeTemplateStr = `
         proxy /wopi/ {{.WOPI | urls}} {
             transparent
+			header_upstream Host {{if .Site.ExternalHost}}{{.Site.ExternalHost}}{{else}}{host}{{end}}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
         }
 
         proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
@@ -47,12 +50,13 @@ var (
 type EditorLibreOffice struct {
 	WOPI      string
 	Collabora *url.URL
+	Site      caddy.SiteConf
 }
 
 func init() {
 	plugins.Register(func(ctx context.Context) {
 		caddy.RegisterPluginTemplate(
-			caddy.TemplateFunc(play),
+			play,
 			[]string{"frontend", "plugin", "editor.libreoffice"},
 			"/wopi/",
 			"/loleaflet/",
@@ -69,19 +73,22 @@ func init() {
 	})
 }
 
-func play() (*bytes.Buffer, error) {
+func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 
-	e := new(EditorLibreOffice)
+	data := new(EditorLibreOffice)
 
-	e.WOPI = common.ServiceGatewayWopi
+	data.WOPI = common.ServiceGatewayWopi
+	if len(site) > 0 {
+		data.Site = site[0]
+	}
 
-	if err := getCollaboraConfig(&e.Collabora); err != nil {
+	if err := getCollaboraConfig(&data.Collabora); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
 		return nil, err
 	}
 
 	buf := bytes.NewBuffer([]byte{})
-	if err := editorLibreOfficeTemplate.Execute(buf, e); err != nil {
+	if err := editorLibreOfficeTemplate.Execute(buf, data); err != nil {
 		return nil, err
 	}
 

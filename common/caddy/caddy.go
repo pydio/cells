@@ -100,7 +100,7 @@ type Caddy struct {
 }
 
 // TemplateFunc is a function providing a stringer
-type TemplateFunc func() (*bytes.Buffer, error)
+type TemplateFunc func(site ...SiteConf) (*bytes.Buffer, error)
 
 // Enable the caddy builder
 func Enable(caddyfile string, player TemplateFunc) {
