@@ -82,11 +82,14 @@ func OnConfigurationInit(f func(scanner common.Scanner)) {
 func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
 	confMutex.Lock()
 	defer confMutex.Unlock()
+
 	if len(hostname) > 0 {
-		return confMap[hostname[0]]
-	} else {
-		return defaultConf
+		if c, ok := confMap[hostname[0]]; ok {
+			return c
+		}
 	}
+
+	return defaultConf
 }
 
 func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
