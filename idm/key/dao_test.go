@@ -128,7 +128,6 @@ func TestDAODelete(t *testing.T) {
 
 		k, err := dao.ListKeys("jabar")
 		convey.So(err, convey.ShouldBeNil)
-		convey.So(k, convey.ShouldNotBeNil)
-		convey.So(len(k), convey.ShouldEqual, 0)
+		convey.So(k, convey.ShouldBeEmpty)
 	})
 }
