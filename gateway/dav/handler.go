@@ -59,7 +59,7 @@ func logRequest(handler http.Handler) http.Handler {
 
 func newHandler(ctx context.Context, router *views.Router) http.Handler {
 
-	basicAuthenticator := auth.NewBasicAuthenticator("Pydio WebDAV", time.Duration(20*time.Minute))
+	basicAuthenticator := auth.NewBasicAuthenticator("Cells DAV", time.Duration(10*time.Minute))
 
 	fs := &FileSystem{
 		Router: router,

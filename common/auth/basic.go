@@ -32,7 +32,10 @@ import (
 )
 
 func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator {
-	ba := &BasicAuthenticator{}
+	ba := &BasicAuthenticator{
+		Realm: realm,
+		TTL:   ttl,
+	}
 	ba.cache = make(map[string]*validBasicUser)
 	return ba
 }
@@ -57,7 +60,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 
 			ctx := r.Context()
 
-			if valid, vOk := b.cache[user]; vOk && time.Now().Sub(valid.Connexion) <= time.Duration(time.Minute*10) && valid.Hash == pass {
+			if valid, vOk := b.cache[user]; vOk && time.Now().Sub(valid.Connexion) <= b.TTL && valid.Hash == pass {
 
 				md := map[string]string{}
 				if meta, ok := metadata.FromContext(ctx); ok {
@@ -75,15 +78,27 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 				return
 			}
 
-			token, err := DefaultJWTVerifier().PasswordCredentialsToken(ctx, user, pass)
+			djv := DefaultJWTVerifier()
+			if tokenCtx, tokenClaims, err := djv.Verify(ctx, pass); err == nil && tokenClaims.Name == user {
+				// Password used is directly an access token and user name is correct, use these claims directly
+				r = r.WithContext(tokenCtx)
+				b.cache[user] = &validBasicUser{
+					Hash:      pass,
+					Connexion: time.Now(),
+					Claims:    tokenClaims,
+				}
+				handler.ServeHTTP(w, r)
+				return
+			}
+
+			// Otherwise continue in standard user/pass scheme
+			token, err := djv.PasswordCredentialsToken(ctx, user, pass)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusNotFound)
 				return
 			}
-
-			newCtx, claims, err := DefaultJWTVerifier().Verify(ctx, token.AccessToken)
+			newCtx, claims, err := djv.Verify(ctx, token.AccessToken)
 			if err == nil {
-
 				r = r.WithContext(newCtx)
 				b.cache[user] = &validBasicUser{
 					Hash:      pass,
