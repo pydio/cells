@@ -23,6 +23,8 @@ package service
 import (
 	"fmt"
 	"time"
+
+	micro "github.com/micro/go-micro"
 )
 
 // Retry function
@@ -51,4 +53,18 @@ func Retry(f func() error, seconds ...time.Duration) error {
 			return fmt.Errorf("timeout")
 		}
 	}
+}
+
+func AddMicroMeta(m micro.Service, k, v string) {
+	meta := make(map[string]string)
+
+	current := m.Options().Server.Options().Metadata
+
+	for kk, vv := range current {
+		meta[kk] = vv
+	}
+
+	meta[k] = v
+
+	m.Init(micro.Metadata(meta))
 }

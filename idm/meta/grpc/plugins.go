@@ -61,9 +61,8 @@ func init() {
 				ctx := m.Options().Context
 				server := NewHandler()
 
-				metadata := m.Server().Options().Metadata
-				metadata[meta2.ServiceMetaProvider] = "stream"
-				metadata[meta2.ServiceMetaNsProvider] = "list"
+				service.AddMicroMeta(m, meta2.ServiceMetaProvider, "stream")
+				service.AddMicroMeta(m, meta2.ServiceMetaNsProvider, "list")
 
 				m.Init(micro.BeforeStop(func() error {
 					server.Stop()
