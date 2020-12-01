@@ -29,6 +29,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
+	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -42,7 +43,10 @@ import (
 )
 
 var (
-	clientWithRetriesOnce = &sync.Once{}
+	clientWithRetriesOnce    = &sync.Once{}
+	ancestorsCacheExpiration = 800 * time.Millisecond
+	ancestorsParentsCache    = cache.New(ancestorsCacheExpiration, 5*time.Second)
+	ancestorsNodesCache      = cache.New(ancestorsCacheExpiration, 5*time.Second)
 )
 
 type sourceAlias struct {
