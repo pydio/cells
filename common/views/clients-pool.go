@@ -23,8 +23,6 @@ package views
 import (
 	"context"
 	"fmt"
-	"io"
-	"path"
 	"strings"
 	"sync"
 	"time"
@@ -307,80 +305,4 @@ func filterServices(vs []registry.Service, f func(string) bool) []string {
 		}
 	}
 	return vsf
-}
-
-// BuildAncestorsList uses ListNodes with Ancestors flag set to build the list of parent nodes.
-func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
-	/*
-		sT := time.Now()
-		defer func() {
-			fmt.Println("--- End BuildAncestorsList for "+node.GetPath(), time.Now().Sub(sT))
-		}()
-	*/
-	dirPath := path.Dir(node.GetPath())
-	if node.GetPath() != "" {
-		if cached, has := ancestorsParentsCache.Get(dirPath); has {
-			if parents, ok := cached.([]*tree.Node); ok {
-				// Lookup First node
-				if cachedNode, h := ancestorsNodesCache.Get(node.GetPath()); h {
-					parentUuids = append(parentUuids, cachedNode.(*tree.Node))
-				} else {
-					r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-					if er != nil {
-						return parentUuids, er
-					}
-					ancestorsNodesCache.SetDefault(node.GetPath(), r.GetNode())
-					parentUuids = append(parentUuids, r.GetNode())
-				}
-				parentUuids = append(parentUuids, parents...)
-				return parentUuids, nil
-			}
-		}
-	}
-
-	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
-		Node:      node,
-		Ancestors: true,
-	})
-	if lErr != nil {
-		return parentUuids, lErr
-	}
-	defer ancestorStream.Close()
-	for {
-		parent, e := ancestorStream.Recv()
-		if e != nil {
-			if e == io.EOF || e == io.ErrUnexpectedEOF {
-				break
-			} else {
-				return nil, e
-			}
-		}
-		if parent == nil {
-			continue
-		}
-		parentUuids = append(parentUuids, parent.Node)
-	}
-	if dirPath != "" && parentUuids != nil && len(parentUuids) > 1 {
-		cNode := parentUuids[0]
-		pNodes := parentUuids[1:]
-		ancestorsNodesCache.SetDefault(node.GetPath(), cNode)
-		ancestorsParentsCache.SetDefault(dirPath, pNodes)
-	}
-	return parentUuids, err
-}
-
-// Recursive listing to build ancestors list when the node does not exists yet : try to find all existing parents
-func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
-	parents, err := BuildAncestorsList(ctx, treeClient, node)
-	nodePathParts := strings.Split(node.Path, "/")
-	if err != nil && len(nodePathParts) > 1 {
-		// Try to list parent node right
-		parentNode := &tree.Node{}
-		parentNode.Path = strings.Join(nodePathParts[0:len(nodePathParts)-1], "/")
-		parents, err = BuildAncestorsListOrParent(ctx, treeClient, parentNode)
-		if err != nil {
-			return parents, err
-		}
-	}
-	return parents, nil
 }

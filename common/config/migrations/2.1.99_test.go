@@ -31,7 +31,7 @@ func TestMigration2_2_0(t *testing.T) {
 		_, err := UpgradeConfigsIfRequired(conf)
 		So(err, ShouldBeNil)
 
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 		So(conf, ShouldNotBeNil)
 	})
 

@@ -101,8 +101,10 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
 			)
+
 			svc.Init(
 				micro.Name(name),
+				micro.Version(o.Version),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
@@ -119,6 +121,9 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 					return nil
 				}),
 			)
+
+			meta := registry.BuildServiceMeta()
+			meta["description"] = o.Description
 
 			svc.Init(
 				micro.Metadata(registry.BuildServiceMeta()),

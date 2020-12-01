@@ -124,6 +124,12 @@ func (this *ExchangeRequest) Validate() error {
 func (this *ExchangeResponse) Validate() error {
 	return nil
 }
+func (this *PasswordCredentialsTokenRequest) Validate() error {
+	return nil
+}
+func (this *PasswordCredentialsTokenResponse) Validate() error {
+	return nil
+}
 func (this *RefreshTokenRequest) Validate() error {
 	return nil
 }

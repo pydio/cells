@@ -31,6 +31,7 @@ import (
 
 type mockService struct {
 	name          string
+	description   string
 	version       string
 	running       bool
 	nodes         []*registry.Node
@@ -40,8 +41,15 @@ type mockService struct {
 }
 
 func NewMockFromMicroService(rs *registry.Service) *mockService {
+	description := ""
+	if len(rs.Nodes) > 0 {
+		if d, ok := rs.Nodes[0].Metadata["description"]; ok {
+			description = d
+		}
+	}
 	m := &mockService{
 		name:          rs.Name,
+		description:   description,
 		version:       rs.Version,
 		running:       true,
 		tags:          nil,
@@ -81,7 +89,7 @@ func (m *mockService) Version() string {
 	return m.version
 }
 func (m *mockService) Description() string {
-	return ""
+	return m.description
 }
 func (m *mockService) Regexp() *regexp.Regexp {
 	return nil
