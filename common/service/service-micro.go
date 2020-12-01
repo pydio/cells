@@ -80,9 +80,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			svc := micro.NewService(
 				micro.Version(o.Version),
 				micro.Cmd(command),
-				micro.Metadata(map[string]string{
-					"test1": "test",
-				}),
 			)
 
 			name := s.Name()
@@ -95,12 +92,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
 
-			srvOpts = append(srvOpts,
-				server.Version(o.Version),
-				server.Metadata(map[string]string{
-					"test": "test",
-				}),
-			)
+			srvOpts = append(srvOpts, server.Version(o.Version))
 
 			ctx, cancel := context.WithCancel(ctx)
 
