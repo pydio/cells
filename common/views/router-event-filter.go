@@ -79,16 +79,24 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 		return node, false
 	}
 	roots := workspace.RootUUIDs
-	ancestors, e := tree.BuildAncestorsList(ctx, r.GetClientsPool().GetTreeClient(), node)
-	if e != nil {
-		log.Logger(ctx).Error("Cannot list ancestors list for", node.Zap(), zap.Error(e))
-		return node, false
-	}
+	var ancestors []*tree.Node
+	var ancestorsLoaded bool
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-			if accessList != nil && !accessList.CanReadPath(ctx, r.virtualResolver, ancestors...) {
-				//log.Logger(ctx).Info("[WorkspaceCanSeeNode] CanReadPath fail - Skipping", node.ZapPath())
-				continue
+			if accessList != nil {
+				if !ancestorsLoaded {
+					var e error
+					if ancestors, e = BuildAncestorsList(ctx, r.GetClientsPool().GetTreeClient(), node); e != nil {
+						log.Logger(ctx).Error("Cannot list ancestors list for", node.Zap(), zap.Error(e))
+						return node, false
+					} else {
+						ancestorsLoaded = true
+					}
+				}
+				if !accessList.CanReadPath(ctx, r.virtualResolver, ancestors...) {
+					//log.Logger(ctx).Info("[WorkspaceCanSeeNode] CanReadPath fail - Skipping", node.ZapPath())
+					continue
+				}
 			}
 			newNode := node.Clone()
 			r.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
