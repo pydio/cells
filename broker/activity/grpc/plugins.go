@@ -73,8 +73,7 @@ func init() {
 			service.WithStorage(activity.NewDAO, "broker_activity"),
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
-				metadata := m.Server().Options().Metadata
-				metadata[meta.ServiceMetaProvider] = "stream"
+				service.AddMicroMeta(m, meta.ServiceMetaProvider, "stream")
 
 				dao := servicecontext.GetDAO(m.Options().Context).(activity.DAO)
 				// Register Subscribers
