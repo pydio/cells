@@ -46,7 +46,6 @@ import (
 
 var (
 	clientWithRetriesOnce    = &sync.Once{}
-	treeClientRetries        = client.Retries(5)
 	ancestorsCacheExpiration = 800 * time.Millisecond
 	ancestorsParentsCache    = cache.New(ancestorsCacheExpiration, 5*time.Second)
 	ancestorsNodesCache      = cache.New(ancestorsCacheExpiration, 5*time.Second)
@@ -120,7 +119,7 @@ func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.TreeClient != nil {
 		return p.TreeClient
 	}
-	return tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient(treeClientRetries))
+	return tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
 func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
