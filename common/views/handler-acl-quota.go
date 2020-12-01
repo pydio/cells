@@ -230,7 +230,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 			root = resolvedRoot.Uuid
 		}
 
-		ancestors, er := tree.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
+		ancestors, er := BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
 		if er != nil {
 			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
 			err = er

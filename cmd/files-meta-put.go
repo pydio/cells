@@ -39,7 +39,7 @@ var (
 )
 
 var metaPutCmd = &cobra.Command{
-	Use:   "put",
+	Use:   "meta-put",
 	Short: "Create or update a metadata entry for a node.",
 	Long: `Create or update a metadata entry for a node.
 
@@ -47,7 +47,7 @@ For a given node Uuid, metadata are key/values of string/json-encoded strings.
 
 EXAMPLE
 =======
-$ ` + os.Args[0] + ` meta put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
+$ ` + os.Args[0] + ` files meta-put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -75,5 +75,5 @@ func init() {
 	metaPutCmd.Flags().StringVarP(&metaPutKey, "key", "k", "", "Name of the metadata")
 	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "Json-encoded string representing the value")
 
-	MetaCmd.AddCommand(metaPutCmd)
+	FilesCmd.AddCommand(metaPutCmd)
 }
