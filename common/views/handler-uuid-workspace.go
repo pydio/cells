@@ -87,7 +87,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		}
 	}
 
-	parents, err := BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
+	parents, err := tree.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
 	if err != nil {
 		return ctx, node, err
 	}

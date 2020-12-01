@@ -40,13 +40,13 @@ var (
 
 // readCmd represents the read command
 var metaReadCmd = &cobra.Command{
-	Use:   "meta-read",
+	Use:   "read",
 	Short: "Display existing metadata for a given node",
 	Long: `Display existing metadata for a given node.
 
 EXAMPLE
 =======
-$ ` + os.Args[0] + ` files meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
+$ ` + os.Args[0] + ` meta read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
 +-------------------------------+---------------------------------------------------------------------------------------------------------------+
 |             NAME              |                                                     VALUE                                                     |
 +-------------------------------+---------------------------------------------------------------------------------------------------------------+
@@ -102,5 +102,5 @@ $ ` + os.Args[0] + ` files meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
 func init() {
 	metaReadCmd.Flags().StringVarP(&metaReadUUID, "uuid", "u", "", "Uuid of the node")
 
-	FilesCmd.AddCommand(metaReadCmd)
+	MetaCmd.AddCommand(metaReadCmd)
 }
