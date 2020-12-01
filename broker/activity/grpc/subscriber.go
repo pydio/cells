@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common/auth"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -37,7 +39,6 @@ import (
 
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
 	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
@@ -47,7 +48,6 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
 )
 
 type MicroEventsSubscriber struct {
@@ -216,7 +216,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 				log.Logger(ctx).Error("Could not load access list", zap.Error(er))
 				continue
 			}
-			ancestors, ez := views.BuildAncestorsListOrParent(auth.WithImpersonate(ctx, user), e.getTreeClient(), loadedNode)
+			ancestors, ez := tree.BuildAncestorsListOrParent(auth.WithImpersonate(ctx, user), e.getTreeClient(), loadedNode)
 			if ez != nil {
 				log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
 				continue
