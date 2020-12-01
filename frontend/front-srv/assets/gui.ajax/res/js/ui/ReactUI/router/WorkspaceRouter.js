@@ -29,7 +29,8 @@ const WorkspaceRouterWrapper = (pydio) => {
             const active = pydio.user ? pydio.user.getActiveRepository() : null
 
             if (!pydio.user) {
-                localStorage.setItem("loginOrigin", location.pathname);
+                let origin = location.pathname || ""
+                localStorage.setItem("loginOrigin", origin.replace(new RegExp('starting.html$'), ''));
             }
 
             repositories.forEach((repository) => {
