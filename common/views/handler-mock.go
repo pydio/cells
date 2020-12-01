@@ -26,10 +26,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/micro/go-micro/client"
+	errors2 "github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
 
 	"github.com/pydio/cells/common/log"
@@ -77,15 +79,39 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 	h.Nodes["in"] = in.Node
 	h.Context = ctx
 	streamer := NewWrappingStreamer()
-	go func() {
-		defer streamer.Close()
-		for _, n := range h.Nodes {
-			if strings.HasPrefix(n.Path, in.Node.Path+"/") {
+	if in.Ancestors {
+		if n, o := h.Nodes[in.Node.Path]; o {
+			go func() {
+				defer streamer.Close()
 				streamer.Send(&tree.ListNodesResponse{Node: n})
-			}
+				pa := in.Node.Path
+				for {
+					pa = path.Dir(pa)
+					if pa == "" || pa == "." {
+						break
+					}
+					if p, o := h.Nodes[pa]; o {
+						streamer.Send(&tree.ListNodesResponse{Node: p})
+					} else {
+						break
+					}
+				}
+			}()
+		} else {
+			streamer.Close()
+			return nil, errors2.NotFound("not.found", "Node not found")
 		}
+	} else {
+		go func() {
+			defer streamer.Close()
+			for _, n := range h.Nodes {
+				if strings.HasPrefix(n.Path, in.Node.Path+"/") {
+					streamer.Send(&tree.ListNodesResponse{Node: n})
+				}
+			}
 
-	}()
+		}()
+	}
 	return streamer, nil
 }
 
