@@ -99,7 +99,6 @@ func UpdateKeys(config configx.Values, m map[string]string) error {
 
 // UpdateVals replace a val with a new one
 func UpdateVals(config configx.Values, m map[string]string) (bool, error) {
-
 	var all interface{}
 	err := config.Scan(&all)
 	if err != nil {

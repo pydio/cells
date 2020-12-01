@@ -26,16 +26,16 @@ func TestUpdateKeys(t *testing.T) {
 
 	Convey("UpdateKeys", t, func() {
 
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 
 		err := UpdateKeys(conf, map[string]string{"#non-existing": "new-value"})
 		So(err, ShouldBeNil)
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 
 		err = UpdateKeys(conf, map[string]string{"services/pydio.grpc.auth": "services/pydio.grpc.oauth"})
 		So(err, ShouldBeNil)
 		So(conf.Val("services/pydio.grpc.oauth").Get(), ShouldNotBeNil)
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 
 	})
 }

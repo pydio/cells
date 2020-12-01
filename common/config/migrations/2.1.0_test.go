@@ -59,15 +59,16 @@ func TestMigration2_1_0(t *testing.T) {
 
 	Convey("Testing initial upgrade of config", t, func() {
 
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 
 		_, err := UpgradeConfigsIfRequired(conf)
 
 		So(err, ShouldBeNil)
 
-		PrettyPrint(conf.Map())
+		// PrettyPrint(conf.Map())
 		So(conf, ShouldNotBeNil)
 
-		So(conf.Val("services/pydio.api.websocket").Get(), ShouldNotBeNil)
+		So(conf.Val("services/pydio.web.oauth/connectors[0]/id").String(), ShouldEqual, "pydio")
+		So(conf.Val("services/pydio.web.oauth/connectors[0]/config").Get(), ShouldBeNil)
 	})
 }

@@ -48,6 +48,8 @@ import (
 // WithGeneric runs a micro server
 func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 	return func(o *ServiceOptions) {
+		o.Version = common.Version().String()
+
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService(
 				micro.Cmd(command),
@@ -63,6 +65,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 			)
 
 			svc.Init(
+				micro.Version(o.Version),
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
@@ -85,9 +88,12 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				}),
 			)
 
+			meta := registry.BuildServiceMeta()
+			meta["description"] = o.Description
+
 			// Make sure to add after
 			svc.Init(
-				micro.Metadata(registry.BuildServiceMeta()),
+				micro.Metadata(meta),
 			)
 
 			s.Init(
@@ -103,6 +109,8 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 // WithHTTP adds a http micro service handler to the current service
 func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 	return func(o *ServiceOptions) {
+		o.Version = common.Version().String()
+
 		o.MicroInit = func(s Service) error {
 			svc := micro.NewService(
 				micro.Cmd(command),
@@ -127,6 +135,7 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 			}
 
 			svc.Init(
+				micro.Version(o.Version),
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
@@ -149,6 +158,9 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				}),
 				micro.Server(srv),
 			)
+
+			meta := registry.BuildServiceMeta()
+			meta["description"] = o.Description
 
 			// Make sure to add after
 			svc.Init(

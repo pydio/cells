@@ -78,7 +78,11 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 		o.MicroInit = func(s Service) error {
 
 			svc := micro.NewService(
+				micro.Version(o.Version),
 				micro.Cmd(command),
+				micro.Metadata(map[string]string{
+					"test1": "test",
+				}),
 			)
 
 			name := s.Name()
@@ -90,6 +94,13 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			if o.TLSConfig != nil {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
+
+			srvOpts = append(srvOpts,
+				server.Version(o.Version),
+				server.Metadata(map[string]string{
+					"test": "test",
+				}),
+			)
 
 			ctx, cancel := context.WithCancel(ctx)
 
@@ -107,6 +118,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			)
 
 			meta := registry.BuildServiceMeta()
+			meta["description"] = o.Description
 			if s.Options().Source != "" {
 				meta["source"] = s.Options().Source
 			}

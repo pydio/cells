@@ -36,6 +36,8 @@ It has these top-level messages:
 	VerifyTokenResponse
 	ExchangeRequest
 	ExchangeResponse
+	PasswordCredentialsTokenRequest
+	PasswordCredentialsTokenResponse
 	RefreshTokenRequest
 	RefreshTokenResponse
 	PersonalAccessToken
@@ -574,6 +576,58 @@ type AuthCodeExchanger struct {
 
 func (h *AuthCodeExchanger) Exchange(ctx context.Context, in *ExchangeRequest, out *ExchangeResponse) error {
 	return h.AuthCodeExchangerHandler.Exchange(ctx, in, out)
+}
+
+// Client API for PasswordCredentialsToken service
+
+type PasswordCredentialsTokenClient interface {
+	PasswordCredentialsToken(ctx context.Context, in *PasswordCredentialsTokenRequest, opts ...client.CallOption) (*PasswordCredentialsTokenResponse, error)
+}
+
+type passwordCredentialsTokenClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewPasswordCredentialsTokenClient(serviceName string, c client.Client) PasswordCredentialsTokenClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &passwordCredentialsTokenClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *passwordCredentialsTokenClient) PasswordCredentialsToken(ctx context.Context, in *PasswordCredentialsTokenRequest, opts ...client.CallOption) (*PasswordCredentialsTokenResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PasswordCredentialsToken.PasswordCredentialsToken", in)
+	out := new(PasswordCredentialsTokenResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for PasswordCredentialsToken service
+
+type PasswordCredentialsTokenHandler interface {
+	PasswordCredentialsToken(context.Context, *PasswordCredentialsTokenRequest, *PasswordCredentialsTokenResponse) error
+}
+
+func RegisterPasswordCredentialsTokenHandler(s server.Server, hdlr PasswordCredentialsTokenHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&PasswordCredentialsToken{hdlr}, opts...))
+}
+
+type PasswordCredentialsToken struct {
+	PasswordCredentialsTokenHandler
+}
+
+func (h *PasswordCredentialsToken) PasswordCredentialsToken(ctx context.Context, in *PasswordCredentialsTokenRequest, out *PasswordCredentialsTokenResponse) error {
+	return h.PasswordCredentialsTokenHandler.PasswordCredentialsToken(ctx, in, out)
 }
 
 // Client API for AuthTokenRefresher service

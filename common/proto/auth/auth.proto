@@ -187,6 +187,22 @@ message ExchangeResponse {
     int64 Expiry = 4 [json_name="expiry"];
 }
 
+service PasswordCredentialsToken {
+    rpc PasswordCredentialsToken(PasswordCredentialsTokenRequest) returns (PasswordCredentialsTokenResponse) {};
+}
+
+message PasswordCredentialsTokenRequest {
+    string Username = 1 [json_name="username"];
+    string Password = 2 [json_name="password"];
+}
+
+message PasswordCredentialsTokenResponse {
+    string AccessToken = 1 [json_name="access_token"];
+    string IDToken = 2 [json_name="id_token"];
+    string RefreshToken = 3 [json_name="refresh_token"];
+    int64 Expiry = 4 [json_name="expiry"];
+}
+
 service AuthTokenRefresher {
     rpc Refresh(RefreshTokenRequest) returns (RefreshTokenResponse) {};
 }

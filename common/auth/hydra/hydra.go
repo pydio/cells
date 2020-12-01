@@ -254,6 +254,30 @@ func put(flow string, action string, challenge string, body interface{}, res int
 }
 */
 
+func PasswordCredentialsToken(ctx context.Context, username, password string) (*oauth2.Token, error) {
+	c := auth.NewPasswordCredentialsTokenClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	resp, err := c.PasswordCredentialsToken(ctx, &auth.PasswordCredentialsTokenRequest{
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	token := &oauth2.Token{
+		AccessToken:  resp.AccessToken,
+		RefreshToken: resp.RefreshToken,
+		Expiry:       time.Now().Add(time.Duration(resp.Expiry) * time.Second),
+	}
+
+	token = token.WithExtra(map[string]interface{}{
+		"expires_in": resp.Expiry,
+		"id_token":   resp.IDToken,
+	})
+
+	return token, nil
+}
+
 func Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 
 	c := auth.NewAuthCodeExchangerClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
