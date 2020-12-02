@@ -462,6 +462,21 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest, out 
 	return nil
 }
 
+// PasswordCredentialsToken validates the login information and generates a token
+func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest, out *pauth.PasswordCredentialsTokenResponse) error {
+	token, err := auth.DefaultJWTVerifier().PasswordCredentialsToken(ctx, in.Username, in.Password)
+	if err != nil {
+		return err
+	}
+
+	out.AccessToken = token.AccessToken
+	out.IDToken = token.Extra("id_token").(string)
+	out.RefreshToken = token.RefreshToken
+	out.Expiry = token.Expiry.Unix()
+
+	return nil
+}
+
 // Exchange code for a proper token
 func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest, out *pauth.ExchangeResponse) error {
 	session := oauth2.NewSession("")
