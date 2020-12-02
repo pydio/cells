@@ -21,21 +21,48 @@
 package cmd
 
 import (
+	"context"
+	"os"
+
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/tree"
+	// service "github.com/pydio/cells/common/service/proto"
 )
 
-var MetaCmd = &cobra.Command{
-	Use:   "meta",
-	Short: "Directly manage metadata on the nodes",
-	Long: `Manage metadata that enrich some of the nodes.
-
-Metadata are stored as simple key/values and attached to a node UUID.
-`,
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List files",
+	Long: `List ACLs currently stored in the acl micro-service.
+ 
+ Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
+ `,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+
+		// List all children and move them all
+		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}})
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+
+		cmd.Println("Starting to list nodes")
+
+		defer streamer.Close()
+		for {
+			node, err := streamer.Recv()
+			if err != nil {
+				break
+			}
+
+			cmd.Println(node)
+		}
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(MetaCmd)
+	FilesCmd.AddCommand(lsCmd)
 }

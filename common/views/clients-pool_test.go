@@ -21,11 +21,16 @@
 package views
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 var pools []*ClientsPool
@@ -73,4 +78,34 @@ func listOpenFiles() {
 			fmt.Printf("Number of Open Files : %s\n", out)
 		}
 	}
+}
+
+func TestBuildAncestorsList(t *testing.T) {
+	Convey("Test BuildAncestorsList", t, func() {
+		m := NewHandlerMock()
+		ctx := context.Background()
+		m.Nodes["path"] = &tree.Node{Path: "path"}
+		m.Nodes["path/to"] = &tree.Node{Path: "path/to"}
+		m.Nodes["path/to/node"] = &tree.Node{Path: "path/to/node"}
+		m.Nodes["path/to/node/file.txt"] = &tree.Node{Path: "path/to/node/file.txt"}
+		parents, e := BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to/node/file.txt"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 4)
+		parents, e = BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to/node/file.txt"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 4)
+		parents, e = BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to/node"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 3)
+		parents, e = BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 2)
+		parents, e = BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to/node/file.txt"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 4)
+		<-time.After(1 * time.Second)
+		parents, e = BuildAncestorsList(ctx, m, &tree.Node{Path: "path/to/node/file.txt"})
+		So(e, ShouldBeNil)
+		So(parents, ShouldHaveLength, 4)
+	})
 }

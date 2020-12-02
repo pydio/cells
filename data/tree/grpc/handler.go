@@ -310,7 +310,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				Ancestors: true,
 			})
 			if err != nil {
-				return errors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource")
+				return errors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource %s", err.Error())
 			}
 
 			defer streamer.Close()

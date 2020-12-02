@@ -189,11 +189,11 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 			return ctx, ancestors, nil
 		}
 	}
-	searchFunc := tree.BuildAncestorsList
+	searchFunc := BuildAncestorsList
 	n := node.Clone()
 	if orParents {
 		n.Uuid = "" // Make sure to look by path
-		searchFunc = tree.BuildAncestorsListOrParent
+		searchFunc = BuildAncestorsListOrParent
 	}
 	parents, err := searchFunc(ctx, p.GetTreeClient(), n)
 	if err != nil {
