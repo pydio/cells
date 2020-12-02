@@ -464,7 +464,7 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest, out 
 
 // PasswordCredentialsToken validates the login information and generates a token
 func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest, out *pauth.PasswordCredentialsTokenResponse) error {
-	token, err := auth.DefaultJWTVerifier().PasswordCredentialsToken(ctx, in.Username, in.Password)
+	token, err := auth.LocalJWTVerifier().PasswordCredentialsToken(ctx, in.Username, in.Password)
 	if err != nil {
 		return err
 	}

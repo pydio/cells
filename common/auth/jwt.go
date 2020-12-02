@@ -130,11 +130,34 @@ func VerifyContext(ctx context.Context, user *idm.User) error {
 	return nil
 }
 
-type JWTVerifier struct{}
+type JWTVerifier struct {
+	types []ProviderType
+}
 
 // DefaultJWTVerifier creates a ready to use JWTVerifier
 func DefaultJWTVerifier() *JWTVerifier {
-	return &JWTVerifier{}
+	return &JWTVerifier{
+		types: []ProviderType{ProviderTypeGrpc, ProviderTypeOry, ProviderTypePAT},
+	}
+}
+
+func LocalJWTVerifier() *JWTVerifier {
+	return &JWTVerifier{
+		types: []ProviderType{ProviderTypeOry, ProviderTypePAT},
+	}
+}
+
+func (j *JWTVerifier) getProviders() []Provider {
+	var res []Provider
+	for _, provider := range providers {
+		for _, t := range j.types {
+			if provider.GetType() == t {
+				res = append(res, provider)
+			}
+		}
+	}
+
+	return res
 }
 
 func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *claim.Claims) error {
@@ -216,7 +239,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 	var idToken IDToken
 	var err error
 
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		verifier, ok := provider.(Verifier)
 		if !ok {
 			continue
@@ -246,7 +269,7 @@ func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token,
 	var oauth2Token *oauth2.Token
 	var err error
 
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		exch, ok := provider.(Exchanger)
 		if !ok {
 			continue
@@ -303,7 +326,7 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 	var token *oauth2.Token
 	var err error
 
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		recl, ok := provider.(PasswordCredentialsTokenExchanger)
 		if !ok {
 			continue
@@ -325,7 +348,7 @@ func (j *JWTVerifier) LoginChallengeCode(ctx context.Context, claims claim.Claim
 	var code string
 	var err error
 
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		p, ok := provider.(LoginChallengeCodeExchanger)
 		if !ok {
 			continue
@@ -347,7 +370,7 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 	var code string
 	var err error
 
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		p, ok := provider.(PasswordCredentialsCodeExchanger)
 		if !ok {
 			continue
@@ -364,7 +387,7 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 
 // Logout
 func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string, opts ...TokenOption) error {
-	for _, provider := range providers {
+	for _, provider := range j.getProviders() {
 		p, ok := provider.(LogoutProvider)
 		if !ok {
 			continue
