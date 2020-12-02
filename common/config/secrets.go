@@ -12,10 +12,6 @@ import (
 )
 
 var (
-	//vaultConfig *Config
-	//vaultSource *vault.VaultSource
-	//vaultOnce sync.Once
-
 	registeredVaultKeys []string
 )
 
@@ -34,62 +30,28 @@ var (
 	))
 )
 
-// Vault Config with initialisation
-// func Vault() config.Config {
-
-// 	vaultOnce.Do(func() {
-// 		if GetRemoteSource() {
-// 			// loading remoteSource will trigger a call to defaults.NewClient()
-// 			vaultConfig = &Config{config.NewConfig(
-// 				config.WithSource(newRemoteSource(config.SourceName("vault"))),
-// 				config.PollInterval(10*time.Second),
-// 			)}
-// 			return
-// 		}
-
-// 		// appDir := ApplicationWorkingDir()
-// 		// Rather use same application directory as the one defined in vars.go to enable overriding of default location
-// 		appDir := PydioConfigDir
-// 		storePath := filepath.Join(appDir, "pydio-vault.json")
-
-// 		// Load keyPath from default location or from central config
-// 		keyPath := Get("defaults", "vault-key").Default(filepath.Join(appDir, "cells-vault-key")).String()
-
-// 		vaultSource = vault.NewVaultSource(storePath, keyPath, false)
-
-// 		vaultConfig = &Config{config.NewConfig(
-// 			config.WithSource(vaultSource),
-// 			config.PollInterval(10*time.Second),
-// 		)}
-// 		if save := migrateVault(vaultConfig, defaultConfig); save {
-// 			Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade configs to vault")
-// 		}
-// 	})
-// 	return vaultConfig
-// }
-
+// RegisterVaultKey adds a key to the configuration so that the value
+// associated with the key is swapped to an encrypted value
 func RegisterVaultKey(s ...string) {
 	registeredVaultKeys = append(registeredVaultKeys, configx.FormatPath(s))
 }
 
+// NewKeyForSecret creates a new random key
 func NewKeyForSecret() string {
 	return uuid.New()
 }
 
+// GetSecret returns the non encrypted value for a uuid
 func GetSecret(uuid string) configx.Values {
 	return stdvault.Val(uuid)
 }
 
+// SetSecret set the value for a uuid in the vault
 func SetSecret(uuid string, val string) {
-	// if GetRemoteSource() {
-	// 	remote.UpdateRemote("vault", val, uuid)
-	// 	return
-	// }
-
 	stdvault.Val(uuid).Set(val)
-	// vaultSource.Set(uuid, val, true)
 }
 
+// DelSecret deletes the value of a uuid in the vault
 func DelSecret(uuid string) {
 	stdvault.Val(uuid).Del()
 }

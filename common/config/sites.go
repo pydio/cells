@@ -82,6 +82,7 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
 }
 
+// GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri() string {
 	return "/public"
 }

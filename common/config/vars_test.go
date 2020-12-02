@@ -12,10 +12,6 @@ var (
 	workingDir = os.TempDir() + "/cells/tests/config"
 )
 
-func init() {
-	AsTestEnv()
-}
-
 func TestGetSet(t *testing.T) {
 
 	Convey("Given a default config initialised in a temp directory", t, func() {

@@ -78,7 +78,7 @@ func SourceNamesForDataServices(dataSrvType string) []string {
 	return SourceNamesFromDataConfigs(Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+dataSrvType)))
 }
 
-// SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
+// SourceNamesFromDataConfigs list sourceNames from the config, excluding the timestamp key
 func SourceNamesFromDataConfigs(values configx.Values) []string {
 	names := values.Val("sources").StringArray()
 	return SourceNamesFiltered(names)
@@ -107,6 +107,7 @@ func SourceNamesToConfig(sources map[string]*object.DataSource) {
 	Set(sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex, "sources"))
 }
 
+// TouchSourceNamesForDataServices update the timestamp set with the source list
 func TouchSourceNamesForDataServices(dataSrvType string) {
 	sources := SourceNamesForDataServices(dataSrvType)
 	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
@@ -116,15 +117,16 @@ func TouchSourceNamesForDataServices(dataSrvType string) {
 
 // MinioConfigNamesToConfig saves objects sources to config
 func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
-	var sourcesJsonKey []string
+	var sourcesJSONKey []string
 	for name, _ := range sources {
-		sourcesJsonKey = append(sourcesJsonKey, name)
+		sourcesJSONKey = append(sourcesJSONKey, name)
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
-	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
-	Set(sourcesJsonKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
+	sourcesJSONKey = append(sourcesJSONKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
+	Set(sourcesJSONKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 }
 
+// IndexServiceTableNames
 func IndexServiceTableNames(dsName string) map[string]string {
 	dsName = strings.Replace(dsName, "-", "_", -1)
 	if len(dsName) > 51 {
@@ -331,7 +333,6 @@ func filterGatewaysWithKeys(configs map[string]*object.MinioConfig, storageType 
 }
 
 func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, storageType object.StorageType, configKey string, configValue string) *object.MinioConfig {
-
 	for _, source := range configs {
 		if source.StorageType == storageType {
 			if source.GatewayConfiguration != nil {
@@ -342,12 +343,10 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 		}
 	}
 	return nil
-
 }
 
 // filterGatewaysWithKeys finds local folder configs that share the same base folder
 func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) (*object.MinioConfig, error) {
-
 	for _, source := range configs {
 		if source.StorageType == object.StorageType_LOCAL && net.PeerAddressesAreSameNode(source.PeerAddress, peerAddress) {
 			sep := string(os.PathSeparator)
@@ -359,5 +358,4 @@ func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddr
 		}
 	}
 	return nil, nil
-
 }

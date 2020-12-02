@@ -62,16 +62,6 @@ var (
 	_ pauth.AuthTokenRevokerHandler   = (*Handler)(nil)
 )
 
-var (
-	defaultRedirectURI string
-)
-
-func init() {
-	config.OnInitialized(func() {
-		defaultRedirectURI = config.GetDefaultSiteURL() + "/auth/callback"
-	})
-}
-
 func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest, out *pauth.GetLoginResponse) error {
 	req, err := auth.GetRegistry().ConsentManager().GetLoginRequest(ctx, in.Challenge)
 	if err != nil {
@@ -485,7 +475,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest, out *
 	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
-	values.Set("redirect_uri", defaultRedirectURI)
+	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -520,7 +510,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
 	values.Set("response_type", "id_token token")
-	values.Set("redirect_uri", defaultRedirectURI)
+	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

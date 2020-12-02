@@ -51,6 +51,7 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
 	"github.com/pydio/cells/x/filex"
+	json "github.com/pydio/cells/x/jsonx"
 
 	// All brokers
 	httpbroker "github.com/pydio/cells/common/micro/broker/http"
@@ -244,9 +245,22 @@ func initConfig() {
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
 
-	if _, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig); err != nil {
+	written, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig)
+	if err != nil {
 		fmt.Println("Error while trying to create default config file")
 		os.Exit(1)
+	}
+
+	if written {
+		var data interface{}
+		if e := json.Unmarshal([]byte(config.SampleConfig), &data); e == nil {
+			versionsStore.Put(&filex.Version{
+				User: "cli",
+				Date: time.Now(),
+				Log:  "Initialize with sample config",
+				Data: data,
+			})
+		}
 	}
 
 	var vaultConfig config.Store
@@ -294,6 +308,7 @@ func initConfig() {
 
 	config.Register(defaultConfig)
 	config.RegisterVault(vaultConfig)
+	config.RegisterVersionStore(versionsStore)
 
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val()); err == nil && save {

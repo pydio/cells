@@ -10,18 +10,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-/*
-var (
-	hydraAdminURL string
-)
-
-func init() {
-	config.OnInitialized(func() {
-		hydraAdminURL = config.GetDefaultSiteURL() + "/oidc-admin"
-	})
-}
-*/
-
 type ConsentResponse struct {
 	Challenge                    string   `json:"challenge"`
 	Skip                         bool     `json:"skip"`
@@ -87,31 +75,6 @@ func AcceptLogin(ctx context.Context, challenge string, subject string) (*Redire
 	return nil, nil
 }
 
-/*
-func RejectLogin(ctx context.Context, challenge string, body interface{}) (*RedirectResponse, error) {
-	resp := new(RedirectResponse)
-
-	if err := put("login", "reject", challenge, body, resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-*/
-/*
-func GetConsent(ctx context.Context, challenge string) (*auth.GetConsentResponse, error) {
-	c := auth.NewConsentProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
-	resp, err := c.GetConsent(ctx, &auth.GetConsentRequest{
-		Challenge: challenge,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-*/
-
 func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error) {
 
 	login, err := GetLogin(ctx, loginChallenge)
@@ -145,18 +108,6 @@ func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []st
 
 	return nil, nil
 }
-
-/*
-func RejectConsent(ctx context.Context, challenge string, body interface{}) (*RedirectResponse, error) {
-	resp := new(RedirectResponse)
-
-	if err := put("consent", "reject", challenge, body, resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-*/
 
 func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID, error) {
 	c := auth.NewLogoutProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
@@ -199,60 +150,6 @@ func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI
 
 	return resp.Code, nil
 }
-
-/*
-func get(flow string, challenge string, res interface{}) error {
-	cli := &http.Client{}
-
-	hydraAdminURL := config.Get("defaults", "urlInternal").String() + "/oidc-admin"
-
-	req, err := http.NewRequest("GET", hydraAdminURL+"/oauth2/auth/requests/"+flow, nil)
-
-	q := req.URL.Query()
-	q.Add(flow+"_challenge", challenge)
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := cli.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(res); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func put(flow string, action string, challenge string, body interface{}, res interface{}) error {
-	cli := &http.Client{}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-
-	hydraAdminURL := config.Get("defaults", "urlInternal").String() + "/oidc-admin"
-
-	req, err := http.NewRequest("PUT", hydraAdminURL+"/oauth2/auth/requests/"+flow+"/"+action, bytes.NewBuffer(data))
-	req.Header.Set("Content-Type", "application/json")
-
-	q := req.URL.Query()
-	q.Add(flow+"_challenge", challenge)
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := cli.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(res); err != nil {
-		return err
-	}
-
-	return nil
-}
-*/
 
 func PasswordCredentialsToken(ctx context.Context, username, password string) (*oauth2.Token, error) {
 	c := auth.NewPasswordCredentialsTokenClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())

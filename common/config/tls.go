@@ -10,7 +10,6 @@ import (
 
 	"github.com/mholt/caddy/caddytls"
 	"github.com/pydio/cells/x/configx"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -24,30 +23,32 @@ var (
 	tlsServerConfig = make(map[string]*tls.Config)
 )
 
-func init() {
-	cobra.OnInitialize(func() {
-		// TODO - reactivate this
-		// We deactivated that because we had a round circle situation for remote sources
-		// (you need remote source to retrieve the config and you need the cert config to call the remote source)
-		// Solution would be to retrieve the cert config directly in the env
+// TODO - reactivate this
+// func init() {
 
-		// tls := GetTLSClientConfig("grpc")
-		// if tls != nil {
-		// 	defaults.InitClient(func() client.Option { return grpcclient.AuthTLS(tls) })
-		// }
-		//
-		// tls = GetTLSServerConfig("grpc")
-		// if tls != nil {
-		// 	defaults.InitServer(func() server.Option { return grpcserver.AuthTLS(tls) })
-		// }
-		//
-		// tls = GetTLSServerConfig("http")
-		// if tls != nil {
-		// 	t := httptransport.NewTransport(transport.TLSConfig(tls), transport.Secure(true))
-		// 	defaults.InitHTTPServer(func() server.Option { return server.Transport(t) })
-		// }
-	})
-}
+// cobra.OnInitialize(func() {
+
+// We deactivated that because we had a round circle situation for remote sources
+// (you need remote source to retrieve the config and you need the cert config to call the remote source)
+// Solution would be to retrieve the cert config directly in the env
+
+// tls := GetTLSClientConfig("grpc")
+// if tls != nil {
+// 	defaults.InitClient(func() client.Option { return grpcclient.AuthTLS(tls) })
+// }
+//
+// tls = GetTLSServerConfig("grpc")
+// if tls != nil {
+// 	defaults.InitServer(func() server.Option { return grpcserver.AuthTLS(tls) })
+// }
+//
+// tls = GetTLSServerConfig("http")
+// if tls != nil {
+// 	t := httptransport.NewTransport(transport.TLSConfig(tls), transport.Secure(true))
+// 	defaults.InitHTTPServer(func() server.Option { return server.Transport(t) })
+// }
+//})
+// }
 
 func ResetTlsConfigs() {
 	tlsServerMutex.Lock()
