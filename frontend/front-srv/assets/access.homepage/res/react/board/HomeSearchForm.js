@@ -71,10 +71,15 @@ class HomeSearchForm extends Component{
         this.setState({loading: true, empty: false});
 
         const api = new SearchApi(this.props.pydio);
-        api.search({basename: queryString}, 'all', this.props.limit || 10).then(results => {
-            rootNode.setChildren(results);
+        api.search({basenameOrContent: queryString}, 'all', this.props.limit || 10).then(response => {
+            rootNode.setChildren(response.Results);
             rootNode.setLoaded(true);
-            this.setState({loading: false});
+            this.setState({
+                loading: false,
+                facets: response.Facets||[]
+            });
+        }).catch(e => {
+            this.setState({loading: false})
         });
 
     }

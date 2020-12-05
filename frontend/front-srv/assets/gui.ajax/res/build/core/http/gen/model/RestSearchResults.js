@@ -27,6 +27,10 @@ var _TreeNode = require('./TreeNode');
 
 var _TreeNode2 = _interopRequireDefault(_TreeNode);
 
+var _TreeSearchFacet = require('./TreeSearchFacet');
+
+var _TreeSearchFacet2 = _interopRequireDefault(_TreeSearchFacet);
+
 /**
 * The RestSearchResults model module.
 * @module model/RestSearchResults
@@ -44,6 +48,7 @@ var RestSearchResults = (function () {
         _classCallCheck(this, RestSearchResults);
 
         this.Results = undefined;
+        this.Facets = undefined;
         this.Total = undefined;
     }
 
@@ -62,6 +67,9 @@ var RestSearchResults = (function () {
             if (data.hasOwnProperty('Results')) {
                 obj['Results'] = _ApiClient2['default'].convertToType(data['Results'], [_TreeNode2['default']]);
             }
+            if (data.hasOwnProperty('Facets')) {
+                obj['Facets'] = _ApiClient2['default'].convertToType(data['Facets'], [_TreeSearchFacet2['default']]);
+            }
             if (data.hasOwnProperty('Total')) {
                 obj['Total'] = _ApiClient2['default'].convertToType(data['Total'], 'Number');
             }
@@ -77,6 +85,10 @@ var RestSearchResults = (function () {
 
 exports['default'] = RestSearchResults;
 module.exports = exports['default'];
+
+/**
+* @member {Array.<module:model/TreeSearchFacet>} Facets
+*/
 
 /**
 * @member {Number} Total

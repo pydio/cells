@@ -23,12 +23,20 @@ class SearchApi {
         const keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
+        } else if (keys.length === 1 && keys[0] === 'basenameOrContent') {
+            const term = this.autoQuote(values['basenameOrContent'])
+            // Search on both field with SHOULD, boosting Basename against TextContent
+            query.FreeString = `Basename:${term}^5 TextContent:${term}`
         } else {
             let freeQueries = {};
             keys.map(k => {
                 const value = values[k];
                 if(k.indexOf('ajxp_meta_') === 0) {
-                    freeQueries["Meta." + k.replace('ajxp_meta_', '')] = this.autoQuote(value);
+                    let sK = k.replace('ajxp_meta_', '')
+                    if (sK !== 'TextContent') {
+                        sK = 'Meta.' + sK;
+                    }
+                    freeQueries[sK] = this.autoQuote(value);
                 } else if (k === 'ajxp_mime') {
                     if(value === 'ajxp_folder'){
                         query.Type = 'COLLECTION';
@@ -65,12 +73,12 @@ class SearchApi {
         return new Promise((resolve, reject) => {
             this.api.nodes(request).then(response => {
                 if(!response.Results){
-                    resolve([]);
+                    resolve({Results: [], Total: 0});
                 }
-                const nodes = response.Results.map(n => {
+                response.Results = response.Results.map(n => {
                     return MetaNodeProvider.parseTreeNode(n, '', defaultSlug);
                 });
-                resolve(nodes);
+                resolve(response);
 
             }).catch((e) => {
                 reject(e);
