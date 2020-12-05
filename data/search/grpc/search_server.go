@@ -137,8 +137,10 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, streamer tree.Searcher_SearchStream) error {
 
 	resultsChan := make(chan *tree.Node)
+	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
 	defer close(resultsChan)
+	defer close(facetsChan)
 	defer close(doneChan)
 
 	wg := &sync.WaitGroup{}
@@ -147,6 +149,8 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 		defer wg.Done()
 		for {
 			select {
+			case facet := <-facetsChan:
+				streamer.Send(&tree.SearchResponse{Facet: facet})
 			case node := <-resultsChan:
 				if node != nil {
 
@@ -180,7 +184,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 		}
 	}()
 
-	err := s.Engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), resultsChan, doneChan)
+	err := s.Engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), resultsChan, facetsChan, doneChan)
 	if err != nil {
 		return err
 	}

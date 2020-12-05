@@ -86,6 +86,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	router := s.getRouter()
 
 	var nodes []*tree.Node
+	var facets []*tree.SearchFacet
 	prefixes := []string{}
 	nodesPrefixes := map[string]string{}
 	var passedPrefix string
@@ -152,6 +153,10 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			} else if rErr != nil {
 				return err
 			}
+			if resp.Facet != nil {
+				facets = append(facets, resp.Facet)
+				continue
+			}
 			respNode := resp.Node
 			wrapperCtx, wrapperN, _ := inputFilter(ctx, respNode, "in")
 			if err := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); err != nil {
@@ -189,6 +194,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	result := &rest.SearchResults{
 		Results: nodes,
+		Facets:  facets,
 		Total:   int32(len(nodes)),
 	}
 	rsp.WriteEntity(result)

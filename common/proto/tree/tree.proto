@@ -196,12 +196,28 @@ message SearchRequest{
     int32 From = 3;
     // Load node details
     bool Details = 4;
-    // Facet search
-    string Facet = 5;
+}
+
+message SearchFacet {
+    // Facet field name
+    string FieldName = 1;
+    // Segment Label
+    string Label = 2;
+    // Segment results count
+    int32 Count = 3;
+    // For string facets, term value
+    string Term = 4;
+    // For NumericRange facets, min/max values
+    int64 Min = 5;
+    int64 Max = 6;
+    // For DateRange facets, start/end values
+    int32 Start = 7;
+    int32 End = 8;
 }
 
 message SearchResponse{
     Node Node = 1;
+    SearchFacet Facet = 2;
 }
 
 // ==========================================================
