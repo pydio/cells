@@ -45,13 +45,11 @@ func TestMetaAction_Init(t *testing.T) {
 		job := &jobs.Job{}
 		action := &jobs.Action{
 			Parameters: map[string]string{
-				"metaName":  "key",
-				"metaValue": "value",
+				"metaJSON": `{"key":"value"}`,
 			},
 		}
 		metaAction.Init(job, nil, action)
-		So(metaAction.MetaNamespace, ShouldEqual, "key")
-		So(metaAction.MetaValue, ShouldEqual, "value")
+		So(metaAction.MetaJSON, ShouldEqual, `{"key":"value"}`)
 	})
 }
 
@@ -61,8 +59,7 @@ func TestMetaAction_Run(t *testing.T) {
 		job := &jobs.Job{}
 		action := &jobs.Action{
 			Parameters: map[string]string{
-				"metaName":  "key",
-				"metaValue": "value",
+				"metaJSON": `{"key":"value"}`,
 			},
 		}
 		metaAction.Init(job, nil, action)
