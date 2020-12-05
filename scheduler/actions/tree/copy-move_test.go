@@ -24,8 +24,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/common/config"
-
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/jobs"
@@ -37,7 +35,6 @@ import (
 func init() {
 	// Ignore client pool for unit tests
 	views.IsUnitTestEnv = true
-	config.AsTestEnv()
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {

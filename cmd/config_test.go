@@ -20,7 +20,7 @@ func TestConfigUpgrade(t *testing.T) {
 		"cert": {
 		  "proxy": {
 			"caUrl": "https://acme-v02.api.letsencrypt.org/directory",
-			"email": "jt@pydio.com",
+			"email": "test@pydio.com",
 			"httpRedir": true,
 			"ssl": true
 		  }
@@ -42,8 +42,8 @@ func TestConfigUpgrade(t *testing.T) {
 		"defaults": {
 		  "database": "f5eda2bacd38959a7b8533687cb063ad9677dd0b",
 		  "datasource": "pydiods1",
-		  "url": "https://cells-test.your-files-your-rules.eu",
-		  "urlInternal": "https://cells-test.your-files-your-rules.eu:443"
+		  "url": "https://example.com",
+		  "urlInternal": "https://example.com:443"
 		},
 		"frontend": {
 		  "plugin": {
@@ -61,7 +61,7 @@ func TestConfigUpgrade(t *testing.T) {
 			"X-XSS-Protection": "1; mode=block"
 		  },
 		  "session": {
-			"secureKey": "gcbv4SZzYDs4Grv75N4jTbA8AcnsL6Gjs4J7OIOVwYTzWgnwM5BNDmLx2ye0u26tIlVuPAWKuQhNA2MG7hcONg=="
+			"secureKey": "my-secure-key"
 		  },
 		  "versionSeed": "39a06559-0a37-42ab-9555-73cd9b9d7583"
 		},
@@ -96,10 +96,10 @@ func TestConfigUpgrade(t *testing.T) {
 				},
 				{
 				  "config": {
-					"clientID": "790919856025-jvg4riescntesrhln5bp456s8jlenpee.apps.googleusercontent.com",
-					"clientSecret": "WZighWsErKZFa09CVsmHQ2Ct",
+					"clientID": "my-id.apps.googleusercontent.com",
+					"clientSecret": "my-secret",
 					"issuer": "https://accounts.google.com",
-					"redirectURI": "https://cells-test.your-files-your-rules.eu/auth/dex/callback"
+					"redirectURI": "https://example.com/auth/dex/callback"
 				  },
 				  "id": "google",
 				  "name": "google",
@@ -112,7 +112,7 @@ func TestConfigUpgrade(t *testing.T) {
 			  "frontend": {
 				"Dir": "idm/auth/web"
 			  },
-			  "issuer": "https://cells-test.your-files-your-rules.eu/auth/dex",
+			  "issuer": "https://example.com/auth/dex",
 			  "logger": {
 				"format": "text",
 				"level": "debug"
@@ -132,14 +132,14 @@ func TestConfigUpgrade(t *testing.T) {
 				  "Name": "cells-front",
 				  "OfflineSessionsSliding": true,
 				  "RedirectURIs": [
-					"https://cells-test.your-files-your-rules.eu/login/callback"
+					"https://example.com/login/callback"
 				  ],
 				  "RefreshTokensExpiry": "30m",
-				  "Secret": "Fpbm56NjmggrvvLM11QsM5k1"
+				  "Secret": "my-secret"
 				}
 			  ],
 			  "web": {
-				"http": "https://cells-test.your-files-your-rules.eu/auth/dex"
+				"http": "https://example.com/auth/dex"
 			  }
 			},
 			"dsn": "default"
@@ -161,7 +161,7 @@ func TestConfigUpgrade(t *testing.T) {
 			]
 		  },
 		  "pydio.grpc.data.index.cellsdata": {
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"dsn": "default",
 			"tables": {
 			  "commits": "data_cellsdata_commits",
@@ -170,7 +170,7 @@ func TestConfigUpgrade(t *testing.T) {
 			}
 		  },
 		  "pydio.grpc.data.index.personal": {
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"dsn": "default",
 			"tables": {
 			  "commits": "data_personal_commits",
@@ -179,7 +179,7 @@ func TestConfigUpgrade(t *testing.T) {
 			}
 		  },
 		  "pydio.grpc.data.index.pydiods1": {
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"dsn": "default",
 			"tables": {
 			  "commits": "data_pydiods1_commits",
@@ -197,7 +197,7 @@ func TestConfigUpgrade(t *testing.T) {
 			"ApiSecret": "ABCYAJdJZDFhYYcHqTAuu9gT",
 			"LocalFolder": "/home/pydio/.config/pydio/cells/data",
 			"Name": "local1",
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"RunningPort": 46603
 		  },
 		  "pydio.grpc.data.sync": {
@@ -214,7 +214,7 @@ func TestConfigUpgrade(t *testing.T) {
 			"ObjectsBucket": "cellsdata",
 			"ObjectsPort": 46603,
 			"ObjectsServiceName": "local1",
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"StorageConfiguration": {
 			  "folder": "/home/pydio/.config/pydio/cells/data/cellsdata",
 			  "normalize": "false"
@@ -227,7 +227,7 @@ func TestConfigUpgrade(t *testing.T) {
 			"ObjectsBucket": "personal",
 			"ObjectsPort": 46603,
 			"ObjectsServiceName": "local1",
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"StorageConfiguration": {
 			  "folder": "/home/pydio/.config/pydio/cells/data/personal",
 			  "normalize": "false"
@@ -240,7 +240,7 @@ func TestConfigUpgrade(t *testing.T) {
 			"ObjectsBucket": "pydiods1",
 			"ObjectsPort": 46603,
 			"ObjectsServiceName": "local1",
-			"PeerAddress": "cells-test.your-files-your-rules.eu",
+			"PeerAddress": "example.com",
 			"StorageConfiguration": {
 			  "folder": "/home/pydio/.config/pydio/cells/data/pydiods1",
 			  "normalize": "false"
@@ -314,8 +314,8 @@ func TestConfigUpgrade(t *testing.T) {
 				"allowedOrigins": "*"
 			  }
 			},
-			"issuer": "https://cells-test.your-files-your-rules.eu/oidc/",
-			"secret": "UlinSnYCetTIbPOHLNUrUt07FOM5uWGJ",
+			"issuer": "https://example.com/oidc/",
+			"secret": "my-secret",
 			"staticClients": [
 			  {
 				"client_id": "cells-sync",
@@ -344,7 +344,7 @@ func TestConfigUpgrade(t *testing.T) {
 				],
 				"redirect_uris": [
 				  "http://localhost:3000/servers/callback",
-				  "https://cells-test.your-files-your-rules.eu/oauth2/oob"
+				  "https://example.com/oauth2/oob"
 				],
 				"response_types": [
 				  "code",

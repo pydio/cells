@@ -22,6 +22,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"runtime/debug"
 	"time"
 
 	"github.com/micro/cli"
@@ -124,6 +126,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
 				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
+					fmt.Println("WE ARE RESTARTING HERE")
+					debug.PrintStack()
 					return f(svc)
 				}),
 				micro.AfterStart(func() error {

@@ -26,16 +26,17 @@ func init() {
 				go func() {
 					<-time.After(1 * time.Second)
 
-					ticker := time.NewTicker(1 * time.Second)
+					ticker := time.NewTicker(10 * time.Millisecond)
 
 					for {
 						select {
 						case <-ticker.C:
 							lock.Lock()
 							meta := m.Server().Options().Metadata
-							c, ok := meta["testing"]
-							_ = c
-							_ = ok
+							fmt.Println("Writing")
+							meta["testing"] = "testing"
+							//_ = c
+							//_ = ok
 							lock.Unlock()
 						}
 					}

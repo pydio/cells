@@ -21,7 +21,6 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	plog "github.com/pydio/cells/common/proto/log"
 )
@@ -31,7 +30,6 @@ var (
 )
 
 func init() {
-	config.AsTestEnv()
 	registry.DefaultRegistry = r
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)

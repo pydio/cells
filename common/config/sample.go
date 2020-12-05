@@ -22,6 +22,7 @@ package config
 
 import "github.com/pydio/cells/common"
 
+// SampleConfig is the default config used during the first install
 var SampleConfig = `{
 	"version": "` + common.Version().String() + `",
 	"defaults": {

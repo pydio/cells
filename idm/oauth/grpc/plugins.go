@@ -66,6 +66,7 @@ func init() {
 				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, h)
 				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, h)
 				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, h)
+				proto.RegisterPasswordCredentialsTokenHandler(m.Options().Server, h)
 
 				return nil
 			}),

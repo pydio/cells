@@ -35,10 +35,12 @@ var (
 	std Store = New(micro.New(config.NewConfig(config.WithSource(memory.NewSource(memory.WithJSON([]byte{}))))))
 )
 
+// Register the default config store
 func Register(store Store) {
 	std = store
 }
 
+// Store defines the functionality a config must provide
 type Store interface {
 	configx.Entrypoint
 
@@ -84,6 +86,33 @@ func New(store configx.Entrypoint) Store {
 		im:    im,
 		store: store,
 	}
+}
+
+// These fonctions use the standard config
+
+// Save the config in the hard store
+func Save(ctxUser string, ctxMessage string) error {
+	return std.Save(ctxUser, ctxMessage)
+}
+
+// Watch for config changes for a specific path or underneath
+func Watch(path ...string) (configx.Receiver, error) {
+	return std.Watch(path...)
+}
+
+// Get access to the underlying structure at a certain path
+func Get(path ...string) configx.Values {
+	return std.Val(path...)
+}
+
+// Set new values at a certain path
+func Set(val interface{}, path ...string) error {
+	return std.Val(path...).Set(val)
+}
+
+// Del value at a certain path
+func Del(path ...string) {
+	std.Val(path...).Del()
 }
 
 // Config holds the main structure of a configuration
@@ -137,33 +166,6 @@ func (c *cacheconfig) Del() error {
 
 func (c *cacheconfig) Val(k ...string) configx.Values {
 	return &cacheValues{c.im.Val(k...), c.store, k}
-}
-
-// These fonctions use the standard config
-
-// Save the config in the hard store
-func Save(ctxUser string, ctxMessage string) error {
-	return std.Save(ctxUser, ctxMessage)
-}
-
-// Watch for config changes for a specific path or underneath
-func Watch(path ...string) (configx.Receiver, error) {
-	return std.Watch(path...)
-}
-
-// Get access to the underlying structure at a certain path
-func Get(path ...string) configx.Values {
-	return std.Val(path...)
-}
-
-// Set new values at a certain path
-func Set(val interface{}, path ...string) error {
-	return std.Val(path...).Set(val)
-}
-
-// Del value at a certain path
-func Del(path ...string) {
-	std.Val(path...).Del()
 }
 
 type cacheValues struct {

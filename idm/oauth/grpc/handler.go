@@ -62,16 +62,6 @@ var (
 	_ pauth.AuthTokenRevokerHandler   = (*Handler)(nil)
 )
 
-var (
-	defaultRedirectURI string
-)
-
-func init() {
-	config.OnInitialized(func() {
-		defaultRedirectURI = config.GetDefaultSiteURL() + "/auth/callback"
-	})
-}
-
 func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest, out *pauth.GetLoginResponse) error {
 	req, err := auth.GetRegistry().ConsentManager().GetLoginRequest(ctx, in.Challenge)
 	if err != nil {
@@ -462,6 +452,21 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest, out 
 	return nil
 }
 
+// PasswordCredentialsToken validates the login information and generates a token
+func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest, out *pauth.PasswordCredentialsTokenResponse) error {
+	token, err := auth.LocalJWTVerifier().PasswordCredentialsToken(ctx, in.Username, in.Password)
+	if err != nil {
+		return err
+	}
+
+	out.AccessToken = token.AccessToken
+	out.IDToken = token.Extra("id_token").(string)
+	out.RefreshToken = token.RefreshToken
+	out.Expiry = token.Expiry.Unix()
+
+	return nil
+}
+
 // Exchange code for a proper token
 func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest, out *pauth.ExchangeResponse) error {
 	session := oauth2.NewSession("")
@@ -470,7 +475,7 @@ func (h *Handler) Exchange(ctx context.Context, in *pauth.ExchangeRequest, out *
 	values.Set("client_id", config.DefaultOAuthClientID)
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
-	values.Set("redirect_uri", defaultRedirectURI)
+	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -505,7 +510,7 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest, ou
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
 	values.Set("response_type", "id_token token")
-	values.Set("redirect_uri", defaultRedirectURI)
+	values.Set("redirect_uri", config.GetDefaultSiteURL()+"/auth/callback")
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

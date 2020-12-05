@@ -3,7 +3,6 @@ package migrations
 import (
 	"context"
 	"fmt"
-	"path"
 
 	"github.com/hashicorp/go-version"
 
@@ -127,21 +126,6 @@ func UpdateVals(config configx.Values, m map[string]string) (bool, error) {
 	config.Set(all)
 
 	return true, nil
-}
-
-func deleteConfigKeys(config common.ConfigValues) (bool, error) {
-	var save bool
-	for _, oldPath := range configKeysDeletes {
-		val := config.Values(oldPath)
-		var data interface{}
-		if e := val.Scan(&data); e == nil && data != nil {
-			fmt.Printf("[Configs] Upgrading: deleting key %s\n", oldPath)
-			od, of := path.Split(oldPath)
-			config.Values(od).Del(of)
-			save = true
-		}
-	}
-	return save, nil
 }
 
 func stringSliceEqual(a, b []string) bool {
