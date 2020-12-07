@@ -46,13 +46,21 @@ var SearchApi = (function () {
         var keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
+        } else if (keys.length === 1 && keys[0] === 'basenameOrContent') {
+            var term = this.autoQuote(values['basenameOrContent']);
+            // Search on both field with SHOULD, boosting Basename against TextContent
+            query.FreeString = 'Basename:' + term + '^5 TextContent:' + term;
         } else {
             (function () {
                 var freeQueries = {};
                 keys.map(function (k) {
                     var value = values[k];
                     if (k.indexOf('ajxp_meta_') === 0) {
-                        freeQueries["Meta." + k.replace('ajxp_meta_', '')] = _this.autoQuote(value);
+                        var sK = k.replace('ajxp_meta_', '');
+                        if (sK !== 'TextContent') {
+                            sK = 'Meta.' + sK;
+                        }
+                        freeQueries[sK] = _this.autoQuote(value);
                     } else if (k === 'ajxp_mime') {
                         if (value === 'ajxp_folder') {
                             query.Type = 'COLLECTION';
@@ -90,12 +98,12 @@ var SearchApi = (function () {
         return new Promise(function (resolve, reject) {
             _this.api.nodes(request).then(function (response) {
                 if (!response.Results) {
-                    resolve([]);
+                    resolve({ Results: [], Total: 0 });
                 }
-                var nodes = response.Results.map(function (n) {
+                response.Results = response.Results.map(function (n) {
                     return _modelMetaNodeProvider2['default'].parseTreeNode(n, '', defaultSlug);
                 });
-                resolve(nodes);
+                resolve(response);
             })['catch'](function (e) {
                 reject(e);
             });

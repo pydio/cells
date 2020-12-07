@@ -146,7 +146,7 @@ var MainSearch = (function (_Component) {
         var _this = this;
 
         this.setState({ value: value }, function () {
-            _this.props.onChange({ 'basename': value });
+            _this.props.onChange({ 'basenameOrContent': value });
         });
     };
 

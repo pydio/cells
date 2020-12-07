@@ -3,6 +3,8 @@ package modifiers
 import (
 	"context"
 
+	"github.com/pydio/cells/common/config"
+
 	json "github.com/pydio/cells/x/jsonx"
 
 	service "github.com/pydio/cells/common/service/proto"
@@ -142,6 +144,9 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		}
 		optionsData["metaColumns"] = searchables
 		optionsData["reactColumnsRenderers"] = searchableRenderers
+		if config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool() {
+			optionsData["indexContent"] = true
+		}
 		searchOptions, _ := json.Marshal(optionsData)
 		tPart.AttrajxpOptions = string(searchOptions)
 		if appendPart {

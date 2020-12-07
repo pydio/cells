@@ -160,8 +160,8 @@ class SearchForm extends Component {
         this.setState({loading: true, empty: false});
         rootNode.setLoading(true);
         const api = new SearchApi(this.props.pydio);
-        api.search(values, crossWorkspace? 'all' : searchScope, limit).then(results => {
-            rootNode.setChildren(results);
+        api.search(values, crossWorkspace? 'all' : searchScope, limit).then(response => {
+            rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
             this.setState({loading: false});

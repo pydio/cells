@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/scheduler/actions"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -40,15 +41,14 @@ var (
 )
 
 type MetaAction struct {
-	Client        tree.NodeReceiverClient
-	MetaNamespace string
-	MetaValue     string
+	Client   tree.NodeReceiverClient
+	MetaJSON string
 }
 
 func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                metaActionName,
-		Label:             "Internal Metadata",
+		Label:             "Store Internal Meta",
 		Icon:              "tag-multiple",
 		Category:          actions.ActionCategoryTree,
 		Description:       "Update internal metadata on files or folders passed in input",
@@ -64,20 +64,11 @@ func (c *MetaAction) GetParametersForm() *forms.Form {
 		{
 			Fields: []forms.Field{
 				&forms.FormField{
-					Name:        "metaName",
-					Type:        forms.ParamString,
-					Label:       "Metadata Name",
-					Description: "Metadata namespace to update",
-					Default:     "",
-					Mandatory:   true,
-					Editable:    true,
-				},
-				&forms.FormField{
-					Name:        "metaValue",
-					Type:        forms.ParamString,
-					Label:       "Metadata Value",
-					Description: "Value to apply",
-					Default:     "",
+					Name:        "metaJSON",
+					Type:        forms.ParamTextarea,
+					Label:       "Metadata keys/values",
+					Description: `Metadata to be appended to incoming node, using JSON, e.g. {"key":"value"}. Leave empty to just save input node meta.`,
+					Default:     "{}",
 					Mandatory:   true,
 					Editable:    true,
 				},
@@ -95,8 +86,7 @@ func (c *MetaAction) GetName() string {
 func (c *MetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 
 	c.Client = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
-	c.MetaNamespace = action.Parameters["metaName"]
-	c.MetaValue = action.Parameters["metaValue"]
+	c.MetaJSON = action.Parameters["metaJSON"]
 
 	return nil
 }
@@ -109,15 +99,20 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	}
 
 	// Update Metadata
+	ms := jobs.EvaluateFieldStr(ctx, input, c.MetaJSON)
+	var mm map[string]interface{}
+	if e := json.Unmarshal([]byte(ms), &mm); e != nil {
+		return input.WithError(e), e
+	}
 	for _, n := range input.Nodes {
-		ns := jobs.EvaluateFieldStr(ctx, input, c.MetaNamespace)
-		val := jobs.EvaluateFieldStr(ctx, input, c.MetaValue)
-		n.SetMeta(ns, val)
+		for k, v := range mm {
+			n.SetMeta(k, v)
+		}
 		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
 		if err != nil {
 			return input.WithError(err), err
 		}
-		log.TasksLogger(ctx).Info(fmt.Sprintf("Updated metadata %s (value %s) on %s", ns, val, path.Base(n.GetPath())))
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Updated metadata map %s on %s", ms, path.Base(n.GetPath())))
 	}
 
 	input.AppendOutput(&jobs.ActionOutput{Success: true})

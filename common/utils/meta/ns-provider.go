@@ -43,12 +43,14 @@ type NamespacesProvider struct {
 	streamers    []tree.NodeProviderStreamer_ReadNodeStreamClient
 }
 
+// NewNamespacesProvider creates a new namespace provider
 func NewNamespacesProvider() *NamespacesProvider {
 	ns := &NamespacesProvider{}
 	ns.Watch()
 	return ns
 }
 
+// Namespaces lists all known usermeta namespaces
 func (p *NamespacesProvider) Namespaces() map[string]*idm.UserMetaNamespace {
 	if !p.loaded {
 		p.Load()
@@ -62,6 +64,7 @@ func (p *NamespacesProvider) Namespaces() map[string]*idm.UserMetaNamespace {
 	return ns
 }
 
+// ExcludeIndexes lists namespaces that should not be indexed by search engines
 func (p *NamespacesProvider) ExcludeIndexes() map[string]struct{} {
 	if !p.loaded {
 		p.Load()
@@ -77,6 +80,23 @@ func (p *NamespacesProvider) ExcludeIndexes() map[string]struct{} {
 	return ni
 }
 
+// IncludedIndexes lists namespaces that should be indexed by search engines
+func (p *NamespacesProvider) IncludedIndexes() map[string]struct{} {
+	if !p.loaded {
+		p.Load()
+	}
+	ni := make(map[string]struct{})
+	p.RLock()
+	defer p.RUnlock()
+	for _, ns := range p.namespaces {
+		if ns.Indexable {
+			ni[ns.Namespace] = struct{}{}
+		}
+	}
+	return ni
+}
+
+// Load finds all services declared as ServiceMetaNsProvider and call them to list the namespaces they declare
 func (p *NamespacesProvider) Load() {
 	// Other Meta Providers (running services only)
 	services, err := registry.ListServicesWithMicroMeta(ServiceMetaNsProvider, "list")
@@ -106,6 +126,7 @@ func (p *NamespacesProvider) Load() {
 
 }
 
+// InitStreamers prepares a set of NodeProviderStreamerClients ready to be requested
 func (p *NamespacesProvider) InitStreamers(ctx context.Context) error {
 	services, err := registry.ListServicesWithMicroMeta(ServiceMetaNsProvider, "list")
 	if err != nil {
@@ -120,6 +141,7 @@ func (p *NamespacesProvider) InitStreamers(ctx context.Context) error {
 	return nil
 }
 
+// CloseStreamers closes all prepared streamer clients
 func (p *NamespacesProvider) CloseStreamers() error {
 	var ers []error
 	for _, s := range p.streamers {
@@ -134,6 +156,7 @@ func (p *NamespacesProvider) CloseStreamers() error {
 	return nil
 }
 
+// ReadNode goes through all prepared streamers to collect metadata
 func (p *NamespacesProvider) ReadNode(node *tree.Node) (*tree.Node, error) {
 	out := node.Clone()
 	if out.MetaStore == nil {
@@ -150,6 +173,7 @@ func (p *NamespacesProvider) ReadNode(node *tree.Node) (*tree.Node, error) {
 	return out, nil
 }
 
+// Clear unload cached data to force reload at next call
 func (p *NamespacesProvider) Clear() {
 	p.Lock()
 	p.namespaces = nil
@@ -157,6 +181,7 @@ func (p *NamespacesProvider) Clear() {
 	p.Unlock()
 }
 
+// Watch watches idm ChangeEvents to force reload when metadata namespaces are modified
 func (p *NamespacesProvider) Watch() {
 	defaults.Broker().Subscribe(common.TopicIdmEvent, func(publication broker.Publication) error {
 		var ce idm.ChangeEvent

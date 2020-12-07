@@ -14,6 +14,7 @@
 
 import ApiClient from '../ApiClient';
 import TreeNode from './TreeNode';
+import TreeSearchFacet from './TreeSearchFacet';
 
 
 
@@ -60,6 +61,9 @@ export default class RestSearchResults {
             if (data.hasOwnProperty('Results')) {
                 obj['Results'] = ApiClient.convertToType(data['Results'], [TreeNode]);
             }
+            if (data.hasOwnProperty('Facets')) {
+                obj['Facets'] = ApiClient.convertToType(data['Facets'], [TreeSearchFacet]);
+            }
             if (data.hasOwnProperty('Total')) {
                 obj['Total'] = ApiClient.convertToType(data['Total'], 'Number');
             }
@@ -71,6 +75,10 @@ export default class RestSearchResults {
     * @member {Array.<module:model/TreeNode>} Results
     */
     Results = undefined;
+    /**
+    * @member {Array.<module:model/TreeSearchFacet>} Facets
+    */
+    Facets = undefined;
     /**
     * @member {Number} Total
     */

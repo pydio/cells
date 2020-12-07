@@ -232,8 +232,8 @@ var SearchForm = (function (_Component) {
         this.setState({ loading: true, empty: false });
         rootNode.setLoading(true);
         var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
-        api.search(values, crossWorkspace ? 'all' : searchScope, limit).then(function (results) {
-            rootNode.setChildren(results);
+        api.search(values, crossWorkspace ? 'all' : searchScope, limit).then(function (response) {
+            rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
             _this4.setState({ loading: false });

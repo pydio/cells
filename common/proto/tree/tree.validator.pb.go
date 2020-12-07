@@ -193,10 +193,18 @@ func (this *SearchRequest) Validate() error {
 	}
 	return nil
 }
+func (this *SearchFacet) Validate() error {
+	return nil
+}
 func (this *SearchResponse) Validate() error {
 	if this.Node != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
+		}
+	}
+	if this.Facet != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Facet); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Facet", err)
 		}
 	}
 	return nil

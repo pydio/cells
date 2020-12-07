@@ -86,6 +86,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([]*tree.Node, error) {
 
 	resultsChan := make(chan *tree.Node)
+	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
 	var results []*tree.Node
 	wg := &sync.WaitGroup{}
@@ -99,12 +100,14 @@ func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([
 					results = append(results, node)
 				}
 			case <-doneChan:
+				close(resultsChan)
+				close(facetsChan)
 				return
 			}
 		}
 	}()
 
-	e := index.SearchNodes(ctx, queryObject, 0, 10, resultsChan, doneChan)
+	e := index.SearchNodes(ctx, queryObject, 0, 10, resultsChan, facetsChan, doneChan)
 	wg.Wait()
 	return results, e
 

@@ -47,7 +47,6 @@ var TreeSearchRequest = (function () {
         this.Size = undefined;
         this.From = undefined;
         this.Details = undefined;
-        this.Facet = undefined;
     }
 
     /**
@@ -74,9 +73,6 @@ var TreeSearchRequest = (function () {
             if (data.hasOwnProperty('Details')) {
                 obj['Details'] = _ApiClient2['default'].convertToType(data['Details'], 'Boolean');
             }
-            if (data.hasOwnProperty('Facet')) {
-                obj['Facet'] = _ApiClient2['default'].convertToType(data['Facet'], 'String');
-            }
         }
         return obj;
     };
@@ -100,8 +96,4 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Details
-*/
-
-/**
-* @member {String} Facet
 */

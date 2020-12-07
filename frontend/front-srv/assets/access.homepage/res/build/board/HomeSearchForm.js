@@ -127,9 +127,14 @@ var HomeSearchForm = (function (_Component) {
             this.setState({ loading: true, empty: false });
 
             var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
-            api.search({ basename: queryString }, 'all', this.props.limit || 10).then(function (results) {
-                rootNode.setChildren(results);
+            api.search({ basenameOrContent: queryString }, 'all', this.props.limit || 10).then(function (response) {
+                rootNode.setChildren(response.Results);
                 rootNode.setLoaded(true);
+                _this2.setState({
+                    loading: false,
+                    facets: response.Facets || []
+                });
+            })['catch'](function (e) {
                 _this2.setState({ loading: false });
             });
         }

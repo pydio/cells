@@ -88,7 +88,16 @@ var AdvancedSearch = (function (_Component) {
 
         _Component.call(this, props);
 
+        var pydio = props.pydio;
+
+        var registry = pydio.getXmlRegistry();
+        var options = {};
+        try {
+            options = JSON.parse(_pydioUtilXml2['default'].XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
+        } catch (e) {}
+
         this.state = {
+            options: options,
             basename: props.values['basename'] || ''
         };
     }
@@ -154,6 +163,7 @@ var AdvancedSearch = (function (_Component) {
         var getMessage = _props.getMessage;
         var values = _props.values;
         var rootStyle = _props.rootStyle;
+        var options = this.state.options;
 
         var headerStyle = { fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10 };
 
@@ -166,6 +176,7 @@ var AdvancedSearch = (function (_Component) {
                 getMessage(341)
             ),
             this.renderField('basename', getMessage(1)),
+            options.indexContent && this.renderField('TextContent', 'Contents'),
             _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),
@@ -176,7 +187,7 @@ var AdvancedSearch = (function (_Component) {
             ),
             _react2['default'].createElement(
                 AdvancedMetaFields,
-                this.props,
+                _extends({}, this.props, { options: options }),
                 function (fields) {
                     return _react2['default'].createElement(
                         'div',
@@ -213,18 +224,8 @@ var AdvancedMetaFields = (function (_Component2) {
         _classCallCheck(this, AdvancedMetaFields);
 
         _Component2.call(this, props);
-
-        var pydio = props.pydio;
-
-        var registry = pydio.getXmlRegistry();
-
-        // Parse client configs
-        var options = JSON.parse(_pydioUtilXml2['default'].XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
-
         this.build = _lodash.debounce(this.build, 500);
-
         this.state = {
-            options: options,
             fields: {}
         };
     }
@@ -236,7 +237,7 @@ var AdvancedMetaFields = (function (_Component2) {
     AdvancedMetaFields.prototype.build = function build() {
         var _this3 = this;
 
-        var options = this.state.options;
+        var options = this.props.options;
 
         var _extends2 = _extends({}, options);
 

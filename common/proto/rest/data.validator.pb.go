@@ -23,6 +23,13 @@ func (this *SearchResults) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.Facets {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Facets", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *Pagination) Validate() error {

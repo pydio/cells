@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/utils/meta"
+
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
 	"github.com/blevesearch/bleve/analysis/analyzer/standard"
@@ -96,6 +98,8 @@ type BleveServer struct {
 	deletes chan string
 	done    chan bool
 	closed  chan bool
+
+	nsProvider *meta.NamespacesProvider
 }
 
 func NewBleveEngine(indexContent bool, configs map[string]interface{}) (*BleveServer, error) {
@@ -282,7 +286,7 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	return nil
 }
 
-func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, doneChan chan bool) error {
+func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	boolean := bleve.NewBooleanQuery()
 	// FileName
@@ -388,12 +392,107 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	}
 	searchRequest.From = int(from)
 	searchRequest.Fields = []string{"Uuid", "Path", "NodeType", "Basename"}
+	searchRequest.IncludeLocations = true
+	// Facet for node type
+	searchRequest.AddFacet("Type", &bleve.FacetRequest{
+		Field: "NodeType",
+		Size:  2,
+	})
+	// Facet for node extension
+	searchRequest.AddFacet("Extension", &bleve.FacetRequest{
+		Field: "Extension",
+		Size:  5,
+	})
+	// Facet for result being in text content or not
+	searchRequest.AddFacet("Content", &bleve.FacetRequest{
+		Field: "Meta.TextContent",
+		Size:  1,
+	})
+	// Facets by Size
+	sizeFacet := bleve.NewFacetRequest("Size", 4)
+	var s2, s3, s4 float64
+	s2 = 1024 * 1024
+	s3 = 1024 * 1024 * 1024 * 10
+	s4 = 1024 * 1024 * 1024 * 100
+	sizeFacet.AddNumericRange("< 1MB", nil, &s2)
+	sizeFacet.AddNumericRange("1MB to 10MB", &s2, &s3)
+	sizeFacet.AddNumericRange("10MB to 100MB", &s3, &s4)
+	sizeFacet.AddNumericRange("> 100MB", &s4, nil)
+	searchRequest.AddFacet("Size", sizeFacet)
+	// Facets by date
+	dateFacet := bleve.NewFacetRequest("ModifTime", 5)
+	now := time.Now()
+	last5 := now.Add(-5 * time.Minute)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	dateFacet.AddDateTimeRange("Moments ago", last5, now)
+	dateFacet.AddDateTimeRange("Today", today, now)
+	dateFacet.AddDateTimeRange("Past week", now.Add(-7*24*time.Hour), now)
+	dateFacet.AddDateTimeRange("Past 30 days", now.Add(-30*24*time.Hour), now)
+	dateFacet.AddDateTimeRange("Older", time.Time{}, now.Add(-30*24*time.Hour))
+	searchRequest.AddFacet("Date", dateFacet)
+
+	if s.nsProvider == nil {
+		s.nsProvider = meta.NewNamespacesProvider()
+	}
+	for metaName, _ := range s.nsProvider.IncludedIndexes() {
+		metaFacet := bleve.NewFacetRequest("Meta."+metaName, 4)
+		searchRequest.AddFacet(metaName, metaFacet)
+	}
+
 	searchResult, err := s.Engine.SearchInContext(c, searchRequest)
 	if err != nil {
 		doneChan <- true
 		return err
 	}
 	log.Logger(c).Info("SearchObjects", zap.Any("total results", searchResult.Total))
+	for _, f := range searchResult.Facets {
+		for _, t := range f.Terms {
+			if t.Term != "" {
+				facets <- &tree.SearchFacet{
+					FieldName: f.Field,
+					Label:     t.Term,
+					Count:     int32(t.Count),
+				}
+			}
+		}
+		for _, r := range f.NumericRanges {
+			if r.Min != nil || r.Max != nil {
+				nr := &tree.SearchFacet{
+					FieldName: f.Field,
+					Label:     r.Name,
+					Count:     int32(r.Count),
+				}
+				if r.Min != nil {
+					nr.Min = int64(*r.Min)
+				}
+				if r.Max != nil {
+					nr.Max = int64(*r.Max)
+				}
+				facets <- nr
+			}
+		}
+		for _, r := range f.DateRanges {
+			if r.Start != nil || r.End != nil {
+				dr := &tree.SearchFacet{
+					FieldName: f.Field,
+					Label:     r.Name,
+					Count:     int32(r.Count),
+				}
+				if r.Start != nil {
+					if start, e := time.Parse(time.RFC3339Nano, *r.Start); e == nil {
+						dr.Start = int32(start.Unix())
+					}
+				}
+				if r.End != nil {
+					if end, e := time.Parse(time.RFC3339Nano, *r.End); e == nil {
+						dr.End = int32(end.Unix())
+					}
+				}
+				facets <- dr
+			}
+		}
+	}
+
 	for _, hit := range searchResult.Hits {
 		node := &tree.Node{}
 		if u, ok := hit.Fields["Uuid"]; ok {
@@ -412,35 +511,11 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 				node.Type = tree.NodeType_COLLECTION
 			}
 		}
-		/*
-			doc, docErr := s.Engine.Document(hit.ID)
-			if docErr != nil || doc == nil {
-				continue
+		for k, _ := range hit.Locations {
+			if k == "Meta.TextContent" {
+				node.SetMeta("document_content_hit", true)
 			}
-			node := &tree.Node{}
-			for _, f := range doc.Fields {
-				stringValue := string(f.Value())
-				switch f.Name() {
-				case "Uuid":
-					node.Uuid = stringValue
-					break
-				case "Path":
-					node.Path = stringValue
-					break
-				case "NodeType":
-					if stringValue == "file" {
-						node.Type = 1
-					} else if stringValue == "folder" {
-						node.Type = 2
-					}
-					break
-				case "Basename":
-					node.SetMeta("name", stringValue)
-				default:
-					break
-				}
-			}
-		*/
+		}
 
 		log.Logger(c).Debug("SearchObjects", zap.Any("node", node))
 
