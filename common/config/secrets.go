@@ -1,14 +1,8 @@
 package config
 
 import (
-	"path/filepath"
-	"time"
-
 	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common/config/micro"
-	mvault "github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/go-os/config"
 )
 
 var (
@@ -16,18 +10,7 @@ var (
 )
 
 var (
-	stdvault = New(micro.New(
-		config.NewConfig(
-			config.WithSource(
-				mvault.NewVaultSource(
-					filepath.Join(PydioConfigDir, "pydio-vault.json"),
-					filepath.Join(PydioConfigDir, "cells-vault-key"),
-					true,
-				),
-			),
-			config.PollInterval(10*time.Second),
-		),
-	))
+	stdvault Store
 )
 
 // RegisterVaultKey adds a key to the configuration so that the value
