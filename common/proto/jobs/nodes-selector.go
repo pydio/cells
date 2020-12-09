@@ -104,7 +104,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 		// For simple/quick requests
 		sName := common.ServiceTree
-		if q.FreeString != "" || q.Content != "" {
+		if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
 			// Use the Search Service instead
 			sName = common.ServiceSearch
 		}
