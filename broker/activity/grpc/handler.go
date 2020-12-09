@@ -22,8 +22,13 @@ package grpc
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 
 	"github.com/micro/go-micro/errors"
 
@@ -48,6 +53,14 @@ func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamAct
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
 
 	log.Logger(ctx).Debug("Should get activities", zap.Any("r", request))
+	treeStreamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
+	sClient, e := treeStreamer.ReadNodeStream(ctx)
+	if e != nil {
+		return e
+	}
+	defer sClient.Close()
+	replace := make(map[string]string)
+	valid := make(map[string]bool)
 
 	result := make(chan *proto.Object)
 	done := make(chan bool)
@@ -59,6 +72,30 @@ func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamAct
 		for {
 			select {
 			case ac := <-result:
+				if ac.Type != proto.ObjectType_Delete && ac.Object != nil && (ac.Object.Type == proto.ObjectType_Document || ac.Object.Type == proto.ObjectType_Folder) && ac.Object.Id != "" {
+					oName := ac.Object.Name
+					if _, o := valid[oName]; o {
+						//fmt.Println("nothing to do ")
+					} else if r, o := replace[oName]; o {
+						//fmt.Println("replace from cache")
+						ac.Object.Name = r
+					} else if e := sClient.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: ac.Object.Id}}); e == nil {
+						rsp, er := sClient.Recv()
+						if er == nil {
+							nP := strings.TrimRight(rsp.GetNode().GetPath(), "/")
+							if oName != nP {
+								//fmt.Println("replacing", oName, "with", nP)
+								ac.Object.Name = nP
+								replace[oName] = rsp.GetNode().GetPath()
+							} else {
+								//fmt.Println("set valid")
+								valid[oName] = true
+							}
+						} else {
+							//fmt.Println("error while reading :" + e.Error())
+						}
+					}
+				}
 				stream.Send(&proto.StreamActivitiesResponse{
 					Activity: ac,
 				})

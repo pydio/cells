@@ -242,8 +242,12 @@ func (a *ActivityHandler) FilterActivity(ctx context.Context, accessList *permis
 	if (obj.Type == activity.ObjectType_Folder || obj.Type == activity.ObjectType_Document) && obj.Name != "" {
 		node := &tree.Node{Path: obj.Name, Uuid: obj.Id}
 		count := 0
+		reqAcl := accessList
+		if ac.Type == activity.ObjectType_Delete {
+			reqAcl = nil
+		}
 		for _, workspace := range accessList.Workspaces {
-			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, accessList, workspace, node); ok {
+			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, reqAcl, workspace, node); ok {
 				if obj.PartOf == nil {
 					obj.PartOf = &activity.Object{
 						Type:  activity.ObjectType_Collection,
@@ -261,6 +265,7 @@ func (a *ActivityHandler) FilterActivity(ctx context.Context, accessList *permis
 		}
 
 		if count == 0 {
+			//log.Logger(ctx).Error("Filtered out", zap.Any("ac", ac))
 			return false
 		}
 
