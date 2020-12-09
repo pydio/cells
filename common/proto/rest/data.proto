@@ -50,8 +50,6 @@ message MetaNamespaceRequest{
 message GetBulkMetaRequest{
     // List of node paths to query (use paths ending with /* to load the children)
     repeated string NodePaths = 1;
-    // List of nodes based on their Uuids
-    repeated string NodeUuids = 2;
     // Whether to query all services for the metadata they can contribute to enrich the node
     bool AllMetaProviders = 3;
     // Load Versions of the given node

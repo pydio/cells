@@ -59,9 +59,6 @@ export default class RestGetBulkMetaRequest {
             if (data.hasOwnProperty('NodePaths')) {
                 obj['NodePaths'] = ApiClient.convertToType(data['NodePaths'], ['String']);
             }
-            if (data.hasOwnProperty('NodeUuids')) {
-                obj['NodeUuids'] = ApiClient.convertToType(data['NodeUuids'], ['String']);
-            }
             if (data.hasOwnProperty('AllMetaProviders')) {
                 obj['AllMetaProviders'] = ApiClient.convertToType(data['AllMetaProviders'], 'Boolean');
             }
@@ -82,10 +79,6 @@ export default class RestGetBulkMetaRequest {
     * @member {Array.<String>} NodePaths
     */
     NodePaths = undefined;
-    /**
-    * @member {Array.<String>} NodeUuids
-    */
-    NodeUuids = undefined;
     /**
     * @member {Boolean} AllMetaProviders
     */

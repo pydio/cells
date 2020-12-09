@@ -66,21 +66,21 @@ func error404(req *restful.Request, resp *restful.Response, err error) {
 }
 
 func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
-	path := req.PathParameter("NodePath")
+	p := req.PathParameter("NodePath")
 	var nsRequest rest.MetaNamespaceRequest
 	if err := req.ReadEntity(&nsRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
 	ctx := req.Request.Context()
-	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "", false)
+	nsRequest.NodePath = p
+	node, err := h.loadNodeByPath(ctx, nsRequest.NodePath, false)
 	if err != nil {
 		error404(req, resp, err)
 		return
 	}
 
-	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", path), zap.Any("n", node))
+	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", p), zap.Any("n", node))
 	loader := meta.NewStreamLoader(ctx)
 	defer loader.Close()
 	loader.LoadMetas(ctx, node)
@@ -102,7 +102,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	for _, p := range bulkRequest.NodePaths {
 		if strings.HasSuffix(p, "/*") || bulkRequest.Versions {
-			if readResp, err := h.loadNodeByUuidOrPath(ctx, strings.TrimSuffix(p, "/*"), "", true); err == nil {
+			if readResp, err := h.loadNodeByPath(ctx, strings.TrimSuffix(p, "/*"), true); err == nil {
 				pathExt := strings.ToLower(filepath.Ext(readResp.Path))
 				if pathExt == ".zip" || pathExt == ".tar" || pathExt == ".tar.gz" {
 					readResp.Path += "/"
@@ -134,17 +134,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			if asFolder {
 				continue
 			}
-			if node, err := h.loadNodeByUuidOrPath(ctx, p, "", bulkRequest.AllMetaProviders); err == nil {
+			if node, err := h.loadNodeByPath(ctx, p, bulkRequest.AllMetaProviders); err == nil {
 				output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
 			}
-		}
-	}
-	for _, u := range bulkRequest.NodeUuids {
-		if node, err := h.loadNodeByUuidOrPath(ctx, "", u, bulkRequest.AllMetaProviders); err == nil {
-			output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
-		} else {
-			error404(req, resp, err)
-			return
 		}
 	}
 
@@ -267,23 +259,23 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 
-	path := req.PathParameter("NodePath")
+	p := req.PathParameter("NodePath")
 	var metaCollection rest.MetaCollection
 	if err := req.ReadEntity(&metaCollection); err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), path, "", false)
+	node, err := h.loadNodeByPath(req.Request.Context(), p, false)
 	if err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
 	for _, m := range metaCollection.Metadatas {
 		ns := m.Namespace
-		var meta map[string]interface{}
-		e := json.Unmarshal([]byte(m.JsonMeta), &meta)
+		var mm map[string]interface{}
+		e := json.Unmarshal([]byte(m.JsonMeta), &mm)
 		if e == nil {
-			node.SetMeta(ns, meta)
+			node.SetMeta(ns, mm)
 		}
 	}
 	ctx := req.Request.Context()
@@ -308,14 +300,14 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
-	path := req.PathParameter("NodePath")
+	p := req.PathParameter("NodePath")
 	var nsRequest rest.MetaNamespaceRequest
 	if err := req.ReadEntity(&nsRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
-	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), nsRequest.NodePath, "", false)
+	nsRequest.NodePath = p
+	node, err := h.loadNodeByPath(req.Request.Context(), nsRequest.NodePath, false)
 	if err != nil {
 		service.RestError404(req, resp, err)
 		return
@@ -349,29 +341,16 @@ func (h *Handler) GetRouter() *views.Router {
 	return h.router
 }
 
-func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nodeUuid string, loadExtended bool) (*tree.Node, error) {
+func (h *Handler) loadNodeByPath(ctx context.Context, nodePath string, loadExtended bool) (*tree.Node, error) {
 
-	var response *tree.ReadNodeResponse
-	var err error
-	if nodeUuid != "" {
-		log.Logger(ctx).Debug("Querying Meta Service by Uuid", zap.Bool("withExtended", loadExtended))
-		cli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceMeta))
-		response, err = cli.ReadNode(ctx, &tree.ReadNodeRequest{
-			WithExtendedStats: loadExtended,
-			Node: &tree.Node{
-				Uuid: nodeUuid,
-			},
-		})
-	} else {
-		nodePath = strings.TrimSuffix(nodePath, "/")
-		response, err = h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
-			WithExtendedStats: loadExtended,
-			Node: &tree.Node{
-				Path: nodePath,
-			},
-		})
-		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
-	}
+	nodePath = strings.TrimSuffix(nodePath, "/")
+	response, err := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
+		WithExtendedStats: loadExtended,
+		Node: &tree.Node{
+			Path: nodePath,
+		},
+	})
+	log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
 
 	if err != nil {
 		return nil, err

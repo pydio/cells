@@ -41537,13 +41537,37 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "clear",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       },
       {
         "description": "",
         "displayName": "Facets",
-        "methods": []
+        "methods": [
+          {
+            "name": "isSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "selected",
+                "type": null
+              },
+              {
+                "name": "facet",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
       }
     ],
     "board/HomeDashboard.js": [
@@ -41603,7 +41627,23 @@
             "modifiers": [],
             "params": [
               {
-                "name": "data",
+                "name": "facet",
+                "type": null
+              },
+              {
+                "name": "toggle",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeFacets",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "queryString",
                 "type": null
               }
             ],
@@ -41616,6 +41656,18 @@
             "params": [
               {
                 "name": "forceValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleEmpty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
                 "type": null
               }
             ],

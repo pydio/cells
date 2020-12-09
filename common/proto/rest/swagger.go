@@ -6482,13 +6482,6 @@ var SwaggerJson = `{
           },
           "title": "List of node paths to query (use paths ending with /* to load the children)"
         },
-        "NodeUuids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "List of nodes based on their Uuids"
-        },
         "AllMetaProviders": {
           "type": "boolean",
           "format": "boolean",
