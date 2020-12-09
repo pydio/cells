@@ -97,11 +97,16 @@ func serviceDef(opts server.Options) *registry.Service {
 		addr = host
 	}
 
+	md := make(map[string]string, len(opts.Metadata))
+	for k, v := range opts.Metadata {
+		md[k] = v
+	}
+
 	node := &registry.Node{
 		Id:       opts.Name + "-" + opts.Id,
 		Address:  addr,
 		Port:     port,
-		Metadata: opts.Metadata,
+		Metadata: md,
 	}
 
 	node.Metadata["server"] = "http"

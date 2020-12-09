@@ -22,8 +22,6 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"runtime/debug"
 	"time"
 
 	"github.com/micro/cli"
@@ -32,11 +30,11 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/micro/server/grpc"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
@@ -126,8 +124,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
 				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
-					fmt.Println("WE ARE RESTARTING HERE")
-					debug.PrintStack()
 					return f(svc)
 				}),
 				micro.AfterStart(func() error {

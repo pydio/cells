@@ -571,12 +571,17 @@ func (g *grpcServer) Register() error {
 		return err
 	}
 
+	md := make(map[string]string, len(config.Metadata))
+	for k, v := range config.Metadata {
+		md[k] = v
+	}
+
 	// register service
 	node := &registry.Node{
 		Id:       config.Name + "-" + config.Id,
 		Address:  addr,
 		Port:     port,
-		Metadata: config.Metadata,
+		Metadata: md,
 	}
 
 	node.Metadata["broker"] = config.Broker.String()

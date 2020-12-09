@@ -251,12 +251,16 @@ func (g *genericServer) Register() error {
 			if err != nil {
 				continue
 			}
+			md := make(map[string]string, len(config.Metadata))
+			for k, v := range config.Metadata {
+				md[k] = v
+			}
 			// register service
 			node := &microregistry.Node{
 				Id:       config.Name + "-" + uuid.New().String(),
 				Address:  ad,
 				Port:     tcp.Port,
-				Metadata: config.Metadata,
+				Metadata: md,
 			}
 
 			node.Metadata["broker"] = config.Broker.String()
@@ -288,13 +292,16 @@ func (g *genericServer) Register() error {
 		if err != nil {
 			return err
 		}
-
+		md := make(map[string]string, len(config.Metadata))
+		for k, v := range config.Metadata {
+			md[k] = v
+		}
 		// register service
 		node := &microregistry.Node{
 			Id:       config.Name + "-" + config.Id,
 			Address:  ad,
 			Port:     port,
-			Metadata: config.Metadata,
+			Metadata: md,
 		}
 
 		node.Metadata["broker"] = config.Broker.String()
