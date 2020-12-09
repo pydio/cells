@@ -35,8 +35,8 @@ import (
 	"github.com/micro/go-micro/server"
 	nats2 "github.com/micro/go-plugins/broker/nats"
 	grpcclient "github.com/pydio/cells/common/micro/client/grpc"
+	"github.com/pydio/cells/common/micro/server/grpc"
 	"github.com/micro/go-plugins/registry/nats"
-	"github.com/micro/go-plugins/server/grpc"
 )
 
 func main() {
