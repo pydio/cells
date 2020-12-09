@@ -40,7 +40,6 @@ var RestGetBulkMetaRequest = (function () {
         _classCallCheck(this, RestGetBulkMetaRequest);
 
         this.NodePaths = undefined;
-        this.NodeUuids = undefined;
         this.AllMetaProviders = undefined;
         this.Versions = undefined;
         this.Offset = undefined;
@@ -61,9 +60,6 @@ var RestGetBulkMetaRequest = (function () {
 
             if (data.hasOwnProperty('NodePaths')) {
                 obj['NodePaths'] = _ApiClient2['default'].convertToType(data['NodePaths'], ['String']);
-            }
-            if (data.hasOwnProperty('NodeUuids')) {
-                obj['NodeUuids'] = _ApiClient2['default'].convertToType(data['NodeUuids'], ['String']);
             }
             if (data.hasOwnProperty('AllMetaProviders')) {
                 obj['AllMetaProviders'] = _ApiClient2['default'].convertToType(data['AllMetaProviders'], 'Boolean');
@@ -89,10 +85,6 @@ var RestGetBulkMetaRequest = (function () {
 
 exports['default'] = RestGetBulkMetaRequest;
 module.exports = exports['default'];
-
-/**
-* @member {Array.<String>} NodeUuids
-*/
 
 /**
 * @member {Boolean} AllMetaProviders
