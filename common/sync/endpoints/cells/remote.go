@@ -32,7 +32,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	microgrpc "github.com/micro/go-plugins/client/grpc"
+	
 	"github.com/pborman/uuid"
 
 	sdk "github.com/pydio/cells-sdk-go"
@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	microgrpc "github.com/pydio/cells/common/micro/client/grpc"
 	"github.com/pydio/cells/common/sync/model"
 )
 

@@ -38,12 +38,11 @@ import (
 	"time"
 
 	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/pydio/cells/common/utils/std"
+	"github.com/cells/common/micro/client/grpc"
 
 	"github.com/emicklei/proto"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-plugins/client/grpc"
 	"github.com/micro/go-plugins/registry/nats"
 )
 
