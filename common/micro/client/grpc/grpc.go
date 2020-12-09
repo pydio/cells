@@ -396,8 +396,10 @@ func (g *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 		case <-ctx.Done():
 			return nil, errors.New("go.micro.client", fmt.Sprintf("%v", ctx.Err()), 408)
 		case rsp := <-ch:
+			err := rsp.err
+
 			// if the call succeeded lets bail early
-			if rsp.err == nil {
+			if err == nil {
 				return rsp.stream, nil
 			}
 
@@ -407,10 +409,10 @@ func (g *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 			}
 
 			if !retry {
-				return nil, rsp.err
+				return nil, err
 			}
 
-			grr = rsp.err
+			grr = err
 		}
 	}
 

@@ -2,10 +2,12 @@
 package cache
 
 import (
+	"math/rand"
 	"sync"
 	"time"
 
 	"github.com/micro/go-log"
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 )
@@ -20,6 +22,9 @@ type cacheSelector struct {
 	ttls  map[string]time.Time
 
 	watched map[string]bool
+
+	nodesInErrorLock *sync.Mutex
+	nodesInError     map[string]int
 
 	// used to close or reload watcher
 	reload chan bool
@@ -358,6 +363,27 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 }
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
+	if err == nil {
+		return
+	}
+
+	e := errors.Parse(err.Error())
+	if e == nil {
+		return
+	}
+
+	switch e.Code {
+	// retry on timeout or internal server error
+	case 408, 500:
+		cnt, ok := c.nodesInError[node.Id]
+		if !ok {
+			cnt = 0
+		}
+		c.nodesInErrorLock.Lock()
+		c.nodesInError[node.Id] = cnt + 1
+		c.nodesInErrorLock.Unlock()
+	}
+
 	return
 }
 
@@ -386,12 +412,23 @@ func (c *cacheSelector) String() string {
 }
 
 func NewSelector(opts ...selector.Option) selector.Selector {
-	sopts := selector.Options{
-		Strategy: selector.Random,
+	c := &cacheSelector{
+		watched:          make(map[string]bool),
+		cache:            make(map[string][]*registry.Service),
+		ttls:             make(map[string]time.Time),
+		nodesInErrorLock: &sync.Mutex{},
+		nodesInError:     make(map[string]int),
+		reload:           make(chan bool, 1),
+		exit:             make(chan bool),
 	}
 
+	sopts := selector.Options{}
 	for _, opt := range opts {
 		opt(&sopts)
+	}
+
+	if sopts.Strategy == nil {
+		sopts.Strategy = c.WeighedRandom(3)
 	}
 
 	if sopts.Registry == nil {
@@ -406,17 +443,38 @@ func NewSelector(opts ...selector.Option) selector.Selector {
 		}
 	}
 
-	c := &cacheSelector{
-		so:      sopts,
-		ttl:     ttl,
-		watched: make(map[string]bool),
-		cache:   make(map[string][]*registry.Service),
-		ttls:    make(map[string]time.Time),
-		reload:  make(chan bool, 1),
-		exit:    make(chan bool),
-	}
+	c.so = sopts
+	c.ttl = ttl
 
 	go c.run()
 
 	return c
+}
+
+// WeighedRandom is a specific random strategy that favour nodes that have been more available
+func (c *cacheSelector) WeighedRandom(maxErrors int) selector.Strategy {
+	return func(services []*registry.Service) selector.Next {
+		var nodes []*registry.Node
+
+		for _, service := range services {
+			for _, node := range service.Nodes {
+				cnt, ok := c.nodesInError[node.Id]
+				if !ok {
+					cnt = 0
+				}
+				for i := 0; i < maxErrors-cnt; i++ {
+					nodes = append(nodes, node)
+				}
+			}
+		}
+
+		return func() (*registry.Node, error) {
+			if len(nodes) == 0 {
+				return nil, selector.ErrNoneAvailable
+			}
+
+			i := rand.Int() % len(nodes)
+			return nodes[i], nil
+		}
+	}
 }
