@@ -117,8 +117,9 @@ var AdvancedSearch = (function (_Component) {
         var _this = this;
 
         var text = AdvancedSearch.styles.text;
+        var options = this.state.options;
 
-        var fieldname = key === 'basename' ? key : 'ajxp_meta_' + key;
+        var fieldname = key === 'basename' || key === 'Content' || key === 'basenameOrContent' ? key : 'ajxp_meta_' + key;
 
         if (typeof val === 'object') {
             var value = this.props.values[fieldname];
@@ -145,7 +146,7 @@ var AdvancedSearch = (function (_Component) {
 
         return _react2['default'].createElement(ModernTextField, {
             key: fieldname,
-            value: this.state[fieldname] || '',
+            value: this.state[fieldname] || this.props.values[fieldname] || '',
             style: text,
             hintText: val,
             onChange: function (e, v) {
@@ -175,8 +176,7 @@ var AdvancedSearch = (function (_Component) {
                 { style: _extends({}, headerStyle, { marginTop: 0 }) },
                 getMessage(341)
             ),
-            this.renderField('basename', getMessage(1)),
-            options.indexContent && this.renderField('TextContent', 'Contents'),
+            this.renderField('basenameOrContent', getMessage(1)),
             _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),

@@ -46,10 +46,6 @@ var SearchApi = (function () {
         var keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
-        } else if (keys.length === 1 && keys[0] === 'basenameOrContent') {
-            var term = this.autoQuote(values['basenameOrContent']);
-            // Search on both field with SHOULD, boosting Basename against TextContent
-            query.FreeString = 'Basename:' + term + '^5 TextContent:' + term;
         } else {
             (function () {
                 var freeQueries = {};
@@ -66,14 +62,24 @@ var SearchApi = (function () {
                             query.Type = 'COLLECTION';
                         } else {
                             query.Type = 'LEAF';
-                            query.Extension = value;
+                            if (value !== 'ajxp_file') {
+                                query.Extension = value;
+                            }
                         }
                     } else if (k === 'basename') {
                         freeQueries['Basename'] = _this.autoQuote(value);
-                    } else if (k === 'ajxp_modiftime' && value && value['from'] !== undefined && value['to'] !== undefined) {
-                        query.MinDate = Math.floor(value['from'] / 1000) + '';
-                        query.MaxDate = Math.floor(value['to'] / 1000) + '';
-                    } else if (k === 'ajxp_bytesize' && value && value['from'] !== undefined && value['to'] !== undefined) {
+                    } else if (k === 'basenameOrContent') {
+                        query.FileNameOrContent = _this.autoQuote(value);
+                    } else if (k === 'Content') {
+                        query.Content = _this.autoQuote(value);
+                    } else if (k === 'ajxp_modiftime' && value && (value['from'] !== undefined || value['to'] !== undefined)) {
+                        if (value['from']) {
+                            query.MinDate = Math.floor(value['from'] / 1000) + '';
+                        }
+                        if (value['to']) {
+                            query.MaxDate = Math.floor(value['to'] / 1000) + '';
+                        }
+                    } else if (k === 'ajxp_bytesize' && value && (value['from'] !== undefined || value['to'] !== undefined)) {
                         if (parseInt(value['from']) > 0) {
                             query.MinSize = value['from'] + '';
                         }

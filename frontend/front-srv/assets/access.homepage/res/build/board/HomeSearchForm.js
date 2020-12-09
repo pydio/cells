@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,11 +24,15 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -52,6 +56,10 @@ var _pydioHttpSearchApi = require('pydio/http/search-api');
 
 var _pydioHttpSearchApi2 = _interopRequireDefault(_pydioHttpSearchApi);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _pydioModelEmptyNodeProvider = require('pydio/model/empty-node-provider');
 
 var _pydioModelEmptyNodeProvider2 = _interopRequireDefault(_pydioModelEmptyNodeProvider);
@@ -59,6 +67,10 @@ var _pydioModelEmptyNodeProvider2 = _interopRequireDefault(_pydioModelEmptyNodeP
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
+
+var _Facets = require("./Facets");
+
+var _Facets2 = _interopRequireDefault(_Facets);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -91,10 +103,12 @@ var HomeSearchForm = (function (_Component) {
             queryString: '',
             dataModel: this.basicDataModel,
             empty: true,
-            loading: false
+            loading: false,
+            facets: [],
+            facetFilter: {}
         };
 
-        this.submit = _lodash2['default'].debounce(this.submit, 500);
+        this.submitD = _lodash2['default'].debounce(this.submit, 500);
     }
 
     _createClass(HomeSearchForm, [{
@@ -103,20 +117,82 @@ var HomeSearchForm = (function (_Component) {
             var _this = this;
 
             this.setState({ queryString: queryString }, function () {
-                _this.submit();
+                _this.submitD();
             });
+        }
+    }, {
+        key: 'filterByFacet',
+        value: function filterByFacet(facet, toggle) {
+            var _this2 = this;
+
+            var _state$selectedFacets = this.state.selectedFacets;
+            var selectedFacets = _state$selectedFacets === undefined ? [] : _state$selectedFacets;
+
+            var newFacets = [];
+            if (toggle) {
+                newFacets = [].concat(_toConsumableArray(selectedFacets), [facet]);
+            } else {
+                newFacets = selectedFacets.filter(function (s) {
+                    return !(s.FieldName === facet.FieldName && s.Label === facet.Label);
+                });
+            }
+            this.setState({ selectedFacets: newFacets }, function () {
+                _this2.submit();
+            });
+        }
+    }, {
+        key: 'computeFacets',
+        value: function computeFacets(queryString) {
+            var data = {};
+            var _state$selectedFacets2 = this.state.selectedFacets;
+            var selectedFacets = _state$selectedFacets2 === undefined ? [] : _state$selectedFacets2;
+
+            selectedFacets.forEach(function (facet) {
+                switch (facet.FieldName) {
+                    case "Size":
+                        data['ajxp_bytesize'] = { from: facet.Min, to: facet.Max };
+                        break;
+                    case "ModifTime":
+                        data['ajxp_modiftime'] = { from: facet.Start * 1000, to: facet.End * 1000 };
+                        break;
+                    case "Extension":
+                        data['ajxp_mime'] = facet.Label;
+                        break;
+                    case "NodeType":
+                        data['ajxp_mime'] = 'ajxp_' + facet.Label;
+                        break;
+                    case "TextContent":
+                        data['basenameOrContent'] = '';
+                        data['Content'] = queryString;
+                        break;
+                    case "Basename":
+                        data['basenameOrContent'] = '';
+                        data['basename'] = queryString;
+                        break;
+                    default:
+                        if (facet.FieldName.indexOf('Meta.') === 0) {
+                            data['ajxp_meta_' + facet.FieldName.replace('Meta.', '')] = facet.Label;
+                        }
+                        break;
+                }
+            });
+            console.log(data);
+            return data;
         }
     }, {
         key: 'submit',
         value: function submit() {
-            var _this2 = this;
+            var _this3 = this;
 
             var forceValue = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
             var queryString = this.state.queryString;
 
-            if (forceValue) queryString = forceValue;
+            if (forceValue) {
+                queryString = forceValue;
+            }
             if (!queryString) {
-                this.setState({ empty: true, loading: false });
+                this.toggleEmpty(true);
+                this.setState({ loading: false, facets: [], selectedFacets: [] });
                 return;
             }
             var dataModel = this.state.dataModel;
@@ -124,24 +200,36 @@ var HomeSearchForm = (function (_Component) {
             var rootNode = dataModel.getRootNode();
             rootNode.setChildren([]);
             rootNode.setLoaded(true);
-            this.setState({ loading: true, empty: false });
+            this.toggleEmpty(false);
+            this.setState({ loading: true });
 
             var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
-            api.search({ basenameOrContent: queryString }, 'all', this.props.limit || 10).then(function (response) {
+            var facetFilter = this.computeFacets(queryString);
+            api.search(_extends({ basenameOrContent: queryString }, facetFilter), 'all', this.props.limit || 10).then(function (response) {
                 rootNode.setChildren(response.Results);
                 rootNode.setLoaded(true);
-                _this2.setState({
+                _this3.setState({
                     loading: false,
                     facets: response.Facets || []
                 });
             })['catch'](function (e) {
-                _this2.setState({ loading: false });
+                _this3.setState({ loading: false });
             });
+        }
+    }, {
+        key: 'toggleEmpty',
+        value: function toggleEmpty(e) {
+            this.setState({ empty: e });
+            var onSearchStateChange = this.props.onSearchStateChange;
+
+            if (onSearchStateChange) {
+                onSearchStateChange(e);
+            }
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var _state = this.state;
             var loading = _state.loading;
@@ -149,11 +237,14 @@ var HomeSearchForm = (function (_Component) {
             var empty = _state.empty;
             var queryString = _state.queryString;
             var searchFocus = _state.searchFocus;
+            var facets = _state.facets;
+            var _state$selectedFacets3 = _state.selectedFacets;
+            var selectedFacets = _state$selectedFacets3 === undefined ? [] : _state$selectedFacets3;
             var _props = this.props;
             var style = _props.style;
             var zDepth = _props.zDepth;
             var pydio = _props.pydio;
-            var muiTheme = _props.muiTheme;
+            var fullScreen = _props.fullScreen;
 
             var hintText = pydio.MessageHash[607];
             //const accent2Color = muiTheme.palette.primary1Color;
@@ -166,11 +257,11 @@ var HomeSearchForm = (function (_Component) {
                     backgroundColor: '#eceff1',
                     height: 50,
                     width: '96%',
-                    maxWidth: 600,
+                    maxWidth: 700,
                     padding: '2px 4px 4px 4px',
                     borderRadius: 50,
                     position: 'absolute',
-                    top: -25
+                    top: fullScreen ? 25 : -25
                 },
                 textField: { flex: 1 },
                 textInput: { color: 'inherit' },
@@ -186,10 +277,20 @@ var HomeSearchForm = (function (_Component) {
             };
             var renderSecondLine = function renderSecondLine(node) {
                 var path = node.getPath();
+                var metaData = node.getMetadata();
+                var date = new Date();
+                date.setTime(parseInt(metaData.get('ajxp_modiftime')) * 1000);
+                var mDate = _pydioUtilPath2['default'].formatModifDate(date);
+                var bSize = _pydioUtilPath2['default'].roundFileSize(parseInt(node.getMetadata().get('bytesize')));
+                var folderLabel = 'Inside ' + _pydioUtilPath2['default'].getDirname(path) || '/';
                 return React.createElement(
                     'div',
                     null,
-                    path
+                    folderLabel,
+                    ' - ',
+                    mDate,
+                    ' - ',
+                    bSize
                 );
             };
             var renderGroupHeader = function renderGroupHeader(repoId, repoLabel) {
@@ -211,7 +312,7 @@ var HomeSearchForm = (function (_Component) {
                     React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-magnify', style: styles.magnifier }),
                     React.createElement(_materialUi.TextField, {
                         ref: function (input) {
-                            return _this3.input = input;
+                            return _this4.input = input;
                         },
                         style: styles.textField,
                         inputStyle: styles.textInput,
@@ -221,16 +322,16 @@ var HomeSearchForm = (function (_Component) {
                         hintText: hintText,
                         value: queryString,
                         onChange: function (e, v) {
-                            return _this3.update(v);
+                            return _this4.update(v);
                         },
                         onKeyPress: function (e) {
-                            return e.key === 'Enter' ? _this3.update(e.target.value) : null;
+                            return e.key === 'Enter' ? _this4.update(e.target.value) : null;
                         },
                         onFocus: function () {
-                            _this3.setState({ searchFocus: true });
+                            _this4.setState({ searchFocus: true });
                         },
                         onBlur: function () {
-                            _this3.setState({ searchFocus: false });
+                            _this4.setState({ searchFocus: false });
                         }
                     }),
                     loading && React.createElement(
@@ -239,12 +340,13 @@ var HomeSearchForm = (function (_Component) {
                         React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2 })
                     ),
                     queryString && !loading && React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-close', style: styles.close, onTouchTap: function () {
-                            return _this3.update('');
+                            return _this4.update('');
                         } })
                 ),
+                !empty && facets && React.createElement(_Facets2['default'], { facets: facets, selected: selectedFacets, pydio: pydio, onSelectFacet: this.filterByFacet.bind(this) }),
                 !empty && React.createElement(PydioComponents.NodeListCustomProvider, {
                     ref: 'results',
-                    containerStyle: { width: '86%', maxWidth: 550, marginTop: 20 },
+                    containerStyle: { width: '86%', maxWidth: 650, marginTop: fullScreen ? 75 : 20 },
                     className: 'files-list vertical_fit',
                     elementHeight: SimpleList.HEIGHT_TWO_LINES,
                     entryRenderIcon: renderIcon,
@@ -264,7 +366,7 @@ var HomeSearchForm = (function (_Component) {
                     groupByLabel: 'repository_display',
                     emptyStateProps: {
                         iconClassName: "",
-                        primaryTextId: 478,
+                        primaryTextId: loading ? 'searchengine.searching' : 478,
                         style: { backgroundColor: 'transparent' }
                     }
                 }),

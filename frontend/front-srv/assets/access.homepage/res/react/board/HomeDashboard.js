@@ -60,7 +60,7 @@ class AltDashboard extends React.Component {
     render() {
 
         const {pydio, muiTheme} = this.props;
-        const {drawerOpen} = this.state;
+        const {drawerOpen, fullScreen} = this.state;
 
         const appBarColor = new Color(muiTheme.appBar.color);
         const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
@@ -71,7 +71,7 @@ class AltDashboard extends React.Component {
         const styles = {
             appBarStyle : {
                 backgroundColor: 'rgba(255, 255, 255, 0.50)',
-                height: 200,
+                height: fullScreen? 0: 200,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -166,7 +166,7 @@ class AltDashboard extends React.Component {
                         />
                     </div>
                 </Paper>
-                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
+                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onSearchStateChange={(empty)=>{this.setState({fullScreen:!empty})}}>
                     <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>

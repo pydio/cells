@@ -351,7 +351,7 @@ var SearchForm = (function (_Component) {
                 groupByLabel: crossWorkspace || searchScope === 'all' ? 'repository_display' : null,
                 emptyStateProps: {
                     iconClassName: "",
-                    primaryTextId: 478,
+                    primaryTextId: loading ? 'searchengine.searching' : 478,
                     style: {
                         minHeight: display === 'small' ? 180 : advancedPanel ? 240 : 412,
                         backgroundColor: 'transparent',

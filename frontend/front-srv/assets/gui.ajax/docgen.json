@@ -41526,6 +41526,26 @@
         "methods": []
       }
     ],
+    "board/Facets.js": [
+      {
+        "description": "",
+        "displayName": "Facet",
+        "methods": [
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Facets",
+        "methods": []
+      }
+    ],
     "board/HomeDashboard.js": [
       {
         "description": "",
@@ -41572,6 +41592,18 @@
             "params": [
               {
                 "name": "queryString",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "filterByFacet",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
                 "type": null
               }
             ],

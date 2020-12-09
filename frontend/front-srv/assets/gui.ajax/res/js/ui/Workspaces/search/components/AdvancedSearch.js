@@ -71,7 +71,8 @@ class AdvancedSearch extends Component {
     renderField(key, val) {
 
         const {text} = AdvancedSearch.styles;
-        const fieldname = (key === 'basename') ? key : 'ajxp_meta_' + key;
+        const {options} = this.state;
+        const fieldname = (key === 'basename' || key === 'Content' || key === 'basenameOrContent') ? key : 'ajxp_meta_' + key;
 
         if (typeof val === 'object') {
             const value = this.props.values[fieldname];
@@ -95,7 +96,7 @@ class AdvancedSearch extends Component {
         return (
             <ModernTextField
                 key={fieldname}
-                value={this.state[fieldname] || ''}
+                value={this.state[fieldname] || this.props.values[fieldname] || ''}
                 style={text}
                 hintText={val}
                 onChange={(e,v) => {this.textFieldChange(fieldname, v)}}
@@ -114,8 +115,7 @@ class AdvancedSearch extends Component {
         return (
             <div className="search-advanced" style={{...rootStyle}}>
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
-                {this.renderField('basename',getMessage(1))}
-                {options.indexContent && this.renderField('TextContent','Contents')}
+                {this.renderField('basenameOrContent',getMessage(1))}
                 <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
 
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
