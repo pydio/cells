@@ -98,7 +98,7 @@ var AdvancedSearch = (function (_Component) {
 
         this.state = {
             options: options,
-            basename: props.values['basename'] || ''
+            basenameOrContent: props.values['basenameOrContent'] || ''
         };
     }
 

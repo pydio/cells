@@ -105,7 +105,7 @@ class SearchForm extends Component {
             return
         }
         if(mode === 'small' && this.state.display === 'closed'){
-            let {basename, ...otherValues} = this.state.values;
+            let {basenameOrContent, ...otherValues} = this.state.values;
             if(otherValues && Object.keys(otherValues).length){
                 mode = 'advanced';
             }
@@ -152,7 +152,7 @@ class SearchForm extends Component {
         rootNode.setLoaded(false);
 
         const keys = Object.keys(values);
-        if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basename' && !values['basename'])) {
+        if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent'])) {
             this.setState({loading: false,empty: true});
             return;
         }
@@ -311,7 +311,7 @@ class SearchForm extends Component {
                 <Paper ref="root" zDepth={0} className={"top_search_form " + display} style={style} id={id}>
                     <MainSearch
                         mode={display}
-                        value={values.basename}
+                        value={values.basenameOrContent}
                         onOpen={() => this.setMode("small")}
                         onClose={() => this.setMode("closed")}
                         showAdvanced={!crossWorkspace}

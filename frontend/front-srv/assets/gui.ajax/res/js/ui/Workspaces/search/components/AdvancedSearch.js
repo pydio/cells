@@ -55,7 +55,7 @@ class AdvancedSearch extends Component {
 
         this.state = {
             options,
-            basename: props.values['basename'] || ''
+            basenameOrContent: props.values['basenameOrContent'] || ''
         };
     }
 
