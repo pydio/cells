@@ -89,6 +89,7 @@ func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([
 	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
 	var results []*tree.Node
+	var facets []*tree.SearchFacet
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -99,6 +100,8 @@ func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([
 				if node != nil {
 					results = append(results, node)
 				}
+			case facet := <-facetsChan:
+				facets = append(facets, facet)
 			case <-doneChan:
 				close(resultsChan)
 				close(facetsChan)
