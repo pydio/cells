@@ -43,8 +43,8 @@ import (
 	ptypes_any "github.com/golang/protobuf/ptypes/any"
 
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-plugins/client/grpc"
 	"github.com/micro/go-plugins/registry/nats"
+	"github.com/pydio/cells/common/micro/client/grpc"
 
 	"github.com/pydio/cells/common/proto/idm"
 	serviceproto "github.com/pydio/cells/common/service/proto"

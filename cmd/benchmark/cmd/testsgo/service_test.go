@@ -37,9 +37,9 @@ import (
 	"testing"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/common/micro/client/grpc"
 	"github.com/pydio/cells/common/utils/std"
-	"github.com/cells/common/micro/client/grpc"
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/proto"
 	"github.com/micro/go-micro/client"
