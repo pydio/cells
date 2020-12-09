@@ -45,8 +45,17 @@ class AdvancedSearch extends Component {
     constructor(props) {
         super(props);
 
+        const {pydio} = props;
+        const registry = pydio.getXmlRegistry();
+        let options = {}
+        try {
+            options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
+        } catch (e){}
+
+
         this.state = {
-            basename: props.values['basename'] || ''
+            options,
+            basenameOrContent: props.values['basenameOrContent'] || ''
         };
     }
 
@@ -62,7 +71,8 @@ class AdvancedSearch extends Component {
     renderField(key, val) {
 
         const {text} = AdvancedSearch.styles;
-        const fieldname = (key === 'basename') ? key : 'ajxp_meta_' + key;
+        const {options} = this.state;
+        const fieldname = (key === 'basename' || key === 'Content' || key === 'basenameOrContent') ? key : 'ajxp_meta_' + key;
 
         if (typeof val === 'object') {
             const value = this.props.values[fieldname];
@@ -86,7 +96,7 @@ class AdvancedSearch extends Component {
         return (
             <ModernTextField
                 key={fieldname}
-                value={this.state[fieldname] || ''}
+                value={this.state[fieldname] || this.props.values[fieldname] || ''}
                 style={text}
                 hintText={val}
                 onChange={(e,v) => {this.textFieldChange(fieldname, v)}}
@@ -99,16 +109,17 @@ class AdvancedSearch extends Component {
         const {text} = AdvancedSearch.styles;
 
         const {pydio, getMessage, values, rootStyle} = this.props;
+        const {options} = this.state;
         const headerStyle = {fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10};
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
-                {this.renderField('basename',getMessage(1))}
+                {this.renderField('basenameOrContent',getMessage(1))}
                 <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
 
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
-                <AdvancedMetaFields {...this.props}>
+                <AdvancedMetaFields {...this.props} options={options}>
                     {fields =>
                         <div>
                             {Object.keys(fields).map((key) => this.renderField(key, fields[key]))}
@@ -130,18 +141,8 @@ class AdvancedMetaFields extends Component {
 
     constructor(props) {
         super(props);
-
-        const {pydio} = props;
-
-        const registry = pydio.getXmlRegistry();
-
-        // Parse client configs
-        let options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
-
         this.build = debounce(this.build, 500);
-
         this.state = {
-            options,
             fields: {}
         }
     }
@@ -152,7 +153,7 @@ class AdvancedMetaFields extends Component {
 
     build() {
 
-        const {options} = this.state;
+        const {options} = this.props;
         let {metaColumns, reactColumnsRenderers} = {...options};
         if(!metaColumns){
             metaColumns = {};

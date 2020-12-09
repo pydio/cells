@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,8 +24,10 @@ import {Paper, FontIcon, TextField, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 import SearchApi from 'pydio/http/search-api'
+import PathUtils from 'pydio/util/path'
 import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 import _ from 'lodash';
+import Facets from "./Facets";
 
 const {SimpleList} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
@@ -47,42 +49,109 @@ class HomeSearchForm extends Component{
             queryString: '',
             dataModel: this.basicDataModel,
             empty: true,
-            loading: false
+            loading: false,
+            facets:[],
+            facetFilter:{}
         };
 
-        this.submit = _.debounce(this.submit, 500)
+        this.submitD = _.debounce(this.submit, 500)
     }
 
     update(queryString) {
-        this.setState({queryString}, ()=>{this.submit()});
+        this.setState({queryString}, ()=>{this.submitD()});
+    }
+
+    filterByFacet(facet, toggle){
+        const {selectedFacets = []} = this.state;
+        let newFacets = []
+        if(toggle){
+            newFacets = [...selectedFacets, facet];
+        } else {
+            newFacets = selectedFacets.filter(s => !(s.FieldName===facet.FieldName && s.Label === facet.Label))
+        }
+        this.setState({selectedFacets:newFacets}, () => {this.submit()})
+    }
+
+    computeFacets(queryString){
+        let data = {};
+        const {selectedFacets=[]} = this.state
+        selectedFacets.forEach(facet => {
+            switch (facet.FieldName){
+                case "Size":
+                    data['ajxp_bytesize'] = {from:facet.Min, to:facet.Max}
+                    break;
+                case "ModifTime":
+                    data['ajxp_modiftime'] = {from:facet.Start*1000, to:facet.End*1000}
+                    break;
+                case "Extension":
+                    data['ajxp_mime'] = facet.Label
+                    break;
+                case "NodeType":
+                    data['ajxp_mime'] = 'ajxp_' + facet.Label
+                    break;
+                case "TextContent":
+                    data['basenameOrContent'] = ''
+                    data['Content'] = queryString
+                    break;
+                case "Basename":
+                    data['basenameOrContent'] = ''
+                    data['basename'] = queryString
+                    break;
+                default:
+                    if(facet.FieldName.indexOf('Meta.') === 0) {
+                        data['ajxp_meta_' + facet.FieldName.replace('Meta.', '')] = facet.Label;
+                    }
+                    break;
+            }
+        })
+        console.log(data);
+        return data;
     }
 
     submit(forceValue = null) {
         let {queryString} = this.state;
-        if(forceValue) queryString = forceValue;
+        if(forceValue) {
+            queryString = forceValue;
+        }
         if (!queryString) {
-            this.setState({empty: true, loading: false});
+            this.toggleEmpty(true);
+            this.setState({loading: false, facets:[], selectedFacets:[]});
             return;
         }
         const {dataModel} = this.state;
         const rootNode = dataModel.getRootNode();
         rootNode.setChildren([]);
         rootNode.setLoaded(true);
-        this.setState({loading: true, empty: false});
+        this.toggleEmpty(false);
+        this.setState({loading: true});
 
         const api = new SearchApi(this.props.pydio);
-        api.search({basename: queryString}, 'all', this.props.limit || 10).then(results => {
-            rootNode.setChildren(results);
+        const facetFilter = this.computeFacets(queryString);
+        api.search({basenameOrContent: queryString, ...facetFilter}, 'all', this.props.limit || 10).then(response => {
+            rootNode.setChildren(response.Results);
             rootNode.setLoaded(true);
-            this.setState({loading: false});
+            this.setState({
+                loading: false,
+                facets: response.Facets||[]
+            });
+        }).catch(e => {
+            this.setState({loading: false})
         });
 
     }
 
+    toggleEmpty(e){
+        this.setState({empty: e});
+        const {onSearchStateChange} = this.props;
+        if(onSearchStateChange){
+            onSearchStateChange(e);
+        }
+    }
+
     render(){
 
-        const {loading, dataModel, empty, queryString, searchFocus} = this.state;
-        const {style, zDepth, pydio, muiTheme} = this.props;
+        const {loading, dataModel, empty, queryString, searchFocus, facets, selectedFacets=[]} = this.state;
+        const {style, zDepth, pydio, fullScreen} = this.props;
         const hintText = pydio.MessageHash[607];
         //const accent2Color = muiTheme.palette.primary1Color;
         const whiteTransp = 'rgba(0,0,0,.53)';
@@ -94,11 +163,11 @@ class HomeSearchForm extends Component{
                 backgroundColor: '#eceff1',
                 height: 50,
                 width:'96%',
-                maxWidth:600,
+                maxWidth:700,
                 padding: '2px 4px 4px 4px',
                 borderRadius: 50,
                 position:'absolute',
-                top: -25
+                top: fullScreen? 25 : -25
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},
@@ -113,7 +182,13 @@ class HomeSearchForm extends Component{
         };
         const renderSecondLine = (node) => {
             let path = node.getPath();
-            return <div>{path}</div>
+            const metaData = node.getMetadata();
+            let date = new Date();
+            date.setTime(parseInt(metaData.get('ajxp_modiftime'))*1000);
+            const mDate = PathUtils.formatModifDate(date);
+            const bSize = PathUtils.roundFileSize(parseInt(node.getMetadata().get('bytesize')))
+            const folderLabel = 'Inside ' + PathUtils.getDirname(path) || '/';
+            return <div>{folderLabel} - {mDate} - {bSize}</div>
         };
         const renderGroupHeader = (repoId, repoLabel) =>{
             return (
@@ -148,10 +223,11 @@ class HomeSearchForm extends Component{
                         <FontIcon className="mdi mdi-close" style={styles.close} onTouchTap={()=>this.update('')}/>
                     }
                 </Paper>
+                {!empty && facets && <Facets facets={facets} selected={selectedFacets} pydio={pydio} onSelectFacet={this.filterByFacet.bind(this)}/>}
                 {!empty &&
                     <PydioComponents.NodeListCustomProvider
                         ref="results"
-                        containerStyle={{width:'86%', maxWidth:550, marginTop: 20}}
+                        containerStyle={{width:'86%', maxWidth:650, marginTop: fullScreen ? 75 : 20}}
                         className={'files-list vertical_fit'}
                         elementHeight={SimpleList.HEIGHT_TWO_LINES}
                         entryRenderIcon={renderIcon}
@@ -165,7 +241,7 @@ class HomeSearchForm extends Component{
                         groupByLabel="repository_display"
                         emptyStateProps={{
                             iconClassName:"",
-                            primaryTextId:478,
+                            primaryTextId:loading?'searchengine.searching':478,
                             style:{backgroundColor: 'transparent'}
                         }}
                     />

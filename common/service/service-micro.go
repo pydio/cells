@@ -30,11 +30,11 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/micro/server/grpc"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"

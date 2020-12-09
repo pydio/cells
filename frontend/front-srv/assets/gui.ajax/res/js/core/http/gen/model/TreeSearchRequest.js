@@ -69,9 +69,6 @@ export default class TreeSearchRequest {
             if (data.hasOwnProperty('Details')) {
                 obj['Details'] = ApiClient.convertToType(data['Details'], 'Boolean');
             }
-            if (data.hasOwnProperty('Facet')) {
-                obj['Facet'] = ApiClient.convertToType(data['Facet'], 'String');
-            }
         }
         return obj;
     }
@@ -92,10 +89,6 @@ export default class TreeSearchRequest {
     * @member {Boolean} Details
     */
     Details = undefined;
-    /**
-    * @member {String} Facet
-    */
-    Facet = undefined;
 
 
 

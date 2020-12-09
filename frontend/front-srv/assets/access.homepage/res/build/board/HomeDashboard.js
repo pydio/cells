@@ -116,7 +116,9 @@ var AltDashboard = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var muiTheme = _props.muiTheme;
-            var drawerOpen = this.state.drawerOpen;
+            var _state = this.state;
+            var drawerOpen = _state.drawerOpen;
+            var fullScreen = _state.fullScreen;
 
             var appBarColor = new _materialUi.Color(muiTheme.appBar.color);
             var colorHue = (0, _materialUi.Color)(muiTheme.palette.primary1Color).hsl().array()[0];
@@ -126,7 +128,7 @@ var AltDashboard = (function (_React$Component) {
             var styles = {
                 appBarStyle: {
                     backgroundColor: 'rgba(255, 255, 255, 0.50)',
-                    height: 200,
+                    height: fullScreen ? 0 : 200,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -230,7 +232,9 @@ var AltDashboard = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     _HomeSearchForm2['default'],
-                    _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
+                    _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle, fullScreen: fullScreen, onSearchStateChange: function (empty) {
+                            _this2.setState({ fullScreen: !empty });
+                        } }),
                     _react2['default'].createElement(_recentSmartRecents2['default'], _extends({}, this.props, { style: { maxWidth: 610, width: '100%' }, emptyStateProps: { style: { backgroundColor: 'white' } } }))
                 )
             );

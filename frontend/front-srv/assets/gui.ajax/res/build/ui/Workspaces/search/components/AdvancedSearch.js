@@ -88,8 +88,17 @@ var AdvancedSearch = (function (_Component) {
 
         _Component.call(this, props);
 
+        var pydio = props.pydio;
+
+        var registry = pydio.getXmlRegistry();
+        var options = {};
+        try {
+            options = JSON.parse(_pydioUtilXml2['default'].XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
+        } catch (e) {}
+
         this.state = {
-            basename: props.values['basename'] || ''
+            options: options,
+            basenameOrContent: props.values['basenameOrContent'] || ''
         };
     }
 
@@ -108,8 +117,9 @@ var AdvancedSearch = (function (_Component) {
         var _this = this;
 
         var text = AdvancedSearch.styles.text;
+        var options = this.state.options;
 
-        var fieldname = key === 'basename' ? key : 'ajxp_meta_' + key;
+        var fieldname = key === 'basename' || key === 'Content' || key === 'basenameOrContent' ? key : 'ajxp_meta_' + key;
 
         if (typeof val === 'object') {
             var value = this.props.values[fieldname];
@@ -136,7 +146,7 @@ var AdvancedSearch = (function (_Component) {
 
         return _react2['default'].createElement(ModernTextField, {
             key: fieldname,
-            value: this.state[fieldname] || '',
+            value: this.state[fieldname] || this.props.values[fieldname] || '',
             style: text,
             hintText: val,
             onChange: function (e, v) {
@@ -154,6 +164,7 @@ var AdvancedSearch = (function (_Component) {
         var getMessage = _props.getMessage;
         var values = _props.values;
         var rootStyle = _props.rootStyle;
+        var options = this.state.options;
 
         var headerStyle = { fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10 };
 
@@ -165,7 +176,7 @@ var AdvancedSearch = (function (_Component) {
                 { style: _extends({}, headerStyle, { marginTop: 0 }) },
                 getMessage(341)
             ),
-            this.renderField('basename', getMessage(1)),
+            this.renderField('basenameOrContent', getMessage(1)),
             _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),
@@ -176,7 +187,7 @@ var AdvancedSearch = (function (_Component) {
             ),
             _react2['default'].createElement(
                 AdvancedMetaFields,
-                this.props,
+                _extends({}, this.props, { options: options }),
                 function (fields) {
                     return _react2['default'].createElement(
                         'div',
@@ -213,18 +224,8 @@ var AdvancedMetaFields = (function (_Component2) {
         _classCallCheck(this, AdvancedMetaFields);
 
         _Component2.call(this, props);
-
-        var pydio = props.pydio;
-
-        var registry = pydio.getXmlRegistry();
-
-        // Parse client configs
-        var options = JSON.parse(_pydioUtilXml2['default'].XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
-
         this.build = _lodash.debounce(this.build, 500);
-
         this.state = {
-            options: options,
             fields: {}
         };
     }
@@ -236,7 +237,7 @@ var AdvancedMetaFields = (function (_Component2) {
     AdvancedMetaFields.prototype.build = function build() {
         var _this3 = this;
 
-        var options = this.state.options;
+        var options = this.props.options;
 
         var _extends2 = _extends({}, options);
 

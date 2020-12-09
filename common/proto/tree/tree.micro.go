@@ -30,6 +30,7 @@ It has these top-level messages:
 	WatchNodeRequest
 	WatchNodeResponse
 	SearchRequest
+	SearchFacet
 	SearchResponse
 	CreateVersionRequest
 	CreateVersionResponse

@@ -88,6 +88,9 @@ export default class TreeQuery {
             if (data.hasOwnProperty('Content')) {
                 obj['Content'] = ApiClient.convertToType(data['Content'], 'String');
             }
+            if (data.hasOwnProperty('FileNameOrContent')) {
+                obj['FileNameOrContent'] = ApiClient.convertToType(data['FileNameOrContent'], 'String');
+            }
             if (data.hasOwnProperty('FreeString')) {
                 obj['FreeString'] = ApiClient.convertToType(data['FreeString'], 'String');
             }
@@ -150,6 +153,10 @@ export default class TreeQuery {
     * @member {String} Content
     */
     Content = undefined;
+    /**
+    * @member {String} FileNameOrContent
+    */
+    FileNameOrContent = undefined;
     /**
     * @member {String} FreeString
     */

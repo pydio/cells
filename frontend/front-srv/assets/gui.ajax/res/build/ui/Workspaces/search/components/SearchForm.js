@@ -158,9 +158,9 @@ var SearchForm = (function (_Component) {
         }
         if (mode === 'small' && this.state.display === 'closed') {
             var _state$values = this.state.values;
-            var basename = _state$values.basename;
+            var basenameOrContent = _state$values.basenameOrContent;
 
-            var otherValues = _objectWithoutProperties(_state$values, ['basename']);
+            var otherValues = _objectWithoutProperties(_state$values, ['basenameOrContent']);
 
             if (otherValues && Object.keys(otherValues).length) {
                 mode = 'advanced';
@@ -224,7 +224,7 @@ var SearchForm = (function (_Component) {
         rootNode.setLoaded(false);
 
         var keys = Object.keys(values);
-        if (keys.length === 0 || keys.length === 1 && keys[0] === 'basename' && !values['basename']) {
+        if (keys.length === 0 || keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent']) {
             this.setState({ loading: false, empty: true });
             return;
         }
@@ -232,8 +232,8 @@ var SearchForm = (function (_Component) {
         this.setState({ loading: true, empty: false });
         rootNode.setLoading(true);
         var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
-        api.search(values, crossWorkspace ? 'all' : searchScope, limit).then(function (results) {
-            rootNode.setChildren(results);
+        api.search(values, crossWorkspace ? 'all' : searchScope, limit).then(function (response) {
+            rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
             _this4.setState({ loading: false });
@@ -351,7 +351,7 @@ var SearchForm = (function (_Component) {
                 groupByLabel: crossWorkspace || searchScope === 'all' ? 'repository_display' : null,
                 emptyStateProps: {
                     iconClassName: "",
-                    primaryTextId: 478,
+                    primaryTextId: loading ? 'searchengine.searching' : 478,
                     style: {
                         minHeight: display === 'small' ? 180 : advancedPanel ? 240 : 412,
                         backgroundColor: 'transparent',
@@ -426,7 +426,7 @@ var SearchForm = (function (_Component) {
                 { ref: 'root', zDepth: 0, className: "top_search_form " + display, style: style, id: id },
                 _react2['default'].createElement(_MainSearch2['default'], _extends({
                     mode: display,
-                    value: values.basename,
+                    value: values.basenameOrContent,
                     onOpen: function () {
                         return _this5.setMode("small");
                     },

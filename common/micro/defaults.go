@@ -24,10 +24,6 @@ package defaults
 import (
 	"time"
 
-	grpcclient "github.com/micro/go-plugins/client/grpc"
-	grpcserver "github.com/micro/go-plugins/server/grpc"
-	httpserver "github.com/micro/go-plugins/server/http"
-
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
@@ -35,6 +31,9 @@ import (
 	"github.com/micro/go-micro/transport"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
+	grpcclient "github.com/pydio/cells/common/micro/client/grpc"
+	grpcserver "github.com/pydio/cells/common/micro/server/grpc"
+	httpserver "github.com/pydio/cells/common/micro/server/http"
 )
 
 var (

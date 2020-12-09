@@ -37,7 +37,7 @@ func (s *StubEngine) DeleteNode(context.Context, *tree.Node) error {
 	return nil
 }
 
-func (s *StubEngine) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, doneChan chan bool) error {
+func (s *StubEngine) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	resultChan <- &tree.Node{
 		Uuid: "DocID1",

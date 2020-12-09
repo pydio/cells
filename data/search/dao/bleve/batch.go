@@ -2,6 +2,7 @@ package bleve
 
 import (
 	"context"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -10,7 +11,6 @@ import (
 	"github.com/pydio/cells/common/auth"
 
 	"github.com/blevesearch/bleve"
-	"github.com/sajari/docconv"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -31,7 +31,8 @@ type Batch struct {
 	nsProvider *meta.NamespacesProvider
 	options    BatchOptions
 	ctx        context.Context
-	router     views.Handler
+	uuidRouter views.Handler
+	stdRouter  views.Handler
 }
 
 type BatchOptions struct {
@@ -97,7 +98,7 @@ func (b *Batch) Flush(index bleve.Index) error {
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {
 	if indexNode.ReloadCore {
-		if resp, e := b.getRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: &indexNode.Node}); e != nil {
+		if resp, e := b.getUuidRouter().ReadNode(b.ctx, &tree.ReadNodeRequest{Node: &indexNode.Node}); e != nil {
 			return e
 		} else {
 			rNode := resp.Node
@@ -127,18 +128,14 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 		indexNode.NodeType = "folder"
 	}
 	indexNode.GetMeta("GeoLocation", &indexNode.GeoPoint)
-	if b.options.IndexContent && indexNode.IsLeaf() {
-		logger := log.Logger(b.ctx)
-		reader, err := b.getRouter().GetObject(b.ctx, indexNode.Node.Clone(), &views.GetRequestData{Length: -1})
-		if err == nil {
-			convertResp, er := docconv.Convert(reader, docconv.MimeTypeByExtension(basename), true)
-			if er == nil {
-				// Todo : do something with convertResp.Meta?
-				logger.Debug("[BLEVE] Indexing content body for file")
-				indexNode.TextContent = convertResp.Body
+	ref := indexNode.GetStringMeta("ContentRef")
+	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
+		delete(indexNode.Meta, "ContentRef")
+		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &views.GetRequestData{Length: -1}); e == nil {
+			if contents, e := ioutil.ReadAll(reader); e == nil {
+				indexNode.TextContent = string(contents)
 			}
-		} else {
-			logger.Debug("[BLEVE] Index content: error while trying to read file for content indexation")
+			reader.Close()
 		}
 	}
 	indexNode.MetaStore = nil
@@ -170,9 +167,16 @@ func (b *Batch) NamespacesProvider() *meta.NamespacesProvider {
 	return b.nsProvider
 }
 
-func (b *Batch) getRouter() views.Handler {
-	if b.router == nil {
-		b.router = views.NewUuidRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+func (b *Batch) getUuidRouter() views.Handler {
+	if b.uuidRouter == nil {
+		b.uuidRouter = views.NewUuidRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
 	}
-	return b.router
+	return b.uuidRouter
+}
+
+func (b *Batch) getStdRouter() views.Handler {
+	if b.stdRouter == nil {
+		b.stdRouter = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+	}
+	return b.stdRouter
 }

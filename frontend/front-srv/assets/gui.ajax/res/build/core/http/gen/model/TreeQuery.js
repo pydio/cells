@@ -57,6 +57,7 @@ var TreeQuery = (function () {
         this.Type = undefined;
         this.FileName = undefined;
         this.Content = undefined;
+        this.FileNameOrContent = undefined;
         this.FreeString = undefined;
         this.Extension = undefined;
         this.GeoQuery = undefined;
@@ -106,6 +107,9 @@ var TreeQuery = (function () {
             }
             if (data.hasOwnProperty('Content')) {
                 obj['Content'] = _ApiClient2['default'].convertToType(data['Content'], 'String');
+            }
+            if (data.hasOwnProperty('FileNameOrContent')) {
+                obj['FileNameOrContent'] = _ApiClient2['default'].convertToType(data['FileNameOrContent'], 'String');
             }
             if (data.hasOwnProperty('FreeString')) {
                 obj['FreeString'] = _ApiClient2['default'].convertToType(data['FreeString'], 'String');
@@ -172,6 +176,10 @@ module.exports = exports['default'];
 
 /**
 * @member {String} Content
+*/
+
+/**
+* @member {String} FileNameOrContent
 */
 
 /**

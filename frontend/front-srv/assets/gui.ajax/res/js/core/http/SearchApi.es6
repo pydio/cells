@@ -28,20 +28,34 @@ class SearchApi {
             keys.map(k => {
                 const value = values[k];
                 if(k.indexOf('ajxp_meta_') === 0) {
-                    freeQueries["Meta." + k.replace('ajxp_meta_', '')] = this.autoQuote(value);
+                    let sK = k.replace('ajxp_meta_', '')
+                    if (sK !== 'TextContent') {
+                        sK = 'Meta.' + sK;
+                    }
+                    freeQueries[sK] = this.autoQuote(value);
                 } else if (k === 'ajxp_mime') {
                     if(value === 'ajxp_folder'){
                         query.Type = 'COLLECTION';
                     } else {
                         query.Type = 'LEAF';
-                        query.Extension = value;
+                        if(value !== 'ajxp_file'){
+                            query.Extension = value;
+                        }
                     }
-                } else if(k === 'basename'){
+                } else if(k === 'basename') {
                     freeQueries['Basename'] = this.autoQuote(value);
-                } else if(k === 'ajxp_modiftime' && value && value['from'] !== undefined && value['to'] !== undefined ){
-                    query.MinDate = Math.floor(value['from'] / 1000) + '';
-                    query.MaxDate = Math.floor(value['to'] / 1000) + '';
-                } else if(k === 'ajxp_bytesize' && value && value['from'] !== undefined && value['to'] !== undefined){
+                } else if(k === 'basenameOrContent'){
+                    query.FileNameOrContent = this.autoQuote(value);
+                } else if(k === 'Content'){
+                    query.Content = this.autoQuote(value);
+                } else if(k === 'ajxp_modiftime' && value && (value['from'] !== undefined || value['to'] !== undefined)){
+                    if(value['from']){
+                        query.MinDate = Math.floor(value['from'] / 1000) + '';
+                    }
+                    if(value['to']){
+                        query.MaxDate = Math.floor(value['to'] / 1000) + '';
+                    }
+                } else if(k === 'ajxp_bytesize' && value && (value['from'] !== undefined || value['to'] !== undefined)){
                     if(parseInt(value['from']) > 0){
                         query.MinSize = value['from'] + '';
                     }
@@ -65,12 +79,12 @@ class SearchApi {
         return new Promise((resolve, reject) => {
             this.api.nodes(request).then(response => {
                 if(!response.Results){
-                    resolve([]);
+                    resolve({Results: [], Total: 0});
                 }
-                const nodes = response.Results.map(n => {
+                response.Results = response.Results.map(n => {
                     return MetaNodeProvider.parseTreeNode(n, '', defaultSlug);
                 });
-                resolve(nodes);
+                resolve(response);
 
             }).catch((e) => {
                 reject(e);

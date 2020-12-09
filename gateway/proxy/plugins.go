@@ -35,8 +35,8 @@ import (
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/server"
-	_ "github.com/micro/go-plugins/client/grpc"
-	_ "github.com/micro/go-plugins/server/grpc"
+	
+	
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -47,6 +47,9 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	errorUtils "github.com/pydio/cells/common/utils/error"
+
+	// _ "github.com/pydio/cells/common/micro/server/grpc"
+	// _ "github.com/pydio/cells/common/micro/client/grpc"
 )
 
 var (

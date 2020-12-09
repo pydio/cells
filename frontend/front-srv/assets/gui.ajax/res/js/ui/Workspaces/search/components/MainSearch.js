@@ -112,7 +112,7 @@ class MainSearch extends Component {
 
     onChange(value) {
         this.setState({value: value}, () => {
-            this.props.onChange({'basename': value})
+            this.props.onChange({'basenameOrContent': value})
         });
     }
 

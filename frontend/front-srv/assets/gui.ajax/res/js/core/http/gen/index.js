@@ -232,6 +232,7 @@ import TreeNodeType from './model/TreeNodeType';
 import TreeQuery from './model/TreeQuery';
 import TreeReadNodeRequest from './model/TreeReadNodeRequest';
 import TreeReadNodeResponse from './model/TreeReadNodeResponse';
+import TreeSearchFacet from './model/TreeSearchFacet';
 import TreeSearchRequest from './model/TreeSearchRequest';
 import TreeVersioningKeepPeriod from './model/TreeVersioningKeepPeriod';
 import TreeVersioningPolicy from './model/TreeVersioningPolicy';
@@ -1618,6 +1619,12 @@ export {
      * @property {module:model/TreeReadNodeResponse}
      */
     TreeReadNodeResponse,
+
+    /**
+     * The TreeSearchFacet model constructor.
+     * @property {module:model/TreeSearchFacet}
+     */
+    TreeSearchFacet,
 
     /**
      * The TreeSearchRequest model constructor.

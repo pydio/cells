@@ -105,7 +105,7 @@ class SearchForm extends Component {
             return
         }
         if(mode === 'small' && this.state.display === 'closed'){
-            let {basename, ...otherValues} = this.state.values;
+            let {basenameOrContent, ...otherValues} = this.state.values;
             if(otherValues && Object.keys(otherValues).length){
                 mode = 'advanced';
             }
@@ -152,7 +152,7 @@ class SearchForm extends Component {
         rootNode.setLoaded(false);
 
         const keys = Object.keys(values);
-        if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basename' && !values['basename'])) {
+        if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent'])) {
             this.setState({loading: false,empty: true});
             return;
         }
@@ -160,8 +160,8 @@ class SearchForm extends Component {
         this.setState({loading: true, empty: false});
         rootNode.setLoading(true);
         const api = new SearchApi(this.props.pydio);
-        api.search(values, crossWorkspace? 'all' : searchScope, limit).then(results => {
-            rootNode.setChildren(results);
+        api.search(values, crossWorkspace? 'all' : searchScope, limit).then(response => {
+            rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
             this.setState({loading: false});
@@ -257,7 +257,7 @@ class SearchForm extends Component {
                     groupByLabel={(crossWorkspace || searchScope === 'all') ? 'repository_display' : null }
                     emptyStateProps={{
                         iconClassName: "",
-                        primaryTextId: 478,
+                        primaryTextId: loading? 'searchengine.searching':478,
                         style: {
                             minHeight: (display === 'small' ? 180 : ( advancedPanel ? 240 : 412 )),
                             backgroundColor: 'transparent',
@@ -311,7 +311,7 @@ class SearchForm extends Component {
                 <Paper ref="root" zDepth={0} className={"top_search_form " + display} style={style} id={id}>
                     <MainSearch
                         mode={display}
-                        value={values.basename}
+                        value={values.basenameOrContent}
                         onOpen={() => this.setMode("small")}
                         onClose={() => this.setMode("closed")}
                         showAdvanced={!crossWorkspace}

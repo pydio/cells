@@ -52,20 +52,34 @@ var SearchApi = (function () {
                 keys.map(function (k) {
                     var value = values[k];
                     if (k.indexOf('ajxp_meta_') === 0) {
-                        freeQueries["Meta." + k.replace('ajxp_meta_', '')] = _this.autoQuote(value);
+                        var sK = k.replace('ajxp_meta_', '');
+                        if (sK !== 'TextContent') {
+                            sK = 'Meta.' + sK;
+                        }
+                        freeQueries[sK] = _this.autoQuote(value);
                     } else if (k === 'ajxp_mime') {
                         if (value === 'ajxp_folder') {
                             query.Type = 'COLLECTION';
                         } else {
                             query.Type = 'LEAF';
-                            query.Extension = value;
+                            if (value !== 'ajxp_file') {
+                                query.Extension = value;
+                            }
                         }
                     } else if (k === 'basename') {
                         freeQueries['Basename'] = _this.autoQuote(value);
-                    } else if (k === 'ajxp_modiftime' && value && value['from'] !== undefined && value['to'] !== undefined) {
-                        query.MinDate = Math.floor(value['from'] / 1000) + '';
-                        query.MaxDate = Math.floor(value['to'] / 1000) + '';
-                    } else if (k === 'ajxp_bytesize' && value && value['from'] !== undefined && value['to'] !== undefined) {
+                    } else if (k === 'basenameOrContent') {
+                        query.FileNameOrContent = _this.autoQuote(value);
+                    } else if (k === 'Content') {
+                        query.Content = _this.autoQuote(value);
+                    } else if (k === 'ajxp_modiftime' && value && (value['from'] !== undefined || value['to'] !== undefined)) {
+                        if (value['from']) {
+                            query.MinDate = Math.floor(value['from'] / 1000) + '';
+                        }
+                        if (value['to']) {
+                            query.MaxDate = Math.floor(value['to'] / 1000) + '';
+                        }
+                    } else if (k === 'ajxp_bytesize' && value && (value['from'] !== undefined || value['to'] !== undefined)) {
                         if (parseInt(value['from']) > 0) {
                             query.MinSize = value['from'] + '';
                         }
@@ -90,12 +104,12 @@ var SearchApi = (function () {
         return new Promise(function (resolve, reject) {
             _this.api.nodes(request).then(function (response) {
                 if (!response.Results) {
-                    resolve([]);
+                    resolve({ Results: [], Total: 0 });
                 }
-                var nodes = response.Results.map(function (n) {
+                response.Results = response.Results.map(function (n) {
                     return _modelMetaNodeProvider2['default'].parseTreeNode(n, '', defaultSlug);
                 });
-                resolve(nodes);
+                resolve(response);
             })['catch'](function (e) {
                 reject(e);
             });

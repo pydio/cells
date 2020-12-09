@@ -897,6 +897,10 @@ var _modelTreeReadNodeResponse = require('./model/TreeReadNodeResponse');
 
 var _modelTreeReadNodeResponse2 = _interopRequireDefault(_modelTreeReadNodeResponse);
 
+var _modelTreeSearchFacet = require('./model/TreeSearchFacet');
+
+var _modelTreeSearchFacet2 = _interopRequireDefault(_modelTreeSearchFacet);
+
 var _modelTreeSearchRequest = require('./model/TreeSearchRequest');
 
 var _modelTreeSearchRequest2 = _interopRequireDefault(_modelTreeSearchRequest);
@@ -2599,6 +2603,13 @@ exports.
  * @property {module:model/TreeReadNodeResponse}
  */
 TreeReadNodeResponse = _modelTreeReadNodeResponse2['default'];
+exports.
+
+/**
+ * The TreeSearchFacet model constructor.
+ * @property {module:model/TreeSearchFacet}
+ */
+TreeSearchFacet = _modelTreeSearchFacet2['default'];
 exports.
 
 /**
