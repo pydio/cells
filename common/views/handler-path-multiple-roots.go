@@ -46,6 +46,16 @@ func NewPathMultipleRootsHandler() *MultipleRootsHandler {
 	return m
 }
 
+func (m *MultipleRootsHandler) setWorkspaceRootFlag(node *tree.Node) *tree.Node {
+	if strings.Trim(node.Path, "/") == "" {
+		out := node.Clone()
+		out.SetMeta(common.MetaFlagWorkspaceRoot, "true")
+		return out
+	} else {
+		return node
+	}
+}
+
 func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
@@ -60,7 +70,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 		}
 		if !rootNode.IsLeaf() {
 			branch.Root = rootNode
-			return WithBranchInfo(ctx, identifier, branch), node, nil
+			return WithBranchInfo(ctx, identifier, branch), m.setWorkspaceRootFlag(node), nil
 		}
 	}
 
@@ -86,50 +96,43 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	if branch.Root == nil {
 		return ctx, node, errors.NotFound(VIEWS_LIBRARY_NAME, "Could not find root node")
 	}
-	return ctx, out, nil
+	return ctx, m.setWorkspaceRootFlag(out), nil
 }
 
 func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
+	out := node.Clone()
 	if set && branch.UUID != "ROOT" {
 		if branch.EncryptionMode != object.EncryptionMode_CLEAR {
-			node.SetMeta(common.MetaFlagEncrypted, "true")
+			out.SetMeta(common.MetaFlagEncrypted, "true")
 		}
 		if branch.VersioningPolicyName != "" {
-			node.SetMeta(common.MetaFlagVersioning, "true")
+			out.SetMeta(common.MetaFlagVersioning, "true")
 		}
 	}
 	if !set || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
-		return ctx, node, nil
+		return ctx, m.setWorkspaceRootFlag(out), nil
 	}
 	if len(branch.RootUUIDs) == 1 {
 		root, _ := m.getRoot(branch.RootUUIDs[0])
 		if !root.IsLeaf() {
-			return ctx, node, nil
+			return ctx, m.setWorkspaceRootFlag(out), nil
 		}
 	}
 	if branch.Root == nil {
 		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "No Root defined, this is not normal")
 	}
 	// Prepend root node Uuid
-	// First Level
-	out := node.Clone()
-	firstLevel := false
-	if strings.Trim(node.Path, "/") == "" {
-		firstLevel = true
-	}
+	out = m.setWorkspaceRootFlag(out)
 	out.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
-	if firstLevel {
-		out.SetMeta(common.MetaFlagWorkspaceRoot, "true")
-	}
 	return ctx, out, nil
 }
 
 func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 
 	// First try, without modifying ctx & node
-	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
+	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
 	if err != nil && errors.Parse(err.Error()).Status == "Not Found" {
 
 		branch, _ := GetBranchInfo(ctx, "in")
@@ -162,6 +165,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 		}()
 		return streamer, nil
 	}
+	in.Node = out
 	return m.AbstractBranchFilter.ListNodes(ctx, in, opts...)
 
 }
@@ -169,7 +173,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 
 	// First try, without modifying ctx & node
-	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
+	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
 	if err != nil && errors.Parse(err.Error()).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
 
 		// Load root nodes and
@@ -198,6 +202,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 		}
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}
+	in.Node = out
 	return m.AbstractBranchFilter.ReadNode(ctx, in, opts...)
 
 }

@@ -46,6 +46,7 @@ import (
 const (
 	PolicyNodeMetaName      = "NodeMetaName"
 	PolicyNodeMetaPath      = "NodeMetaPath"
+	PolicyNodeMetaType      = "NodeMetaType"
 	PolicyNodeMetaExtension = "NodeMetaExtension"
 	PolicyNodeMetaSize      = "NodeMetaSize"
 	PolicyNodeMetaMTime     = "NodeMetaMTime"
@@ -108,6 +109,7 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	policyContext[PolicyNodeMetaName] = node.GetStringMeta("name")
 	policyContext[PolicyNodeMetaPath] = node.Path
+	policyContext[PolicyNodeMetaType] = node.GetType().String()
 	policyContext[PolicyNodeMetaMTime] = fmt.Sprintf("%v", node.MTime)
 	policyContext[PolicyNodeMetaSize] = fmt.Sprintf("%v", node.Size)
 	policyContext[PolicyNodeMetaExtension] = strings.TrimLeft(path.Ext(node.Path), ".")

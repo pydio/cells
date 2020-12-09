@@ -3,6 +3,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/common"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
@@ -96,6 +97,7 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 			polNode := ctxNode
 			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" { // Do not try to check nodes meta on root
 				polNode = nil
+				policyContext[PolicyNodeMeta_+common.MetaFlagWorkspaceRoot] = "true"
 			}
 			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], polNode); !c {
 				log.Logger(ctx).Debug("Found forbidden access on node", ctxNode.ZapPath())
