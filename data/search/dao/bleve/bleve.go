@@ -286,29 +286,46 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	return nil
 }
 
+func (s *BleveServer) makeBaseNameField(term string, boost float64) query.Query {
+	if s.basenameAnalyzer == defaultBasenameAnalyzer {
+		wCard := bleve.NewWildcardQuery("*" + strings.Trim(strings.ToLower(term), "*") + "*")
+		wCard.SetField("Basename")
+		if boost > 0 {
+			wCard.SetBoost(boost)
+		}
+		return wCard
+	} else {
+		wCard := bleve.NewMatchQuery(term)
+		wCard.Analyzer = s.basenameAnalyzer
+		wCard.SetField("Basename")
+		if boost > 0 {
+			wCard.SetBoost(boost)
+		}
+		return wCard
+	}
+}
+
+func (s *BleveServer) makeContentField(term string) query.Query {
+	cQuery := bleve.NewMatchQuery(term)
+	cQuery.Analyzer = s.contentAnalyzer
+	cQuery.SetField("TextContent")
+	return cQuery
+}
+
 func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	boolean := bleve.NewBooleanQuery()
-	// FileName
-	if len(queryObject.GetFileName()) > 0 {
-		if s.basenameAnalyzer == defaultBasenameAnalyzer {
-			wCard := bleve.NewWildcardQuery("*" + strings.Trim(strings.ToLower(queryObject.GetFileName()), "*") + "*")
-			wCard.SetField("Basename")
-			boolean.AddMust(wCard)
-		} else {
-			wCard := bleve.NewMatchQuery(queryObject.GetFileName())
-			wCard.Analyzer = s.basenameAnalyzer
-			wCard.SetField("Basename")
-			boolean.AddMust(wCard)
+	if term := queryObject.GetFileNameOrContent(); term != "" {
+		boolean.AddMust(bleve.NewDisjunctionQuery(s.makeBaseNameField(term, 5), s.makeContentField(term)))
+	} else {
+		if term := queryObject.GetFileName(); term != "" {
+			boolean.AddMust(s.makeBaseNameField(term, 0))
+		}
+		if term := queryObject.GetContent(); term != "" {
+			boolean.AddMust(s.makeContentField(term))
 		}
 	}
-	// TextContent
-	if len(queryObject.GetContent()) > 0 {
-		cQuery := bleve.NewMatchQuery(queryObject.GetContent())
-		cQuery.Analyzer = s.contentAnalyzer
-		cQuery.SetField("TextContent")
-		boolean.AddMust(cQuery)
-	}
+
 	// File Size Range
 	if queryObject.MinSize > 0 || queryObject.MaxSize > 0 {
 		var min = float64(queryObject.MinSize)
@@ -385,13 +402,13 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		}
 	}
 
-	log.Logger(c).Info("SearchObjects", zap.Any("query", boolean))
+	log.Logger(c).Debug("SearchObjects", zap.Any("query", boolean))
 	searchRequest := bleve.NewSearchRequest(boolean)
 	if size > 0 {
 		searchRequest.Size = int(size)
 	}
 	searchRequest.From = int(from)
-	searchRequest.Fields = []string{"Uuid", "Path", "NodeType", "Basename"}
+	searchRequest.Fields = []string{"Uuid", "Path", "NodeType", "Basename", "Size", "ModifTime"}
 	searchRequest.IncludeLocations = true
 	// Facet for node type
 	searchRequest.AddFacet("Type", &bleve.FacetRequest{
@@ -405,7 +422,12 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	})
 	// Facet for result being in text content or not
 	searchRequest.AddFacet("Content", &bleve.FacetRequest{
-		Field: "Meta.TextContent",
+		Field: "TextContent",
+		Size:  1,
+	})
+	// Facet for result being in text content or not
+	searchRequest.AddFacet("Basename", &bleve.FacetRequest{
+		Field: "Basename",
 		Size:  1,
 	})
 	// Facets by Size
@@ -425,10 +447,10 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	last5 := now.Add(-5 * time.Minute)
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	dateFacet.AddDateTimeRange("Moments ago", last5, now)
-	dateFacet.AddDateTimeRange("Today", today, now)
-	dateFacet.AddDateTimeRange("Past week", now.Add(-7*24*time.Hour), now)
-	dateFacet.AddDateTimeRange("Past 30 days", now.Add(-30*24*time.Hour), now)
-	dateFacet.AddDateTimeRange("Older", time.Time{}, now.Add(-30*24*time.Hour))
+	dateFacet.AddDateTimeRange("Today", today, last5)
+	dateFacet.AddDateTimeRange("Last 7 days", now.Add(-7*24*time.Hour), today)
+	dateFacet.AddDateTimeRange("Last 30 days", now.Add(-30*24*time.Hour), now.Add(-7*24*time.Hour))
+	dateFacet.AddDateTimeRange("Older than 30 days", time.Time{}, now.Add(-30*24*time.Hour))
 	searchRequest.AddFacet("Date", dateFacet)
 
 	if s.nsProvider == nil {
@@ -444,14 +466,28 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		doneChan <- true
 		return err
 	}
-	log.Logger(c).Info("SearchObjects", zap.Any("total results", searchResult.Total))
+	log.Logger(c).Debug("SearchObjects", zap.Any("total results", searchResult.Total))
 	for _, f := range searchResult.Facets {
 		for _, t := range f.Terms {
 			if t.Term != "" {
-				facets <- &tree.SearchFacet{
-					FieldName: f.Field,
-					Label:     t.Term,
-					Count:     int32(t.Count),
+				if f.Field == "TextContent" {
+					facets <- &tree.SearchFacet{
+						FieldName: f.Field,
+						Label:     "Contents",
+						Count:     int32(t.Count),
+					}
+				} else if f.Field == "Basename" {
+					facets <- &tree.SearchFacet{
+						FieldName: f.Field,
+						Label:     "File Name",
+						Count:     int32(t.Count),
+					}
+				} else {
+					facets <- &tree.SearchFacet{
+						FieldName: f.Field,
+						Label:     t.Term,
+						Count:     int32(t.Count),
+					}
 				}
 			}
 		}
@@ -511,8 +547,17 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 				node.Type = tree.NodeType_COLLECTION
 			}
 		}
+		if s, ok := hit.Fields["Size"]; ok {
+			node.Size = int64(s.(float64))
+		}
+		if d, ok := hit.Fields["ModifTime"]; ok {
+			s := d.(string)
+			if mtime, e := time.Parse(time.RFC3339, s); e == nil {
+				node.MTime = mtime.Unix()
+			}
+		}
 		for k, _ := range hit.Locations {
-			if k == "Meta.TextContent" {
+			if k == "TextContent" {
 				node.SetMeta("document_content_hit", true)
 			}
 		}

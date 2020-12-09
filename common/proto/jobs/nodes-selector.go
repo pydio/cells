@@ -211,6 +211,7 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 			singleQuery.Content = EvaluateFieldStr(ctx, input, singleQuery.Content)
 			singleQuery.DurationDate = EvaluateFieldStr(ctx, input, singleQuery.DurationDate)
 			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
+			singleQuery.FileNameOrContent = EvaluateFieldStr(ctx, input, singleQuery.FileNameOrContent)
 			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
 			singleQuery.Extension = EvaluateFieldStr(ctx, input, singleQuery.Extension)
 			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
@@ -282,6 +283,16 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 		return false
 	}
 
+	if len(q.FileNameOrContent) > 0 {
+		fmt.Println("[warn] Filtering on FileNameOrContent is not supported yet, switching to Filename")
+		q.FileName = q.FileNameOrContent
+	}
+
+	if len(q.Content) != 0 {
+		// Read content??
+		fmt.Println("[warn] Dynamic filtering on Content is not supported yet - ignoring")
+	}
+
 	if len(q.FileName) != 0 {
 		// Basic search: can have wildcard on left, right, or none (exact search)
 		nodeName := node.GetStringMeta("name")
@@ -310,10 +321,6 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 		} else if !left && !right && nodeName != search { // exact term
 			return false
 		}
-	}
-
-	if len(q.Content) != 0 {
-		// Read content??
 	}
 
 	if len(q.Extension) > 0 {

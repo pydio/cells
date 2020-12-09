@@ -8046,6 +8046,10 @@
           "type": "string",
           "title": "Search in content"
         },
+        "FileNameOrContent": {
+          "type": "string",
+          "title": "Search in either filename or content (but at least one of them)"
+        },
         "FreeString": {
           "type": "string",
           "title": "Free Query String (for metadata)"

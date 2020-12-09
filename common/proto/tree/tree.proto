@@ -398,6 +398,8 @@ message Query {
     string FileName = 7;
     // Search in content
     string Content = 8;
+    // Search in either filename or content (but at least one of them)
+    string FileNameOrContent = 17;
     // Free Query String (for metadata)
     string FreeString = 9;
     // Search files by extension
