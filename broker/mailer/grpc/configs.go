@@ -132,6 +132,13 @@ var ExposedConfigs = &forms.Form{
 								Mandatory:   false,
 								Type:        forms.ParamBool,
 							},
+							&forms.FormField{
+								Name:        "localName",
+								Label:       "Mail.Config.Smtp.LocalName.Label",
+								Description: "Mail.Config.Smtp.LocalName.Description",
+								Mandatory:   false,
+								Type:        forms.ParamString,
+							},
 						},
 					},
 					{

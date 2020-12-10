@@ -26,9 +26,8 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-
 	"go.uber.org/zap"
-	gomail "gopkg.in/gomail.v2"
+	"gopkg.in/gomail.v2"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -41,6 +40,7 @@ type Smtp struct {
 	Password           string
 	Host               string
 	Port               int
+	LocalName          string
 	InsecureSkipVerify bool
 }
 
@@ -70,12 +70,9 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 		return fmt.Errorf("cannot configure mailer: missing compulsory port")
 	}
 
-	// if sConf, ok := portConf.(string); ok && sConf != "" {
-	// 	parsed, _ := strconv.ParseInt(sConf, 10, 64)
-	// 	gm.Port = int(parsed)
-	// } else {
-	// 	gm.Port = int(portConf.(float64))
-	// }
+	if loc := conf.Val("localName").Default("").String(); loc != "" {
+		gm.LocalName = loc
+	}
 
 	// Set default to be false.
 	gm.InsecureSkipVerify = conf.Val("insecureSkipVerify").Bool()
@@ -93,6 +90,9 @@ func (gm *Smtp) Check(ctx context.Context) error {
 	}
 	// Test Config - Unfortunately we cannot set the Timeout here - 10s by default
 	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
+	if gm.LocalName != "" {
+		d.LocalName = gm.LocalName
+	}
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,
@@ -117,6 +117,9 @@ func (gm *Smtp) Send(email *mailer.Mail) error {
 		return e
 	}
 	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
+	if gm.LocalName != "" {
+		d.LocalName = gm.LocalName
+	}
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,

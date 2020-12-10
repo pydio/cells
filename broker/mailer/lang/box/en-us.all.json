@@ -205,6 +205,12 @@
   "Mail.Config.Smtp.SkipVerify.Description": {
     "other" : "Disable certificate verification if your SMTP server certificate is self-signed"
   },
+  "Mail.Config.Smtp.LocalName.Label": {
+    "other" : "Dialer Local Name"
+  },
+  "Mail.Config.Smtp.LocalName.Description": {
+    "other" : "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+  },
   "Mail.Config.SendGrid.Label": {
     "other" : "SendGrid Service"
   },
