@@ -79,6 +79,7 @@ var SimpleList = _Pydio$requireLib.SimpleList;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
+var moment = _Pydio$requireLib2.moment;
 
 var _Pydio$requireLib3 = _pydio2['default'].requireLib('workspaces');
 
@@ -176,7 +177,6 @@ var HomeSearchForm = (function (_Component) {
                         break;
                 }
             });
-            console.log(data);
             return data;
         }
     }, {
@@ -280,17 +280,27 @@ var HomeSearchForm = (function (_Component) {
                 var metaData = node.getMetadata();
                 var date = new Date();
                 date.setTime(parseInt(metaData.get('ajxp_modiftime')) * 1000);
-                var mDate = _pydioUtilPath2['default'].formatModifDate(date);
+                var mDate = moment(date).fromNow();
                 var bSize = _pydioUtilPath2['default'].roundFileSize(parseInt(node.getMetadata().get('bytesize')));
-                var folderLabel = 'Inside ' + _pydioUtilPath2['default'].getDirname(path) || '/';
+                var dir = _pydioUtilPath2['default'].getDirname(path);
+                var location = undefined;
+                if (dir) {
+                    location = pydio.MessageHash['user_home.search.result.location'] + ': ' + _pydioUtilPath2['default'].getDirname(path) || '/';
+                }
                 return React.createElement(
                     'div',
                     null,
-                    folderLabel,
-                    ' - ',
                     mDate,
-                    ' - ',
-                    bSize
+                    ' • ',
+                    bSize,
+                    ' ',
+                    location ? React.createElement(
+                        'span',
+                        null,
+                        '•'
+                    ) : null,
+                    ' ',
+                    location
                 );
             };
             var renderGroupHeader = function renderGroupHeader(repoId, repoLabel) {

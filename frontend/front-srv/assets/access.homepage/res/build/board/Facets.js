@@ -76,9 +76,14 @@ var Facet = (function (_React$Component) {
             var _props3 = this.props;
             var facet = _props3.facet;
             var selected = _props3.selected;
+            var m = _props3.m;
 
             var requestSelect = undefined,
                 requestDelete = undefined;
+            var mFacet = function mFacet(id) {
+                var key = 'facet.label.' + id;
+                return m(key) === key ? id : m(key);
+            };
             if (selected) {
                 requestDelete = function () {
                     return _this.clear();
@@ -111,7 +116,7 @@ var Facet = (function (_React$Component) {
                     facet.Count
                 ),
                 ' ',
-                facet.Label
+                mFacet(facet.Label)
             );
         }
     }]);
@@ -141,19 +146,23 @@ var Facets = (function (_React$Component2) {
             var _this2 = this;
 
             var _props4 = this.props;
+            var pydio = _props4.pydio;
             var facets = _props4.facets;
             var onSelectFacet = _props4.onSelectFacet;
             var _props4$selected = _props4.selected;
             var selected = _props4$selected === undefined ? [] : _props4$selected;
 
+            var m = function m(id) {
+                return pydio.MessageHash['user_home.' + id] || id;
+            };
             var groups = {};
             var groupKeys = {
-                'NodeType': 'Type',
-                'Extension': 'Extension',
-                'Size': 'Size',
-                'ModifTime': 'Modified',
-                'Basename': 'Found in...',
-                'Meta': 'Metadata'
+                'NodeType': 'type',
+                'Extension': 'extension',
+                'Size': 'size',
+                'ModifTime': 'modified',
+                'Basename': 'found',
+                'Meta': 'metadata'
             };
             var hasContentSelected = selected.filter(function (f) {
                 return f.FieldName === 'TextContent';
@@ -215,7 +224,7 @@ var Facets = (function (_React$Component2) {
                 _react2['default'].createElement(
                     'div',
                     { style: styles.header },
-                    'Filter Results'
+                    m('search.facets.title')
                 ),
                 Object.keys(groupKeys).filter(function (k) {
                     return groups[k];
@@ -231,7 +240,7 @@ var Facets = (function (_React$Component2) {
                         _react2['default'].createElement(
                             'div',
                             { style: styles.subHeader },
-                            groupKeys[k]
+                            m('search.facet.' + groupKeys[k])
                         ),
                         _react2['default'].createElement(
                             'div',
@@ -239,7 +248,7 @@ var Facets = (function (_React$Component2) {
                             groups[k].sort(function (a, b) {
                                 return a.Label.localeCompare(b.Label);
                             }).map(function (f) {
-                                return _react2['default'].createElement(Facet, { facet: f, selected: _this2.isSelected(selected, f), onSelect: onSelectFacet });
+                                return _react2['default'].createElement(Facet, { m: m, facet: f, selected: _this2.isSelected(selected, f), onSelect: onSelectFacet });
                             })
                         )
                     );

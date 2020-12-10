@@ -33,8 +33,12 @@ class Facet extends React.Component {
     }
 
     render() {
-        const {facet, selected} = this.props;
+        const {facet, selected, m} = this.props;
         let requestSelect, requestDelete;
+        const mFacet = (id) => {
+            const key = 'facet.label.' + id;
+            return m(key) === key ? id : m(key);
+        }
         if(selected){
             requestDelete = () => this.clear()
         } else {
@@ -56,7 +60,7 @@ class Facet extends React.Component {
                 onRequestDelete={requestDelete}
                 onTouchTap={requestSelect}
                 {...cc.chip}
-            ><Avatar {...cc.avatar}>{facet.Count}</Avatar> {facet.Label}</Chip>
+            ><Avatar {...cc.avatar}>{facet.Count}</Avatar> {mFacet(facet.Label)}</Chip>
         );
     }
 }
@@ -68,15 +72,16 @@ class Facets extends React.Component {
     }
 
     render() {
-        const {facets, onSelectFacet, selected=[]} = this.props;
+        const {pydio, facets, onSelectFacet, selected=[]} = this.props;
+        const m = (id) => pydio.MessageHash['user_home.' + id] || id
         const groups = {}
         const groupKeys = {
-            'NodeType':'Type',
-            'Extension':'Extension',
-            'Size':'Size',
-            'ModifTime':'Modified',
-            'Basename':'Found in...',
-            'Meta':'Metadata',
+            'NodeType':'type',
+            'Extension':'extension',
+            'Size':'size',
+            'ModifTime':'modified',
+            'Basename':'found',
+            'Meta':'metadata',
         }
         const hasContentSelected = selected.filter(f => f.FieldName === 'TextContent').length > 0
         facets.forEach(f => {
@@ -127,7 +132,7 @@ class Facets extends React.Component {
 
         return (
             <Paper style={styles.container}>
-                <div style={styles.header}>Filter Results</div>
+                <div style={styles.header}>{m('search.facets.title')}</div>
                 {Object.keys(groupKeys)
                     .filter(k => groups[k])
                     .filter(k => {
@@ -137,10 +142,10 @@ class Facets extends React.Component {
                     .map(k => {
                     return(
                         <div style={{marginBottom:10}}>
-                            <div style={styles.subHeader}>{groupKeys[k]}</div>
+                            <div style={styles.subHeader}>{m('search.facet.' + groupKeys[k])}</div>
                             <div style={{zoom: .8, marginLeft:10}}>
                                 {groups[k].sort((a,b) => a.Label.localeCompare(b.Label)).map((f)=> {
-                                    return (<Facet facet={f} selected={this.isSelected(selected, f)} onSelect={onSelectFacet}/>);
+                                    return (<Facet m={m} facet={f} selected={this.isSelected(selected, f)} onSelect={onSelectFacet}/>);
                                 })}
                             </div>
                         </div>

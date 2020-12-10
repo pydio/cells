@@ -30,7 +30,7 @@ import _ from 'lodash';
 import Facets from "./Facets";
 
 const {SimpleList} = Pydio.requireLib('components');
-const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 
 class HomeSearchForm extends Component{
@@ -104,7 +104,6 @@ class HomeSearchForm extends Component{
                     break;
             }
         })
-        console.log(data);
         return data;
     }
 
@@ -185,10 +184,14 @@ class HomeSearchForm extends Component{
             const metaData = node.getMetadata();
             let date = new Date();
             date.setTime(parseInt(metaData.get('ajxp_modiftime'))*1000);
-            const mDate = PathUtils.formatModifDate(date);
+            const mDate = moment(date).fromNow();
             const bSize = PathUtils.roundFileSize(parseInt(node.getMetadata().get('bytesize')))
-            const folderLabel = 'Inside ' + PathUtils.getDirname(path) || '/';
-            return <div>{folderLabel} - {mDate} - {bSize}</div>
+            const dir = PathUtils.getDirname(path)
+            let location
+            if(dir){
+                location = pydio.MessageHash['user_home.search.result.location'] + ': ' + PathUtils.getDirname(path) || '/';
+            }
+            return <div>{mDate} &bull; {bSize} {location ? <span>&bull;</span> : null} {location}</div>
         };
         const renderGroupHeader = (repoId, repoLabel) =>{
             return (

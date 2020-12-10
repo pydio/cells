@@ -436,21 +436,21 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	s2 = 1024 * 1024
 	s3 = 1024 * 1024 * 1024 * 10
 	s4 = 1024 * 1024 * 1024 * 100
-	sizeFacet.AddNumericRange("< 1MB", nil, &s2)
-	sizeFacet.AddNumericRange("1MB to 10MB", &s2, &s3)
-	sizeFacet.AddNumericRange("10MB to 100MB", &s3, &s4)
-	sizeFacet.AddNumericRange("> 100MB", &s4, nil)
+	sizeFacet.AddNumericRange("size.lt.1MB", nil, &s2)
+	sizeFacet.AddNumericRange("size.1MB.to.10MB", &s2, &s3)
+	sizeFacet.AddNumericRange("size.10MB.to.100MB", &s3, &s4)
+	sizeFacet.AddNumericRange("size.gt.100MB", &s4, nil)
 	searchRequest.AddFacet("Size", sizeFacet)
 	// Facets by date
 	dateFacet := bleve.NewFacetRequest("ModifTime", 5)
 	now := time.Now()
 	last5 := now.Add(-5 * time.Minute)
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	dateFacet.AddDateTimeRange("Moments ago", last5, now)
-	dateFacet.AddDateTimeRange("Today", today, last5)
-	dateFacet.AddDateTimeRange("Last 7 days", now.Add(-7*24*time.Hour), today)
-	dateFacet.AddDateTimeRange("Last 30 days", now.Add(-30*24*time.Hour), now.Add(-7*24*time.Hour))
-	dateFacet.AddDateTimeRange("Older than 30 days", time.Time{}, now.Add(-30*24*time.Hour))
+	dateFacet.AddDateTimeRange("date.moments", last5, now)
+	dateFacet.AddDateTimeRange("date.today", today, last5)
+	dateFacet.AddDateTimeRange("date.last.7", now.Add(-7*24*time.Hour), today)
+	dateFacet.AddDateTimeRange("date.last.30", now.Add(-30*24*time.Hour), now.Add(-7*24*time.Hour))
+	dateFacet.AddDateTimeRange("date.older.30", time.Time{}, now.Add(-30*24*time.Hour))
 	searchRequest.AddFacet("Date", dateFacet)
 
 	if s.nsProvider == nil {
@@ -473,13 +473,13 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 				if f.Field == "TextContent" {
 					facets <- &tree.SearchFacet{
 						FieldName: f.Field,
-						Label:     "Contents",
+						Label:     "found.contents",
 						Count:     int32(t.Count),
 					}
 				} else if f.Field == "Basename" {
 					facets <- &tree.SearchFacet{
 						FieldName: f.Field,
-						Label:     "File Name",
+						Label:     "found.basename",
 						Count:     int32(t.Count),
 					}
 				} else {
