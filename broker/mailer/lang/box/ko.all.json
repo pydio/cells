@@ -194,6 +194,12 @@
   "Mail.Config.Smtp.SkipVerify.Description": {
     "other": "SMTP 서버의 인증서가 자체 서명일 경우 인증서 검증을 비활성화하세요"
   },
+  "Mail.Config.Smtp.LocalName.Label": {
+    "other": "Dialer Local Name"
+  },
+  "Mail.Config.Smtp.LocalName.Description": {
+    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+  },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid 서비스"
   },

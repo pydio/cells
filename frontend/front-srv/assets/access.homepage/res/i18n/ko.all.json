@@ -175,5 +175,68 @@
   },
   "title": {
     "other": "Home"
+  },
+  "search.result.location": {
+    "other": "폴더"
+  },
+  "search.facets.title": {
+    "other": "Filters"
+  },
+  "search.facet.type": {
+    "other": "Type"
+  },
+  "search.facet.extension": {
+    "other": "Extension"
+  },
+  "search.facet.size": {
+    "other": "Size"
+  },
+  "search.facet.modified": {
+    "other": "Modified"
+  },
+  "search.facet.found": {
+    "other": "Found in"
+  },
+  "search.facet.metadata": {
+    "other": "Metadata"
+  },
+  "facet.label.file": {
+    "other": "File"
+  },
+  "facet.label.folder": {
+    "other": "폴더"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB to 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10MB to 100MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Moments ago"
+  },
+  "facet.label.date.today": {
+    "other": "Today"
+  },
+  "facet.label.date.last.7": {
+    "other": "Last 7 days"
+  },
+  "facet.label.date.last.30": {
+    "other": "Last 30 days"
+  },
+  "facet.label.date.older.30": {
+    "other": "Older than 30 days"
+  },
+  "facet.label.found.contents": {
+    "other": "Contents"
+  },
+  "facet.label.found.basename": {
+    "other": "File name"
   }
 }

@@ -2341,5 +2341,8 @@
   },
   "form.input-image.avatarMax": {
     "other": "Per favore usa immagini più piccole di 5MB"
+  },
+  "searchengine.searching": {
+    "other": "Searching..."
   }
 }

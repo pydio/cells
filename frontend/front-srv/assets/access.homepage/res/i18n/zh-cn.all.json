@@ -175,5 +175,68 @@
   },
   "title": {
     "other": "主页"
+  },
+  "search.result.location": {
+    "other": "文件夹"
+  },
+  "search.facets.title": {
+    "other": "Filters"
+  },
+  "search.facet.type": {
+    "other": "类型"
+  },
+  "search.facet.extension": {
+    "other": "Extension"
+  },
+  "search.facet.size": {
+    "other": "大小"
+  },
+  "search.facet.modified": {
+    "other": "修改时间"
+  },
+  "search.facet.found": {
+    "other": "Found in"
+  },
+  "search.facet.metadata": {
+    "other": "元数据"
+  },
+  "facet.label.file": {
+    "other": "文件"
+  },
+  "facet.label.folder": {
+    "other": "文件夹"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB to 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10MB to 100MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Moments ago"
+  },
+  "facet.label.date.today": {
+    "other": "Today"
+  },
+  "facet.label.date.last.7": {
+    "other": "Last 7 days"
+  },
+  "facet.label.date.last.30": {
+    "other": "Last 30 days"
+  },
+  "facet.label.date.older.30": {
+    "other": "Older than 30 days"
+  },
+  "facet.label.found.contents": {
+    "other": "目录"
+  },
+  "facet.label.found.basename": {
+    "other": "File name"
   }
 }

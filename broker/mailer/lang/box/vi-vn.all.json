@@ -194,6 +194,12 @@
   "Mail.Config.Smtp.SkipVerify.Description": {
     "other": "Bỏ qua việc kiểm tra các certificate của máy chủ SMTP nếu nó là self-signed"
   },
+  "Mail.Config.Smtp.LocalName.Label": {
+    "other": "Dialer Local Name"
+  },
+  "Mail.Config.Smtp.LocalName.Description": {
+    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+  },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Service"
   },

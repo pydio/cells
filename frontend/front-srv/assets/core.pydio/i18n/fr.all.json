@@ -2341,5 +2341,8 @@
   },
   "form.input-image.avatarMax": {
     "other": "Veuillez utiliser une image plus petite que 5Mo"
+  },
+  "searchengine.searching": {
+    "other": "Recherche en cours..."
   }
 }

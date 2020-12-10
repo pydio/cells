@@ -197,6 +197,9 @@
   "treeQuery.FileName": {
     "other": "Nom du fichier"
   },
+  "treeQuery.FileNameOrContent": {
+    "other": "Nom du fichier ou contenu"
+  },
   "treeQuery.FreeString": {
     "other": "Chaîne de recherche Bleve"
   },

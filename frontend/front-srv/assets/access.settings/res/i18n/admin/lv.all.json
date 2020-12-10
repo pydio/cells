@@ -1148,6 +1148,9 @@
   "ws.3": {
     "other": "+ darbvirsma"
   },
+  "ws.filter.workspaces": {
+    "other": "Filter workspaces..."
+  },
   "ws.30": {
     "other": "Vispārīgās Opcijas"
   },

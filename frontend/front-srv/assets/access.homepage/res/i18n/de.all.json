@@ -175,5 +175,68 @@
   },
   "title": {
     "other": "Hauptseite"
+  },
+  "search.result.location": {
+    "other": "Ordner"
+  },
+  "search.facets.title": {
+    "other": "Filters"
+  },
+  "search.facet.type": {
+    "other": "Typ"
+  },
+  "search.facet.extension": {
+    "other": "Erweiterung"
+  },
+  "search.facet.size": {
+    "other": "Größe"
+  },
+  "search.facet.modified": {
+    "other": "Bearbeitet"
+  },
+  "search.facet.found": {
+    "other": "Found in"
+  },
+  "search.facet.metadata": {
+    "other": "Metadaten"
+  },
+  "facet.label.file": {
+    "other": "Datei"
+  },
+  "facet.label.folder": {
+    "other": "Ordner"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB to 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10MB to 100MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Moments ago"
+  },
+  "facet.label.date.today": {
+    "other": "Heute"
+  },
+  "facet.label.date.last.7": {
+    "other": "Last 7 days"
+  },
+  "facet.label.date.last.30": {
+    "other": "Last 30 days"
+  },
+  "facet.label.date.older.30": {
+    "other": "Older than 30 days"
+  },
+  "facet.label.found.contents": {
+    "other": "Inhalte"
+  },
+  "facet.label.found.basename": {
+    "other": "Dateiname"
   }
 }

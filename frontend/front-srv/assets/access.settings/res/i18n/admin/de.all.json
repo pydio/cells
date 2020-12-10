@@ -1148,6 +1148,9 @@
   "ws.3": {
     "other": "+ Arbeitsumgebung"
   },
+  "ws.filter.workspaces": {
+    "other": "Filter workspaces..."
+  },
   "ws.30": {
     "other": "Allgemeine Einstellungen"
   },
