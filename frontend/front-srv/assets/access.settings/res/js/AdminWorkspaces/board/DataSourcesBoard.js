@@ -64,7 +64,7 @@ class DataSourcesBoard extends React.Component {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         this.statusPoller = setInterval(()=>{
             DataSource.loadStatuses().then(data => {
-                this.setState({startedServices: data.Services});
+                this.setState({startedServices: data.Services || []});
             });
             api.listPeersAddresses().then(res => {
                 this.setState({peerAddresses: res.PeerAddresses || []});
@@ -104,13 +104,14 @@ class DataSourcesBoard extends React.Component {
     }
 
     syncStatuses(){
-        const {dataSources} = this.state;
-        if(!dataSources || !dataSources.length){
+        const {dataSources = []} = this.state;
+        if(!dataSources.length){
             return;
         }
         JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(d => 'resync-ds-' + d.Name), 1).then(response => {
             const resyncJobs = {};
-            response.Jobs.forEach(job => {
+            const jobs = response.Jobs || []
+            jobs.forEach(job => {
                 if(job.Tasks && job.Tasks.length){
                     resyncJobs[job.ID.replace('resync-ds-', '')] = job;
                 }
@@ -158,7 +159,7 @@ class DataSourcesBoard extends React.Component {
         if(asNumber && dataSource.Disabled){
             return -1;
         }
-        const {startedServices, peerAddresses, m, newDsName} = this.state;
+        const {startedServices = [], peerAddresses = [], m, newDsName} = this.state;
         if(!startedServices.length){
             return m('status.na');
         }

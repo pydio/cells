@@ -141,7 +141,7 @@ var DataSourcesBoard = (function (_React$Component) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             this.statusPoller = setInterval(function () {
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
-                    _this.setState({ startedServices: data.Services });
+                    _this.setState({ startedServices: data.Services || [] });
                 });
                 api.listPeersAddresses().then(function (res) {
                     _this.setState({ peerAddresses: res.PeerAddresses || [] });
@@ -192,16 +192,18 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function syncStatuses() {
             var _this3 = this;
 
-            var dataSources = this.state.dataSources;
+            var _state$dataSources = this.state.dataSources;
+            var dataSources = _state$dataSources === undefined ? [] : _state$dataSources;
 
-            if (!dataSources || !dataSources.length) {
+            if (!dataSources.length) {
                 return;
             }
             JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(function (d) {
                 return 'resync-ds-' + d.Name;
             }), 1).then(function (response) {
                 var resyncJobs = {};
-                response.Jobs.forEach(function (job) {
+                var jobs = response.Jobs || [];
+                jobs.forEach(function (job) {
                     if (job.Tasks && job.Tasks.length) {
                         resyncJobs[job.ID.replace('resync-ds-', '')] = job;
                     }
@@ -281,8 +283,10 @@ var DataSourcesBoard = (function (_React$Component) {
                 return -1;
             }
             var _state = this.state;
-            var startedServices = _state.startedServices;
-            var peerAddresses = _state.peerAddresses;
+            var _state$startedServices = _state.startedServices;
+            var startedServices = _state$startedServices === undefined ? [] : _state$startedServices;
+            var _state$peerAddresses = _state.peerAddresses;
+            var peerAddresses = _state$peerAddresses === undefined ? [] : _state$peerAddresses;
             var m = _state.m;
             var newDsName = _state.newDsName;
 
