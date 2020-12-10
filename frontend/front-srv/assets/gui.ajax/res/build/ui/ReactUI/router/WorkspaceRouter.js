@@ -48,7 +48,7 @@ var WorkspaceRouterWrapper = function WorkspaceRouterWrapper(pydio) {
 
             if (!pydio.user) {
                 var origin = location.pathname || "";
-                localStorage.setItem("loginOrigin", origin.replace(new RegExp('starting.html$'), ''));
+                localStorage.setItem("loginOrigin", origin.replace(new RegExp('starting.html$|maintenance.html$'), ''));
             }
 
             repositories.forEach(function (repository) {
