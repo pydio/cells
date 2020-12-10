@@ -17,7 +17,11 @@ import (
 var sitesCmd = &cobra.Command{
 	Use:   "sites",
 	Short: "Manage sites where application is exposed",
-	Long:  ``,
+	Long: `
+Manage how Cells is binding to network interfaces and how it is exposed to outside world (or not).
+
+Sub-commands allow you to create/edit/delete multiple sites.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)
 		fatalQuitIfError(cmd, e)
@@ -180,13 +184,13 @@ func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
 			cmd.Println("***********************************************")
 			return e
 		} else {
-			cmd.Println("***********************************************")
-			cmd.Println(" Config has been updated, please restart now!  ")
-			cmd.Println("***********************************************")
+			cmd.Println("*********************************************************************")
+			cmd.Println(" Config has been updated, internal proxy will restart automatically  ")
+			cmd.Println("*********************************************************************")
 		}
 	} else {
 		cmd.Println("***********************************************")
-		cmd.Println(" Operation aborted, nothing has been saved     ")
+		cmd.Println("   Operation aborted, nothing has been saved   ")
 		cmd.Println("***********************************************")
 	}
 	return nil
