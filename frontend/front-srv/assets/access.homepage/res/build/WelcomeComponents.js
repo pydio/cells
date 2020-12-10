@@ -7456,10 +7456,16 @@ var Facets = (function (_React$Component2) {
                 'Basename': 'Found in...',
                 'Meta': 'Metadata'
             };
+            var hasContentSelected = selected.filter(function (f) {
+                return f.FieldName === 'TextContent';
+            }).length > 0;
             facets.forEach(function (f) {
                 var fName = f.FieldName;
                 if (fName.indexOf('Meta.') === 0) {
                     fName = 'Meta';
+                }
+                if (fName === 'Basename' && hasContentSelected) {
+                    return; // Exclude Basename when TextContent is selected
                 }
                 if (fName === 'TextContent') {
                     // Group basename / TextContent
@@ -7470,12 +7476,22 @@ var Facets = (function (_React$Component2) {
                 }
                 groups[fName].push(f);
             });
+            if (!Object.keys(groupKeys).filter(function (k) {
+                return groups[k];
+            }).filter(function (k) {
+                var hasSelected = groups[k].filter(function (f) {
+                    return _this2.isSelected(selected, f);
+                }).length > 0;
+                return hasSelected || groups[k].length > 1;
+            }).length) {
+                return null;
+            }
             var styles = {
                 container: {
                     position: 'absolute',
                     top: 90,
                     right: 'calc(50% + 350px)',
-                    bottom: 10,
+                    maxHeight: 'calc(100% - 100px)',
                     overflowY: 'auto',
                     width: 200,
                     borderRadius: 6,
@@ -7911,7 +7927,7 @@ var HomeSearchForm = (function (_Component) {
             var _this = this;
 
             this.setState({ queryString: queryString }, function () {
-                _this.submitD();
+                _this.submitD(true);
             });
         }
     }, {
@@ -7978,11 +7994,11 @@ var HomeSearchForm = (function (_Component) {
         value: function submit() {
             var _this3 = this;
 
-            var forceValue = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+            var refreshFacets = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
             var queryString = this.state.queryString;
 
-            if (forceValue) {
-                queryString = forceValue;
+            if (refreshFacets) {
+                this.setState({ selectedFacets: [] });
             }
             if (!queryString) {
                 this.toggleEmpty(true);

@@ -78,10 +78,14 @@ class Facets extends React.Component {
             'Basename':'Found in...',
             'Meta':'Metadata',
         }
+        const hasContentSelected = selected.filter(f => f.FieldName === 'TextContent').length > 0
         facets.forEach(f => {
             let fName = f.FieldName;
             if(fName.indexOf('Meta.') === 0) {
                 fName = 'Meta';
+            }
+            if (fName === 'Basename' && hasContentSelected) {
+                return // Exclude Basename when TextContent is selected
             }
             if(fName === 'TextContent'){ // Group basename / TextContent
                 fName = 'Basename'
@@ -91,12 +95,18 @@ class Facets extends React.Component {
             }
             groups[fName].push(f);
         })
+        if (!Object.keys(groupKeys).filter(k => groups[k]).filter(k => {
+            const hasSelected = groups[k].filter(f => this.isSelected(selected, f)).length > 0
+            return hasSelected || groups[k].length > 1
+        }).length){
+            return null;
+        }
         const styles = {
             container: {
                 position: 'absolute',
                 top: 90,
                 right: 'calc(50% + 350px)',
-                bottom: 10,
+                maxHeight:'calc(100% - 100px)',
                 overflowY: 'auto',
                 width: 200,
                 borderRadius: 6,

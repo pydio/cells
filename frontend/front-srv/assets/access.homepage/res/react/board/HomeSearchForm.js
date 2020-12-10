@@ -58,7 +58,7 @@ class HomeSearchForm extends Component{
     }
 
     update(queryString) {
-        this.setState({queryString}, ()=>{this.submitD()});
+        this.setState({queryString}, ()=>{this.submitD(true)});
     }
 
     filterByFacet(facet, toggle){
@@ -108,10 +108,10 @@ class HomeSearchForm extends Component{
         return data;
     }
 
-    submit(forceValue = null) {
-        let {queryString} = this.state;
-        if(forceValue) {
-            queryString = forceValue;
+    submit(refreshFacets = false) {
+        const {queryString} = this.state;
+        if(refreshFacets) {
+            this.setState({selectedFacets:[]});
         }
         if (!queryString) {
             this.toggleEmpty(true);

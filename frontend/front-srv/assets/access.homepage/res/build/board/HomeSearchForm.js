@@ -117,7 +117,7 @@ var HomeSearchForm = (function (_Component) {
             var _this = this;
 
             this.setState({ queryString: queryString }, function () {
-                _this.submitD();
+                _this.submitD(true);
             });
         }
     }, {
@@ -184,11 +184,11 @@ var HomeSearchForm = (function (_Component) {
         value: function submit() {
             var _this3 = this;
 
-            var forceValue = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+            var refreshFacets = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
             var queryString = this.state.queryString;
 
-            if (forceValue) {
-                queryString = forceValue;
+            if (refreshFacets) {
+                this.setState({ selectedFacets: [] });
             }
             if (!queryString) {
                 this.toggleEmpty(true);
