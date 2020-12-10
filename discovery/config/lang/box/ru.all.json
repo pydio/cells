@@ -197,6 +197,9 @@
   "treeQuery.FileName": {
     "other": "File name"
   },
+  "treeQuery.FileNameOrContent": {
+    "other": "File name or Content"
+  },
   "treeQuery.FreeString": {
     "other": "Bleve-like search string"
   },

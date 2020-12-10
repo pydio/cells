@@ -175,5 +175,68 @@
   },
   "title": {
     "other": "Home"
+  },
+  "search.result.location": {
+    "other": "Thư mục"
+  },
+  "search.facets.title": {
+    "other": "Filters"
+  },
+  "search.facet.type": {
+    "other": "Kiểu"
+  },
+  "search.facet.extension": {
+    "other": "Phần mở rộng"
+  },
+  "search.facet.size": {
+    "other": "Kích thước"
+  },
+  "search.facet.modified": {
+    "other": "Đã sửa đổi"
+  },
+  "search.facet.found": {
+    "other": "Found in"
+  },
+  "search.facet.metadata": {
+    "other": "Metadata"
+  },
+  "facet.label.file": {
+    "other": "Tệp tin"
+  },
+  "facet.label.folder": {
+    "other": "Thư mục"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB to 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10MB to 100MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Moments ago"
+  },
+  "facet.label.date.today": {
+    "other": "Hôm nay"
+  },
+  "facet.label.date.last.7": {
+    "other": "Last 7 days"
+  },
+  "facet.label.date.last.30": {
+    "other": "Last 30 days"
+  },
+  "facet.label.date.older.30": {
+    "other": "Older than 30 days"
+  },
+  "facet.label.found.contents": {
+    "other": "Nội Dung"
+  },
+  "facet.label.found.basename": {
+    "other": "File name"
   }
 }

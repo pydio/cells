@@ -1148,6 +1148,9 @@
   "ws.3": {
     "other": "+ workspace"
   },
+  "ws.filter.workspaces": {
+    "other": "Filtrer les workspaces..."
+  },
   "ws.30": {
     "other": "Options Génériques"
   },

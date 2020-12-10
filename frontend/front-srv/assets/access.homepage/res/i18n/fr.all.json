@@ -175,5 +175,68 @@
   },
   "title": {
     "other": "Page d'accueil"
+  },
+  "search.result.location": {
+    "other": "Répertoire"
+  },
+  "search.facets.title": {
+    "other": "Filtres"
+  },
+  "search.facet.type": {
+    "other": "Type"
+  },
+  "search.facet.extension": {
+    "other": "Extension"
+  },
+  "search.facet.size": {
+    "other": "Taille"
+  },
+  "search.facet.modified": {
+    "other": "Modifié"
+  },
+  "search.facet.found": {
+    "other": "Trouvé dans"
+  },
+  "search.facet.metadata": {
+    "other": "Métadonnées"
+  },
+  "facet.label.file": {
+    "other": "Fichier"
+  },
+  "facet.label.folder": {
+    "other": "Répertoire"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1Mo"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1Mo à 10Mo"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10Mo à 100Mo"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100Mo"
+  },
+  "facet.label.date.moments": {
+    "other": "À l'instant"
+  },
+  "facet.label.date.today": {
+    "other": "Aujourd'hui"
+  },
+  "facet.label.date.last.7": {
+    "other": "7 derniers jours"
+  },
+  "facet.label.date.last.30": {
+    "other": "30 derniers jours"
+  },
+  "facet.label.date.older.30": {
+    "other": "Plus de 30 jours"
+  },
+  "facet.label.found.contents": {
+    "other": "Contenus"
+  },
+  "facet.label.found.basename": {
+    "other": "Nom du fichier"
   }
 }

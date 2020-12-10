@@ -1148,6 +1148,9 @@
   "ws.3": {
     "other": "+ workspace"
   },
+  "ws.filter.workspaces": {
+    "other": "Filter workspaces..."
+  },
   "ws.30": {
     "other": "Cài đặt chung"
   },
