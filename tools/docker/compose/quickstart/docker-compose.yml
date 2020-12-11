@@ -11,7 +11,6 @@ services:
       - PYDIO_EXIT_AFTER_INSTALL=true
     volumes: 
       - "workingdir:/var/cells"
-      - "datadir:/data"
       - "./config:/pydio/config"
     depends_on:
       - mysql
@@ -35,5 +34,4 @@ services:
 
 volumes:
   workingdir: {}
-  datadir: {}
   mysqldir: {}

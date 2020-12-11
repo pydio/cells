@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample configuration haas following caracteristics:
+This sample configuration has following caracteristics:
 
 - Cells running on https://${PUBLIC_FQDN}
 - Proxy is done by Traefik web server
