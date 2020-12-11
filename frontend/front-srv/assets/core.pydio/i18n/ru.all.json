@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Инструменты для отправки писем"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Дополнительные возможности для добавления в рабочие области"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "Почтовые службы"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Мета-аспекты рабочей области"

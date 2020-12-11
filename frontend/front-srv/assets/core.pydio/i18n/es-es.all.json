@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Herramientas que permiten a la aplicación enviar correos electrónicos"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Características adicionales para ser añadidas a los workspaces"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "Gestores de Correo"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Meta Aspectos del workspace"
