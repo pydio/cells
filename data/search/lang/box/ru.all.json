@@ -1,10 +1,4 @@
 {
-  "Search.Config.Title": {
-    "other": "Search Engine"
-  },
-  "Search.Config.Description": {
-    "other": "Search Engine Configurations"
-  },
   "Search.Config.IndexContent.Label": {
     "other": "Index Contents"
   },

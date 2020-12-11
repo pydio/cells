@@ -1,10 +1,4 @@
 {
-  "Search.Config.Title": {
-    "other": "Moteur de recherche"
-  },
-  "Search.Config.Description": {
-    "other": "Configurations du moteur de recherche"
-  },
   "Search.Config.IndexContent.Label": {
     "other": "Indexer le contenu"
   },
