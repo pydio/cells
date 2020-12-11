@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Aplikācijas e-pastu sūtīšanas rīki"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Papildu iespējas kuras pievienot darbvirsmai"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "E-pasta nosūtītāji"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Darbvirsmas Meta Skats"

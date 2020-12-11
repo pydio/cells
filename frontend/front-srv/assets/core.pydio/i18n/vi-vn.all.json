@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Các công cụ để cho phép ứng dụng gửi email"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Các tính năng bổ sung sẽ được thêm vào workspaces"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "Người gửi thư"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Workspace Meta Aspects"

@@ -1,0 +1,26 @@
+{
+  "Search.Config.Title": {
+    "other": "Moteur de recherche"
+  },
+  "Search.Config.Description": {
+    "other": "Configurations du moteur de recherche"
+  },
+  "Search.Config.IndexContent.Label": {
+    "other": "Indexer le contenu"
+  },
+  "Search.Config.IndexContent.Description": {
+    "other": "Si cette option est activée, l'indexeur recherchera la métadonnée ContentRef, lira le contenu de cette référence, et l'indexera pour la recherche."
+  },
+  "Search.Config.BasenameAnalyze.Label": {
+    "other": "Analyseur de nom de fichier"
+  },
+  "Search.Config.BasenameAnalyze.Description": {
+    "other": "Analyseur utilisé sur les noms de fichiers"
+  },
+  "Search.Config.ContentAnalyzer.Label": {
+    "other": "Analyseur de contenu"
+  },
+  "Search.Config.ContentAnalyzer.Description": {
+    "other": "Analyseur utilisé sur le contenu"
+  }
+}

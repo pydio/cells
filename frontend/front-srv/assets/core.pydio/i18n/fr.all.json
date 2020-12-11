@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Outils pour permettre à l'application d'envoyer des courriels"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Options du moteur de recherche"
+  },
   "plugtype.desc.meta": {
     "other": "Fonctionnalités additionnelles à ajouter aux workspaces"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "Envoi de courriels"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Moteur de recherche"
   },
   "plugtype.title.meta": {
     "other": "Aspects méta des workspaces"

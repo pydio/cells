@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Tools for letting the application send emails"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Additional features to be added to the workspaces"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "邮件服务器"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "工作区元数据"
