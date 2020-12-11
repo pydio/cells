@@ -107,7 +107,7 @@ func TestExifProcessor_Run(t *testing.T) {
 		So(output.Nodes, ShouldHaveLength, 1)
 		outNode := output.Nodes[0]
 		var exifMeta interface{}
-		outNode.GetMeta(METADATA_EXIF, &exifMeta)
+		outNode.GetMeta(MetadataExif, &exifMeta)
 		//jsonData, _ := json.Marshal(exifMeta)
 
 		referenceFile := filepath.Join(testDir, "exif.json")

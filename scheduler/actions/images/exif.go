@@ -44,9 +44,9 @@ import (
 )
 
 const (
-	METADATA_EXIF               = "ImageExif"
-	METADATA_GEOLOCATION        = "GeoLocation"
-	METADATA_COMPAT_ORIENTATION = "image_exif_orientation"
+	MetadataExif              = "ImageExif"
+	MetadataGeolocation       = "GeoLocation"
+	MetadataCompatOrientation = "image_exif_orientation"
 )
 
 var (
@@ -66,7 +66,7 @@ func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription
 		Description:       "Extract EXIF data from jpeg images and store them as indexed metadata",
 		SummaryTemplate:   "",
 		HasForm:           false,
-		Category:          actions.ActionCategoryMedia,
+		Category:          actions.ActionCategoryContents,
 		InputDescription:  "Single-selection of file. Temporary and zero-bytes will be ignored",
 		OutputDescription: "Input file with updated metadata",
 	}
@@ -108,12 +108,12 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	output := input
-	node.SetMeta(METADATA_EXIF, exifData)
+	node.SetMeta(MetadataExif, exifData)
 	orientation, oe := exifData.Get(exif.Orientation)
 	if oe == nil {
 		t := orientation.String()
 		if t != "" {
-			node.SetMeta(METADATA_COMPAT_ORIENTATION, t)
+			node.SetMeta(MetadataCompatOrientation, t)
 		}
 	}
 	lat, long, err := exifData.LatLong()
@@ -150,7 +150,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 				geoLocation["GPS_altitude"] = fmt.Sprintf("%d", a0.Num())
 			}
 		}
-		node.SetMeta(METADATA_GEOLOCATION, geoLocation)
+		node.SetMeta(MetadataGeolocation, geoLocation)
 	}
 
 	e.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})

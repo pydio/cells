@@ -93,7 +93,7 @@ func (t *ThumbnailExtractor) GetDescription(lang ...string) actions.ActionDescri
 		Description:       "Create thumbnails on image creation/modification",
 		SummaryTemplate:   "",
 		HasForm:           true,
-		Category:          actions.ActionCategoryMedia,
+		Category:          actions.ActionCategoryContents,
 		InputDescription:  "Single-selection of file. Temporary and zero-bytes will be ignored",
 		OutputDescription: "Input file with updated metadata",
 	}

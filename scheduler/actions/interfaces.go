@@ -42,7 +42,7 @@ const (
 	ActionCategoryScheduler = "03 - Scheduler Tools / Internals"
 	ActionCategoryPutGet    = "04 - Upload/Download to External Servers"
 	ActionCategoryCmd       = "05 - Atomic Commands and Scripts"
-	ActionCategoryMedia     = "06 - Media Processing"
+	ActionCategoryContents  = "06 - Contents Processing"
 	ActionCategoryIDM       = "07 - Identity Management"
 	ActionCategoryNotify    = "08 - Notifications and Emails"
 	ActionCategoryETL       = "09 - Extract/Load/Transform"
@@ -54,7 +54,7 @@ var CategoryTints = map[string]string{
 	ActionCategoryScheduler: "#009688",
 	ActionCategoryPutGet:    "#4caf50",
 	ActionCategoryCmd:       "#795548",
-	ActionCategoryMedia:     "#f44336",
+	ActionCategoryContents:  "#f44336",
 	ActionCategoryIDM:       "#438db3",
 	ActionCategoryNotify:    "#ff9800",
 	ActionCategoryETL:       "#009688",
