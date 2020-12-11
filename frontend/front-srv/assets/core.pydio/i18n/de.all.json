@@ -2087,6 +2087,9 @@
   "plugtype.desc.mailer": {
     "other": "Werkzeuge für den Versand von E-Mails"
   },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
   "plugtype.desc.meta": {
     "other": "Zusätzliche Metadaten für Arbeitsumgebungen"
   },
@@ -2149,6 +2152,9 @@
   },
   "plugtype.title.mailer": {
     "other": "Mailer"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Metadaten"
