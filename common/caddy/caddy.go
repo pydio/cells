@@ -56,9 +56,10 @@ var (
 		"urls":           internalURLFromServices,
 		"serviceAddress": addressFromService,
 	}
-	restartChan     chan bool
-	restartRequired bool
-	gatewayCtx      = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.ServiceGatewayProxy)
+	restartChan        chan bool
+	restartRequired    bool
+	gatewayCtx         = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.ServiceGatewayProxy)
+	LastKnownCaddyFile string
 )
 
 func init() {
@@ -152,6 +153,8 @@ func Start() error {
 		return err
 	}
 
+	LastKnownCaddyFile = string(caddyfile.Body())
+
 	// start caddy server
 	instance, err := caddy.Start(caddyfile)
 	if err != nil {
@@ -205,8 +208,10 @@ func restart() error {
 		return err
 	}
 
+	LastKnownCaddyFile = string(caddyfile.Body())
+
 	if common.LogLevel == zap.DebugLevel {
-		fmt.Println(string(caddyfile.Body()))
+		fmt.Println(LastKnownCaddyFile)
 	} else {
 		log.Logger(gatewayCtx).Info("Restarting proxy", zap.ByteString("caddyfile", caddyfile.Body()))
 	}

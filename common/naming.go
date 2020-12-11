@@ -119,6 +119,7 @@ const (
 	EventTypeServiceUnregistered      = "unregistered"
 	EventHeaderServiceRegisterService = "x-service-name"
 	EventHeaderServiceRegisterPeer    = "x-service-peer"
+	EventTypeDebugPrintInternals      = "debug"
 
 	TopicReloadAssets    = "topic.pydio.assets.reload"
 	TopicIndexChanges    = "topic.pydio.index.nodes.changes"

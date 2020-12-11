@@ -1,8 +1,11 @@
 package proxy
 
 import (
+	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/pydio/cells/common/caddy"
 
 	"go.uber.org/zap/zapcore"
 
@@ -55,6 +58,13 @@ func (w *watcher) subscribeToBroker() error {
 			if w.restartOnStopped(sName, sPeer) {
 				w.loggerFunc("Unregister Message triggers Caddy restart", zap.Any("srvName", sName), zap.Any("headers", p.Message().Header))
 				w.restartFunc()
+			}
+		case common.EventTypeDebugPrintInternals:
+			if sName == common.ServiceGatewayProxy && caddy.LastKnownCaddyFile != "" {
+				fmt.Println("***********************************************************************************")
+				fmt.Println(" => Caddy file currently served by Gateway Proxy 👇 ")
+				fmt.Println(caddy.LastKnownCaddyFile)
+				fmt.Println("***********************************************************************************")
 			}
 		}
 		return nil
