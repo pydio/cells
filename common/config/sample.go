@@ -99,7 +99,9 @@ var SampleConfig = `{
             "bucket"     : "versions"
         },
         "pydio.grpc.search": {
-            "indexContent": false
+            "indexContent": false,
+			"basenameAnalyzer": "standard",
+			"contentAnalyzer": "en"
         },
 		"pydio.grpc.policy": {
 			"dsn": "databaseParseTime"

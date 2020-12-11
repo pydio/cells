@@ -269,7 +269,9 @@ func TestConfigUpgrade(t *testing.T) {
 			"dsn": "default"
 		  },
 		  "pydio.grpc.search": {
-			"indexContent": false
+			"indexContent": false,
+			"basenameAnalyzer": "standard",
+			"contentAnalyzer": "en"
 		  },
 		  "pydio.grpc.tasks": {
 			"fork": true

@@ -45,6 +45,9 @@ var (
 )
 
 func init() {
+
+	config.RegisterExposedConfigs(Name, ExposedConfigs)
+
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
