@@ -33,38 +33,83 @@ func (m *ProxyConfig) GetBindURLs() (addresses []string) {
 	return
 }
 
-func (m *ProxyConfig) GetExternalUrls() map[string]string {
-	uniques := make(map[string]string)
-	if ext := m.GetReverseProxyURL(); ext != "" {
-		if u, e := url.Parse(ext); e == nil {
-			if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
-				u.Host = u.Hostname() // Replace host with version without port
-				ext = u.String()
-			}
-			uniques[u.Hostname()] = ext
+func (m *ProxyConfig) canonicalUrl(s string) (*url.URL, error) {
+	u, e := url.Parse(s)
+	if e != nil {
+		return nil, e
+	}
+	if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
+		u.Host = u.Hostname() // Replace host with version without port
+	}
+	return u, nil
+}
+
+func (m *ProxyConfig) expandBindAll(u *url.URL) []*url.URL {
+	var out []*url.URL
+	if ii, e := net.GetAvailableIPs(); e == nil {
+		for _, i := range ii {
+			exp, _ := url.Parse(strings.ReplaceAll(u.String(), "0.0.0.0", i.String()))
+			out = append(out, exp)
 		}
 	}
+	if other, e := net.HostsFileLookup(); e == nil {
+		for _, o := range other {
+			exp, _ := url.Parse(strings.ReplaceAll(u.String(), "0.0.0.0", o))
+			out = append(out, exp)
+		}
+	}
+	return out
+}
+
+func (m *ProxyConfig) GetExternalUrls() map[string]*url.URL {
+	uniques := make(map[string]*url.URL)
+	if ext := m.GetReverseProxyURL(); ext != "" {
+		if u, e := m.canonicalUrl(ext); e == nil {
+			uniques[u.Host] = u
+		}
+		/*
+			if u, e := url.Parse(ext); e == nil {
+				if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
+					u.Host = u.Hostname() // Replace host with version without port
+					ext = u.String()
+				}
+				uniques[u.Hostname()] = ext
+			}
+		*/
+	}
 	for _, b := range m.GetBindURLs() {
-		u, e := url.Parse(b)
+		u, e := m.canonicalUrl(b)
 		if e != nil {
 			continue
 		}
-		if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
-			u.Host = u.Hostname() // Replace host with version without port
-			b = u.String()
-		}
-		uniques[u.Hostname()] = b
+		uniques[u.Host] = u
 		if u.Hostname() == "0.0.0.0" {
-			ii, _ := net.GetAvailableIPs()
-			for _, i := range ii {
-				uniques[i.String()] = strings.ReplaceAll(b, "0.0.0.0", i.String())
+			for _, exp := range m.expandBindAll(u) {
+				uniques[exp.Host] = exp
 			}
-			if other, e := net.HostsFileLookup(); e == nil && len(other) > 0 {
-				for _, o := range other {
-					uniques[o] = strings.ReplaceAll(b, "0.0.0.0", o)
+		}
+		/*
+			u, e := url.Parse(b)
+			if e != nil {
+				continue
+			}
+			if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
+				u.Host = u.Hostname() // Replace host with version without port
+				b = u.String()
+			}
+			uniques[u.Hostname()] = b
+			if u.Hostname() == "0.0.0.0" {
+				ii, _ := net.GetAvailableIPs()
+				for _, i := range ii {
+					uniques[i.String()] = strings.ReplaceAll(b, "0.0.0.0", i.String())
+				}
+				if other, e := net.HostsFileLookup(); e == nil && len(other) > 0 {
+					for _, o := range other {
+						uniques[o] = strings.ReplaceAll(b, "0.0.0.0", o)
+					}
 				}
 			}
-		}
+		*/
 	}
 	return uniques
 }

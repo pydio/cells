@@ -87,8 +87,8 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest,
 	csrf := strings.Replace(uuid.New(), "-", "", -1)
 
 	// Generate the request URL
-	hostName, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHostname)
-	provider := auth.GetConfigurationProvider(hostName)
+	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
+	provider := auth.GetConfigurationProvider(host)
 	iu := urlx.AppendPaths(provider.IssuerURL(), provider.OAuth2AuthURL())
 	sessionID := uuid.New()
 
@@ -192,8 +192,8 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 		return fmt.Errorf(session.Error.Name)
 	}
 
-	hostName, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHostname)
-	if session.RequestedAt.Add(auth.GetConfigurationProvider(hostName).ConsentRequestMaxAge()).Before(time.Now()) {
+	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
+	if session.RequestedAt.Add(auth.GetConfigurationProvider(host).ConsentRequestMaxAge()).Before(time.Now()) {
 		return errors.WithStack(fosite.ErrRequestUnauthorized.WithDebug("The login request has expired, please try again."))
 	}
 
@@ -315,8 +315,9 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	var accessTokenKeyID string
-	hostName, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHostname)
-	if auth.GetConfigurationProvider(hostName).AccessTokenStrategy() == "jwt" {
+	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
+	configProvider := auth.GetConfigurationProvider(host)
+	if configProvider.AccessTokenStrategy() == "jwt" {
 		accessTokenKeyID, err = auth.GetRegistry().AccessTokenJWTStrategy().GetPublicKeyID(ctx)
 		if err != nil {
 			return err
@@ -327,7 +328,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	claims := &jwt.IDTokenClaims{
 		Subject:     session.ConsentRequest.SubjectIdentifier,
-		Issuer:      strings.TrimRight(auth.GetConfigurationProvider(hostName).IssuerURL().String(), "/") + "/",
+		Issuer:      strings.TrimRight(configProvider.IssuerURL().String(), "/") + "/",
 		IssuedAt:    time.Now().UTC(),
 		AuthTime:    time.Now().UTC(),
 		RequestedAt: time.Now().UTC(),
@@ -365,7 +366,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutRequest, out *pauth.CreateLogoutResponse) error {
 
 	challenge := strings.Replace(uuid.New(), "-", "", -1)
-	hostName, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHostname)
+	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
 
 	// Set the session
 	if err := auth.GetRegistry().ConsentManager().CreateLogoutRequest(
@@ -378,7 +379,7 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 			Verifier:    uuid.New(),
 			RPInitiated: false,
 
-			PostLogoutRedirectURI: auth.GetConfigurationProvider(hostName).LogoutRedirectURL().String(),
+			PostLogoutRedirectURI: auth.GetConfigurationProvider(host).LogoutRedirectURL().String(),
 		},
 	); err != nil {
 		return errors.WithStack(err)

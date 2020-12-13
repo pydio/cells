@@ -1,6 +1,8 @@
 package config
 
 import (
+	"net/url"
+
 	"github.com/pkg/errors"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/x/configx"
@@ -34,9 +36,9 @@ func GetDefaultSiteURL(sites ...*install.ProxyConfig) string {
 
 // GetSitesAllowedHostnames returns a map of hostname => url for all sites.
 // TODO : this function could switch to a list of specific authorized hostnames
-func GetSitesAllowedHostnames() map[string]string {
+func GetSitesAllowedURLs() map[string]*url.URL {
 	ss, _ := LoadSites()
-	hh := make(map[string]string)
+	hh := make(map[string]*url.URL)
 	for _, site := range ss {
 		for k, v := range site.GetExternalUrls() {
 			hh[k] = v

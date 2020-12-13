@@ -22,6 +22,7 @@ package servicecontext
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -36,7 +37,9 @@ const (
 	HttpMetaRemoteAddress = "RemoteAddress"
 	HttpMetaRequestMethod = "RequestMethod"
 	HttpMetaRequestURI    = "RequestURI"
+	HttpMetaHost          = "RequestHost"
 	HttpMetaHostname      = "RequestHostname"
+	HttpMetaPort          = "RequestPort"
 	HttpMetaProtocol      = "HttpProtocol"
 	HttpMetaUserAgent     = "UserAgent"
 	HttpMetaContentType   = "ContentType"
@@ -66,7 +69,11 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
 	meta[ClientTime] = t.Format(layout)
 
-	meta[HttpMetaHostname] = strings.Split(req.Host, ":")[0]
+	meta[HttpMetaHost] = req.Host
+	if h, p, e := net.SplitHostPort(req.Host); e == nil {
+		meta[HttpMetaHostname] = h
+		meta[HttpMetaPort] = p
+	}
 	// We might want to also support new standard "Forwarded" header.
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
 		ips := strings.Split(strings.Join(h, ""), ",")

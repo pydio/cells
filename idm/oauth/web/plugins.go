@@ -55,11 +55,16 @@ func init() {
 			service.WithHTTP(func() http.Handler {
 				router := mux.NewRouter()
 
-				hh := config.GetSitesAllowedHostnames()
-				for h := range hh {
-					r := router.Host(h).Subrouter()
+				hh := config.GetSitesAllowedURLs()
+				for _, u := range hh {
+					// Two-level check : Host() is regexp based, fast, but only on Hostname, then custom check to take port into account
+					host := u.Host
+					hostname := u.Hostname()
+					r := router.Host(hostname).MatcherFunc(func(request *http.Request, _ *mux.RouteMatch) bool {
+						return host == request.Host
+					}).Subrouter()
 
-					conf := auth.GetConfigurationProvider(h)
+					conf := auth.GetConfigurationProvider(host)
 					reg := auth.DuplicateRegistryForConf(conf)
 
 					admin := x.NewRouterAdmin()

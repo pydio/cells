@@ -77,6 +77,8 @@ func SkipTestGenerateJsonLanguagesFiles(t *testing.T) {
 			servicecontext.HttpMetaUserAgent,
 			servicecontext.HttpMetaContentType,
 			servicecontext.HttpMetaProtocol,
+			servicecontext.HttpMetaHost,
+			servicecontext.HttpMetaPort,
 			servicecontext.HttpMetaHostname,
 			servicecontext.HttpMetaRequestMethod,
 			servicecontext.HttpMetaRequestURI,

@@ -45,6 +45,8 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 			servicecontext.HttpMetaCookiesString,
 			servicecontext.HttpMetaProtocol,
 			servicecontext.HttpMetaHostname,
+			servicecontext.HttpMetaHost,
+			servicecontext.HttpMetaPort,
 			servicecontext.ServerTime,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
