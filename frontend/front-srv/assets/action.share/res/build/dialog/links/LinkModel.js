@@ -248,9 +248,8 @@ var LinkModel = (function (_Observable) {
                 request.PasswordEnabled = this.link.PasswordRequired;
             }
             var authz = _mainShareHelper2['default'].getAuthorizations();
-            console.log(authz);
             if (authz.password_mandatory && !request.PasswordEnabled) {
-                throw new Error(_pydio2['default'].getMessages()['share_center.175']);
+                throw new Error(Pydio.getMessages()['share_center.175']);
             }
             if (parseInt(authz.max_downloads) > 0 && !parseInt(this.link.MaxDownloads)) {
                 this.link.MaxDownloads = "" + parseInt(authz.max_downloads);
