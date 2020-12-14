@@ -45,7 +45,7 @@ let PublicLinkPermissions = React.createClass({
             })
         }
         if(compositeModel.getNode().isLeaf()){
-            const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
+            const auth = ShareHelper.getAuthorizations();
             const max = auth.max_downloads;
             // Readapt template depending on permissions
             if (linkModel.hasPermission('Preview')) {
@@ -65,7 +65,7 @@ let PublicLinkPermissions = React.createClass({
         const {linkModel, compositeModel, pydio} = this.props;
         const node = compositeModel.getNode();
         let perms = [], previewWarning;
-        const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
+        const auth = ShareHelper.getAuthorizations();
 
         if(node.isLeaf()){
             const {preview,writeable} = ShareHelper.nodeHasEditor(pydio, node);

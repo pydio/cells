@@ -121,11 +121,12 @@ let PublicLinkSecureOptions = React.createClass({
     renderPasswordContainer(){
         const {linkModel} = this.props;
         const link = linkModel.getLink();
+        const auth = ShareHelper.getAuthorizations();
         let passwordField, resetPassword, updatePassword;
         if(link.PasswordRequired){
             resetPassword = (
                 <FlatButton
-                    disabled={this.props.isReadonly() || !linkModel.isEditable()}
+                    disabled={this.props.isReadonly() || !linkModel.isEditable() || auth.password_mandatory}
                     secondary={true}
                     onTouchTap={this.resetPassword}
                     label={this.props.getMessage('174')}
@@ -155,8 +156,8 @@ let PublicLinkSecureOptions = React.createClass({
                                 onChange={(v) => {this.setUpdatingPassword(v)}}
                             />
                             <div style={{paddingTop:20, textAlign:'right'}}>
-                                <FlatButton label={"OK"} onTouchTap={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
-                                <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
+                                <FlatButton label={Pydio.getMessages()['54']} onTouchTap={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
+                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onTouchTap={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
                             </div>
                         </div>
                     </Popover>
@@ -222,13 +223,13 @@ let PublicLinkSecureOptions = React.createClass({
         let expDate, maxDate, dlCounterString, dateExpired = false, dlExpired = false;
         const today = new Date();
 
-        const auth = ShareHelper.getAuthorizations(this.props.pydio);
+        const auth = ShareHelper.getAuthorizations();
         if(parseInt(auth.max_expiration) > 0){
             maxDate = new Date();
             maxDate.setDate(today.getDate() + parseInt(auth.max_expiration));
         }
         if(parseInt(auth.max_downloads) > 0){
-            dlLimitValue = Math.min(dlLimitValue, parseInt(auth.max_downloads));
+            dlLimitValue = Math.max(1, Math.min(dlLimitValue, parseInt(auth.max_downloads)));
         }
 
         if(expirationDateValue){
@@ -236,8 +237,9 @@ let PublicLinkSecureOptions = React.createClass({
                 dateExpired = true;
             }
             expDate = new Date(expirationDateValue * 1000);
-            //expDate.setDate(today.getDate() + parseInt(expirationDateValue));
-            calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onTouchTap={this.resetExpiration.bind(this)}/>;
+            if(!parseInt(auth.max_expiration)){
+                calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onTouchTap={this.resetExpiration.bind(this)}/>;
+            }
         }
         if(dlLimitValue){
             const dlCounter = parseInt(link.CurrentDownloads) || 0;

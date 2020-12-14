@@ -43,7 +43,7 @@ class CompositeModel extends Observable {
     emptyLink(node){
         const link = new LinkModel();
         const treeNode = new TreeNode();
-        const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
+        const auth = ShareHelper.getAuthorizations();
         treeNode.Uuid = node.getMetadata().get('uuid');
         link.getLink().Label = node.getLabel();
         link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));

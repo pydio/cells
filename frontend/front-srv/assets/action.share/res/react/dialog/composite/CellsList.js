@@ -137,7 +137,7 @@ class CellsList extends React.Component {
             </span>
         }
 
-        const auth = ShareHelper.getAuthorizations(pydio);
+        const auth = ShareHelper.getAuthorizations();
         if(compositeModel.getNode()){
             const nodeLeaf = compositeModel.getNode().isLeaf();
             const canShare = (nodeLeaf && auth.file_workspaces) || (!nodeLeaf && auth.folder_workspaces);
