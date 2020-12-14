@@ -220,7 +220,7 @@ var CellsList = (function (_React$Component) {
                 );
             }
 
-            var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+            var auth = _mainShareHelper2['default'].getAuthorizations();
             if (compositeModel.getNode()) {
                 var nodeLeaf = compositeModel.getNode().isLeaf();
                 var canShare = nodeLeaf && auth.file_workspaces || !nodeLeaf && auth.folder_workspaces;

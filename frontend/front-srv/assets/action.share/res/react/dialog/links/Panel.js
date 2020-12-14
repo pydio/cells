@@ -25,7 +25,7 @@ let PublicLinkPanel = React.createClass({
         const {showTemporaryPassword} = this.state;
         if(showTemporaryPassword){
             this.setState({showTemporaryPassword: false, temporaryPassword: null});
-        }else if(!linkModel.getLinkUuid() && ShareHelper.getAuthorizations(pydio).password_mandatory){
+        }else if(!linkModel.getLinkUuid() && ShareHelper.getAuthorizations().password_mandatory){
             this.setState({showTemporaryPassword: true, temporaryPassword: ''});
         }else{
             if(linkModel.getLinkUuid()){
@@ -65,7 +65,7 @@ let PublicLinkPanel = React.createClass({
     render(){
 
         const {linkModel, pydio, compositeModel} = this.props;
-        const authorizations = ShareHelper.getAuthorizations(pydio);
+        const authorizations = ShareHelper.getAuthorizations();
         const nodeLeaf = compositeModel.getNode().isLeaf();
         const canEnable = (nodeLeaf && authorizations.file_public_link) || (!nodeLeaf && authorizations.folder_public_link);
 

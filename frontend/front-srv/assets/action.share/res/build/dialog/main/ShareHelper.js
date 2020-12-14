@@ -59,8 +59,8 @@ var ShareHelper = (function () {
         }
     }, {
         key: 'getAuthorizations',
-        value: function getAuthorizations(pydio) {
-
+        value: function getAuthorizations() {
+            var pydio = _pydio2['default'].getInstance();
             var pluginConfigs = pydio.getPluginConfigs("action.share");
             var authorizations = {
                 folder_public_link: pluginConfigs.get("ENABLE_FOLDER_PUBLIC_LINK"),

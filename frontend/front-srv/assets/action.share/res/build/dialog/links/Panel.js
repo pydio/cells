@@ -67,7 +67,7 @@ var PublicLinkPanel = _react2['default'].createClass({
 
         if (showTemporaryPassword) {
             this.setState({ showTemporaryPassword: false, temporaryPassword: null });
-        } else if (!linkModel.getLinkUuid() && _mainShareHelper2['default'].getAuthorizations(pydio).password_mandatory) {
+        } else if (!linkModel.getLinkUuid() && _mainShareHelper2['default'].getAuthorizations().password_mandatory) {
             this.setState({ showTemporaryPassword: true, temporaryPassword: '' });
         } else {
             if (linkModel.getLinkUuid()) {
@@ -111,7 +111,7 @@ var PublicLinkPanel = _react2['default'].createClass({
         var pydio = _props2.pydio;
         var compositeModel = _props2.compositeModel;
 
-        var authorizations = _mainShareHelper2['default'].getAuthorizations(pydio);
+        var authorizations = _mainShareHelper2['default'].getAuthorizations();
         var nodeLeaf = compositeModel.getNode().isLeaf();
         var canEnable = nodeLeaf && authorizations.file_public_link || !nodeLeaf && authorizations.folder_public_link;
 

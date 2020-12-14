@@ -81,7 +81,7 @@ var CompositeModel = (function (_Observable) {
 
             var link = new _linksLinkModel2['default']();
             var treeNode = new _pydioHttpRestApi.TreeNode();
-            var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
+            var auth = _mainShareHelper2['default'].getAuthorizations();
             treeNode.Uuid = node.getMetadata().get('uuid');
             link.getLink().Label = node.getLabel();
             link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));

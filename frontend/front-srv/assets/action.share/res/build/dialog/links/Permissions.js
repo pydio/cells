@@ -75,7 +75,7 @@ var PublicLinkPermissions = _react2['default'].createClass({
             });
         }
         if (compositeModel.getNode().isLeaf()) {
-            var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
+            var auth = _mainShareHelper2['default'].getAuthorizations();
             var max = auth.max_downloads;
             // Readapt template depending on permissions
             if (linkModel.hasPermission('Preview')) {
@@ -100,7 +100,7 @@ var PublicLinkPermissions = _react2['default'].createClass({
         var node = compositeModel.getNode();
         var perms = [],
             previewWarning = undefined;
-        var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
+        var auth = _mainShareHelper2['default'].getAuthorizations();
 
         if (node.isLeaf()) {
             var _ShareHelper$nodeHasEditor = _mainShareHelper2['default'].nodeHasEditor(pydio, node);

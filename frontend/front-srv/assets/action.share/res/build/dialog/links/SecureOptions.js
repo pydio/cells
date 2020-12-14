@@ -169,12 +169,13 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
         var linkModel = this.props.linkModel;
 
         var link = linkModel.getLink();
+        var auth = _mainShareHelper2['default'].getAuthorizations();
         var passwordField = undefined,
             resetPassword = undefined,
             updatePassword = undefined;
         if (link.PasswordRequired) {
             resetPassword = _react2['default'].createElement(_materialUi.FlatButton, {
-                disabled: this.props.isReadonly() || !linkModel.isEditable(),
+                disabled: this.props.isReadonly() || !linkModel.isEditable() || auth.password_mandatory,
                 secondary: true,
                 onTouchTap: this.resetPassword,
                 label: this.props.getMessage('174')
@@ -216,12 +217,12 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'div',
                             { style: { paddingTop: 20, textAlign: 'right' } },
-                            _react2['default'].createElement(_materialUi.FlatButton, { label: "OK", onTouchTap: function () {
-                                    _this2.changePassword();
-                                }, disabled: !this.state.updatingPassword || !this.state.updatingPasswordValid }),
-                            _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                            _react2['default'].createElement(_materialUi.FlatButton, { label: _pydio2['default'].getMessages()['54'], onTouchTap: function () {
                                     _this2.setState({ pwPop: false, updatingPassword: '' });
-                                } })
+                                } }),
+                            _react2['default'].createElement(_materialUi.FlatButton, { style: { minWidth: 60 }, label: _pydio2['default'].getMessages()['48'], onTouchTap: function () {
+                                    _this2.changePassword();
+                                }, disabled: !this.state.updatingPassword || !this.state.updatingPasswordValid })
                         )
                     )
                 )
@@ -287,13 +288,13 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
             dlExpired = false;
         var today = new Date();
 
-        var auth = _mainShareHelper2['default'].getAuthorizations(this.props.pydio);
+        var auth = _mainShareHelper2['default'].getAuthorizations();
         if (parseInt(auth.max_expiration) > 0) {
             maxDate = new Date();
             maxDate.setDate(today.getDate() + parseInt(auth.max_expiration));
         }
         if (parseInt(auth.max_downloads) > 0) {
-            dlLimitValue = Math.min(dlLimitValue, parseInt(auth.max_downloads));
+            dlLimitValue = Math.max(1, Math.min(dlLimitValue, parseInt(auth.max_downloads)));
         }
 
         if (expirationDateValue) {
@@ -301,8 +302,9 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                 dateExpired = true;
             }
             expDate = new Date(expirationDateValue * 1000);
-            //expDate.setDate(today.getDate() + parseInt(expirationDateValue));
-            calIcon = _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: globStyles.leftIcon.color }, style: { marginLeft: -8, marginRight: 8 }, iconClassName: 'mdi mdi-close-circle', onTouchTap: this.resetExpiration.bind(this) });
+            if (!parseInt(auth.max_expiration)) {
+                calIcon = _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: globStyles.leftIcon.color }, style: { marginLeft: -8, marginRight: 8 }, iconClassName: 'mdi mdi-close-circle', onTouchTap: this.resetExpiration.bind(this) });
+            }
         }
         if (dlLimitValue) {
             var dlCounter = parseInt(link.CurrentDownloads) || 0;

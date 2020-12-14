@@ -47,7 +47,7 @@ let PublicLinkField = React.createClass({
     toggleEditMode: function(){
         const {linkModel, pydio} = this.props;
         if(this.state.editLink && this.state.customLink){
-            const auth = ShareHelper.getAuthorizations(pydio);
+            const auth = ShareHelper.getAuthorizations();
             if(auth.hash_min_length && this.state.customLink.length < auth.hash_min_length){
                 pydio.UI.displayMessage('ERROR', this.props.getMessage('223').replace('%s', auth.hash_min_length));
                 return;
@@ -121,7 +121,7 @@ let PublicLinkField = React.createClass({
     render: function(){
         const {linkModel, pydio} = this.props;
         const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
-        const auth = ShareHelper.getAuthorizations(pydio);
+        const auth = ShareHelper.getAuthorizations();
         const editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
         if(this.state.editLink && editAllowed){
             return (

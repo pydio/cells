@@ -29,8 +29,8 @@ class ShareHelper {
         return pydio.Parameters.get('validMailer');
     }
 
-    static getAuthorizations(pydio){
-
+    static getAuthorizations(){
+        const pydio = Pydio.getInstance()
         const pluginConfigs = pydio.getPluginConfigs("action.share");
         let authorizations = {
             folder_public_link : pluginConfigs.get("ENABLE_FOLDER_PUBLIC_LINK"),
