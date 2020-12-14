@@ -95,7 +95,10 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	dbSocketFile := p.Prompt{Label: "Socket File", Validate: notEmpty}
 	dbDSN := p.Prompt{Label: "Manual DSN", Validate: notEmpty}
 
-	uConnIdx, _, _ := connType.Run()
+	uConnIdx, _, er := connType.Run()
+	if er == p.ErrInterrupt {
+		return false, er
+	}
 	var e error
 	if uConnIdx == 2 {
 		if c.DbManualDSN, e = dbDSN.Run(); e != nil {
@@ -153,8 +156,10 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 		}
 		if existConfirm != "" {
 			confirm := p.Prompt{Label: p.IconWarn + " " + existConfirm + " Do you want to continue", IsConfirm: true}
-			if _, e := confirm.Run(); e != nil {
+			if _, e := confirm.Run(); e != nil && e != p.ErrInterrupt {
 				return promptDB(c)
+			} else if e == p.ErrInterrupt {
+				return false, e
 			}
 		}
 	}
@@ -173,7 +178,7 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 	pwd := p.Prompt{Label: "Admin Password", Mask: '*'}
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
-			return fmt.Errorf("Passwords differ!")
+			return fmt.Errorf("Passwords differ! Change confirmation or hit Ctrl+C to change first value.")
 		}
 		return nil
 	}}
@@ -182,6 +187,9 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 		login.Default = "admin"
 		login.Validate = notEmpty
 		pwd.Validate = notEmpty
+	}
+	if c.FrontendLogin != "" {
+		login.Default = c.FrontendLogin
 	}
 	var e error
 	if c.FrontendLogin, e = login.Run(); e != nil {
@@ -192,6 +200,10 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 			return e
 		}
 		if c.FrontendRepeatPassword, e = pwd2.Run(); e != nil {
+			if c.FrontendRepeatPassword != c.FrontendPassword {
+				fmt.Println(p.IconBad, "Passwords differ, please try again!")
+				return promptFrontendAdmin(c, adminRequired)
+			}
 			return e
 		}
 	}
@@ -202,7 +214,9 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 func promptAdvanced(c *install.InstallConfig) error {
 
 	confirm := p.Prompt{Label: "There are some advanced settings for ports and initial data storage. Do you want to edit them", IsConfirm: true}
-	if _, e := confirm.Run(); e != nil {
+	if _, e := confirm.Run(); e == p.ErrInterrupt {
+		return e
+	} else if e != nil {
 		return nil
 	}
 
@@ -280,6 +294,8 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
 		if _, e := retry.Run(); e == nil {
 			return setupS3Connection(c)
+		} else if e == p.ErrInterrupt {
+			return buckets, canCreate, e
 		} else {
 			return buckets, canCreate, e
 		}
@@ -330,6 +346,8 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		retry := p.Prompt{Label: "Do you want to retry with different keys", IsConfirm: true}
 		if _, e := retry.Run(); e == nil {
 			return setupS3Buckets(c, knownBuckets, canCreate)
+		} else if e == p.ErrInterrupt {
+			return used, []string{}, e
 		} else {
 			return used, []string{}, e
 		}
@@ -338,6 +356,8 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 		retry := p.Prompt{Label: "Do you wish to continue or to use a different prefix", IsConfirm: true, Default: "y"}
 		if _, e = retry.Run(); e != nil {
 			return setupS3Buckets(c, knownBuckets, canCreate)
+		} else if e == p.ErrInterrupt {
+			return used, []string{}, e
 		} else {
 			check := lib.PerformCheck(context.Background(), "S3_BUCKETS", c)
 			if !check.Success {

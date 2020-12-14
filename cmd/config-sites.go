@@ -24,7 +24,7 @@ Sub-commands allow you to create/edit/delete multiple sites.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)
-		fatalQuitIfError(cmd, e)
+		fatalIfError(cmd, e)
 		if len(sites) == 0 {
 			fmt.Println("No site is currently configured. Cells exposes automatically the following URLs : ")
 			ss, _ := config.LoadSites()
@@ -38,6 +38,8 @@ Sub-commands allow you to create/edit/delete multiple sites.
 			}
 			if _, e := p.Run(); e == nil {
 				sitesAdd.Run(cmd, args)
+			} else if e == promptui.ErrInterrupt {
+				fatalIfError(cmd, e)
 			}
 		} else {
 			fmt.Println("The following sites are currently defined:")
@@ -58,7 +60,7 @@ Sub-commands allow you to create/edit/delete multiple sites.
 				Label: "What do you want to do",
 			}
 			action, _, e := actionP.Run()
-			fatalQuitIfError(cmd, e)
+			fatalIfError(cmd, e)
 			switch action {
 			case 0:
 				sitesAdd.Run(cmd, args)
@@ -79,15 +81,15 @@ Sub-commands allow you to create/edit/delete multiple sites.
 						},
 					}
 					if n, e := p.Run(); e != nil || n == "" {
-						return
+						fatalIfError(cmd, e)
 					} else if idx, e := strconv.ParseInt(n, 10, 64); e == nil && int(idx) < len(sites) {
 						index = int(idx)
 					}
 				}
 				e := promptSite(sites[index], true)
-				fatalQuitIfError(cmd, e)
+				fatalIfError(cmd, e)
 				e = confirmAndSave(cmd, sites)
-				fatalQuitIfError(cmd, e)
+				fatalIfError(cmd, e)
 			case 2:
 				index := "0"
 				if len(sites) > 1 {

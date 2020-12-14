@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	net2 "net"
 	"net/url"
 	"strings"
 
@@ -48,12 +48,12 @@ var sitesAdd = &cobra.Command{
 
 		e := promptSite(newSite, false)
 		if e != nil {
-			log.Fatal(e)
+			fatalIfError(cmd, e)
 		}
 		sites = append(sites, newSite)
 
 		if e := confirmAndSave(cmd, sites); e != nil {
-			log.Fatal(e)
+			fatalIfError(cmd, e)
 		}
 	},
 }
@@ -349,7 +349,14 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 	}
 
 	// Reset redirect URL: for the time being we rather use this as a flag
-	if enabled {
+	var has443 bool
+	for _, b := range site.Binds {
+		if _, port, e := net2.SplitHostPort(b); e == nil && port == "443" {
+			has443 = true
+			break
+		}
+	}
+	if enabled && has443 {
 		redirPrompt := p.Select{
 			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
 			Items: []string{

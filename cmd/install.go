@@ -22,11 +22,13 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -39,7 +41,6 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
@@ -411,15 +412,15 @@ func open(url string) error {
 
 func fatalIfError(cmd *cobra.Command, err error) {
 	if err != nil {
-		log.Fatal(err.Error())
-		cmd.Printf("Use \"%s [command] --help\" for more information.", os.Args[0])
+		if err == promptui.ErrInterrupt {
+			fmt.Println(promptui.IconBad, "Operation aborted by user")
+			<-time.After(10 * time.Millisecond)
+			os.Exit(1)
+		}
+		fmt.Println(promptui.IconBad, "Unexpected error happened :", err.Error())
+		fmt.Printf("Use \"%s [command] --help\" for more information.", os.Args[0])
+		<-time.After(10 * time.Millisecond)
 		os.Exit(1)
-	}
-}
-
-func fatalQuitIfError(cmd *cobra.Command, err error) {
-	if err != nil {
-		log.Fatal(err.Error())
 	}
 }
 
