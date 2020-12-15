@@ -296,7 +296,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).Bool()
+			val = status.AclParameters.Val(plugin.GetId(), param.Attrname, scope).Default(val).Bool()
 		}
 	case "integer":
 		var e error
@@ -310,7 +310,7 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).Int()
+			val = status.AclParameters.Val(plugin.GetId(), param.Attrname, scope).Default(val).Int()
 		}
 	default:
 		val = param.Attrdefault
@@ -320,7 +320,8 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			val = status.AclParameters.Val(plugin.GetId(), scope).Default(val).String()
+			fmt.Println(plugin.GetId(), scope)
+			val = status.AclParameters.Val(plugin.GetId(), param.Attrname, scope).Default(val).String()
 		}
 	}
 
