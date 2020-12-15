@@ -320,7 +320,6 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 
 		// Then we lookin foreach scope and get the last one set
 		for _, scope := range status.WsScopes {
-			fmt.Println(plugin.GetId(), scope)
 			val = status.AclParameters.Val(plugin.GetId(), param.Attrname, scope).Default(val).String()
 		}
 	}
