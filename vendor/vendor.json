@@ -1067,10 +1067,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "/Mqk6xlBI9JQnJK+6dTpOipUwEQ=",
+			"checksumSHA1": "LQRkKFeNMYOa4GU31vMSUkBTEJ0=",
 			"path": "github.com/dexidp/dex/connector",
-			"revision": "4bede5eb80822fc3a7fc9edca0ed2605cd339d17",
-			"revisionTime": "2019-10-03T09:49:18Z"
+			"revision": "0f9e2888ab65c5b18c4881eaeeb7e38d997e1d92",
+			"revisionTime": "2020-12-14T08:40:49Z",
+			"version": "v2.27.0",
+			"versionExact": "v2.27.0"
 		},
 		{
 			"checksumSHA1": "n2ajzaRfnSlsiSuMFoVnNcqH1+k=",
