@@ -51,7 +51,7 @@ var CompositeDialog = React.createClass({
     getDefaultProps: function getDefaultProps() {
         return {
             dialogTitle: '',
-            dialogIsModal: false,
+            dialogIsModal: true,
             dialogPadding: false,
             dialogSize: 'lg'
         };

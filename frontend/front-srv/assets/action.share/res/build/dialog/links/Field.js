@@ -95,7 +95,7 @@ var PublicLinkField = _react2['default'].createClass({
         var pydio = _props.pydio;
 
         if (this.state.editLink && this.state.customLink) {
-            var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+            var auth = _mainShareHelper2['default'].getAuthorizations();
             if (auth.hash_min_length && this.state.customLink.length < auth.hash_min_length) {
                 pydio.UI.displayMessage('ERROR', this.props.getMessage('223').replace('%s', auth.hash_min_length));
                 return;
@@ -177,7 +177,7 @@ var PublicLinkField = _react2['default'].createClass({
         var pydio = _props3.pydio;
 
         var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink().LinkHash);
-        var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+        var auth = _mainShareHelper2['default'].getAuthorizations();
         var editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
         if (this.state.editLink && editAllowed) {
             return _react2['default'].createElement(

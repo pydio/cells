@@ -247,8 +247,17 @@ var LinkModel = (function (_Observable) {
             } else {
                 request.PasswordEnabled = this.link.PasswordRequired;
             }
-            if (_mainShareHelper2['default'].getAuthorizations(pydio).password_mandatory && !request.PasswordEnabled) {
-                throw new Error('You cannot disable passowrd on this link');
+            var authz = _mainShareHelper2['default'].getAuthorizations();
+            if (authz.password_mandatory && !request.PasswordEnabled) {
+                throw new Error(Pydio.getMessages()['share_center.175']);
+            }
+            if (parseInt(authz.max_downloads) > 0 && !parseInt(this.link.MaxDownloads)) {
+                this.link.MaxDownloads = "" + parseInt(authz.max_downloads);
+                this.notify('update');
+            }
+            if (parseInt(authz.max_expiration) > 0 && !parseInt(this.link.AccessEnd)) {
+                this.link.AccessEnd = "" + (Math.round(new Date() / 1000) + parseInt(authz.max_expiration) * 60 * 60 * 24);
+                this.notify('update');
             }
             if (this.customLink && this.customLink !== this.link.LinkHash) {
                 request.UpdateCustomHash = this.customLink;
