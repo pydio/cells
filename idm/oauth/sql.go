@@ -21,16 +21,20 @@
 package oauth
 
 import (
+	"context"
 	sql2 "database/sql"
 	"fmt"
 	"time"
 
+	"github.com/pydio/packr"
+	migrate "github.com/rubenv/sql-migrate"
+
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
 	json "github.com/pydio/cells/x/jsonx"
-	"github.com/pydio/packr"
-	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -64,7 +68,17 @@ func (s *sqlImpl) Init(options configx.Values) error {
 		TablePrefix: s.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
+	var isRetry bool
+	err := service.Retry(func() error {
+		_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
+		if err != nil {
+			log.Logger(context.Background()).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
+			isRetry = true
+		} else if isRetry {
+			log.Logger(context.Background()).Warn("Migration now applied successfully")
+		}
+		return err
+	}, 100*time.Millisecond, 250*time.Millisecond)
 	if err != nil {
 		return err
 	}
