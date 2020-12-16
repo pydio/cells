@@ -163,7 +163,11 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration["customEndpoint"]); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
-			newSource.ApiSecret = config.ApiSecret
+
+			// If it's an update then we want to change the config secret
+			if !update {
+				newSource.ApiSecret = config.ApiSecret
+			}
 		} else if update {
 			// Update existing config
 			config = existingConfigs[newSource.ObjectsServiceName]
@@ -184,7 +188,11 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, ""); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
-			newSource.ApiSecret = config.ApiSecret
+
+			// If it's an update then we want to change the config secret
+			if !update {
+				newSource.ApiSecret = config.ApiSecret
+			}
 		} else if update {
 			// Update existing config
 			config = existingConfigs[newSource.ObjectsServiceName]
@@ -204,7 +212,11 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 		if gateway := filterGatewaysWithStorageConfigKey(existingConfigs, newSource.StorageType, "jsonCredentials", creds); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
-			newSource.ApiSecret = config.ApiSecret
+
+			// If it's an update then we want to change the config secret
+			if !update {
+				newSource.ApiSecret = config.ApiSecret
+			}
 		} else if update {
 			config = existingConfigs[newSource.ObjectsServiceName]
 			updateCredsSecret := true
