@@ -119,21 +119,21 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 		}
 	}
 	//fmt.Println("ADDING ", len(policies), "POLICIES ON RESOURCE ", resourceId, " WITH UPDATE ? ", update)
-	for _, policy := range policies {
 
-		if addRule, er := s.GetStmt("AddRuleForResource"); er != nil {
-			errTx = er
-			return errTx
-		} else if txStmt := tx.Stmt(addRule); txStmt != nil {
-			defer txStmt.Close()
+	if addRule, er := s.GetStmt("AddRuleForResource"); er != nil {
+		errTx = er
+		return errTx
+	} else if txStmt := tx.Stmt(addRule); txStmt != nil {
+		defer txStmt.Close()
+		for _, policy := range policies {
 			if _, errTx = txStmt.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions); errTx != nil {
 				return errTx
 			}
-		} else {
-			return fmt.Errorf("empty statement")
 		}
-
+	} else {
+		return fmt.Errorf("empty statement")
 	}
+
 	return nil
 }
 
