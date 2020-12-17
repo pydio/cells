@@ -21,6 +21,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/packr"
@@ -89,15 +90,49 @@ func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePoli
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
 func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*service.ResourcePolicy) error {
+
+	tx, errTx := s.DB().BeginTx(context.Background(), nil)
+	if errTx != nil {
+		return errTx
+	}
+
+	// Checking transaction went fine
+	defer func() {
+		if errTx != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	if update {
-		if err := s.DeletePoliciesForResource(resourceId); err != nil {
-			return err
+		if deleteRules, er := s.GetStmt("DeleteRulesForResource"); er != nil {
+			errTx = er
+			return errTx
+		} else if txStmt := tx.Stmt(deleteRules); txStmt != nil {
+			defer txStmt.Close()
+			if _, errTx = txStmt.Exec(resourceId); errTx != nil {
+				return errTx
+			}
+		} else {
+			return fmt.Errorf("empty statement")
 		}
 	}
+	//fmt.Println("ADDING ", len(policies), "POLICIES ON RESOURCE ", resourceId, " WITH UPDATE ? ", update)
 	for _, policy := range policies {
-		if err := s.AddPolicy(resourceId, policy); err != nil {
-			return err
+
+		if addRule, er := s.GetStmt("AddRuleForResource"); er != nil {
+			errTx = er
+			return errTx
+		} else if txStmt := tx.Stmt(addRule); txStmt != nil {
+			defer txStmt.Close()
+			if _, errTx = txStmt.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions); errTx != nil {
+				return errTx
+			}
+		} else {
+			return fmt.Errorf("empty statement")
 		}
+
 	}
 	return nil
 }
