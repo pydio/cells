@@ -97,7 +97,8 @@ var Message = (function (_React$Component) {
                 marginLeft: 8,
                 position: 'relative',
                 padding: '8px 10px',
-                backgroundColor: '#eee'
+                backgroundColor: '#eee',
+                userSelect: 'text'
             },
             commentDeleteBox: {
                 position: 'absolute',
@@ -158,11 +159,17 @@ var Message = (function (_React$Component) {
 
         return _react2['default'].createElement(
             'div',
-            { style: sameAuthor ? { marginTop: -16 } : {}, onMouseOver: function () {
+            { style: sameAuthor ? { marginTop: -16 } : {},
+                onMouseOver: function () {
                     _this.setState({ hover: true });
-                }, onMouseOut: function () {
+                },
+                onMouseOut: function () {
                     _this.setState({ hover: false });
-                } },
+                },
+                onContextMenu: function (e) {
+                    e.stopPropagation();
+                }
+            },
             !hideDate && _react2['default'].createElement(
                 'div',
                 { style: styles.date },

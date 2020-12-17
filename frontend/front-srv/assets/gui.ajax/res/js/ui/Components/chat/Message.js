@@ -58,7 +58,8 @@ class Message extends React.Component {
                 marginLeft: 8,
                 position: 'relative',
                 padding: '8px 10px',
-                backgroundColor: '#eee'
+                backgroundColor: '#eee',
+                userSelect:'text'
             },
             commentDeleteBox: {
                 position: 'absolute',
@@ -116,7 +117,11 @@ class Message extends React.Component {
         );
 
         return (
-            <div style={sameAuthor ? {marginTop: -16} : {}} onMouseOver={()=>{this.setState({hover:true})}} onMouseOut={()=>{this.setState({hover:false})}}>
+            <div style={sameAuthor ? {marginTop: -16} : {}}
+                 onMouseOver={()=>{this.setState({hover:true})}}
+                 onMouseOut={()=>{this.setState({hover:false})}}
+                 onContextMenu={(e) => {e.stopPropagation()}}
+            >
                 {!hideDate &&
                     <div style={styles.date}>
                         <span style={styles.dateLine}/>
