@@ -147,16 +147,27 @@
 			"revisionTime": "2017-08-10T21:33:27Z"
 		},
 		{
-			"checksumSHA1": "Kryyjoty7AOtYCkXqX2UDD3NruA=",
+			"checksumSHA1": "jkrS+63FN/honRbflu44VBnhyZc=",
 			"path": "github.com/allegro/bigcache",
-			"revision": "5946793e3c8e05106dd56fbd87da9c60db1fc94a",
-			"revisionTime": "2018-09-10T06:37:04Z"
+			"revision": "92a824fbb3f6faa47bbb418441c9e43cfb62d294",
+			"revisionTime": "2020-11-04T01:09:01Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "zqToN+R6KybEskp1D4G/lAOKXU4=",
+			"checksumSHA1": "cVtnlbji4qR1AwNL0SfWJQYyFzY=",
 			"path": "github.com/allegro/bigcache/queue",
-			"revision": "5946793e3c8e05106dd56fbd87da9c60db1fc94a",
-			"revisionTime": "2018-09-10T06:37:04Z"
+			"revision": "92a824fbb3f6faa47bbb418441c9e43cfb62d294",
+			"revisionTime": "2020-11-04T01:09:01Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
+		},
+		{
+			"path": "github.com/allegro/bigcache/v2/queue",
+			"revision": "92a824fbb3f6faa47bbb418441c9e43cfb62d294",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5",
+			"comment": "This package must be manually located under bigcache/queue instead of bigcache/v2/queue"
 		},
 		{
 			"checksumSHA1": "2rWSos1D+xqNSGkvEMOG3pntod8=",

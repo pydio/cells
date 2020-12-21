@@ -78,7 +78,8 @@ func (i *InstrumentedCache) Set(key string, entry []byte) error {
 // eviction time of 30minutes and a HadMaxCachesize of 20MB
 func DefaultBigCacheConfig() bigcache.Config {
 	c := bigcache.DefaultConfig(30 * time.Minute)
-	c.CleanWindow = 10 * time.Minute
+	// Disabled as cleanUp may seem to be able to lock the cache
+	// c.CleanWindow = 10 * time.Minute
 	c.Shards = 64
 	c.MaxEntriesInWindow = 10 * 60 * 64
 	c.MaxEntrySize = 200

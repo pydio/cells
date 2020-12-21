@@ -330,12 +330,12 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("Empty statement")
+		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
-	for attr, val := range user.Attributes {
-		if stmt := tx.Stmt(addAttribute); stmt != nil {
-			defer stmt.Close()
+	if stmt := tx.Stmt(addAttribute); stmt != nil {
+		defer stmt.Close()
+		for attr, val := range user.Attributes {
 			if _, errTx = stmt.Exec(
 				user.Uuid,
 				attr,
@@ -343,9 +343,9 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			); errTx != nil {
 				return nil, createdNodes, errTx
 			}
-		} else {
-			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
 	if stmt := tx.Stmt(delUserRoles); stmt != nil {
@@ -354,25 +354,24 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("Empty statement")
+		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
-	for _, role := range user.Roles {
-		if role.UserRole || role.GroupRole {
-			continue
-		}
-
-		if stmt := tx.Stmt(addUserRole); stmt != nil {
-			defer stmt.Close()
+	if stmt := tx.Stmt(addUserRole); stmt != nil {
+		defer stmt.Close()
+		for _, role := range user.Roles {
+			if role.UserRole || role.GroupRole {
+				continue
+			}
 			if _, errTx = stmt.Exec(
 				user.Uuid,
 				role.Uuid,
 			); errTx != nil {
 				return nil, createdNodes, errTx
 			}
-		} else {
-			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
 	for _, n := range created {

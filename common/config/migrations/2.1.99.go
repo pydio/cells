@@ -57,9 +57,10 @@ func updateSites(config configx.Values) error {
 
 	proxy := config.Val("cert", "proxy")
 	ssl := proxy.Val("ssl").Bool()
+	self := proxy.Val("self").Bool()
 	if ssl {
 		autoCA := proxy.Val("autoCA").String()
-		if autoCA != "" {
+		if self || autoCA != "" {
 			//Self-Signed
 			site.Val("TLSConfig", "SelfSigned").Set(map[string]string{})
 		} else {

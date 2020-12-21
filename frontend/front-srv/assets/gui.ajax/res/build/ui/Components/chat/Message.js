@@ -98,7 +98,8 @@ var Message = (function (_React$Component) {
                 position: 'relative',
                 padding: '8px 10px',
                 backgroundColor: '#eee',
-                userSelect: 'text'
+                userSelect: 'text',
+                webkitUserSelect: 'text'
             },
             commentDeleteBox: {
                 position: 'absolute',

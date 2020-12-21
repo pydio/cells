@@ -2,8 +2,6 @@ package bigcache
 
 import (
 	"encoding/binary"
-	"reflect"
-	"unsafe"
 )
 
 const (
@@ -27,6 +25,21 @@ func wrapEntry(timestamp uint64, hash uint64, key string, entry []byte, buffer *
 	binary.LittleEndian.PutUint16(blob[timestampSizeInBytes+hashSizeInBytes:], uint16(keyLength))
 	copy(blob[headersSizeInBytes:], key)
 	copy(blob[headersSizeInBytes+keyLength:], entry)
+
+	return blob[:blobLength]
+}
+
+func appendToWrappedEntry(timestamp uint64, wrappedEntry []byte, entry []byte, buffer *[]byte) []byte {
+	blobLength := len(wrappedEntry) + len(entry)
+	if blobLength > len(*buffer) {
+		*buffer = make([]byte, blobLength)
+	}
+
+	blob := *buffer
+
+	binary.LittleEndian.PutUint64(blob, timestamp)
+	copy(blob[timestampSizeInBytes:], wrappedEntry[timestampSizeInBytes:])
+	copy(blob[len(wrappedEntry):], entry)
 
 	return blob[:blobLength]
 }
@@ -55,10 +68,10 @@ func readKeyFromEntry(data []byte) string {
 	return bytesToString(dst)
 }
 
-func bytesToString(b []byte) string {
-	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-	strHeader := reflect.StringHeader{Data: bytesHeader.Data, Len: bytesHeader.Len}
-	return *(*string)(unsafe.Pointer(&strHeader))
+func compareKeyFromEntry(data []byte, key string) bool {
+	length := binary.LittleEndian.Uint16(data[timestampSizeInBytes+hashSizeInBytes:])
+
+	return bytesToString(data[headersSizeInBytes:headersSizeInBytes+length]) == key
 }
 
 func readHashFromEntry(data []byte) uint64 {

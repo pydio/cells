@@ -5,7 +5,6 @@ import (
 
 	hashiversion "github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -37,21 +36,7 @@ var (
 	}`)
 )
 
-func checkVersion(v string) bool {
-	vv, _ := hashiversion.NewVersion(v)
-	if common.Version().LessThan(vv) {
-		return false
-	}
-
-	return true
-}
-
 func TestMigration2_1_0(t *testing.T) {
-
-	if !checkVersion("2.1.0") {
-		t.Log("NOT RUN - CURRENT VERSION LOWER THAN THIS MIGRATION")
-		return
-	}
 
 	// Create new config
 	conf := configx.New(configx.WithJSON())
@@ -61,7 +46,8 @@ func TestMigration2_1_0(t *testing.T) {
 
 		// PrettyPrint(conf.Map())
 
-		_, err := UpgradeConfigsIfRequired(conf)
+		target, _ := hashiversion.NewVersion("2.1.0")
+		_, err := UpgradeConfigsIfRequired(conf, target)
 
 		So(err, ShouldBeNil)
 
@@ -69,6 +55,6 @@ func TestMigration2_1_0(t *testing.T) {
 		So(conf, ShouldNotBeNil)
 
 		So(conf.Val("services/pydio.web.oauth/connectors[0]/id").String(), ShouldEqual, "pydio")
-		So(conf.Val("services/pydio.web.oauth/connectors[0]/config").Get(), ShouldBeNil)
+		So(conf.Val("services/pydio.grpc.auth/connectors[0]/config").Get(), ShouldBeNil)
 	})
 }

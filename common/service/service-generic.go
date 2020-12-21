@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -257,7 +258,7 @@ func (g *genericServer) Register() error {
 			}
 			// register service
 			node := &microregistry.Node{
-				Id:       config.Name + "-" + uuid.New().String(),
+				Id:       fmt.Sprintf("%s-%s-%d", config.Name, ip, tcp.Port),
 				Address:  ad,
 				Port:     tcp.Port,
 				Metadata: md,
