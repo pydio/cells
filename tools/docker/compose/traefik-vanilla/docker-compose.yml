@@ -50,7 +50,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PWD}
       - MYSQL_DATABASE=cells
       - MYSQL_USER=${MYSQL_USER_LOGIN}
       - MYSQL_PASSWORD=${MYSQL_USER_PWD}
@@ -63,7 +63,9 @@ services:
     expose: [443]
     volumes:
       - cells_data:/var/cells
+      - ./install-conf.yml:/pydio/config/install.yml:ro
     environment:
+      - CELLS_INSTALL_YAML=/pydio/config/install.yml
       - CELLS_BIND=0.0.0.0:443
       - CELLS_EXTERNAL=https://${PUBLIC_FQDN}
       # Injected in install conf at run time
