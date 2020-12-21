@@ -2088,7 +2088,7 @@
     "other": "Werkzeuge für den Versand von E-Mails"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Suchmaschinen Optionen"
   },
   "plugtype.desc.meta": {
     "other": "Zusätzliche Metadaten für Arbeitsumgebungen"
@@ -2154,7 +2154,7 @@
     "other": "Mailer"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Suchmaschine"
   },
   "plugtype.title.meta": {
     "other": "Metadaten"
@@ -2349,6 +2349,6 @@
     "other": "Bitte verwenden Sie Bilder, die kleiner als 5 MB sind"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Suche läuft..."
   }
 }
