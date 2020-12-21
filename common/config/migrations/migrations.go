@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/utils/migrations"
 	"github.com/pydio/cells/x/configx"
 )
@@ -41,7 +40,7 @@ func getMigration(f migrationFunc) migrationConfigFunc {
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
 // Returns true if there was a change and save is required, error if something nasty happened
-func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
+func UpgradeConfigsIfRequired(config configx.Values, targetVersion *version.Version) (bool, error) {
 
 	v := config.Val("version")
 
@@ -50,7 +49,7 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 		return false, err
 	}
 
-	if !lastVersion.LessThan(common.Version()) {
+	if !lastVersion.LessThan(targetVersion) {
 		return false, nil
 	}
 
@@ -62,7 +61,7 @@ func UpgradeConfigsIfRequired(config configx.Values) (bool, error) {
 		})
 	}
 
-	appliedVersion, err := migrations.Apply(context.Background(), lastVersion, common.Version(), mm)
+	appliedVersion, err := migrations.Apply(context.Background(), lastVersion, targetVersion, mm)
 	if err != nil {
 		return false, err
 	}

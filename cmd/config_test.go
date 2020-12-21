@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-version"
+
 	microconfig "github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common/config"
@@ -411,7 +413,8 @@ func TestConfigUpgrade(t *testing.T) {
 	val := conf.Val()
 
 	// Need to do something for the versions
-	migrations.UpgradeConfigsIfRequired(val)
+	target, _ := version.NewVersion("2.2.0")
+	migrations.UpgradeConfigsIfRequired(val, target)
 
 	conf.Save("test", "test")
 
