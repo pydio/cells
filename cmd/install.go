@@ -154,8 +154,9 @@ var installCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cmd.Println("")
-		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m (" + common.Version().String() + ")")
-		cmd.Println(common.PackageLabel + " will be configured to run on this machine. Make sure to prepare the following data")
+		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
+		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
+		cmd.Println("Make sure to prepare the following data:")
 		cmd.Println(" - IPs and ports for binding the webserver to outside world")
 		cmd.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
 		cmd.Println("Pick your installation mode when you are ready.")
