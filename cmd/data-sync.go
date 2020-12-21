@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -32,16 +33,16 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
-const exampleDataSync = `For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
+var exampleDataSync = ` For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
 
 1) by name:
-	./cells data sync --datasource=pydiods1
+` + os.Args[0] + ` data sync --datasource=pydiods1
 
 2) by service name:
-	./cells data sync --service=pydio.grpc.data.sync.pydiods1 
+` + os.Args[0] + ` data sync --service=pydio.grpc.data.sync.pydiods1 
 
 Else to refresh the search engine entirely:
-	./cells data sync --service=pydio.grpc.search --path=/`
+` + os.Args[0] + ` data sync --service=pydio.grpc.search --path=/`
 
 var (
 	syncDsName  string
