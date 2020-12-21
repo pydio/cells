@@ -1149,7 +1149,7 @@
     "other": "+ Arbeitsumgebung"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "Workspaces filtern..."
   },
   "ws.30": {
     "other": "Allgemeine Einstellungen"
@@ -1773,25 +1773,25 @@
     "other": "Mailer-Bibliothek wird geladen..."
   },
   "sites.title": {
-    "other": "Sites and URLs"
+    "other": "Websites und URLs"
   },
   "sites.mailer.url": {
-    "other": "External URL used for links in emails"
+    "other": "Externe URL für Links in E-Mails"
   },
   "sites.links.url": {
-    "other": "Force share links URL"
+    "other": "URL für Freigabe-Links erzwingen"
   },
   "sites.no-defaults": {
-    "other": "No defaults set"
+    "other": "Keine Standardeinstellungen festgelegt"
   },
   "sites.enter-to-save": {
-    "other": "(hit enter to save)"
+    "other": "(Drücken Sie die Eingabetaste, um zu speichern)"
   },
   "sites.configs.title": {
-    "other": "Sites currently defined"
+    "other": "Derzeit definierte Sites"
   },
   "sites.configs.command": {
-    "other": "Use './cells config sites' command to edit sites."
+    "other": "Verwenden Sie den Befehl './cells config sites', um Sites zu bearbeiten."
   },
   "sites.column.bind": {
     "other": "Bind"
@@ -1806,15 +1806,15 @@
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Self Signed"
+    "other": "Selbstsigniert"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificate"
+    "other": "Zertifikat"
   },
   "sites.configs.tls.notls": {
-    "other": "No TLS"
+    "other": "Kein TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "No TLS behind proxy"
+    "other": "Kein TLS hinter Proxy"
   }
 }

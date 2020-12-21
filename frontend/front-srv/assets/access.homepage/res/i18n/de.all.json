@@ -180,7 +180,7 @@
     "other": "Ordner"
   },
   "search.facets.title": {
-    "other": "Filters"
+    "other": "Filtern"
   },
   "search.facet.type": {
     "other": "Typ"
@@ -195,7 +195,7 @@
     "other": "Bearbeitet"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Gefunden in"
   },
   "search.facet.metadata": {
     "other": "Metadaten"
@@ -210,28 +210,28 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB bis 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB bis 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Vor kurzem"
   },
   "facet.label.date.today": {
     "other": "Heute"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Letzten 7 Tage"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Letzten 30 Tage"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Älter als 30 Tage"
   },
   "facet.label.found.contents": {
     "other": "Inhalte"

@@ -195,10 +195,10 @@
     "other": "Deaktivieren Sie die Zertifikatüberprüfung, wenn Ihr SMTP-Serverzertifikat selbstsigniert ist"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Lokaler Name des Dialers"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "Der SMTP-Dialer sendet standardmäßig 'localhost' im EHLO-Befehl. Verwenden Sie dieses Feld, um einen benutzerdefinierten lokalen Namen festzulegen"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Dienstleistung"

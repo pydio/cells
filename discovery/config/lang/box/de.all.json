@@ -78,7 +78,7 @@
     "other": "Aufgabenzeit kleiner als"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Freie Bedingung"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -198,7 +198,7 @@
     "other": "Dateiname"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Dateiname oder Inhalt"
   },
   "treeQuery.FreeString": {
     "other": "Bleve-ähnliche Suchzeichenkette"
