@@ -16,12 +16,15 @@ services:
       - traefik.http.routers.reverse.entrypoints=web
 
   cells:
-    image: pydio/cells:latest
+    image: pydio/cells:pre-release
+    restart: unless-stopped
     expose: [8080]
     environment:
-      - CELLS_BIND=0.0.0.0:8080
-      - CELLS_EXTERNAL=http://localhost
+      - CELLS_INSTALL_YAML=/pydio/config/install.yml
       - CELLS_NO_TLS=1
+    volumes: 
+      - cellsdir:/var/cells
+      - ./install-conf.yml:/pydio/config/install.yml:ro
     labels:
       - traefik.http.routers.cells.rule=Host(`localhost`)
       - traefik.http.routers.cells.entrypoints=web
@@ -29,5 +32,10 @@ services:
   mysql:
     image: mysql:5.7
     restart: unless-stopped
-    environment: [MYSQL_DATABASE=cells, MYSQL_USER=pydio, MYSQL_ROOT_PASSWORD=cells, MYSQL_PASSWORD=cells]
+    environment: [MYSQL_DATABASE=cells, MYSQL_USER=pydio, MYSQL_ROOT_PASSWORD=ChangeMe!, MYSQL_PASSWORD=ChangeMe!]
+    volumes: [mysqldir:/var/lib/mysql]
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+
+volumes:
+  cellsdir: {}
+  mysqldir: {}

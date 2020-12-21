@@ -12,11 +12,11 @@ This sample configuration has following caracteristics:
 
 ## How to use
 
-- upadate `.env.sample` file with your specific values and rename it to `.env`
+- update `.env.sample` file with your specific values and rename it to `.env`
 - create an empty `acme.json` file in the same folder: `touch acme.json; chmod 600 acme.json`
 - launch docker compose: `docker-compose up -d; docker-compose logs -f`
 
-By default attached compose file is configured to use the staging CA URL of Let's Encrypt, to avoid having your FQDN being black listed by Let's Encrypt if something is not correctly configured at first launch.
+By default, the attached docker-compose file is configured to use the staging CA URL of Let's Encrypt, to avoid having your FQDN being black listed by Let's Encrypt if something is not correctly configured at first launch.
 
 When you are happy with your conf, just comment out the corresponding line (~L73):
 

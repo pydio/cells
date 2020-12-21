@@ -1,7 +1,6 @@
 version: "3.7"
 
 volumes:
-  cells_working_dir: {}
   cells_data: {}
   mysql_data: {}
 
@@ -41,7 +40,7 @@ services:
         - traefik.http.routers.reverse.tls.certresolver=leresolver
         # Protect dashboard with simple auth => log with admin / admin for this example
         - traefik.http.routers.reverse.middlewares=admin
-        # Password is generated with `htpasswd -nb admin admin` beware to escape all '$' replacing them by '$$'
+        # Password is generated with `htpasswd -nb admin admin`. Beware to escape all '$', replacing them by '$$'
         - "traefik.http.middlewares.admin.basicauth.users=admin:$$apr1$$KnKvATsN$$L8K.P.maCu4zR/rVzD8h0/"
     
   # DB backend
@@ -53,8 +52,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=cells
-      - MYSQL_USER=${MYSQL_PYDIO_USER_LOGIN}
-      - MYSQL_PASSWORD=${MYSQL_PYDIO_USER_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER_LOGIN}
+      - MYSQL_PASSWORD=${MYSQL_USER_PWD}
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci] 
   
   # Pydio Cells server
@@ -63,11 +62,14 @@ services:
     restart: unless-stopped
     expose: [443]
     volumes:
-      - cells_working_dir:/var/cells
-      - cells_data:/data
+      - cells_data:/var/cells
     environment:
       - CELLS_BIND=0.0.0.0:443
-      - CELLS_EXTERNAL=https://${PUBLIC_FQDN}    
+      - CELLS_EXTERNAL=https://${PUBLIC_FQDN}
+      # Injected in install conf at run time
+      - CELLS_ADMIN_PWD=${CELLS_ADMIN_PWD}
+      - MYSQL_USER_LOGIN=${MYSQL_USER_LOGIN}
+      - MYSQL_USER_PWD=${MYSQL_USER_PWD}
     labels:
       - traefik.http.services.cells.loadbalancer.server.scheme=https
       - traefik.http.routers.cells.rule=Host(`${PUBLIC_FQDN}`)

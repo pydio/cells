@@ -31,8 +31,10 @@ if [ "${1#-}" != "$1" ]; then
 	fi
 fi
 
-echo "######## Pydio Cells docker entrypoint"
-echo "### Cells version: $(cells version)"
+# Workaround issue of key generation at first run until it is fixed.
+cells version > /dev/null
+
+echo "### $(cells version)"
 echo "### About to execute: [$@]"
 
 "$@"
