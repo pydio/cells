@@ -16,7 +16,7 @@ services:
       - traefik.http.routers.reverse.entrypoints=web
 
   cells:
-    image: pydio/cells:pre-release
+    image: pydio/cells:latest
     restart: unless-stopped
     expose: [8080]
     environment:
