@@ -55,6 +55,7 @@ var (
 		"en-us": "Loading...",
 		"es-en": "Cargando...",
 		"fr":    "Chargement...",
+		"fr-ca": "Chargement...",
 		"it":    "Caricamento...",
 		"ja":    "読み込んでいます...",
 		"ko":    "로드 중 ...",
@@ -72,7 +73,8 @@ var (
 	// in the end-user web UI when CELLS_ENABLE_WIP_LANGUAGES env variable is set to true.
 	WipLanguages = map[string]string{
 		"ar":    "عربى", // Arabic
-		"ja":    "日本人",  //Japanese
+		"fr-ca": "Canadien",
+		"ja":    "日本人", //Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
 		"pt-br": "Português",
