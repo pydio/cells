@@ -82,7 +82,6 @@ func watch() {
 						}
 
 						if !found {
-							fmt.Println("We have a starter")
 							// WE HAVE A NEW STARTER
 							send(&Result{
 								Action:  "started",

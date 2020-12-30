@@ -205,6 +205,16 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 		}
 
 		<-cmd.Context().Done()
+
+		// Checking that the processes are done
+		// TODO - we need to find a way to wait for all services and all children processes to have ended before we return
+		for {
+			process := registry.Default.GetCurrentProcess()
+			childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
+			if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
+				break
+			}
+		}
 	},
 }
 
