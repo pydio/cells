@@ -21,7 +21,6 @@
 package service
 
 import (
-	"context"
 	"time"
 
 	"github.com/micro/cli"
@@ -94,17 +93,17 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			srvOpts = append(srvOpts, server.Version(o.Version))
 
-			ctx, cancel := context.WithCancel(ctx)
+			// ctx, cancel := context.WithCancel(ctx)
 
 			srv := defaults.NewServer(srvOpts...)
 			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(time.Second*30),
-				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				// micro.RegisterTTL(time.Second*30),
+				// micro.RegisterInterval(time.Second*10),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)
@@ -155,7 +154,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			s.Init(
 				Micro(svc),
-				Cancel(cancel),
+				// Cancel(cancel),
 			)
 
 			return nil

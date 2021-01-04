@@ -372,6 +372,7 @@ func (g *gatewayProxyServer) Addresses() []net.Addr {
 	for _, s := range caddy.GetInstance().Servers() {
 		addresses = append(addresses, s.Addr())
 	}
+	fmt.Println("Addresses are ", addresses)
 	return addresses
 }
 

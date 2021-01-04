@@ -3,12 +3,15 @@ package cache
 
 import (
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/micro/go-log"
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"google.golang.org/grpc/balancer"
 )
 
 type cacheSelector struct {
@@ -363,28 +366,28 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
 	// TODO - rework this
-	// if err == nil {
-	// 	return
-	// }
+	if err == nil {
+		return
+	}
 
-	// e := errors.Parse(err.Error())
-	// if e == nil {
-	// 	return
-	// }
+	e := errors.Parse(err.Error())
+	if e == nil {
+		return
+	}
 
-	// switch e.Code {
-	// // retry on timeout or internal server error
-	// case 408, 500:
-	// 	if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
-	// 		cnt, ok := c.nodesInError[node.Id]
-	// 		if !ok {
-	// 			cnt = 0
-	// 		}
-	// 		c.nodesInErrorLock.Lock()
-	// 		c.nodesInError[node.Id] = cnt + 1
-	// 		c.nodesInErrorLock.Unlock()
-	// 	}
-	// }
+	switch e.Code {
+	// retry on timeout or internal server error
+	case 408, 500:
+		if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
+			cnt, ok := c.nodesInError[node.Id]
+			if !ok {
+				cnt = 0
+			}
+			c.nodesInErrorLock.Lock()
+			c.nodesInError[node.Id] = cnt + 1
+			c.nodesInErrorLock.Unlock()
+		}
+	}
 
 	return
 }

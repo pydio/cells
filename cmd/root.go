@@ -32,7 +32,6 @@ import (
 
 	"github.com/spf13/pflag"
 
-	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
@@ -47,6 +46,7 @@ import (
 	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
+	microregistry "github.com/pydio/cells/common/micro/registry"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
@@ -58,7 +58,6 @@ import (
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
 
 	// All registries
-	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
 
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
@@ -69,10 +68,9 @@ import (
 )
 
 var (
-	ctx             context.Context
-	cancel          context.CancelFunc
-	allServices     []registry.Service
-	runningServices []*microregistry.Service
+	ctx         context.Context
+	cancel      context.CancelFunc
+	allServices []registry.Service
 
 	profiling bool
 	profile   *os.File
@@ -370,7 +368,7 @@ func handleRegistry() {
 
 	switch viper.Get("registry") {
 	case "nats":
-		natsregistry.Enable()
+		microregistry.EnableNats()
 	default:
 		log.Fatal("registry not supported - currently only nats is supported")
 	}

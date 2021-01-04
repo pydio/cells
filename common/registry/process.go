@@ -25,6 +25,8 @@
 package registry
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -130,4 +132,37 @@ func (p *pydioregistry) GetProcesses() map[string]*Process {
 
 func GetProcesses() map[string]*Process {
 	return Default.GetProcesses()
+}
+
+func GetCurrentProcess() *Process {
+	return Default.GetCurrentProcess()
+}
+
+func (p *pydioregistry) GetCurrentProcess() *Process {
+	p.processeslock.RLock()
+	defer p.processeslock.RUnlock()
+
+	pid := fmt.Sprintf("%d", os.Getpid())
+	process, ok := p.processes[pid]
+	if !ok {
+		return nil
+	}
+
+	return process
+}
+
+func (p *pydioregistry) GetCurrentChildrenProcesses() []*Process {
+	p.processeslock.RLock()
+	defer p.processeslock.RUnlock()
+
+	pid := fmt.Sprintf("%d", os.Getpid())
+	var processes []*Process
+
+	for _, v := range p.processes {
+		if v.ParentId == pid {
+			processes = append(processes, v)
+		}
+	}
+
+	return processes
 }

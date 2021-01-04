@@ -21,16 +21,12 @@
 package registry
 
 import (
-	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/registry"
-
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 )
 
@@ -82,69 +78,21 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 	return nil
 }
 
-// maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 	c.runninglock.Lock()
 	defer c.runninglock.Unlock()
 
-	// To ensure the watch is properly populated
-	initialServices, err := defaults.Registry().ListServices()
-	if err != nil {
-		log.Fatal("Could not retrieve initial services list")
-	}
-
-	wg := &sync.WaitGroup{}
-	queue := make(chan struct{}, 10)
-	wg.Add(len(initialServices))
-	var ss []*registry.Service
-
-	if defaults.RuntimeIsCluster() {
-		log.Logger(context.Background()).Info(fmt.Sprintf("Discovering %d services running on all peers... This can take some time.", len(initialServices)))
-	}
-
-	for _, s := range initialServices {
-		queue <- struct{}{}
-		go func(name string) {
-			defer func() {
-				<-queue
-				wg.Done()
-			}()
-			sv, err := defaults.StartupRegistry().GetService(name)
-			if err != nil {
-				fmt.Printf("- Error on StartupRegistry.GetService for %s", name)
-				return
-			}
-			if len(sv) == 0 {
-				fmt.Println("- We should not be in there maintainRunningServicesList " + name)
-				return
-			}
-			ss = append(ss, sv...)
-		}(s.Name)
-	}
-	wg.Wait()
-
-	for _, srv := range ss {
-		//fmt.Printf("%s - Registering %d existing nodes for service %s\n", strings.Join(os.Args, "-"), len(srv.Nodes), srv.Name)
-		for _, n := range srv.Nodes {
-			c.GetPeer(n).Add(srv, fmt.Sprintf("%d", n.Port))
-			c.registerProcessFromNode(n, srv.Name)
-			defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
-				Body: []byte(common.EventTypeServiceRegistered),
-				Header: map[string]string{
-					common.EventHeaderServiceRegisterService: srv.Name,
-					common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
-				},
-			})
-		}
-	}
+	results := make(chan *registry.Result)
 
 	go func() {
-
 		// Once we've retrieved the list once, we watch the services
 		w, err := defaults.Registry().Watch()
 		if err != nil {
 			return
 		}
+
+		defer w.Stop()
+
 		for {
 			res, err := w.Next()
 			if err != nil {
@@ -156,6 +104,33 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				continue
 			}
 
+			results <- res
+		}
+
+	}()
+
+	go func() {
+		ticker := time.Tick(10 * time.Second)
+
+		for {
+			select {
+			case <-ticker:
+				services, err := defaults.Registry().ListServices()
+				if err != nil {
+					return
+				}
+				for _, srv := range services {
+					results <- &registry.Result{
+						Action:  "create",
+						Service: srv,
+					}
+				}
+			}
+		}
+	}()
+
+	go func() {
+		for res := range results {
 			a := res.Action
 			s := res.Service
 
