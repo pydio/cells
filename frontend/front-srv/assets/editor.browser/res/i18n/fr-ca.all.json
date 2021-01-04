@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "External window"
+  },
+  "2": {
+    "other": "External browser window"
+  },
+  "3": {
+    "other": "Opening file in external window, please wait, this window should close automatically."
+  },
+  "4": {
+    "other": "New URL Bookmark"
+  },
+  "5": {
+    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+  },
+  "6": {
+    "other": "Enter an URL starting with http/https"
+  },
+  "7": {
+    "other": "URL Bookmark"
+  },
+  "8": {
+    "other": "Enter a label for this bookmark"
+  }
+}
