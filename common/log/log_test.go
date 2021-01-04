@@ -29,7 +29,7 @@ func TestLogMassiveObject(t *testing.T) {
 		MaxBackups: 100,
 		MaxAge:     28, // days
 	}))
-	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG)))
+	syncers = append(syncers, zapcore.AddSync(NewLogSyncer(ctx, common.ServiceGrpcNamespace_+common.ServiceLog)))
 
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = RFC3369TimeEncoder
