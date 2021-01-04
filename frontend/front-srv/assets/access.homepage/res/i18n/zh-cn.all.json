@@ -186,7 +186,7 @@
     "other": "类型"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "扩展"
   },
   "search.facet.size": {
     "other": "大小"
@@ -222,7 +222,7 @@
     "other": "Moments ago"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "今天"
   },
   "facet.label.date.last.7": {
     "other": "Last 7 days"
