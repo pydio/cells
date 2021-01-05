@@ -1,6 +1,6 @@
 {
   "#Items per page": {
-    "other": "每页显示"
+    "other": "#Items per page"
   },
   "16X16 Icon for representing the template": {
     "other": "16X16 Icon for representing the template"
@@ -9,34 +9,34 @@
     "other": "A user-defined description of the content of this workspace"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API端点-用于启动窗口，允许用户验证和接受应用程序的条款"
+    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API端点-用于刷新或验证在身份验证部分中检索到的令牌"
+    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API设置-OAuth应用程序的重定向URL"
+    "other": "API setting - Redirect URL for the OAuth Application"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "公用文件夹的绝对路径，将在该公用文件夹中创建临时下载链接。 这用于遗留用途，新创建的链接不再使用它，而是使用基本URI。"
+    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
   },
   "Admin Login": {
-    "other": "管理员登录"
+    "other": "Admin Login"
   },
   "Admin email": {
-    "other": "管理员邮箱"
+    "other": "Admin email"
   },
   "Administrator email, not used for the moment": {
     "other": "Administrator email, not used for the moment"
   },
   "Alias": {
-    "other": "别名"
+    "other": "Alias"
   },
   "Alias for replacing the generated unique id of the repository": {
     "other": "Alias for replacing the generated unique id of the workspace"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "允许组管理员从此模板创建存储库。"
+    "other": "Allow group administrators to create a repository from this template."
   },
   "Allow non-admin users to create a repository from this template.": {
     "other": "Allow non-admin users to create a workspace from this template."
@@ -51,7 +51,7 @@
     "other": "Allow to user"
   },
   "App Title": {
-    "other": "应用程序标题"
+    "other": "Application Title"
   },
   "Ascending": {
     "other": "Ascending"
@@ -60,31 +60,31 @@
     "other": "Auth Driver Commons"
   },
   "Auth URL": {
-    "other": "身份验证URL"
+    "other": "Auth URL"
   },
   "Auto Create User": {
-    "other": "自动创建用户"
+    "other": "Auto Create User"
   },
   "Auto apply role": {
     "other": "Auto apply role"
   },
   "Big Icon": {
-    "other": "大图标"
+    "other": "Big Icon"
   },
   "Big Icon for representing the template": {
     "other": "Big Icon for representing the template"
   },
   "Browser Access": {
-    "other": "浏览器访问"
+    "other": "Browser Access"
   },
   "Character Encoding": {
-    "other": "字符编码"
+    "other": "Character Encoding"
   },
   "Client ID": {
-    "other": "客户端 ID"
+    "other": "Client ID"
   },
   "Client SECRET": {
-    "other": "客户端密钥"
+    "other": "Client SECRET"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
     "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
@@ -93,10 +93,10 @@
     "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "以逗号分隔的要隐藏的特定文件列表"
+    "other": "Comma-separated list of specific files to hide"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "以逗号分隔的要隐藏的特定文件夹列表"
+    "other": "Comma-separated list of specific folders to hide"
   },
   "Command Line": {
     "other": "Command Line"
@@ -105,7 +105,7 @@
     "other": "Command-line Active"
   },
   "Command-line PHP": {
-    "other": "命令行PHP"
+    "other": "Command-line PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
     "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
@@ -120,37 +120,37 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "数据源"
+    "other": "Data Source Name"
   },
   "Database": {
-    "other": "数据库"
+    "other": "Database"
   },
   "Database file": {
-    "other": "数据库文件"
+    "other": "Database file"
   },
   "Database name": {
-    "other": "数据库名称"
+    "other": "Database name"
   },
   "Database server": {
-    "other": "数据库服务器"
+    "other": "Database server"
   },
   "Default Label": {
-    "other": "默认标签"
+    "other": "Default Label"
   },
   "Default Language": {
-    "other": "默认语言"
+    "other": "Default Language"
   },
   "Default Metasources": {
-    "other": "默认元数据"
+    "other": "Default Metasources"
   },
   "Default Rights": {
-    "other": "默认权限"
+    "other": "Default Rights"
   },
   "Default field to sort on": {
     "other": "Default field to sort on"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "用户没有设置自己的语言时的默认语言。"
+    "other": "Default language when a user does not have set his/her own."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
     "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
@@ -165,16 +165,16 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "说明"
+    "other": "Description"
   },
   "Digest Realm": {
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "禁用WebDAV"
+    "other": "Disable WebDAV"
   },
   "Disable Zip browsing": {
-    "other": "禁用 Zip 浏览"
+    "other": "Disable Zip browsing"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
     "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
@@ -189,7 +189,7 @@
     "other": "Download Folder (Legacy)"
   },
   "Download URL": {
-    "other": "下载链接"
+    "other": "Download URL"
   },
   "Driver": {
     "other": "Driver"
@@ -198,7 +198,7 @@
     "other": "Driver type (do not touch)"
   },
   "Enable WebDAV": {
-    "other": "启用WebDAV"
+    "other": "Enable WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
@@ -216,13 +216,13 @@
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "文件"
+    "other": "File"
   },
   "File Type": {
     "other": "File Type"
   },
   "File size": {
-    "other": "文件大小"
+    "other": "File size"
   },
   "Filename length": {
     "other": "Filename length"
@@ -297,7 +297,7 @@
     "other": "Login Redirect"
   },
   "Main": {
-    "other": "主选项"
+    "other": "Main Options"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
@@ -309,13 +309,13 @@
     "other": "Metadata and indexation"
   },
   "Miscellaneous": {
-    "other": "其他"
+    "other": "Miscellaneous"
   },
   "Modification date": {
     "other": "Modification date"
   },
   "Name": {
-    "other": "组名"
+    "other": "Name"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -333,7 +333,7 @@
     "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "密码"
+    "other": "Password"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
@@ -342,7 +342,7 @@
     "other": "Public Base URI"
   },
   "Pydio Main Options": {
-    "other": "Pydio 主选项"
+    "other": "Pydio Main Options"
   },
   "Read Only": {
     "other": "Read Only"
@@ -450,7 +450,7 @@
     "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "用户"
+    "other": "User"
   },
   "User Credentials": {
     "other": "User Credentials"
@@ -486,7 +486,7 @@
     "other": "Write Only (upload)"
   },
   "Your application title": {
-    "other": "此标题将作为窗口标题出现在初始化界面中。"
+    "other": "This title will appear as the window title, in the splash screen."
   },
   "Zip Creation": {
     "other": "Zip Creation"

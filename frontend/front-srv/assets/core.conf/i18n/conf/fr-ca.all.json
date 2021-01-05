@@ -1,6 +1,6 @@
 {
   "Address used for notifications": {
-    "other": "用于接收通知的地址"
+    "other": "Address used for notifications"
   },
   "All roles": {
     "other": "All roles"
@@ -30,7 +30,7 @@
     "other": "Avatar"
   },
   "Choose the configuration plugin": {
-    "other": "选择配置插件"
+    "other": "Choose the configuration plugin"
   },
   "Configuration Store Instance": {
     "other": "Configuration Store Instance"
@@ -48,7 +48,7 @@
     "other": "Create external users"
   },
   "Default Workspace": {
-    "other": "默认工作区"
+    "other": "Default Workspace"
   },
   "Default start repository": {
     "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
@@ -63,7 +63,7 @@
     "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
   },
   "Email": {
-    "other": "电子邮件"
+    "other": "Email"
   },
   "Excluded Roles": {
     "other": "Excluded Roles"
@@ -75,7 +75,7 @@
     "other": "External users parameters"
   },
   "Full name displayed to others": {
-    "other": "显示给他人看的全名"
+    "other": "Full name displayed to others"
   },
   "Generic Conf Features": {
     "other": "Generic Conf Features"
@@ -105,7 +105,7 @@
     "other": "Internal / External Users"
   },
   "Language": {
-    "other": "语言"
+    "other": "Language"
   },
   "Let user create repositories": {
     "other": "Let user create workspaces"
@@ -135,7 +135,7 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "组名"
+    "other": "Name"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"
@@ -144,7 +144,7 @@
     "other": "Remember guest preferences"
   },
   "Role Label": {
-    "other": "角色标签"
+    "other": "Role Label"
   },
   "Role/Group Listing": {
     "other": "Role/Group Listing"
@@ -153,7 +153,7 @@
     "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
-    "other": "SQL连接"
+    "other": "SQL Connection"
   },
   "See existing users": {
     "other": "See existing users"
@@ -171,7 +171,7 @@
     "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
   },
   "Skip user history": {
-    "other": "跳过界面偏好设置"
+    "other": "Skip interface preferences"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
     "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
@@ -183,7 +183,7 @@
     "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
   },
   "User Language": {
-    "other": "用户语言"
+    "other": "User Language"
   },
   "User roles only": {
     "other": "User roles only"

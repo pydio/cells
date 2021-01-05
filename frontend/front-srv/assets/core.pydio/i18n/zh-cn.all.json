@@ -1215,7 +1215,7 @@
     "other": "列表"
   },
   "461": {
-    "other": "Switch to list view"
+    "other": "切换到列表视图"
   },
   "462": {
     "other": "预览"
@@ -1224,7 +1224,7 @@
     "other": "全部下载"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "一次下载所有工作区内容（zip压缩）"
   },
   "465": {
     "other": "Show alternative URLs (mount workspaces separately)"
@@ -1233,7 +1233,7 @@
     "other": "加载中..."
   },
   "467": {
-    "other": "All Shared Elements"
+    "other": "所有共享元素"
   },
   "468": {
     "other": "工作区"
@@ -1242,49 +1242,49 @@
     "other": "资料库"
   },
   "47": {
-    "other": "Do you really want to delete the"
+    "other": "您真的要删除"
   },
   "470": {
-    "other": "Created %date"
+    "other": "创建日期%d"
   },
   "471": {
-    "other": "Created by %user %date"
+    "other": "由%user 于%date 创建"
   },
   "472": {
-    "other": "Shared by %user"
+    "other": "由%user分享"
   },
   "473": {
-    "other": "Shared by %user %date"
+    "other": "由%user于%date分享"
   },
   "474": {
     "other": "无可用描述"
   },
   "475": {
-    "other": "Files shared amongst all users"
+    "other": "所有用户之间共享的文件"
   },
   "476": {
-    "other": "Your personal workspace"
+    "other": "您的个人工作空间"
   },
   "477": {
-    "other": "Select a file or folder to see its details here"
+    "other": "选择一个文件或文件夹以在此处查看其详细信息"
   },
   "478": {
     "other": "未找到结果"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "忘记密码？"
   },
   "48": {
-    "other": "OK"
+    "other": "确定"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "浏览当前工作区的所有文件夹。"
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "您所有共享的文件和文件夹"
   },
   "482": {
-    "other": "Quick access to your bookmarked items"
+    "other": "快速访问您加标签的项目"
   },
   "483": {
     "other": "You are not authorized to create more users!"
@@ -1296,46 +1296,46 @@
     "other": "创建共享用户"
   },
   "486": {
-    "other": "Advanced"
+    "other": "高级"
   },
   "487": {
-    "other": "Basic"
+    "other": "基本"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "高级筛选"
   },
   "489": {
     "other": "元数据"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "取消"
   },
   "490": {
-    "other": "Date range"
+    "other": "日期范围"
   },
   "491": {
-    "other": "After"
+    "other": "之后"
   },
   "492": {
     "other": "until"
   },
   "493": {
-    "other": "Today"
+    "other": "今天"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "昨天"
   },
   "495": {
-    "other": "Last week"
+    "other": "上周"
   },
   "496": {
-    "other": "Last month"
+    "other": "上月"
   },
   "497": {
-    "other": "Last year"
+    "other": "去年"
   },
   "498": {
-    "other": "Document Property"
+    "other": "文件属性"
   },
   "499": {
     "other": "文件"
@@ -1347,13 +1347,13 @@
     "other": "Exe file"
   },
   "500": {
-    "other": "Extension"
+    "other": "扩展"
   },
   "501": {
     "other": "or"
   },
   "502": {
-    "other": "Folders only"
+    "other": "仅文件夹"
   },
   "503": {
     "other": "大小"
@@ -1365,7 +1365,7 @@
     "other": "到"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "应用程序参数（用户，工作空间，配置）"
   },
   "507": {
     "other": "Welcome on %s"
@@ -1377,7 +1377,7 @@
     "other": "Save as a team"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "文本编辑器"
   },
   "510": {
     "other": "Please enter a team label"
@@ -1548,19 +1548,19 @@
     "other": "此文件夹为空！"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "这个工作区是空的！"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "回收站是空的。"
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "通过选择文件或文件夹或直接从桌面拖动开始添加文件或文件夹"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "您不可以在这里添加文件"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "查看回收站"
   },
   "568": {
     "other": "Teams"
