@@ -282,10 +282,10 @@ func TestBoltStore_ListJobs(t *testing.T) {
 
 }
 
-func loadTasks(db *BoltStore, jobId string, jobStatus jobs.TaskStatus) ([]*jobs.Task, error) {
+func loadTasks(db *BoltStore, jobId string, jobStatus jobs.TaskStatus, offset ...int32) ([]*jobs.Task, error) {
 
-	tasksChan, doneChan, err := db.ListTasks(jobId, jobStatus)
-	allTasks := []*jobs.Task{}
+	tasksChan, doneChan, err := db.ListTasks(jobId, jobStatus, offset...)
+	var allTasks []*jobs.Task
 	if err != nil {
 		return allTasks, err
 	}
@@ -379,6 +379,14 @@ func TestBoltStore_listTask(t *testing.T) {
 		allTasks, err := loadTasks(db, "job-id-1", jobs.TaskStatus_Any)
 		So(err, ShouldBeNil)
 		So(allTasks, ShouldHaveLength, 2)
+
+		allTasks, err = loadTasks(db, "job-id-1", jobs.TaskStatus_Any, 1)
+		So(err, ShouldBeNil)
+		So(allTasks, ShouldHaveLength, 1)
+
+		allTasks, err = loadTasks(db, "job-id-1", jobs.TaskStatus_Any, 50)
+		So(err, ShouldBeNil)
+		So(allTasks, ShouldHaveLength, 0)
 
 		allTasks, err = loadTasks(db, "job-id-1", jobs.TaskStatus_Running)
 		So(err, ShouldBeNil)
