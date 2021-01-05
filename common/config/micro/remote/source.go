@@ -46,7 +46,7 @@ func (s *remotesource) Read() (*config.ChangeSet, error) {
 
 	var changeset *config.ChangeSet
 
-	err := Retry(context.Background(), func() error {
+	err := Retry(func() error {
 		cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
