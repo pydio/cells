@@ -7904,6 +7904,8 @@ var _Pydio$requireLib3 = _pydio2['default'].requireLib('workspaces');
 
 var FilePreview = _Pydio$requireLib3.FilePreview;
 
+var HistoryKey = "cells.search-engine.history";
+
 var HomeSearchForm = (function (_Component) {
     _inherits(HomeSearchForm, _Component);
 
@@ -7925,7 +7927,8 @@ var HomeSearchForm = (function (_Component) {
             empty: true,
             loading: false,
             facets: [],
-            facetFilter: {}
+            facetFilter: {},
+            history: this.loadHistory()
         };
 
         this.submitD = _lodash2['default'].debounce(this.submit, 500);
@@ -8027,6 +8030,7 @@ var HomeSearchForm = (function (_Component) {
             api.search(_extends({ basenameOrContent: queryString }, facetFilter), 'all', this.props.limit || 10).then(function (response) {
                 rootNode.setChildren(response.Results);
                 rootNode.setLoaded(true);
+                _this3.pushHistory(queryString);
                 _this3.setState({
                     loading: false,
                     facets: response.Facets || []
@@ -8036,9 +8040,46 @@ var HomeSearchForm = (function (_Component) {
             });
         }
     }, {
+        key: 'loadHistory',
+        value: function loadHistory() {
+            var i = localStorage.getItem(HistoryKey);
+            if (!i) {
+                return [];
+            }
+            try {
+                var data = JSON.parse(i);
+                if (data.map) {
+                    return data;
+                }
+                return [];
+            } catch (e) {
+                return [];
+            }
+        }
+    }, {
+        key: 'pushHistory',
+        value: function pushHistory(term) {
+            if (!term) {
+                return;
+            }
+            var _state$history = this.state.history;
+            var history = _state$history === undefined ? [] : _state$history;
+
+            var newHistory = history.filter(function (f) {
+                return f !== term;
+            }).slice(0, 19); // store only 20 terms
+            newHistory.unshift(term);
+            this.setState({ history: newHistory }, function () {
+                localStorage.setItem(HistoryKey, JSON.stringify(newHistory));
+            });
+        }
+    }, {
         key: 'toggleEmpty',
         value: function toggleEmpty(e) {
             this.setState({ empty: e });
+            if (e) {
+                this.input.blur();
+            }
             var onSearchStateChange = this.props.onSearchStateChange;
 
             if (onSearchStateChange) {
@@ -8059,6 +8100,7 @@ var HomeSearchForm = (function (_Component) {
             var facets = _state.facets;
             var _state$selectedFacets3 = _state.selectedFacets;
             var selectedFacets = _state$selectedFacets3 === undefined ? [] : _state$selectedFacets3;
+            var history = _state.history;
             var _props = this.props;
             var style = _props.style;
             var zDepth = _props.zDepth;
@@ -8066,9 +8108,7 @@ var HomeSearchForm = (function (_Component) {
             var fullScreen = _props.fullScreen;
 
             var hintText = pydio.MessageHash[607];
-            //const accent2Color = muiTheme.palette.primary1Color;
             var whiteTransp = 'rgba(0,0,0,.53)';
-            var white = 'rgb(255,255,255)';
 
             var styles = {
                 textFieldContainer: {
@@ -8086,7 +8126,7 @@ var HomeSearchForm = (function (_Component) {
                 textInput: { color: 'inherit' },
                 textHint: { color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' },
                 magnifier: { color: whiteTransp, fontSize: 20, padding: '14px 8px' },
-                close: { color: whiteTransp, fontSize: 20, padding: '14px 8px', cursor: 'pointer' }
+                close: { position: 'absolute', right: 0 }
             };
 
             var renderIcon = function renderIcon(node) {
@@ -8137,20 +8177,30 @@ var HomeSearchForm = (function (_Component) {
                 { style: style, zDepth: zDepth, className: 'vertical-layout home-center-paper', rounded: false },
                 React.createElement(
                     _materialUi.Paper,
-                    { zDepth: searchFocus || queryString ? 1 : 0, style: styles.textFieldContainer, className: 'home-search-form' },
+                    { zDepth: searchFocus || queryString ? 1 : 0, style: styles.textFieldContainer, ref: "container", className: 'home-search-form' },
                     React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-magnify', style: styles.magnifier }),
-                    React.createElement(_materialUi.TextField, {
-                        ref: function (input) {
-                            return _this4.input = input;
+                    React.createElement(_materialUi.AutoComplete, {
+                        ref: function (r) {
+                            _this4.input = r;
                         },
+                        dataSource: history.map(function (k) {
+                            return { text: k, value: k };
+                        }),
+                        filter: function (searchText, key) {
+                            return (searchText === '' || key.indexOf(searchText) === 0) && searchText !== key;
+                        },
+                        openOnFocus: !queryString,
+                        open: searchFocus,
+                        menuProps: { desktop: true },
                         style: styles.textField,
                         inputStyle: styles.textInput,
                         hintStyle: styles.textHint,
                         fullWidth: true,
                         underlineShow: false,
                         hintText: hintText,
-                        value: queryString,
-                        onChange: function (e, v) {
+                        searchText: queryString,
+                        menuStyle: { maxHeight: 300 },
+                        onUpdateInput: function (v) {
                             return _this4.update(v);
                         },
                         onKeyPress: function (e) {
@@ -8163,15 +8213,22 @@ var HomeSearchForm = (function (_Component) {
                             _this4.setState({ searchFocus: false });
                         }
                     }),
+                    !loading && React.createElement('div', { style: { width: 36 } }),
                     loading && React.createElement(
                         'div',
                         { style: { marginTop: 14, marginRight: 8 } },
                         React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2 })
-                    ),
-                    queryString && !loading && React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-close', style: styles.close, onTouchTap: function () {
-                            return _this4.update('');
-                        } })
+                    )
                 ),
+                fullScreen && React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-close',
+                    style: styles.close,
+                    onTouchTap: function () {
+                        return _this4.update('');
+                    },
+                    tooltipPosition: "bottom-left",
+                    tooltip: pydio.MessageHash['86']
+                }),
                 !empty && facets && React.createElement(_Facets2['default'], { facets: facets, selected: selectedFacets, pydio: pydio, onSelectFacet: this.filterByFacet.bind(this) }),
                 !empty && React.createElement(PydioComponents.NodeListCustomProvider, {
                     ref: 'results',
