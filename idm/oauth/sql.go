@@ -69,7 +69,7 @@ func (s *sqlImpl) Init(options configx.Values) error {
 	}
 
 	var isRetry bool
-	err := service.Retry(func() error {
+	err := service.Retry(context.Background(), func() error {
 		_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
 		if err != nil {
 			log.Logger(context.Background()).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")

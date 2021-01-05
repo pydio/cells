@@ -21,6 +21,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 )
 
 // Retry function
-func Retry(f func() error, seconds ...time.Duration) error {
+func Retry(ctx context.Context, f func() error, seconds ...time.Duration) error {
 
 	if err := f(); err == nil {
 		return nil
@@ -49,6 +50,8 @@ func Retry(f func() error, seconds ...time.Duration) error {
 			if err := f(); err == nil {
 				return nil
 			}
+		case <-ctx.Done():
+			return nil
 		case <-timeout:
 			return fmt.Errorf("timeout")
 		}
