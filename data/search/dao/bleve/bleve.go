@@ -420,16 +420,6 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		Field: "Extension",
 		Size:  5,
 	})
-	// Facet for result being in text content or not
-	searchRequest.AddFacet("Content", &bleve.FacetRequest{
-		Field: "TextContent",
-		Size:  1,
-	})
-	// Facet for result being in text content or not
-	searchRequest.AddFacet("Basename", &bleve.FacetRequest{
-		Field: "Basename",
-		Size:  1,
-	})
 	// Facets by Size
 	sizeFacet := bleve.NewFacetRequest("Size", 4)
 	var s2, s3, s4 float64
@@ -470,24 +460,10 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	for _, f := range searchResult.Facets {
 		for _, t := range f.Terms {
 			if t.Term != "" {
-				if f.Field == "TextContent" {
-					facets <- &tree.SearchFacet{
-						FieldName: f.Field,
-						Label:     "found.contents",
-						Count:     int32(t.Count),
-					}
-				} else if f.Field == "Basename" {
-					facets <- &tree.SearchFacet{
-						FieldName: f.Field,
-						Label:     "found.basename",
-						Count:     int32(t.Count),
-					}
-				} else {
-					facets <- &tree.SearchFacet{
-						FieldName: f.Field,
-						Label:     t.Term,
-						Count:     int32(t.Count),
-					}
+				facets <- &tree.SearchFacet{
+					FieldName: f.Field,
+					Label:     t.Term,
+					Count:     int32(t.Count),
 				}
 			}
 		}
@@ -529,6 +505,10 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		}
 	}
 
+	// Manual facet gathering for fname / content
+	basenameFacet := &tree.SearchFacet{FieldName: "Basename", Label: "found.basename", Count: 0}
+	contentFacet := &tree.SearchFacet{FieldName: "TextContent", Label: "found.contents", Count: 0}
+
 	for _, hit := range searchResult.Hits {
 		node := &tree.Node{}
 		if u, ok := hit.Fields["Uuid"]; ok {
@@ -559,12 +539,22 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		for k, _ := range hit.Locations {
 			if k == "TextContent" {
 				node.SetMeta("document_content_hit", true)
+				contentFacet.Count++
+			} else if k == "Basename" {
+				basenameFacet.Count++
 			}
 		}
 
 		log.Logger(c).Debug("SearchObjects", zap.Any("node", node))
 
 		resultChan <- node
+	}
+
+	if contentFacet.Count > 0 {
+		facets <- contentFacet
+	}
+	if basenameFacet.Count > 0 {
+		facets <- basenameFacet
 	}
 
 	doneChan <- true
