@@ -124,7 +124,7 @@ func InitDefaults(ctx context.Context) error {
 				return err2
 			}
 			// Create user role
-			service.Retry(func() error {
+			service.Retry(ctx, func() error {
 				roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 					Uuid:     newUser.Uuid,
@@ -157,7 +157,7 @@ func InitDefaults(ctx context.Context) error {
 			return err2
 		}
 		// Create user role
-		service.Retry(func() error {
+		service.Retry(ctx, func() error {
 			roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 				Uuid:     newAnon.Uuid,

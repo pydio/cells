@@ -52,7 +52,7 @@ func InsertPruningJob(ctx context.Context) error {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
-	return service.Retry(func() error {
+	return service.Retry(ctx, func() error {
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		timeout := registry.ShortRequestTimeout()

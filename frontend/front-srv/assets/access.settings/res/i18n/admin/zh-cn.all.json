@@ -171,7 +171,7 @@
     "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
-    "other": "Local Folder"
+    "other": "本地目录"
   },
   "ds.editor.selector.folder.hint": {
     "other": "Select a peer to load folders"
@@ -207,25 +207,25 @@
     "other": "Azure Secret Key"
   },
   "ds.editor.storage.azure.bucket": {
-    "other": "Bucket Name"
+    "other": "存储空间名"
   },
   "ds.editor.storage.gcs.credentials": {
     "other": "Paste content of GCS JSON credentials file"
   },
   "ds.editor.storage.gcs.bucket": {
-    "other": "Bucket Name"
+    "other": "存储空间名"
   },
   "ds.editor.storage.s3.api": {
     "other": "S3 Api Key"
   },
   "ds.editor.storage.s3.bucket": {
-    "other": "Bucket Name"
+    "other": "存储空间名"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "S3-Compatible Storage"
+    "other": "S3兼容存储"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Custom Endpoint URL"
@@ -234,7 +234,7 @@
     "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Api Region"
+    "other": "S3 Api 地域"
   },
   "ds.editor.storage.s3.path": {
     "other": "Internal Path"
@@ -249,10 +249,10 @@
     "other": "Reload buckets"
   },
   "ds.editor.storage.buckets.regexp": {
-    "other": "Use regular expression"
+    "other": "使用正则表达式"
   },
   "ds.editor.storage.buckets.regexp.hint": {
-    "other": "Regular expression"
+    "other": "正则表达式"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
     "other": "Setup storage to load buckets"
@@ -288,37 +288,37 @@
     "other": "No master key created"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "创建密钥"
   },
   "ds.encryption.key.created": {
     "other": "创建于"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "删除密钥"
   },
   "ds.encryption.key.delete.warning": {
     "other": "如果该密钥目前用于加密数据，这是一个破坏性的操作！你确定要这样做吗？"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "导出密钥"
   },
   "ds.encryption.key.export.confirm": {
-    "other": "Confirm password"
+    "other": "确认密码"
   },
   "ds.encryption.key.export.fail": {
-    "other": "Something went wrong during export"
+    "other": "导出过程中出了点问题"
   },
   "ds.encryption.key.export.password": {
-    "other": "Provide a strong password"
+    "other": "请提供一个安全性强的密码。"
   },
   "ds.encryption.key.export.result.copy": {
-    "other": "Copy result to a file to save the key"
+    "other": "将结果复制到文件以保存密钥"
   },
   "ds.encryption.key.id": {
     "other": "识别码"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "导入私钥"
   },
   "ds.encryption.key.import.content": {
     "other": "Paste key here from your backup file"
@@ -945,7 +945,7 @@
     "other": "User password"
   },
   "user.23": {
-    "other": "Confirm password"
+    "other": "确认密码"
   },
   "user.24": {
     "other": "根群组"

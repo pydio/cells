@@ -97,6 +97,7 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 		syncConfig.ApiSecret = sec
 	}
 	e := h.initSync(syncConfig)
+
 	return h, e
 }
 
@@ -141,7 +142,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	// Making sure index is started
 	go func() {
 		defer wg.Done()
-		service.Retry(func() error {
+		service.Retry(ctx, func() error {
 			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
 			c := protoservice.NewService(registry.GetClient(common.ServiceDataIndex_ + dataSource))
 			r, err := c.Status(context.Background(), &empty.Empty{})
@@ -160,7 +161,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	// Making sure Objects is started
 	go func() {
 		defer wg.Done()
-		service.Retry(func() error {
+		service.Retry(ctx, func() error {
 			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
@@ -201,6 +202,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	}()
 
 	wg.Wait()
+
 	if minioConfig == nil {
 		return fmt.Errorf("objects not reachable")
 	} else if !indexOK {

@@ -153,7 +153,7 @@
     "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "SQL连接"
   },
   "See existing users": {
     "other": "See existing users"
@@ -171,7 +171,7 @@
     "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "跳过界面偏好设置"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
     "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."

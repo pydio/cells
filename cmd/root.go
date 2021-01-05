@@ -26,13 +26,14 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/pflag"
 
-	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
@@ -47,6 +48,7 @@ import (
 	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
+	microregistry "github.com/pydio/cells/common/micro/registry"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
@@ -58,7 +60,6 @@ import (
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
 
 	// All registries
-	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
 
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
@@ -69,10 +70,9 @@ import (
 )
 
 var (
-	ctx             context.Context
-	cancel          context.CancelFunc
-	allServices     []registry.Service
-	runningServices []*microregistry.Service
+	ctx         context.Context
+	cancel      context.CancelFunc
+	allServices []registry.Service
 
 	profiling bool
 	profile   *os.File
@@ -81,7 +81,8 @@ var (
 	EnvPrefixOld = "pydio"
 	EnvPrefixNew = "cells"
 
-	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
+	installCommands = []string{"install"}
+	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 
 const startTagUnique = "unique"
@@ -161,24 +162,41 @@ You can customize the various storage locations with the following ENV variables
 	},
 }
 
-func init() {
-	skipCoreInit := false
-	if len(os.Args) > 1 {
-		for _, skip := range infoCommands {
-			if os.Args[1] == skip {
-				skipCoreInit = true
-				break
-			}
+func skipInstallInit() bool {
+	arg := os.Args[1]
+
+	for _, skip := range installCommands {
+		if arg == skip {
+			return false
 		}
-	} else if len(os.Args) == 1 {
-		skipCoreInit = true
 	}
-	if !skipCoreInit {
-		cobra.OnInitialize(
-			initLogLevel,
-			initConfig,
-		)
+
+	return true
+}
+
+func skipCoreInit() bool {
+	if len(os.Args) == 1 {
+		return true
 	}
+
+	arg := os.Args[1]
+
+	for _, skip := range infoCommands {
+		if arg == skip {
+			return true
+		}
+	}
+
+	return false
+}
+
+func init() {
+	cobra.OnInitialize(
+		initInstallConfig,
+		initLogLevel,
+		initConfig,
+	)
+
 	initEnvPrefixes()
 	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()
@@ -241,7 +259,11 @@ func Execute() {
 	}
 }
 
-func initConfig() {
+func initInstallConfig() {
+
+	if skipInstallInit() {
+		return
+	}
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
 
@@ -262,6 +284,38 @@ func initConfig() {
 			})
 		}
 	}
+}
+
+func initConfig() {
+
+	if skipCoreInit() {
+		return
+	}
+
+	if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+		var crtUser string
+		if u, er := user.Current(); er == nil {
+			crtUser = "(currently running as '" + u.Username + "')"
+		}
+		fmt.Println("****************************************************************************************")
+		fmt.Println("# ")
+		fmt.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for Cells !")
+		fmt.Println("# ")
+		fmt.Println("# A - If it is the first time you start " + os.Args[0] + ", make sure to first run the install step:")
+		fmt.Println("#     $> " + os.Args[0] + " install")
+		fmt.Println("# ")
+		fmt.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
+		fmt.Println("#     Working Directory is " + config.ApplicationWorkingDir())
+		fmt.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
+		fmt.Println("#     launching the process as the correct OS user " + crtUser + ".")
+		fmt.Println("# ")
+		fmt.Println("****************************************************************************************")
+		fmt.Println("")
+		fmt.Println("Exiting now...")
+		os.Exit(1)
+	}
+
+	versionsStore := filex.NewStore(config.PydioConfigDir)
 
 	var vaultConfig config.Store
 	var defaultConfig config.Store
@@ -320,6 +374,10 @@ func initConfig() {
 
 func initLogLevel() {
 
+	if skipCoreInit() {
+		return
+	}
+
 	// Init log level
 	logLevel := viper.GetString("logs_level")
 
@@ -370,7 +428,7 @@ func handleRegistry() {
 
 	switch viper.Get("registry") {
 	case "nats":
-		natsregistry.Enable()
+		microregistry.EnableNats()
 	default:
 		log.Fatal("registry not supported - currently only nats is supported")
 	}

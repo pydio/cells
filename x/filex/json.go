@@ -25,10 +25,19 @@ func Save(filename string, data interface{}) error {
 	return nil
 }
 
+// Exists check if a file is present or not
+func Exists(filename string) bool {
+	if _, err := os.Stat(filename); err != nil {
+		return false
+	}
+
+	return true
+}
+
 // WriteIfNotExists writes data directly inside file
 func WriteIfNotExists(filename string, data string) (bool, error) {
 
-	if _, err := os.Stat(filename); err == nil {
+	if Exists(filename) {
 		return false, nil
 	}
 

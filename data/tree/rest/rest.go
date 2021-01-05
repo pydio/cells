@@ -193,7 +193,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		pref := mtree.CommonPrefix('/', folderPaths...)
 		if _, ok := folderChecks[pref]; ok {
 			// Check root folder
-			service.Retry(func() error {
+			service.Retry(ctx, func() error {
 				_, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: pref}})
 				if e != nil {
 					return e
@@ -202,7 +202,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				return nil
 			})
 		}
-		e := service.Retry(func() error {
+		e := service.Retry(ctx, func() error {
 			s, e := router.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: pref}, Recursive: true})
 			if e != nil {
 				return e

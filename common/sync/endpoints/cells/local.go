@@ -30,7 +30,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
-	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
+	microregistry "github.com/pydio/cells/common/micro/registry"
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
@@ -57,7 +57,7 @@ type Local struct {
 func NewLocal(root string, options Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			natsregistry.Enable()
+			microregistry.EnableNats()
 			natsbroker.Enable()
 			grpctransport.Enable()
 			registry.Init()
@@ -88,7 +88,7 @@ func NewLocal(root string, options Options) *Local {
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "router:///" + l.root,
+		URI:                   "router:///" + l.root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,

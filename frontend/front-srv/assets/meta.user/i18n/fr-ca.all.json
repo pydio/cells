@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Meta Data"
+  },
+  "10": {
+    "other": "Existing or new tag"
+  },
+  "11": {
+    "other": "No metadata set, click to add any"
+  },
+  "12": {
+    "other": "Multiple Selection:"
+  },
+  "13": {
+    "other": "check the fields that you want to update, value will be applied to all selected files"
+  },
+  "14": {
+    "other": "Edit meta"
+  },
+  "15": {
+    "other": "Save meta"
+  },
+  "2": {
+    "other": "No Label"
+  },
+  "3": {
+    "other": "Remove Rating"
+  },
+  "4": {
+    "other": "Low"
+  },
+  "5": {
+    "other": "Todo"
+  },
+  "6": {
+    "other": "Personal"
+  },
+  "7": {
+    "other": "Work"
+  },
+  "8": {
+    "other": "Important"
+  },
+  "9": {
+    "other": "No Value"
+  }
+}

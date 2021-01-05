@@ -219,7 +219,7 @@
     "other": "开始界面"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "客户端会话的长度（以秒为单位）。 默认情况下，将使用服务器会话长度。 在大多数PHP安装版本中，会话长度设置为1440秒（24分钟）。 您可以将此值设置为0。这将通过定期ping服务器来使客户端会话“活跃”。 这样可以使PHP会话保持活动状态。 出于明显的安全原因，不建议这样设置。"
   },
   "Theme": {
     "other": "主题"
@@ -246,7 +246,7 @@
     "other": "用于启动标志的自定义图像的 URI"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "启用事件日志，仅在Pydio下载操作中实验性开启。"
   },
   "Use configured branding": {
     "other": "使用已配置的品牌标记"

@@ -42,6 +42,7 @@ var (
 	showDescription   bool
 	filterListTags    []string
 	filterListExclude []string
+	runningServices   []string
 
 	tmpl = `
 	{{- block "keys" .}}
@@ -104,18 +105,14 @@ $ ` + os.Args[0] + ` ps -t=broker
 
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()
-		for _, r := range services {
+		for _, srv := range services {
 			// Initially, we retrieve each service to ensure we have the correct list
-			ss, _ := defaults.Registry().GetService(r.Name)
-			for _, s := range ss {
-				for _, n := range s.Nodes {
-					_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
-					if err != nil {
-						continue
-					}
-
-					runningServices = append(runningServices, s)
+			for _, n := range srv.Nodes {
+				_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
+				if err != nil {
+					continue
 				}
+				runningServices = append(runningServices, srv.Name)
 			}
 		}
 
@@ -171,9 +168,9 @@ $ ` + os.Args[0] + ` ps -t=broker
 			if len(args) == 0 || found {
 				// Adding all running services that match the service regexp
 				for _, r := range runningServices {
-					if reg.MatchString(r.Name) {
+					if reg.MatchString(r) {
 						service.NewService(
-							service.Name(r.Name),
+							service.Name(r),
 							service.Tag(s.Tags()...),
 							service.WithMicro(func(m micro.Service) error { return nil }),
 						)
@@ -243,7 +240,7 @@ func (s *runningService) Name() string {
 
 func (s *runningService) IsRunning() bool {
 	for _, r := range runningServices {
-		if r.Name == s.name {
+		if r == s.name {
 			return true
 		}
 	}

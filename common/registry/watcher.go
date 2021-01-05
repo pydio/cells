@@ -66,6 +66,7 @@ func watch() {
 				if err != nil {
 					continue
 				}
+
 				// retrieve the list of services that have started
 				wg.Add(1)
 				go func() {

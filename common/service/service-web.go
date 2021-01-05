@@ -107,10 +107,10 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Version(o.Version),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(time.Second*30),
-				micro.RegisterInterval(time.Second*10),
-				// micro.RegisterTTL(10*time.Minute),
-				// micro.RegisterInterval(5*time.Minute),
+				// micro.RegisterTTL(time.Second*30),
+				// micro.RegisterInterval(time.Second*10),
+				micro.RegisterTTL(10*time.Minute),
+				micro.RegisterInterval(5*time.Minute),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")

@@ -11,12 +11,12 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/acl"
 )
@@ -59,7 +59,7 @@ func UpgradeTo120(ctx context.Context) error {
 		if strings.HasPrefix(wsPath, "uuid:") {
 			// Load meta from node Uuid and check if it has a CellNode flag
 			nodeUuid := strings.TrimPrefix(wsPath, "uuid:")
-			service2.Retry(func() error {
+			service2.Retry(ctx, func() error {
 				log.Logger(ctx).Info("Loading metadata for node to check if it's a CellNode root")
 				if r, e := metaClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}}); e == nil {
 					var cellNode bool
@@ -88,7 +88,7 @@ func UpgradeTo120(ctx context.Context) error {
 
 	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	// Special case for personal files: browse existing folders, assume they are users personal workspaces and add recycle root
-	service2.Retry(func() error {
+	service2.Retry(ctx, func() error {
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})
 		if e != nil {
 			return e

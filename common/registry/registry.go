@@ -53,6 +53,8 @@ type Registry interface {
 	GetServiceByName(string) Service
 	GetServicesByName(string) []Service
 	GetPeers() map[string]*Peer
+	GetCurrentProcess() *Process
+	GetCurrentChildrenProcesses() []*Process
 	GetProcesses() map[string]*Process
 	ListServices(withExcluded ...bool) ([]Service, error)
 	ListServicesWithFilter(func(Service) bool) ([]Service, error)

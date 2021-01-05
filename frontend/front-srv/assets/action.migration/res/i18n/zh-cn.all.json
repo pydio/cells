@@ -3,61 +3,61 @@
     "other": "数据导入"
   },
   "legend": {
-    "other": "Import tool from Pydio 8"
+    "other": "Pydio 8 导入工具"
   },
   "next": {
     "other": "下一步"
   },
   "back": {
-    "other": "后退"
+    "other": "返回"
   },
   "step.categories.choose": {
-    "other": "Choose features to import"
+    "other": "选择要导入的功能"
   },
   "step.categories.choose.legend": {
-    "other": "Use checkboxes below to select the data you want to import. If required, the wizard will lead you through specific configuration for each feature and you will validate your choices before launching proper importation job. To have best control over the import process, you may select only one step and run the import tools many times."
+    "other": "使用下面的复选框选择要导入的数据。 如果需要，向导将引导您完成每个功能的特定配置，并在启动正确的导入作业之前验证您的选择。 为了最好地控制导入过程，您可以仅选择一个步骤并多次运行导入工具。"
   },
   "step.categories.summary": {
     "other": "Validation"
   },
   "step.categories.summary.legend": {
-    "other": "Here is a summary of the configuration. Please review it before launching importation in background."
+    "other": "这是配置摘要。 在后台启动导入之前，请对其进行检查。"
   },
   "step.categories.summary.empty": {
-    "other": "No specific configuration"
+    "other": "没有特定的配置"
   },
   "step.categories.summary.launch": {
-    "other": "Launch Import Now"
+    "other": "立即启动导入"
   },
   "step.connection": {
-    "other": "Pydio 8 Connection"
+    "other": "Pydio 8 连接"
   },
   "step.connection.legend": {
-    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
+    "other": "使用下面的表单，使用您创建的专用用户连接到Pydio 8服务器。"
   },
   "step.connection.fail": {
-    "other": "Cannot connect to %s"
+    "other": "无法连接到%s"
   },
   "step.connection.missing": {
-    "other": "Please fill all required fields"
+    "other": "请填写所有必填字段"
   },
   "step.connection.success": {
-    "other": "Successful connection to the API"
+    "other": "API连接成功"
   },
   "step.connection.field.url": {
-    "other": "Server URL"
+    "other": "服务器 URL"
   },
   "step.connection.field.skipssl": {
-    "other": "Skip SSL verification (self-signed)"
+    "other": "跳过SSL验证（自签名）"
   },
   "step.connection.field.login": {
-    "other": "Administrator login"
+    "other": "管理员登录"
   },
   "step.connection.field.pwd": {
-    "other": "Admin password"
+    "other": "管理员密码"
   },
   "step.connection.button.connect": {
-    "other": "Connect"
+    "other": "连接"
   },
   "step.meta.title": {
     "other": "导入元数据"
@@ -69,7 +69,7 @@
     "other": "Watches set by user on files and folders"
   },
   "step.meta.feature.bookmark": {
-    "other": "User bookmarks"
+    "other": "用户书签"
   },
   "step.meta.feature.files": {
     "other": "文件和文件夹元数据：使用下面的映射来创建资料库元数据命名空间"
@@ -87,46 +87,46 @@
     "other": " (Values %s)"
   },
   "step.disclaimer.title": {
-    "other": "Disclaimer"
+    "other": "免责声明"
   },
   "step.disclaimer": {
-    "other": "Given the number of features provided by Pydio 8, each installation is unique and the tool cannot handle all possible combinations. It is best suited for importing data from a typical Pydio 8 installation including users, workspaces (fs and s3 only), access rights and shares."
+    "other": "鉴于Pydio 8提供的功能数量，每次安装都是唯一的，并且该工具无法处理所有可能的组合。 它最适合从典型的Pydio 8安装中导入数据，包括用户，工作区（仅fs和s3），访问权限和共享。"
   },
   "step.disclaimer.ed": {
     "other": "We strongly recommend you to contact our support (via your pydio.com account) and schedule an appointment to be walked through the migration by a Pydio Expert"
   },
   "step.disclaimer.home": {
-    "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
+    "other": "我们不想让您孤立无援，Pydio团队提供一次性付款服务，以帮助您在开源版本上执行此迁移。 如果您希望获得Pydio专家的帮助，请联系我们的销售服务。"
   },
   "step.disclaimer.support": {
-    "other": "Contact Support"
+    "other": "联系支持"
   },
   "step.disclaimer.quote": {
-    "other": "Ask for a quote"
+    "other": "询问报价"
   },
   "step.disclaimer.start": {
-    "other": "Start Migration"
+    "other": "开始迁移"
   },
   "step.prereq.title": {
-    "other": "Pre-requisites"
+    "other": "先决条件"
   },
   "step.prereq.welcome": {
     "other": "启动 Pydio 8 导入工具。 本向导将引导您通过若干步骤从已有的 Pydio 8 服务器获取数据填充到 Pydio Cells中。"
   },
   "step.prereq.step1": {
-    "other": "1. Prepare Pydio 8"
+    "other": "1. 准备Pydio 8"
   },
   "step.prereq.step2": {
     "other": "2. 准备资料库和数据"
   },
   "step.prereq.step3": {
-    "other": "3. Prepare DataSources"
+    "other": "3. 准备数据源"
   },
   "step.prereq.check": {
-    "other": "Please carefully read the pre-requisites described below and perform the necessary steps before starting the migration."
+    "other": "在开始迁移之前，请仔细阅读下文所述的先决条件并执行必要的步骤。"
   },
   "step.prereq.check.copy": {
-    "other": "Copy all Pydio 8 data (files and folders accessed by users) in a different location on the server. For testing purpose, you can eventually recreate the full arborescence with fake files (e.g 1byte files)."
+    "other": "将所有Pydio 8数据（用户访问的文件和文件夹）复制到服务器上的其他位置。 为了进行测试，您最终可以使用假文件（例如1字节文件）重新创建完整的树状结构。"
   },
   "step.prereq.check.install": {
     "other": "在 Pydio 8 服务器上安装专用迁移插件。 解压并将文件夹放入你的 Pydio 8 服务器的插件文件夹中并清除插件缓存。从这里下载它 "
@@ -159,7 +159,7 @@
     "other": "共享文件夹"
   },
   "step.shares.title": {
-    "other": "Import Shares"
+    "other": "导入共享"
   },
   "step.shares.alert": {
     "other": "Please pick at least one share type!"
@@ -177,10 +177,10 @@
     "other": "Owner login"
   },
   "step.ws.title": {
-    "other": "Import Workspaces"
+    "other": "导入工作空间"
   },
   "step.ws.loading": {
-    "other": "(loading...)"
+    "other": "(加载中...)"
   },
   "step.ws.legend": {
     "other": "从Pydio 8导入工作区是一个多步骤过程："
@@ -192,10 +192,10 @@
     "other": "2. 创建指向服务器上新存储位置的Cells数据源。"
   },
   "step.ws.step3": {
-    "other": "3. Wait for all datasources to be properly indexed."
+    "other": "3. 等待所有数据源正确索引。"
   },
   "step.ws.step4": {
-    "other": "4. Map old workspaces to new workspaces by using the tool below"
+    "other": "4. 使用下面的工具将旧的工作区映射到新的工作区"
   },
   "step.mapper.already": {
     "other": "Workspaces already mapped (same UUID)"
@@ -207,7 +207,7 @@
     "other": "Loading workspaces from server..."
   },
   "step.mapper.loading.error": {
-    "other": "Error while loading workspaces from server: %s. Make sure to have CORS enabled on your Pydio8 installation."
+    "other": "从服务器%s加载工作空间时出错。 确保Pydio8已安装且启用了CORS。"
   },
   "step.mapper.p8.title": {
     "other": "Pydio 8 Workspaces"

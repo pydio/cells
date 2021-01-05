@@ -114,7 +114,7 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 // Init subscriber with current list of jobs from Jobs service
 func (s *Subscriber) Init() error {
 
-	go service.Retry(func() error {
+	go service.Retry(context.Background(), func() error {
 		// Load Jobs Definitions
 		jobClients := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, s.Client)
 		streamer, e := jobClients.ListJobs(s.RootContext, &jobs.ListJobsRequest{})

@@ -1,6 +1,6 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "每页显示"
   },
   "16X16 Icon for representing the template": {
     "other": "16X16 Icon for representing the template"
@@ -9,22 +9,22 @@
     "other": "A user-defined description of the content of this workspace"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
+    "other": "API端点-用于启动窗口，允许用户验证和接受应用程序的条款"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
+    "other": "API端点-用于刷新或验证在身份验证部分中检索到的令牌"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API setting - Redirect URL for the OAuth Application"
+    "other": "API设置-OAuth应用程序的重定向URL"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "公用文件夹的绝对路径，将在该公用文件夹中创建临时下载链接。 这用于遗留用途，新创建的链接不再使用它，而是使用基本URI。"
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "管理员登录"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "管理员邮箱"
   },
   "Administrator email, not used for the moment": {
     "other": "Administrator email, not used for the moment"
@@ -36,7 +36,7 @@
     "other": "Alias for replacing the generated unique id of the workspace"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Allow group administrators to create a repository from this template."
+    "other": "允许组管理员从此模板创建存储库。"
   },
   "Allow non-admin users to create a repository from this template.": {
     "other": "Allow non-admin users to create a workspace from this template."
@@ -51,7 +51,7 @@
     "other": "Allow to user"
   },
   "App Title": {
-    "other": "Application Title"
+    "other": "应用程序标题"
   },
   "Ascending": {
     "other": "Ascending"
@@ -60,31 +60,31 @@
     "other": "Auth Driver Commons"
   },
   "Auth URL": {
-    "other": "Auth URL"
+    "other": "身份验证URL"
   },
   "Auto Create User": {
-    "other": "Auto Create User"
+    "other": "自动创建用户"
   },
   "Auto apply role": {
     "other": "Auto apply role"
   },
   "Big Icon": {
-    "other": "Big Icon"
+    "other": "大图标"
   },
   "Big Icon for representing the template": {
     "other": "Big Icon for representing the template"
   },
   "Browser Access": {
-    "other": "Browser Access"
+    "other": "浏览器访问"
   },
   "Character Encoding": {
-    "other": "Character Encoding"
+    "other": "字符编码"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "客户端 ID"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "客户端密钥"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
     "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
@@ -93,10 +93,10 @@
     "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Comma-separated list of specific files to hide"
+    "other": "以逗号分隔的要隐藏的特定文件列表"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "以逗号分隔的要隐藏的特定文件夹列表"
   },
   "Command Line": {
     "other": "Command Line"
@@ -120,31 +120,31 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "数据源"
   },
   "Database": {
-    "other": "Database"
+    "other": "数据库"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "数据库文件"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "数据库名称"
   },
   "Database server": {
-    "other": "Database server"
+    "other": "数据库服务器"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "默认标签"
   },
   "Default Language": {
     "other": "默认语言"
   },
   "Default Metasources": {
-    "other": "Default Metasources"
+    "other": "默认元数据"
   },
   "Default Rights": {
-    "other": "Default Rights"
+    "other": "默认权限"
   },
   "Default field to sort on": {
     "other": "Default field to sort on"
@@ -171,10 +171,10 @@
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "禁用WebDAV"
   },
   "Disable Zip browsing": {
-    "other": "Disable Zip browsing"
+    "other": "禁用 Zip 浏览"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
     "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
@@ -198,7 +198,7 @@
     "other": "Driver type (do not touch)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "启用WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
