@@ -113,18 +113,21 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		ticker := time.Tick(5 * time.Minute)
 
 		for {
+			services, err := defaults.Registry().ListServices()
+			if err != nil {
+				return
+			}
+			for _, srv := range services {
+				results <- &registry.Result{
+					Action:  "create",
+					Service: srv,
+				}
+			}
+
 			select {
 			case <-ticker:
-				services, err := defaults.Registry().ListServices()
-				if err != nil {
-					return
-				}
-				for _, srv := range services {
-					results <- &registry.Result{
-						Action:  "create",
-						Service: srv,
-					}
-				}
+				continue
+
 			}
 		}
 	}()
@@ -136,7 +139,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 
 			switch a {
 			case "create":
-
 				for _, n := range s.Nodes {
 					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
 						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
