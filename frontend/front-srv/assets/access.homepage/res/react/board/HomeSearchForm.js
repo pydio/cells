@@ -20,7 +20,7 @@
 
 import {Component} from 'react'
 import Pydio from 'pydio'
-import {Paper, FontIcon, TextField, CircularProgress} from 'material-ui'
+import {Paper, FontIcon, IconButton, AutoComplete, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 import SearchApi from 'pydio/http/search-api'
@@ -32,6 +32,8 @@ import Facets from "./Facets";
 const {SimpleList} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
+
+const HistoryKey = "cells.search-engine.history"
 
 class HomeSearchForm extends Component{
 
@@ -51,7 +53,8 @@ class HomeSearchForm extends Component{
             empty: true,
             loading: false,
             facets:[],
-            facetFilter:{}
+            facetFilter:{},
+            history: this.loadHistory()
         };
 
         this.submitD = _.debounce(this.submit, 500)
@@ -129,6 +132,7 @@ class HomeSearchForm extends Component{
         api.search({basenameOrContent: queryString, ...facetFilter}, 'all', this.props.limit || 10).then(response => {
             rootNode.setChildren(response.Results);
             rootNode.setLoaded(true);
+            this.pushHistory(queryString);
             this.setState({
                 loading: false,
                 facets: response.Facets||[]
@@ -139,8 +143,39 @@ class HomeSearchForm extends Component{
 
     }
 
+    loadHistory(){
+        const i = localStorage.getItem(HistoryKey)
+        if(!i) {
+            return []
+        }
+        try {
+            const data = JSON.parse(i)
+            if(data.map){
+                return data;
+            }
+            return [];
+        }catch (e){
+            return []
+        }
+    }
+
+    pushHistory(term){
+        if(!term){
+            return
+        }
+        const {history = []} = this.state;
+        const newHistory = history.filter(f => f !== term).slice(0, 19); // store only 20 terms
+        newHistory.unshift(term);
+        this.setState({history: newHistory}, () => {
+            localStorage.setItem(HistoryKey, JSON.stringify(newHistory));
+        })
+    }
+
     toggleEmpty(e){
         this.setState({empty: e});
+        if(e){
+            this.input.blur();
+        }
         const {onSearchStateChange} = this.props;
         if(onSearchStateChange){
             onSearchStateChange(e);
@@ -149,12 +184,10 @@ class HomeSearchForm extends Component{
 
     render(){
 
-        const {loading, dataModel, empty, queryString, searchFocus, facets, selectedFacets=[]} = this.state;
+        const {loading, dataModel, empty, queryString, searchFocus, facets, selectedFacets=[], history} = this.state;
         const {style, zDepth, pydio, fullScreen} = this.props;
         const hintText = pydio.MessageHash[607];
-        //const accent2Color = muiTheme.palette.primary1Color;
         const whiteTransp = 'rgba(0,0,0,.53)';
-        const white = 'rgb(255,255,255)';
 
         const styles = {
             textFieldContainer: {
@@ -172,7 +205,7 @@ class HomeSearchForm extends Component{
             textInput: {color: 'inherit'},
             textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
-            close: {color: whiteTransp, fontSize: 20, padding:'14px 8px', cursor: 'pointer'}
+            close: {position:'absolute', right:0}
         };
 
 
@@ -203,29 +236,40 @@ class HomeSearchForm extends Component{
 
         return (
             <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
-                <Paper zDepth={searchFocus || queryString ? 1 : 0} style={styles.textFieldContainer} className="home-search-form">
+                <Paper zDepth={searchFocus || queryString ? 1 : 0} style={styles.textFieldContainer} ref={"container"} className="home-search-form">
                     <FontIcon className="mdi mdi-magnify" style={styles.magnifier}/>
-                    <TextField
-                        ref={(input) => this.input = input}
+                    <AutoComplete
+                        ref={(r) => {this.input = r}}
+                        dataSource={history.map(k=>{return{text:k,value:k}})}
+                        filter={(searchText, key) => (searchText === '' || key.indexOf(searchText) === 0) && searchText !== key }
+                        openOnFocus={!queryString}
+                        open={searchFocus}
+                        menuProps={{desktop:true}}
                         style={styles.textField}
                         inputStyle={styles.textInput}
                         hintStyle={styles.textHint}
                         fullWidth={true}
                         underlineShow={false}
                         hintText={hintText}
-                        value={queryString}
-                        onChange={(e,v) => this.update(v)}
+                        searchText={queryString}
+                        menuStyle={{maxHeight: 300}}
+                        onUpdateInput={(v) => this.update(v)}
                         onKeyPress={(e) => (e.key === 'Enter' ? this.update(e.target.value) : null)}
                         onFocus={()=>{this.setState({searchFocus: true})}}
                         onBlur={()=>{this.setState({searchFocus: false})}}
                     />
-                    {loading &&
-                        <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>
-                    }
-                    {queryString && !loading &&
-                        <FontIcon className="mdi mdi-close" style={styles.close} onTouchTap={()=>this.update('')}/>
-                    }
+                    {!loading && <div style={{width: 36}}/>}
+                    {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
                 </Paper>
+                {fullScreen &&
+                    <IconButton
+                        iconClassName="mdi mdi-close"
+                        style={styles.close}
+                        onTouchTap={()=>this.update('')}
+                        tooltipPosition={"bottom-left"}
+                        tooltip={pydio.MessageHash['86']}
+                    />
+                }
                 {!empty && facets && <Facets facets={facets} selected={selectedFacets} pydio={pydio} onSelectFacet={this.filterByFacet.bind(this)}/>}
                 {!empty &&
                     <PydioComponents.NodeListCustomProvider

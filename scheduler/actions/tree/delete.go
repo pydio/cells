@@ -49,6 +49,7 @@ var (
 type DeleteAction struct {
 	Client            views.Handler
 	childrenOnlyParam string
+	ignoreNonExisting string
 }
 
 func (c *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -77,6 +78,15 @@ func (c *DeleteAction) GetParametersForm() *forms.Form {
 					Mandatory:   false,
 					Editable:    true,
 				},
+				&forms.FormField{
+					Name:        "ignoreNonExisting",
+					Type:        forms.ParamBool,
+					Label:       "Ignore error if not found",
+					Description: "Silently skip deletion if target file is not found",
+					Default:     false,
+					Mandatory:   false,
+					Editable:    true,
+				},
 			},
 		},
 	}}
@@ -95,6 +105,9 @@ func (c *DeleteAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 		c.childrenOnlyParam = co
 	} else {
 		c.childrenOnlyParam = "false"
+	}
+	if i, o := action.Parameters["ignoreNonExisting"]; o {
+		c.ignoreNonExisting = i
 	}
 
 	return nil
@@ -119,6 +132,10 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
 		log.Logger(ctx).Error("Read Source", zap.Error(readE))
+		if ignore, _ := jobs.EvaluateFieldBool(ctx, input, c.ignoreNonExisting); ignore {
+			log.TasksLogger(ctx).Info("No file found, ignoring")
+			return input.WithIgnore(), nil
+		}
 		return input.WithError(readE), readE
 	}
 	sourceNode = readR.Node

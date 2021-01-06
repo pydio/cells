@@ -146,6 +146,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
+		meta.ResolvedNode = resp.Node.Clone()
 		if meta.Namespace == permissions.AclContentLock.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {

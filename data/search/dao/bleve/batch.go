@@ -1,6 +1,7 @@
 package bleve
 
 import (
+	"compress/gzip"
 	"context"
 	"io/ioutil"
 	"path/filepath"
@@ -132,7 +133,15 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
 		delete(indexNode.Meta, "ContentRef")
 		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &views.GetRequestData{Length: -1}); e == nil {
-			if contents, e := ioutil.ReadAll(reader); e == nil {
+			if strings.HasSuffix(ref, ".gz") {
+				// Content is gzip-compressed
+				if gR, e := gzip.NewReader(reader); e == nil {
+					if contents, e := ioutil.ReadAll(gR); e == nil {
+						indexNode.TextContent = string(contents)
+					}
+					gR.Close()
+				}
+			} else if contents, e := ioutil.ReadAll(reader); e == nil {
 				indexNode.TextContent = string(contents)
 			}
 			reader.Close()
