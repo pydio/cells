@@ -33,6 +33,8 @@ import (
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 // PolicyResolver implements the check of an object against a set of ACL policies
@@ -40,6 +42,11 @@ type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest) 
 
 // VirtualPathResolver must be able to load virtual nodes based on their UUID
 type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
+
+const (
+	FrontWsScopeAll    = "PYDIO_REPO_SCOPE_ALL"
+	FrontWsScopeShared = "PYDIO_REPO_SCOPE_SHARED"
+)
 
 var (
 	AclRead        = &idm.ACLAction{Name: "read", Value: "1"}
@@ -265,6 +272,38 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPath
 		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
 	}
 	return nil
+}
+
+// FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
+func (a *AccessList) FlattenedFrontValues() configx.Values {
+	output := configx.New()
+	for _, role := range a.OrderedRoles {
+		for _, acl := range a.FrontPluginsValues {
+			if acl.RoleID != role.Uuid {
+				continue
+			}
+			name := acl.Action.Name
+			value := acl.Action.Value
+			scope := acl.WorkspaceID
+			var iVal interface{}
+			if e := json.Unmarshal([]byte(value), &iVal); e != nil {
+				// May not be marshalled, use original string instead
+				iVal = value
+			}
+			parts := strings.Split(name, ":")
+			t := parts[0]
+			p := parts[1]
+			n := parts[2]
+
+			if t == "action" {
+				output.Val("actions", p, n, scope).Set(iVal)
+			} else {
+				output.Val("parameters", p, n, scope).Set(iVal)
+			}
+		}
+	}
+
+	return output
 }
 
 // Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key

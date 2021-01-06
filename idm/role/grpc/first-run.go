@@ -77,6 +77,8 @@ func InitRoles(ctx context.Context) error {
 
 	lang := config.Get("defaults", "language").Default("en-us").String()
 	langJ, _ := json.Marshal(lang)
+	scopeAll := permissions.FrontWsScopeAll
+	scopeShared := permissions.FrontWsScopeShared
 
 	insertRoles := []*insertRole{
 		{
@@ -89,7 +91,7 @@ func InitRoles(ctx context.Context) error {
 			Acls: []*idm.ACL{
 				{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
 				{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
-				{RoleID: "ROOT_GROUP", Action: &idm.ACLAction{Name: "parameter:core.conf:lang", Value: string(langJ)}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "ROOT_GROUP", Action: &idm.ACLAction{Name: "parameter:core.conf:lang", Value: string(langJ)}, WorkspaceID: scopeAll},
 			},
 		},
 		{
@@ -113,11 +115,11 @@ func InitRoles(ctx context.Context) error {
 			},
 			Acls: []*idm.ACL{
 				{RoleID: "EXTERNAL_USERS", Action: permissions.AclDeny, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_CELLS", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: scopeAll},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: scopeAll},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: scopeAll},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: scopeAll},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_CELLS", Value: "false"}, WorkspaceID: scopeAll},
 			},
 		},
 		{
@@ -127,8 +129,8 @@ func InitRoles(ctx context.Context) error {
 				Policies: rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: scopeShared},
 			},
 		},
 		{
@@ -138,8 +140,8 @@ func InitRoles(ctx context.Context) error {
 				Policies: rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: scopeShared},
 			},
 		},
 	}
@@ -180,6 +182,7 @@ func InitRoles(ctx context.Context) error {
 func UpgradeTo12(ctx context.Context) error {
 
 	<-time.After(3 * time.Second)
+	scopeShared := permissions.FrontWsScopeShared
 
 	insertRoles := []*insertRole{
 		{
@@ -189,8 +192,8 @@ func UpgradeTo12(ctx context.Context) error {
 				Policies: rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: scopeShared},
 			},
 		},
 		{
@@ -200,8 +203,8 @@ func UpgradeTo12(ctx context.Context) error {
 				Policies: rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: scopeShared},
 			},
 		},
 	}

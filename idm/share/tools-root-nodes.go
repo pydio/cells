@@ -185,31 +185,39 @@ func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
 
 // CheckLinkRootNodes loads the root nodes and check if one of the is readonly. If so, check that
 // link permissions do not try to set the Upload mode.
-func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) error {
+func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) (workspaces []*tree.WorkspaceRelativePath, files, folders bool, e error) {
 
 	router := views.NewUuidRouter(views.RouterOptions{})
 	var hasReadonly bool
 	for i, r := range link.RootNodes {
-		resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: r})
-		if e != nil {
-			return e
+		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: r})
+		if er != nil {
+			e = er
+			return
 		}
 		if resp.Node == nil {
-			return errors.NotFound(common.ServiceShare, "cannot find root node")
+			e = errors.NotFound(common.ServiceShare, "cannot find root node")
+			return
 		}
 		link.RootNodes[i] = resp.Node
 		if resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
+		workspaces = append(workspaces, resp.Node.AppearsIn...)
+		if resp.Node.IsLeaf() {
+			files = true
+		} else {
+			folders = true
+		}
 	}
 	if hasReadonly {
 		for _, p := range link.Permissions {
 			if p == rest.ShareLinkAccessType_Upload {
-				return errors.Forbidden(common.ServiceShare, "This resource is not writeable, you are not allowed to set this permission.")
+				e = errors.Forbidden(common.ServiceShare, "This resource is not writeable, you are not allowed to set this permission.")
+				return
 			}
 		}
 	}
-
-	return nil
+	return
 
 }

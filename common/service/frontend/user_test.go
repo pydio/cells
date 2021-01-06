@@ -24,7 +24,7 @@ func TestUser_FlattenedFrontValues(t *testing.T) {
 					ID:          "lang",
 					Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: "fr"},
 					RoleID:      "user_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a1",
@@ -42,37 +42,37 @@ func TestUser_FlattenedFrontValues(t *testing.T) {
 					ID:          "a3",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue3"},
 					RoleID:      "user_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a4",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue4"},
 					RoleID:      "group_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a5",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue5"},
 					RoleID:      "group_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a6",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue6"},
 					RoleID:      "other_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a7",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.name:BOOL_PARAMETER", Value: "true"},
 					RoleID:      "group_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 				{
 					ID:          "a8",
 					Action:      &idm.ACLAction{Name: "parameter:plugin.name:INTEGER_PARAMETER", Value: "12"},
 					RoleID:      "group_role",
-					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+					WorkspaceID: permissions.FrontWsScopeAll,
 				},
 			}}
 
@@ -87,7 +87,7 @@ func TestUser_FlattenedFrontValues(t *testing.T) {
 			},
 		}
 
-		output := u.FlattenedFrontValues()
+		output := u.AccessList.FlattenedFrontValues()
 		So(output, ShouldNotBeNil)
 		aa := output.Val("actions")
 		So(aa, ShouldNotBeNil)
