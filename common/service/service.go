@@ -598,6 +598,10 @@ func (s *service) Stop() {
 		}
 	}
 
+	if stopper, ok := s.Options().Micro.(Stopper); ok {
+		stopper.Stop()
+	}
+
 	// Cancelling context should stop the service altogether
 	if cancel != nil {
 		cancel()
