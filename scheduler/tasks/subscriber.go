@@ -318,22 +318,27 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
-		ctx = s.prepareTaskContext(ctx, jobData, false)
+		sameJobUuid := s.contextJobSameUuid(ctx, jobId)
+		tCtx := s.prepareTaskContext(ctx, jobData, false)
 
-		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			continue
 		}
-		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
+		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(tCtx, event, jobData.NodeEventFilter) {
 			continue
 		}
-		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(tCtx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
 			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
 				if event.Type == eType {
-					log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
-					task := NewTaskFromEvent(ctx, jobData, event)
+					if sameJobUuid {
+						log.Logger(tCtx).Debug("Preventing loop for job " + jobData.Label + " on event " + eName)
+						continue
+					}
+					log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
+					task := NewTaskFromEvent(tCtx, jobData, event)
 					go task.EnqueueRunnables(s.Client, s.MainQueue)
 				}
 			}
@@ -352,17 +357,22 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		if jobData.Inactive {
 			continue
 		}
-		ctx = s.prepareTaskContext(ctx, jobData, true)
-		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+		sameJob := s.contextJobSameUuid(ctx, jobId)
+		tCtx := s.prepareTaskContext(ctx, jobData, true)
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			continue
 		}
-		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(tCtx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
 			if jobs.MatchesIdmChangeEvent(eName, event) {
-				log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
-				task := NewTaskFromEvent(ctx, jobData, event)
+				if sameJob {
+					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
+					continue
+				}
+				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
+				task := NewTaskFromEvent(tCtx, jobData, event)
 				go task.EnqueueRunnables(s.Client, s.MainQueue)
 			}
 		}
@@ -396,6 +406,19 @@ func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.Actio
 func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
 	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
 	return pass
+}
+
+// contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same
+func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool {
+	if mm, o := context2.ContextMetadata(ctx); o {
+		if knownJob, ok := mm[strings.ToLower(servicecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
+			return true
+		}
+		if knownJob, ok := mm[servicecontext.ContextMetaJobUuid]; ok && knownJob == jobId {
+			return true
+		}
+	}
+	return false
 }
 
 func createMessageFromEvent(event interface{}) jobs.ActionMessage {
