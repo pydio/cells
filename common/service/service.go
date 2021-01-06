@@ -493,24 +493,28 @@ func (s *service) Start(ctx context.Context) {
 			return
 		}
 
-		go func() {
-			for {
+	looprun:
+		for {
+			select {
+			case <-ctx.Done():
+				// Checking context
+				return
+			default:
 				err := s.Options().Micro.Run()
 				if err == nil {
-					break
+					break looprun
 				}
 
 				if errorUtils.IsServiceStartNeedsRetry(err) {
 					log.Logger(ctx).Info("Service failed to start - restarting in 10s", zap.Error(err))
 					<-time.After(10 * time.Second)
-					continue
+					continue looprun
 				}
 
 				log.Logger(s.Options().Context).Error("Could not run ", zap.Error(err))
-				break
+				break looprun
 			}
-
-		}()
+		}
 	}
 
 	for _, f := range s.Options().AfterStart {
@@ -528,7 +532,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	// cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.Command(os.Args[0], buildForkStartParams(name)...)
+	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -562,6 +566,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	// }()
 
 	log.Logger(ctx).Debug("Starting SubProcess: " + name)
+
 	if err := cmd.Start(); err != nil {
 		log.Logger(ctx).Error("Could not start process", zap.Error(err))
 		// cancel()

@@ -194,6 +194,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 		}
 
 		// Start services that have not been deregistered via flags and filtering.
+	loopstart:
 		for _, service := range allServices {
 			if !IsFork && service.RequiresFork() {
 				if !service.AutoStart() {
@@ -203,13 +204,22 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			} else {
 				go service.Start(cmd.Context())
 			}
+
+			select {
+			case <-cmd.Context().Done():
+				break loopstart
+			default:
+				continue
+			}
 		}
 
+		// When the process is stopped the context is stopped
 		<-cmd.Context().Done()
 
 		// Checking that the processes are done
 		ticker := time.Tick(1 * time.Second)
-		timeout := time.After(5 * time.Second)
+		// In any case, we stop after 10 seconds even if a service is still registered somehow
+		timeout := time.After(10 * time.Second)
 
 	loop:
 		for {
