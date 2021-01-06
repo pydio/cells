@@ -299,6 +299,11 @@ func (this *UserMeta) Validate() error {
 			}
 		}
 	}
+	if this.ResolvedNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ResolvedNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ResolvedNode", err)
+		}
+	}
 	return nil
 }
 func (this *UserMetaNamespace) Validate() error {

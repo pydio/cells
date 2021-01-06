@@ -161,7 +161,7 @@ func InitRoles(ctx context.Context) error {
 		} else {
 			break
 		}
-		e = service2.Retry(func() error {
+		e = service2.Retry(ctx, func() error {
 			aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 			for _, acl := range insert.Acls {
 				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
@@ -223,7 +223,7 @@ func UpgradeTo12(ctx context.Context) error {
 		} else {
 			break
 		}
-		e = service2.Retry(func() error {
+		e = service2.Retry(ctx, func() error {
 			aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 			for _, acl := range insert.Acls {
 				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})

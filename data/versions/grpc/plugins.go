@@ -143,7 +143,7 @@ func InitDefaults(ctx context.Context) error {
 		VersionsDataSourceName:   "default",
 	})
 
-	return service.Retry(func() error {
+	return service.Retry(ctx, func() error {
 
 		dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{

@@ -389,6 +389,8 @@ message UserMeta {
     repeated service.ResourcePolicy Policies = 5;
     // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 6;
+    // Pass along resolved Node for advanced filtering
+    tree.Node ResolvedNode = 7;
 }
 // Globally declared Namespace with associated policies
 message UserMetaNamespace{

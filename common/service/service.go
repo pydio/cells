@@ -367,7 +367,7 @@ var mandatoryOptions = []ServiceOption{
 
 			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
 
-			err := Retry(func() error {
+			err := Retry(ctx, func() error {
 				runningServices, err := registry.ListRunningServices()
 				if err != nil {
 					return err
@@ -509,6 +509,7 @@ func (s *service) Start(ctx context.Context) {
 				log.Logger(s.Options().Context).Error("Could not run ", zap.Error(err))
 				break
 			}
+
 		}()
 	}
 
@@ -567,8 +568,9 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	}
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
-	err2 := cmd.Wait()
-	fmt.Println(err, err2)
+	if err := cmd.Wait(); err == nil {
+		return
+	}
 
 	r := 0
 	if len(retries) > 0 {
@@ -594,6 +596,10 @@ func (s *service) Stop() {
 		if err := f(s); err != nil {
 			log.Logger(ctx).Error("Could not prepare stop ", zap.Error(err))
 		}
+	}
+
+	if stopper, ok := s.Options().Micro.(Stopper); ok {
+		stopper.Stop()
 	}
 
 	// Cancelling context should stop the service altogether

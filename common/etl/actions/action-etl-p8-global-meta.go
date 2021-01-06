@@ -187,10 +187,11 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 					_, e := metaClient.UpdateUserMeta(userCtx, &idm.UpdateUserMetaRequest{
 						Operation: idm.UpdateUserMetaRequest_PUT,
 						MetaDatas: []*idm.UserMeta{{
-							NodeUuid:  r.Node.Uuid,
-							Namespace: "bookmark",
-							JsonValue: "\"true\"",
-							Policies:  builder.Policies(),
+							NodeUuid:     r.Node.Uuid,
+							ResolvedNode: r.Node,
+							Namespace:    "bookmark",
+							JsonValue:    "\"true\"",
+							Policies:     builder.Policies(),
 						}},
 					})
 					if e != nil {

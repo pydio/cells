@@ -211,7 +211,6 @@ func (v *VaultSource) getStorePassword(createIfNotExists bool) []byte {
 	if s, e := ioutil.ReadFile(v.vaultKeyPath); e == nil {
 		return s
 	} else if createIfNotExists {
-		fmt.Println("Cannot find vaultKeyPath, creating new one", v.vaultKeyPath)
 		k := v.generateStorePassword()
 		fmt.Println("**************************************************************")
 		fmt.Println("     Warning! A keyring is not found on this machine,         ")

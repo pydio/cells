@@ -10,8 +10,8 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/server"
 
-	"github.com/pydio/cells/common/micro/registry/nats"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/micro/registry/nats"
 	"github.com/pydio/cells/common/micro/selector/cache"
 	"github.com/spf13/viper"
 )

@@ -63,6 +63,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 	namespaces, _ := dao.GetNamespaceDao().List()
 	var nodeUuids []string
+	nodes := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
 		h.clearCacheForNode(metaData.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
@@ -74,6 +75,9 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metaData); err == nil {
 				nodeUuids = append(nodeUuids, metaData.NodeUuid)
+				if metaData.ResolvedNode != nil {
+					nodes[metaData.NodeUuid] = metaData.ResolvedNode
+				}
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 			} else {
 				return err
@@ -82,6 +86,9 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			// DELETE
 			if err := dao.Del(metaData); err == nil {
 				nodeUuids = append(nodeUuids, metaData.NodeUuid)
+				if metaData.ResolvedNode != nil {
+					nodes[metaData.NodeUuid] = metaData.ResolvedNode
+				}
 			} else {
 				return err
 			}
@@ -100,8 +107,12 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		}
 
 		for _, nodeId := range nodeUuids {
-			// Reload node & Reload Metas
+			// Reload Metas
+			// Try to use resolved node or create fake one
 			node := &tree.Node{Uuid: nodeId, MetaStore: make(map[string]string)}
+			if resolved, ok := nodes[nodeId]; ok {
+				node = resolved
+			}
 			metas, e := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})

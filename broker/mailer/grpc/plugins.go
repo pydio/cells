@@ -123,7 +123,7 @@ func RegisterQueueJob(ctx context.Context) error {
 			},
 		},
 	}
-	return service.Retry(func() error {
+	return service.Retry(ctx, func() error {
 		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
 		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return e
