@@ -278,7 +278,7 @@ func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTim
 	return nil, fmt.Errorf("unimplemented method")
 }
 
-// Resync creates a copy of current index. It is used originally used for switching analyze format from bleve to scorch
+// Resync creates a copy of current index. It has been originally used for switching analyze format from bleve to scorch.
 func (s *SyslogServer) Resync(logger *zap.Logger) error {
 
 	copyDir := filepath.Join(filepath.Dir(s.indexPath), uuid.New())
