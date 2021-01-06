@@ -375,10 +375,16 @@ func (g *genericServer) Deregister() error {
 		return err
 	}
 
+	md := make(map[string]string, len(config.Metadata))
+	for k, v := range config.Metadata {
+		md[k] = v
+	}
+
 	node := &microregistry.Node{
-		Id:      config.Name + "-" + config.Id,
-		Address: addr,
-		Port:    port,
+		Id:       config.Name + "-" + config.Id,
+		Address:  addr,
+		Port:     port,
+		Metadata: md,
 	}
 
 	service := &microregistry.Service{

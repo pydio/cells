@@ -110,7 +110,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	}()
 
 	go func() {
-		ticker := time.Tick(10 * time.Second)
+		ticker := time.Tick(5 * time.Minute)
 
 		for {
 			select {
@@ -136,6 +136,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 
 			switch a {
 			case "create":
+
 				for _, n := range s.Nodes {
 					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
 						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
