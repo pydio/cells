@@ -26,7 +26,7 @@ import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
 let pydio = window.pydio;
 
-const LanguagePicker = () => {
+const LanguagePicker = (props) => {
     const items = [];
     const pydio = Pydio.getInstance();
     
@@ -37,12 +37,14 @@ const LanguagePicker = () => {
             rightIcon={current ? <FontIcon className="mdi mdi-check"/> : null}
         />
     ));
-    
+    const {anchorOrigin, targetOrigin} = props;
+
     return (
         <IconMenu
-            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
+            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-translate" iconStyle={{fontSize:20,color:'rgba(255,255,255,.87)'}}/>}
             onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
             desktop={true}
+            anchorOrigin={anchorOrigin} targetOrigin={targetOrigin}
         >
             {items}
         </IconMenu>
@@ -213,7 +215,9 @@ let LoginPasswordDialog = React.createClass({
                 {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {loginTitle}
-                    <LanguagePicker />
+                    <div style={{position:'absolute', bottom: 6, left:12}}>
+                        <LanguagePicker anchorOrigin={{horizontal: 'left', vertical: 'bottom'}} targetOrigin={{horizontal: 'left', vertical: 'bottom'}}/>
+                    </div>
                 </div>
                 {loginLegend && <div>{loginLegend}</div>}
                 {errorMessage}

@@ -54,7 +54,7 @@ var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var pydio = window.pydio;
 
-var LanguagePicker = function LanguagePicker() {
+var LanguagePicker = function LanguagePicker(props) {
     var items = [];
     var pydio = _pydio2['default'].getInstance();
 
@@ -65,15 +65,18 @@ var LanguagePicker = function LanguagePicker() {
             rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null
         }));
     });
+    var anchorOrigin = props.anchorOrigin;
+    var targetOrigin = props.targetOrigin;
 
     return React.createElement(
         _materialUi.IconMenu,
         {
-            iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline-variant', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.67)' } }),
+            iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-translate', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.87)' } }),
             onItemTouchTap: function (e, o) {
                 pydio.loadI18NMessages(o.props.value);
             },
-            desktop: true
+            desktop: true,
+            anchorOrigin: anchorOrigin, targetOrigin: targetOrigin
         },
         items
     );
@@ -277,7 +280,11 @@ var LoginPasswordDialog = React.createClass({
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },
                 loginTitle,
-                React.createElement(LanguagePicker, null)
+                React.createElement(
+                    'div',
+                    { style: { position: 'absolute', bottom: 6, left: 12 } },
+                    React.createElement(LanguagePicker, { anchorOrigin: { horizontal: 'left', vertical: 'bottom' }, targetOrigin: { horizontal: 'left', vertical: 'bottom' } })
+                )
             ),
             loginLegend && React.createElement(
                 'div',
