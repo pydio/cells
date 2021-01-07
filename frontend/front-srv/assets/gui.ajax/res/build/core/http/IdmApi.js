@@ -509,13 +509,20 @@ var IdmApi = (function () {
     /**
      * Create a role from scratch
      * @param roleLabel string
+     * @param roleUuid string optional UUID (otherwise uses an uuid4)
      * @return {Promise}
      */
 
     IdmApi.prototype.createRole = function createRole(roleLabel) {
+        var roleUuid = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+
         var api = new _genApiRoleServiceApi2["default"](this.client);
         var idmRole = new _genModelIdmRole2["default"]();
-        idmRole.Uuid = _uuid42["default"]();
+        if (roleUuid) {
+            idmRole.Uuid = roleUuid;
+        } else {
+            idmRole.Uuid = _uuid42["default"]();
+        }
         idmRole.Label = roleLabel;
         return api.setRole(idmRole.Uuid, idmRole);
     };

@@ -160,6 +160,7 @@ var RolesDashboard = _react2['default'].createClass({
             type: 'role',
             roleNode: this.state.currentNode,
             openRoleEditor: this.openRoleEditor.bind(this),
+            roles: this.state.roles,
             reload: function reload() {
                 _this4.load();
             }

@@ -413,12 +413,17 @@ class IdmApi {
     /**
      * Create a role from scratch
      * @param roleLabel string
+     * @param roleUuid string optional UUID (otherwise uses an uuid4)
      * @return {Promise}
      */
-    createRole(roleLabel) {
+    createRole(roleLabel, roleUuid = undefined) {
         const api = new RoleServiceApi(this.client);
         const idmRole = new IdmRole();
-        idmRole.Uuid = uuid4();
+        if(roleUuid){
+            idmRole.Uuid = roleUuid
+        } else {
+            idmRole.Uuid = uuid4();
+        }
         idmRole.Label = roleLabel;
         return api.setRole(idmRole.Uuid, idmRole)
     }
