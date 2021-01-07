@@ -88,13 +88,7 @@ func (u *User) GetActiveScopes() (scopes []string) {
 		return
 	}
 	ws := u.Workspaces[u.ActiveWorkspace]
-	if ws.Scope != idm.WorkspaceScope_ADMIN {
-		scopes = append(scopes, "PYDIO_REPO_SCOPE_ALL")
-		scopes = append(scopes, "PYDIO_REPO_SCOPE_SHARED")
-	} else {
-		scopes = append(scopes, "PYDIO_REPO_SCOPE_ALL")
-	}
-	scopes = append(scopes, ws.UUID)
+	scopes = permissions.FrontValuesScopesFromWorkspaces([]*idm.Workspace{&ws.Workspace})
 
 	return
 }
@@ -151,7 +145,7 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 
 func (u *User) FlattenedRolesConfigs() configx.Values {
 	if u.Logged {
-		return u.FlattenedFrontValues()
+		return u.AccessList.FlattenedFrontValues()
 	} else {
 		c := configx.New()
 		// c.Set("actions", configx.New())
@@ -161,40 +155,7 @@ func (u *User) FlattenedRolesConfigs() configx.Values {
 }
 
 func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
-	return u.FlattenedRolesConfigs().Val("parameters", pluginId, name, "PYDIO_REPO_SCOPE_ALL").String()
-}
-
-// FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
-func (u *User) FlattenedFrontValues() configx.Values {
-	output := configx.New()
-	a := u.AccessList
-	for _, role := range a.OrderedRoles {
-		for _, acl := range a.FrontPluginsValues {
-			if acl.RoleID != role.Uuid {
-				continue
-			}
-			name := acl.Action.Name
-			value := acl.Action.Value
-			scope := acl.WorkspaceID
-			var iVal interface{}
-			if e := json.Unmarshal([]byte(value), &iVal); e != nil {
-				// May not be marshalled, use original string instead
-				iVal = value
-			}
-			parts := strings.Split(name, ":")
-			t := parts[0]
-			p := parts[1]
-			n := parts[2]
-
-			if t == "action" {
-				output.Val("actions", p, n, scope).Set(iVal)
-			} else {
-				output.Val("parameters", p, n, scope).Set(iVal)
-			}
-		}
-	}
-
-	return output
+	return u.FlattenedRolesConfigs().Val("parameters", pluginId, name, permissions.FrontWsScopeAll).String()
 }
 
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.AccessList) error {

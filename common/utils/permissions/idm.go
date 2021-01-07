@@ -540,13 +540,47 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 
 }
 
+// AccessListLoadFrontValues loads all ACLs starting with actions: and parameters: for the
+// current list of ordered roles
 func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) error {
 
 	values := GetACLsForRoles(ctx, accessList.OrderedRoles, AclFrontAction_, AclFrontParam_)
 	accessList.FrontPluginsValues = values
-	//log.Logger(ctx).Debug("Frontend ACL Values", zap.Any("values", values), zap.Any("flattenedValues", accessList.FlattenedFrontValues()))
 
 	return nil
+}
+
+// FrontValuesScopesFromWorkspaces computes scopes to check when retrieving front plugin configuration
+func FrontValuesScopesFromWorkspaces(wss []*idm.Workspace) (scopes []string) {
+	scopes = append(scopes, FrontWsScopeAll)
+	for _, ws := range wss {
+		if ws.Scope != idm.WorkspaceScope_ADMIN {
+			scopes = append(scopes, FrontWsScopeShared)
+		}
+	}
+	for _, ws := range wss {
+		scopes = append(scopes, ws.UUID)
+	}
+	return
+}
+
+// FrontValuesScopesFromWorkspaceRelativePaths computes scopes to check when retrieving front plugin configuration,
+// based on a list of Node.AppearsIn workspaces descriptions
+func FrontValuesScopesFromWorkspaceRelativePaths(wss []*tree.WorkspaceRelativePath) (scopes []string) {
+	// Default scope
+	scopes = append(scopes, FrontWsScopeAll)
+	// If one ws is a cell or link, narrow down the scope
+	for _, ws := range wss {
+		if ws.WsScope != idm.WorkspaceScope_ADMIN.String() {
+			scopes = append(scopes, FrontWsScopeShared)
+			break
+		}
+	}
+	// Additional scope based on Ws Uuid
+	for _, ws := range wss {
+		scopes = append(scopes, ws.WsUuid)
+	}
+	return
 }
 
 // CheckContentLock finds if there is a global lock registered in ACLs.

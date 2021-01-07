@@ -490,10 +490,10 @@ func OwnerResourcePolicies(ctx context.Context, ownerUser *idm.User, resourceId 
 }
 
 // GetTemplateACLsForMinisite loads actions and parameter acls from specific template roles.
-func GetTemplateACLsForMinisite(ctx context.Context, roleId string, permissions []rest.ShareLinkAccessType, aclClient idm.ACLServiceClient) (acls []*idm.ACL, err error) {
+func GetTemplateACLsForMinisite(ctx context.Context, roleId string, perms []rest.ShareLinkAccessType, aclClient idm.ACLServiceClient) (acls []*idm.ACL, err error) {
 
 	DownloadEnabled := false
-	for _, perm := range permissions {
+	for _, perm := range perms {
 		if perm == rest.ShareLinkAccessType_Download {
 			DownloadEnabled = true
 			break
@@ -521,7 +521,7 @@ func GetTemplateACLsForMinisite(ctx context.Context, roleId string, permissions 
 		acls = append(acls, &idm.ACL{
 			RoleID:      roleId,
 			Action:      resp.ACL.Action,
-			WorkspaceID: "PYDIO_REPO_SCOPE_SHARED",
+			WorkspaceID: permissions.FrontWsScopeShared,
 		})
 	}
 
@@ -548,7 +548,7 @@ func GetTemplateACLsForMinisite(ctx context.Context, roleId string, permissions 
 			acls = append(acls, &idm.ACL{
 				RoleID:      roleId,
 				Action:      resp.ACL.Action,
-				WorkspaceID: "PYDIO_REPO_SCOPE_SHARED",
+				WorkspaceID: permissions.FrontWsScopeAll,
 			})
 		}
 

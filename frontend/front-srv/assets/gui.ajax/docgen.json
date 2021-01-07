@@ -41655,7 +41655,26 @@
             "modifiers": [],
             "params": [
               {
-                "name": "forceValue",
+                "name": "refreshFacets",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadHistory",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "pushHistory",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "term",
                 "type": null
               }
             ],
@@ -42539,7 +42558,7 @@
           },
           "dialogIsModal": {
             "defaultValue": {
-              "value": "false",
+              "value": "true",
               "computed": false
             },
             "required": false

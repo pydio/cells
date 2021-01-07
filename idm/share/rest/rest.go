@@ -108,11 +108,12 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	// Init Root Nodes and check permissions
 	err, createdCellNode, readonly := share.ParseRootNodes(ctx, &shareRequest)
 	if err != nil {
-		if errors.Parse(err.Error()).Code == 403 {
-			service.RestError403(req, rsp, err)
-		} else {
-			service.RestError500(req, rsp, err)
-		}
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
+
+	if e := share.CheckCellOptionsAgainstConfigs(ctx, &shareRequest); e != nil {
+		service.RestErrorDetect(req, rsp, e)
 		return
 	}
 
@@ -301,12 +302,17 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	}
 
 	link := putRequest.ShareLink
-	if e := share.CheckLinkRootNodes(ctx, link); e != nil {
+	rootWorkspaces, files, folders, e := share.CheckLinkRootNodes(ctx, link)
+	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
-	ownerUser := h.IdmUserFromClaims(ctx)
+	if e := share.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders); e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
 
+	ownerUser := h.IdmUserFromClaims(ctx)
 	var workspace *idm.Workspace
 	var user *idm.User
 	var err error

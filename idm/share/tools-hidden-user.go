@@ -155,7 +155,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 	// Add default Repository Id for the role
 	acls = append(acls, &idm.ACL{
 		RoleID:      roleId,
-		WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+		WorkspaceID: permissions2.FrontWsScopeAll,
 		Action: &idm.ACLAction{
 			Name:  "parameter:core.conf:DEFAULT_START_REPOSITORY",
 			Value: workspaceId,

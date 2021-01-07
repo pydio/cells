@@ -387,7 +387,11 @@ var CellModel = (function (_Observable) {
             }
         })['catch'](function (err) {
             var msg = err.Detail || err.message || err;
+            if (err.response && err.response.body && err.response.body.Title) {
+                msg = err.response.body.Title;
+            }
             pydio.UI.displayMessage('ERROR', msg);
+            throw err;
         });
     };
 

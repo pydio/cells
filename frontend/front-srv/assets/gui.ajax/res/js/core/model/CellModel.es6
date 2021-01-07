@@ -332,8 +332,12 @@ class CellModel extends Observable{
                 });
             }
         }).catch((err) => {
-            const msg = err.Detail || err.message || err;
+            let msg = err.Detail || err.message || err;
+            if (err.response && err.response.body && err.response.body.Title){
+                msg = err.response.body.Title;
+            }
             pydio.UI.displayMessage('ERROR', msg);
+            throw err;
         });
 
     }

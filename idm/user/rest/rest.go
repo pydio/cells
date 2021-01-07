@@ -458,7 +458,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			}
 			var acl = &idm.ACL{
 				Action:      &idm.ACLAction{Name: k, Value: v},
-				WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+				WorkspaceID: permissions.FrontWsScopeAll,
 			}
 			for _, existing := range existingAcls {
 				if existing.Action != nil && existing.Action.Name == k {
@@ -552,7 +552,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 					RoleIDs:      []string{u.Uuid},
 					Actions:      []*idm.ACLAction{{Name: action}},
-					WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"},
+					WorkspaceIDs: []string{permissions.FrontWsScopeAll},
 				})
 				delQuery.SubQueries = append(delQuery.SubQueries, q)
 			}

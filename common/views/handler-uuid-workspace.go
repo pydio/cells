@@ -125,6 +125,7 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 					WsUuid:  ws.UUID,
 					WsLabel: ws.Label,
 					WsSlug:  ws.Slug,
+					WsScope: ws.Scope.String(),
 					Path:    relativePath,
 				})
 			} else {

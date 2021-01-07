@@ -359,6 +359,8 @@ message WorkspaceRelativePath {
     string Path = 3;
     // Workspace slug
     string WsSlug = 4;
+    // Workspace Scope
+    string WsScope = 5;
 }
 
 message ChangeLog{

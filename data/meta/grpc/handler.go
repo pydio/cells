@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"strings"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -358,7 +359,7 @@ func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string
 
 	filtered := make(map[string]string)
 	for k, v := range metaStore {
-		if k == common.MetaNamespaceDatasourceName || k == common.MetaNamespaceDatasourcePath {
+		if k == common.MetaNamespaceDatasourceName || k == common.MetaNamespaceDatasourcePath || strings.HasPrefix(k, "pydio:meta-loaded") {
 			continue
 		}
 		filtered[k] = v
