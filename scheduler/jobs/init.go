@@ -32,8 +32,8 @@ func initTasksLogger() *zap.Logger {
 	// Additional Logger: stores messages in local file
 	rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   filepath.Join(logDir, "tasks.log"),
-		MaxSize:    500, // megabytes
-		MaxBackups: 3,
+		MaxSize:    10, // megabytes
+		MaxBackups: 30,
 		MaxAge:     28, // days
 	})
 
