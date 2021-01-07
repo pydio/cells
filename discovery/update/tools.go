@@ -61,6 +61,11 @@ import (
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
+	if conf.Val("disableChecks").Default(false).Bool() {
+		log.Logger(ctx).Info("Skipping update checks according to configurations - Returning empty list")
+		// Return silently
+		return []*update.Package{}, nil
+	}
 	urlConf := conf.Val("updateUrl").Default(configx.Reference("#/defaults/update/updateUrl")).String()
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.ServiceUpdate, "cannot find update url")

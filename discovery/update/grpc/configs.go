@@ -31,20 +31,6 @@ var ExposedConfigs = &forms.Form{
 	Groups: []*forms.Group{{
 		Label: "Update.Config.Title",
 		Fields: []forms.Field{
-			// &forms.FormField{
-			// 	Name:        "updateUrl",
-			// 	Type:        forms.ParamString,
-			// 	Label:       "Update.Config.Url.Label",
-			// 	Description: "Update.Config.Url.Description",
-			// 	Default:     common.UpdateDefaultServerUrl,
-			// },
-			// &forms.FormField{
-			// 	Name:        "publicKey",
-			// 	Type:        forms.ParamTextarea,
-			// 	Label:       "Update.Config.PublicKey.Label",
-			// 	Description: "Update.Config.PublicKey.Description",
-			// 	Default:     common.UpdateDefaultPublicKey,
-			// },
 			&forms.FormField{
 				Name:        "channel",
 				Type:        forms.ParamSelect,
@@ -57,26 +43,13 @@ var ExposedConfigs = &forms.Form{
 				Default:   common.UpdateDefaultChannel,
 				Mandatory: true,
 			},
-			/*
-				&forms.FormField{
-					Name:        "proxyHost",
-					Type:        forms.ParamString,
-					Label:       "Update.Config.ProxyHost.Label",
-					Description: "Update.Config.ProxyHost.Description",
-				},
-				&forms.FormField{
-					Name:        "proxyUser",
-					Type:        forms.ParamString,
-					Label:       "Update.Config.ProxyUser.Label",
-					Description: "Update.Config.ProxyUser.Description",
-				},
-				&forms.FormField{
-					Name:        "proxyPassword",
-					Type:        forms.ParamPassword,
-					Label:       "Update.Config.ProxyPassword.Label",
-					Description: "Update.Config.ProxyPassword.Description",
-				},
-			*/
+			&forms.FormField{
+				Name:        "disableChecks",
+				Type:        forms.ParamBool,
+				Label:       "Update.Config.Disable.Label",
+				Description: "Update.Config.Disable.Description",
+				Default:     false,
+			},
 		},
 	}},
 }
