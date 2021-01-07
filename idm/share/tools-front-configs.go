@@ -15,48 +15,45 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
-type shareOptions struct {
-	maxExpiration           int
-	maxDownloads            int
-	hashMinLength           int
-	hashEditable            bool
-	shareForcePassword      bool
+type PluginOptions struct {
+	MaxExpiration           int
+	MaxDownloads            int
+	HashMinLength           int
+	HashEditable            bool
+	ShareForcePassword      bool
 	enableFilePublicLinks   bool
 	enableFileInternal      bool
 	enableFolderPublicLinks bool
 	enableFolderInternal    bool
 }
 
-func CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest.ShareLink, wss []*tree.WorkspaceRelativePath, files, folders bool) error {
+func CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest.ShareLink, wss []*tree.WorkspaceRelativePath, files, folders bool) (PluginOptions, error) {
 
 	contextParams, e := aclParams(ctx)
 	if e != nil {
-		return e
+		return PluginOptions{}, e
 	}
 	options := defaultOptions()
 	checkScopes := permissions.FrontValuesScopesFromWorkspaceRelativePaths(wss)
 	options = filterOptionsFromScopes(options, contextParams, checkScopes)
 
 	if files && !options.enableFilePublicLinks {
-		return errors.Forbidden("file.public-link.forbidden", "You are not allowed to create public link on files")
+		return options, errors.Forbidden("file.public-link.forbidden", "You are not allowed to create public link on files")
 	}
 	if folders && !options.enableFolderPublicLinks {
-		return errors.Forbidden("folder.public-link.forbidden", "You are not allowed to create public link on folders")
+		return options, errors.Forbidden("folder.public-link.forbidden", "You are not allowed to create public link on folders")
 	}
-	if options.maxDownloads > -1 && link.MaxDownloads >= int64(options.maxDownloads) {
-		return errors.Forbidden("link.max-downloads.mandatory", "Please set a maximum number of downloads for links")
+	if options.MaxDownloads > -1 && link.MaxDownloads >= int64(options.MaxDownloads) {
+		return options, errors.Forbidden("link.max-downloads.mandatory", "Please set a maximum number of downloads for links")
 	}
-	if options.maxExpiration > -1 && (link.AccessEnd == 0 || (link.AccessEnd-time.Now().Unix()) > int64(options.maxExpiration*24*60*60)) {
-		return errors.Forbidden("link.max-expiration.mandatory", "Please set a maximum expiration date for links")
+	if options.MaxExpiration > -1 && (link.AccessEnd == 0 || (link.AccessEnd-time.Now().Unix()) > int64(options.MaxExpiration*24*60*60)) {
+		return options, errors.Forbidden("link.max-expiration.mandatory", "Please set a maximum expiration date for links")
 	}
-	if len(link.LinkHash) < options.hashMinLength {
-		return errors.Forbidden("link.hash.min-length", "Please use a link hash with at least %d characters", options.hashMinLength)
-	}
-	if options.shareForcePassword && !link.PasswordRequired {
-		return errors.Forbidden("link.password.required", "Share links must use a password")
+	if options.ShareForcePassword && !link.PasswordRequired {
+		return options, errors.Forbidden("link.password.required", "Share links must use a password")
 	}
 
-	return nil
+	return options, nil
 }
 
 func CheckCellOptionsAgainstConfigs(ctx context.Context, request *rest.PutCellRequest) error {
@@ -105,19 +102,19 @@ func CheckCellOptionsAgainstConfigs(ctx context.Context, request *rest.PutCellRe
 	})
 }
 
-func defaultOptions() shareOptions {
+func defaultOptions() PluginOptions {
 	// Defaults
 	configParams := config.Get("frontend", "plugin", "action.share")
-	options := shareOptions{
-		maxExpiration:           configParams.Val("FILE_MAX_EXPIRATION").Default(-1).Int(),
-		maxDownloads:            configParams.Val("FILE_MAX_DOWNLOAD").Default(-1).Int(),
-		hashMinLength:           configParams.Val("HASH_MIN_LENGTH").Default(8).Int(),
-		hashEditable:            configParams.Val("HASH_USER_EDITABLE").Default(true).Bool(),
+	options := PluginOptions{
+		MaxExpiration:           configParams.Val("FILE_MAX_EXPIRATION").Default(-1).Int(),
+		MaxDownloads:            configParams.Val("FILE_MAX_DOWNLOAD").Default(-1).Int(),
+		HashMinLength:           configParams.Val("HASH_MIN_LENGTH").Default(12).Int(),
+		HashEditable:            configParams.Val("HASH_USER_EDITABLE").Default(true).Bool(),
 		enableFilePublicLinks:   configParams.Val("ENABLE_FILE_PUBLIC_LINK").Default(true).Bool(),
 		enableFileInternal:      configParams.Val("ENABLE_FILE_INTERNAL_SHARING").Default(true).Bool(),
 		enableFolderPublicLinks: configParams.Val("ENABLE_FOLDER_PUBLIC_LINK").Default(true).Bool(),
 		enableFolderInternal:    configParams.Val("ENABLE_FOLDER_INTERNAL_SHARING").Default(true).Bool(),
-		shareForcePassword:      configParams.Val("SHARE_FORCE_PASSWORD").Default(false).Bool(),
+		ShareForcePassword:      configParams.Val("SHARE_FORCE_PASSWORD").Default(false).Bool(),
 	}
 	return options
 }
@@ -131,15 +128,15 @@ func aclParams(ctx context.Context) (configx.Values, error) {
 	return acl.FlattenedFrontValues().Val("parameters", "action.share"), nil
 }
 
-func filterOptionsFromScopes(options shareOptions, contextParams configx.Values, scopes []string) shareOptions {
+func filterOptionsFromScopes(options PluginOptions, contextParams configx.Values, scopes []string) PluginOptions {
 
 	// Check expiration time
 	for _, scope := range scopes {
-		options.maxExpiration = contextParams.Val("FILE_MAX_EXPIRATION", scope).Default(options.maxExpiration).Int()
-		options.maxDownloads = contextParams.Val("FILE_MAX_DOWNLOAD", scope).Default(options.maxDownloads).Int()
-		options.hashMinLength = contextParams.Val("HASH_MIN_LENGTH", scope).Default(options.hashMinLength).Int()
-		options.hashEditable = contextParams.Val("HASH_USER_EDITABLE", scope).Default(options.hashEditable).Bool()
-		options.shareForcePassword = contextParams.Val("SHARE_FORCE_PASSWORD", scope).Default(options.shareForcePassword).Bool()
+		options.MaxExpiration = contextParams.Val("FILE_MAX_EXPIRATION", scope).Default(options.MaxExpiration).Int()
+		options.MaxDownloads = contextParams.Val("FILE_MAX_DOWNLOAD", scope).Default(options.MaxDownloads).Int()
+		options.HashMinLength = contextParams.Val("HASH_MIN_LENGTH", scope).Default(options.HashMinLength).Int()
+		options.HashEditable = contextParams.Val("HASH_USER_EDITABLE", scope).Default(options.HashEditable).Bool()
+		options.ShareForcePassword = contextParams.Val("SHARE_FORCE_PASSWORD", scope).Default(options.ShareForcePassword).Bool()
 		options.enableFilePublicLinks = contextParams.Val("ENABLE_FILE_PUBLIC_LINK", scope).Default(options.enableFilePublicLinks).Bool()
 		options.enableFileInternal = contextParams.Val("ENABLE_FILE_INTERNAL_SHARING", scope).Default(options.enableFileInternal).Bool()
 		options.enableFolderPublicLinks = contextParams.Val("ENABLE_FOLDER_PUBLIC_LINK", scope).Default(options.enableFolderPublicLinks).Bool()

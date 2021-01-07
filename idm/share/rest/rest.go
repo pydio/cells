@@ -307,7 +307,9 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
-	if e := share.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders); e != nil {
+
+	pluginOptions, e := share.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
+	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
@@ -337,8 +339,18 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		}
 		track("CreateACL")
 		link.Uuid = workspace.UUID
-		link.LinkHash = strings.Replace(uuid.NewUUID().String(), "-", "", -1)[0:12]
+		link.LinkHash = strings.Replace(uuid.NewUUID().String(), "-", "", -1)[0:pluginOptions.HashMinLength]
 	} else {
+		if putRequest.UpdateCustomHash != "" {
+			if !pluginOptions.HashEditable {
+				service.RestError403(req, rsp, errors.Forbidden("link.hash.not-editable", "You are not allowed to edit link manually"))
+				return
+			}
+			if len(putRequest.UpdateCustomHash) < pluginOptions.HashMinLength {
+				service.RestError403(req, rsp, errors.Forbidden("link.hash.min-length", "Please use a link hash with at least %d characters", pluginOptions.HashMinLength))
+				return
+			}
+		}
 		workspace, create, err = share.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, link.Description, true)
 	}
 	if err != nil {
