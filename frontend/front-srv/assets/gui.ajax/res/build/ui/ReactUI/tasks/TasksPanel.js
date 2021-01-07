@@ -34,6 +34,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _JobsStore = require('./JobsStore');
 
 var _JobsStore2 = _interopRequireDefault(_JobsStore);
@@ -63,6 +67,8 @@ var TasksPanel = (function (_React$Component) {
 
         _React$Component.call(this, props);
         this.state = {
+            wsStartDisconnected: !props.pydio.WebSocketClient.getStatus(),
+            wsDisconnected: false,
             jobs: new Map(),
             folded: true,
             innerScroll: 0
@@ -81,11 +87,32 @@ var TasksPanel = (function (_React$Component) {
     };
 
     TasksPanel.prototype.componentDidMount = function componentDidMount() {
+        var _this2 = this;
+
         this.reload();
+        var pydio = this.props.pydio;
+
+        pydio.observe("ws_status", function (event) {
+            _this2.setState({ wsDisconnected: !event.status, folded: true });
+        });
         _JobsStore2['default'].getInstance().observe("tasks_updated", this.reload.bind(this));
+        setTimeout(function () {
+            var wsStartDisconnected = _this2.state.wsStartDisconnected;
+
+            // Recheck status after starting
+            if (wsStartDisconnected) {
+                var _status = pydio.WebSocketClient.getStatus();
+                if (!_status) {
+                    _this2.setState({ wsDisconnected: true });
+                }
+            }
+        }, 10000);
     };
 
     TasksPanel.prototype.componentWillUnmount = function componentWillUnmount() {
+        var pydio = this.props.pydio;
+
+        pydio.stopObserving("ws_status");
         _JobsStore2['default'].getInstance().stopObserving("tasks_updated");
     };
 
@@ -112,7 +139,7 @@ var TasksPanel = (function (_React$Component) {
     };
 
     TasksPanel.prototype.render = function render() {
-        var _this2 = this;
+        var _this3 = this;
 
         var _props = this.props;
         var muiTheme = _props.muiTheme;
@@ -124,6 +151,7 @@ var TasksPanel = (function (_React$Component) {
         var jobs = _state.jobs;
         var folded = _state.folded;
         var innerScroll = _state.innerScroll;
+        var wsDisconnected = _state.wsDisconnected;
 
         var palette = muiTheme.palette;
         var Color = require('color');
@@ -158,6 +186,11 @@ var TasksPanel = (function (_React$Component) {
         var height = Math.min(elements.length * 72, 300) + 38;
         if (innerScroll) {
             height = Math.min(innerScroll, 300) + 38;
+        }
+        if (wsDisconnected) {
+            elements = [];
+            height = 140;
+            headerColor = 'rgba(211, 47, 47, 0.73)';
         }
         var styles = {
             panel: _extends({
@@ -210,7 +243,7 @@ var TasksPanel = (function (_React$Component) {
             });
         }
 
-        if (!elements.length) {
+        if (!elements.length && !wsDisconnected) {
             if (mode !== 'flex') {
                 styles.panel.bottom = -10000;
             }
@@ -240,14 +273,30 @@ var TasksPanel = (function (_React$Component) {
         }
         if (folded) {
             mainTouchTap = function () {
-                return _this2.setState({ folded: false });
+                return _this3.setState({ folded: false });
+            };
+        }
+        if (wsDisconnected) {
+            mainTouchTap = function () {
+                return _this3.setState({ folded: !folded });
             };
         }
 
         return _react2['default'].createElement(
             _materialUi.Paper,
             { zDepth: mainDepth, style: styles.panel, onClick: mainTouchTap, rounded: false },
-            _react2['default'].createElement(
+            wsDisconnected && _react2['default'].createElement(
+                _materialUi.Paper,
+                { zDepth: 0, style: styles.header },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '12px 8px 12px 16px', flex: 1 } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                    ' ',
+                    pydio.MessageHash['ajax_gui.websocket.disconnected.title']
+                )
+            ),
+            !wsDisconnected && _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 0, style: styles.header, className: 'handle' },
                 _react2['default'].createElement(
@@ -258,16 +307,21 @@ var TasksPanel = (function (_React$Component) {
                 badge,
                 _react2['default'].createElement('span', { style: { flex: 1 } }),
                 !folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-down" }, styles.iconButtonStyles, { onTouchTap: function () {
-                        return _this2.setState({ folded: true, innerScroll: 300 });
+                        return _this3.setState({ folded: true, innerScroll: 300 });
                     } })),
                 folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right" }, styles.iconButtonStyles, { onTouchTap: function () {
-                        return _this2.setState({ folded: false, innerScroll: 300 });
+                        return _this3.setState({ folded: false, innerScroll: 300 });
                     } }))
             ),
             _react2['default'].createElement(
                 'div',
                 { style: styles.innerPane, ref: 'innerPane' },
-                elements
+                elements,
+                wsDisconnected && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 16px' } },
+                    pydio.MessageHash['ajax_gui.websocket.disconnected.legend']
+                )
             )
         );
     };

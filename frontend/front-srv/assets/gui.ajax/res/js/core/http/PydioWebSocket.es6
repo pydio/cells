@@ -18,9 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import AjxpNode from '../model/AjxpNode'
-import PathUtils from '../util/PathUtils'
 import PydioApi from './PydioApi'
+import Observable from "../lang/Observable"
 import MetaNodeProvider from '../model/MetaNodeProvider'
 const ReconnectingWebSocket = require('reconnecting-websocket');
 import debounce from 'lodash.debounce'
@@ -28,13 +27,15 @@ import debounce from 'lodash.debounce'
 /**
  * WebSocket client
  */
-class PydioWebSocket {
+class PydioWebSocket extends Observable {
 
     /**
      *
      * @param pydioObject Pydio
      */
     constructor(pydioObject) {
+
+        super();
 
         this.pydio = pydioObject;
 
@@ -62,6 +63,25 @@ class PydioWebSocket {
 
         }.bind(this));
 
+    }
+
+    toggleStatus(open){
+        if(open === this.status){
+            return;
+        }
+        /*
+        if (open){
+            console.log("WS CONNECTED")
+        } else {
+            console.log("WS CLOSED")
+        }
+        */
+        this.status = open;
+        this.notify("status", {status:open});
+    }
+
+    getStatus(){
+        return this.status;
     }
 
     isOpen() {
@@ -94,14 +114,17 @@ class PydioWebSocket {
 
         this.ws.addEventListener('open', () => {
             this.connOpen = true;
+            this.toggleStatus(true);
             PydioWebSocket.subscribeJWT(this.ws, true);
         });
         this.ws.addEventListener('message', this.parseWebsocketMessage.bind(this));
         this.ws.addEventListener('close', (event) => {
             this.connOpen = false;
+            this.toggleStatus(false);
             PydioWebSocket.logClose(event)
         });
         this.ws.addEventListener('error', (error) => {
+            this.toggleStatus(false);
             if (error.code === 'EHOSTDOWN') {
                 console.error('WebSocket maxRetries reached, host is down!');
             }

@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import JobsStore from './JobsStore'
 import {Paper, IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
@@ -34,6 +35,8 @@ class TasksPanel extends React.Component{
     constructor(props){
         super(props);
         this.state = {
+            wsStartDisconnected: !props.pydio.WebSocketClient.getStatus(),
+            wsDisconnected: false,
             jobs    : new Map(),
             folded  : true,
             innerScroll: 0
@@ -51,10 +54,26 @@ class TasksPanel extends React.Component{
 
     componentDidMount(){
         this.reload();
+        const {pydio} = this.props;
+        pydio.observe("ws_status", (event) => {
+            this.setState({wsDisconnected: !event.status, folded: true})
+        })
         JobsStore.getInstance().observe("tasks_updated", this.reload.bind(this));
+        setTimeout(()=>{
+            const {wsStartDisconnected} = this.state;
+            // Recheck status after starting
+            if(wsStartDisconnected){
+                const status = pydio.WebSocketClient.getStatus();
+                if(!status){
+                    this.setState({wsDisconnected: true});
+                }
+            }
+        }, 10000);
     }
 
     componentWillUnmount(){
+        const {pydio} = this.props;
+        pydio.stopObserving("ws_status");
         JobsStore.getInstance().stopObserving("tasks_updated");
     }
 
@@ -82,10 +101,10 @@ class TasksPanel extends React.Component{
     render(){
 
         const {muiTheme, mode, panelStyle, headerStyle, pydio} = this.props;
-        const {jobs, folded, innerScroll} = this.state;
+        const {jobs, folded, innerScroll, wsDisconnected} = this.state;
         const palette = muiTheme.palette;
         const Color = require('color');
-        const headerColor = Color(palette.primary1Color).darken(0.1).alpha(0.50).toString();
+        let headerColor = Color(palette.primary1Color).darken(0.1).alpha(0.50).toString();
 
         let filtered = [];
         jobs.forEach((j)=>{
@@ -110,10 +129,15 @@ class TasksPanel extends React.Component{
             return a.Time > b.Time ? -1 : 1;
         });
 
-        const elements = filtered.map(j => <JobEntry key={j.ID} job={j} onTaskAction={JobsStore.getInstance().controlTask}/>);
+        let elements = filtered.map(j => <JobEntry key={j.ID} job={j} onTaskAction={JobsStore.getInstance().controlTask}/>);
         let height = Math.min(elements.length * 72, 300) + 38;
         if(innerScroll){
             height = Math.min(innerScroll, 300) + 38;
+        }
+        if(wsDisconnected){
+            elements = [];
+            height = 140;
+            headerColor = 'rgba(211, 47, 47, 0.73)';
         }
         let styles = {
             panel:{
@@ -169,7 +193,7 @@ class TasksPanel extends React.Component{
             };
         }
 
-        if (!elements.length) {
+        if (!elements.length && !wsDisconnected) {
             if(mode !== 'flex'){
                 styles.panel.bottom = -10000;
             }
@@ -196,18 +220,29 @@ class TasksPanel extends React.Component{
         if(folded){
             mainTouchTap = ()=>this.setState({folded: false});
         }
+        if(wsDisconnected){
+            mainTouchTap = () => this.setState({folded:!folded});
+        }
 
         return (
             <Paper zDepth={mainDepth} style={styles.panel} onClick={mainTouchTap} rounded={false}>
-                    <Paper zDepth={0} style={styles.header} className="handle">
-                        <div style={{padding: '12px 8px 12px 16px'}}>{title}</div>
-                        {badge}
-                        <span style={{flex: 1}}/>
-                        {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: true, innerScroll:300})} />}
-                        {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: false, innerScroll: 300})} />}
+                {wsDisconnected &&
+                    <Paper zDepth={0} style={styles.header}>
+                        <div style={{padding: '12px 8px 12px 16px', flex: 1}}><span className={"mdi mdi-alert"}/> {pydio.MessageHash['ajax_gui.websocket.disconnected.title']}</div>
                     </Paper>
+                }
+                {!wsDisconnected &&
+                <Paper zDepth={0} style={styles.header} className="handle">
+                    <div style={{padding: '12px 8px 12px 16px'}}>{title}</div>
+                    {badge}
+                    <span style={{flex: 1}}/>
+                    {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: true, innerScroll:300})} />}
+                    {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: false, innerScroll: 300})} />}
+                </Paper>
+                }
                 <div style={styles.innerPane} ref="innerPane">
                     {elements}
+                    {wsDisconnected && <div style={{padding:'0 16px'}}>{pydio.MessageHash['ajax_gui.websocket.disconnected.legend']}</div>}
                 </div>
             </Paper>
         );

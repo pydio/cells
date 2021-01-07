@@ -74,6 +74,9 @@ class Pydio extends Observable{
         // Must happen AFTER datamodel initization.
         this.Controller = new Controller(this);
         this.WebSocketClient = new PydioWebSocket(this);
+        this.WebSocketClient.observe("status", (e) => {
+            this.notify("ws_status", e);
+        })
         if (this.repositoryId) {
             this.WebSocketClient.currentRepo = this.repositoryId;
             this.WebSocketClient.open();

@@ -26,17 +26,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _modelAjxpNode = require('../model/AjxpNode');
-
-var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
-
-var _utilPathUtils = require('../util/PathUtils');
-
-var _utilPathUtils2 = _interopRequireDefault(_utilPathUtils);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _PydioApi = require('./PydioApi');
 
 var _PydioApi2 = _interopRequireDefault(_PydioApi);
+
+var _langObservable = require("../lang/Observable");
+
+var _langObservable2 = _interopRequireDefault(_langObservable);
 
 var _modelMetaNodeProvider = require('../model/MetaNodeProvider');
 
@@ -52,7 +50,8 @@ var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var ReconnectingWebSocket = require('reconnecting-websocket');
 
-var PydioWebSocket = (function () {
+var PydioWebSocket = (function (_Observable) {
+    _inherits(PydioWebSocket, _Observable);
 
     /**
      *
@@ -63,6 +62,8 @@ var PydioWebSocket = (function () {
         var _this = this;
 
         _classCallCheck(this, PydioWebSocket);
+
+        _Observable.call(this);
 
         this.pydio = pydioObject;
 
@@ -89,6 +90,25 @@ var PydioWebSocket = (function () {
             }
         }).bind(this));
     }
+
+    PydioWebSocket.prototype.toggleStatus = function toggleStatus(open) {
+        if (open === this.status) {
+            return;
+        }
+        /*
+        if (open){
+            console.log("WS CONNECTED")
+        } else {
+            console.log("WS CLOSED")
+        }
+        */
+        this.status = open;
+        this.notify("status", { status: open });
+    };
+
+    PydioWebSocket.prototype.getStatus = function getStatus() {
+        return this.status;
+    };
 
     PydioWebSocket.prototype.isOpen = function isOpen() {
         return this.connOpen && this.ws !== null;
@@ -123,14 +143,17 @@ var PydioWebSocket = (function () {
 
         this.ws.addEventListener('open', function () {
             _this2.connOpen = true;
+            _this2.toggleStatus(true);
             PydioWebSocket.subscribeJWT(_this2.ws, true);
         });
         this.ws.addEventListener('message', this.parseWebsocketMessage.bind(this));
         this.ws.addEventListener('close', function (event) {
             _this2.connOpen = false;
+            _this2.toggleStatus(false);
             PydioWebSocket.logClose(event);
         });
         this.ws.addEventListener('error', function (error) {
+            _this2.toggleStatus(false);
             if (error.code === 'EHOSTDOWN') {
                 console.error('WebSocket maxRetries reached, host is down!');
             }
@@ -301,7 +324,7 @@ var PydioWebSocket = (function () {
     };
 
     return PydioWebSocket;
-})();
+})(_langObservable2['default']);
 
 exports['default'] = PydioWebSocket;
 module.exports = exports['default'];

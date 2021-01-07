@@ -104,6 +104,8 @@ var Pydio = (function (_Observable) {
      */
 
     function Pydio(parameters) {
+        var _this = this;
+
         _classCallCheck(this, Pydio);
 
         _Observable.call(this);
@@ -133,6 +135,9 @@ var Pydio = (function (_Observable) {
         // Must happen AFTER datamodel initization.
         this.Controller = new _modelController2['default'](this);
         this.WebSocketClient = new _httpPydioWebSocket2['default'](this);
+        this.WebSocketClient.observe("status", function (e) {
+            _this.notify("ws_status", e);
+        });
         if (this.repositoryId) {
             this.WebSocketClient.currentRepo = this.repositoryId;
             this.WebSocketClient.open();
@@ -191,11 +196,11 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.refreshUserData = function refreshUserData() {
-        var _this = this;
+        var _this2 = this;
 
         this.observeOnce("registry_part_loaded", function (event) {
             if (event !== "user/preferences") return;
-            _this.updateUser(_this.Registry.parseUser(), false);
+            _this2.updateUser(_this2.Registry.parseUser(), false);
         });
         this.Registry.load("user/preferences");
     };
@@ -205,37 +210,37 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.init = function init() {
-        var _this2 = this;
+        var _this3 = this;
 
         this.observe("registry_loaded", function () {
-            _this2.Registry.refreshExtensionsRegistry();
-            _this2.updateUser(_this2.Registry.parseUser(), false);
-            if (_this2.user) {
-                var repId = _this2.user.getActiveRepository();
-                var repList = _this2.user.getRepositoriesList();
+            _this3.Registry.refreshExtensionsRegistry();
+            _this3.updateUser(_this3.Registry.parseUser(), false);
+            if (_this3.user) {
+                var repId = _this3.user.getActiveRepository();
+                var repList = _this3.user.getRepositoriesList();
                 var repositoryObject = repList.get(repId);
                 if (repositoryObject) {
                     repositoryObject.loadResources();
                 }
             }
-            if (_this2.UI.guiLoaded) {
-                _this2.UI.refreshTemplateParts();
-                _this2.Registry.refreshExtensionsRegistry();
-                _this2.Controller.loadActionsFromRegistry(_this2.getXmlRegistry());
+            if (_this3.UI.guiLoaded) {
+                _this3.UI.refreshTemplateParts();
+                _this3.Registry.refreshExtensionsRegistry();
+                _this3.Controller.loadActionsFromRegistry(_this3.getXmlRegistry());
             } else {
-                _this2.observe("gui_loaded", function () {
-                    _this2.UI.refreshTemplateParts();
-                    _this2.Registry.refreshExtensionsRegistry();
-                    _this2.Controller.loadActionsFromRegistry(_this2.getXmlRegistry());
+                _this3.observe("gui_loaded", function () {
+                    _this3.UI.refreshTemplateParts();
+                    _this3.Registry.refreshExtensionsRegistry();
+                    _this3.Controller.loadActionsFromRegistry(_this3.getXmlRegistry());
                 });
             }
-            _this2.loadActiveRepository();
-            if (_this2.Parameters.has("USER_GUI_ACTION")) {
+            _this3.loadActiveRepository();
+            if (_this3.Parameters.has("USER_GUI_ACTION")) {
                 (function () {
-                    var a = _this2.Parameters.get("USER_GUI_ACTION");
-                    _this2.Parameters['delete']("USER_GUI_ACTION");
+                    var a = _this3.Parameters.get("USER_GUI_ACTION");
+                    _this3.Parameters['delete']("USER_GUI_ACTION");
                     setTimeout(function () {
-                        _this2.Controller.fireAction(a);
+                        _this3.Controller.fireAction(a);
                     }, 1000);
                 })();
             }
@@ -243,13 +248,13 @@ var Pydio = (function (_Observable) {
 
         var starterFunc = function starterFunc() {
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], function () {
-                _this2.UI = new window.PydioReactUI.Builder(_this2);
-                _this2.UI.initTemplates();
+                _this3.UI = new window.PydioReactUI.Builder(_this3);
+                _this3.UI.initTemplates();
 
-                _this2.fire("registry_loaded", _this2.Registry.getXML());
+                _this3.fire("registry_loaded", _this3.Registry.getXML());
                 // this.fire('loaded');
                 setTimeout(function () {
-                    _this2.fire('loaded');
+                    _this3.fire('loaded');
                 }, 200);
             });
         };
@@ -260,21 +265,21 @@ var Pydio = (function (_Observable) {
             var pwd = login + "#$!Az1";
 
             _httpPydioApi2['default'].getRestClient().sessionLoginWithCredentials(login, pwd).then(function () {
-                return _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+                return _this3.loadXmlRegistry(null, starterFunc, _this3.Parameters.get("START_REPOSITORY"));
             })['catch'](function () {
-                return _this2.loadXmlRegistry(null, starterFunc);
+                return _this3.loadXmlRegistry(null, starterFunc);
             });
         } else {
             _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
                 // Logged in
-                _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+                _this3.loadXmlRegistry(null, starterFunc, _this3.Parameters.get("START_REPOSITORY"));
             })['catch'](function (e) {
-                if (!_this2.Parameters.has("PRELOADED_REGISTRY")) {
-                    _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+                if (!_this3.Parameters.has("PRELOADED_REGISTRY")) {
+                    _this3.loadXmlRegistry(null, starterFunc, _this3.Parameters.get("START_REPOSITORY"));
                 } else {
                     // Not logged, used prefeteched registry to speed up login screen
-                    _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
-                    _this2.Parameters['delete']("PRELOADED_REGISTRY");
+                    _this3.Registry.loadFromString(_this3.Parameters.get("PRELOADED_REGISTRY"));
+                    _this3.Parameters['delete']("PRELOADED_REGISTRY");
                     starterFunc();
                 }
             });
@@ -283,9 +288,9 @@ var Pydio = (function (_Observable) {
         this.observe("server_message", function (xml) {
             var reload = _utilXMLUtils2['default'].XPathSelectSingleNode(xml, "tree/require_registry_reload");
             if (reload) {
-                if (reload.getAttribute("repositoryId") !== _this2.repositoryId) {
-                    _this2.loadXmlRegistry(null, null, reload.getAttribute("repositoryId"));
-                    _this2.repositoryId = null;
+                if (reload.getAttribute("repositoryId") !== _this3.repositoryId) {
+                    _this3.loadXmlRegistry(null, null, reload.getAttribute("repositoryId"));
+                    _this3.repositoryId = null;
                 }
             }
         });
@@ -321,7 +326,7 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.loadActiveRepository = function loadActiveRepository() {
-        var _this3 = this;
+        var _this4 = this;
 
         if (this.user === null) {
             var _repositoryObject = new _modelRepository2['default'](null);
@@ -338,10 +343,10 @@ var Pydio = (function (_Observable) {
         if (!repositoryObject) {
             if (this.user.lock) {
                 (function () {
-                    _this3.Controller.loadActionsFromRegistry(_this3.getXmlRegistry());
-                    var lock = _this3.user.lock.split(",").shift();
+                    _this4.Controller.loadActionsFromRegistry(_this4.getXmlRegistry());
+                    var lock = _this4.user.lock.split(",").shift();
                     window.setTimeout(function () {
-                        _this3.Controller.fireAction(lock);
+                        _this4.Controller.fireAction(lock);
                     }, 150);
                 })();
             } else {
@@ -370,18 +375,18 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.reloadRepositoriesList = function reloadRepositoriesList() {
-        var _this4 = this;
+        var _this5 = this;
 
         if (!this.user) return;
         this.observeOnce("registry_part_loaded", function (data) {
             if (data !== "user/repositories") return;
-            _this4.updateUser(_this4.Registry.parseUser());
-            if (_this4.user.getRepositoriesList().size === 0) {
-                _this4.loadXmlRegistry(); // User maybe locket out Reload full registry now!
+            _this5.updateUser(_this5.Registry.parseUser());
+            if (_this5.user.getRepositoriesList().size === 0) {
+                _this5.loadXmlRegistry(); // User maybe locket out Reload full registry now!
             }
-            _this4.fire("repository_list_refreshed", {
-                list: _this4.user.getRepositoriesList(),
-                active: _this4.user.getActiveRepository()
+            _this5.fire("repository_list_refreshed", {
+                list: _this5.user.getRepositoriesList(),
+                active: _this5.user.getActiveRepository()
             });
         });
         this.loadXmlRegistry("user/repositories");
@@ -393,7 +398,7 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.loadRepository = function loadRepository(repository) {
-        var _this5 = this;
+        var _this6 = this;
 
         if (this.repositoryId != null && this.repositoryId === repository.getId()) {
             _langLogger2['default'].debug('Repository already loaded, do nothing');
@@ -428,8 +433,8 @@ var Pydio = (function (_Observable) {
         var firstLoadObs = function firstLoadObs() {};
         if (initLoadRep) {
             firstLoadObs = function () {
-                _this5.goTo(initLoadRep);
-                _this5._initLoadRep = null;
+                _this6.goTo(initLoadRep);
+                _this6._initLoadRep = null;
             };
         }
 
