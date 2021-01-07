@@ -528,11 +528,9 @@ func (s *service) Start(ctx context.Context) {
 func (s *service) ForkStart(ctx context.Context, retries ...int) {
 
 	name := s.Options().Name
-	// ctx := s.Options().Context
-	// cancel := s.Options().Cancel
 
-	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
+	// We don't use the CommandContext because that would send the wrong signal to the child process
+	cmd := exec.Command(os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -557,38 +555,35 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 		}
 	}()
 
-	// TODO - is it necessary
-	// go func() {
-	// 	select {
-	// 	case <-ctx.Done():
-	// 		cmd.Process.Signal(syscall.SIGINT)
-	// 	}
-	// }()
-
 	log.Logger(ctx).Debug("Starting SubProcess: " + name)
 
 	if err := cmd.Start(); err != nil {
 		log.Logger(ctx).Error("Could not start process", zap.Error(err))
-		// cancel()
 	}
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
-	if err := cmd.Wait(); err == nil {
+	select {
+	case <-ctx.Done():
 		return
-	}
+	default:
+		if err := cmd.Wait(); err == nil {
+			return
+		}
 
-	r := 0
-	if len(retries) > 0 {
-		r = retries[0]
-	}
-	if r >= 4 {
-		log.Logger(ctx).Error("SubProcess finished: but reached max retries")
-		return
-	}
+		r := 0
+		if len(retries) > 0 {
+			r = retries[0]
+		}
+		if r >= 4 {
+			log.Logger(ctx).Error("SubProcess finished: but reached max retries")
+			return
+		}
 
-	<-time.After(2 * time.Second)
-	log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
-	s.ForkStart(ctx, r+1)
+		<-time.After(2 * time.Second)
+
+		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
+		s.ForkStart(ctx, r+1)
+	}
 }
 
 // Start a service and its dependencies

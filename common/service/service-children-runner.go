@@ -161,47 +161,43 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		}
 	}()
 
-	c.mutex.Lock()
-	c.services[source] = cmd
-	c.mutex.Unlock()
+	select {
+	case <-ctx.Done():
+		return nil
+	default:
+		c.mutex.Lock()
+		c.services[source] = cmd
+		c.mutex.Unlock()
 
-	go func() {
-		select {
-		case <-ctx.Done():
-			if cmd.Process != nil {
-				cmd.Process.Signal(syscall.SIGINT)
-			}
+		log.Logger(ctx).Debug("Starting SubProcess: " + name)
+		if err := cmd.Start(); err != nil {
+			return err
 		}
-	}()
 
-	log.Logger(ctx).Debug("Starting SubProcess: " + name)
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	if err := cmd.Wait(); err != nil {
-		if err.Error() != "signal: killed" && err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
-			log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
-			registry.Default.SetServiceStopped(name)
-			c.mutex.Lock()
-			delete(c.services, source)
-			c.mutex.Unlock()
-			r := 0
-			if len(retries) > 0 {
-				r = retries[0]
+		if err := cmd.Wait(); err != nil {
+			if err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
+				log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
+				registry.Default.SetServiceStopped(name)
+				c.mutex.Lock()
+				delete(c.services, source)
+				c.mutex.Unlock()
+				r := 0
+				if len(retries) > 0 {
+					r = retries[0]
+				}
+				if r < 3 {
+					log.Logger(serviceCtx).Error("Restarting service in 3s...")
+					<-time.After(3 * time.Second)
+					return c.Start(ctx, source, r+1)
+				}
 			}
-			if r < 3 {
-				log.Logger(serviceCtx).Error("Restarting service in 3s...")
-				<-time.After(3 * time.Second)
-				return c.Start(ctx, source, r+1)
-			}
+			return err
 		}
-		return err
-	}
 
-	c.mutex.Lock()
-	delete(c.services, source)
-	c.mutex.Unlock()
+		c.mutex.Lock()
+		delete(c.services, source)
+		c.mutex.Unlock()
+	}
 
 	return nil
 }
