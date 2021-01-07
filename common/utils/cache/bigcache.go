@@ -22,12 +22,21 @@
 package cache
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache"
 	"github.com/uber-go/tally"
 
 	"github.com/pydio/cells/common/service/metrics"
+)
+
+var (
+	defaultConfig bigcache.Config
+	o             = sync.Once{}
 )
 
 // NewInstrumentedCache creates a BigCache instance with a regular report of statistics
@@ -74,15 +83,24 @@ func (i *InstrumentedCache) Set(key string, entry []byte) error {
 	return i.BigCache.Set(key, entry)
 }
 
-//DefaultBigCacheConfig returns a bigcache default config with an
-// eviction time of 30minutes and a HadMaxCachesize of 20MB
 func DefaultBigCacheConfig() bigcache.Config {
-	c := bigcache.DefaultConfig(30 * time.Minute)
-	// Disabled as cleanUp may seem to be able to lock the cache
-	// c.CleanWindow = 10 * time.Minute
-	c.Shards = 64
-	c.MaxEntriesInWindow = 10 * 60 * 64
-	c.MaxEntrySize = 200
-	c.HardMaxCacheSize = 8
-	return c
+	o.Do(func() {
+		defaultConfig = bigcache.DefaultConfig(30 * time.Minute)
+		defaultConfig.Shards = 64
+		defaultConfig.MaxEntriesInWindow = 10 * 60 * 64
+		defaultConfig.MaxEntrySize = 200
+		defaultConfig.HardMaxCacheSize = 8
+		if limit := os.Getenv("CELLS_CACHES_HARD_LIMIT"); limit != "" {
+			if l, e := strconv.ParseInt(limit, 10, 64); e == nil {
+				if l < 8 {
+					fmt.Println("[ENV] ## WARNING ## CELLS_CACHES_HARD_LIMIT cannot use a value lower than 8 (MB).")
+				} else {
+					defaultConfig.HardMaxCacheSize = int(l)
+				}
+			}
+		}
+		// Disabled as cleanUp may seem to be able to lock the cache
+		// c.CleanWindow = 10 * time.Minute
+	})
+	return defaultConfig
 }
