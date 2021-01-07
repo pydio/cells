@@ -339,7 +339,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		}
 		track("CreateACL")
 		link.Uuid = workspace.UUID
-		link.LinkHash = strings.Replace(uuid.NewUUID().String(), "-", "", -1)[0:pluginOptions.HashMinLength]
+		link.LinkHash = strings.Replace(uuid.New(), "-", "", -1)[0:pluginOptions.HashMinLength]
 	} else {
 		if putRequest.UpdateCustomHash != "" {
 			if !pluginOptions.HashEditable {
