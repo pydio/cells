@@ -493,28 +493,30 @@ func (s *service) Start(ctx context.Context) {
 			return
 		}
 
-	looprun:
-		for {
-			select {
-			case <-ctx.Done():
-				// Checking context
-				return
-			default:
-				err := s.Options().Micro.Run()
-				if err == nil {
+		go func() {
+		looprun:
+			for {
+				select {
+				case <-ctx.Done():
+					// Checking context
+					return
+				default:
+					err := s.Options().Micro.Run()
+					if err == nil {
+						break looprun
+					}
+
+					if errorUtils.IsServiceStartNeedsRetry(err) {
+						log.Logger(ctx).Info("Service failed to start - restarting in 10s", zap.Error(err))
+						<-time.After(10 * time.Second)
+						continue looprun
+					}
+
+					log.Logger(s.Options().Context).Error("Could not run ", zap.Error(err))
 					break looprun
 				}
-
-				if errorUtils.IsServiceStartNeedsRetry(err) {
-					log.Logger(ctx).Info("Service failed to start - restarting in 10s", zap.Error(err))
-					<-time.After(10 * time.Second)
-					continue looprun
-				}
-
-				log.Logger(s.Options().Context).Error("Could not run ", zap.Error(err))
-				break looprun
 			}
-		}
+		}()
 	}
 
 	for _, f := range s.Options().AfterStart {
