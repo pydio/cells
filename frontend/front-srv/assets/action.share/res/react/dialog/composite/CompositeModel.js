@@ -99,11 +99,11 @@ class CompositeModel extends Observable {
         if(this.skipUpdateUnderlyingNode){
             return;
         }
-        pydio.getContextHolder().requireNodeReload(this.node);
+        Pydio.getInstance().getContextHolder().requireNodeReload(this.node);
     }
 
     deleteLink(linkModel){
-        linkModel.deleteLink(this.emptyLink(this.node).getLink()).then(res => {
+        return linkModel.deleteLink(this.emptyLink(this.node).getLink()).then(res => {
             this.updateUnderlyingNode();
         });
     }

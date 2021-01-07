@@ -1,9 +1,29 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from 'react'
 import ShareContextConsumer from '../ShareContextConsumer'
 import PublicLinkField from './Field'
 import PublicLinkPermissions from './Permissions'
 import TargetedUsers from './TargetedUsers'
-import {RaisedButton, Toggle, Divider} from 'material-ui'
+import {RaisedButton, Toggle, Divider, CircularProgress} from 'material-ui'
 import LinkModel from './LinkModel'
 import CompositeModel from '../composite/CompositeModel'
 import Pydio from 'pydio'
@@ -28,16 +48,25 @@ let PublicLinkPanel = React.createClass({
         }else if(!linkModel.getLinkUuid() && ShareHelper.getAuthorizations().password_mandatory){
             this.setState({showTemporaryPassword: true, temporaryPassword: ''});
         }else{
+            this.setState({saving: true})
             if(linkModel.getLinkUuid()){
-                this.props.compositeModel.deleteLink(linkModel);
+                this.props.compositeModel.deleteLink(linkModel).catch(()=>{
+                    this.setState({saving: false});
+                }).then(() => {
+                    this.setState({saving: false});
+                });
             } else {
-                linkModel.save();
+                linkModel.save().catch(()=>{
+                    this.setState({saving: false});
+                }).then(() => {
+                    this.setState({saving: false});
+                });
             }
         }
     },
 
     getInitialState(){
-        return {showTemporaryPassword: false, temporaryPassword: null, disabled: false};
+        return {showTemporaryPassword: false, temporaryPassword: null, saving: false};
     },
 
     updateTemporaryPassword(value, event){
@@ -65,6 +94,7 @@ let PublicLinkPanel = React.createClass({
     render(){
 
         const {linkModel, pydio, compositeModel} = this.props;
+        const {showTemporaryPassword, temporaryPassword, saving} = this.state;
         const authorizations = ShareHelper.getAuthorizations();
         const nodeLeaf = compositeModel.getNode().isLeaf();
         const canEnable = (nodeLeaf && authorizations.file_public_link) || (!nodeLeaf && authorizations.folder_public_link);
@@ -92,14 +122,14 @@ let PublicLinkPanel = React.createClass({
                 publicLinkPanes.push(<TargetedUsers linkModel={linkModel} pydio={pydio}/>);
             }
 
-        }else if(this.state.showTemporaryPassword) {
+        }else if(showTemporaryPassword) {
             publicLinkField = (
                 <div>
                     <div className="section-legend" style={{marginTop: 20}}>{this.props.getMessage('215')}</div>
                     <div style={{width: '100%'}}>
                         <ValidPassword
                             attributes={{label: this.props.getMessage('23')}}
-                            value={this.state.temporaryPassword}
+                            value={temporaryPassword}
                             onChange={this.updateTemporaryPassword}
                             ref={"valid-pass"}
                         />
@@ -125,14 +155,15 @@ let PublicLinkPanel = React.createClass({
             <div style={this.props.style}>
                 <div style={{padding:'15px 10px 11px', backgroundColor:'#f5f5f5', borderBottom:'1px solid #e0e0e0', fontSize: 15}}>
                     <Toggle
-                        disabled={this.props.isReadonly() || this.state.disabled || !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable)}
+                        disabled={this.props.isReadonly() || saving|| !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable)}
                         onToggle={this.toggleLink}
-                        toggled={linkModel.getLinkUuid() || this.state.showTemporaryPassword}
+                        toggled={linkModel.getLinkUuid() || showTemporaryPassword}
                         label={this.props.getMessage('189')}
                     />
                 </div>
-                <div style={{padding:20}}>{publicLinkField}</div>
-                {publicLinkPanes}
+                {saving && <div style={{width: '100%', height: 300, display:'flex', alignItems:'center', justifyContent:'center'}}><CircularProgress/></div>}
+                {!saving && <div style={{padding:20}}>{publicLinkField}</div>}
+                {!saving && publicLinkPanes}
             </div>
         );
     }

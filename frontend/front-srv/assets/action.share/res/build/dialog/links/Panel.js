@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -60,6 +80,8 @@ var PublicLinkPanel = _react2['default'].createClass({
     },
 
     toggleLink: function toggleLink() {
+        var _this = this;
+
         var _props = this.props;
         var linkModel = _props.linkModel;
         var pydio = _props.pydio;
@@ -70,16 +92,25 @@ var PublicLinkPanel = _react2['default'].createClass({
         } else if (!linkModel.getLinkUuid() && _mainShareHelper2['default'].getAuthorizations().password_mandatory) {
             this.setState({ showTemporaryPassword: true, temporaryPassword: '' });
         } else {
+            this.setState({ saving: true });
             if (linkModel.getLinkUuid()) {
-                this.props.compositeModel.deleteLink(linkModel);
+                this.props.compositeModel.deleteLink(linkModel)['catch'](function () {
+                    _this.setState({ saving: false });
+                }).then(function () {
+                    _this.setState({ saving: false });
+                });
             } else {
-                linkModel.save();
+                linkModel.save()['catch'](function () {
+                    _this.setState({ saving: false });
+                }).then(function () {
+                    _this.setState({ saving: false });
+                });
             }
         }
     },
 
     getInitialState: function getInitialState() {
-        return { showTemporaryPassword: false, temporaryPassword: null, disabled: false };
+        return { showTemporaryPassword: false, temporaryPassword: null, saving: false };
     },
 
     updateTemporaryPassword: function updateTemporaryPassword(value, event) {
@@ -110,6 +141,10 @@ var PublicLinkPanel = _react2['default'].createClass({
         var linkModel = _props2.linkModel;
         var pydio = _props2.pydio;
         var compositeModel = _props2.compositeModel;
+        var _state = this.state;
+        var showTemporaryPassword = _state.showTemporaryPassword;
+        var temporaryPassword = _state.temporaryPassword;
+        var saving = _state.saving;
 
         var authorizations = _mainShareHelper2['default'].getAuthorizations();
         var nodeLeaf = compositeModel.getNode().isLeaf();
@@ -135,7 +170,7 @@ var PublicLinkPanel = _react2['default'].createClass({
                 publicLinkPanes.push(_react2['default'].createElement(_materialUi.Divider, null));
                 publicLinkPanes.push(_react2['default'].createElement(_TargetedUsers2['default'], { linkModel: linkModel, pydio: pydio }));
             }
-        } else if (this.state.showTemporaryPassword) {
+        } else if (showTemporaryPassword) {
             publicLinkField = _react2['default'].createElement(
                 'div',
                 null,
@@ -149,7 +184,7 @@ var PublicLinkPanel = _react2['default'].createClass({
                     { style: { width: '100%' } },
                     _react2['default'].createElement(ValidPassword, {
                         attributes: { label: this.props.getMessage('23') },
-                        value: this.state.temporaryPassword,
+                        value: temporaryPassword,
                         onChange: this.updateTemporaryPassword,
                         ref: "valid-pass"
                     })
@@ -181,18 +216,23 @@ var PublicLinkPanel = _react2['default'].createClass({
                 'div',
                 { style: { padding: '15px 10px 11px', backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0', fontSize: 15 } },
                 _react2['default'].createElement(_materialUi.Toggle, {
-                    disabled: this.props.isReadonly() || this.state.disabled || !linkModel.isEditable() || !linkModel.getLinkUuid() && !canEnable,
+                    disabled: this.props.isReadonly() || saving || !linkModel.isEditable() || !linkModel.getLinkUuid() && !canEnable,
                     onToggle: this.toggleLink,
-                    toggled: linkModel.getLinkUuid() || this.state.showTemporaryPassword,
+                    toggled: linkModel.getLinkUuid() || showTemporaryPassword,
                     label: this.props.getMessage('189')
                 })
             ),
-            _react2['default'].createElement(
+            saving && _react2['default'].createElement(
+                'div',
+                { style: { width: '100%', height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                _react2['default'].createElement(_materialUi.CircularProgress, null)
+            ),
+            !saving && _react2['default'].createElement(
                 'div',
                 { style: { padding: 20 } },
                 publicLinkField
             ),
-            publicLinkPanes
+            !saving && publicLinkPanes
         );
     }
 });

@@ -156,14 +156,14 @@ var CompositeModel = (function (_Observable) {
             if (this.skipUpdateUnderlyingNode) {
                 return;
             }
-            pydio.getContextHolder().requireNodeReload(this.node);
+            _pydio2['default'].getInstance().getContextHolder().requireNodeReload(this.node);
         }
     }, {
         key: 'deleteLink',
         value: function deleteLink(linkModel) {
             var _this4 = this;
 
-            linkModel.deleteLink(this.emptyLink(this.node).getLink()).then(function (res) {
+            return linkModel.deleteLink(this.emptyLink(this.node).getLink()).then(function (res) {
                 _this4.updateUnderlyingNode();
             });
         }
