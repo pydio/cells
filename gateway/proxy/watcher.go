@@ -110,6 +110,7 @@ func (w *watcher) restartOnStarted(serviceName, peerAddress string) bool {
 	// Register peer and trigger restart
 	knownPeers[peerAddress] = true
 	w.services[serviceName] = knownPeers
+
 	return true
 }
 
