@@ -218,8 +218,22 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 					break
 				}
 				chatClient := c.getChatClient()
+				request := &chat.ListMessagesRequest{RoomUuid: foundRoom.Uuid}
+				if chatMsg.Message != nil {
+					var offData map[string]int
+					offsetMsg := chatMsg.Message.Message
+					if e := json.Unmarshal([]byte(offsetMsg), &offData); e == nil {
+						if offset, ok := offData["Offset"]; ok {
+							request.Offset = int64(offset)
+						}
+						if limit, ok := offData["Limit"]; ok {
+							request.Limit = int64(limit)
+						}
+					}
+				}
+				fmt.Println(request)
 				// List existing Messages
-				stream, e2 := chatClient.ListMessages(ctx, &chat.ListMessagesRequest{RoomUuid: foundRoom.Uuid})
+				stream, e2 := chatClient.ListMessages(ctx, request)
 				if e2 == nil {
 					defer stream.Close()
 					for {

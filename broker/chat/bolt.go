@@ -259,23 +259,53 @@ func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.Ch
 
 func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
 
+	bounds := request.Limit > 0 || request.Offset > 0
 	e = h.DB().View(func(tx *bolt.Tx) error {
 
 		bucket, _ := h.getMessagesBucket(tx, false, request.RoomUuid)
 		if bucket == nil {
 			return nil
 		}
-		return bucket.ForEach(func(k, v []byte) error {
-			var msg chat.ChatMessage
-			err := json.Unmarshal(v, &msg)
-			if err != nil {
-				return err
+		if bounds {
+			cursor := int64(0)
+			c := bucket.Cursor()
+			c.Last()
+			for k, v := c.Last(); k != nil; k, v = c.Prev() {
+				if request.Offset > 0 && cursor < request.Offset {
+					cursor++
+					continue
+				}
+				var msg chat.ChatMessage
+				if err := json.Unmarshal(v, &msg); err != nil {
+					continue
+				}
+				if request.Limit > 0 && int64(len(messages)) >= request.Limit {
+					break
+				}
+				messages = append(messages, &msg)
+				cursor++
 			}
-			messages = append(messages, &msg)
 			return nil
-		})
+		} else {
+			return bucket.ForEach(func(k, v []byte) error {
+				var msg chat.ChatMessage
+				err := json.Unmarshal(v, &msg)
+				if err != nil {
+					return err
+				}
+				messages = append(messages, &msg)
+				return nil
+			})
+		}
 
 	})
+
+	if bounds {
+		// Put back messages in correct order
+		for i, j := 0, len(messages)-1; i < j; i, j = i+1, j-1 {
+			messages[i], messages[j] = messages[j], messages[i]
+		}
+	}
 
 	return messages, e
 }
