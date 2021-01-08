@@ -62,7 +62,11 @@ class DataSourcesBoard extends React.Component {
 
     componentDidMount(){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const {pydio} = this.props;
         this.statusPoller = setInterval(()=>{
+            if(!pydio.WebSocketClient.getStatus()){
+                return
+            }
             DataSource.loadStatuses().then(data => {
                 this.setState({startedServices: data.Services || []});
             });
@@ -72,6 +76,9 @@ class DataSourcesBoard extends React.Component {
         }, 2500);
         setTimeout(() => {
             this.syncPoller = setInterval(() => {
+                if(!pydio.WebSocketClient.getStatus()){
+                    return
+                }
                 this.syncStatuses();
             }, 2500);
         }, 1250)
