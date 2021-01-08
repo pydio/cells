@@ -99,7 +99,6 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         var type = _props.type;
         var pydio = _props.pydio;
         var reload = _props.reload;
-        var openRoleEditor = _props.openRoleEditor;
 
         var currentNode = undefined;
         var _state = this.state;
@@ -176,7 +175,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             if (roles.filter(function (r) {
                 return r.Uuid === state.roleId;
             }).length > 0) {
-                state.roleIdError = this.context.getMetadata('role_editor.31.exists');
+                state.roleIdError = this.context.getMessage('role_editor.31.exists');
             } else {
                 state.roleIdError = '';
             }

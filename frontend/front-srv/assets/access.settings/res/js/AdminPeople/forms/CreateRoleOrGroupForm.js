@@ -71,7 +71,7 @@ const CreateRoleOrGroupForm = React.createClass({
     },
 
     submit() {
-        const {type, pydio, reload, openRoleEditor} = this.props;
+        const {type, pydio, reload} = this.props;
         let currentNode;
         const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError, roleLabel, roleLabelError} = this.state;
         if( type === "group"){
@@ -133,7 +133,7 @@ const CreateRoleOrGroupForm = React.createClass({
         } else if(state.roleId) {
             const {roles = []} = this.props;
             if (roles.filter(r => r.Uuid === state.roleId).length > 0){
-                state.roleIdError = this.context.getMetadata('role_editor.31.exists');
+                state.roleIdError = this.context.getMessage('role_editor.31.exists');
             } else {
                 state.roleIdError= '';
             }
