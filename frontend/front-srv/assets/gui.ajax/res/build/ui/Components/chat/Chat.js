@@ -61,6 +61,8 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 var moment = _Pydio$requireLib.moment;
 
+var LoadSize = 40;
+
 var Chat = (function (_React$Component) {
     _inherits(Chat, _React$Component);
 
@@ -83,7 +85,11 @@ var Chat = (function (_React$Component) {
 
     Chat.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
         if (prevState.messages.length <= this.state.messages.length) {
-            this.refs.comments.scrollTop = 100000;
+            var prevLastStamp = prevState.messages.length > 0 ? parseFloat(prevState.messages[prevState.messages.length - 1].Timestamp) : 0;
+            var newLastStamp = this.state.messages.length > 0 ? parseFloat(this.state.messages[this.state.messages.length - 1].Timestamp) : 0;
+            if (newLastStamp > prevLastStamp) {
+                this.refs.comments.scrollTop = 100000;
+            }
         }
     };
 
@@ -120,7 +126,16 @@ var Chat = (function (_React$Component) {
                     return m.Uuid !== msg.Uuid;
                 }) });
         } else {
-            this.setState({ messages: [].concat(this.state.messages, [msg]) });
+            var messages = [].concat(this.state.messages, [msg]).filter(function (m) {
+                return !!m.Message;
+            });
+            messages.sort(function (mA, mB) {
+                if (mA.Timestamp === mB.Timestamp) {
+                    return 0;
+                }
+                return parseFloat(mA.Timestamp) > parseFloat(mB.Timestamp) ? 1 : -1;
+            });
+            this.setState({ messages: messages });
         }
     };
 
@@ -135,15 +150,28 @@ var Chat = (function (_React$Component) {
         if (room !== null) {
             this.setState({ room: room });
         }
-        this.client.loadHistory(roomType, roomObjectId);
+        this.client.loadHistory(roomType, roomObjectId, 0, LoadSize);
     };
 
-    Chat.prototype.stop = function stop() {
+    Chat.prototype.more = function more() {
         var _props = this.props;
         var roomType = _props.roomType;
         var roomObjectId = _props.roomObjectId;
+        var messages = this.state.messages;
 
-        if (this.client) this.client.leaveRoom(roomType, roomObjectId, this._newMessageListener);
+        if (this.client) {
+            this.client.loadHistory(roomType, roomObjectId, messages.length - 1, LoadSize);
+        }
+    };
+
+    Chat.prototype.stop = function stop() {
+        var _props2 = this.props;
+        var roomType = _props2.roomType;
+        var roomObjectId = _props2.roomObjectId;
+
+        if (this.client) {
+            this.client.leaveRoom(roomType, roomObjectId, this._newMessageListener);
+        }
     };
 
     Chat.prototype.postMessage = function postMessage() {
@@ -188,14 +216,14 @@ var Chat = (function (_React$Component) {
     Chat.prototype.render = function render() {
         var _this = this;
 
-        var _props2 = this.props;
-        var style = _props2.style;
-        var msgContainerStyle = _props2.msgContainerStyle;
-        var fieldHint = _props2.fieldHint;
-        var emptyStateProps = _props2.emptyStateProps;
-        var pydio = _props2.pydio;
-        var pushMessagesToBottom = _props2.pushMessagesToBottom;
-        var computePresenceFromACLs = _props2.computePresenceFromACLs;
+        var _props3 = this.props;
+        var style = _props3.style;
+        var msgContainerStyle = _props3.msgContainerStyle;
+        var fieldHint = _props3.fieldHint;
+        var emptyStateProps = _props3.emptyStateProps;
+        var pydio = _props3.pydio;
+        var pushMessagesToBottom = _props3.pushMessagesToBottom;
+        var computePresenceFromACLs = _props3.computePresenceFromACLs;
         var _state = this.state;
         var messages = _state.messages;
         var room = _state.room;
@@ -203,17 +231,26 @@ var Chat = (function (_React$Component) {
         var data = [];
         var previousMDate = undefined;
         var previousAuthor = undefined;
+        var showLoader = messages.length >= LoadSize;
         messages.forEach(function (m) {
-            if (m['Message']) {
-                var mDate = moment(parseFloat(m.Timestamp) * 1000).fromNow();
-                var hideDate = previousMDate && previousMDate === mDate;
-                var sameAuthor = previousAuthor && previousAuthor === m.Author && hideDate;
-                data.push(_react2['default'].createElement(_Message2['default'], { key: m.Uuid, message: m, hideDate: hideDate, sameAuthor: sameAuthor, onDeleteMessage: function () {
-                        _this.deleteMessage(m);
-                    } }));
-                previousMDate = mDate;
-                previousAuthor = m.Author;
-            }
+            var mDate = moment(parseFloat(m.Timestamp) * 1000).fromNow();
+            var hideDate = previousMDate && previousMDate === mDate;
+            var sameAuthor = previousAuthor && previousAuthor === m.Author && hideDate;
+            data.push(_react2['default'].createElement(_Message2['default'], {
+                key: m.Uuid,
+                message: m,
+                hideDate: hideDate,
+                sameAuthor: sameAuthor,
+                onDeleteMessage: function () {
+                    _this.deleteMessage(m);
+                },
+                moreLoader: showLoader ? function () {
+                    _this.more();
+                } : null
+            }));
+            showLoader = false;
+            previousMDate = mDate;
+            previousAuthor = m.Author;
         });
         var pushStyle = undefined;
         var pusher = undefined;

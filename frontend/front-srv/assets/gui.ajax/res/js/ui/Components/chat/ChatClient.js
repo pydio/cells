@@ -117,16 +117,24 @@ class ChatClient extends PydioWebSocket {
      * Send a HISTORY request to receive existing messages in room
      * @param roomType
      * @param objectId
+     * @param offset
+     * @param limit
      * @param retry int
      */
-    loadHistory(roomType, objectId, retry = 0){
+    loadHistory(roomType, objectId, offset=0, limit=40, retry = 0){
         if(this.connecting) {
             if (retry < 3){
-                setTimeout(()=>{this.loadHistory(roomType, objectId, retry + 1)}, 1500);
+                setTimeout(()=>{this.loadHistory(roomType, objectId, offset, limit, retry + 1)}, 1500);
                 return;
             }
         }
-        let message = {"@type" : "HISTORY", "Room":{"Type":roomType, "RoomTypeObject":objectId}};
+        let message = {
+            "@type" : "HISTORY",
+            Room:{"Type":roomType, "RoomTypeObject":objectId},
+            Message:{
+                Message:JSON.stringify({Offset:offset, Limit: limit}) // Use Message to pass additional data
+            }
+        };
         this.ws.send(JSON.stringify(message));
     }
 

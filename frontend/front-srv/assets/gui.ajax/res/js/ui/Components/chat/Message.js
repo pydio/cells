@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import UserAvatar from '../users/avatar/UserAvatar'
-import {Paper} from 'material-ui'
+import {Paper, FlatButton} from 'material-ui'
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 import DOMUtils from 'pydio/util/dom'
 
@@ -33,7 +33,7 @@ class Message extends React.Component {
     }
 
     render(){
-        const {message, pydio, hideDate, sameAuthor, onDeleteMessage} = this.props;
+        const {message, pydio, hideDate, sameAuthor, onDeleteMessage, moreLoader} = this.props;
         const mDate = moment(parseFloat(message.Timestamp)*1000);
 
         const styles = {
@@ -48,8 +48,13 @@ class Message extends React.Component {
                 margin: '10px 20px',
                 borderBottom: '1px solid #eee'
             },
+            loader: {
+                paddingTop: 8,
+                opacity: .8,
+                textAlign: 'center',
+            },
             comment: {
-                padding: 8,
+                padding: '6px 8px',
                 display: 'flex',
                 alignItems: 'flex-start'
             },
@@ -64,7 +69,7 @@ class Message extends React.Component {
             },
             commentDeleteBox: {
                 position: 'absolute',
-                top: 5,
+                top: 9,
                 right: 5,
                 cursor: 'pointer',
                 fontSize: 20,
@@ -123,6 +128,11 @@ class Message extends React.Component {
                  onMouseOut={()=>{this.setState({hover:false})}}
                  onContextMenu={(e) => {e.stopPropagation()}}
             >
+                {moreLoader &&
+                <div style={styles.loader}>
+                    <FlatButton primary={true} label={Pydio.getMessages()['chat.load-older']} onTouchTap={moreLoader}/>
+                </div>
+                }
                 {!hideDate &&
                     <div style={styles.date}>
                         <span style={styles.dateLine}/>
