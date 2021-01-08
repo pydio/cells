@@ -43,5 +43,11 @@
   },
   "Update.Config.ProxyPassword.Description": {
     "other": "Passwort für Proxyserver-Identifikation"
+  },
+  "Update.Config.Disable.Label": {
+    "other": "Aktualisierungsprüfung deaktivieren"
+  },
+  "Update.Config.Disable.Description": {
+    "other": "Wenn Ihr Server keinen Zugriff auf die Außenwelt hat, versuchen Sie nicht, die Update-Site zu kontaktieren."
   }
 }
