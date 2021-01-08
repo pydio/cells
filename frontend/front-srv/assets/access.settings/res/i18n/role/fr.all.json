@@ -92,6 +92,12 @@
   "31": {
     "other": "ID rôle"
   },
+  "31.hint": {
+    "other": "Identifiant (vide pour génération automatique)"
+  },
+  "31.exists": {
+    "other": "Cet identifiant existe déjà"
+  },
   "32": {
     "other": "Libellé"
   },

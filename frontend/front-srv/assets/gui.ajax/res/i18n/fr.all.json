@@ -105,9 +105,9 @@
     "other": "Jobs en cours"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Problème de connexion"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "La WebSocket semble être déconnectée, assurez-vous que le serveur est opérationnel et que la connexion WebSocket fonctionne."
   }
 }

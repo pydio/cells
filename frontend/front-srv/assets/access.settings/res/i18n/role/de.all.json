@@ -92,6 +92,12 @@
   "31": {
     "other": "Rollen-ID"
   },
+  "31.hint": {
+    "other": "Role ID (empty for auto-generate)"
+  },
+  "31.exists": {
+    "other": "Die Kennung existiert bereits"
+  },
   "32": {
     "other": "Rollenname"
   },
