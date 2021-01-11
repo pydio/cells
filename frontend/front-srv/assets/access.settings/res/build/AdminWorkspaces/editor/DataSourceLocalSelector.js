@@ -451,6 +451,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var _props3 = this.props;
             var model = _props3.model;
             var pydio = _props3.pydio;
+            var styles = _props3.styles;
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
             var invalidAddress = _state2.invalidAddress;
@@ -463,14 +464,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                 pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
 
-            console.log(peerAddresses, pAds);
-
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'div',
                     { style: { paddingBottom: 8 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.subLegend },
+                        m('storage.legend.fs.peer')
+                    ),
                     _react2['default'].createElement(
                         ModernSelectField,
                         {
@@ -493,6 +497,11 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                 _react2['default'].createElement(
                     'div',
                     null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.subLegend, { paddingBottom: 6 }) },
+                        m('storage.legend.fs.path')
+                    ),
                     model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
                         pydio: pydio,
                         value: model.StorageConfiguration.folder,

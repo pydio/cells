@@ -371,6 +371,13 @@ var DataSourceEditor = (function (_React$Component) {
                     marginBottom: 10
                 },
                 legend: {},
+                subLegend: {
+                    padding: '10px 6px 0 4px',
+                    fontSize: 12,
+                    lineHeight: '16px',
+                    color: 'rgba(0,0,0,0.6)',
+                    textAlign: 'justify'
+                },
                 section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
                 storageSection: { padding: 20, marginTop: -1 },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
@@ -480,7 +487,7 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.fs')
                         ),
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio, styles: styles }),
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
@@ -529,7 +536,7 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 40 }) },
                             m('storage.s3.legend.tags')
                         ),
                         _react2['default'].createElement(
@@ -608,7 +615,7 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                         m('storage.legend.versioning')
                     ),
                     _react2['default'].createElement(
@@ -626,7 +633,7 @@ var DataSourceEditor = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                             m('storage.legend.readOnly')
                         ),
                         _react2['default'].createElement(_materialUi.Toggle, _extends({
@@ -643,7 +650,7 @@ var DataSourceEditor = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                             m('storage.legend.checksumMapper')
                         ),
                         _react2['default'].createElement(_materialUi.Toggle, _extends({
@@ -669,7 +676,7 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                         m('storage.legend.encryption')
                     ),
                     _react2['default'].createElement(
