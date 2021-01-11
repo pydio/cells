@@ -186,9 +186,9 @@ func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
 			cmd.Println("***********************************************")
 			return e
 		} else {
-			cmd.Println("*********************************************************************")
-			cmd.Println(" Config has been updated, internal proxy will restart automatically  ")
-			cmd.Println("*********************************************************************")
+			cmd.Println("********************************************************")
+			cmd.Println("   Config has been updated, please restart Cells now.   ")
+			cmd.Println("********************************************************")
 		}
 	} else {
 		cmd.Println("***********************************************")
