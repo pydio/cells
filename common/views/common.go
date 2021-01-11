@@ -204,6 +204,16 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		if branchInfo.AncestorsList == nil {
 			branchInfo.AncestorsList = make(map[string][]*tree.Node, 1)
 		}
+		// Make sure to detect ws_root
+		for _, rootId := range branchInfo.RootUUIDs {
+			for i := 0; i < len(parents); i++ {
+				if parents[i].Uuid == rootId {
+					cloneNode := parents[i].Clone()
+					cloneNode.SetMeta(common.MetaFlagWorkspaceRoot, "true")
+					parents[i] = cloneNode
+				}
+			}
+		}
 		branchInfo.AncestorsList[node.Path] = parents
 		ctx = WithBranchInfo(ctx, identifier, branchInfo)
 	}
