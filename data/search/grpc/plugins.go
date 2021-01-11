@@ -55,6 +55,7 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
 			service.RouterDependencies(),
+			service.AutoRestart(true),
 			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
 

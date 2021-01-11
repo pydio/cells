@@ -99,6 +99,7 @@ type service struct {
 	// Computed by external functions during listing operations
 	nodes    []*microregistry.Node
 	excluded bool
+	origCtx  context.Context
 
 	opts ServiceOptions
 	node goraph.Node
@@ -239,6 +240,12 @@ var mandatoryOptions = []ServiceOption{
 			}
 			registerWatchers(s, k, w)
 		}
+		return nil
+	}),
+
+	AfterInit(func(s Service) error {
+		s.(*service).origCtx = s.Options().Context
+
 		return nil
 	}),
 
@@ -478,6 +485,13 @@ func (s *service) AfterInit() error {
 
 // Start a service and its dependencies
 func (s *service) Start(ctx context.Context) {
+	// Resetting the original context for the service in case of a restart
+	ctx, cancel := context.WithCancel(s.origCtx)
+	s.Init(
+		Context(ctx),
+		Cancel(cancel),
+	)
+
 	for _, f := range s.Options().BeforeStart {
 		if err := f(s); err != nil {
 			log.Logger(ctx).Error("Could not prepare start ", zap.Error(err))
@@ -564,25 +578,25 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	}
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
+	if err := cmd.Wait(); err == nil {
+		return
+	}
+
+	r := 0
+	if len(retries) > 0 {
+		r = retries[0]
+	}
+	if r >= 4 {
+		log.Logger(ctx).Error("SubProcess finished: but reached max retries")
+		return
+	}
+
+	<-time.After(2 * time.Second)
+
 	select {
 	case <-ctx.Done():
 		return
 	default:
-		if err := cmd.Wait(); err == nil {
-			return
-		}
-
-		r := 0
-		if len(retries) > 0 {
-			r = retries[0]
-		}
-		if r >= 4 {
-			log.Logger(ctx).Error("SubProcess finished: but reached max retries")
-			return
-		}
-
-		<-time.After(2 * time.Second)
-
 		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
 		s.ForkStart(ctx, r+1)
 	}
@@ -600,11 +614,7 @@ func (s *service) Stop() {
 		}
 	}
 
-	if stopper, ok := s.Options().Micro.(Stopper); ok {
-		stopper.Stop()
-	}
-
-	// Cancelling context should stop the service altogether
+	// Cancelling context stops the service properly
 	if cancel != nil {
 		cancel()
 	}

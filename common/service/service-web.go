@@ -21,7 +21,6 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"reflect"
@@ -91,11 +90,9 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 
 			name := s.Options().Name
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
-			ctx, cancel := context.WithCancel(ctx)
 
 			s.Init(
 				Micro(svc),
-				Cancel(cancel),
 			)
 
 			srv := defaults.NewHTTPServer(

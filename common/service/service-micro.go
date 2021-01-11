@@ -83,6 +83,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
+
 			var srvOpts []server.Option
 			if o.Port != "" {
 				srvOpts = append(srvOpts, server.Address(":"+o.Port))
@@ -92,8 +93,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			}
 
 			srvOpts = append(srvOpts, server.Version(o.Version))
-
-			// ctx, cancel := context.WithCancel(ctx)
 
 			srv := defaults.NewServer(srvOpts...)
 			svc.Init(
@@ -154,7 +153,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			s.Init(
 				Micro(svc),
-				// Cancel(cancel),
 			)
 
 			return nil

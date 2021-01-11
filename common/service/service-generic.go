@@ -21,7 +21,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -58,7 +57,6 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
-			ctx, cancel := context.WithCancel(ctx)
 
 			srv := f(
 				server.Name(name),
@@ -99,7 +97,6 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 			s.Init(
 				Micro(svc),
-				Cancel(cancel),
 			)
 
 			return nil
@@ -120,8 +117,6 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			o.Version = common.Version().String()
-
-			ctx, cancel := context.WithCancel(ctx)
 
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
@@ -177,7 +172,6 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 
 			s.Init(
 				Micro(svc),
-				Cancel(cancel),
 			)
 
 			return nil
