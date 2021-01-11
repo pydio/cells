@@ -227,8 +227,7 @@ var Transfer = function (_React$Component) {
                 leftIcon = void 0,
                 toggleOpen = void 0,
                 toggleCallback = void 0,
-                pgColor = void 0,
-                errMessage = void 0;
+                pgColor = void 0;
 
             if (children.length) {
                 if (open || isSession && status !== _StatusItem2.default.StatusAnalyze) {
@@ -345,16 +344,11 @@ var Transfer = function (_React$Component) {
                 );
             }
 
-            if (status === 'error' && item.getErrorMessage()) {
-                errMessage = _react2.default.createElement(
-                    'span',
-                    { style: styles.errMessage, title: item.getErrorMessage() },
-                    item.getErrorMessage()
-                );
-            }
             var statusLabel = void 0;
+            var secondaryLine = _extends({}, styles.secondaryLine);
             var itemType = isDir ? "dir" : isPart ? "part" : "file";
             if (status === 'error') {
+                secondaryLine.opacity = 1;
                 statusLabel = _react2.default.createElement(
                     'span',
                     { style: styles.errMessage, title: item.getErrorMessage() },
@@ -386,7 +380,7 @@ var Transfer = function (_React$Component) {
                         ),
                         _react2.default.createElement(
                             'div',
-                            { style: styles.secondaryLine },
+                            { style: secondaryLine },
                             statusLabel
                         ),
                         _react2.default.createElement(

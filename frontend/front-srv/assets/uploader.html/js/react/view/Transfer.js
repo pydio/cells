@@ -173,7 +173,7 @@ class Transfer extends React.Component{
         };
 
 
-        let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor, errMessage;
+        let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor;
 
         if (children.length){
             if(open || (isSession && status !== StatusItem.StatusAnalyze)){
@@ -268,12 +268,11 @@ class Transfer extends React.Component{
                 </span>);
         }
 
-        if(status === 'error' && item.getErrorMessage()){
-            errMessage = <span style={styles.errMessage} title={item.getErrorMessage()}>{item.getErrorMessage()}</span>
-        }
         let statusLabel;
+        let secondaryLine = {...styles.secondaryLine}
         const itemType = isDir?"dir":(isPart?"part":"file");
         if(status === 'error'){
+            secondaryLine.opacity = 1;
             statusLabel = <span style={styles.errMessage} title={item.getErrorMessage()}>{item.getErrorMessage()}</span>;
         } else {
             statusLabel = messages['html_uploader.status.' + itemType + '.' + status] || messages['html_uploader.status.' + status] || status;
@@ -288,7 +287,7 @@ class Transfer extends React.Component{
                     {leftIcon}
                     <div style={{flex: 1, overflow:'hidden', paddingLeft: 4}}>
                         <div onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</div>
-                        <div style={styles.secondaryLine}>{statusLabel}</div>
+                        <div style={secondaryLine}>{statusLabel}</div>
                         <div style={styles.pgBar}>{progressBar}</div>
                     </div>
                     <span style={styles.rightButton}>{rightButton}</span>

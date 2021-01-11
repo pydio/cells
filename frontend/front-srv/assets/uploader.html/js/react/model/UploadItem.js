@@ -113,8 +113,9 @@ class UploadItem extends StatusItem {
             }
         };
 
+        const messages = Pydio.getMessages();
         const error = (e)=>{
-            this.onError(Pydio.getInstance().MessageHash[210]+": " +e.message);
+            this.onError(messages[210]+": " +e.message);
             completeCallback();
         };
 
@@ -122,15 +123,20 @@ class UploadItem extends StatusItem {
         const BACK_OFF = 150;
         const retry = (count)=>{
             return (e)=>{
-                if (e && e.indexOf && e.indexOf('422') >= 0) {
-                    error(new Error('Quota reached! Cannot upload more to this workspace'));
-                    return;
+                if (e && e.indexOf) {
+                    if(e.indexOf('422') >= 0){
+                        error(new Error(messages['html_uploader.status.error.422'] + ' (422)'));
+                        return;
+                    } else if(e.indexOf('403') >= 0) {
+                        error(new Error(messages['html_uploader.status.error.403'] + ' (403)'));
+                        return
+                    }
                 }
                 if(this._userAborted){
                     if(e) {
                         error(e);
                     } else {
-                        error(new Error('Interrupted by user'));
+                        error(new Error(messages['html_uploader.status.error.aborted']));
                     }
                     return;
                 }
