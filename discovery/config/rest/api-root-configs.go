@@ -51,13 +51,14 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	if u == "" {
 		u = "rest"
 	}
-	path := strings.Split(strings.Trim(configuration.FullPath, "/"), "/")
+	fullPath := strings.Trim(configuration.FullPath, "/")
+	path := strings.Split(fullPath, "/")
 	if len(path) == 0 {
-		service.RestError401(req, resp, errors.New("no path given"))
+		service.RestError401(req, resp, errors.New("no path given!"))
 		return
 	}
-	if path[0] != "frontend" && path[0] != "services" {
-		service.RestError401(req, resp, errors.New("wrong path"))
+	if !config.IsRestEditable(fullPath) {
+		service.RestError403(req, resp, errors.New("you are not allowed to edit that configuration"))
 		return
 	}
 	var parsed map[string]interface{}
@@ -79,10 +80,15 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
-	fullPath := req.PathParameter("FullPath")
+	fullPath := strings.Trim(req.PathParameter("FullPath"), "/")
 	log.Logger(ctx).Debug("Config.Get FullPath : " + fullPath)
 
-	path := strings.Split(strings.Trim(fullPath, "/"), "/")
+	path := strings.Split(fullPath, "/")
+
+	if !config.IsRestEditable(fullPath) {
+		service.RestError403(req, resp, errors.New("you are not allowed to read that configuration via the REST API"))
+		return
+	}
 
 	data := config.Get(path...).String()
 
