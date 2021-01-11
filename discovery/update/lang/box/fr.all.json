@@ -43,5 +43,11 @@
   },
   "Update.Config.ProxyPassword.Description": {
     "other": "Mot de passe de l'utilisateur pour s'authentifier auprès du proxy"
+  },
+  "Update.Config.Disable.Label": {
+    "other": "Désactiver les mises à jours"
+  },
+  "Update.Config.Disable.Description": {
+    "other": "Si le serveur n'a pas accès au net, ne pas essayer pas de contacter le serveur de mises à jour."
   }
 }

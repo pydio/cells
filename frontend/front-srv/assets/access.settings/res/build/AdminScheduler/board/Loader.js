@@ -72,6 +72,9 @@ var Loader = (function (_Observable) {
             }, 500);
             JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
             this._poll = setInterval(function () {
+                if (!_pydio2['default'].getInstance().WebSocketClient.getStatus()) {
+                    return;
+                }
                 _this.load(true);
             }, 5000);
         }

@@ -301,7 +301,7 @@ class DataSourceLocalSelector extends React.Component{
 
     render(){
 
-        const {model, pydio} = this.props;
+        const {model, pydio, styles} = this.props;
         const {peerAddresses, invalidAddress, invalid, m} = this.state;
         let pAds = [...peerAddresses];
         pAds = ["ANY", ...pAds];
@@ -309,11 +309,10 @@ class DataSourceLocalSelector extends React.Component{
             pAds = [invalidAddress, ...pAds];
         }
 
-        console.log(peerAddresses, pAds);
-
         return (
             <div>
                 <div style={{paddingBottom: 8}}>
+                    <div style={styles.subLegend}>{m('storage.legend.fs.peer')}</div>
                     <ModernSelectField
                         value={model.PeerAddress || ''}
                         hintText={m('selector.peer') + ' *'}
@@ -330,6 +329,7 @@ class DataSourceLocalSelector extends React.Component{
                     </ModernSelectField>
                 </div>
                 <div>
+                    <div style={{...styles.subLegend, paddingBottom: 6}}>{m('storage.legend.fs.path')}</div>
                     {model.PeerAddress &&
                     <AutocompleteTree
                         pydio={pydio}

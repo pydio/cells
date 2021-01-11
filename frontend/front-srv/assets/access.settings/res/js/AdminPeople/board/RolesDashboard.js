@@ -116,6 +116,7 @@ let RolesDashboard = React.createClass({
             type:'role',
             roleNode:this.state.currentNode,
             openRoleEditor:this.openRoleEditor.bind(this),
+            roles: this.state.roles,
             reload: () => {this.load()}
         });
     },

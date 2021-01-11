@@ -92,6 +92,12 @@
   "31": {
     "other": "Role ID"
   },
+  "31.hint": {
+    "other": "Role ID (empty for auto-generate)"
+  },
+  "31.exists": {
+    "other": "Identifier already exists"
+  },
   "32": {
     "other": "Role Label"
   },

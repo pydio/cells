@@ -102,7 +102,13 @@
     "other": "Sử dụng API Key / Api Secret để xác thực, để trống URL nếu sử dụng AmazonS3 hoặc sử dụng URL của riêng bạn."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Duyệt dữ liệu từ ổ đĩa hoặc ổ mạng. Peer Address là tên hoặc địa chỉ của máy chạy Cells. Tên thư mục phải chứa nguyên các ký tự thường và thư mục cha của nó phải được cho quyền ghi đữ liệu."
+    "other": "Browse data from a local or network-attached file system."
+  },
+  "ds.editor.storage.legend.fs.peer": {
+    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
+  },
+  "ds.editor.storage.legend.fs.path": {
+    "other": "Make sure that last folder is lowercase and its parent must writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Duyệt dữ liệu từ các S3 bucket."

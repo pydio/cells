@@ -173,17 +173,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
-					Key:         "search-engine",
-					Label:       "plugtype.title.search-engine",
-					Description: "plugtype.desc.search-engine",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-magnify",
-						Component: "AdminPlugins.ServiceEditor",
-						Props:     `{"serviceName":"pydio.grpc.search"}`,
-						Advanced:  true,
-					},
-				},
-				{
 					Key:         "core.auth",
 					Label:       "ajxp_admin.menu.11",
 					Description: "plugtype.desc.auth",

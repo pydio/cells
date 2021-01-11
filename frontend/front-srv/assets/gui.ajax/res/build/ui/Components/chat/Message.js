@@ -72,6 +72,7 @@ var Message = (function (_React$Component) {
         var hideDate = _props.hideDate;
         var sameAuthor = _props.sameAuthor;
         var onDeleteMessage = _props.onDeleteMessage;
+        var moreLoader = _props.moreLoader;
 
         var mDate = moment(parseFloat(message.Timestamp) * 1000);
 
@@ -87,8 +88,13 @@ var Message = (function (_React$Component) {
                 margin: '10px 20px',
                 borderBottom: '1px solid #eee'
             },
+            loader: {
+                paddingTop: 8,
+                opacity: .8,
+                textAlign: 'center'
+            },
             comment: {
-                padding: 8,
+                padding: '6px 8px',
                 display: 'flex',
                 alignItems: 'flex-start'
             },
@@ -103,7 +109,7 @@ var Message = (function (_React$Component) {
             },
             commentDeleteBox: {
                 position: 'absolute',
-                top: 5,
+                top: 9,
                 right: 5,
                 cursor: 'pointer',
                 fontSize: 20,
@@ -171,6 +177,11 @@ var Message = (function (_React$Component) {
                     e.stopPropagation();
                 }
             },
+            moreLoader && _react2['default'].createElement(
+                'div',
+                { style: styles.loader },
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: _pydio2['default'].getMessages()['chat.load-older'], onTouchTap: moreLoader })
+            ),
             !hideDate && _react2['default'].createElement(
                 'div',
                 { style: styles.date },

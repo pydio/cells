@@ -219,10 +219,16 @@ class RestClient extends ApiClient{
 
     handleError(reason) {
         let msg = reason.message;
+        let replace  = false;
         if (reason.response && reason.response.body){
             msg = reason.response.body
+            if(msg.Title) {
+                msg = msg.Title;
+            }
+            replace = true;
         } else if (reason.response && reason.response.text){
             msg = reason.response.text;
+            replace = true;
         }
         if (reason.response && reason.response.status === 401) {
             this.pydio.getController().fireAction('logout');
@@ -230,20 +236,23 @@ class RestClient extends ApiClient{
         if (reason.response && reason.response.status === 404) {
             // 404 may happen
             console.info('404 not found', msg);
-            return msg;
+            return {message: msg};
         }
         if (reason.response && reason.response.status === 503) {
             // 404 may happen
             console.warn('Service currently unavailable', msg);
-            return msg;
+            return {message: msg};
         }
         if (reason.response && reason.response.status === 423) {
             // 423 may happen
             console.warn('Resource currently locked', msg);
-            return msg;
+            return {message: msg};
         }
         if(this.pydio && this.pydio.UI && !(this.options && this.options.silent)) {
             this.pydio.UI.displayMessage('ERROR', msg);
+        }
+        if(replace){
+            return {message: msg};
         }
         if (console) {
             console.error(reason);

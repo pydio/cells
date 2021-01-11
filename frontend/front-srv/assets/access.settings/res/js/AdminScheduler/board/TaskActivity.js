@@ -50,6 +50,9 @@ class TaskActivity extends React.Component{
         const {poll} = this.props;
         if(poll){
             this._interval = window.setInterval(() => {
+                if(!Pydio.getInstance().WebSocketClient.getStatus()){
+                    return
+                }
                 this.loadActivity(this.props);
             }, poll);
         }

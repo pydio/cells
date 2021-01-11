@@ -145,23 +145,34 @@ var ChatClient = (function (_PydioWebSocket) {
      * Send a HISTORY request to receive existing messages in room
      * @param roomType
      * @param objectId
+     * @param offset
+     * @param limit
      * @param retry int
      */
 
     ChatClient.prototype.loadHistory = function loadHistory(roomType, objectId) {
+        var offset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
         var _this2 = this;
 
-        var retry = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+        var limit = arguments.length <= 3 || arguments[3] === undefined ? 40 : arguments[3];
+        var retry = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
 
         if (this.connecting) {
             if (retry < 3) {
                 setTimeout(function () {
-                    _this2.loadHistory(roomType, objectId, retry + 1);
+                    _this2.loadHistory(roomType, objectId, offset, limit, retry + 1);
                 }, 1500);
                 return;
             }
         }
-        var message = { "@type": "HISTORY", "Room": { "Type": roomType, "RoomTypeObject": objectId } };
+        var message = {
+            "@type": "HISTORY",
+            Room: { "Type": roomType, "RoomTypeObject": objectId },
+            Message: {
+                Message: JSON.stringify({ Offset: offset, Limit: limit }) // Use Message to pass additional data
+            }
+        };
         this.ws.send(JSON.stringify(message));
     };
 

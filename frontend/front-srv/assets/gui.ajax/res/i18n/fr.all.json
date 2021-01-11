@@ -103,5 +103,11 @@
   },
   "background.jobs.title": {
     "other": "Jobs en cours"
+  },
+  "websocket.disconnected.title": {
+    "other": "Problème de connexion"
+  },
+  "websocket.disconnected.legend": {
+    "other": "La WebSocket semble être déconnectée, assurez-vous que le serveur est opérationnel et que la connexion WebSocket fonctionne."
   }
 }

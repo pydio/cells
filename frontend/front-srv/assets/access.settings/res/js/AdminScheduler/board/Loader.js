@@ -36,6 +36,9 @@ class Loader extends Observable {
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
         this._poll = setInterval(()=>{
+            if(!Pydio.getInstance().WebSocketClient.getStatus()){
+                return
+            }
             this.load(true)
         }, 5000);
     }

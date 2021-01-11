@@ -1916,6 +1916,7 @@ var RolesDashboard = _react2['default'].createClass({
             type: 'role',
             roleNode: this.state.currentNode,
             openRoleEditor: this.openRoleEditor.bind(this),
+            roles: this.state.roles,
             reload: function reload() {
                 _this4.load();
             }
@@ -6458,6 +6459,10 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -6500,7 +6505,8 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             groupLabel: '',
             groupLabelError: this.context.getMessage('ajxp_admin.user.17.empty'),
             roleId: '',
-            roleIdError: this.context.getMessage('ajxp_admin.user.18.empty')
+            roleLabel: '',
+            roleLabelError: this.context.getMessage('ajxp_admin.user.18.empty')
         };
     },
 
@@ -6520,6 +6526,8 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         var groupLabelError = _state.groupLabelError;
         var roleId = _state.roleId;
         var roleIdError = _state.roleIdError;
+        var roleLabel = _state.roleLabel;
+        var roleLabelError = _state.roleLabelError;
 
         if (type === "group") {
             if (groupIdError || groupLabelError) {
@@ -6536,11 +6544,10 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 currentNode.reload();
             });
         } else if (type === "role") {
-            if (roleIdError) {
+            if (roleLabelError || roleIdError) {
                 return;
             }
-            currentNode = this.props.roleNode;
-            _pydioHttpApi2['default'].getRestClient().getIdmApi().createRole(roleId).then(function () {
+            _pydioHttpApi2['default'].getRestClient().getIdmApi().createRole(roleLabel, roleId).then(function () {
                 _this.dismiss();
                 if (reload) {
                     reload();
@@ -6564,13 +6571,33 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 state.groupLabelError = this.context.getMessage('ajxp_admin.user.17.empty');
             } else {
                 state.groupLabelError = '';
+                var _state2 = this.state;
+                var groupId = _state2.groupId;
+                var groupLabel = _state2.groupLabel;
+
+                if (groupId === '' || _pydioUtilLang2['default'].computeStringSlug(groupLabel) === groupId) {
+                    state.groupId = _pydioUtilLang2['default'].computeStringSlug(state.groupLabel);
+                    state.groupIdError = '';
+                }
             }
-        } else if (state.roleId !== undefined) {
-            if (state.roleId === '') {
-                state.roleIdError = this.context.getMessage('ajxp_admin.user.18.empty');
+        } else if (state.roleLabel !== undefined) {
+            if (state.roleLabel === '') {
+                state.roleLabelError = this.context.getMessage('ajxp_admin.user.18.empty');
+            } else {
+                state.roleLabelError = '';
+            }
+        } else if (state.roleId) {
+            var _props$roles = this.props.roles;
+            var roles = _props$roles === undefined ? [] : _props$roles;
+
+            if (roles.filter(function (r) {
+                return r.Uuid === state.roleId;
+            }).length > 0) {
+                state.roleIdError = this.context.getMessage('role_editor.31.exists');
             } else {
                 state.roleIdError = '';
             }
+            state.roleId = _pydioUtilLang2['default'].computeStringSlug(state.roleId);
         }
         this.setState(state);
     },
@@ -6578,27 +6605,20 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
     render: function render() {
         var _this2 = this;
 
-        var _state2 = this.state;
-        var groupId = _state2.groupId;
-        var groupIdError = _state2.groupIdError;
-        var groupLabel = _state2.groupLabel;
-        var groupLabelError = _state2.groupLabelError;
-        var roleId = _state2.roleId;
-        var roleIdError = _state2.roleIdError;
+        var _state3 = this.state;
+        var groupId = _state3.groupId;
+        var groupIdError = _state3.groupIdError;
+        var groupLabel = _state3.groupLabel;
+        var groupLabelError = _state3.groupLabelError;
+        var roleId = _state3.roleId;
+        var roleIdError = _state3.roleIdError;
+        var roleLabel = _state3.roleLabel;
+        var roleLabelError = _state3.roleLabelError;
 
         if (this.props.type === 'group') {
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(ModernTextField, {
-                    value: groupId,
-                    errorText: groupIdError,
-                    onChange: function (e, v) {
-                        _this2.update({ groupId: v });
-                    },
-                    fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.16')
-                }),
                 _react2['default'].createElement(ModernTextField, {
                     value: groupLabel,
                     errorText: groupLabelError,
@@ -6606,7 +6626,26 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                         _this2.update({ groupLabel: v });
                     },
                     fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.17')
+                    floatingLabelText: this.context.getMessage('ajxp_admin.user.17'),
+                    onKeyPress: function (e) {
+                        if (e.key === 'Enter') {
+                            _this2.submit();
+                        }
+                    }
+                }),
+                _react2['default'].createElement(ModernTextField, {
+                    value: groupId,
+                    errorText: groupIdError,
+                    onChange: function (e, v) {
+                        _this2.update({ groupId: v });
+                    },
+                    fullWidth: true,
+                    floatingLabelText: this.context.getMessage('ajxp_admin.user.16'),
+                    onKeyDown: function (e) {
+                        if (e.key === 'Enter') {
+                            _this2.submit();
+                        }
+                    }
                 })
             );
         } else {
@@ -6614,12 +6653,30 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 'div',
                 { style: { width: '100%' } },
                 _react2['default'].createElement(ModernTextField, {
+                    value: roleLabel,
+                    errorText: roleLabelError,
+                    onChange: function (e, v) {
+                        _this2.update({ roleLabel: v });
+                    },
+                    floatingLabelText: this.context.getMessage('role_editor.32'),
+                    onKeyDown: function (e) {
+                        if (e.key === 'Enter') {
+                            _this2.submit();
+                        }
+                    }
+                }),
+                _react2['default'].createElement(ModernTextField, {
                     value: roleId,
                     errorText: roleIdError,
+                    floatingLabelText: this.context.getMessage("role_editor.31.hint"),
                     onChange: function (e, v) {
                         _this2.update({ roleId: v });
                     },
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.18')
+                    onKeyDown: function (e) {
+                        if (e.key === 'Enter') {
+                            _this2.submit();
+                        }
+                    }
                 })
             );
         }
@@ -6630,7 +6687,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],57:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],57:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

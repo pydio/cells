@@ -163,11 +163,11 @@
 			"versionExact": "v2.2.5"
 		},
 		{
+			"comment": "This package must be manually located under bigcache/queue instead of bigcache/v2/queue",
 			"path": "github.com/allegro/bigcache/v2/queue",
 			"revision": "92a824fbb3f6faa47bbb418441c9e43cfb62d294",
 			"version": "v2.2.5",
-			"versionExact": "v2.2.5",
-			"comment": "This package must be manually located under bigcache/queue instead of bigcache/v2/queue"
+			"versionExact": "v2.2.5"
 		},
 		{
 			"checksumSHA1": "2rWSos1D+xqNSGkvEMOG3pntod8=",
@@ -4325,10 +4325,10 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "wbTjhsJ4k7RlNaf35MpqU3zLGEc=",
+			"checksumSHA1": "mWYJVxuoCyM2QmmO4/k91KF8bso=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "ae20d8a61aff5fe56585c10554e29530b294da0f",
-			"revisionTime": "2020-11-13T08:30:07Z",
+			"revision": "028441bbdd6aeae7e0d401185fe48506cd04eee5",
+			"revisionTime": "2021-01-11T10:25:16Z",
 			"tree": true
 		},
 		{

@@ -139,7 +139,12 @@ var DataSourcesBoard = (function (_React$Component) {
             var _this = this;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var pydio = this.props.pydio;
+
             this.statusPoller = setInterval(function () {
+                if (!pydio.WebSocketClient.getStatus()) {
+                    return;
+                }
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
                     _this.setState({ startedServices: data.Services || [] });
                 });
@@ -149,6 +154,9 @@ var DataSourcesBoard = (function (_React$Component) {
             }, 2500);
             setTimeout(function () {
                 _this.syncPoller = setInterval(function () {
+                    if (!pydio.WebSocketClient.getStatus()) {
+                        return;
+                    }
                     _this.syncStatuses();
                 }, 2500);
             }, 1250);

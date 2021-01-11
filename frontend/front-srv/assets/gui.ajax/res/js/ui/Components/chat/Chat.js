@@ -27,6 +27,8 @@ const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 import {TextField} from 'material-ui'
 import ChatUsers from './ChatUsers'
 
+const LoadSize = 40;
+
 class Chat extends React.Component{
 
     constructor(props){
@@ -46,7 +48,11 @@ class Chat extends React.Component{
 
     componentDidUpdate(prevProps, prevState){
         if(prevState.messages.length <= this.state.messages.length){
-            this.refs.comments.scrollTop = 100000;
+            const prevLastStamp = prevState.messages.length > 0 ? parseFloat(prevState.messages[prevState.messages.length-1].Timestamp) : 0
+            const newLastStamp = this.state.messages.length > 0 ? parseFloat(this.state.messages[this.state.messages.length-1].Timestamp) : 0
+            if(newLastStamp > prevLastStamp){
+                this.refs.comments.scrollTop = 100000;
+            }
         }
     }
 
@@ -78,7 +84,14 @@ class Chat extends React.Component{
                 return m.Uuid !== msg.Uuid;
             })})
         } else {
-            this.setState({messages: [...this.state.messages, msg]});
+            const messages = [...this.state.messages, msg].filter(m => !!m.Message);
+            messages.sort((mA,mB) => {
+                if (mA.Timestamp === mB.Timestamp) {
+                    return 0
+                }
+                return parseFloat(mA.Timestamp) > parseFloat(mB.Timestamp) ? 1 : -1;
+            });
+            this.setState({messages});
         }
 
     }
@@ -93,12 +106,22 @@ class Chat extends React.Component{
         if(room !== null){
             this.setState({room: room});
         }
-        this.client.loadHistory(roomType, roomObjectId);
+        this.client.loadHistory(roomType, roomObjectId, 0, LoadSize);
+    }
+
+    more(){
+        const {roomType, roomObjectId} = this.props;
+        const {messages} = this.state;
+        if(this.client){
+            this.client.loadHistory(roomType, roomObjectId, messages.length - 1, LoadSize)
+        }
     }
 
     stop(){
         const {roomType, roomObjectId} = this.props;
-        if(this.client) this.client.leaveRoom(roomType, roomObjectId, this._newMessageListener);
+        if(this.client) {
+            this.client.leaveRoom(roomType, roomObjectId, this._newMessageListener);
+        }
     }
 
     postMessage(){
@@ -144,15 +167,23 @@ class Chat extends React.Component{
         let data = [];
         let previousMDate;
         let previousAuthor;
+        let showLoader = messages.length >= LoadSize;
         messages.forEach((m) => {
-            if(m['Message']){
-                const mDate = moment(parseFloat(m.Timestamp)*1000).fromNow();
-                const hideDate = (previousMDate && previousMDate === mDate);
-                const sameAuthor = (previousAuthor && previousAuthor === m.Author && hideDate);
-                data.push(<Message key={m.Uuid} message={m} hideDate={hideDate} sameAuthor={sameAuthor} onDeleteMessage={() => {this.deleteMessage(m)}}/>);
-                previousMDate = mDate;
-                previousAuthor = m.Author;
-            }
+            const mDate = moment(parseFloat(m.Timestamp)*1000).fromNow();
+            const hideDate = (previousMDate && previousMDate === mDate);
+            const sameAuthor = (previousAuthor && previousAuthor === m.Author && hideDate);
+            data.push(
+                <Message
+                    key={m.Uuid}
+                    message={m}
+                    hideDate={hideDate}
+                    sameAuthor={sameAuthor}
+                    onDeleteMessage={() => {this.deleteMessage(m)}}
+                    moreLoader={showLoader?()=>{this.more()}:null}
+                />);
+            showLoader = false;
+            previousMDate = mDate;
+            previousAuthor = m.Author;
         });
         let pushStyle;
         let pusher;

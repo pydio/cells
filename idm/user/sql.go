@@ -358,9 +358,13 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	if stmt := tx.Stmt(addUserRole); stmt != nil {
+		uProf := ""
+		if p, o := user.Attributes[idm.UserAttrProfile]; o {
+			uProf = p
+		}
 		defer stmt.Close()
 		for _, role := range user.Roles {
-			if role.UserRole || role.GroupRole {
+			if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
 				continue
 			}
 			if _, errTx = stmt.Exec(
@@ -379,6 +383,19 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	return user, createdNodes, nil
+}
+
+// skipRoleAsAutoApplies Check if role is here because of autoApply - if so, do not save
+func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
+	if profile == "" || len(role.AutoApplies) == 0 {
+		return false
+	}
+	for _, p := range role.AutoApplies {
+		if p == profile {
+			return true
+		}
+	}
+	return false
 }
 
 // Find a user in the DB, and verify that password is correct.

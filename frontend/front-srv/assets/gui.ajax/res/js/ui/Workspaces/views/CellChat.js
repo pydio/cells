@@ -37,7 +37,7 @@ class CellChat extends React.Component{
                     pydio={pydio}
                     roomType={chatRoomType}
                     roomObjectId={cellId}
-                    style={{flex: 1, display:'flex', flexDirection:'column'}}
+                    style={{flex: 1, display:'flex', flexDirection:'column', overflow: 'hidden'}}
                     msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important', backgroundColor:'#FAFAFA'}}
                     fieldHint={pydio.MessageHash['636']}
                     pushMessagesToBottom={true}

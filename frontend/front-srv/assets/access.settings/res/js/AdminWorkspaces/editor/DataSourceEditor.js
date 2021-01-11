@@ -234,6 +234,13 @@ class DataSourceEditor extends React.Component{
                 marginBottom: 10,
             },
             legend: {},
+            subLegend:{
+                padding: '10px 6px 0 4px',
+                fontSize: 12,
+                lineHeight: '16px',
+                color: 'rgba(0,0,0,0.6)',
+                textAlign: 'justify',
+            },
             section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
             storageSection: {padding: 20, marginTop: -1},
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
@@ -298,7 +305,7 @@ class DataSourceEditor extends React.Component{
                     {model.StorageType === 'LOCAL' &&
                     <div style={styles.storageSection}>
                         <div style={styles.legend}>{m('storage.legend.fs')}</div>
-                        <DataSourceLocalSelector model={model} pydio={this.props.pydio}/>
+                        <DataSourceLocalSelector model={model} pydio={this.props.pydio} styles={styles}/>
                         <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('storage.fs.macos')} toggled={storageConfig.normalize === "true"} onToggle={(e,v)=>{storageConfig.normalize = (v?"true":"false")}} {...ModernStyles.toggleField}/></div>
                     </div>
                     }
@@ -321,7 +328,7 @@ class DataSourceEditor extends React.Component{
                                 <ModernTextField autoComplete={"off"} fullWidth={true} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                             </form>
                             <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
-                            <div style={{...styles.legend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
+                            <div style={{...styles.subLegend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
                             <div style={{display:'flex'}}>
                                 <div style={{flex:1, marginRight: 5}}>
                                     <ModernTextField
@@ -362,7 +369,7 @@ class DataSourceEditor extends React.Component{
                 <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
 
-                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
+                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
                     <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {
@@ -372,7 +379,7 @@ class DataSourceEditor extends React.Component{
 
                     {model.StorageType !== 'LOCAL' &&
                     <div>
-                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
                         <Toggle
                             label={m('storage.readOnly')}
                             labelPosition={"right"}
@@ -385,7 +392,7 @@ class DataSourceEditor extends React.Component{
 
                     {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
                     <div>
-                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
                         <Toggle
                             label={m('storage.nativeEtags')}
                             labelPosition={"right"}
@@ -407,7 +414,7 @@ class DataSourceEditor extends React.Component{
                     </div>
                     }
 
-                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
+                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                     <div style={styles.toggleDiv}>
                         <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}
                                 disabled={cannotEnableEnc} {...ModernStyles.toggleField}/>

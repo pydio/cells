@@ -61,7 +61,12 @@ import (
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {
-	urlConf := conf.Val("updateUrl").Default(configx.Reference("#/defaults/update/updateUrl")).String()
+	if conf.Val("disableChecks").Default(false).Bool() {
+		log.Logger(ctx).Info("Skipping update checks according to configurations - Returning empty list")
+		// Return silently
+		return []*update.Package{}, nil
+	}
+	urlConf := conf.Val("#/defaults/update/updateUrl").Default(conf.Val("updateUrl").String()).String()
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.ServiceUpdate, "cannot find update url")
 	}
@@ -219,7 +224,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 			return
 		}
 
-		pKey := conf.Val("publicKey").Default("#/defaults/update/publicKey").String()
+		pKey := conf.Val("#/defaults/update/publicKey").Default(conf.Val("publicKey").String()).String()
 		if pKey == "" {
 			errorChan <- fmt.Errorf("cannot find public key to verify binary integrity")
 			return

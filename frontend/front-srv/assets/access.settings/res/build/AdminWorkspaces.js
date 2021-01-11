@@ -17928,7 +17928,12 @@ var DataSourcesBoard = (function (_React$Component) {
             var _this = this;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var pydio = this.props.pydio;
+
             this.statusPoller = setInterval(function () {
+                if (!pydio.WebSocketClient.getStatus()) {
+                    return;
+                }
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
                     _this.setState({ startedServices: data.Services || [] });
                 });
@@ -17938,6 +17943,9 @@ var DataSourcesBoard = (function (_React$Component) {
             }, 2500);
             setTimeout(function () {
                 _this.syncPoller = setInterval(function () {
+                    if (!pydio.WebSocketClient.getStatus()) {
+                        return;
+                    }
                     _this.syncStatuses();
                 }, 2500);
             }, 1250);
@@ -20632,6 +20640,13 @@ var DataSourceEditor = (function (_React$Component) {
                     marginBottom: 10
                 },
                 legend: {},
+                subLegend: {
+                    padding: '10px 6px 0 4px',
+                    fontSize: 12,
+                    lineHeight: '16px',
+                    color: 'rgba(0,0,0,0.6)',
+                    textAlign: 'justify'
+                },
                 section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
                 storageSection: { padding: 20, marginTop: -1 },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
@@ -20741,7 +20756,7 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.fs')
                         ),
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio, styles: styles }),
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
@@ -20790,7 +20805,7 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 40 }) },
                             m('storage.s3.legend.tags')
                         ),
                         _react2['default'].createElement(
@@ -20869,7 +20884,7 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                         m('storage.legend.versioning')
                     ),
                     _react2['default'].createElement(
@@ -20887,7 +20902,7 @@ var DataSourceEditor = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                             m('storage.legend.readOnly')
                         ),
                         _react2['default'].createElement(_materialUi.Toggle, _extends({
@@ -20904,7 +20919,7 @@ var DataSourceEditor = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                             m('storage.legend.checksumMapper')
                         ),
                         _react2['default'].createElement(_materialUi.Toggle, _extends({
@@ -20930,7 +20945,7 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
                         m('storage.legend.encryption')
                     ),
                     _react2['default'].createElement(
@@ -21422,6 +21437,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var _props3 = this.props;
             var model = _props3.model;
             var pydio = _props3.pydio;
+            var styles = _props3.styles;
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
             var invalidAddress = _state2.invalidAddress;
@@ -21434,14 +21450,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                 pAds = [invalidAddress].concat(_toConsumableArray(pAds));
             }
 
-            console.log(peerAddresses, pAds);
-
             return _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'div',
                     { style: { paddingBottom: 8 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.subLegend },
+                        m('storage.legend.fs.peer')
+                    ),
                     _react2['default'].createElement(
                         ModernSelectField,
                         {
@@ -21464,6 +21483,11 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                 _react2['default'].createElement(
                     'div',
                     null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.subLegend, { paddingBottom: 6 }) },
+                        m('storage.legend.fs.path')
+                    ),
                     model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
                         pydio: pydio,
                         value: model.StorageConfiguration.folder,

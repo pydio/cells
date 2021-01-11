@@ -31,38 +31,39 @@ var ChatUsers = (function (_React$Component) {
         var roomUsers = _props.roomUsers;
         var pydio = _props.pydio;
 
-        var style = { user: {
-                marginRight: 10
-            }, online: {
+        var style = {
+            user: {
+                marginRight: 10,
+                whiteSpace: 'nowrap'
+            },
+            online: {
                 color: '#4CAF50',
-                marginLeft: 5
-            }, offline: {
-                marginLeft: 5
-            } };
+                marginRight: 5
+            },
+            offline: {
+                marginRight: 5
+            }
+        };
 
         var users = Object.keys(ACLs).map(function (roleId) {
             var acl = ACLs[roleId];
             var online = undefined;
             var label = _pydioModelIdmObjectHelper2['default'].extractLabel(pydio, acl);
             if (acl.User) {
-                if (roomUsers && roomUsers.indexOf(acl.User.Login) > -1) {
-                    online = true;
-                } else {
-                    online = false;
-                }
+                online = roomUsers && roomUsers.indexOf(acl.User.Login) > -1;
             }
             return _react2['default'].createElement(
                 'span',
                 { style: style.user },
-                label,
                 online !== undefined && _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle" + (online ? "" : "-outline"), style: online ? style.online : style.offline }),
-                online === undefined && _react2['default'].createElement('span', { className: "mdi mdi-account-multiple-outline", style: style.offline })
+                online === undefined && _react2['default'].createElement('span', { className: "mdi mdi-account-multiple-outline", style: style.offline }),
+                label
             );
         });
 
         return _react2['default'].createElement(
             'div',
-            { style: { padding: 16, fontWeight: 500, color: '#757575' } },
+            { style: { padding: 16, fontWeight: 500, color: '#757575', borderBottom: '1px solid #e0e0e0' } },
             users
         );
     };

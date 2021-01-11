@@ -156,8 +156,9 @@ var UploadItem = function (_StatusItem) {
                 }
             };
 
+            var messages = _pydio2.default.getMessages();
             var error = function error(e) {
-                _this2.onError(_pydio2.default.getInstance().MessageHash[210] + ": " + e.message);
+                _this2.onError(messages[210] + ": " + e.message);
                 completeCallback();
             };
 
@@ -165,15 +166,20 @@ var UploadItem = function (_StatusItem) {
             var BACK_OFF = 150;
             var retry = function retry(count) {
                 return function (e) {
-                    if (e && e.indexOf && e.indexOf('422') >= 0) {
-                        error(new Error('Quota reached! Cannot upload more to this workspace'));
-                        return;
+                    if (e && e.indexOf) {
+                        if (e.indexOf('422') >= 0) {
+                            error(new Error(messages['html_uploader.status.error.422'] + ' (422)'));
+                            return;
+                        } else if (e.indexOf('403') >= 0) {
+                            error(new Error(messages['html_uploader.status.error.403'] + ' (403)'));
+                            return;
+                        }
                     }
                     if (_this2._userAborted) {
                         if (e) {
                             error(e);
                         } else {
-                            error(new Error('Interrupted by user'));
+                            error(new Error(messages['html_uploader.status.error.aborted']));
                         }
                         return;
                     }

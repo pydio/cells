@@ -102,7 +102,13 @@
     "other": "Verwenden Sie die standard-API-Schlüssel / Api Secret zur authentifizierung. Lassen Sie AmazonS3 Endpunkt-URL leer oder verwenden Sie Ihre Speicher-URL für andere on Premise-Lösungen."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Durchsuchen Sie Daten aus einem lokalen oder Netzwerk verbundenen Dateisystem. Peer-Adresse ist ein Node, wo Pydio Cells derzeit läuft. Letzte Ordner muss klein geschrieben sein und seinem übergeordneten Element muss beschreibbar."
+    "other": "Durchsuchen Sie Daten aus einem lokalen oder an ein Netzwerk angeschlossenen Dateisystem."
+  },
+  "ds.editor.storage.legend.fs.peer": {
+    "other": "Wenn Sie die Datenquelle auf eine Peer-Adresse beschränken, wird der Dienst nur für einen bestimmten Knoten gestartet. Wenn Sie den Wert \"Beliebig\" verwenden, wird der Dienst auf allen Knoten gestartet, auf denen Cells ausgeführt wird. Dies kann hilfreich sein, wenn ein freigegebenes Dateisystem auf allen Knoten am selben Speicherort bereitgestellt wird oder wenn Ihr Knoten beim Neustart möglicherweise seine IP-Adresse ändert. Um Konflikte zu vermeiden, ist es besser, entweder ANY für alle Datenquellen zu verwenden oder bestimmte Knoten für alle Datenquellen auszuwählen."
+  },
+  "ds.editor.storage.legend.fs.path": {
+    "other": "Stellen Sie sicher, dass der letzte Ordner klein geschrieben und der übergeordnete Ordner beschreibbar ist. Wenn Ihr vorhandener Ordner in Großbuchstaben geschrieben ist, können Sie symbolische Links verwenden, um diese Einschränkung zu umgehen."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Durchsuchen Sie Daten von einem Amazon S3-Bucket oder von einem S3-kompatiblen Speicher."

@@ -21,6 +21,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
+import LangUtils from 'pydio/util/lang'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 const CreateRoleOrGroupForm = React.createClass({
@@ -64,14 +65,15 @@ const CreateRoleOrGroupForm = React.createClass({
             groupLabel:'',
             groupLabelError:this.context.getMessage('ajxp_admin.user.17.empty'),
             roleId:'',
-            roleIdError: this.context.getMessage('ajxp_admin.user.18.empty')
+            roleLabel:'',
+            roleLabelError: this.context.getMessage('ajxp_admin.user.18.empty')
         }
     },
 
     submit() {
         const {type, pydio, reload} = this.props;
         let currentNode;
-        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError} = this.state;
+        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError, roleLabel, roleLabelError} = this.state;
         if( type === "group"){
             if(groupIdError || groupLabelError){
                 return;
@@ -88,11 +90,10 @@ const CreateRoleOrGroupForm = React.createClass({
             });
 
         }else if (type === "role"){
-            if(roleIdError){
+            if(roleLabelError || roleIdError){
                 return;
             }
-            currentNode = this.props.roleNode;
-            PydioApi.getRestClient().getIdmApi().createRole(roleId).then(() => {
+            PydioApi.getRestClient().getIdmApi().createRole(roleLabel, roleId).then(() => {
                 this.dismiss();
                 if(reload) {
                     reload();
@@ -117,35 +118,50 @@ const CreateRoleOrGroupForm = React.createClass({
                 state.groupLabelError = this.context.getMessage('ajxp_admin.user.17.empty')
             } else {
                 state.groupLabelError = '';
+                const {groupId, groupLabel} = this.state;
+                if(groupId === '' || LangUtils.computeStringSlug(groupLabel) === groupId ){
+                    state.groupId = LangUtils.computeStringSlug(state.groupLabel)
+                    state.groupIdError = '';
+                }
             }
-        } else if(state.roleId !== undefined) {
-            if(state.roleId === ''){
-                state.roleIdError = this.context.getMessage('ajxp_admin.user.18.empty')
+        } else if(state.roleLabel !== undefined) {
+            if(state.roleLabel === ''){
+                state.roleLabelError = this.context.getMessage('ajxp_admin.user.18.empty')
             } else {
-                state.roleIdError = '';
+                state.roleLabelError = '';
             }
+        } else if(state.roleId) {
+            const {roles = []} = this.props;
+            if (roles.filter(r => r.Uuid === state.roleId).length > 0){
+                state.roleIdError = this.context.getMessage('role_editor.31.exists');
+            } else {
+                state.roleIdError= '';
+            }
+            state.roleId = LangUtils.computeStringSlug(state.roleId)
         }
         this.setState(state);
     },
 
     render(){
-        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError} = this.state;
+        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError, roleLabel, roleLabelError} = this.state;
         if(this.props.type === 'group'){
             return (
                 <div style={{width:'100%'}}>
-                    <ModernTextField
-                        value={groupId}
-                        errorText={groupIdError}
-                        onChange={(e,v)=>{this.update({groupId:v})}}
-                        fullWidth={true}
-                        floatingLabelText={this.context.getMessage('ajxp_admin.user.16')}
-                    />
                     <ModernTextField
                         value={groupLabel}
                         errorText={groupLabelError}
                         onChange={(e,v)=>{this.update({groupLabel:v})}}
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.17')}
+                        onKeyPress={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                    />
+                    <ModernTextField
+                        value={groupId}
+                        errorText={groupIdError}
+                        onChange={(e,v)=>{this.update({groupId:v})}}
+                        fullWidth={true}
+                        floatingLabelText={this.context.getMessage('ajxp_admin.user.16')}
+                        onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
                     />
                 </div>
             );
@@ -153,10 +169,18 @@ const CreateRoleOrGroupForm = React.createClass({
             return (
                 <div style={{width:'100%'}}>
                     <ModernTextField
+                        value={roleLabel}
+                        errorText={roleLabelError}
+                        onChange={(e,v)=>{this.update({roleLabel:v})}}
+                        floatingLabelText={this.context.getMessage('role_editor.32')}
+                        onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                    />
+                    <ModernTextField
                         value={roleId}
                         errorText={roleIdError}
+                        floatingLabelText={this.context.getMessage("role_editor.31.hint")}
                         onChange={(e,v)=>{this.update({roleId:v})}}
-                        floatingLabelText={this.context.getMessage('ajxp_admin.user.18')}
+                        onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
                     />
                 </div>
             );

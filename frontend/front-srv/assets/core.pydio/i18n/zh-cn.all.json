@@ -2350,5 +2350,8 @@
   },
   "searchengine.searching": {
     "other": "Searching..."
+  },
+  "chat.load-older": {
+    "other": "Older entries"
   }
 }
