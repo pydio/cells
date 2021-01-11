@@ -113,6 +113,35 @@ func fromPydioNodeObjectInfo(bucket string, node *tree.Node) minio.ObjectInfo {
 	}
 }
 
+func pydioToMinioError(err error, bucket, key string) error {
+	mErr := microerrors.Parse(err.Error())
+	switch mErr.Code {
+	case 403:
+		err = minio.PrefixAccessDenied{
+			Bucket: bucket,
+			Object: key,
+		}
+	case 404:
+		err = minio.ObjectNotFound{
+			Bucket: bucket,
+			Object: key,
+		}
+	case 422:
+		err = minio.QuotaExceeded{
+			Bucket: bucket,
+			Object: key,
+		}
+	default:
+		if strings.Contains(err.Error(), "Forbidden") {
+			err = minio.PrefixAccessDenied{
+				Bucket: bucket,
+				Object: key,
+			}
+		}
+	}
+	return minio.ErrorRespToObjectError(err, bucket, key)
+}
+
 func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, prefix string, delimiter string, maxKeys int, versions bool) (objects []minio.ObjectInfo, prefixes []string, err error) {
 
 	// log.Printf("ListPydioObjects With Version? %v", versions)
@@ -139,7 +168,7 @@ func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, pref
 		FilterType:   FilterType,
 	})
 	if err != nil {
-		return nil, nil, minio.ErrorRespToObjectError(err, bucket)
+		return nil, nil, pydioToMinioError(err, bucket, prefix)
 	}
 	for {
 		clientResponse, err := lNodeClient.Recv()
@@ -206,7 +235,7 @@ func (l *pydioObjects) ListObjects(ctx context.Context, bucket string, prefix st
 	//objects, prefixes, err := l.ListPydioObjects(ctx, bucket, prefix, delimiter, maxKeys, versions)
 	objects, prefixes, err := l.ListPydioObjects(ctx, bucket, prefix, delimiter, maxKeys, false)
 	if err != nil {
-		return loi, minio.ErrorRespToObjectError(err, bucket)
+		return loi, pydioToMinioError(err, bucket, prefix)
 	}
 
 	// log.Printf("[ListObjects] Returning %d objects and %d prefixes (V1) for prefix %s\n", len(objects), len(prefixes), prefix)
@@ -225,7 +254,7 @@ func (l *pydioObjects) ListObjectsV2(ctx context.Context, bucket, prefix, contin
 
 	objects, prefixes, err := l.ListPydioObjects(ctx, bucket, prefix, delimiter, maxKeys, false)
 	if err != nil {
-		return result, minio.ErrorRespToObjectError(err, bucket)
+		return result, pydioToMinioError(err, bucket, prefix)
 	}
 
 	// log.Printf("\n[ListObjectsV2] Returning %d objects and %d prefixes (V2) for prefix %s\n", len(objects), len(prefixes), prefix)
@@ -255,14 +284,7 @@ func (l *pydioObjects) GetObjectInfo(ctx context.Context, bucket string, object 
 	}
 	readNodeResponse, err := l.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 	if err != nil {
-		if strings.Contains(err.Error(), "Forbidden") {
-			err = minio.PrefixAccessDenied{
-				Bucket: bucket,
-				Object: object,
-			}
-			return minio.ObjectInfo{}, minio.ErrorRespToObjectError(err, bucket, object)
-		}
-		return minio.ObjectInfo{}, minio.ErrorRespToObjectError(err, bucket, object)
+		return minio.ObjectInfo{}, pydioToMinioError(err, bucket, object)
 	}
 
 	if !readNodeResponse.Node.IsLeaf() {
@@ -318,7 +340,7 @@ func (l *pydioObjects) GetObject(ctx context.Context, bucket string, key string,
 		VersionId:   opts.VersionID,
 	})
 	if err != nil {
-		return minio.ErrorRespToObjectError(err, bucket, key)
+		return pydioToMinioError(err, bucket, key)
 	}
 	defer objectReader.Close()
 	if _, err := io.Copy(writer, objectReader); err != nil {
@@ -344,13 +366,7 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket string, object stri
 		Md5Sum:    data.MD5(),
 	})
 	if err != nil {
-		if microerrors.Parse(err.Error()).Code == 422 {
-			err = minio.QuotaExceeded{
-				Bucket: bucket,
-				Object: object,
-			}
-		}
-		return objInfo, minio.ErrorRespToObjectError(err, bucket, object)
+		return objInfo, pydioToMinioError(err, bucket, object)
 	}
 	// TODO : PutObject should return more info about written node
 	objInfo = minio.ObjectInfo{
@@ -383,7 +399,7 @@ func (l *pydioObjects) CopyObject(ctx context.Context, srcBucket string, srcObje
 	})
 
 	if err != nil {
-		return objInfo, minio.ErrorRespToObjectError(&minio.BucketNotFound{}, srcBucket, srcObject)
+		return objInfo, pydioToMinioError(err, srcBucket, srcObject)
 	}
 	return minio.ObjectInfo{
 		Bucket: destBucket,
@@ -403,7 +419,7 @@ func (l *pydioObjects) DeleteObject(ctx context.Context, bucket string, object s
 		},
 	})
 	if err != nil {
-		return minio.ErrorRespToObjectError(err, bucket, object)
+		return pydioToMinioError(err, bucket, object)
 	}
 	return nil
 
@@ -429,11 +445,15 @@ func (l *pydioObjects) ListMultipartUploads(ctx context.Context, bucket string, 
 // NewMultipartUpload upload object in multiple parts
 func (l *pydioObjects) NewMultipartUpload(ctx context.Context, bucket string, object string, reqMetadata map[string]string, o minio.ObjectOptions) (uploadID string, err error) {
 
-	return l.Router.MultipartCreate(ctx, &tree.Node{
+	uploadID, err = l.Router.MultipartCreate(ctx, &tree.Node{
 		Path: object,
 	}, &views.MultipartRequestData{
 		Metadata: minio.ToMinioClientMetadata(reqMetadata),
 	})
+	if err != nil {
+		err = pydioToMinioError(err, bucket, object)
+	}
+	return
 
 }
 
