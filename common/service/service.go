@@ -197,6 +197,8 @@ func NewService(opts ...ServiceOption) Service {
 		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
 	}
 
+	s.origCtx = ctx
+
 	// Setting config
 	s.Init(
 		Context(ctx),
