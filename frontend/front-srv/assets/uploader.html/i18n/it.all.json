@@ -118,5 +118,14 @@
   },
   "status.part.cannot-pause": {
     "other": "Impossibile mettere in pausa il trasferimento del segmento"
+  },
+  "status.error.aborted": {
+    "other": "interrupted by user"
+  },
+  "status.error.403": {
+    "other": "you are not allowed to upload here"
+  },
+  "status.error.422": {
+    "other": "quota reached, cannot upload more"
   }
 }

@@ -2350,5 +2350,8 @@
   },
   "searchengine.searching": {
     "other": "Recherche en cours..."
+  },
+  "chat.load-older": {
+    "other": "Messages précédents"
   }
 }

@@ -102,7 +102,13 @@
     "other": "Utiliser les clés d'API pour l'authentification, laisser l'URL vide pour AmazonS3, ou entrer une URL pour un stockage déployé sur-site."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Parcourir les données d’un système de fichiers local ou d'un répertoire réseau. La Peer Address est un nœud où Cells est en cours d’exécution. Le dernier dossier du chemin doit être en minuscule et son parent doit être accessible en écriture."
+    "other": "Parcourir les données sur un système de fichiers local ou connecté au réseau."
+  },
+  "ds.editor.storage.legend.fs.peer": {
+    "other": "Restreindre à une adresse ne démarrera le service que sur un noeud spécifique. L'utilisation de la valeur \"N'importe laquelle\" démarrera le service sur tous les nœuds où Cells est en cours d'exécution, ce qui peut être utile si un système de fichiers partagé est monté sur tous les nœuds au même emplacement, ou si votre l'IP de votre serveur peut changer fréquemment. Pour éviter les conflits, il est préférable d'utiliser \"n'importe laquelle\" sur toutes les datasources ou de sélectionner des nœuds spécifiques pour toutes les datasources."
+  },
+  "ds.editor.storage.legend.fs.path": {
+    "other": "Assurez-vous que le dernier dossier est en minuscule et que son parent est accessible en écriture. Si votre dossier existant est en majuscule, vous pouvez utiliser des liens symboliques pour contourner cette limitation."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Parcourir les données d’un compartiment Amazon S3 ou d’un stockage S3-compatible."

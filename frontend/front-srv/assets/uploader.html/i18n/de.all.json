@@ -118,5 +118,14 @@
   },
   "status.part.cannot-pause": {
     "other": "Die Chunk-Upload kann nicht angehalten werden"
+  },
+  "status.error.aborted": {
+    "other": "durch Benutzer unterbrochen"
+  },
+  "status.error.403": {
+    "other": "Sie dürfen hier nicht hochladen"
+  },
+  "status.error.422": {
+    "other": "Kontingent erreicht, kann nicht mehr hochladen"
   }
 }

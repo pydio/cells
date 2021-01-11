@@ -118,5 +118,14 @@
   },
   "status.part.cannot-pause": {
     "other": "Le transfert d'une sous-partie ne peut-être mis en pause"
+  },
+  "status.error.aborted": {
+    "other": "interrompu par l'utilisateur"
+  },
+  "status.error.403": {
+    "other": "vous n'êtes pas autorisé à transférer des fichiers ici"
+  },
+  "status.error.422": {
+    "other": "quota atteint, impossible de transférer"
   }
 }
