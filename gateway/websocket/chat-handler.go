@@ -231,7 +231,6 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 						}
 					}
 				}
-				fmt.Println(request)
 				// List existing Messages
 				stream, e2 := chatClient.ListMessages(ctx, request)
 				if e2 == nil {
