@@ -102,7 +102,13 @@
     "other": "Usa la chiave API / Api Secret per autenticarti, lascia vuoto l'URL dell'endpoint per AmazonS3 o usa il tuo URL di archiviazione per le altre soluzioni on premise."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Sfoglia i dati da un file system locale o collegato alla rete. L'indirizzo peer è un nodo in cui Cells è in esecuzione. L'ultima cartella deve essere in caratteri minuscoli e la cartella che la contiene deve essere scrivibile."
+    "other": "Browse data from a local or network-attached file system."
+  },
+  "ds.editor.storage.legend.fs.peer": {
+    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
+  },
+  "ds.editor.storage.legend.fs.path": {
+    "other": "Make sure that last folder is lowercase and its parent must writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Sfoglia i dati da un bucket Amazon S3 o da un archivio compatibile con S3."

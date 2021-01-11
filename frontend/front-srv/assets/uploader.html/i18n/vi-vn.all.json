@@ -118,5 +118,14 @@
   },
   "status.part.cannot-pause": {
     "other": "Không thể tạm dừng chuyển đoạn này"
+  },
+  "status.error.aborted": {
+    "other": "interrupted by user"
+  },
+  "status.error.403": {
+    "other": "you are not allowed to upload here"
+  },
+  "status.error.422": {
+    "other": "quota reached, cannot upload more"
   }
 }
