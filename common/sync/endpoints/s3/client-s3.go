@@ -89,7 +89,7 @@ func NewClient(ctx context.Context, host string, key string, secret string, buck
 func (c *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
+		URI:                   "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
 		RequiresFoldersRescan: false,
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}
@@ -687,11 +687,9 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	doneCh := make(chan struct{})
 	wConn := make(chan model.WatchConnectionInfo)
 
-	closeCalled := false
 	// wait for doneChan to close the other channels
 	go func() {
 		<-doneChan
-		closeCalled = true
 		close(doneCh)
 		close(eventChan)
 		close(errorChan)
@@ -711,123 +709,125 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	// wait for events to occur and sent them through the eventChan and errorChan
 	go func() {
 		//defer wo.Close()
-		for notificationInfo := range eventsCh {
-			if closeCalled {
+		for {
+			select {
+			case <-doneCh:
 				return
-			}
-			if notificationInfo.Err != nil {
-				if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
-					errorChan <- errors.New("API Not Supported")
-					return
-				}
-				errorChan <- notificationInfo.Err
-				wConn <- model.WatchDisconnected
-			}
-			for _, record := range notificationInfo.Records {
-				//bucketName := record.S3.Bucket.Name
-				key, e := url.QueryUnescape(record.S3.Object.Key)
-				if e != nil {
-					errorChan <- e
-					continue
-				}
-				objectPath := key
-				folder := false
-				var additionalCreate string
-				if strings.HasSuffix(key, servicescommon.PydioSyncHiddenFile) {
-					additionalCreate = objectPath
-					objectPath = path.Dir(key)
-					folder = true
-				}
-				if c.isIgnoredFile(objectPath, record) {
-					continue
-				}
-				objectPath = c.getLocalPath(objectPath)
-
-				if strings.HasPrefix(record.EventName, "s3:ObjectCreated:") {
-					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.Any("event", record))
-					eventChan <- model.EventInfo{
-						Time:      record.EventTime,
-						Size:      record.S3.Object.Size,
-						Etag:      record.S3.Object.ETag,
-						Path:      objectPath,
-						Folder:    folder,
-						Source:    c,
-						Type:      model.EventCreate,
-						Host:      record.Source.Host,
-						Port:      record.Source.Port,
-						UserAgent: record.Source.UserAgent,
-						Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
+			case notificationInfo := <-eventsCh:
+				if notificationInfo.Err != nil {
+					if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
+						errorChan <- errors.New("API Not Supported")
+						return
 					}
-					if additionalCreate != "" {
-						// Send also the PydioSyncHiddenFile event
-						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.String("path", additionalCreate))
+					errorChan <- notificationInfo.Err
+					wConn <- model.WatchDisconnected
+				}
+				for _, record := range notificationInfo.Records {
+					//bucketName := record.S3.Bucket.Name
+					key, e := url.QueryUnescape(record.S3.Object.Key)
+					if e != nil {
+						errorChan <- e
+						continue
+					}
+					objectPath := key
+					folder := false
+					var additionalCreate string
+					if strings.HasSuffix(key, servicescommon.PydioSyncHiddenFile) {
+						additionalCreate = objectPath
+						objectPath = path.Dir(key)
+						folder = true
+					}
+					if c.isIgnoredFile(objectPath, record) {
+						continue
+					}
+					objectPath = c.getLocalPath(objectPath)
+
+					if strings.HasPrefix(record.EventName, "s3:ObjectCreated:") {
+						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.Any("event", record))
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
 							Size:      record.S3.Object.Size,
 							Etag:      record.S3.Object.ETag,
-							Path:      additionalCreate,
-							Folder:    false,
+							Path:      objectPath,
+							Folder:    folder,
 							Source:    c,
 							Type:      model.EventCreate,
 							Host:      record.Source.Host,
 							Port:      record.Source.Port,
 							UserAgent: record.Source.UserAgent,
-							Metadata:  record.RequestParameters,
+							Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
 						}
-					}
+						if additionalCreate != "" {
+							// Send also the PydioSyncHiddenFile event
+							log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.String("path", additionalCreate))
+							eventChan <- model.EventInfo{
+								Time:      record.EventTime,
+								Size:      record.S3.Object.Size,
+								Etag:      record.S3.Object.ETag,
+								Path:      additionalCreate,
+								Folder:    false,
+								Source:    c,
+								Type:      model.EventCreate,
+								Host:      record.Source.Host,
+								Port:      record.Source.Port,
+								UserAgent: record.Source.UserAgent,
+								Metadata:  record.RequestParameters,
+							}
+						}
 
-				} else if strings.HasPrefix(record.EventName, "s3:ObjectRemoved:") {
-					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", objectPath))
-					eventChan <- model.EventInfo{
-						Time:      record.EventTime,
-						Path:      objectPath,
-						Folder:    folder,
-						Source:    c,
-						Type:      model.EventRemove,
-						Host:      record.Source.Host,
-						Port:      record.Source.Port,
-						UserAgent: record.Source.UserAgent,
-						Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
-					}
-					if additionalCreate != "" {
-						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", additionalCreate))
+					} else if strings.HasPrefix(record.EventName, "s3:ObjectRemoved:") {
+						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", objectPath))
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
-							Path:      additionalCreate,
-							Folder:    false,
+							Path:      objectPath,
+							Folder:    folder,
 							Source:    c,
 							Type:      model.EventRemove,
 							Host:      record.Source.Host,
 							Port:      record.Source.Port,
 							UserAgent: record.Source.UserAgent,
+							Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
+						}
+						if additionalCreate != "" {
+							log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", additionalCreate))
+							eventChan <- model.EventInfo{
+								Time:      record.EventTime,
+								Path:      additionalCreate,
+								Folder:    false,
+								Source:    c,
+								Type:      model.EventRemove,
+								Host:      record.Source.Host,
+								Port:      record.Source.Port,
+								UserAgent: record.Source.UserAgent,
+								Metadata:  record.RequestParameters,
+							}
+						}
+					} else if record.EventName == minio.ObjectAccessedGet {
+						eventChan <- model.EventInfo{
+							Time:      record.EventTime,
+							Size:      record.S3.Object.Size,
+							Etag:      record.S3.Object.ETag,
+							Path:      objectPath,
+							Source:    c,
+							Type:      model.EventAccessedRead,
+							Host:      record.Source.Host,
+							Port:      record.Source.Port,
+							UserAgent: record.Source.UserAgent,
 							Metadata:  record.RequestParameters,
 						}
-					}
-				} else if record.EventName == minio.ObjectAccessedGet {
-					eventChan <- model.EventInfo{
-						Time:      record.EventTime,
-						Size:      record.S3.Object.Size,
-						Etag:      record.S3.Object.ETag,
-						Path:      objectPath,
-						Source:    c,
-						Type:      model.EventAccessedRead,
-						Host:      record.Source.Host,
-						Port:      record.Source.Port,
-						UserAgent: record.Source.UserAgent,
-						Metadata:  record.RequestParameters,
-					}
-				} else if record.EventName == minio.ObjectAccessedHead {
-					eventChan <- model.EventInfo{
-						Time:      record.EventTime,
-						Size:      record.S3.Object.Size,
-						Etag:      record.S3.Object.ETag,
-						Path:      objectPath,
-						Source:    c,
-						Type:      model.EventAccessedStat,
-						Host:      record.Source.Host,
-						Port:      record.Source.Port,
-						UserAgent: record.Source.UserAgent,
-						Metadata:  record.RequestParameters,
+					} else if record.EventName == minio.ObjectAccessedHead {
+						eventChan <- model.EventInfo{
+							Time:      record.EventTime,
+							Size:      record.S3.Object.Size,
+							Etag:      record.S3.Object.ETag,
+							Path:      objectPath,
+							Source:    c,
+							Type:      model.EventAccessedStat,
+							Host:      record.Source.Host,
+							Port:      record.Source.Port,
+							UserAgent: record.Source.UserAgent,
+							Metadata:  record.RequestParameters,
+						}
 					}
 				}
 			}
