@@ -213,7 +213,7 @@ var ConfigureCmd = &cobra.Command{
 
 			// Prompt for config with CLI, apply and exit
 			if niModeCli {
-				_, err := cliInstall(proxyConf)
+				_, err := cliInstall(cmd, proxyConf)
 				fatalIfError(cmd, err)
 				return
 			}

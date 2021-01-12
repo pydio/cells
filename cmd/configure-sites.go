@@ -33,7 +33,7 @@ Sub-commands allow you to create/edit/delete multiple sites.
 				fmt.Println("   - " + u)
 			}
 			p := &promptui.Prompt{
-				Label:     "Do you want to create a new site? It will replace the automatic one",
+				Label:     "Do you want to create a new site (it will replace the default one)",
 				IsConfirm: true,
 			}
 			if _, e := p.Run(); e == nil {
@@ -88,7 +88,7 @@ Sub-commands allow you to create/edit/delete multiple sites.
 				}
 				e := promptSite(sites[index], true)
 				fatalIfError(cmd, e)
-				e = confirmAndSave(cmd, sites)
+				e = confirmAndSave(cmd, args, sites)
 				fatalIfError(cmd, e)
 			case 2:
 				index := "0"
@@ -170,7 +170,12 @@ func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 	table.Render()
 }
 
-func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
+func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyConfig) error {
+
+	if len(args) > 0 && args[0] == "skipConfirm" {
+		return config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
+	}
+
 	// Reprint before saving
 	cmd.Println("*************************************************")
 	cmd.Println("  Please review your parameters before saving     ")

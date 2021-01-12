@@ -81,7 +81,7 @@ var (
 	EnvPrefixOld = "pydio"
 	EnvPrefixNew = "cells"
 
-	installCommands = []string{"install"}
+	installCommands = []string{"configure", "install"}
 	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 

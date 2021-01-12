@@ -29,6 +29,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/common/config"
+	"github.com/spf13/cobra"
+
 	json "github.com/pydio/cells/x/jsonx"
 
 	p "github.com/manifoldco/promptui"
@@ -42,7 +45,7 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
-func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error) {
+func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.InstallConfig, error) {
 
 	cliConfig := lib.GenerateDefaultConfig()
 	cliConfig.InternalUrl = strings.Join(proxyConfig.GetBinds(), ", ")
@@ -70,6 +73,11 @@ func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error
 	})
 	if e != nil {
 		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
+	}
+
+	if ss, _ := config.LoadSites(true); len(ss) == 0 {
+		fmt.Println("\n\033[1m## Check main access configuration\033[0m")
+		sitesCmd.Run(cmd, []string{"skipConfirm"})
 	}
 
 	fmt.Println("")

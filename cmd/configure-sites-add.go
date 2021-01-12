@@ -52,7 +52,7 @@ var sitesAdd = &cobra.Command{
 		}
 		sites = append(sites, newSite)
 
-		if e := confirmAndSave(cmd, sites); e != nil {
+		if e := confirmAndSave(cmd, args, sites); e != nil {
 			fatalIfError(cmd, e)
 		}
 	},

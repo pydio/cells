@@ -40,7 +40,7 @@ var sitesDelete = &cobra.Command{
 			}
 			newSites = append(newSites, s)
 		}
-		if e := confirmAndSave(cmd, newSites); e != nil {
+		if e := confirmAndSave(cmd, args, newSites); e != nil {
 			log.Fatal(e)
 		}
 	},
