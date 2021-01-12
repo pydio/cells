@@ -190,5 +190,5 @@ func init() {
 	configHistoryCmd.Flags().StringVar(&configVersionShow, "cat", "", "Print the JSON content of the config for this version")
 	configHistoryCmd.Flags().StringVar(&configVersionRestore, "restore", "", "Restore configuration to this specific version")
 	configHistoryCmd.Flags().StringVar(&configVersionDb, "file", "", "Point to a specific DB file instead of default")
-	ToolCmd.AddCommand(configHistoryCmd)
+	ToolsCmd.AddCommand(configHistoryCmd)
 }

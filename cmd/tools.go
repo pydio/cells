@@ -2,9 +2,9 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-// ToolCmd are tools that do not need a running Cells instance
-var ToolCmd = &cobra.Command{
-	Use:   "tool",
+// ToolsCmd are tools that do not need a running Cells instance
+var ToolsCmd = &cobra.Command{
+	Use:   "tools",
 	Short: "Various tools",
 	Long: `Tooling commands that do not require a running Cells instance.
 `,
@@ -14,5 +14,5 @@ var ToolCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(ToolCmd)
+	RootCmd.AddCommand(ToolsCmd)
 }
