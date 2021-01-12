@@ -33,12 +33,14 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/x/configx"
 )
 
 var (
 	ErrMySQLCharsetNotSupported = errors.New("Charset is not supported for this version of MySQL")
+	ErrMySQLVersionNotSupported = errors.New("This version of the database is currently not supported")
 )
 
 func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
@@ -153,13 +155,21 @@ func checkConnection(dsn string) error {
 				if rootdb, rooterr := sql.Open("mysql", rootdsn); rooterr != nil {
 					return rooterr
 				} else {
-					err := checkMysqlCharset(rootdb)
-
-					switch {
-					case err == ErrMySQLCharsetNotSupported:
-						dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
-					case err != nil:
+					version, err := getMysqlVersion(rootdb)
+					if err != nil {
 						return err
+					}
+
+					if err := checkMysqlCompat(version); err != nil {
+						return err
+					}
+
+					errCharset := checkMysqlCharset(rootdb, version)
+					switch {
+					case errCharset == ErrMySQLCharsetNotSupported:
+						dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
+					case errCharset != nil:
+						return errCharset
 					}
 
 					if _, err = rootdb.Exec(fmt.Sprintf("create database if not exists %s", dbname)); err != nil {
@@ -169,8 +179,15 @@ func checkConnection(dsn string) error {
 			} else if err != nil {
 				return err
 			} else {
+				version, err := getMysqlVersion(db)
+				if err != nil {
+					return err
+				}
 
-				if err := checkMysqlCharset(db); err != nil {
+				if err := checkMysqlCompat(version); err != nil {
+					return err
+				}
+				if err := checkMysqlCharset(db, version); err != nil {
 					return err
 				}
 
@@ -181,18 +198,35 @@ func checkConnection(dsn string) error {
 	return nil
 }
 
-func checkMysqlCharset(db *sql.DB) error {
+func getMysqlVersion(db *sql.DB) (string, error) {
 	// Here we check the version of mysql and the default charset
 	var version string
 	err := db.QueryRow("SELECT VERSION()").Scan(&version)
 	switch {
 	case err == sql.ErrNoRows:
-		return fmt.Errorf("Could not retrieve your mysql version - Please create the database manually and retry")
+		return "", fmt.Errorf("Could not retrieve your mysql version - Please create the database manually and retry")
 	case err != nil:
-		return err
-	default:
+		return "", err
 	}
 
+	return version, nil
+}
+
+func checkMysqlCompat(version string) error {
+	mysql8022Matched, err := regexp.MatchString("^8.0.22$", version)
+	if err != nil {
+		return fmt.Errorf("Could not determine db version")
+	}
+
+	if mysql8022Matched {
+		log.Error(ErrMySQLVersionNotSupported.Error())
+		return ErrMySQLVersionNotSupported
+	}
+
+	return nil
+}
+
+func checkMysqlCharset(db *sql.DB, version string) error {
 	// Matches
 	mysqlMatched, err1 := regexp.MatchString("^5.[456].*$", version)
 	mariaMatched, err2 := regexp.MatchString("^10.1.*-MariaDB$", version)
