@@ -157,9 +157,7 @@ var ConfigureCmd = &cobra.Command{
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
 		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")
-		cmd.Println("Make sure to prepare the following data:")
-		cmd.Println(" - IPs and ports for binding the webserver to outside world")
-		cmd.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
+		cmd.Println("Make sure to prepare access and credentials to a MySQL 5.6+ (or MariaDB equivalent) server.")
 		cmd.Println("Pick your installation mode when you are ready.")
 		cmd.Println("")
 

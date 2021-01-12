@@ -179,8 +179,8 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			cmd.Println("# ")
 			cmd.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for the database!")
 			cmd.Println("# ")
-			cmd.Println("# A - If it is the first time you start " + os.Args[0] + ", make sure to first run the install step:")
-			cmd.Println("#     $> " + os.Args[0] + " install")
+			cmd.Println("# A - Before first start, make sure to first run the basic configuration steps:")
+			cmd.Println("#     $> " + os.Args[0] + " configure")
 			cmd.Println("# ")
 			cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
 			cmd.Println("#     Working Directory is " + config.ApplicationWorkingDir())
@@ -189,7 +189,12 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			cmd.Println("# ")
 			cmd.Println("****************************************************************************************")
 			cmd.Println("")
-			cmd.Println("Exiting now...")
+			pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
+			if _, e := pr.Run(); e != nil {
+				cmd.Println("Exiting now...")
+			} else {
+				ConfigureCmd.Run(cmd, args)
+			}
 			return
 		}
 
