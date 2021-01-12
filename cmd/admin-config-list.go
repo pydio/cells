@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-var listCmd = &cobra.Command{
+var listConfigCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all configurations",
 	Long: `Display all configurations registered by the application.
@@ -73,5 +73,5 @@ Configurations are listed as truple [serviceName, configName, configValue], wher
 }
 
 func init() {
-	ConfigCmd.AddCommand(listCmd)
+	ConfigCmd.AddCommand(listConfigCmd)
 }

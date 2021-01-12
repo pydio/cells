@@ -21,18 +21,25 @@
 package cmd
 
 import (
+	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
 )
 
-var DocCmd = &cobra.Command{
-	Use:   "doc",
-	Short: "Manage documentation about Cells and this CLI tool",
-	Long:  ``,
+// docDepsCmd shows dependencies between services.
+var reloadAssetsCmd = &cobra.Command{
+	Use:    "reload-assets",
+	Hidden: true,
+	Short:  "Trigger frontend assets reload",
+	Long:   `Used for development only, will clear in-memory assets and refresh all, including i18n json files.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		cmd.Println("Sending a reload command on ReloadAssets topic")
+		broker.Publish(common.TopicReloadAssets, &broker.Message{Body: []byte("reload")})
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(DocCmd)
+
+	RootCmd.AddCommand(reloadAssetsCmd)
 }

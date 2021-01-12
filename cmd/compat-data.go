@@ -21,24 +21,24 @@
 package cmd
 
 import (
-	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common"
 )
 
-// docDepsCmd shows dependencies between services.
-var reloadAssetsCmd = &cobra.Command{
-	Use:   "reload-assets",
-	Short: "Trigger frontend assets reload",
-	Long:  `Used for development only, will clear in-memory assets and refresh all, including i18n json files.`,
+// DataCmd is kept hidden for backward compatibility
+var DataCmd = &cobra.Command{
+	Use:    "data",
+	Hidden: true,
+	Short:  "Directly interact with a datasource",
+	Long: `Commands for managing indexed data.
+
+Data are indexed in the various data sources you may have defined, and aggregated into a unique tree by
+the tree service. This command allows you among others to launch a full re-synchronisation of a given datasource.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Println("Sending a reload command on ReloadAssets topic")
-		broker.Publish(common.TopicReloadAssets, &broker.Message{Body: []byte("reload")})
+		cmd.Help()
 	},
 }
 
 func init() {
-
-	DocCmd.AddCommand(reloadAssetsCmd)
+	RootCmd.AddCommand(DataCmd)
 }

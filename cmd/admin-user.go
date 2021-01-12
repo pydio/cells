@@ -47,7 +47,7 @@ var UserCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(UserCmd)
+	AdminCmd.AddCommand(UserCmd)
 }
 
 /* Package protected utility methods that are used by the various user subcommands */

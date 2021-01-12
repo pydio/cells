@@ -24,18 +24,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var FilesCmd = &cobra.Command{
-	Use:   "files",
-	Short: "Directly manage files and metadata on the nodes",
-	Long: `Manage metadata that enrich some of the nodes.
-
-Metadata are stored as simple key/values and attached to a node UUID.
-`,
+// configDatabaseCmd is the parent for database config commands.
+var configDatabaseCmd = &cobra.Command{
+	Use:   "db",
+	Short: "Manage Database configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(FilesCmd)
+	ConfigureCmd.AddCommand(configDatabaseCmd)
 }

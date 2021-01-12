@@ -21,35 +21,27 @@
 package cmd
 
 import (
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
-var (
-	action       string
-	value        string
-	roleID       string
-	workspaceID  string
-	nodeID       string
-	actions      []string
-	roleIDs      []string
-	workspaceIDs []string
-	nodeIDs      []string
-)
-
-// AclCmd represents the acl command
-var AclCmd = &cobra.Command{
-	Use:   "acl",
-	Short: "Manage access control lists",
-	Long: `ACLs are managed in a dedicated micro-service.
-
-It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
-ACLs are used to grant permissions to a given node Uuid for a given Role.
-`,
+var compatResyncCmd = &cobra.Command{
+	Use:     "sync",
+	Short:   dataSyncCmd.Short,
+	Long:    dataSyncCmd.Long,
+	Example: dataSyncCmd.Example,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+
+		cmd.Println(promptui.IconWarn + " This command is deprecated, please use 'admin resync' instead.")
+
+		dataSyncCmd.Run(cmd, args)
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(AclCmd)
+	compatResyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
+	compatResyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
+	compatResyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
+
+	DataCmd.AddCommand(compatResyncCmd)
 }

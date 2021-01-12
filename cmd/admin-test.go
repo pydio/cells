@@ -79,5 +79,5 @@ var testCmd = &cobra.Command{
 
 func init() {
 	testCmd.Flags().StringVarP(&conformanceTestServiceName, "service", "s", "", "Select test to run")
-	RootCmd.AddCommand(testCmd)
+	AdminCmd.AddCommand(testCmd)
 }

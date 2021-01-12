@@ -83,9 +83,10 @@ var (
 	niExitAfterInstall bool
 )
 
-var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Launch the installation process",
+var ConfigureCmd = &cobra.Command{
+	Use:     "configure",
+	Aliases: []string{"install"},
+	Short:   "Launch the installation process",
 	Long: `
  This command launches the installation process of Pydio Cells.
 
@@ -437,7 +438,7 @@ func fatalIfError(cmd *cobra.Command, err error) {
 
 func init() {
 
-	flags := installCmd.PersistentFlags()
+	flags := ConfigureCmd.PersistentFlags()
 
 	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
@@ -466,5 +467,5 @@ func init() {
 		viper.BindPFlag(key, flag)
 	})
 
-	RootCmd.AddCommand(installCmd)
+	RootCmd.AddCommand(ConfigureCmd)
 }

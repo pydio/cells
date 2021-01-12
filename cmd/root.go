@@ -163,6 +163,9 @@ You can customize the various storage locations with the following ENV variables
 }
 
 func skipInstallInit() bool {
+	if len(os.Args) <= 1 {
+		return true
+	}
 	arg := os.Args[1]
 
 	for _, skip := range installCommands {

@@ -46,9 +46,9 @@ var (
 )
 
 // listCmd represents the list command
-var versionsListCmd = &cobra.Command{
-	Use:   "versions",
-	Short: "List all configurations versions",
+var configHistoryCmd = &cobra.Command{
+	Use:   "config-history",
+	Short: "List all configurations revisions",
 	Long: `
 This command allows to manage configurations changes history and revert to a given version if necessary.
 
@@ -186,9 +186,9 @@ and the user originating this call.
 }
 
 func init() {
-	versionsListCmd.Flags().StringVar(&configVersionDiff, "diff", "", "Display a Diff between two versions, either by providing VERSION1:VERSION2 or just VERSION1 (will be compared to previous one)")
-	versionsListCmd.Flags().StringVar(&configVersionShow, "cat", "", "Print the JSON content of the config for this version")
-	versionsListCmd.Flags().StringVar(&configVersionRestore, "restore", "", "Restore configuration to this specific version")
-	versionsListCmd.Flags().StringVar(&configVersionDb, "file", "", "Point to a specific DB file instead of default")
-	ConfigCmd.AddCommand(versionsListCmd)
+	configHistoryCmd.Flags().StringVar(&configVersionDiff, "diff", "", "Display a Diff between two versions, either by providing VERSION1:VERSION2 or just VERSION1 (will be compared to previous one)")
+	configHistoryCmd.Flags().StringVar(&configVersionShow, "cat", "", "Print the JSON content of the config for this version")
+	configHistoryCmd.Flags().StringVar(&configVersionRestore, "restore", "", "Restore configuration to this specific version")
+	configHistoryCmd.Flags().StringVar(&configVersionDb, "file", "", "Point to a specific DB file instead of default")
+	ToolCmd.AddCommand(configHistoryCmd)
 }

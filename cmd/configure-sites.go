@@ -199,5 +199,5 @@ func confirmAndSave(cmd *cobra.Command, sites []*install.ProxyConfig) error {
 }
 
 func init() {
-	ConfigCmd.AddCommand(sitesCmd)
+	ConfigureCmd.AddCommand(sitesCmd)
 }

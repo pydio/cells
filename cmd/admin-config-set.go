@@ -31,8 +31,8 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-// updateCmd updates a configuration parameter both in the pydio.json file and in the database.
-var updateCmd = &cobra.Command{
+// updateConfigCmd updates a configuration parameter both in the pydio.json file and in the database.
+var updateConfigCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Store a configuration",
 	Long: `Store a configuration. Will be stored in both your pydio.json file and in the database.
@@ -77,5 +77,5 @@ $ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value
 }
 
 func init() {
-	ConfigCmd.AddCommand(updateCmd)
+	ConfigCmd.AddCommand(updateConfigCmd)
 }

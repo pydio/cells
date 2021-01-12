@@ -34,5 +34,5 @@ var ConfigCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(ConfigCmd)
+	AdminCmd.AddCommand(ConfigCmd)
 }

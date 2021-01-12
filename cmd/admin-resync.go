@@ -36,13 +36,13 @@ import (
 var exampleDataSync = ` For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
 
 1) by name:
-` + os.Args[0] + ` data sync --datasource=pydiods1
+` + os.Args[0] + ` admin resync --datasource=pydiods1
 
 2) by service name:
-` + os.Args[0] + ` data sync --service=pydio.grpc.data.sync.pydiods1 
+` + os.Args[0] + ` admin resync --service=pydio.grpc.data.sync.pydiods1 
 
 Else to refresh the search engine entirely:
-` + os.Args[0] + ` data sync --service=pydio.grpc.search --path=/`
+` + os.Args[0] + ` admin resync --service=pydio.grpc.search --path=/`
 
 var (
 	syncDsName  string
@@ -51,8 +51,8 @@ var (
 )
 
 var dataSyncCmd = &cobra.Command{
-	Use:   "sync",
-	Short: "Trigger index resync",
+	Use:   "resync",
+	Short: "Trigger a service resync",
 	Long: `
 Trigger a re-indexation of a given service. 
 This can be currently used for datasource indexes and search engine.`,
@@ -82,5 +82,5 @@ func init() {
 	dataSyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
 	dataSyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
-	DataCmd.AddCommand(dataSyncCmd)
+	AdminCmd.AddCommand(dataSyncCmd)
 }

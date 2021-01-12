@@ -30,7 +30,8 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-var delCmd = &cobra.Command{
+// delConfigCmd deletes a configuration
+var delConfigCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a configuration item",
 	Long: `Delete a configuration item. It will be removed both from the pydio.json file and from the database.
@@ -72,5 +73,5 @@ $ ` + os.Args[0] + ` config delete micro.web port
 }
 
 func init() {
-	ConfigCmd.AddCommand(delCmd)
+	ConfigCmd.AddCommand(delConfigCmd)
 }
