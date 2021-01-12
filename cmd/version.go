@@ -66,7 +66,7 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show Pydio Cells version information",
+	Short: "Show binary current version information",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var t time.Time

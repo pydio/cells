@@ -54,7 +54,7 @@ type serviceContext struct {
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start Cells services",
+	Short: "Start one or more services",
 	Long: `Start one or more services on this machine
 
 ### Syntax

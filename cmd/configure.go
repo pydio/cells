@@ -86,7 +86,7 @@ var (
 var ConfigureCmd = &cobra.Command{
 	Use:     "configure",
 	Aliases: []string{"install"},
-	Short:   "Launch the installation process",
+	Short:   "Setup required configurations",
 	Long: `
  This command launches the installation process of Pydio Cells.
 
