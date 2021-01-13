@@ -189,7 +189,19 @@
     "other": "Local FS (store all data on this server)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 (store all data inside S3 buckets)"
+    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+  },
+  "form.dsS3Custom.label": {
+    "other": "S3-Compatible storage endpoint"
+  },
+  "form.dsS3Custom.legend": {
+    "other": "Leave empty for Amazon"
+  },
+  "form.dsS3CustomRegion.label": {
+    "other": "S3 Custom region"
+  },
+  "form.dsS3CustomRegion.legend": {
+    "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 Api Key"
