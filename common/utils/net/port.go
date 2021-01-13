@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"syscall"
@@ -40,4 +41,31 @@ func CheckPortAvailability(port string) (err error) {
 	}
 
 	return nil
+}
+
+// GetAvailableHttpAltPort tries to find best available port for HTTP
+func GetAvailableHttpAltPort() int {
+	alts := []int{8080, 8008, 591, 8081, 8082}
+	for _, port := range alts {
+		if e := CheckPortAvailability(fmt.Sprintf("%d", port)); e == nil {
+			return port
+		}
+	}
+	// Return random now
+	return GetAvailablePort()
+}
+
+// GetAvailablePort finds an available TCP port on which to listen to.
+func GetAvailablePort() int {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return 0
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		return 0
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port
 }

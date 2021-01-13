@@ -23,6 +23,7 @@ package lib
 
 import (
 	"context"
+	"net/url"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -123,7 +124,20 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		break
 
 	case "S3_KEYS":
-		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		endpoint := "s3.amazonaws.com"
+		secure := true
+		if c.GetDsS3Custom() != "" {
+			if u, e := url.Parse(c.GetDsS3Custom()); e != nil {
+				wrapError(e)
+				break
+			} else {
+				endpoint = u.Host
+				if u.Scheme == "http" {
+					secure = false
+				}
+			}
+		}
+		mc, e := minio.NewCore(endpoint, c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), secure)
 		if e != nil {
 			wrapError(e)
 			break
@@ -153,7 +167,20 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		break
 
 	case "S3_BUCKETS":
-		mc, e := minio.NewCore("s3.amazonaws.com", c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), true)
+		endpoint := "s3.amazonaws.com"
+		secure := true
+		if c.GetDsS3Custom() != "" {
+			if u, e := url.Parse(c.GetDsS3Custom()); e != nil {
+				wrapError(e)
+				break
+			} else {
+				endpoint = u.Host
+				if u.Scheme == "http" {
+					secure = false
+				}
+			}
+		}
+		mc, e := minio.NewCore(endpoint, c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), secure)
 		if e != nil {
 			wrapError(e)
 			break

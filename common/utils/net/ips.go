@@ -172,18 +172,3 @@ loop:
 
 	return eq
 }
-
-// GetAvailablePort finds an available TCP port on which to listen to.
-func GetAvailablePort() int {
-	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
-	if err != nil {
-		return 0
-	}
-
-	l, err := net.ListenTCP("tcp", addr)
-	if err != nil {
-		return 0
-	}
-	defer l.Close()
-	return l.Addr().(*net.TCPAddr).Port
-}

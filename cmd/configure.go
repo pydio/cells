@@ -23,6 +23,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,13 +31,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
@@ -198,23 +198,28 @@ var ConfigureCmd = &cobra.Command{
 			sites, err := config.LoadSites()
 			fatalIfError(cmd, err)
 			proxyConf = sites[0]
-			if proxyConf == config.DefaultBindingSite && niNoTls {
-				// Create a siteConf without TLS
-				noTlsConf := *proxyConf
-				noTlsConf.TLSConfig = nil
-				proxyConf = &noTlsConf
-				e := config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Create No TLS site at install")
-				fatalIfError(cmd, e)
-			}
 
+			// Eventually switch default to HTTP instead of HTTPS
+			proxyConf, err = switchDefaultTls(cmd, proxyConf, niNoTls)
 			fatalIfError(cmd, err)
 
-			// Prompt for config with CLI, apply and exit
-			if niModeCli {
-				_, err := cliInstall(cmd, proxyConf)
+			// In Browser mode (and bind url is not explicitly set), make sure to find an available HttpAlt port
+			if !niModeCli {
+				var message string
+				proxyConf, message, err = checkDefaultBusy(cmd, proxyConf, true)
 				fatalIfError(cmd, err)
-				return
+				if message != "" {
+					cmd.Println(promptui.IconWarn, message)
+				}
 			}
+
+		}
+
+		// Prompt for config with CLI, apply and exit
+		if niModeCli {
+			_, err := cliInstall(cmd, proxyConf)
+			fatalIfError(cmd, err)
+			return
 		}
 
 		// Run browser install
@@ -285,6 +290,46 @@ var ConfigureCmd = &cobra.Command{
 	},
 }
 
+func switchDefaultTls(cmd *cobra.Command, proxyConf *install.ProxyConfig, disableTls bool) (*install.ProxyConfig, error) {
+	if proxyConf == config.DefaultBindingSite && disableTls {
+		// Create a siteConf without TLS
+		noTlsConf := *proxyConf
+		noTlsConf.TLSConfig = nil
+		proxyConf = &noTlsConf
+		return proxyConf, config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, "Binding to http (no tls)")
+	}
+	return proxyConf, nil
+}
+
+func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOne bool) (*install.ProxyConfig, string, error) {
+	if proxyConf != config.DefaultBindingSite {
+		return proxyConf, "", nil
+	}
+	var msg string
+	u, e := url.Parse(proxyConf.GetDefaultBindURL())
+	if e != nil {
+		return proxyConf, "", e
+	}
+	if e := net.CheckPortAvailability(u.Port()); e != nil {
+		if !pickOne {
+			// Just inform that port is busy
+			return proxyConf, u.Port(), nil
+		}
+		// Port is busy, pick another one!
+		newPort := net.GetAvailableHttpAltPort()
+		newConf := *proxyConf
+		newConf.Binds[0] = fmt.Sprintf("%s:%d", u.Hostname(), newPort)
+		proxyConf = &newConf
+		msg = fmt.Sprintf("Default bind : using alternate port %d as default one is busy", newPort)
+	}
+
+	var err error
+	if msg != "" {
+		err = config.SaveSites([]*install.ProxyConfig{proxyConf}, common.PydioSystemUsername, msg)
+	}
+	return proxyConf, msg, err
+}
+
 func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// Installing the JS data
@@ -297,29 +342,12 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		}
 	}
 
-	// config.Save("cli", "Install / Setting default Port")	cmd.Println("Got the assets, internal is ", internal.String())
-
-	// config.Save("cli", "Install / Saving final configs")
-	// cmd.Println("final configs saved")
-
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.ServiceMicroApi)
 	micro.Start(cmd.Context())
 
 	// starting the installation REST service
 	regService := registry.Default.GetServiceByName(common.ServiceInstall)
-
-	// installServ := regService.(service.Service)
-	// Strip some flag to avoid panic on re-registering a flag twice
-	// flags := installServ.Options().Web.Options().Cmd.App().Flags
-	// var newFlags []cli.Flag
-	// for _, f := range flags {
-	// 	if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-	// 		continue
-	// 	}
-	// 	newFlags = append(newFlags, f)
-	// }
-	// installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
 	// Starting service install
 	regService.Start(cmd.Context())

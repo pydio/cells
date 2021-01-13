@@ -29,16 +29,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/spf13/cobra"
-
-	json "github.com/pydio/cells/x/jsonx"
-
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
+	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/discovery/install/lib"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -57,12 +55,12 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
-	fmt.Println("\n\033[1m## Frontend Configuration\033[0m")
+	fmt.Println("\n\033[1m## Administrative User Configuration\033[0m")
 	if e := promptFrontendAdmin(cliConfig, adminRequired); e != nil {
 		return nil, e
 	}
 
-	fmt.Println("\n\033[1m## Advanced Settings\033[0m")
+	fmt.Println("\n\033[1m## Default storage location\033[0m")
 	if e := promptAdvanced(cliConfig); e != nil {
 		return nil, e
 	}
@@ -75,13 +73,16 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
 	}
 
-	if ss, _ := config.LoadSites(true); len(ss) == 0 {
-		fmt.Println("\n\033[1m## Check main access configuration\033[0m")
-		sitesCmd.Run(cmd, []string{"skipConfirm"})
-	}
-
 	fmt.Println("")
-	fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+	fmt.Println(p.IconGood + "\033[1m Installation Finished - Use '" + os.Args[0] + " start' to start server.\033[0m")
+	fmt.Println("Cells will be exposed through the following URLs:")
+	ss, _ := config.LoadSites()
+	listSites(cmd, ss)
+	if _, busyPort, _ := checkDefaultBusy(cmd, cliConfig.ProxyConfig, false); busyPort != "" {
+		fmt.Println(p.Styler(p.BGRed, p.FGWhite)(fmt.Sprintf(" Warning, it seems that port %s is already busy. You may want to change default port by running '"+os.Args[0]+" configure sites' command.", busyPort)))
+	} else {
+		fmt.Println("You can edit these URLs by running '" + os.Args[0] + " configure sites' command.")
+	}
 	fmt.Println("")
 	return cliConfig, nil
 
@@ -222,30 +223,26 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
 func promptAdvanced(c *install.InstallConfig) error {
 
-	confirm := p.Prompt{Label: "There are some advanced settings for ports and initial data storage. Do you want to edit them", IsConfirm: true}
-	if _, e := confirm.Run(); e == p.ErrInterrupt {
-		return e
-	} else if e != nil {
-		return nil
-	}
-
 	dsType := p.Select{
-		Label: "Default datasources can be created on the local filesystem or directly inside an Amazon S3 storage",
-		Items: []string{"Local Filesystem (select folder path)", "Amazon S3 storage (setup API Keys and Buckets)"},
+		Label: "Your files will be stored on local filesystem under '" + c.DsFolder + "'. Do you want to change this?",
+		Items: []string{
+			"It's ok for me, use default location",
+			"Select another local folder",
+			"Store data in S3-compatible storage (requires api key/secret)",
+		},
 	}
 	i, _, e := dsType.Run()
 	if e != nil {
 		return e
 	}
-	if i == 0 {
-		dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, AllowEdit: true, Validate: notEmpty}
-
+	if i == 1 {
+		dsPath := p.Prompt{Label: "Enter path to a local folder", Default: c.DsFolder, AllowEdit: true, Validate: notEmpty}
 		if folder, e := dsPath.Run(); e == nil {
 			c.DsFolder = folder
 		} else {
 			return e
 		}
-	} else {
+	} else if i == 2 {
 		// CHECK S3 CONNECTION
 		c.DsType = "S3"
 		buckets, canCreate, err := setupS3Connection(c)
@@ -269,7 +266,14 @@ func promptAdvanced(c *install.InstallConfig) error {
 
 /* VARIOUS HELPERS */
 func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
-	pr := p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
+
+	pr := p.Prompt{Label: "For S3 compatible storage, please provide storage URL (leave empty for Amazon)", Default: c.DsS3Custom}
+	if s3Custom, e := pr.Run(); e != nil {
+		return buckets, canCreate, e
+	} else if s3Custom != "" {
+		c.DsS3Custom = strings.Trim(s3Custom, " ")
+	}
+	pr = p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
 	if apiKey, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
