@@ -18,11 +18,18 @@ func init() {
 var sitesDelete = &cobra.Command{
 	Use:   "delete",
 	Short: "Remove a site by its index",
-	Long:  "Remove a site by its index",
+	Long:  "Remove a site exposing Cells to a given URL, by providing its index",
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)
+		if len(sites) == 0 {
+			cmd.Println("No sites are defined in config, currently using defaults. Nothing to do.")
+			return
+		}
 		fatalIfError(cmd, e)
 		err := fmt.Errorf("Please provide an index between 0 and %d", len(sites)-1)
+		if len(sites) == 1 {
+			err = fmt.Errorf("Please confirm you wish to delete this site by providing index 0 as argument")
+		}
 		if len(args) == 0 {
 			fatalIfError(cmd, err)
 		}

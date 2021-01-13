@@ -18,9 +18,9 @@ var sitesCmd = &cobra.Command{
 	Use:   "sites",
 	Short: "Manage sites where application is exposed",
 	Long: `
-Manage how Cells is binding to network interfaces and how it is exposed to outside world (or not).
-
-Sub-commands allow you to create/edit/delete multiple sites.
+Manage how Cells is binding to network interfaces and how it is exposed to outside world.
+This is the main tool for listing, editing, adding and removing URLs.
+Additional sub-commands allow you to directly create/delete sites.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)

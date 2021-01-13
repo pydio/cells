@@ -36,9 +36,9 @@ import (
 
 var sitesAdd = &cobra.Command{
 	Use:   "add",
-	Short: "Manage sites where application is exposed",
+	Short: "Add a site",
 	Long: `
-
+Add a site for exposing Cells to another address.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
