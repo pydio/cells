@@ -266,8 +266,8 @@ func initConfig() {
 		fmt.Println("# ")
 		fmt.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for Cells !")
 		fmt.Println("# ")
-		fmt.Println("# A - If it is the first time you start " + os.Args[0] + ", make sure to first run the install step:")
-		fmt.Println("#     $> " + os.Args[0] + " install")
+		fmt.Println("# A - If it is your first start, make sure to first run the configuration steps using:")
+		fmt.Println("#     $> " + os.Args[0] + " configure")
 		fmt.Println("# ")
 		fmt.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
 		fmt.Println("#     Working Directory is " + config.ApplicationWorkingDir())
@@ -276,8 +276,14 @@ func initConfig() {
 		fmt.Println("# ")
 		fmt.Println("****************************************************************************************")
 		fmt.Println("")
-		fmt.Println("Exiting now...")
-		os.Exit(1)
+		pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
+		if _, e := pr.Run(); e != nil {
+			fmt.Println("Exiting now...")
+			os.Exit(0)
+		} else {
+			ConfigureCmd.Run(&cobra.Command{}, []string{})
+		}
+		return
 	}
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
