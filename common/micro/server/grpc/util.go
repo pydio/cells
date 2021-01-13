@@ -136,7 +136,7 @@ func encode(c grpc.Codec, msg interface{}, cp grpc.Compressor, cbuf *bytes.Buffe
 		}
 	}
 
-	if len(b) > math.MaxUint32 {
+	if uint32(len(b)) > uint32(math.MaxUint32) {
 		return nil, nil, Errorf(codes.ResourceExhausted, "grpc: message too large (%d bytes)", len(b))
 	}
 

@@ -33,7 +33,6 @@ import (
 	net2 "github.com/pydio/cells/common/utils/net"
 
 	"github.com/nats-io/gnatsd/server"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -43,10 +42,6 @@ import (
 var hd *server.Server
 
 func Init() {
-	cobra.OnInitialize(run)
-}
-
-func run() {
 	reg := viper.GetString("registry")
 	regAddress := viper.GetString("registry_address")
 	regClusterAddress := viper.GetString("registry_cluster_address")

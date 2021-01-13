@@ -51,7 +51,6 @@ import (
 	microregistry "github.com/pydio/cells/common/micro/registry"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
-	"github.com/pydio/cells/discovery/nats"
 	"github.com/pydio/cells/x/filex"
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -63,7 +62,6 @@ import (
 
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
-	"github.com/pydio/cells/common/service/metrics"
 
 	//
 	microconfig "github.com/pydio/go-os/config"
@@ -143,19 +141,6 @@ You can customize the various storage locations with the following ENV variables
 				return
 			}
 		}
-
-		// Initialise the default registry
-		handleRegistry()
-
-		// Initialise the default broker
-		handleBroker()
-
-		// Initialise the default transport
-		handleTransport()
-
-		// Making sure we capture the signals
-		handleSignals()
-
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
@@ -207,26 +192,7 @@ func init() {
 	flags := RootCmd.PersistentFlags()
 
 	flags.String("config", "local", "Config")
-
-	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
-	flags.String("registry_address", ":4222", "Registry connection address")
-	flags.String("registry_cluster_address", "", "Registry cluster address")
-	flags.String("registry_cluster_routes", "", "Registry cluster routes")
-
-	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
-	flags.String("broker_address", ":4222", "Broker port")
-
-	flags.String("transport", "grpc", "Transport protocol for RPC")
-	flags.String("transport_address", ":4222", "Transport protocol port")
-
-	flags.String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
-
-	flags.String("log", "info", "Sets the log level mode")
-	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
-	flags.String("grpc_key", "", "Certificates used for communication via grpc")
-	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
-	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
-	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
+	flags.MarkHidden("config")
 
 	replaceKeys := map[string]string{
 		"log":  "logs_level",
@@ -246,12 +212,8 @@ func init() {
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-
 	// Check PrivateIP and setup Advertise
 	initAdvertiseIP()
-
-	nats.Init()
-	metrics.Init()
 
 	ctx, cancel = context.WithCancel(context.Background())
 	defer cancel()

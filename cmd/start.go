@@ -32,11 +32,14 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/metrics"
+	"github.com/pydio/cells/discovery/nats"
 )
 
 var (
@@ -85,6 +88,35 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 				return err
 			}
 		}
+
+		replaceKeys := map[string]string{
+			"log":  "logs_level",
+			"fork": "is_fork",
+		}
+		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+			key := flag.Name
+			if replace, ok := replaceKeys[flag.Name]; ok {
+				key = replace
+			}
+			flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+			viper.BindPFlag(key, flag)
+		})
+
+		nats.Init()
+
+		metrics.Init()
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		// Making sure we capture the signals
+		handleSignals()
 
 		plugins.Init(cmd.Context())
 
@@ -244,13 +276,29 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 }
 
 func init() {
+	StartCmd.Flags().String("registry", "nats", "Registry used to manage services (currently nats only)")
+	StartCmd.Flags().String("registry_address", ":4222", "Registry connection address")
+	StartCmd.Flags().String("registry_cluster_address", "", "Registry cluster address")
+	StartCmd.Flags().String("registry_cluster_routes", "", "Registry cluster routes")
+
+	StartCmd.Flags().String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
+	StartCmd.Flags().String("broker_address", ":4222", "Broker port")
+
+	StartCmd.Flags().String("transport", "grpc", "Transport protocol for RPC")
+	StartCmd.Flags().String("transport_address", ":4222", "Transport protocol port")
+	StartCmd.Flags().String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
+
+	StartCmd.Flags().String("log", "info", "Sets the log level mode")
+	StartCmd.Flags().String("grpc_cert", "", "Certificates used for communication via grpc")
+	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
+	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
+	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
+	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
+
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Filter by tags")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Filter")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
 	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
-
-	viper.BindPFlag("healthcheck", StartCmd.Flags().Lookup("healthcheck"))
-	viper.BindPFlag("nats_monitor_port", StartCmd.Flags().Lookup("nats_monitor_port"))
 
 	RootCmd.AddCommand(StartCmd)
 }

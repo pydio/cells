@@ -7,7 +7,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/broker/nats"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/micro/broker"
 	"github.com/pydio/cells/common/registry"
 	"github.com/spf13/viper"

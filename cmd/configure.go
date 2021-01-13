@@ -44,8 +44,10 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
+	"github.com/pydio/cells/discovery/nats"
 )
 
 const (
@@ -132,9 +134,20 @@ var ConfigureCmd = &cobra.Command{
 			return err
 		}
 
-		plugins.InstallInit(cmd.Context())
+		replaceKeys := map[string]string{
+			"yaml": "install_yaml",
+			"json": "install_json",
+			"cli":  "install_cli",
+		}
 
-		initServices()
+		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+			key := flag.Name
+			if replace, ok := replaceKeys[flag.Name]; ok {
+				key = replace
+			}
+			flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+			viper.BindPFlag(key, flag)
+		})
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niBindUrl = viper.GetString("bind")
@@ -212,7 +225,6 @@ var ConfigureCmd = &cobra.Command{
 					cmd.Println(promptui.IconWarn, message)
 				}
 			}
-
 		}
 
 		// Prompt for config with CLI, apply and exit
@@ -279,12 +291,22 @@ var ConfigureCmd = &cobra.Command{
 		<-cmd.Context().Done()
 
 		// Checking that the processes are done
-		// TODO - we need to find a way to wait for all services and all children processes to have ended before we return
+		ticker := time.Tick(1 * time.Second)
+		// In any case, we stop after 10 seconds even if a service is still registered somehow
+		timeout := time.After(10 * time.Second)
+
+	loop:
 		for {
-			process := registry.Default.GetCurrentProcess()
-			childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
-			if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
-				break
+			select {
+			case <-ticker:
+				process := registry.Default.GetCurrentProcess()
+				childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
+				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
+					break loop
+				}
+				continue
+			case <-timeout:
+				break loop
 			}
 		}
 	},
@@ -331,6 +353,27 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 }
 
 func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
+
+	// Initialising services
+	nats.Init()
+
+	metrics.Init()
+
+	// Initialise the default registry
+	handleRegistry()
+
+	// Initialise the default broker
+	handleBroker()
+
+	// Initialise the default transport
+	handleTransport()
+
+	// Making sure we capture the signals
+	handleSignals()
+
+	plugins.InstallInit(cmd.Context())
+
+	initServices()
 
 	// Installing the JS data
 	dir, err := assets.GetAssets("../discovery/install/assets/src")
@@ -394,7 +437,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	})
 
 	if err != nil {
-		cmd.Print(err)
+		cmd.Print("Could not subscribe to broker: ", err)
 		os.Exit(1)
 	}
 
@@ -463,8 +506,7 @@ func fatalIfError(cmd *cobra.Command, err error) {
 }
 
 func init() {
-
-	flags := ConfigureCmd.PersistentFlags()
+	flags := ConfigureCmd.Flags()
 
 	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
@@ -479,19 +521,22 @@ func init() {
 	flags.String("json", "", "Points toward a configuration in JSON format")
 	flags.Bool("exit_after_install", false, "Simply exits main process after the installation is done")
 
-	replaceKeys := map[string]string{
-		"yaml": "install_yaml",
-		"json": "install_json",
-		"cli":  "install_cli",
-	}
-	flags.VisitAll(func(flag *pflag.Flag) {
-		key := flag.Name
-		if replace, ok := replaceKeys[flag.Name]; ok {
-			key = replace
-		}
-		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
-		viper.BindPFlag(key, flag)
-	})
+	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
+	flags.String("registry_address", ":4222", "Registry connection address")
+	flags.String("registry_cluster_address", "", "Registry cluster address")
+	flags.String("registry_cluster_routes", "", "Registry cluster routes")
+	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
+	flags.String("broker_address", ":4222", "Broker port")
+	flags.String("transport", "grpc", "Transport protocol for RPC")
+	flags.String("transport_address", ":4222", "Transport protocol port")
+	flags.MarkHidden("registry")
+	flags.MarkHidden("registry_address")
+	flags.MarkHidden("registry_cluster_address")
+	flags.MarkHidden("registry_cluster_routes")
+	flags.MarkHidden("broker")
+	flags.MarkHidden("broker_address")
+	flags.MarkHidden("transport")
+	flags.MarkHidden("transport_address")
 
 	RootCmd.AddCommand(ConfigureCmd)
 }
