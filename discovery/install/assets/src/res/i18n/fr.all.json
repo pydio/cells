@@ -189,7 +189,19 @@
     "other": "Fichiers locaux (stocker les données sur ce serveur)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 (stocker les données dans des buckets S3)"
+    "other": "Amazon / Compatible S3 (stocker dans des buckets S3)"
+  },
+  "form.dsS3Custom.label": {
+    "other": "URL d'un stockage compatible S3"
+  },
+  "form.dsS3Custom.legend": {
+    "other": "Laissez vide pour AWS"
+  },
+  "form.dsS3CustomRegion.label": {
+    "other": "Région personnalisée"
+  },
+  "form.dsS3CustomRegion.legend": {
+    "other": "Valeur par défaut (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "Clé d'API S3"

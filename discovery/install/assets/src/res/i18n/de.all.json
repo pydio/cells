@@ -189,7 +189,19 @@
     "other": "Lokaler FS (alle Daten auf diesem Server speichern)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 (alle Daten in S3-Buckets speichern)"
+    "other": "Amazon S3 / S3-kompatibel (in S3-Buckets speichern)"
+  },
+  "form.dsS3Custom.label": {
+    "other": "S3-kompatibler Speicher-Endpunkt"
+  },
+  "form.dsS3Custom.legend": {
+    "other": "Für Amazon leer lassen"
+  },
+  "form.dsS3CustomRegion.label": {
+    "other": "S3 Benutzerdefinierte Region"
+  },
+  "form.dsS3CustomRegion.legend": {
+    "other": "Leer lassen für Standard (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 API-Schlüssel"
