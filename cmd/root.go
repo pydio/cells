@@ -276,13 +276,8 @@ func initConfig() {
 		fmt.Println("# ")
 		fmt.Println("****************************************************************************************")
 		fmt.Println("")
-		pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
-		if _, e := pr.Run(); e != nil {
-			fmt.Println("Exiting now...")
-			os.Exit(0)
-		} else {
-			ConfigureCmd.Run(&cobra.Command{}, []string{})
-		}
+		fmt.Println("Exiting now...")
+		os.Exit(0)
 		return
 	}
 
