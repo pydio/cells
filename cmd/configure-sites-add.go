@@ -35,7 +35,7 @@ import (
 )
 
 var sitesAdd = &cobra.Command{
-	Use:   "sites",
+	Use:   "add",
 	Short: "Manage sites where application is exposed",
 	Long: `
 
