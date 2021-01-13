@@ -93,11 +93,11 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 		Label: "Database Connection Type",
 		Items: []string{"TCP", "Socket", "Manual"},
 	}
-	dbTcpHost := p.Prompt{Label: "Database Hostname", Validate: notEmpty, Default: c.DbTCPHostname}
-	dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: c.DbTCPPort}
+	dbTcpHost := p.Prompt{Label: "Database Hostname", Validate: notEmpty, Default: c.DbTCPHostname, AllowEdit: true}
+	dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: c.DbTCPPort, AllowEdit: true}
 
-	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: c.DbTCPName}
-	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty, Default: c.DbTCPUser}
+	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: c.DbTCPName, AllowEdit: true}
+	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty, Default: c.DbTCPUser, AllowEdit: true}
 	dbPass := p.Prompt{Label: "Database Password (leave empty if not needed)", Mask: '*'}
 
 	dbSocketFile := p.Prompt{Label: "Socket File", Validate: notEmpty}
@@ -193,6 +193,7 @@ func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 	if adminRequired {
 		login.Label = "Admin Login"
 		login.Default = "admin"
+		login.AllowEdit = true
 		login.Validate = notEmpty
 		pwd.Validate = notEmpty
 	}
@@ -237,7 +238,7 @@ func promptAdvanced(c *install.InstallConfig) error {
 		return e
 	}
 	if i == 0 {
-		dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, Validate: notEmpty}
+		dsPath := p.Prompt{Label: "Path to the default datasource", Default: c.DsFolder, AllowEdit: true, Validate: notEmpty}
 
 		if folder, e := dsPath.Run(); e == nil {
 			c.DsFolder = folder
