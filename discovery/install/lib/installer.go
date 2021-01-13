@@ -155,7 +155,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		}
 		data["buckets"] = buckets
 		testBC := uuid.New()
-		if er := mc.MakeBucket(testBC, ""); er == nil {
+		if er := mc.MakeBucket(testBC, c.GetDsS3CustomRegion()); er == nil {
 			mc.RemoveBucket(testBC)
 			data["canCreate"] = true
 		} else {
@@ -209,7 +209,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 			if _, ok := buckets[check]; ok { // already exists
 				continue
 			}
-			if e := mc.MakeBucket(check, ""); e != nil {
+			if e := mc.MakeBucket(check, c.GetDsS3CustomRegion()); e != nil {
 				wrapError(e)
 				break
 			} else {

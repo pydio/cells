@@ -273,6 +273,12 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	} else if s3Custom != "" {
 		c.DsS3Custom = strings.Trim(s3Custom, " ")
 	}
+	pr = p.Prompt{Label: "Provide storage custom region (leave empty for default)", Default: c.DsS3CustomRegion}
+	if s3CustomRegion, e := pr.Run(); e != nil {
+		return buckets, canCreate, e
+	} else if s3CustomRegion != "" {
+		c.DsS3CustomRegion = strings.Trim(s3CustomRegion, " ")
+	}
 	pr = p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
 	if apiKey, e := pr.Run(); e != nil {
 		return buckets, canCreate, e

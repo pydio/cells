@@ -23,6 +23,8 @@ const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, .
     floatingLabelFixed={true}
     errorText={touched && error}
     fullWidth={true}
+    hintStyle={{whiteSpace: 'nowrap'}}
+    floatingLabelStyle={{whiteSpace: 'nowrap'}}
     {...input}
     {...custom}
   />
@@ -37,6 +39,8 @@ const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, .
     fullWidth={true}
     type={"password"}
     autoComplete={"new-password"}
+    hintStyle={{whiteSpace: 'nowrap'}}
+    floatingLabelStyle={{whiteSpace: 'nowrap'}}
     {...input}
     {...custom}
   />
@@ -598,6 +602,20 @@ class InstallForm extends React.Component {
                             }
                             {dsType === 'S3' &&
                             <div>
+                                <div style={{display: 'flex', alignItems: 'flex-end'}}>
+                                    <div style={{flex: 1, marginRight: 5}}>
+                                        <Field name="dsS3Custom" component={renderTextField}
+                                               floatingLabel={this.t('form.dsS3Custom.label')}
+                                               label={this.t('form.dsS3Custom.legend')}
+                                        />
+                                    </div>
+                                    <div style={{flex: 1, marginLeft: 5}}>
+                                        <Field name="dsS3CustomRegion" component={renderTextField}
+                                               floatingLabel={this.t('form.dsS3CustomRegion.label')}
+                                               label={this.t('form.dsS3CustomRegion.legend')}/>
+                                    </div>
+                                    <div style={{width: 48}}/>
+                                </div>
                                 <div style={{display: 'flex', alignItems: 'flex-end'}}>
                                     <div style={{flex: 1, marginRight: 5}}>
                                         <Field name="dsS3ApiKey" component={renderTextField}

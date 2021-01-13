@@ -79,7 +79,9 @@ var renderTextField = function renderTextField(_ref) {
         floatingLabelText: floatingLabel,
         floatingLabelFixed: true,
         errorText: touched && error,
-        fullWidth: true
+        fullWidth: true,
+        hintStyle: { whiteSpace: 'nowrap' },
+        floatingLabelStyle: { whiteSpace: 'nowrap' }
     }, input, custom));
 };
 
@@ -99,7 +101,9 @@ var renderPassField = function renderPassField(_ref2) {
         errorText: error,
         fullWidth: true,
         type: "password",
-        autoComplete: "new-password"
+        autoComplete: "new-password",
+        hintStyle: { whiteSpace: 'nowrap' },
+        floatingLabelStyle: { whiteSpace: 'nowrap' }
     }, input, custom));
 };
 
@@ -960,6 +964,26 @@ var InstallForm = function (_React$Component) {
                             dsType === 'S3' && _react2.default.createElement(
                                 'div',
                                 null,
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { display: 'flex', alignItems: 'flex-end' } },
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginRight: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dsS3Custom', component: renderTextField,
+                                            floatingLabel: this.t('form.dsS3Custom.label'),
+                                            label: this.t('form.dsS3Custom.legend')
+                                        })
+                                    ),
+                                    _react2.default.createElement(
+                                        'div',
+                                        { style: { flex: 1, marginLeft: 5 } },
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dsS3CustomRegion', component: renderTextField,
+                                            floatingLabel: this.t('form.dsS3CustomRegion.label'),
+                                            label: this.t('form.dsS3CustomRegion.legend') })
+                                    ),
+                                    _react2.default.createElement('div', { style: { width: 48 } })
+                                ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { display: 'flex', alignItems: 'flex-end' } },
