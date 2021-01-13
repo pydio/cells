@@ -41,5 +41,5 @@ var reloadAssetsCmd = &cobra.Command{
 
 func init() {
 
-	RootCmd.AddCommand(reloadAssetsCmd)
+	AdminCmd.AddCommand(reloadAssetsCmd)
 }
