@@ -2846,22 +2846,28 @@
 			"revisionTime": "2018-03-20T13:17:58Z"
 		},
 		{
-			"checksumSHA1": "peCcGbMMkqaBbSjgTh0byqaqqcw=",
+			"checksumSHA1": "+EX91Ud3f941TxKxjAlEwd48Bsk=",
 			"path": "github.com/manifoldco/promptui",
-			"revision": "c0c0d3afc6a03bcb5c1df10b70b862a650db9f9b",
-			"revisionTime": "2018-03-08T16:10:52Z"
+			"revision": "981a3cab68f6f3481bf42c6a98521af7fbd14fae",
+			"revisionTime": "2020-09-28T13:39:37Z",
+			"version": "v0.8.0",
+			"versionExact": "v0.8.0"
 		},
 		{
-			"checksumSHA1": "fVHI8To5gIfTnZhRY25UEg+SsqE=",
+			"checksumSHA1": "mMVtrmjdbt9fQ0waRFnm9FTJSRw=",
 			"path": "github.com/manifoldco/promptui/list",
-			"revision": "c0c0d3afc6a03bcb5c1df10b70b862a650db9f9b",
-			"revisionTime": "2018-03-08T16:10:52Z"
+			"revision": "981a3cab68f6f3481bf42c6a98521af7fbd14fae",
+			"revisionTime": "2020-09-28T13:39:37Z",
+			"version": "v0.8.0",
+			"versionExact": "v0.8.0"
 		},
 		{
-			"checksumSHA1": "NWkKtjbU06ollFPEggEkvdUOOoc=",
+			"checksumSHA1": "/deLsoaqfMcqxU61mOtVlKDLU5Q=",
 			"path": "github.com/manifoldco/promptui/screenbuf",
-			"revision": "c0c0d3afc6a03bcb5c1df10b70b862a650db9f9b",
-			"revisionTime": "2018-03-08T16:10:52Z"
+			"revision": "981a3cab68f6f3481bf42c6a98521af7fbd14fae",
+			"revisionTime": "2020-09-28T13:39:37Z",
+			"version": "v0.8.0",
+			"versionExact": "v0.8.0"
 		},
 		{
 			"checksumSHA1": "prSU5Uv7/IKu6VhGx4rDjPvjaZo=",

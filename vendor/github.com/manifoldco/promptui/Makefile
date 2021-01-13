@@ -1,55 +1,49 @@
-LINTERS=\
-	gofmt \
-	golint \
-	gosimple \
-	vet \
-	misspell \
-	ineffassign \
-	deadcode
+export GO111MODULE := on
+export PATH := ./bin:$(PATH)
 
-ci: $(LINTERS) test
-
+ci: bootstrap lint cover
 .PHONY: ci
 
 #################################################
-# Bootstrapping for base golang package deps
+# Bootstrapping for base golang package and tool deps
 #################################################
 
-CMD_PKGS=\
-	github.com/golang/lint/golint \
-	honnef.co/go/tools/cmd/gosimple \
-	github.com/client9/misspell/cmd/misspell \
-	github.com/gordonklaus/ineffassign \
-	github.com/tsenart/deadcode \
-	github.com/alecthomas/gometalinter
-
-define VENDOR_BIN_TMPL
-vendor/bin/$(notdir $(1)): vendor
-	go build -o $$@ ./vendor/$(1)
-VENDOR_BINS += vendor/bin/$(notdir $(1))
-endef
-
-$(foreach cmd_pkg,$(CMD_PKGS),$(eval $(call VENDOR_BIN_TMPL,$(cmd_pkg))))
-$(patsubst %,%-bin,$(filter-out gofmt vet,$(LINTERS))): %-bin: vendor/bin/%
-gofmt-bin vet-bin:
-
 bootstrap:
-	which dep || go get -u github.com/golang/dep/cmd/dep
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s v1.21.0
+.PHONY: bootstrap
 
-vendor: Gopkg.lock
-	dep ensure
+mod-update:
+	go get -u -m
+	go mod tidy
 
-.PHONY: bootstrap $(CMD_PKGS)
+mod-tidy:
+	go mod tidy
+
+.PHONY: $(CMD_PKGS)
+.PHONY: mod-update mod-tidy
 
 #################################################
 # Test and linting
 #################################################
+# Run all the linters
+lint:
+	bin/golangci-lint run ./...
+.PHONY: lint
 
-test: vendor
-	@CGO_ENABLED=0 go test -v $$(go list ./... | grep -v vendor)
+test:
+	CGO_ENABLED=0 go test $$(go list ./... | grep -v generated)
+.PHONY: test
 
-$(LINTERS): %: vendor/bin/gometalinter %-bin vendor
-	PATH=`pwd`/vendor/bin:$$PATH gometalinter --tests --disable-all --vendor \
-	    --deadline=5m -s data ./... --enable $@
+COVER_TEST_PKGS:=$(shell find . -type f -name '*_test.go' | rev | cut -d "/" -f 2- | rev | grep -v generated | sort -u)
+$(COVER_TEST_PKGS:=-cover): %-cover: all-cover.txt
+	@CGO_ENABLED=0 go test -v -coverprofile=$@.out -covermode=atomic ./$*
+	@if [ -f $@.out ]; then \
+		grep -v "mode: atomic" < $@.out >> all-cover.txt; \
+		rm $@.out; \
+	fi
 
-.PHONY: $(LINTERS) test
+all-cover.txt:
+	echo "mode: atomic" > all-cover.txt
+
+cover: all-cover.txt $(COVER_TEST_PKGS:=-cover)
+.PHONY: cover all-cover.txt

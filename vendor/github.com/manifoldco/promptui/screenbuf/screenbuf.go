@@ -21,7 +21,6 @@ type ScreenBuf struct {
 	w      io.Writer
 	buf    *bytes.Buffer
 	reset  bool
-	flush  bool
 	cursor int
 	height int
 }
@@ -38,9 +37,27 @@ func (s *ScreenBuf) Reset() {
 	s.reset = true
 }
 
+// Clear clears all previous lines and the output starts from the top.
+func (s *ScreenBuf) Clear() error {
+	for i := 0; i < s.height; i++ {
+		_, err := s.buf.Write(moveUp)
+		if err != nil {
+			return err
+		}
+		_, err = s.buf.Write(clearLine)
+		if err != nil {
+			return err
+		}
+	}
+	s.cursor = 0
+	s.height = 0
+	s.reset = false
+	return nil
+}
+
 // Write writes a single line to the underlining buffer. If the ScreenBuf was
 // previously reset, all previous lines are cleared and the output starts from
-// the top. Lines with \r or \n will fail since they can interfere with the
+// the top. Lines with \r or \n will cause an error since they can interfere with the
 // terminal ability to move between lines.
 func (s *ScreenBuf) Write(b []byte) (int, error) {
 	if bytes.ContainsAny(b, "\r\n") {
@@ -48,19 +65,9 @@ func (s *ScreenBuf) Write(b []byte) (int, error) {
 	}
 
 	if s.reset {
-		for i := 0; i < s.height; i++ {
-			_, err := s.buf.Write(moveUp)
-			if err != nil {
-				return 0, err
-			}
-			_, err = s.buf.Write(clearLine)
-			if err != nil {
-				return 0, err
-			}
+		if err := s.Clear(); err != nil {
+			return 0, err
 		}
-		s.cursor = 0
-		s.height = 0
-		s.reset = false
 	}
 
 	switch {
@@ -69,11 +76,17 @@ func (s *ScreenBuf) Write(b []byte) (int, error) {
 		if err != nil {
 			return n, err
 		}
-		line := append(b, []byte("\n")...)
-		n, err = s.buf.Write(line)
+
+		n, err = s.buf.Write(b)
 		if err != nil {
 			return n, err
 		}
+
+		_, err = s.buf.Write([]byte("\n"))
+		if err != nil {
+			return n, err
+		}
+
 		s.height++
 		s.cursor++
 		return n, nil
@@ -97,7 +110,7 @@ func (s *ScreenBuf) Write(b []byte) (int, error) {
 	}
 }
 
-// Flush writes any buffered data to the underlying io.Writer.
+// Flush writes any buffered data to the underlying io.Writer, ensuring that any pending data is displayed.
 func (s *ScreenBuf) Flush() error {
 	for i := s.cursor; i < s.height; i++ {
 		if i < s.height {
