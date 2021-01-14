@@ -18,14 +18,14 @@ else
 fi
 
 if [ "$needInstall" = true -a "$1" = "cells" -a "$2" = "start" ]; then
-	set -- cells install
+	set -- cells configure
 fi
 
-# Check if First arg starts with a dash (typically `-f` or `--some-option`) 
-# And prefix arguments with 'cells' or 'cells install' command in such case 
+# Check if first arg starts with a dash (typically `-f` or `--some-option`) 
+# And prefix arguments with 'cells' or 'cells configure' command in such case 
 if [ "${1#-}" != "$1" ]; then
 	if [ "$needInstall" = true ]; then
-		set -- cells install "$@"
+		set -- cells configure "$@"
 	else
 		set -- cells "$@"
 	fi
