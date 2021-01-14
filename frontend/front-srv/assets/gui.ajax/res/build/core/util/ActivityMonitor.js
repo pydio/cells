@@ -155,13 +155,13 @@ var ActivityMonitor = (function (_Observable) {
         this._pydio.observe('user_activity', this._activityObserver);
         this._pydio.observe('server_answer', this._activityObserver);
         this._ltsObserver = function () {
-            console.log('Long task starting...');
+            //console.log('Long task starting...');
             _this2._longTaskRunning++;
             _this2._activityObserver();
         };
         this._pydio.observe('longtask_starting', this._ltsObserver);
         this._ltfObserver = function () {
-            console.log('Long task finished...');
+            //console.log('Long task finished...');
             _this2._longTaskRunning--;
             _this2._activityObserver();
         };

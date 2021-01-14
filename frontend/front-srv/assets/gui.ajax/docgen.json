@@ -9120,12 +9120,17 @@
           },
           {
             "name": "createRole",
-            "docblock": "Create a role from scratch\n@param roleLabel string\n@return {Promise}",
+            "docblock": "Create a role from scratch\n@param roleLabel string\n@param roleUuid string optional UUID (otherwise uses an uuid4)\n@return {Promise}",
             "modifiers": [],
             "params": [
               {
                 "name": "roleLabel",
                 "description": "string",
+                "type": null
+              },
+              {
+                "name": "roleUuid",
+                "description": "string optional UUID (otherwise uses an uuid4)",
                 "type": null
               }
             ],
@@ -10544,6 +10549,25 @@
             ],
             "returns": null,
             "description": null
+          },
+          {
+            "name": "toggleStatus",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "open",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getStatus",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           },
           {
             "name": "isOpen",
@@ -32538,6 +32562,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "more",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           },
           {

@@ -135,13 +135,13 @@ export default class ActivityMonitor extends Observable{
         this._pydio.observe('user_activity', this._activityObserver);
         this._pydio.observe('server_answer', this._activityObserver);
         this._ltsObserver = () => {
-            console.log('Long task starting...');
+            //console.log('Long task starting...');
             this._longTaskRunning ++;
             this._activityObserver();
         };
         this._pydio.observe('longtask_starting', this._ltsObserver);
         this._ltfObserver = () => {
-            console.log('Long task finished...');
+            //console.log('Long task finished...');
             this._longTaskRunning --;
             this._activityObserver();
         };
