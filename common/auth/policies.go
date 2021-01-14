@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
@@ -14,10 +12,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -104,8 +100,9 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 				subjects = append(subjects, "role:"+r)
 			}
 		} else if uName, _ := permissions.FindUserNameInContext(ctx); uName != "" {
-			u, e := permissions.SearchUniqueUser(ctx, uName, "")
-			if e == nil {
+			if uName == common.PydioSystemUsername {
+				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
+			} else if u, e := permissions.SearchUniqueUser(ctx, uName, ""); e == nil {
 				subjects = append(subjects, "user:"+u.Login)
 				for _, p := range common.PydioUserProfiles {
 					subjects = append(subjects, "profile:"+p)
@@ -116,10 +113,8 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 				for _, r := range u.Roles {
 					subjects = append(subjects, r.Uuid)
 				}
-			} else if uName == common.PydioSystemUsername {
-				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
 			} else {
-				log.Logger(ctx).Error("Cannot find user " + uName + ", although in context")
+				log.Logger(ctx).Error("Cannot find user "+uName+", although in context", zap.Error(e))
 			}
 		} else {
 			log.Logger(ctx).Error("Cannot find claims in context", zap.Any("c", ctx))
@@ -140,35 +135,14 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 			return subjects, errors.Forbidden("resources", "Only admin profiles can list resources of other users")
 		}
 		subjects = append(subjects, "*")
-		subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
-			Uuid: q.UserId,
-		})
-		uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
-		if stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{
-			Query: &service.Query{SubQueries: []*any.Any{subQ}},
-		}); e == nil {
-			var user *idm.User
-			for {
-				resp, err := stream.Recv()
-				if err != nil {
-					break
-				}
-				if resp == nil {
-					continue
-				}
-				user = resp.User
-				break
-			}
-			if user == nil {
-				return subjects, errors.BadRequest("resources", "Cannot find user with id "+q.UserId)
-			}
+		if user, err := permissions.SearchUniqueUser(ctx, "", q.UserId); err != nil {
+			return subjects, errors.BadRequest("resources", "Cannot find user with id "+q.UserId+", error was "+err.Error())
+		} else {
 			for _, role := range user.Roles {
 				subjects = append(subjects, "role:"+role.Uuid)
 			}
 			subjects = append(subjects, "user:"+user.Login)
-			subjects = append(subjects, "profile:"+user.Attributes["profile"])
-		} else {
-			err = e
+			subjects = append(subjects, "profile:"+user.Attributes[idm.UserAttrProfile])
 		}
 	}
 	return

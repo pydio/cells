@@ -297,8 +297,8 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				)
 			} else if recycleRoot, e := findRecycleForSource(ctx, filtered, ancestors); e == nil {
 				// Moving to recycle bin
-				log.Logger(ctx).Info(fmt.Sprintf("Deletion: moving [%s] to recycle bin", node.GetPath()), zap.Any("RecycleRoot", recycleRoot))
 				rPath := strings.TrimSuffix(recycleRoot.Path, "/") + "/" + common.RecycleBinName
+				log.Logger(ctx).Info(fmt.Sprintf("Deletion: moving [%s] to recycle bin %s", node.GetPath(), rPath))
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
 				metaNode.SetMeta(common.MetaNamespaceRecycleRestore, ancestors[0].Path)

@@ -95,16 +95,9 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		}
 	}
 
-	subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 	go func() {
-		bgCtx := context.Background()
-		if ctxMeta, ok := metadata.FromContext(ctx); ok {
-			newM := make(map[string]string)
-			for k, v := range ctxMeta {
-				newM[k] = v
-			}
-			bgCtx = metadata.NewContext(bgCtx, newM)
-		}
+		bgCtx := h.copyContext(ctx)
+		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for _, nodeId := range nodeUuids {
 			// Reload Metas
@@ -156,7 +149,8 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 
 	defer stream.Close()
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+	bgCtx := h.copyContext(ctx)
+	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e
 	}
@@ -287,4 +281,16 @@ func (h *Handler) clearCacheForNode(nodeId string) {
 		h.searchCache.Delete(k)
 	}
 
+}
+
+func (h *Handler) copyContext(ctx context.Context) context.Context {
+	bgCtx := context.Background()
+	if ctxMeta, ok := metadata.FromContext(ctx); ok {
+		newM := make(map[string]string)
+		for k, v := range ctxMeta {
+			newM[k] = v
+		}
+		bgCtx = metadata.NewContext(bgCtx, newM)
+	}
+	return bgCtx
 }
