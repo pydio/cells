@@ -44,14 +44,6 @@ type CellsVersion struct {
 	GoVersion    string
 }
 
-// var cellsVersionTpl = `Pydio Cells {{.Distribution}} Distribution
-//  Version: 	{{.Version}}
-//  Built: 	{{.BuildTime}}
-//  Git commit: 	{{.GitCommit}}
-//  OS/Arch: 	{{.OS}}/{{.Arch}}
-//  Go version: 	{{.GoVersion}}
-// `
-
 var cellsVersionTpl = `{{.PackageLabel}}
  Version: 	{{.Version}}
  Built: 	{{.BuildTime}}
@@ -66,7 +58,26 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show binary current version information",
+	Short: "Show current binary's version information",
+	Long: `
+DESCRIPTION
+
+  Show current binary's version information.
+
+  You can format the output with a go template using the --format flag.
+  Typically, to only output a parsable version, call:
+
+    $ ` + os.Args[0] + ` version -f '{{.Version}}'
+ 
+  As reference, known attributes are:
+   - PackageLabel
+   - Version
+   - BuildTime
+   - GitCommit
+   - OS
+   - Arch
+   - GoVersion
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var t time.Time
