@@ -21,6 +21,27 @@ var sitesCmd = &cobra.Command{
 Manage how Cells is binding to network interfaces and how it is exposed to outside world.
 This is the main tool for listing, editing, adding and removing URLs.
 Additional sub-commands allow you to directly create/delete sites.
+
+Each site has following parameters:
+   1. Bind Host: the name (or IP) and port to hook the internal webserver on a the network interface 
+   2. TLS Settings: choose the TLS configuration that is exposed by this internal webserver
+   3. External URL: the URL you communicate to your end-users. It can differ from your bind address, 
+      typically if the app is behind a reverse-proxy or inside a container with ports mapping.
+
+ Here is a list with a few examples of valid URL couples:
+ 
+ - Bind Host: 0.0.0.0:8080
+ - External Host: https://share.mydomain.tld
+ Or
+ - Bind Host: share.mydomain.tld:443
+ - External Host: https://share.mydomain.tld
+ Or
+ - Bind Host: IP:1515               # internal port
+ - External Host: https://IP:8080   # external port mapped by docker
+ Or
+ - Bind Host: localhost:8080
+ - External Host: http://localhost:8080  # Non-secured local installation
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)

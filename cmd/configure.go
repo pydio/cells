@@ -85,48 +85,47 @@ var (
 	niExitAfterInstall bool
 )
 
+// ConfigureCmd launches a wizard (either in this CLI or in your web browser) to configure a new instance of Pydio Cells.
 var ConfigureCmd = &cobra.Command{
 	Use:     "configure",
 	Aliases: []string{"install"},
 	Short:   "Setup required configurations",
 	Long: `
- This command launches the installation process of Pydio Cells.
+ This command launches the configuration process of Pydio Cells.
 
- Be ready to answer a few questions to configure the network connection of your application:
-   1. Bind URL: the name (or IP) and port to hook the internal webserver on a the network interface 
-   2. TLS Settings: choose the TLS configuration that is exposed by this internal webserver
-   3. External URL: the URL you communicate to your end-users. It can differ from your bind address, 
-      typically if the app is behind a proxy or inside a container with ports mapping.
+ For Pydio Cells to run smoothly, you should meet the following requirements:
+   - Server Capacity : 2 Core CPU - 64bit, 4GB RAM, SSD is also recommended for storage.
+   - Operating System: Debian 8/9/10, Ubuntu 18/20, CentOS 7, MacOS High Sierra, Windows 10
+   - Ulimit: Make sure to set the number of allowed open files greater than 2048.
+     For production use, a minimum of 8192 is recommended (see ulimit -n).
 
- You can also provide these connection parameters via flags to configure the main gateway 
- and directly launch the browser install.
- Typically, define only --bind and --external flags to launch in default self-signed mode: 
- it generates locally trusted certificate with mkcert.
- If you are working locally, the installer opens a browser (if you are installing on a remote server, copy/paste the URL),
- to gather necessary extra information to finalize Pydio Cells installation. 
-
- Upon installation termination, all micro-services are started automatically and you can directly start using Cells. 
- It is yet good practice to stop the installer and restart cells in normal mode before going live.
-
- If you do not have a browser access, you can also perform the whole installation process using this CLI.
-
- See additional flags for more details or use another TLS mode, like in the following example that uses Let's Encrypt automatic certificate generation.
-
- $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external https://share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
-
- Here is a list with a few examples of valid URL couples:
+ You must also have an available MySQL database, along with a privileged user (for instance 'pydio').
+ Supported databases are:
+    - MariaDB version 10.3 and above,
+    - MySQL version 5.7 and above (except 8.0.22 that has a bug preventing Cells to run correctly).
+ As recommended by database documentations, make sure not to leave the 'max_connections' parameter to its default value (151) while going live in production.
+   
+ If you are on a desktop machine, you can choose 'browser install' at first prompt, or directly call:
+   $ ` + os.Args[0] + ` configure --bind default
  
- - Bind Host: 0.0.0.0:8080
- - External Host: https://share.mydomain.tld
- Or
- - Bind Host: share.mydomain.tld:443
- - External Host: https://share.mydomain.tld
- Or
- - Bind Host: IP:1515               # internal port
- - External Host: https://IP:8080   # external port mapped by docker
- Or
- - Bind Host: localhost:8080
- - External Host: http://localhost:8080  # Non-secured local installation
+ The installer opens a web page on port 8080 with a wizard for you to provide various configuration parameters, including DB connection info and the login/password of the main administrator.
+
+ In case where default port is busy, you can choose another via the 'bind' flag, for instance:
+   $ ` + os.Args[0] + ` configure --bind 0.0.0.0:12345
+ or 	
+   $ ` + os.Args[0] + ` configure --bind <your server IP or FQDN>:12345
+
+ After browser configuration, all micro-services are started automatically and you can directly start using Cells. 
+ It is yet good practice to stop the installer and restart Cells in normal mode before going live.
+
+ If you are more a shell person, you can perform the configuration process directly using this CLI (using the '--cli' flag or by choosing so at first prompt).
+ Upon termination, you can then choose to use the default for the internal webserver of the application or adapt these to your specific setup.
+ 
+ You can always reconfigure the internal webserver afterwards by calling this command:
+   $ ` + os.Args[0] + ` configure sites
+ See corresponding inline documentation for further details.
+
+ For automated, non-interactive installation, you can pass a YAML or a JSON config file that contains all necessary informations, see details at [TODO link to YAML/JSON install docu].
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
