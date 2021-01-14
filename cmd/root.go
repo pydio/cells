@@ -128,7 +128,7 @@ LOGS LEVEL
 
 SERVICES DISCOVERY
 
-  Micro services need a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
+  Microservices need a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
   implementation, unless a 'gnatsd' service is already running, in which case it will be detected.
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {

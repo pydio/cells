@@ -13,13 +13,13 @@ import (
 // The sub-commands are connecting via gRPC to a **running** Cells instance.
 var AdminCmd = &cobra.Command{
 	Use:   "admin",
-	Short: "Direct access to Cells data",
+	Short: "Direct Read/Write access to Cells data",
 	Long: `
 DESCRIPTION
 
   Admin commands allow direct access to Cells data.
 	
-  These commands require a running Cells instance. They connect directly to low-level service
+  These commands require a running Cells instance. They connect directly to low-level services
   using gRPC connections. They are not authenticated.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

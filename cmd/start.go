@@ -69,6 +69,15 @@ DESCRIPTION
    - The -x/--exclude flag may exclude one or more services
   Both flags may be used in conjunction with the regexp arguments.
 
+REQUIREMENTS
+  
+  Ulimit: Make sure to set the number of allowed open files greater than 2048.
+  For production use, a minimum of 8192 is recommended (see ulimit -n).
+
+  Setcap: if you intend to bind the server to standard http ports (80, 443), 
+  you must grant necessary permissions on cells binary with this command:
+  $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>    
+
 EXAMPLES
 
   1. Start all Cells services

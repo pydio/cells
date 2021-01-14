@@ -97,16 +97,11 @@ DESCRIPTION
 
 REQUIREMENTS
 
-  For Pydio Cells to run smoothly, you should meet the following requirements:
-   - Server Capacity : 2 Core CPU - 64bit, 4GB RAM, SSD is also recommended for storage.
-   - Operating System: Debian 8/9/10, Ubuntu 18/20, CentOS 7, MacOS High Sierra, Windows 10
-   - Ulimit: Make sure to set the number of allowed open files greater than 2048. For production use, a minimum of 8192 
-  is recommended (see ulimit -n).
-  
-  You must also have an available MySQL database, along with a privileged user (for instance 'pydio').
+  You must have an available MySQL database, along with a privileged user (for instance 'pydio').
   Supported databases are:
    - MariaDB version 10.3 and above,
    - MySQL version 5.7 and above (except 8.0.22 that has a bug preventing Cells to run correctly).
+
   As recommended by database documentations, make sure not to leave the 'max_connections' parameter to its default value 
   (151) while going live in production.
 
@@ -123,7 +118,7 @@ BROWSER-BASED INSTALLER
   or   
   $ ` + os.Args[0] + ` configure --bind <your server IP or FQDN>:12345
 
-  After browser configuration, all micro-services are started automatically and you can directly start using Cells. 
+  After browser configuration, all microservices are started automatically and you can directly start using Cells. 
   It is yet good practice to stop the installer and restart Cells in normal mode before going live.
 
 COMMAND-LINE INSTALLER
@@ -139,7 +134,7 @@ COMMAND-LINE INSTALLER
 AUTOMATED PROVISIONING
 
   For automated, non-interactive installation, you can pass a YAML or a JSON config file that contains all necessary 
-  information, please refer to the documentation on the website.
+  information, please refer to the documentation on https://pydio.com .
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
