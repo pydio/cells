@@ -4333,6 +4333,10 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Context-resolved to quickly check if this meta is editable or not"
+        },
+        "ResolvedNode": {
+          "$ref": "#/definitions/treeNode",
+          "title": "Pass along resolved Node for advanced filtering"
         }
       },
       "title": "Piece of metadata attached to a node"
@@ -8245,6 +8249,10 @@ var SwaggerJson = `{
         "WsSlug": {
           "type": "string",
           "title": "Workspace slug"
+        },
+        "WsScope": {
+          "type": "string",
+          "title": "Workspace Scope"
         }
       },
       "title": "Used in AppearsIn to signal a node is\nappearing in multiple workspaces in the current context"

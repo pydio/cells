@@ -14,6 +14,7 @@
 
 import ApiClient from '../ApiClient';
 import ServiceResourcePolicy from './ServiceResourcePolicy';
+import TreeNode from './TreeNode';
 
 
 
@@ -75,6 +76,9 @@ export default class IdmUserMeta {
             if (data.hasOwnProperty('PoliciesContextEditable')) {
                 obj['PoliciesContextEditable'] = ApiClient.convertToType(data['PoliciesContextEditable'], 'Boolean');
             }
+            if (data.hasOwnProperty('ResolvedNode')) {
+                obj['ResolvedNode'] = TreeNode.constructFromObject(data['ResolvedNode']);
+            }
         }
         return obj;
     }
@@ -103,6 +107,10 @@ export default class IdmUserMeta {
     * @member {Boolean} PoliciesContextEditable
     */
     PoliciesContextEditable = undefined;
+    /**
+    * @member {module:model/TreeNode} ResolvedNode
+    */
+    ResolvedNode = undefined;
 
 
 
