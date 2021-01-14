@@ -9,9 +9,10 @@ As you can see in the `dockerfile`, the config is quite straight forward. Import
 
 - by default Cells working dir is set to `/var/cells`
 - the image is run as root
-- the internal proxy configuration that is the only requirement to start Cells in install mode and finetune the configuration via your preferred web browser can be configure via environment variables or json / yaml config file.
+- the internal proxy configuration can be configure via environment variables or json / yaml config file.  
+  It is the only requirement to start Cells in install mode and fine tune the configuration via your preferred web browser.
 
-By default the server starts in self-signed mode on port 443. It is also possible to modify the configuration to also use :
+By default the server starts in self-signed mode on port 8080. It is also possible to modify the configuration to also use:
 
 - no certificate
 - a certificate _auto magically_ created using the tools provided by [Let's Encrypt](https://letsencrypt.org/)
@@ -19,8 +20,8 @@ By default the server starts in self-signed mode on port 443. It is also possibl
 
 You can find below samples of relevant docker-compose directive to achieve these use cases.
 
-We also provide 3 sample docker compose configuration as example that are working out-of-the-box, if you only provide your public IP / valid domain name, see `compose` sub directory.  
-
+We also provide a few sample docker compose configuration as examples that are working out-of-the-box, 
+if you only provide your public IP / valid domain name, see `compose` sub directory.  
 
 ## Sample config for the Pydio Cells internal main gateway
 
@@ -31,10 +32,8 @@ We also provide 3 sample docker compose configuration as example that are workin
         image: pydio/cells:latest
         restart: always
         volumes: ["data:/var/cells/data"]
-        ports: ["80:80"]
+        ports: ["8080:8080"]
         environment:
-            - CELLS_BIND=localhost:8080
-            - CELLS_EXTERNAL=localhost:8080
             - CELLS_NO_TLS=1
 ```
 
@@ -51,6 +50,7 @@ We also provide 3 sample docker compose configuration as example that are workin
             - CELLS_EXTERNAL=https://your.fqdn.com
             - CELLS_TLS_MAIL=admin@example.com
             - CELLS_ACCEPT_LETSENCRYPT_EULA=true
+            # Comment out this when your network configuration is OK
             - CELLS_USE_LETSENCRYPT_STAGING=1
 ```
 
@@ -61,7 +61,7 @@ We also provide 3 sample docker compose configuration as example that are workin
         image: pydio/cells:latest
         restart: always
         volumes: ["data:/var/cells/data", "/path/to/your/ssl.cert:/etc/ssl/ssl.cert", "/path/to/your/ssl.key:/etc/ssl/ssl.key"]
-        ports: ["8080:8080"]
+        ports: ["443:443"]
         environment:
             - CELLS_BIND=localhost:443
             - CELLS_EXTERNAL=https://your.fqdn.com
