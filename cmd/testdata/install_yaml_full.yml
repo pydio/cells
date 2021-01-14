@@ -5,3 +5,9 @@ proxyconfig:
   reverseproxyurl: http://localhost
 frontendlogin: admin
 frontendpassword: password
+dbconnectiontype: tcp
+dbtcphostname: localhost
+dbtcpport: 3306
+dbtcpname: cells
+dbtcpuser: pydio
+dbtcppassword: cells

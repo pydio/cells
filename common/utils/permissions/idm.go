@@ -23,6 +23,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -475,6 +476,9 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
+			if e != io.EOF {
+				return nil, e
+			}
 			break
 		}
 		if resp == nil {

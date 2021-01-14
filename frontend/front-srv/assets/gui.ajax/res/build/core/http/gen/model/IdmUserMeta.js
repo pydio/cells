@@ -27,6 +27,10 @@ var _ServiceResourcePolicy = require('./ServiceResourcePolicy');
 
 var _ServiceResourcePolicy2 = _interopRequireDefault(_ServiceResourcePolicy);
 
+var _TreeNode = require('./TreeNode');
+
+var _TreeNode2 = _interopRequireDefault(_TreeNode);
+
 /**
 * The IdmUserMeta model module.
 * @module model/IdmUserMeta
@@ -49,6 +53,7 @@ var IdmUserMeta = (function () {
         this.JsonValue = undefined;
         this.Policies = undefined;
         this.PoliciesContextEditable = undefined;
+        this.ResolvedNode = undefined;
     }
 
     /**
@@ -81,6 +86,9 @@ var IdmUserMeta = (function () {
             if (data.hasOwnProperty('PoliciesContextEditable')) {
                 obj['PoliciesContextEditable'] = _ApiClient2['default'].convertToType(data['PoliciesContextEditable'], 'Boolean');
             }
+            if (data.hasOwnProperty('ResolvedNode')) {
+                obj['ResolvedNode'] = _TreeNode2['default'].constructFromObject(data['ResolvedNode']);
+            }
         }
         return obj;
     };
@@ -112,4 +120,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} PoliciesContextEditable
+*/
+
+/**
+* @member {module:model/TreeNode} ResolvedNode
 */
