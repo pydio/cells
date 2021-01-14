@@ -28,33 +28,34 @@ var pTokCmd = &cobra.Command{
 	Use:   "token",
 	Short: "Generate a personal token for a given user",
 	Long: `
-This command generates an authentication token for a specific user. 
+DESCRIPTION
 
-Expiration can be either a "hard" limit, by using the -e flag and a golang duration, or a "sliding window" 
-defined in seconds using the -a flag. 
+  This command generates an authentication token for a specific user. 
 
-Generation examples
---------------------
-Generate a token that lasts 24 hours for user admin
-$ ` + os.Args[0] + ` user token -u admin -e 24h
+  Expiration can be either a "hard" limit, by using the -e flag and a golang duration, or a "sliding window" 
+  defined in seconds using the -a flag. 
 
-Generate a token that lasts by default 10mn, but which expiration is refreshed to the next 10mn each time 
-token is used.
-$ ` + os.Args[0] + ` user token -u admin -a 600
+EXAMPLES
 
-Usage
------
-These token can be used in replacement of an OAuth2-based access token : they can replace the "Bearer" access 
-token when calling any REST API. They can also be used as the password (in conjunction with username) for all 
-basic-auth based APIs (e.g. webDAV).
+  Generate a token that lasts 24 hours for user admin
+  $ ` + os.Args[0] + ` user token -u admin -e 24h
 
-Token Scope
------------
-By default, generated tokens grant the same level of access as a standard login operation. To improve security, 
-it is possible to restrict these accesses to a specific file or folder (given it is accessible by the user in 
-first place) with a "scope" in the format "node:NODE_UUID:PERMISSION" where PERMISSION string contains either "r"
-(read) or "w" (write) or both.
+  Generate a token that lasts by default 10mn, but which expiration is refreshed to the next 10mn each time 
+  token is used.
+  $ ` + os.Args[0] + ` user token -u admin -a 600
 
+TOKEN USAGE
+
+  These token can be used in replacement of an OAuth2-based access token : they can replace the "Bearer" access 
+  token when calling any REST API. They can also be used as the password (in conjunction with username) for all 
+  basic-auth based APIs (e.g. webDAV).
+
+TOKEN SCOPE
+
+  By default, generated tokens grant the same level of access as a standard login operation. To improve security, 
+  it is possible to restrict these accesses to a specific file or folder (given it is accessible by the user in 
+  first place) with a "scope" in the format "node:NODE_UUID:PERMISSION" where PERMISSION string contains either "r"
+  (read) or "w" (write) or both.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

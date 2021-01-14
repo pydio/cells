@@ -34,9 +34,11 @@ import (
 var listConfigCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all configurations",
-	Long: `Display all configurations registered by the application.
+	Long: `
+DESCRIPTION
 
-Configurations are listed as truple [serviceName, configName, configValue], where config value is json encoded.
+  Display all configurations registered by the application.
+  Configurations are listed as truple [serviceName, configName, configValue], where config value is json encoded.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

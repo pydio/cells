@@ -6,7 +6,10 @@ import "github.com/spf13/cobra"
 var ToolsCmd = &cobra.Command{
 	Use:   "tools",
 	Short: "Additional tools",
-	Long: `Tooling commands that do not require a running Cells instance.
+	Long: `
+DESCRIPTION
+
+  Various commands that do not require a running Cells instance.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

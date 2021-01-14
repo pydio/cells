@@ -37,7 +37,10 @@ var configDatabaseSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Assign a database connection to a service",
 	Long: `
-This command lets you assign a different database connection to a service. Use default to change to the default database.
+DESCRIPTION
+
+  This command lets you assign a different database connection to a service. 
+  Use default to change to the default database.
 
 ` + promptui.IconWarn + `  Note that the database data will not be transferred to the new database.`,
 	Args: func(cmd *cobra.Command, args []string) error {

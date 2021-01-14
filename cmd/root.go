@@ -89,45 +89,47 @@ const startTagUnique = "unique"
 var RootCmd = &cobra.Command{
 	Use:   os.Args[0],
 	Short: "Secure File Sharing for business",
-	Long: `Thank you for using Pydio Cells.
-Comprehensive sync & share solution for your collaborators. Open-source software deployed on-premise or in a private cloud.
+	Long: `
+DESCRIPTION
 
-### Installation
+  Cells is a comprehensive sync & share solution for your collaborators. 
+  Open-source software deployed on-premise or in a private cloud.
 
-For the very first run, use '` + os.Args[0] + ` install' to load browser-based or command-line based installation wizard. Services
-will start at the end of the installation.
+CONFIGURE
 
-### Run
+  For the very first run, use '` + os.Args[0] + ` configure' to load browser-based or command-line based installation wizard. 
+  Services will start at the end of the installation.
 
-Run '` + os.Args[0] + ` start' to load all services.
+RUN
 
-### Logs level
+  Run '$ ` + os.Args[0] + ` start' to load all services.
 
-By default, logs are outputted in console format at the Info level. You can set the --log flag or set the PYDIO_LOGS_LEVEL environment
-variable to one of the following values:
- - debug, info, error : logs are written in console format with the according level
- - production : logs are written in json format, for usage with a log aggregator tool.
+WORKING DIRECTORIES
 
-### Services Discovery
+  By default, application data is stored under the standard OS application dir : 
+  
+   - Linux: ${USER_HOME}/.config/pydio/cells
+   - Darwin: ${USER_HOME}/Library/Application Support/Pydio/cells
+   - Windows: ${USER_HOME}/ApplicationData/Roaming/Pydio/cells
 
-Micro services need a registry mechanism to discover each other. You don't need to install any dependency.
-Cells currently only supports NATS (nats.io) implementation. If a gnatsd service is already running, it will be detected.
+  You can customize the various storage locations with the following ENV variables : 
+  
+   - CELLS_WORKING_DIR : replace the whole standard application dir
+   - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
+   - CELLS_LOG_DIR : replace the location for storing logs (default CELLS_WORKING_DIR/logs)
+   - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services) 
 
-### Cells working directories
+LOGS LEVEL
 
-By default, application data is stored under the standard OS application dir : 
+  By default, logs are outputted in console format at the Info level. You can set the --log flag or set the 
+  CELLS_LOGS_LEVEL environment variable to one of the following values:
+   - debug, info, error : logs are written in console format with the according level
+   - production : logs are written in json format, for usage with a log aggregator tool.
 
- - Linux: ${USER_HOME}/.config/pydio/cells
- - Darwin: ${USER_HOME}/Library/Application Support/Pydio/cells
- - Windows: ${USER_HOME}/ApplicationData/Roaming/Pydio/cells
+SERVICES DISCOVERY
 
-You can customize the various storage locations with the following ENV variables : 
-
- - CELLS_WORKING_DIR : replace the whole standard application dir
- - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
- - CELLS_LOG_DIR : replace the location for storing logs (default CELLS_WORKING_DIR/logs)
- - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services) 
-
+  Micro services need a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
+  implementation, unless a 'gnatsd' service is already running, in which case it will be detected.
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Special case

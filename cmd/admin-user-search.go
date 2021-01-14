@@ -42,16 +42,19 @@ var userSearchCmd = &cobra.Command{
 	Use:   "search",
 	Short: "List users",
 	Long: `
-List users stored in the Pydio Cells user repository.
+DESCRIPTION
+
+  List users stored in the Pydio Cells user repository.
 
 EXAMPLES
-========
-$ ` + os.Args[0] + ` user search -u "user"
 
-# To list all users  
-$ ` + os.Args[0] + ` user search -u "*"	
+  1. Search a specific user
+  $ ` + os.Args[0] + ` user search -u "user"
 
-	`,
+  2. List all users  
+  $ ` + os.Args[0] + ` user search -u "*"	
+
+`,
 	// PreRunE: func(cmd *cobra.Command, args []string) error {
 	// 	if len(args) == 0 {
 	// 		return fmt.Errorf("Missing argument: please provide at leat one user or group login")

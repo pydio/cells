@@ -33,16 +33,7 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
-var exampleDataSync = ` For example, to trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
-
-1) by name:
-` + os.Args[0] + ` admin resync --datasource=pydiods1
-
-2) by service name:
-` + os.Args[0] + ` admin resync --service=pydio.grpc.data.sync.pydiods1 
-
-Else to refresh the search engine entirely:
-` + os.Args[0] + ` admin resync --service=pydio.grpc.search --path=/`
+var exampleDataSync = ` `
 
 var (
 	syncDsName  string
@@ -54,8 +45,24 @@ var dataSyncCmd = &cobra.Command{
 	Use:   "resync",
 	Short: "Trigger a service resync",
 	Long: `
-Trigger a re-indexation of a given service. 
-This can be currently used for datasource indexes and search engine.`,
+DESCRIPTION
+
+  Trigger a re-indexation of a given service. 
+  This can be currently used for datasource indexes and search engine.
+
+EXAMPLES
+
+  To trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
+
+  1. By datasource name:
+  $ ` + os.Args[0] + ` admin resync --datasource=pydiods1
+
+  2. By service name:
+  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.data.sync.pydiods1 
+
+  3. Re-index search engine:
+  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.search --path=/
+`,
 	Example: exampleDataSync,
 	Run: func(cmd *cobra.Command, args []string) {
 		if syncDsName != "" {

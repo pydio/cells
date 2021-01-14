@@ -91,41 +91,55 @@ var ConfigureCmd = &cobra.Command{
 	Aliases: []string{"install"},
 	Short:   "Setup required configurations",
 	Long: `
- This command launches the configuration process of Pydio Cells.
+DESCRIPTION
 
- For Pydio Cells to run smoothly, you should meet the following requirements:
+  This command launches the configuration process of Pydio Cells.
+
+REQUIREMENTS
+
+  For Pydio Cells to run smoothly, you should meet the following requirements:
    - Server Capacity : 2 Core CPU - 64bit, 4GB RAM, SSD is also recommended for storage.
    - Operating System: Debian 8/9/10, Ubuntu 18/20, CentOS 7, MacOS High Sierra, Windows 10
-   - Ulimit: Make sure to set the number of allowed open files greater than 2048.
-     For production use, a minimum of 8192 is recommended (see ulimit -n).
+   - Ulimit: Make sure to set the number of allowed open files greater than 2048. For production use, a minimum of 8192 
+  is recommended (see ulimit -n).
+  
+  You must also have an available MySQL database, along with a privileged user (for instance 'pydio').
+  Supported databases are:
+   - MariaDB version 10.3 and above,
+   - MySQL version 5.7 and above (except 8.0.22 that has a bug preventing Cells to run correctly).
+  As recommended by database documentations, make sure not to leave the 'max_connections' parameter to its default value 
+  (151) while going live in production.
 
- You must also have an available MySQL database, along with a privileged user (for instance 'pydio').
- Supported databases are:
-    - MariaDB version 10.3 and above,
-    - MySQL version 5.7 and above (except 8.0.22 that has a bug preventing Cells to run correctly).
- As recommended by database documentations, make sure not to leave the 'max_connections' parameter to its default value (151) while going live in production.
-   
- If you are on a desktop machine, you can choose 'browser install' at first prompt, or directly call:
-   $ ` + os.Args[0] + ` configure --bind default
+BROWSER-BASED INSTALLER
+
+  If you are on a desktop machine, pick browser-based installation at first prompt, or you can force it with:
+  $ ` + os.Args[0] + ` configure --bind default
  
- The installer opens a web page on port 8080 with a wizard for you to provide various configuration parameters, including DB connection info and the login/password of the main administrator.
+  The installer opens a web page on port 8080 with a wizard for you to provide various configuration parameters, 
+  including DB connection info and the login/password of the main administrator.
 
- In case where default port is busy, you can choose another via the 'bind' flag, for instance:
-   $ ` + os.Args[0] + ` configure --bind 0.0.0.0:12345
- or 	
-   $ ` + os.Args[0] + ` configure --bind <your server IP or FQDN>:12345
+  In case where default port is busy, you can choose another one via the 'bind' flag, for instance:
+  $ ` + os.Args[0] + ` configure --bind 0.0.0.0:12345
+  or   
+  $ ` + os.Args[0] + ` configure --bind <your server IP or FQDN>:12345
 
- After browser configuration, all micro-services are started automatically and you can directly start using Cells. 
- It is yet good practice to stop the installer and restart Cells in normal mode before going live.
+  After browser configuration, all micro-services are started automatically and you can directly start using Cells. 
+  It is yet good practice to stop the installer and restart Cells in normal mode before going live.
 
- If you are more a shell person, you can perform the configuration process directly using this CLI (using the '--cli' flag or by choosing so at first prompt).
- Upon termination, you can then choose to use the default for the internal webserver of the application or adapt these to your specific setup.
+COMMAND-LINE INSTALLER
+
+  If you are more a shell person, you can perform the configuration process directly using this CLI (using the '--cli' 
+  flag or by choosing so at first prompt). You will then be able to choose to either use the default bindings for the 
+  embedded webserver or adapt these to your specific setup.
  
- You can always reconfigure the internal webserver afterwards by calling this command:
-   $ ` + os.Args[0] + ` configure sites
- See corresponding inline documentation for further details.
+  You can always reconfigure the webserver bindings afterwards by calling this command:
+  $ ` + os.Args[0] + ` configure sites
+  See corresponding inline documentation for further details.
 
- For automated, non-interactive installation, you can pass a YAML or a JSON config file that contains all necessary informations, see details at [TODO link to YAML/JSON install docu].
+AUTOMATED PROVISIONING
+
+  For automated, non-interactive installation, you can pass a YAML or a JSON config file that contains all necessary 
+  information, please refer to the documentation on the website.
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {

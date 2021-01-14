@@ -44,8 +44,11 @@ var updateDryRun bool
 var updateBinCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Check for available updates and apply them",
-	Long: `Without argument, this command will list the available updates for this binary.
-To apply the actual update, re-run the command with a --version parameter.
+	Long: `
+DESCRIPTION
+
+  List the available updates for the current binary.
+  To apply the actual update, run the command with a --version parameter.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

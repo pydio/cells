@@ -38,8 +38,10 @@ import (
 var UserCmd = &cobra.Command{
 	Use:   "user",
 	Short: "Manage users",
-	Long: `Manage users from command line by calling the dedicated services.
+	Long: `
+DESCRIPTION
 
+  Manage users from command line by calling the dedicated services.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

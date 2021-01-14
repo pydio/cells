@@ -48,18 +48,20 @@ var (
 var userSetProfileCmd = &cobra.Command{
 	Use:   "set-profile",
 	Short: "Set profile",
-	Long: fmt.Sprintf(`Set the profile of a given user
+	Long: fmt.Sprintf(`
+DESCRIPTION
 
+  Set the profile of a given user
 
-Valid profiles are one of: %s, %s, %s or %s.
-Installation specific profiles are not yet supported by this CLI.
+  Valid profiles are one of: %s, %s, %s or %s.
+  Installation specific profiles are not yet supported by this CLI.
 
-*WARNING*: please remember that user with admin profile have 
-full control over your app via the web front end. So think twice beforew 
+  *WARNING*: please remember that user with admin profile have 
+  full control over your app via the web front end. So think twice beforew 
 
 EXAMPLE
-=======
-$ %s user set-profile -u 'USER_LOGIN' --profile '%s'
+
+  $ %s user set-profile -u 'USER_LOGIN' --profile '%s'
 
 `,
 		common.PydioProfileAdmin,

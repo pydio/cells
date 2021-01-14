@@ -58,27 +58,30 @@ type serviceContext struct {
 var StartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start one or more services",
-	Long: `Start one or more services on this machine
+	Long: `
+DESCRIPTION
 
-### Syntax
+  Start one or more services on this machine. 
+  $ ` + os.Args[0] + ` start [flags] args...
 
-$ ` + os.Args[0] + ` start [flags] args...
+  Additional arguments are regexp that can match any of the service names available (see 'list' command). 
+   - The -t/--tags flag may limit to only a certain category of services, use lowercase like broker, idm, data, etc...  
+   - The -x/--exclude flag may exclude one or more services
+  Both flags may be used in conjunction with the regexp arguments.
 
-Additional arguments are regexp that can match any of the service names available (see 'list' command).
-The -t/--tags flag may limit to only a certain category of services, use lowercase like broker, idm, data, etc...
-The -x/--exclude flag may exclude one or more services
-Both flags may be used in conjunction with the regexp arguments.
+EXAMPLES
 
-### Examples
+  1. Start all Cells services
+  $ ` + os.Args[0] + ` start
 
-Start only services starting with grpc
-$ ` + os.Args[0] + ` start pydio.grpc
+  2. Start only services starting with grpc
+  $ ` + os.Args[0] + ` start pydio.grpc
 
-Start only services for scheduler
-$ ` + os.Args[0] + ` start --tag=scheduler
+  3. Start only services for scheduler
+  $ ` + os.Args[0] + ` start --tag=scheduler
 
-Start whole plateform except the roles service
-$ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
+  4. Start whole plateform except the roles service
+  $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {

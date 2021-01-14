@@ -40,10 +40,13 @@ var (
 var AclCmd = &cobra.Command{
 	Use:   "acl",
 	Short: "Manage access control lists",
-	Long: `ACLs are managed in a dedicated micro-service.
+	Long: `
+DESCRIPTION
 
-It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
-ACLs are used to grant permissions to a given node Uuid for a given Role.
+  ACLs are managed in a dedicated micro-service.
+
+  It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
+  ACLs are used to grant permissions to a given node Uuid for a given Role.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

@@ -38,9 +38,12 @@ import (
 var searchAclCmd = &cobra.Command{
 	Use:   "search",
 	Short: "List current ACLs",
-	Long: `List ACLs currently stored in the acl micro-service.
+	Long: `
+DESCRIPTION
 
-Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
+  List ACLs currently stored in the acl micro-service.
+  Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())

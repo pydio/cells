@@ -38,9 +38,10 @@ var (
 
 // ConfigCmd represents the config command
 var testCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Run conformance tests",
-	Long:  "Launch conformance tests on a running instance. Provide a test name to run with --service or -s parameter.",
+	Use:    "test",
+	Short:  "Run conformance tests",
+	Long:   "Launch conformance tests on a running instance. Provide a test name to run with --service or -s parameter.",
+	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		if conformanceTestServiceName == "" {
 			cmd.Help()

@@ -32,7 +32,11 @@ var reloadAssetsCmd = &cobra.Command{
 	Use:    "reload-assets",
 	Hidden: true,
 	Short:  "Trigger frontend assets reload",
-	Long:   `Used for development only, will clear in-memory assets and refresh all, including i18n json files.`,
+	Long: `
+DESCRIPTION
+
+  Used for development only, will clear in-memory assets and refresh all, including i18n json files.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Println("Sending a reload command on ReloadAssets topic")
 		broker.Publish(common.TopicReloadAssets, &broker.Message{Body: []byte("reload")})

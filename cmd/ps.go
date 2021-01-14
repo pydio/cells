@@ -78,25 +78,27 @@ type Tags struct {
 var psCmd = &cobra.Command{
 	Use:   "ps",
 	Short: "List all available services and their statuses",
-	Long: `List all available services and their statuses
+	Long: `
+DESCRIPTION
 
-Use this command to list all running services on this machine.
-Services fall into main categories (GENERIC, GRPC, REST, API) and are then
-organized by tags (broker, data, idm, etc.)
+  List all available services and their statuses
 
-### Example
+  Use this command to list all running services on this machine.
+  Services fall into main categories (GENERIC, GRPC, REST, API) and are then organized by tags (broker, data, idm, etc.)
 
-Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
+EXAMPLE
 
-$ ` + os.Args[0] + ` ps -t=broker
+  Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
 
-- pydio.grpc.activity   [X]
-- pydio.grpc.chat       [X]
-- pydio.grpc.mailer     [X]
-- pydio.api.websocket   [X]
-- pydio.rest.activity   [X]
-- pydio.rest.frontlogs  [X]
-- pydio.rest.mailer     [X]
+  $ ` + os.Args[0] + ` ps -t=broker
+  Will result:
+	- pydio.grpc.activity   [X]
+	- pydio.grpc.chat       [X]
+	- pydio.grpc.mailer     [X]
+	- pydio.api.websocket   [X]
+	- pydio.rest.activity   [X]
+	- pydio.rest.frontlogs  [X]
+	- pydio.rest.mailer     [X]
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {

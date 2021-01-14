@@ -42,18 +42,21 @@ var (
 var userCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a user",
-	Long: `Create a user in the backend
+	Long: `
+DESCRIPTION
 
-Please, note that login are case sensitive: 
-you can create 2 distinct users with login  'User' and 'user'. 
+  Create a user in the backend
 
-You can also create a user in a given group by entering a full path to the user
-(see examples below). 
+  Please, note that login are case sensitive: 
+  you can create 2 distinct users with login  'User' and 'user'. 
 
-EXAMPLE
-=======
-$ ` + os.Args[0] + ` user create -u '/group/user' -p 'a password'
-$ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
+  You can also create a user in a given group by entering a full path to the user
+  (see examples below). 
+
+EXAMPLES
+
+  $ ` + os.Args[0] + ` user create -u '/group/user' -p 'a password'
+  $ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {

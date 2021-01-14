@@ -42,14 +42,15 @@ var (
 var userSetPwdCmd = &cobra.Command{
 	Use:   "set-pwd",
 	Short: "Change user password",
-	Long: fmt.Sprintf(`Set the password of a given user. 
+	Long: fmt.Sprintf(`
+DESCRIPTION
 
-Directly use --password (or -p) to provide a new password, or leave empty to be prompted.
+  Set the password of a given user. 
+  Directly use --password (or -p) to provide a new password, or leave empty to be prompted.
 
 EXAMPLE
-=======
-$ %s user set-pwd -u 'USER_LOGIN' -p 'NEW_PASSWORD'
 
+  $ %s user set-pwd -u 'USER_LOGIN' -p 'NEW_PASSWORD'
 `,
 		os.Args[0],
 	),

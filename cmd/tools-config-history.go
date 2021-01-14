@@ -50,10 +50,12 @@ var configHistoryCmd = &cobra.Command{
 	Use:   "config-history",
 	Short: "List all configurations revisions",
 	Long: `
-This command allows to manage configurations changes history and revert to a given version if necessary.
+DESCRIPTION
 
-A version is created at each call to config.Save() inside the application, along with a log message
-and the user originating this call.
+  Manage configurations changes history and revert to a given version if necessary.
+
+  A version is created at each call to config.Save() inside the application, along with a log message
+  and the user originating this call.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

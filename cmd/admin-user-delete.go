@@ -35,17 +35,19 @@ var userLogin string
 var userDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a user from the backend",
-	Long: `Delete a role in backend
+	Long: `
+DESCRIPTION
 
-*WARNING* Policy checks are not yet implemented for the CLI. 
-You might corrupt your existing user and group repository,  
-So please use with extra care. Also, remember that login are case sensitive. 
+  Delete a role in backend
+
+  *WARNING* Policy checks are not yet implemented for the CLI. 
+  You might corrupt your existing user and group repository,  
+  So please use with extra care. Also, remember that login are case sensitive. 
 
 EXAMPLE
-=======
-$ ` + os.Args[0] + ` user delete -u '<user login>'
 
-	`,
+  $ ` + os.Args[0] + ` user delete -u '<user login>'
+`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(userLogin) == 0 {
 			return fmt.Errorf("missing argument: please provide a user id")

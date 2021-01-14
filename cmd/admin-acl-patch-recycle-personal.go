@@ -45,7 +45,12 @@ var (
 var patchRecyclePersonalCmd = &cobra.Command{
 	Use:   "patch-recycle-personal",
 	Short: "Patches the recycle bins for the personal folder",
-	Long:  `Patches the recycle bins for the personal folder`,
+	Long: `
+DESCRIPTION
+
+  Patches the recycle bins for the personal folder. 
+  It looks for personal/<username> folders and create a recycle_root ACL on them.
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SetOutput(color.Output)
 

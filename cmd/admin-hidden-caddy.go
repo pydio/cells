@@ -19,7 +19,12 @@ var sitesCaddy = &cobra.Command{
 	Use:    "caddy",
 	Hidden: true,
 	Short:  "Dump content of the caddy file currently served by pydio.gateway.proxy",
-	Long:   "This command sends an event recognized by pydio.gateway.proxy to make it dump its caddy file in the logs.",
+	Long: `
+DESCRIPTION
+
+  This command sends an event recognized by pydio.gateway.proxy to make it dump its caddy file in the logs.
+
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Sending a DebugPrintInternals event to service gateway.proxy...")
 		broker.Publish(common.TopicServiceRegistration, &broker.Message{

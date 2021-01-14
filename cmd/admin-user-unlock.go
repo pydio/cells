@@ -39,13 +39,15 @@ var (
 var userUnlockCmd = &cobra.Command{
 	Use:   "unlock",
 	Short: "Unlock User",
-	Long: fmt.Sprintf(`Remove locks on a user
+	Long: fmt.Sprintf(`
+DESCRIPTION
 
-This may be handy if admin is locked out of the interface
+  Remove locks on a user.
+  This may be handy if admin is locked out of the interface.
 
 EXAMPLE
-=======
-$ %s user unlock -u LOGIN
+
+  $ %s user unlock -u LOGIN
 
 `, os.Args[0]),
 	PreRunE: func(cmd *cobra.Command, args []string) error {

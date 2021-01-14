@@ -27,9 +27,12 @@ import (
 var FilesCmd = &cobra.Command{
 	Use:   "files",
 	Short: "Directly manage files and metadata on the nodes",
-	Long: `Manage metadata that enrich some of the nodes.
+	Long: `
+DESCRIPTION
 
-Metadata are stored as simple key/values and attached to a node UUID.
+  Manage metadata that enrich some of the nodes.
+  Metadata are stored as simple key/values and attached to a node UUID.
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

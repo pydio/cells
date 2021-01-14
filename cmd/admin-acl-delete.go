@@ -37,9 +37,12 @@ import (
 var deleteAclCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Remove one or more ACLs",
-	Long: `Remove one or more ACLs by querying the ACL api.
+	Long: `
+DESCRIPTION
+  
+  Remove one or more ACLs by querying the ACL api.
+  Flags allow you to query the grpc service for deleting the resulting ACLs.
 
-Flags allow you to query the grpc service for deleting the resulting ACLs
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())

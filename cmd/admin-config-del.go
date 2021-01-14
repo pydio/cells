@@ -34,18 +34,21 @@ import (
 var delConfigCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a configuration item",
-	Long: `Delete a configuration item. It will be removed both from the pydio.json file and from the database.
+	Long: `
+DESCRIPTION
 
-### Syntax
+  Delete a configuration item. It will be removed both from the pydio.json file and from the database.
 
-Configurations are represented by two parameters that you must pass as arguments:
-- serviceName: name of the corresponding service
-- configName: name of the parameter you want to delete
+SYNTAX
 
-### Examples
+  Configurations are represented by two parameters that you must pass as arguments:
+  - serviceName: name of the corresponding service
+  - configName: name of the parameter you want to delete
 
-Delete the port entry for the micro.web service (rest api)
-$ ` + os.Args[0] + ` config delete micro.web port
+EXAMPLE
+
+  Delete the port entry for the micro.web service (rest api)
+  $ ` + os.Args[0] + ` config delete micro.web port
 
 `,
 	Args: func(cmd *cobra.Command, args []string) error {

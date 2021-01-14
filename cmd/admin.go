@@ -14,10 +14,13 @@ import (
 var AdminCmd = &cobra.Command{
 	Use:   "admin",
 	Short: "Direct access to Cells data",
-	Long: `Admin commands allow direct access to Cells data.
+	Long: `
+DESCRIPTION
 
-These commands require a running Cells instance. They connect directly to low-level service
-using gRPC connections. They are not authenticated.
+  Admin commands allow direct access to Cells data.
+	
+  These commands require a running Cells instance. They connect directly to low-level service
+  using gRPC connections. They are not authenticated.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		replaceKeys := map[string]string{}

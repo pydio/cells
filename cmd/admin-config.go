@@ -28,6 +28,12 @@ import (
 var ConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configuration manager",
+	Long: `
+DESCRIPTION
+
+  This set of commands provides programmatic access to stored configurations
+
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

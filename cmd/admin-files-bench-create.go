@@ -26,8 +26,11 @@ var (
 var benchCmd = &cobra.Command{
 	Use:   "create-bench",
 	Short: "Create an arbitrary number of random files under a path",
-	Long: `Create an arbitrary number of random files under a path.
-Provide --number, --path and --user parameters to perform this action.
+	Long: `
+DESCRIPTION
+
+  Create an arbitrary number of random files under a path.
+  Provide --number, --path and --user parameters to perform this action.
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		initServices()

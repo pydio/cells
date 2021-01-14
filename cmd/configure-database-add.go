@@ -35,9 +35,10 @@ var configDatabaseAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a database connection to the configuration",
 	Long: `
-This command lets you add a new database connection to the configuration.
+DESCRIPTION
 
-To assign the database connection to a service, you need to use the config database set command.
+  This command lets you add a new database connection to the configuration.
+  To assign the database connection to a service, you need to use the config database set command.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

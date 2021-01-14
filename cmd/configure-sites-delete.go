@@ -18,7 +18,12 @@ func init() {
 var sitesDelete = &cobra.Command{
 	Use:   "delete",
 	Short: "Remove a site by its index",
-	Long:  "Remove a site exposing Cells to a given URL, by providing its index",
+	Long: `
+DESCRIPTION
+
+  Remove a site exposing Cells to a given URL, by providing its index.
+  See 'sites' command help for more info about Sites management.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)
 		if len(sites) == 0 {

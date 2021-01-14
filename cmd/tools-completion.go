@@ -65,9 +65,12 @@ Or persistently:
 var completionCmd = &cobra.Command{
 	Use:   "completion",
 	Short: "Add auto-completion helper to Cells",
-	Long: `Install completion helper for Pydio Cells.
+	Long: `
+DESCRIPTION
 
-This command installs an additional plugin to provide suggestions when working with the Cells and hitting the 'tab' key.`,
+  Install completion helper for Pydio Cells.
+  This command installs an additional plugin to provide suggestions when working with the Cells and hitting the 'tab' key.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

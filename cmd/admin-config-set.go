@@ -35,22 +35,25 @@ import (
 var updateConfigCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Store a configuration",
-	Long: `Store a configuration. Will be stored in both your pydio.json file and in the database.
+	Long: `
+DESCRIPTION
 
-### Syntax
+  Store a configuration. Will be stored in both your pydio.json file and in the database.
 
-Configurations are represented by three parameters that you must pass as arguments :
-- serviceName: name of the corresponding service
-- configName: name of the parameter
-- configValue: json-encoded value of the parameter you want to set/change
+SYNTAX
 
-### Examples
+  Configurations are represented by three parameters that you must pass as arguments :
+  - serviceName: name of the corresponding service
+  - configName: name of the parameter
+  - configValue: json-encoded value of the parameter you want to set/change
 
-Change the port of micro.web service (rest api)
-$ ` + os.Args[0] + ` config set micro.web port 8083
+EXAMPLES
 
-Json parameter value
-$ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value"}'
+  Change the port of micro.web service (rest api)
+  $ ` + os.Args[0] + ` config set micro.web port 8083
+
+  Json parameter value
+  $ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value"}'
 
 `,
 	Args: func(cmd *cobra.Command, args []string) error {

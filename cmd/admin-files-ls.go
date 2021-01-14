@@ -35,9 +35,12 @@ import (
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List files",
-	Long: `List ACLs currently stored in the acl micro-service.
- 
- Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
+	Long: `
+DESCRIPTION
+  
+  List ACLs currently stored in the acl micro-service.
+  Use the flags to search ACLs by a given aspect : node_id, role_id, workspace_id or action.
+
  `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())

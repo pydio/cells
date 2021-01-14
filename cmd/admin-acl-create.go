@@ -35,9 +35,11 @@ import (
 var createAclCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create an Access Control",
-	Long: `Create an Access Control in the dedicated micro service
-
-Use this command to manually grant a permission on a given node for a given role.
+	Long: `
+DESCRIPTION
+  
+  Create an Access Control in the dedicated micro service
+  Use this command to manually grant a permission on a given node for a given role.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
