@@ -314,10 +314,6 @@ AUTOMATED PROVISIONING
 			case <-ticker:
 				process := registry.Default.GetCurrentProcess()
 				childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
-				if process != nil {
-					fmt.Println("Process services ", process.Services)
-					fmt.Println("Children Processes ", childrenProcesses)
-				}
 				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
 					break loop
 				}
