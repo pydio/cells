@@ -93,7 +93,7 @@ var ConfigureCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  This command launches the configuration process of Pydio Cells.
+  Launch the configuration process of Pydio Cells.
 
 REQUIREMENTS
 
@@ -102,8 +102,9 @@ REQUIREMENTS
    - MariaDB version 10.3 and above,
    - MySQL version 5.7 and above (except 8.0.22 that has a bug preventing Cells to run correctly).
 
-  As recommended by database documentations, make sure not to leave the 'max_connections' parameter to its default value 
-  (151) while going live in production.
+  As recommended by database documentation, tune the 'max_connections' parameter to a value in line
+  with your production database server specifications. For reference, the default value of 151 will have a 
+  maximum memory usage of about 575MB, but will not scale up for a multiple users load in production.
 
 BROWSER-BASED INSTALLER
 

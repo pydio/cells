@@ -64,14 +64,14 @@ DESCRIPTION
   Start one or more services on this machine. 
   $ ` + os.Args[0] + ` start [flags] args...
 
-  Additional arguments are regexp that can match any of the service names available (see 'list' command). 
+  Select specific services with regular expressions in the additional arguments. No arguments will start all services available (see 'ps' command). 
    - The -t/--tags flag may limit to only a certain category of services, use lowercase like broker, idm, data, etc...  
    - The -x/--exclude flag may exclude one or more services
   Both flags may be used in conjunction with the regexp arguments.
 
 REQUIREMENTS
   
-  Ulimit: Make sure to set the number of allowed open files greater than 2048.
+  Ulimit: set a number of allowed open files greater or equal to 2048.
   For production use, a minimum of 8192 is recommended (see ulimit -n).
 
   Setcap: if you intend to bind the server to standard http ports (80, 443), 
