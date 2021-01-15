@@ -97,8 +97,8 @@ DESCRIPTION
 
 CONFIGURE
 
-  For the very first run, use '` + os.Args[0] + ` configure' to load browser-based or command-line based installation wizard. 
-  Services will start at the end of the installation.
+  For the very first run, use '` + os.Args[0] + ` configure' to begin the browser-based or command-line based installation wizard. 
+  Services will automatically start at the end of a browser-based installation.
 
 RUN
 
@@ -112,7 +112,7 @@ WORKING DIRECTORIES
    - Darwin: ${USER_HOME}/Library/Application Support/Pydio/cells
    - Windows: ${USER_HOME}/ApplicationData/Roaming/Pydio/cells
 
-  You can customize the various storage locations with the following ENV variables : 
+  You can customize the storage locations with the following ENV variables : 
   
    - CELLS_WORKING_DIR : replace the whole standard application dir
    - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
@@ -124,12 +124,12 @@ LOGS LEVEL
   By default, logs are outputted in console format at the Info level. You can set the --log flag or set the 
   CELLS_LOGS_LEVEL environment variable to one of the following values:
    - debug, info, error : logs are written in console format with the according level
-   - production : logs are written in json format, for usage with a log aggregator tool.
+   - production : logs are written in json format, to be used with a log aggregator tool.
 
 SERVICES DISCOVERY
 
-  Microservices need a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
-  implementation, unless a 'gnatsd' service is already running, in which case it will be detected.
+  Microservices use NATS as a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
+  implementation, unless a nats server is already running on the standard port, in which case it will be detected.
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Special case

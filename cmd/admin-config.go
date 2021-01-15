@@ -31,7 +31,7 @@ var ConfigCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  This set of commands provides programmatic access to stored configurations
+  Set of commands providing programmatic access to stored configuration
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

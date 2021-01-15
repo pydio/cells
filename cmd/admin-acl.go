@@ -43,7 +43,7 @@ var AclCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  ACLs are managed in a dedicated micro-service.
+  ACLs are managed in a dedicated microservice.
 
   It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
   ACLs are used to grant permissions to a given node Uuid for a given Role.
