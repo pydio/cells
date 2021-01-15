@@ -65,25 +65,36 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
-	fmt.Println("\n\033[1m## Performing Installation\033[0m")
+	fmt.Println("\n\033[1m## Applying configuration\033[0m")
 	e = lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-		fmt.Println(p.IconGood + " " + event.Message)
+		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 	})
 	if e != nil {
 		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
 	}
+	fmt.Println(p.IconGood + " Configuration done")
+
+	fmt.Println("\n\033[1m## Software is ready to run!\033[0m")
+
+	fmt.Println(p.Styler(p.FGFaint)("Cells will be accessible through the following URLs:"))
+	ss, _ := config.LoadSites()
+	var urls []string
+	for _, s := range ss {
+		for _, u := range s.GetExternalUrls() {
+			urls = append(urls, u.String())
+		}
+	}
+	fmt.Println(p.Styler(p.FGFaint)(strings.Join(urls, ", ")))
+	if _, busyPort, _ := checkDefaultBusy(cmd, cliConfig.ProxyConfig, false); busyPort != "" {
+		fmt.Println(p.Styler(p.BGRed, p.FGWhite)(fmt.Sprintf("Warning, it seems that port %s is already busy. You may want to change default port by running '"+os.Args[0]+" configure sites' command.", busyPort)))
+	} else {
+		fmt.Println(p.Styler(p.FGFaint)("Edit these URLs by running '") + p.Styler(p.FGFaint, p.FGBold)(os.Args[0]+" configure sites") + p.Styler(p.FGFaint)("' command."))
+	}
 
 	fmt.Println("")
-	fmt.Println(p.IconGood + "\033[1m Installation Finished - Use '" + os.Args[0] + " start' to start server.\033[0m")
-	fmt.Println("Cells will be exposed through the following URLs:")
-	ss, _ := config.LoadSites()
-	listSites(cmd, ss)
-	if _, busyPort, _ := checkDefaultBusy(cmd, cliConfig.ProxyConfig, false); busyPort != "" {
-		fmt.Println(p.Styler(p.BGRed, p.FGWhite)(fmt.Sprintf(" Warning, it seems that port %s is already busy. You may want to change default port by running '"+os.Args[0]+" configure sites' command.", busyPort)))
-	} else {
-		fmt.Println("You can edit these URLs by running '" + os.Args[0] + " configure sites' command.")
-	}
+	fmt.Println("Now use '" + p.Styler(p.FGBold)(os.Args[0]+" start") + "' to start server.")
 	fmt.Println("")
+
 	return cliConfig, nil
 
 }
