@@ -4,7 +4,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/uber-go/tally"
 )
 
@@ -27,11 +26,9 @@ func RegisterOnStartExposure(runFunc func()) {
 
 func Init() {
 	if len(startExposure) > 0 {
-		cobra.OnInitialize(func() {
-			for _, f := range startExposure {
-				f()
-			}
-		})
+		for _, f := range startExposure {
+			f()
+		}
 	}
 }
 
