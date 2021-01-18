@@ -37,7 +37,7 @@ var configDatabaseListCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  This command lists all databases connections from all servers registered with cells.
+  List all databases connections from all servers registered with cells.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

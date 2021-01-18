@@ -39,7 +39,7 @@ var configDatabaseSetCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  This command lets you assign a different database connection to a service. 
+  Assign a different database connection to a service. 
   Use default to change to the default database.
 
 ` + promptui.IconWarn + `  Note that the database data will not be transferred to the new database.`,

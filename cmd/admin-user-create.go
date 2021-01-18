@@ -45,7 +45,7 @@ var userCreateCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Create a user in the backend
+  Create a user
 
   Please, note that login are case sensitive: 
   you can create 2 distinct users with login  'User' and 'user'. 

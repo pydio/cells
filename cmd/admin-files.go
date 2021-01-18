@@ -30,7 +30,7 @@ var FilesCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Manage metadata that enrich some of the nodes.
+  Manage metadata linked to nodes.
   Metadata are stored as simple key/values and attached to a node UUID.
 
 `,

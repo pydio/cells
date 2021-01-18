@@ -58,11 +58,11 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show current binary's version information",
+	Short: "Print version information",
 	Long: `
 DESCRIPTION
 
-  Show current binary's version information.
+  Print version information.
 
   You can format the output with a go template using the --format flag.
   Typically, to only output a parsable version, call:

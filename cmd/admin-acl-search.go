@@ -41,8 +41,7 @@ var searchAclCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  List ACLs currently stored in the acl micro-service.
-  Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id or action.
+  List ACLs currently stored in the acl microservice.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
