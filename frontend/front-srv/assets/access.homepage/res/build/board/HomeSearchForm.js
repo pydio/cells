@@ -85,12 +85,12 @@ var _Pydio$requireLib3 = _pydio2['default'].requireLib('workspaces');
 
 var FilePreview = _Pydio$requireLib3.FilePreview;
 
-var HistoryKey = "cells.search-engine.history";
-
 var HomeSearchForm = (function (_Component) {
     _inherits(HomeSearchForm, _Component);
 
     function HomeSearchForm(props) {
+        var _this = this;
+
         _classCallCheck(this, HomeSearchForm);
 
         _get(Object.getPrototypeOf(HomeSearchForm.prototype), 'constructor', this).call(this, props);
@@ -109,25 +109,27 @@ var HomeSearchForm = (function (_Component) {
             loading: false,
             facets: [],
             facetFilter: {},
-            history: this.loadHistory()
+            history: []
         };
-
+        this.loadHistory().then(function (hh) {
+            return _this.setState({ history: hh });
+        });
         this.submitD = _lodash2['default'].debounce(this.submit, 500);
     }
 
     _createClass(HomeSearchForm, [{
         key: 'update',
         value: function update(queryString) {
-            var _this = this;
+            var _this2 = this;
 
             this.setState({ queryString: queryString }, function () {
-                _this.submitD(true);
+                _this2.submitD(true);
             });
         }
     }, {
         key: 'filterByFacet',
         value: function filterByFacet(facet, toggle) {
-            var _this2 = this;
+            var _this3 = this;
 
             var _state$selectedFacets = this.state.selectedFacets;
             var selectedFacets = _state$selectedFacets === undefined ? [] : _state$selectedFacets;
@@ -141,7 +143,7 @@ var HomeSearchForm = (function (_Component) {
                 });
             }
             this.setState({ selectedFacets: newFacets }, function () {
-                _this2.submit();
+                _this3.submit();
             });
         }
     }, {
@@ -185,7 +187,7 @@ var HomeSearchForm = (function (_Component) {
     }, {
         key: 'submit',
         value: function submit() {
-            var _this3 = this;
+            var _this4 = this;
 
             var refreshFacets = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
             var queryString = this.state.queryString;
@@ -211,35 +213,46 @@ var HomeSearchForm = (function (_Component) {
             api.search(_extends({ basenameOrContent: queryString }, facetFilter), 'all', this.props.limit || 10).then(function (response) {
                 rootNode.setChildren(response.Results);
                 rootNode.setLoaded(true);
-                _this3.pushHistory(queryString);
-                _this3.setState({
+                _this4.pushHistory(queryString);
+                _this4.setState({
                     loading: false,
                     facets: response.Facets || []
                 });
             })['catch'](function (e) {
-                _this3.setState({ loading: false });
+                _this4.setState({ loading: false });
+            });
+        }
+    }, {
+        key: 'getUserHistoryKey',
+        value: function getUserHistoryKey() {
+            return _pydio2['default'].getInstance().user.getIdmUser().then(function (u) {
+                return "cells.search-engine.history." + u.Uuid;
             });
         }
     }, {
         key: 'loadHistory',
         value: function loadHistory() {
-            var i = localStorage.getItem(HistoryKey);
-            if (!i) {
-                return [];
-            }
-            try {
-                var data = JSON.parse(i);
-                if (data.map) {
-                    return data;
+            return this.getUserHistoryKey().then(function (key) {
+                var i = localStorage.getItem(key);
+                if (!i) {
+                    return [];
                 }
-                return [];
-            } catch (e) {
-                return [];
-            }
+                try {
+                    var data = JSON.parse(i);
+                    if (data.map) {
+                        return data;
+                    }
+                    return [];
+                } catch (e) {
+                    return [];
+                }
+            });
         }
     }, {
         key: 'pushHistory',
         value: function pushHistory(term) {
+            var _this5 = this;
+
             if (!term) {
                 return;
             }
@@ -250,8 +263,10 @@ var HomeSearchForm = (function (_Component) {
                 return f !== term;
             }).slice(0, 19); // store only 20 terms
             newHistory.unshift(term);
-            this.setState({ history: newHistory }, function () {
-                localStorage.setItem(HistoryKey, JSON.stringify(newHistory));
+            this.getUserHistoryKey().then(function (key) {
+                _this5.setState({ history: newHistory }, function () {
+                    localStorage.setItem(key, JSON.stringify(newHistory));
+                });
             });
         }
     }, {
@@ -270,7 +285,7 @@ var HomeSearchForm = (function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this6 = this;
 
             var _state = this.state;
             var loading = _state.loading;
@@ -362,7 +377,7 @@ var HomeSearchForm = (function (_Component) {
                     React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-magnify', style: styles.magnifier }),
                     React.createElement(_materialUi.AutoComplete, {
                         ref: function (r) {
-                            _this4.input = r;
+                            _this6.input = r;
                         },
                         dataSource: history.map(function (k) {
                             return { text: k, value: k };
@@ -382,16 +397,16 @@ var HomeSearchForm = (function (_Component) {
                         searchText: queryString,
                         menuStyle: { maxHeight: 300 },
                         onUpdateInput: function (v) {
-                            return _this4.update(v);
+                            return _this6.update(v);
                         },
                         onKeyPress: function (e) {
-                            return e.key === 'Enter' ? _this4.update(e.target.value) : null;
+                            return e.key === 'Enter' ? _this6.update(e.target.value) : null;
                         },
                         onFocus: function () {
-                            _this4.setState({ searchFocus: true });
+                            _this6.setState({ searchFocus: true });
                         },
                         onBlur: function () {
-                            _this4.setState({ searchFocus: false });
+                            _this6.setState({ searchFocus: false });
                         }
                     }),
                     !loading && React.createElement('div', { style: { width: 36 } }),
@@ -405,7 +420,7 @@ var HomeSearchForm = (function (_Component) {
                     iconClassName: 'mdi mdi-close',
                     style: styles.close,
                     onTouchTap: function () {
-                        return _this4.update('');
+                        return _this6.update('');
                     },
                     tooltipPosition: "bottom-left",
                     tooltip: pydio.MessageHash['86']

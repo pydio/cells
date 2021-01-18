@@ -33,8 +33,6 @@ const {SimpleList} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 
-const HistoryKey = "cells.search-engine.history"
-
 class HomeSearchForm extends Component{
 
     constructor(props) {
@@ -54,9 +52,9 @@ class HomeSearchForm extends Component{
             loading: false,
             facets:[],
             facetFilter:{},
-            history: this.loadHistory()
+            history: []
         };
-
+        this.loadHistory().then(hh => this.setState({history: hh}))
         this.submitD = _.debounce(this.submit, 500)
     }
 
@@ -143,20 +141,26 @@ class HomeSearchForm extends Component{
 
     }
 
+    getUserHistoryKey(){
+        return Pydio.getInstance().user.getIdmUser().then(u => "cells.search-engine.history." + u.Uuid)
+    }
+
     loadHistory(){
-        const i = localStorage.getItem(HistoryKey)
-        if(!i) {
-            return []
-        }
-        try {
-            const data = JSON.parse(i)
-            if(data.map){
-                return data;
+        return this.getUserHistoryKey().then(key => {
+            const i = localStorage.getItem(key)
+            if(!i) {
+                return []
             }
-            return [];
-        }catch (e){
-            return []
-        }
+            try {
+                const data = JSON.parse(i)
+                if(data.map){
+                    return data;
+                }
+                return [];
+            }catch (e){
+                return []
+            }
+        })
     }
 
     pushHistory(term){
@@ -166,8 +170,10 @@ class HomeSearchForm extends Component{
         const {history = []} = this.state;
         const newHistory = history.filter(f => f !== term).slice(0, 19); // store only 20 terms
         newHistory.unshift(term);
-        this.setState({history: newHistory}, () => {
-            localStorage.setItem(HistoryKey, JSON.stringify(newHistory));
+        this.getUserHistoryKey().then(key => {
+            this.setState({history: newHistory}, () => {
+                localStorage.setItem(key, JSON.stringify(newHistory));
+            })
         })
     }
 
