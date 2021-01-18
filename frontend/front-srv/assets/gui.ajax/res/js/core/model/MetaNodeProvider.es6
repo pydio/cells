@@ -136,6 +136,9 @@ export default class MetaNodeProvider{
                     paginationData.set("total", res.Pagination.TotalPages);
                     paginationData.set("size", res.Pagination.Limit);
                     origNode.getMetadata().set("paginationData", paginationData);
+                } else {
+                    origNode.getMetadata().delete("paginationData")
+                    node.getMetadata().delete("paginationData")
                 }
                 node.replaceBy(origNode);
             }
