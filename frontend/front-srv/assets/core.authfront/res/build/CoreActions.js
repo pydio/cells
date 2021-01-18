@@ -52,8 +52,6 @@ var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
-var pydio = window.pydio;
-
 var LanguagePicker = function LanguagePicker(props) {
     var items = [];
     var pydio = _pydio2['default'].getInstance();
@@ -68,10 +66,26 @@ var LanguagePicker = function LanguagePicker(props) {
     var anchorOrigin = props.anchorOrigin;
     var targetOrigin = props.targetOrigin;
 
+    var iconStyles = {
+        style: {
+            width: 38,
+            height: 38,
+            padding: 6,
+            borderRadius: '50%'
+        },
+        hoveredStyle: {
+            backgroundColor: 'rgba(255,255,255,.1)'
+        },
+        iconStyle: {
+            fontSize: 20,
+            color: 'rgba(255,255,255,.87)'
+        }
+    };
+
     return React.createElement(
         _materialUi.IconMenu,
         {
-            iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-translate', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.87)' } }),
+            iconButtonElement: React.createElement(_materialUi.IconButton, _extends({ tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline' }, iconStyles)),
             onItemTouchTap: function (e, o) {
                 pydio.loadI18NMessages(o.props.value);
             },
@@ -198,6 +212,7 @@ var LoginPasswordDialog = React.createClass({
         var passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         var secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
         var forgotPasswordLink = this.state.authParameters.get('ENABLE_FORGOT_PASSWORD') && !passwordOnly;
+        var pydio = _pydio2['default'].getInstance();
 
         var errorMessage = undefined;
         if (this.state.errorId) {
@@ -282,7 +297,7 @@ var LoginPasswordDialog = React.createClass({
                 loginTitle,
                 React.createElement(
                     'div',
-                    { style: { position: 'absolute', bottom: 6, left: 12 } },
+                    { style: { position: 'absolute', bottom: 9, left: 24 } },
                     React.createElement(LanguagePicker, { anchorOrigin: { horizontal: 'left', vertical: 'bottom' }, targetOrigin: { horizontal: 'left', vertical: 'bottom' } })
                 )
             ),

@@ -24,8 +24,6 @@ import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu, Toggle} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
-let pydio = window.pydio;
-
 const LanguagePicker = (props) => {
     const items = [];
     const pydio = Pydio.getInstance();
@@ -39,9 +37,25 @@ const LanguagePicker = (props) => {
     ));
     const {anchorOrigin, targetOrigin} = props;
 
+    const iconStyles = {
+        style:{
+            width:38,
+            height:38,
+            padding:6,
+            borderRadius:'50%'
+        },
+        hoveredStyle:{
+            backgroundColor:'rgba(255,255,255,.1)'
+        },
+        iconStyle:{
+            fontSize:20,
+            color:'rgba(255,255,255,.87)'
+        }
+    };
+
     return (
         <IconMenu
-            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-translate" iconStyle={{fontSize:20,color:'rgba(255,255,255,.87)'}}/>}
+            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline" {...iconStyles}/>}
             onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
             desktop={true}
             anchorOrigin={anchorOrigin} targetOrigin={targetOrigin}
@@ -155,6 +169,7 @@ let LoginPasswordDialog = React.createClass({
         const passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         const secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
         const forgotPasswordLink = this.state.authParameters.get('ENABLE_FORGOT_PASSWORD') && !passwordOnly;
+        const pydio = Pydio.getInstance()
 
         let errorMessage;
         if(this.state.errorId){
@@ -215,7 +230,7 @@ let LoginPasswordDialog = React.createClass({
                 {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {loginTitle}
-                    <div style={{position:'absolute', bottom: 6, left:12}}>
+                    <div style={{position:'absolute', bottom: 9, left:24}}>
                         <LanguagePicker anchorOrigin={{horizontal: 'left', vertical: 'bottom'}} targetOrigin={{horizontal: 'left', vertical: 'bottom'}}/>
                     </div>
                 </div>
