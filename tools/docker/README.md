@@ -20,51 +20,57 @@ By default the server starts in self-signed mode on port 8080. It is also possib
 
 You can find below samples of relevant docker-compose directive to achieve these use cases.
 
-We also provide a few sample docker compose configuration as examples that are working out-of-the-box, 
-if you only provide your public IP / valid domain name, see `compose` sub directory.  
+We also provide a few sample docker compose configurations as examples that are working out-of-the-box, if you only provide your public IP / valid domain name, see `compose` sub-directory.  
 
-## Sample config for the Pydio Cells internal main gateway
+## Sample config for the Pydio Cells internal web server
 
-## Without certificate (via HTTP)
+### Default config
 
-```conf
+This starts Cells and exposes the server with a self-signed certificate on port 8080, you can reach the web interface using the IP address of your server or any FQDN that has been registered in a DNS and points toward this IP, together with explicit port 8080, for instance: `https://1.2.3.4:8080` or `https://example.com:8080`:
+
+```yaml
   cells:
-        image: pydio/cells:latest
-        restart: always
-        volumes: ["data:/var/cells/data"]
-        ports: ["8080:8080"]
-        environment:
-            - CELLS_NO_TLS=1
+    image: pydio/cells:latest
+    restart: unless-stopped
+    ports: ["8080:8080"]
 ```
 
-## With Let's Encrypt
+### Without certificate (via HTTP)
 
-```conf
+```yaml
   cells:
-        image: pydio/cells:latest
-        restart: always
-        volumes: ["data:/var/cells/data"]
-        ports: ["80:80", "443:443"]
-        environment:
-            - CELLS_BIND=0.0.0.0:443
-            - CELLS_EXTERNAL=https://your.fqdn.com
-            - CELLS_TLS_MAIL=admin@example.com
-            - CELLS_ACCEPT_LETSENCRYPT_EULA=true
-            # Comment out this when your network configuration is OK
-            - CELLS_USE_LETSENCRYPT_STAGING=1
+    image: pydio/cells:latest
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    environment:
+      - CELLS_NO_TLS=1
 ```
 
-## Using a custom certificate
+### With Let's Encrypt
 
-```conf
+```yaml
   cells:
-        image: pydio/cells:latest
-        restart: always
-        volumes: ["data:/var/cells/data", "/path/to/your/ssl.cert:/etc/ssl/ssl.cert", "/path/to/your/ssl.key:/etc/ssl/ssl.key"]
-        ports: ["443:443"]
-        environment:
-            - CELLS_BIND=localhost:443
-            - CELLS_EXTERNAL=https://your.fqdn.com
-            - CELLS_TLS_CERT_FILE=/etc/ssl/ssl.cert
-            - CELLS_TLS_KEY_FILE=/etc/ssl/ssl.key
+    image: pydio/cells:latest
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      - CELLS_BIND=your.fqdn.com:443
+      - CELLS_EXTERNAL=https://your.fqdn.com
+      - CELLS_LE_EMAIL=admin@example.com
+      - CELLS_LE_AGREE=1
+```
+
+### Using a custom certificate
+
+```yaml
+  cells:
+    image: pydio/cells:latest
+    restart: unless-stopped
+    volumes: ["/path/to/your/ssl.cert:/etc/ssl/ssl.cert", "/path/to/your/ssl.key:/etc/ssl/ssl.key"]
+    ports: ["443:443"]
+    environment:
+      - CELLS_BIND=0.0.0.0:443
+      - CELLS_EXTERNAL=https://your.fqdn.com
+      - CELLS_TLS_CERT_FILE=/etc/ssl/ssl.cert
+      - CELLS_TLS_KEY_FILE=/etc/ssl/ssl.key
 ```
