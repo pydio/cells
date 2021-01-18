@@ -209,7 +209,10 @@ class InstallForm extends React.Component {
     renderS3BucketsList(){
         const {s3Config} = this.props;
         const {s3CheckKeysSuccess} = this.state;
-        const {buckets, canCreate} = s3CheckKeysSuccess;
+        let {buckets, canCreate} = s3CheckKeysSuccess;
+        if(!buckets){
+            buckets = [];
+        }
         const keys = ['Default', 'Personal', 'Cells', 'Binaries', 'Thumbs', 'Versions'];
         const newBuckets = keys.map(k => s3Config['dsS3Bucket'+k]);
         const notExist = newBuckets.filter(b => buckets.indexOf(b) === -1);

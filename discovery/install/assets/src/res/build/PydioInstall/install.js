@@ -337,6 +337,9 @@ var InstallForm = function (_React$Component) {
             var buckets = s3CheckKeysSuccess.buckets,
                 canCreate = s3CheckKeysSuccess.canCreate;
 
+            if (!buckets) {
+                buckets = [];
+            }
             var keys = ['Default', 'Personal', 'Cells', 'Binaries', 'Thumbs', 'Versions'];
             var newBuckets = keys.map(function (k) {
                 return s3Config['dsS3Bucket' + k];
