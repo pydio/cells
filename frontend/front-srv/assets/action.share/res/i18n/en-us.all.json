@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "There are unsaved changes, are you sure you want to close?"
   }
 }

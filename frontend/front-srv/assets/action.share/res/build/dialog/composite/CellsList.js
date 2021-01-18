@@ -78,6 +78,22 @@ var CellsList = (function (_React$Component) {
             return items;
         }
     }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps, nextContext) {
+            var edit = this.state.edit;
+            var compositeModel = nextProps.compositeModel;
+
+            if (edit === 'NEWCELL' && !compositeModel.isDirty()) {
+                this.setState({ edit: null });
+                compositeModel.getCells().map(function (cellModel) {
+                    var acls = cellModel.getAcls();
+                    if (!Object.keys(acls).length) {
+                        compositeModel.removeNewCell(cellModel);
+                    }
+                });
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -239,7 +255,7 @@ var CellsList = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { paddingBottom: 20 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m(264), primary: true, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m(264), disabled: edit === 'NEWCELL', primary: true, onTouchTap: function () {
                             compositeModel.createEmptyCell();_this2.setState({ edit: 'NEWCELL' });
                         } }),
                     addToCellMenu

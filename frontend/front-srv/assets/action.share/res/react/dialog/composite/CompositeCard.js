@@ -48,6 +48,14 @@ class CompositeCard extends React.Component {
         };
     }
 
+    confirmAndDismiss(){
+        const {model} = this.state;
+        const {pydio, onDismiss} = this.props;
+        if (!model.isDirty() || confirm(pydio.MessageHash['share_center.dialog.close.confirm.unsaved'])){
+            onDismiss();
+        }
+    }
+
     attachClipboard(){
         const {pydio} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
@@ -229,7 +237,7 @@ class CompositeCard extends React.Component {
                     header={header}
                     saveEnabled={model.isDirty()}
                     onSaveAction={this.submit.bind(this)}
-                    onCloseAction={this.props.onDismiss}
+                    onCloseAction={() => this.confirmAndDismiss()}
                     onRevertAction={()=>{model.revertChanges()}}
                     editorOneColumn={editorOneColumn}
                     style={{width:'100%', height: null, flex: 1, minHeight:550, color: 'rgba(0,0,0,.83)', fontSize: 13}}

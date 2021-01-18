@@ -31,6 +31,20 @@ class CellsList extends React.Component {
         return items;
     }
 
+    componentWillReceiveProps(nextProps, nextContext) {
+        const {edit} = this.state;
+        const {compositeModel} = nextProps;
+        if(edit === 'NEWCELL' && !compositeModel.isDirty()){
+            this.setState({edit: null});
+            compositeModel.getCells().map(cellModel => {
+                const acls = cellModel.getAcls();
+                if(!Object.keys(acls).length){
+                    compositeModel.removeNewCell(cellModel);
+                }
+            });
+        }
+    }
+
     render(){
 
         const {compositeModel, pydio, usersInvitations, muiTheme} = this.props;
@@ -153,7 +167,7 @@ class CellsList extends React.Component {
         return (
             <div style={this.props.style}>
                 <div style={{paddingBottom: 20}}>
-                    <RaisedButton label={m(264)} primary={true} onTouchTap={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
+                    <RaisedButton label={m(264)} disabled={edit==='NEWCELL'} primary={true} onTouchTap={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
                     {addToCellMenu}
                 </div>
                 <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)'}}>{legend}</div>

@@ -117,6 +117,18 @@ var CompositeCard = (function (_React$Component) {
     }
 
     _createClass(CompositeCard, [{
+        key: 'confirmAndDismiss',
+        value: function confirmAndDismiss() {
+            var model = this.state.model;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var onDismiss = _props.onDismiss;
+
+            if (!model.isDirty() || confirm(pydio.MessageHash['share_center.dialog.close.confirm.unsaved'])) {
+                onDismiss();
+            }
+        }
+    }, {
         key: 'attachClipboard',
         value: function attachClipboard() {
             var pydio = this.props.pydio;
@@ -178,9 +190,9 @@ var CompositeCard = (function (_React$Component) {
         value: function componentDidMount() {
             var _this3 = this;
 
-            var _props = this.props;
-            var node = _props.node;
-            var mode = _props.mode;
+            var _props2 = this.props;
+            var node = _props2.node;
+            var mode = _props2.mode;
 
             this.state.model.observe("update", function () {
                 _this3.forceUpdate();
@@ -240,11 +252,11 @@ var CompositeCard = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var _props2 = this.props;
-            var node = _props2.node;
-            var mode = _props2.mode;
-            var pydio = _props2.pydio;
-            var editorOneColumn = _props2.editorOneColumn;
+            var _props3 = this.props;
+            var node = _props3.node;
+            var mode = _props3.mode;
+            var pydio = _props3.pydio;
+            var editorOneColumn = _props3.editorOneColumn;
             var _state = this.state;
             var model = _state.model;
             var mailerData = _state.mailerData;
@@ -336,7 +348,9 @@ var CompositeCard = (function (_React$Component) {
                     header: header,
                     saveEnabled: model.isDirty(),
                     onSaveAction: this.submit.bind(this),
-                    onCloseAction: this.props.onDismiss,
+                    onCloseAction: function () {
+                        return _this4.confirmAndDismiss();
+                    },
                     onRevertAction: function () {
                         model.revertChanges();
                     },
