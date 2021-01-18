@@ -45,7 +45,7 @@ var (
 	configVersionDb      string
 )
 
-// listCmd represents the list command
+// configHistoryCmd represents the list command
 var configHistoryCmd = &cobra.Command{
 	Use:   "config-history",
 	Short: "List all configurations revisions",
