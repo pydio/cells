@@ -31,7 +31,10 @@ import (
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-go"
 )
 
@@ -42,9 +45,12 @@ type UploadLimitFilter struct {
 // Check Upload Limits (size, extension) defined in the frontend on PutObject operation
 func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 
-	size, exts := a.getUploadLimits()
+	size, exts, err := a.getUploadLimits(ctx)
+	if err != nil {
+		return 0, err
+	}
 	if size > 0 && requestData.Size > size {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, fmt.Sprintf("Upload limit is %d", size))
+		return 0, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
 		// Beware, Ext function includes the leading dot
@@ -57,7 +63,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 			}
 		}
 		if !allowed {
-			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return 0, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
 		}
 	}
 
@@ -67,9 +73,12 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 // Check Upload Limits (size, extension) defined in the frontend on MultipartPutObjectPart
 func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
 
-	size, exts := a.getUploadLimits()
+	size, exts, err := a.getUploadLimits(ctx)
+	if err != nil {
+		return minio.ObjectPart{}, err
+	}
 	if size > 0 && requestData.Size > size {
-		return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, fmt.Sprintf("Upload limit is %d", size))
+		return minio.ObjectPart{}, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
 		nodeExt := path.Ext(target.GetPath())
@@ -81,7 +90,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 			}
 		}
 		if !allowed {
-			return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return minio.ObjectPart{}, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
 		}
 	}
 
@@ -89,16 +98,46 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 }
 
 // Parse Upload Limits from config
-func (a *UploadLimitFilter) getUploadLimits() (limit int64, extensions []string) {
-	if v := config.Get("frontend", "plugin", "core.uploader").StringMap(); v != nil {
-		if u, ok := v["UPLOAD_MAX_SIZE"]; ok {
+func (a *UploadLimitFilter) getUploadLimits(ctx context.Context) (limit int64, extensions []string, err error) {
+
+	pName := "core.uploader"
+	maxSizeName := "UPLOAD_MAX_SIZE"
+	extensionsName := "ALLOWED_EXTENSIONS"
+
+	var stringExts string
+	if v := config.Get("frontend", "plugin", pName).StringMap(); v != nil {
+		if u, ok := v[maxSizeName]; ok {
 			if l, e := strconv.ParseInt(u, 10, 64); e == nil {
 				limit = l
 			}
 		}
-		if exts, ok := v["ALLOWED_EXTENSIONS"]; ok && strings.Trim(exts, " ") != "" {
-			extensions = strings.Split(strings.Trim(exts, " "), ",")
+		if exts, ok := v[extensionsName]; ok && strings.Trim(exts, " ") != "" {
+			stringExts = strings.TrimSpace(exts)
 		}
 	}
+
+	if i, ok := GetBranchInfo(ctx, "in"); ok {
+		acl, e := permissions.AccessListFromContextClaims(ctx)
+		if e != nil {
+			err = e
+			return
+		}
+		if e := permissions.AccessListLoadFrontValues(ctx, acl); e != nil {
+			err = e
+			return
+		}
+		aclParams := acl.FlattenedFrontValues().Val("parameters", pName)
+		log.Logger(ctx).Debug("Checking upload max size from ACLs " + aclParams.String())
+		scopes := permissions.FrontValuesScopesFromWorkspaces([]*idm.Workspace{&i.Workspace})
+		for _, s := range scopes {
+			limit = aclParams.Val(maxSizeName, s).Default(limit).Int64()
+			stringExts = aclParams.Val(extensionsName, s).Default(stringExts).String()
+		}
+	}
+
+	if stringExts != "" {
+		extensions = strings.Split(stringExts, ",")
+	}
+
 	return
 }

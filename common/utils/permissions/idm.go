@@ -548,6 +548,10 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 // current list of ordered roles
 func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) error {
 
+	if accessList.FrontPluginsValues != nil {
+		return nil
+	}
+
 	values := GetACLsForRoles(ctx, accessList.OrderedRoles, AclFrontAction_, AclFrontParam_)
 	accessList.FrontPluginsValues = values
 
