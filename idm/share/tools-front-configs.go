@@ -43,10 +43,10 @@ func CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest.ShareLink, w
 	if folders && !options.enableFolderPublicLinks {
 		return options, errors.Forbidden("folder.public-link.forbidden", "You are not allowed to create public link on folders")
 	}
-	if options.MaxDownloads > -1 && link.MaxDownloads >= int64(options.MaxDownloads) {
+	if options.MaxDownloads > 0 && link.MaxDownloads > int64(options.MaxDownloads) {
 		return options, errors.Forbidden("link.max-downloads.mandatory", "Please set a maximum number of downloads for links")
 	}
-	if options.MaxExpiration > -1 && (link.AccessEnd == 0 || (link.AccessEnd-time.Now().Unix()) > int64(options.MaxExpiration*24*60*60)) {
+	if options.MaxExpiration > 0 && (link.AccessEnd == 0 || (link.AccessEnd-time.Now().Unix()) > int64(options.MaxExpiration*24*60*60)) {
 		return options, errors.Forbidden("link.max-expiration.mandatory", "Please set a maximum expiration date for links")
 	}
 	if options.ShareForcePassword && !link.PasswordRequired {
