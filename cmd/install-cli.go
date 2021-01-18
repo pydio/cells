@@ -39,19 +39,32 @@ import (
 	json "github.com/pydio/cells/x/jsonx"
 )
 
+type CellsCliPromptStep struct {
+	Step   string
+	Prompt func(*install.InstallConfig) error
+}
+
 var (
-	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	emailRegexp       = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	additionalPrompts []CellsCliPromptStep
 )
 
 func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.InstallConfig, error) {
 
 	cliConfig := lib.GenerateDefaultConfig()
-	cliConfig.InternalUrl = strings.Join(proxyConfig.GetBinds(), ", ")
 	cliConfig.ProxyConfig = proxyConfig
+
+	if e := applyAdditionalPrompt("boot", cliConfig); e != nil {
+		return nil, e
+	}
 
 	fmt.Println("\n\033[1m## Database Connection\033[0m")
 	adminRequired, e := promptDB(cliConfig)
 	if e != nil {
+		return nil, e
+	}
+
+	if e := applyAdditionalPrompt("post-db", cliConfig); e != nil {
 		return nil, e
 	}
 
@@ -60,8 +73,16 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
+	if e := applyAdditionalPrompt("post-admin", cliConfig); e != nil {
+		return nil, e
+	}
+
 	fmt.Println("\n\033[1m## Default storage location\033[0m")
 	if e := promptAdvanced(cliConfig); e != nil {
+		return nil, e
+	}
+
+	if e := applyAdditionalPrompt("post-advanced", cliConfig); e != nil {
 		return nil, e
 	}
 
@@ -402,6 +423,19 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 			return
 		}
 	}
+}
+
+func RegisterAdditionalPrompt(step CellsCliPromptStep) {
+	additionalPrompts = append(additionalPrompts, step)
+}
+
+func applyAdditionalPrompt(step string, i *install.InstallConfig) error {
+	for _, s := range additionalPrompts {
+		if s.Step == step {
+			return s.Prompt(i)
+		}
+	}
+	return nil
 }
 
 func validateMailFormat(input string) error {
