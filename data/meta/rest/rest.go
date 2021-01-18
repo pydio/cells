@@ -162,7 +162,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 	}
 
 	for _, folderNode := range folderNodes {
-		var childrenCount, total int32
+		var childrenCount, total, childrenLoaded int32
 		if e := folderNode.GetMeta("ChildrenCount", &childrenCount); e == nil && childrenCount > 0 {
 			total = childrenCount
 		}
@@ -191,9 +191,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 			eTimes = append(eTimes, time.Now().Sub(s))
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
-				//total--
 				continue
 			}
+			childrenLoaded++
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
 		l := float64(len(eTimes))
@@ -229,7 +229,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 
 		// Handle Pagination
-		if total > 0 && bulkRequest.Limit > 0 && len(output.Nodes) < int(total) {
+		if total > 0 && bulkRequest.Limit > 0 && childrenLoaded < total {
 			var totalPages, crtPage, nextOffset, prevOffset int32
 			pageSize := bulkRequest.Limit
 			totalPages = int32(math.Ceil(float64(total) / float64(pageSize)))
