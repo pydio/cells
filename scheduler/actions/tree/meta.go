@@ -112,7 +112,11 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		if err != nil {
 			return input.WithError(err), err
 		}
-		log.TasksLogger(ctx).Info(fmt.Sprintf("Updated metadata map %s on %s", ms, path.Base(n.GetPath())))
+		if len(mm) > 0 {
+			log.TasksLogger(ctx).Info(fmt.Sprintf("Updated %s with meta %s and stored", path.Base(n.GetPath()), ms))
+		} else {
+			log.TasksLogger(ctx).Info(fmt.Sprintf("Stored node metadata for %s", path.Base(n.GetPath())))
+		}
 	}
 
 	input.AppendOutput(&jobs.ActionOutput{Success: true})
