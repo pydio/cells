@@ -59,7 +59,8 @@ var GenericInfoCard = (function (_React$Component) {
     GenericInfoCard.prototype.build = function build(props) {
         var isMultiple = undefined,
             isLeaf = undefined,
-            isDir = undefined;
+            isDir = undefined,
+            recycleContext = undefined;
 
         // Determine if we have a multiple selection or a single
         var node = props.node;
@@ -67,9 +68,11 @@ var GenericInfoCard = (function (_React$Component) {
 
         if (nodes) {
             isMultiple = true;
+            recycleContext = nodes[0].hasAjxpMimeInBranch('ajxp_recycle');
         } else if (node) {
             isLeaf = node.isLeaf();
             isDir = !isLeaf;
+            recycleContext = node.hasAjxpMimeInBranch('ajxp_recycle');
         } else {
             return { ready: false };
         }
@@ -77,18 +80,31 @@ var GenericInfoCard = (function (_React$Component) {
             isMultiple: isMultiple,
             isLeaf: isLeaf,
             isDir: isDir,
+            recycleContext: recycleContext,
             ready: true
         };
     };
 
     GenericInfoCard.prototype.render = function render() {
+        var _state = this.state;
+        var ready = _state.ready;
+        var isMultiple = _state.isMultiple;
+        var recycleContext = _state.recycleContext;
 
-        if (!this.state.ready) {
+        if (!ready) {
             return null;
         }
 
-        if (this.state.isMultiple) {
+        var toolbars = [];
+        if (recycleContext) {
+            toolbars.push('info_panel_recycle');
+        } else {
+            toolbars.push('info_panel');
+        }
+
+        if (isMultiple) {
             var nodes = this.props.nodes;
+
             var more = undefined;
             if (nodes.length > 10) {
                 var moreNumber = nodes.length - 10;
@@ -103,7 +119,7 @@ var GenericInfoCard = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _InfoPanelCard2['default'],
-                _extends({}, this.props, { primaryToolbars: ["info_panel", "info_panel_share"] }),
+                _extends({}, this.props, { primaryToolbars: toolbars }),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '0' } },
@@ -130,9 +146,10 @@ var GenericInfoCard = (function (_React$Component) {
             );
         } else {
             var processing = !!this.props.node.getMetadata().get('Processing');
+            toolbars.push('info_panel_share');
             return _react2['default'].createElement(
                 _InfoPanelCard2['default'],
-                _extends({}, this.props, { primaryToolbars: ["info_panel", "info_panel_share"] }),
+                _extends({}, this.props, { primaryToolbars: toolbars }),
                 _react2['default'].createElement(_viewsFilePreview2['default'], {
                     key: this.props.node.getPath(),
                     style: { backgroundColor: 'white', height: 200, padding: 0 },

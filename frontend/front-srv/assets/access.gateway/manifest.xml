@@ -85,7 +85,7 @@
             </action>
             <action name="empty_recycle">
                 <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
-                    <context selection="false" dir="true" recycle="only" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="info_panel,change_main"/>
+                    <context selection="false" dir="true" recycle="only" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="change_main"/>
                 </gui>
                 <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
@@ -94,7 +94,7 @@
             </action>
             <action name="empty_recycle_select">
                 <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
-                    <context selection="true" dir="true" actionBar="false" contextMenu="true" infoPanel="false" actionBarGroup="change_main"/>
+                    <context selection="true" dir="true" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="info_panel_recycle,change_main"/>
                     <selectionContext dir="false" file="false" recycle="true" unique="true" allowedMimes="ajxp_recycle" behaviour="hidden"/>
                 </gui>
                 <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
@@ -133,7 +133,7 @@
                 <gui text="222" title="223" iconClass="mdi mdi-file-restore" accessKey="restore_access_key" hasAccessKey="true">
                     <context selection="true" dir="" recycle="only"
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="info_panel">
+                             actionBarGroup="change_main,info_panel_recycle">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -181,9 +181,9 @@
             </action>
             <action name="delete">
                 <gui text="7" title="161" iconClass="mdi mdi-delete" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
-                    <context selection="true" dir="" recycle="false"
+                    <context selection="true" dir=""
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="change,minisite" inZip="false">
+                             actionBarGroup="change,minisite,info_panel_recycle" inZip="false">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/>
                 </gui>

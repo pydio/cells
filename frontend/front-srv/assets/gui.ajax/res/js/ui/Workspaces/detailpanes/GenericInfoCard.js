@@ -35,16 +35,18 @@ class GenericInfoCard extends React.Component {
     }
 
     build(props) {
-        let isMultiple, isLeaf, isDir;
+        let isMultiple, isLeaf, isDir, recycleContext;
 
         // Determine if we have a multiple selection or a single
         const {node, nodes} = props
 
         if (nodes) {
             isMultiple = true
+            recycleContext = nodes[0].hasAjxpMimeInBranch('ajxp_recycle');
         } else if (node) {
             isLeaf = node.isLeaf()
             isDir = !isLeaf;
+            recycleContext = node.hasAjxpMimeInBranch('ajxp_recycle');
         } else {
             return {ready: false};
         }
@@ -52,18 +54,28 @@ class GenericInfoCard extends React.Component {
             isMultiple,
             isLeaf,
             isDir,
+            recycleContext,
             ready: true
         };
     }
 
     render() {
 
-        if (!this.state.ready) {
+        const {ready, isMultiple, recycleContext} = this.state;
+
+        if (!ready) {
             return null
         }
 
-        if (this.state.isMultiple) {
-            let nodes = this.props.nodes;
+        let toolbars = [];
+        if(recycleContext){
+            toolbars.push('info_panel_recycle');
+        } else {
+            toolbars.push('info_panel');
+        }
+
+        if (isMultiple) {
+            let {nodes} = this.props;
             let more;
             if(nodes.length > 10){
                 const moreNumber = nodes.length - 10;
@@ -71,7 +83,7 @@ class GenericInfoCard extends React.Component {
                 more = <div>... and {moreNumber} more.</div>
             }
             return (
-                <InfoPanelCard {...this.props} primaryToolbars={["info_panel", "info_panel_share"]}>
+                <InfoPanelCard {...this.props} primaryToolbars={toolbars}>
                     <div style={{padding:'0'}}>
                         {nodes.map(function(node){
                             return (
@@ -93,8 +105,9 @@ class GenericInfoCard extends React.Component {
             );
         } else {
             const processing = !!this.props.node.getMetadata().get('Processing');
+            toolbars.push('info_panel_share');
             return (
-                <InfoPanelCard {...this.props} primaryToolbars={["info_panel", "info_panel_share"]}>
+                <InfoPanelCard {...this.props} primaryToolbars={toolbars}>
                     <FilePreview
                         key={this.props.node.getPath()}
                         style={{backgroundColor:'white', height: 200, padding: 0}}
