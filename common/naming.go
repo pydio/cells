@@ -43,14 +43,14 @@ const (
 	ServiceUpdate      = "update"
 	ServiceHealthCheck = "healthcheck"
 
-	ServiceTagIdm        = "idm"
-	ServiceTagScheduler  = "scheduler"
+	ServiceTagBroker     = "broker"
 	ServiceTagData       = "data"
 	ServiceTagDatasource = "datasource"
-	ServiceTagBroker     = "broker"
-	ServiceTagGateway    = "gateway"
 	ServiceTagDiscovery  = "discovery"
 	ServiceTagFrontend   = "frontend"
+	ServiceTagGateway    = "gateway"
+	ServiceTagIdm        = "idm"
+	ServiceTagScheduler  = "scheduler"
 
 	ServiceAcl       = "acl"
 	ServiceShare     = "share"

@@ -64,10 +64,11 @@ DESCRIPTION
   Start one or more services on this machine. 
   $ ` + os.Args[0] + ` start [flags] args...
 
-  Select specific services with regular expressions in the additional arguments. No arguments will start all services available (see 'ps' command). 
-   - The -t/--tags flag may limit to only a certain category of services, use lowercase like broker, idm, data, etc...  
+  No arguments will start all services available (see 'ps' command).  
+   - Select specific services with regular expressions in the additional arguments. 
+   - The -t/--tags flag may limit to only a certain category of services (see usage below)
    - The -x/--exclude flag may exclude one or more services
-  Both flags may be used in conjunction with the regexp arguments.
+  All these may be used in conjunction (-t, -x, regexp arguments).
 
 REQUIREMENTS
   
@@ -83,15 +84,37 @@ EXAMPLES
   1. Start all Cells services
   $ ` + os.Args[0] + ` start
 
-  2. Start only services starting with grpc
+  2. Start all services whose name starts with pydio.grpc
   $ ` + os.Args[0] + ` start pydio.grpc
 
   3. Start only services for scheduler
   $ ` + os.Args[0] + ` start --tag=scheduler
 
   4. Start whole plateform except the roles service
-  $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
+  $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.role
 
+ENVIRONMENT
+
+  1. Flags mapping
+
+  All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
+  For example :
+  $ ./cells start --grpc_external 54545
+  is equivalent to 
+  $ export CELLS_GRPC_EXTERNAL=54545; ./cells start
+
+  2. Working Directories :
+
+  - CELLS_WORKING_DIR : replace the whole standard application dir
+  - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
+  - CELLS_LOG_DIR : replace the location for storing logs (default CELLS_WORKING_DIR/logs)
+  - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services)
+
+  3. Other
+
+  - CELLS_CACHES_HARD_LIMIT : raise memory used by internal caches (in MB, default is 8)
+  - CELLS_UPDATE_HTTP_PROXY : if your server uses a client proxy to access outside world, this can be set to query update server.
+  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY : Golang-specific environment variables to configure a client proxy all external http calls.   
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 
@@ -110,7 +133,7 @@ EXAMPLES
 			if replace, ok := replaceKeys[flag.Name]; ok {
 				key = replace
 			}
-			flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
+			//flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
 			viper.BindPFlag(key, flag)
 		})
 
@@ -294,7 +317,7 @@ func init() {
 	StartCmd.Flags().String("registry_cluster_routes", "", "Registry cluster routes")
 
 	StartCmd.Flags().String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
-	StartCmd.Flags().String("broker_address", ":4222", "Broker port")
+	StartCmd.Flags().String("broker_address", ":4222", "Nats broker port")
 
 	StartCmd.Flags().String("transport", "grpc", "Transport protocol for RPC")
 	StartCmd.Flags().String("transport_address", ":4222", "Transport protocol port")
@@ -307,10 +330,13 @@ func init() {
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
 
-	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Filter by tags")
-	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Filter")
+	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
+	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
 	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
+
+	StartCmd.Flags().MarkHidden("broker")
+	StartCmd.Flags().MarkHidden("registry")
 
 	RootCmd.AddCommand(StartCmd)
 }
