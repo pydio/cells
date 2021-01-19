@@ -296,6 +296,10 @@ func initConfig() {
 			vaultConfig,
 		)
 	default:
+		source := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+		)
+
 		vaultConfig = config.New(
 			micro.New(
 				microconfig.NewConfig(
@@ -315,11 +319,7 @@ func initConfig() {
 				config.New(
 					config.NewVersionStore(versionsStore, micro.New(
 						microconfig.NewConfig(
-							microconfig.WithSource(
-								file.NewSource(
-									microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-								),
-							),
+							microconfig.WithSource(source),
 							microconfig.PollInterval(10*time.Second),
 						),
 					),

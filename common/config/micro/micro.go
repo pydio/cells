@@ -58,6 +58,7 @@ func (m *mem) Watch(path ...string) (configx.Receiver, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &receiver{w}, nil
 }
 

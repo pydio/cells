@@ -60,6 +60,7 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 
 				cfg := servicecontext.GetConfig(m.Options().Context)
+
 				indexContent := cfg.Val("indexContent").Bool()
 
 				dir, _ := config.ServiceDataDir(Name)

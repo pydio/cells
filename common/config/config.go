@@ -61,6 +61,11 @@ func New(store configx.Entrypoint) Store {
 		v.Scan(&im)
 	}
 
+	ret := &cacheconfig{
+		im:    im,
+		store: store,
+	}
+
 	go func() {
 		watcher, ok := store.(configx.Watcher)
 		if !ok {
@@ -79,13 +84,12 @@ func New(store configx.Entrypoint) Store {
 			}
 
 			resp.Scan(&im)
+
+			ret.im = im
 		}
 	}()
 
-	return &cacheconfig{
-		im:    im,
-		store: store,
-	}
+	return ret
 }
 
 // These fonctions use the standard config

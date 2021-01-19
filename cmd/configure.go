@@ -53,7 +53,7 @@ import (
 const (
 	caddyfile = `
 {{range .Sites}}
-{{range .Binds}}{{.}} {{end}}{
+{{range .Binds}}{{.}} {{end}} {
 	root "{{$.WebRoot}}"
 	proxy /install {{urls $.Micro}}
 
@@ -394,7 +394,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		}
 	}
 
-	// starting the micro service
+	// starting the microservice
 	micro := registry.Default.GetServiceByName(common.ServiceMicroApi)
 	micro.Start(cmd.Context())
 
@@ -432,15 +432,17 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	cmd.Println("")
 
 	subscriber, err := broker.Subscribe(common.TopicProxyRestarted, func(p broker.Publication) error {
+
+		url := proxyConf.ReverseProxyURL
+		if url == "" {
+			url = proxyConf.GetDefaultBindURL()
+		}
+
 		cmd.Println("")
-		cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetDefaultBindURL()) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+		cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(url) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")
 
-		if proxyConf.ReverseProxyURL != "" {
-			open(proxyConf.ReverseProxyURL)
-		} else {
-			open(proxyConf.GetDefaultBindURL())
-		}
+		open(url)
 
 		return nil
 	})
@@ -519,13 +521,18 @@ func init() {
 
 	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
+
 	flags.Bool("cli", false, "Do not prompt for install mode, use CLI mode by default")
+
+	flags.Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
 	flags.String("tls_cert_file", "", "TLS cert file path")
 	flags.String("tls_key_file", "", "TLS key file path")
+
 	flags.String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
 	flags.Bool("le_agree", false, "Accept Let's Encrypt EULA")
 	flags.Bool("le_staging", false, "Rather use staging CA entry point")
+	flags.MarkHidden("le_staging")
+
 	flags.String("yaml", "", "Points toward a configuration in YAML format")
 	flags.String("json", "", "Points toward a configuration in JSON format")
 	flags.Bool("exit_after_install", false, "Simply exits main process after the installation is done")
