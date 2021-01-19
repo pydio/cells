@@ -3,13 +3,16 @@ package config
 import (
 	"net/url"
 
+	"github.com/spf13/viper"
+
 	"github.com/pkg/errors"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/x/configx"
 )
 
 var (
-	DefaultBindingSite = &install.ProxyConfig{
+	defaultAlwaysOverride = false
+	DefaultBindingSite    = &install.ProxyConfig{
 		Binds:       []string{"0.0.0.0:8080"},
 		TLSConfig:   &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 		SSLRedirect: false,
@@ -61,6 +64,10 @@ func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 	}
 	if len(configOnly) > 0 && configOnly[0] {
 		return sites, nil
+	} else if defaultAlwaysOverride {
+		// If we did not require only the configs (for management),
+		// defaultAlwaysOverride skips all configs and just returns DefaultBindingSite
+		return []*install.ProxyConfig{DefaultBindingSite}, nil
 	}
 
 	if len(sites) == 0 {
@@ -87,4 +94,57 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 // GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri() string {
 	return "/public"
+}
+
+func EnvOverrideDefaultBind() bool {
+	bind := viper.GetString("bind")
+	if bind == "" {
+		return false
+	}
+	defaultAlwaysOverride = true
+	DefaultBindingSite.Binds = []string{bind}
+	if ext := viper.GetString("external"); ext != "" {
+		DefaultBindingSite.ReverseProxyURL = ext
+	}
+	if noTls := viper.GetBool("no_tls"); noTls {
+		DefaultBindingSite.TLSConfig = nil
+	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_cert_key"); tlsCert != "" && tlsKey != "" {
+		DefaultBindingSite.TLSConfig = &install.ProxyConfig_Certificate{Certificate: &install.TLSCertificate{
+			CertFile: tlsCert,
+			KeyFile:  tlsKey,
+		}}
+	} else if leEmail, leAgree := viper.GetString("le_email"), viper.GetBool("le_agree"); leEmail != "" && leAgree {
+		le := &install.TLSLetsEncrypt{
+			Email:      leEmail,
+			AcceptEULA: leAgree,
+		}
+		if viper.GetBool("le_staging") {
+			le.StagingCA = true
+		}
+		DefaultBindingSite.TLSConfig = &install.ProxyConfig_LetsEncrypt{LetsEncrypt: le}
+	}
+	return true
+}
+
+func DefaultBindOverrideToFlags() (flags []string) {
+	if !defaultAlwaysOverride {
+		return
+	}
+	flags = append(flags, "--bind", viper.GetString("bind"))
+	if ext := viper.GetString("external"); ext != "" {
+		flags = append(flags, "--external", ext)
+	}
+	if noTls := viper.GetBool("no_tls"); noTls {
+		flags = append(flags, "--no_tls")
+	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_cert_key"); tlsCert != "" && tlsKey != "" {
+		flags = append(flags, "--tls_cert_file", tlsCert)
+		flags = append(flags, "--tls_key_file", tlsKey)
+	} else if leEmail, leAgree := viper.GetString("le_email"), viper.GetBool("le_agree"); leEmail != "" && leAgree {
+		flags = append(flags, "--le_email", leEmail)
+		flags = append(flags, "--le_agree")
+		if viper.GetBool("le_staging") {
+			flags = append(flags, "--le_staging")
+		}
+	}
+	return
 }

@@ -229,6 +229,15 @@ ENVIRONMENT
 			allServices = s
 		}
 
+		if replaced := config.EnvOverrideDefaultBind(); replaced {
+			// Bind sites are replaced by flags/env values - warn that it will take precedence
+			if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !IsFork {
+				fmt.Println("*****************************************************************")
+				fmt.Println("* " + promptui.IconWarn + " Dynamic bind flag detected, overriding any configured sites *")
+				fmt.Println("*****************************************************************")
+			}
+		}
+
 		initServices()
 
 		return nil
@@ -311,29 +320,41 @@ ENVIRONMENT
 }
 
 func init() {
+	// Flags for selecting / filtering services
+	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
+	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
+
+	// Registry / Broker Flags
 	StartCmd.Flags().String("registry", "nats", "Registry used to manage services (currently nats only)")
 	StartCmd.Flags().String("registry_address", ":4222", "Registry connection address")
 	StartCmd.Flags().String("registry_cluster_address", "", "Registry cluster address")
 	StartCmd.Flags().String("registry_cluster_routes", "", "Registry cluster routes")
-
 	StartCmd.Flags().String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
 	StartCmd.Flags().String("broker_address", ":4222", "Nats broker port")
-
 	StartCmd.Flags().String("transport", "grpc", "Transport protocol for RPC")
 	StartCmd.Flags().String("transport_address", ":4222", "Transport protocol port")
 	StartCmd.Flags().String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
-
-	StartCmd.Flags().String("log", "info", "Sets the log level mode")
 	StartCmd.Flags().String("grpc_cert", "", "Certificates used for communication via grpc")
 	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
+
+	// Other internal flags
+	StartCmd.Flags().String("log", "info", "Sets the log level mode")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
-
-	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
-	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
 	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
+
+	// Additional Flags
+	StartCmd.Flags().String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	StartCmd.Flags().String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	StartCmd.Flags().Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
+	StartCmd.Flags().String("tls_cert_file", "", "TLS cert file path")
+	StartCmd.Flags().String("tls_key_file", "", "TLS key file path")
+	StartCmd.Flags().String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
+	StartCmd.Flags().Bool("le_agree", false, "Accept Let's Encrypt EULA")
+	StartCmd.Flags().Bool("le_staging", false, "Rather use staging CA entry point")
+	StartCmd.Flags().MarkHidden("le_staging")
 
 	StartCmd.Flags().MarkHidden("broker")
 	StartCmd.Flags().MarkHidden("registry")

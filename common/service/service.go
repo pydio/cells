@@ -91,6 +91,10 @@ func buildForkStartParams(name string) []string {
 		params = append(params, "--enable_pprof")
 	}
 	params = append(params, name)
+	bindFlags := config.DefaultBindOverrideToFlags()
+	if len(bindFlags) > 0 {
+		params = append(params, bindFlags...)
+	}
 	return params
 }
 
