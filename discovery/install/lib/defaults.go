@@ -30,6 +30,10 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 )
 
+var (
+	PartialDefaultConfig *install.InstallConfig
+)
+
 // MergeWithDefaultConfig merges a parsed config (from yaml or json) with missing fields
 // values from Default config.
 func MergeWithDefaultConfig(conf *install.InstallConfig) error {
@@ -61,6 +65,10 @@ func MergeWithDefaultConfig(conf *install.InstallConfig) error {
 
 // GenerateDefaultConfig creates InstallConfig with default values
 func GenerateDefaultConfig() *install.InstallConfig {
+
+	if PartialDefaultConfig != nil {
+		return PartialDefaultConfig
+	}
 
 	c := &install.InstallConfig{}
 	c.DbConnectionType = "tcp"

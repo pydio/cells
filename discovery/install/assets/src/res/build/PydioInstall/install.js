@@ -118,9 +118,22 @@ var renderCheckbox = function renderCheckbox(_ref3) {
     });
 };
 
-var renderRadioGroup = function renderRadioGroup(_ref4) {
+var renderInvertCheckbox = function renderInvertCheckbox(_ref4) {
     var input = _ref4.input,
-        rest = _objectWithoutProperties(_ref4, ['input']);
+        label = _ref4.label;
+    return _react2.default.createElement(_materialUi.Checkbox, {
+        label: label,
+        labelStyle: { lineHeight: '15px' },
+        checked: input.value ? false : true,
+        onCheck: function onCheck(e, v) {
+            input.onChange(!v);
+        }
+    });
+};
+
+var renderRadioGroup = function renderRadioGroup(_ref5) {
+    var input = _ref5.input,
+        rest = _objectWithoutProperties(_ref5, ['input']);
 
     return _react2.default.createElement(_materialUi.RadioButtonGroup, _extends({}, input, rest, {
         valueSelected: input.value,
@@ -130,15 +143,15 @@ var renderRadioGroup = function renderRadioGroup(_ref4) {
     }));
 };
 
-var renderSelectField = function renderSelectField(_ref5) {
-    var input = _ref5.input,
-        label = _ref5.label,
-        floatingLabel = _ref5.floatingLabel,
-        _ref5$meta = _ref5.meta,
-        touched = _ref5$meta.touched,
-        error = _ref5$meta.error,
-        children = _ref5.children,
-        custom = _objectWithoutProperties(_ref5, ['input', 'label', 'floatingLabel', 'meta', 'children']);
+var renderSelectField = function renderSelectField(_ref6) {
+    var input = _ref6.input,
+        label = _ref6.label,
+        floatingLabel = _ref6.floatingLabel,
+        _ref6$meta = _ref6.meta,
+        touched = _ref6$meta.touched,
+        error = _ref6$meta.error,
+        children = _ref6.children,
+        custom = _objectWithoutProperties(_ref6, ['input', 'label', 'floatingLabel', 'meta', 'children']);
 
     return _react2.default.createElement(_materialUi.SelectField, _extends({
         fullWidth: true,
@@ -209,6 +222,9 @@ var InstallForm = function (_React$Component) {
 
         api.getInstall().then(function (values) {
             props.load(values.config);
+            if (values.config && values.config.dbUseDefaults) {
+                _this.setState({ dbUseDefaultsToggle: true });
+            }
         });
         api.getAgreement().then(function (resp) {
             _this.setState({ agreementText: resp.Text });
@@ -706,6 +722,9 @@ var InstallForm = function (_React$Component) {
             if (additionalStep) {
                 steps.push(additionalStep);
             }
+            var _props$dbConfig = this.props.dbConfig,
+                dbConfig = _props$dbConfig === undefined ? {} : _props$dbConfig;
+            var dbUseDefaultsToggle = this.state.dbUseDefaultsToggle;
 
             var tablesFound = dbCheckSuccess && dbCheckSuccess.tablesFound;
             steps.push(_react2.default.createElement(
@@ -727,20 +746,45 @@ var InstallForm = function (_React$Component) {
                             null,
                             this.t('database.title')
                         ),
-                        this.t('database.legend'),
-                        ' ',
-                        _react2.default.createElement(
+                        dbUseDefaultsToggle && _react2.default.createElement(
+                            'div',
+                            null,
+                            _react2.default.createElement(
+                                'p',
+                                null,
+                                this.t('database.useDefaultsSet')
+                            ),
+                            _react2.default.createElement(_reduxForm.Field, { name: 'dbUseDefaults', component: renderInvertCheckbox, label: _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    this.t('database.forceConfigure'),
+                                    ' ',
+                                    _react2.default.createElement(
+                                        'span',
+                                        { style: { fontWeight: 500 } },
+                                        this.t('database.legend.bold'),
+                                        '.'
+                                    )
+                                ) })
+                        ),
+                        !dbUseDefaultsToggle && _react2.default.createElement(
                             'span',
-                            { style: { fontWeight: 500 } },
-                            this.t('database.legend.bold'),
-                            '.'
+                            null,
+                            this.t('database.legend'),
+                            ' ',
+                            _react2.default.createElement(
+                                'span',
+                                { style: { fontWeight: 500 } },
+                                this.t('database.legend.bold'),
+                                '.'
+                            )
                         ),
                         dbCheckError && _react2.default.createElement(
                             'div',
                             { style: { color: '#E53935', paddingTop: 10, fontWeight: 500 } },
                             dbCheckError
                         ),
-                        _react2.default.createElement(
+                        (!dbUseDefaultsToggle || !dbConfig.dbUseDefaults) && _react2.default.createElement(
                             'div',
                             { style: flexContainer },
                             _react2.default.createElement(
@@ -1218,7 +1262,7 @@ InstallForm = (0, _reduxForm.reduxForm)({
 var selector = (0, _reduxForm.formValueSelector)('install'); // <-- same as form name
 InstallForm = (0, _reactRedux.connect)(function (state) {
     var dbConnectionType = selector(state, 'dbConnectionType');
-    var dbConfig = selector(state, 'dbConnectionType', 'dbManualDSN', 'dbSocketFile', 'dbSocketName', 'dbSocketUser', 'dbTCPHostname', 'dbTCPName', 'dbTCPPort', 'dbTCPUser', 'dbTCPPassword', 'dbSocketPassword');
+    var dbConfig = selector(state, 'dbConnectionType', 'dbManualDSN', 'dbSocketFile', 'dbSocketName', 'dbSocketUser', 'dbTCPHostname', 'dbTCPName', 'dbTCPPort', 'dbTCPUser', 'dbTCPPassword', 'dbSocketPassword', 'dbUseDefaults');
     var initialChecks = selector(state, 'CheckResults');
     var licenseRequired = selector(state, 'licenseRequired');
     var licenseString = selector(state, 'licenseString');

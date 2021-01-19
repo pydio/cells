@@ -94,6 +94,9 @@ export default class InstallInstallConfig {
             if (data.hasOwnProperty('dbManualDSN')) {
                 obj['dbManualDSN'] = ApiClient.convertToType(data['dbManualDSN'], 'String');
             }
+            if (data.hasOwnProperty('dbUseDefaults')) {
+                obj['dbUseDefaults'] = ApiClient.convertToType(data['dbUseDefaults'], 'Boolean');
+            }
             if (data.hasOwnProperty('dsName')) {
                 obj['dsName'] = ApiClient.convertToType(data['dsName'], 'String');
             }
@@ -218,6 +221,10 @@ export default class InstallInstallConfig {
     * @member {String} dbManualDSN
     */
     dbManualDSN = undefined;
+    /**
+    * @member {Boolean} dbUseDefaults
+    */
+    dbUseDefaults = undefined;
     /**
     * @member {String} dsName
     */

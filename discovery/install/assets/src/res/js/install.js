@@ -55,6 +55,17 @@ const renderCheckbox = ({input, label}) => (
   />
 );
 
+const renderInvertCheckbox = ({input, label}) => (
+  <Checkbox
+    label={label}
+    labelStyle={{lineHeight: '15px'}}
+    checked={input.value ? false : true}
+    onCheck={(e, v) => {
+        input.onChange(!v)
+    }}
+  />
+);
+
 const renderRadioGroup = ({input, ...rest}) => (
   <RadioButtonGroup
     {...input}
@@ -112,6 +123,9 @@ class InstallForm extends React.Component {
         // Initial load
         api.getInstall().then((values) => {
             props.load(values.config)
+            if(values.config && values.config.dbUseDefaults) {
+                this.setState({dbUseDefaultsToggle: true})
+            }
         });
         api.getAgreement().then((resp) => {
             this.setState({agreementText: resp.Text});
@@ -463,7 +477,8 @@ class InstallForm extends React.Component {
         if(additionalStep){
             steps.push(additionalStep);
         }
-
+        const {dbConfig = {}} = this.props
+        const {dbUseDefaultsToggle} = this.state
         const tablesFound = dbCheckSuccess && dbCheckSuccess.tablesFound;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
@@ -471,10 +486,23 @@ class InstallForm extends React.Component {
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
                         <h3>{this.t('database.title')}</h3>
-                        {this.t('database.legend')} <span style={{fontWeight: 500}}>{this.t('database.legend.bold')}.</span>
-                        {dbCheckError &&
-                            <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
+
+                        {dbUseDefaultsToggle &&
+                        <div>
+                            <p>{this.t('database.useDefaultsSet')}</p>
+                            <Field name="dbUseDefaults" component={renderInvertCheckbox} label={<span>{this.t('database.forceConfigure')} <span style={{fontWeight: 500}}>{this.t('database.legend.bold')}.</span></span>}/>
+                        </div>
                         }
+                        {!dbUseDefaultsToggle &&
+                        <span>
+                            {this.t('database.legend')} <span style={{fontWeight: 500}}>{this.t('database.legend.bold')}.</span>
+                        </span>
+                        }
+                        {dbCheckError &&
+                        <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
+                        }
+
+                        {(!dbUseDefaultsToggle || !dbConfig.dbUseDefaults) &&
                         <div style={flexContainer}>
                             <Field name="dbConnectionType" component={renderSelectField}>
                                 <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.tcp')} />
@@ -513,6 +541,8 @@ class InstallForm extends React.Component {
                                 </div>
                             )}
                         </div>
+                        }
+
                         {tablesFound &&
                             <div style={{marginTop: 40, display: 'flex'}}>
                                 <div>
@@ -791,7 +821,7 @@ InstallForm = reduxForm({
 const selector = formValueSelector('install'); // <-- same as form name
 InstallForm = connect(state => {
     const dbConnectionType = selector(state, 'dbConnectionType');
-    const dbConfig = selector(state, 'dbConnectionType', 'dbManualDSN', 'dbSocketFile', 'dbSocketName', 'dbSocketUser', 'dbTCPHostname', 'dbTCPName', 'dbTCPPort', 'dbTCPUser', 'dbTCPPassword', 'dbSocketPassword');
+    const dbConfig = selector(state, 'dbConnectionType', 'dbManualDSN', 'dbSocketFile', 'dbSocketName', 'dbSocketUser', 'dbTCPHostname', 'dbTCPName', 'dbTCPPort', 'dbTCPUser', 'dbTCPPassword', 'dbSocketPassword', 'dbUseDefaults');
     const initialChecks = selector(state, 'CheckResults');
     const licenseRequired = selector(state, 'licenseRequired');
     const licenseString = selector(state, 'licenseString');

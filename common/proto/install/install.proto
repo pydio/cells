@@ -16,6 +16,8 @@ message InstallConfig {
     string dbSocketUser = 9;
     string dbSocketPassword = 10;
     string dbManualDSN = 11;
+    bool   dbUseDefaults = 37;
+
     string dsName = 12;
     string dsPort = 13;
     string dsType = 15;

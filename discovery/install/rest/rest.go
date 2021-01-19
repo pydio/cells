@@ -59,7 +59,13 @@ func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Respons
 		service.RestError500(req, rsp, err)
 		return
 	}
-	result := lib.PerformCheck(ctx, input.Name, input.Config)
+
+	installConfig := input.GetConfig()
+	if installConfig.DbUseDefaults {
+		reloadDbDefaults(installConfig)
+	}
+
+	result := lib.PerformCheck(ctx, input.Name, installConfig)
 	rsp.WriteEntity(&install.PerformCheckResponse{Result: result})
 
 }
@@ -75,8 +81,12 @@ func (h *Handler) GetAgreement(req *restful.Request, rsp *restful.Response) {
 func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
+	// Create a copy of default config without any db passwords
+	defaultConfig := *lib.GenerateDefaultConfig()
+	defaultConfig.DbTCPPassword = ""
+	defaultConfig.DbSocketPassword = ""
 	response := &install.GetDefaultsResponse{
-		Config: lib.GenerateDefaultConfig(),
+		Config: &defaultConfig,
 	}
 	log.Logger(ctx).Debug("Received Install.Get request", zap.Any("response", response))
 	rsp.WriteEntity(response)
@@ -98,7 +108,11 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
 
 	response := &install.InstallResponse{}
-	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	installConfig := input.GetConfig()
+	if installConfig.DbUseDefaults {
+		reloadDbDefaults(installConfig)
+	}
+	if er := lib.Install(ctx, installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		h.eventManager.Publish("install", event)
 	}); er != nil {
 		h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
@@ -122,4 +136,22 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 // InstallEvents
 func (h *Handler) InstallEvents(req *restful.Request, rsp *restful.Response) {
 	h.eventManager.SubscriptionHandler(rsp.ResponseWriter, req.Request)
+}
+
+func reloadDbDefaults(config *install.InstallConfig) {
+	defaultConfig := lib.GenerateDefaultConfig()
+	config.DbManualDSN = defaultConfig.DbManualDSN
+	config.DbConnectionType = defaultConfig.DbConnectionType
+
+	config.DbSocketFile = defaultConfig.DbSocketFile
+	config.DbSocketName = defaultConfig.DbSocketName
+	config.DbSocketUser = defaultConfig.DbSocketUser
+	config.DbSocketPassword = defaultConfig.DbSocketPassword
+
+	config.DbTCPPassword = defaultConfig.DbTCPPassword
+	config.DbTCPHostname = defaultConfig.DbTCPHostname
+	config.DbTCPName = defaultConfig.DbTCPName
+	config.DbTCPPort = defaultConfig.DbTCPPort
+	config.DbTCPUser = defaultConfig.DbTCPUser
+
 }

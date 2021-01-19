@@ -159,6 +159,13 @@ func installFromConf() (*install.InstallConfig, error) {
 	if installConf.FrontendLogin == "" {
 		// only proxy conf => return and launch browser install server
 		fmt.Println("FrontendLogin not specified in conf, starting browser-based installation")
+		// Make a copy (including defaults => including FrontendLogin) and store it as Partial
+		i := *installConf
+		err = lib.MergeWithDefaultConfig(&i)
+		if err != nil {
+			return nil, err
+		}
+		lib.PartialDefaultConfig = &i
 		return installConf, nil
 	}
 

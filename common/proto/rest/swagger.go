@@ -4609,6 +4609,10 @@ var SwaggerJson = `{
         "dbManualDSN": {
           "type": "string"
         },
+        "dbUseDefaults": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "dsName": {
           "type": "string"
         },
