@@ -139,19 +139,14 @@ AUTOMATED PROVISIONING
 
 ENVIRONMENT
 
-  1. Flag mapping
-
   All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
   For example :
   $ ` + os.Args[0] + ` configure --bind :9876
   is equivalent to 
   $ export CELLS_BIND=":9876"; ` + os.Args[0] + ` configure
 
-  2. Exceptions
-
   For backward compatibility reasons, the --cli, --yaml and --json  flags do not respect the above rule (this might evolve in the 3.x version).
   They are respectively equivalent to CELLS_INSTALL_CLI, CELLS_INSTALL_YAML and CELLS_INSTALL_JSON ENV vars.
-  
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
