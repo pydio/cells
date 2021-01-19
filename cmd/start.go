@@ -99,9 +99,9 @@ ENVIRONMENT
 
   All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
   For example :
-  $ ./cells start --grpc_external 54545
+  $ ` + os.Args[0] + ` start --grpc_external 54545
   is equivalent to 
-  $ export CELLS_GRPC_EXTERNAL=54545; ./cells start
+  $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
 
   2. Working Directories 
 
