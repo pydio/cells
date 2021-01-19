@@ -114,17 +114,17 @@ WORKING DIRECTORIES
 
   You can customize the storage locations with the following ENV variables : 
   
-   - CELLS_WORKING_DIR : replace the whole standard application dir
-   - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
-   - CELLS_LOG_DIR : replace the location for storing logs (default CELLS_WORKING_DIR/logs)
-   - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services) 
+   - CELLS_WORKING_DIR: replace the whole standard application dir
+   - CELLS_DATA_DIR: replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
+   - CELLS_LOG_DIR: replace the location for storing logs (default CELLS_WORKING_DIR/logs)
+   - CELLS_SERVICES_DIR: replace location for services-specific data (default CELLS_WORKING_DIR/services) 
 
 LOGS LEVEL
 
   By default, logs are outputted in console format at the Info level. You can set the --log flag or set the 
   CELLS_LOGS_LEVEL environment variable to one of the following values:
-   - debug, info, error : logs are written in console format with the according level
-   - production : logs are written in json format, to be used with a log aggregator tool.
+   - debug, info, error: logs are written in console format with the according level
+   - production: logs are written in json format, to be used with a log aggregator tool.
 
 SERVICES DISCOVERY
 

@@ -95,7 +95,7 @@ EXAMPLES
 
 ENVIRONMENT
 
-  1. Flags mapping
+  1. Flag mapping
 
   All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
   For example :
@@ -103,18 +103,18 @@ ENVIRONMENT
   is equivalent to 
   $ export CELLS_GRPC_EXTERNAL=54545; ./cells start
 
-  2. Working Directories :
+  2. Working Directories 
 
-  - CELLS_WORKING_DIR : replace the whole standard application dir
-  - CELLS_DATA_DIR : replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
-  - CELLS_LOG_DIR : replace the location for storing logs (default CELLS_WORKING_DIR/logs)
-  - CELLS_SERVICES_DIR : replace location for services-specific data (default CELLS_WORKING_DIR/services)
+  - CELLS_WORKING_DIR: replace the whole standard application dir
+  - CELLS_DATA_DIR: replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
+  - CELLS_LOG_DIR: replace the location for storing logs (default CELLS_WORKING_DIR/logs)
+  - CELLS_SERVICES_DIR: replace location for services-specific data (default CELLS_WORKING_DIR/services)
 
-  3. Other
+  3. Others
 
-  - CELLS_CACHES_HARD_LIMIT : raise memory used by internal caches (in MB, default is 8)
-  - CELLS_UPDATE_HTTP_PROXY : if your server uses a client proxy to access outside world, this can be set to query update server.
-  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY : Golang-specific environment variables to configure a client proxy all external http calls.   
+  - CELLS_CACHES_HARD_LIMIT: raise memory used by internal caches (in MB, default is 8)
+  - CELLS_UPDATE_HTTP_PROXY: if your server uses a client proxy to access outside world, this can be set to query update server.
+  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: Golang-specific environment variables to configure a client proxy for all external http calls.   
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 
