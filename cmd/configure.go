@@ -135,7 +135,18 @@ COMMAND-LINE INSTALLER
 AUTOMATED PROVISIONING
 
   For automated, non-interactive installation, you can pass a YAML or a JSON config file that contains all necessary 
-  information, please refer to the documentation on https://pydio.com .
+  information, please refer to the documentation on https://pydio.com
+
+ENVIRONMENT
+
+  All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
+  For example :
+  $ ` + os.Args[0] + ` configure --bind :9876
+  is equivalent to 
+  $ export CELLS_BIND=":9876"; ` + os.Args[0] + ` configure
+
+  For backward compatibility reasons, the --cli, --yaml and --json  flags do not respect the above rule (this might evolve in the 3.x version).
+  They are respectively equivalent to CELLS_INSTALL_CLI, CELLS_INSTALL_YAML and CELLS_INSTALL_JSON ENV vars.
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
