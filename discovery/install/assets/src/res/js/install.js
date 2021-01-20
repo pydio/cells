@@ -442,7 +442,7 @@ class InstallForm extends React.Component {
                             {!licCheckPassed &&
                                 <div>
                                     {this.t('license.required')} <a href={"mailto:services@pydio.com"}>services@pydio.com</a>.
-                                    <Field name="licenseString" component={renderTextField} floatingLabel={this.t('license.fieldLabel')} label={this.t('license.fieldLegend')} />
+                                    <Field name="licenseString" component={renderTextField} floatingLabel={this.t('license.fieldLabel')} label={this.t('license.fieldLegend')} multiLine={true} rowsMax={15}/>
                                 </div>
                             }
                         </div>

@@ -666,7 +666,7 @@ var InstallForm = function (_React$Component) {
                                     'services@pydio.com'
                                 ),
                                 '.',
-                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: this.t('license.fieldLabel'), label: this.t('license.fieldLegend') })
+                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: this.t('license.fieldLabel'), label: this.t('license.fieldLegend'), multiLine: true, rowsMax: 15 })
                             )
                         ),
                         _react2.default.createElement(
