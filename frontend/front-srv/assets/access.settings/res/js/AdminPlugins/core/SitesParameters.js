@@ -43,12 +43,16 @@ class SitesParameters extends React.Component {
     }
 
     componentDidMount(){
-        const {pydio} = this.props;
-        const loader = Loader.getInstance(pydio);
-        loader.loadSites().then(data => data.Sites || []).then(sites => {
-            this.setState({sites})
-        });
-        this.loadValues();
+        const {pydio, type} = this.props;
+        if(type === 'sites') {
+            const loader = Loader.getInstance(pydio);
+            loader.loadSites().then(data => data.Sites || []).then(sites => {
+                this.setState({sites})
+            });
+        }
+        if(type === 'externals'){
+            this.loadValues();
+        }
     }
 
     loadValues(){
@@ -88,7 +92,7 @@ class SitesParameters extends React.Component {
     }
 
     render(){
-        const {muiTheme, m} = this.props;
+        const {muiTheme, m, type} = this.props;
         const {sites, shareConfig, mailerConfig, mailDirty, shareDirty} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
         const hStyle = adminStyles.body.block.headerFull;
@@ -116,72 +120,92 @@ class SitesParameters extends React.Component {
         })
         const completeValues = Object.keys(urls).map(k => {return {text:k, value:k}});
 
-        return (
-            <div>
-                <div style={hStyle}>{m('sites.title')}</div>
-                <div style={{padding: '8px 16px 2px'}}>
-                    <div className={"form-legend"}>{m('sites.mailer.url')}{mailDirty && " " + m('sites.enter-to-save')}</div>
-                    <AutoComplete
-                        {...ModernStyles.textField}
-                        hintText={defaultSite || m('sites.no-defaults')}
-                        dataSource={completeValues}
-                        filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
-                        fullWidth={true}
-                        openOnFocus={true}
-                        onUpdateInput={() => {this.setState({mailDirty:true})}}
-                        searchText={mailerConfig.url || ''}
-                        onNewRequest={(v) => {this.onNewRequest('mailer',v)}}
-                    />
-                </div>
-                <div style={{padding: '0 16px 16px'}}>
-                    <div className={"form-legend"}>{m('sites.links.url')}{shareDirty && " " + m('sites.enter-to-save')}</div>
-                    <AutoComplete
-                        {...ModernStyles.textField}
-                        hintText={defaultSite || m('sites.no-defaults')}
-                        dataSource={completeValues}
-                        filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
-                        fullWidth={true}
-                        openOnFocus={true}
-                        onUpdateInput={() => {this.setState({shareDirty:true})}}
-                        searchText={shareConfig.url || ''}
-                        onNewRequest={(v) => {this.onNewRequest('share', v)}}
-                    />
-                </div>
-                <Subheader style={{...hStyle, borderTop:hStyle.borderBottom}}>{m('sites.configs.title')}</Subheader>
-                <div style={{padding:16, paddingBottom: 8}} className={"form-legend"}>{m('sites.configs.command')}</div>
-                <div style={{backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3}}>
-                    <table style={{width: '100%'}}>
-                        <tr>
-                            <th style={styles.th}>{m('sites.column.bind')}</th>
-                            <th style={styles.th}>{m('sites.column.tls')}</th>
-                            <th style={styles.th}>{m('sites.column.external')}</th>
-                        </tr>
-                        {sites.map(s => {
-                            let tls;
-                            if(s.LetsEncrypt) {
-                                tls = m('sites.configs.tls.letsencrypt')
-                            } else if(s.SelfSigned) {
-                                tls = m('sites.configs.tls.self')
-                            } else if(s.Certificate) {
-                                tls = m('sites.configs.tls.certificate')
-                            } else {
-                                tls = m('sites.configs.tls.notls')
-                                if(s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
-                                    tls = m('sites.configs.tls.notls-reverse')
+        if(type === 'sites') {
+            return (
+                <div>
+                    <div style={hStyle}>{m('sites.title')}</div>
+
+                    <div style={{padding:'8px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details')}}/>
+                    <div style={{padding:'8px 16px'}} className={"form-legend"}>{m('sites.detected.sites')}</div>
+
+                    <div style={{backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3}}>
+                        <table style={{width: '100%'}}>
+                            <tr>
+                                <th style={styles.th}>{m('sites.column.bind')}</th>
+                                <th style={styles.th}>{m('sites.column.tls')}</th>
+                                <th style={styles.th}>{m('sites.column.external')}</th>
+                            </tr>
+                            {sites.map(s => {
+                                let tls;
+                                if(s.LetsEncrypt) {
+                                    tls = m('sites.configs.tls.letsencrypt')
+                                } else if(s.SelfSigned) {
+                                    tls = m('sites.configs.tls.self')
+                                } else if(s.Certificate) {
+                                    tls = m('sites.configs.tls.certificate')
+                                } else {
+                                    tls = m('sites.configs.tls.notls')
+                                    if(s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
+                                        tls = m('sites.configs.tls.notls-reverse')
+                                    }
                                 }
-                            }
-                            return (
-                                <tr>
-                                    <td style={styles.td}>{s.Binds.join(', ')}</td>
-                                    <td style={styles.td}>{tls}</td>
-                                    <td style={styles.td}>{s.ReverseProxyURL || "-"}</td>
-                                </tr>
-                            )
-                        })}
-                    </table>
+                                return (
+                                    <tr>
+                                        <td style={styles.td}>{s.Binds.join(', ')}</td>
+                                        <td style={styles.td}>{tls}</td>
+                                        <td style={styles.td}>{s.ReverseProxyURL || "-"}</td>
+                                    </tr>
+                                )
+                            })}
+                        </table>
+                    </div>
+
+                    <div style={{padding:'8px 16px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html:m('sites.details.note')}}/>
                 </div>
-            </div>
-        )
+            )
+
+        } else {
+
+            return (
+                <div>
+                    <div style={hStyle}>{m('sites.externals')}</div>
+
+                    <div style={{padding: '8px 16px 2px'}}>
+
+                        <div style={{paddingBottom:8, fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html: m('sites.externals.details')}}/>
+
+                        <div className={"form-legend"}>{m('sites.mailer.url')}{mailDirty && " " + m('sites.enter-to-save')}</div>
+                        <AutoComplete
+                            {...ModernStyles.textField}
+                            hintText={defaultSite || m('sites.no-defaults')}
+                            dataSource={completeValues}
+                            filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
+                            fullWidth={true}
+                            openOnFocus={true}
+                            onUpdateInput={() => {this.setState({mailDirty:true})}}
+                            searchText={mailerConfig.url || ''}
+                            onNewRequest={(v) => {this.onNewRequest('mailer',v)}}
+                        />
+                    </div>
+                    <div style={{padding: '0 16px 16px'}}>
+                        <div className={"form-legend"}>{m('sites.links.url')}{shareDirty && " " + m('sites.enter-to-save')}</div>
+                        <AutoComplete
+                            {...ModernStyles.textField}
+                            hintText={defaultSite || m('sites.no-defaults')}
+                            dataSource={completeValues}
+                            filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
+                            fullWidth={true}
+                            openOnFocus={true}
+                            onUpdateInput={() => {this.setState({shareDirty:true})}}
+                            searchText={shareConfig.url || ''}
+                            onNewRequest={(v) => {this.onNewRequest('share', v)}}
+                        />
+                    </div>
+
+                </div>
+            )
+
+        }
     }
 
 }

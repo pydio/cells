@@ -289,7 +289,7 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.bottom = additionalPanes.bottom.slice();
         }
         if (pluginId === 'core.pydio') {
-            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio, m: this.context.getMessage }));
+            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { type: "sites", pydio: pydio, m: this.context.getMessage }), _react2['default'].createElement(_SitesParameters2['default'], { type: "externals", pydio: pydio, m: this.context.getMessage }));
         }
 
         var doc = documentation;

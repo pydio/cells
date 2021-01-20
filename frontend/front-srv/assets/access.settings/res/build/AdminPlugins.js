@@ -55093,7 +55093,7 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.bottom = additionalPanes.bottom.slice();
         }
         if (pluginId === 'core.pydio') {
-            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { pydio: pydio, m: this.context.getMessage }));
+            addPanes.bottom.push(_react2['default'].createElement(_SitesParameters2['default'], { type: "sites", pydio: pydio, m: this.context.getMessage }), _react2['default'].createElement(_SitesParameters2['default'], { type: "externals", pydio: pydio, m: this.context.getMessage }));
         }
 
         var doc = documentation;
@@ -55956,15 +55956,21 @@ var SitesParameters = (function (_React$Component) {
         value: function componentDidMount() {
             var _this = this;
 
-            var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var type = _props.type;
 
-            var loader = _Loader2['default'].getInstance(pydio);
-            loader.loadSites().then(function (data) {
-                return data.Sites || [];
-            }).then(function (sites) {
-                _this.setState({ sites: sites });
-            });
-            this.loadValues();
+            if (type === 'sites') {
+                var loader = _Loader2['default'].getInstance(pydio);
+                loader.loadSites().then(function (data) {
+                    return data.Sites || [];
+                }).then(function (sites) {
+                    _this.setState({ sites: sites });
+                });
+            }
+            if (type === 'externals') {
+                this.loadValues();
+            }
         }
     }, {
         key: 'loadValues',
@@ -56027,9 +56033,10 @@ var SitesParameters = (function (_React$Component) {
         value: function render() {
             var _this5 = this;
 
-            var _props = this.props;
-            var muiTheme = _props.muiTheme;
-            var m = _props.m;
+            var _props2 = this.props;
+            var muiTheme = _props2.muiTheme;
+            var m = _props2.m;
+            var type = _props2.type;
             var _state3 = this.state;
             var sites = _state3.sites;
             var shareConfig = _state3.shareConfig;
@@ -56065,138 +56072,149 @@ var SitesParameters = (function (_React$Component) {
                 return { text: k, value: k };
             });
 
-            return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
+            if (type === 'sites') {
+                return _react2['default'].createElement(
                     'div',
-                    { style: hStyle },
-                    m('sites.title')
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '8px 16px 2px' } },
+                    null,
                     _react2['default'].createElement(
                         'div',
-                        { className: "form-legend" },
-                        m('sites.mailer.url'),
-                        mailDirty && " " + m('sites.enter-to-save')
+                        { style: hStyle },
+                        m('sites.title')
                     ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
-                        hintText: defaultSite || m('sites.no-defaults'),
-                        dataSource: completeValues,
-                        filter: function (searchText, key) {
-                            return searchText === '' || key.indexOf(searchText) === 0;
-                        },
-                        fullWidth: true,
-                        openOnFocus: true,
-                        onUpdateInput: function () {
-                            _this5.setState({ mailDirty: true });
-                        },
-                        searchText: mailerConfig.url || '',
-                        onNewRequest: function (v) {
-                            _this5.onNewRequest('mailer', v);
-                        }
-                    }))
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '0 16px 16px' } },
+                    _react2['default'].createElement('div', { style: { padding: '8px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal' }, className: "form-legend", dangerouslySetInnerHTML: { __html: m('sites.details') } }),
                     _react2['default'].createElement(
                         'div',
-                        { className: "form-legend" },
-                        m('sites.links.url'),
-                        shareDirty && " " + m('sites.enter-to-save')
+                        { style: { padding: '8px 16px' }, className: "form-legend" },
+                        m('sites.detected.sites')
                     ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
-                        hintText: defaultSite || m('sites.no-defaults'),
-                        dataSource: completeValues,
-                        filter: function (searchText, key) {
-                            return searchText === '' || key.indexOf(searchText) === 0;
-                        },
-                        fullWidth: true,
-                        openOnFocus: true,
-                        onUpdateInput: function () {
-                            _this5.setState({ shareDirty: true });
-                        },
-                        searchText: shareConfig.url || '',
-                        onNewRequest: function (v) {
-                            _this5.onNewRequest('share', v);
-                        }
-                    }))
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Subheader,
-                    { style: _extends({}, hStyle, { borderTop: hStyle.borderBottom }) },
-                    m('sites.configs.title')
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 16, paddingBottom: 8 }, className: "form-legend" },
-                    m('sites.configs.command')
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3 } },
                     _react2['default'].createElement(
-                        'table',
-                        { style: { width: '100%' } },
+                        'div',
+                        { style: { backgroundColor: 'rgb(245 245 245)', margin: '0 16px 16px', borderRadius: 3 } },
                         _react2['default'].createElement(
-                            'tr',
-                            null,
+                            'table',
+                            { style: { width: '100%' } },
                             _react2['default'].createElement(
-                                'th',
-                                { style: styles.th },
-                                m('sites.column.bind')
-                            ),
-                            _react2['default'].createElement(
-                                'th',
-                                { style: styles.th },
-                                m('sites.column.tls')
-                            ),
-                            _react2['default'].createElement(
-                                'th',
-                                { style: styles.th },
-                                m('sites.column.external')
-                            )
-                        ),
-                        sites.map(function (s) {
-                            var tls = undefined;
-                            if (s.LetsEncrypt) {
-                                tls = m('sites.configs.tls.letsencrypt');
-                            } else if (s.SelfSigned) {
-                                tls = m('sites.configs.tls.self');
-                            } else if (s.Certificate) {
-                                tls = m('sites.configs.tls.certificate');
-                            } else {
-                                tls = m('sites.configs.tls.notls');
-                                if (s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
-                                    tls = m('sites.configs.tls.notls-reverse');
-                                }
-                            }
-                            return _react2['default'].createElement(
                                 'tr',
                                 null,
                                 _react2['default'].createElement(
-                                    'td',
-                                    { style: styles.td },
-                                    s.Binds.join(', ')
+                                    'th',
+                                    { style: styles.th },
+                                    m('sites.column.bind')
                                 ),
                                 _react2['default'].createElement(
-                                    'td',
-                                    { style: styles.td },
-                                    tls
+                                    'th',
+                                    { style: styles.th },
+                                    m('sites.column.tls')
                                 ),
                                 _react2['default'].createElement(
-                                    'td',
-                                    { style: styles.td },
-                                    s.ReverseProxyURL || "-"
+                                    'th',
+                                    { style: styles.th },
+                                    m('sites.column.external')
                                 )
-                            );
-                        })
+                            ),
+                            sites.map(function (s) {
+                                var tls = undefined;
+                                if (s.LetsEncrypt) {
+                                    tls = m('sites.configs.tls.letsencrypt');
+                                } else if (s.SelfSigned) {
+                                    tls = m('sites.configs.tls.self');
+                                } else if (s.Certificate) {
+                                    tls = m('sites.configs.tls.certificate');
+                                } else {
+                                    tls = m('sites.configs.tls.notls');
+                                    if (s.ReverseProxyURL && s.ReverseProxyURL.indexOf('https://') === 0) {
+                                        tls = m('sites.configs.tls.notls-reverse');
+                                    }
+                                }
+                                return _react2['default'].createElement(
+                                    'tr',
+                                    null,
+                                    _react2['default'].createElement(
+                                        'td',
+                                        { style: styles.td },
+                                        s.Binds.join(', ')
+                                    ),
+                                    _react2['default'].createElement(
+                                        'td',
+                                        { style: styles.td },
+                                        tls
+                                    ),
+                                    _react2['default'].createElement(
+                                        'td',
+                                        { style: styles.td },
+                                        s.ReverseProxyURL || "-"
+                                    )
+                                );
+                            })
+                        )
+                    ),
+                    _react2['default'].createElement('div', { style: { padding: '8px 16px 16px', fontSize: 12, color: 'inherit', fontWeight: 'normal' }, className: "form-legend", dangerouslySetInnerHTML: { __html: m('sites.details.note') } })
+                );
+            } else {
+
+                return _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: hStyle },
+                        m('sites.externals')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '8px 16px 2px' } },
+                        _react2['default'].createElement('div', { style: { paddingBottom: 8, fontSize: 12, color: 'inherit', fontWeight: 'normal' }, className: "form-legend", dangerouslySetInnerHTML: { __html: m('sites.externals.details') } }),
+                        _react2['default'].createElement(
+                            'div',
+                            { className: "form-legend" },
+                            m('sites.mailer.url'),
+                            mailDirty && " " + m('sites.enter-to-save')
+                        ),
+                        _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
+                            hintText: defaultSite || m('sites.no-defaults'),
+                            dataSource: completeValues,
+                            filter: function (searchText, key) {
+                                return searchText === '' || key.indexOf(searchText) === 0;
+                            },
+                            fullWidth: true,
+                            openOnFocus: true,
+                            onUpdateInput: function () {
+                                _this5.setState({ mailDirty: true });
+                            },
+                            searchText: mailerConfig.url || '',
+                            onNewRequest: function (v) {
+                                _this5.onNewRequest('mailer', v);
+                            }
+                        }))
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '0 16px 16px' } },
+                        _react2['default'].createElement(
+                            'div',
+                            { className: "form-legend" },
+                            m('sites.links.url'),
+                            shareDirty && " " + m('sites.enter-to-save')
+                        ),
+                        _react2['default'].createElement(_materialUi.AutoComplete, _extends({}, ModernStyles.textField, {
+                            hintText: defaultSite || m('sites.no-defaults'),
+                            dataSource: completeValues,
+                            filter: function (searchText, key) {
+                                return searchText === '' || key.indexOf(searchText) === 0;
+                            },
+                            fullWidth: true,
+                            openOnFocus: true,
+                            onUpdateInput: function () {
+                                _this5.setState({ shareDirty: true });
+                            },
+                            searchText: shareConfig.url || '',
+                            onNewRequest: function (v) {
+                                _this5.onNewRequest('share', v);
+                            }
+                        }))
                     )
-                )
-            );
+                );
+            }
         }
     }]);
 
