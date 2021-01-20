@@ -1779,13 +1779,25 @@
     "other": "Chargement de la bibliothèque d'envoi de courriel..."
   },
   "sites.title": {
-    "other": "Sites et URLs"
+    "other": "Sites"
+  },
+  "sites.externals": {
+    "other": "URLs externes"
+  },
+  "sites.details": {
+    "other": "<div>\nLes sites définissent comment Cells se connecte aux interfaces réseau et quels accès sont exposés à l'extérieur.\nUtilisez ‘<i>./cells configure sites</i>’ pour gérer les sites à partir de la ligne de commande.\n<br/><br/>\nChaque site a les paramètres suivants :\n\n<ol>\n<li>1. <u>Bind(s)</u>: une ou plusieurs [ip/hostname:port] auxquelles le serveur web va être lié.</li>\n<li>2. <u>Paramètres TLS</u>: configuration TLS pour le support HTTPS.</li>\n<li>3. <u>URL externe</u>: l'URL que vous communiquez aux utilisateurs finaux. Elle peut différer de votre Bind si l'application est derrière un reverse proxy, ou par exemple à l'intérieur d'un conteneur (avec mapping des ports).</li>\n<li>4. <u>Mode Maintenance</u> [On|Off]: affiche une page de maintenance sur cet adresse, bien que Cells soit en cours d'exécution.</li>\n</ol></div>"
+  },
+  "sites.details.note": {
+    "other": "<div><i>Notes complémentaires</i>\n<ol>\n<li>1. Quand aucun site n'est défini, Cells utilise une valeur par défaut (https://0.0.0:8080 avec certificat auto-signé).</li>\n<li>2. Les sites peuvent être écrasés à l'exécution en utilisant le flag « —bind» ou la variable d'environnement « CELLS_BIND».\n</li>\n</ol></div>"
+  },
+  "sites.externals.details": {
+    "other": "<div>\nCells a besoin d'une URL publique pour certaines fonctionnalités. Le logiciel essaiera d'utiliser la valeur la plus appropriée en fonction de votre configuration. <br/><br/>Par exemple :\n<ul>\n<li>&bull; Si un site unique est défini et qu'il a une URL externe, c'est probablement la bonne.</li>\n<li>&bull; Lorsque plusieurs sites sont définis, vous pouvez vouloir forcer qu'une seule URL soit utilisée pour toutes les communications externes.</li>\n<li>&bull; Si aucune URL externe n'est détectée, le Bind interne sera utilisé. Dans ce cas, vous ne voulez probablement pas envoyer une IP privée (ou 0.0.0.0:port…) à l'extérieur.</li>\n</ul>\n\n<br/>\nLes champs ci-dessous montrent les valeurs détectées. Sélectionnez ou entrez une valeur personnalisée, puis appuyez sur Entrée pour sauvegarder.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL externe utilisée pour les liens dans les e-mails"
+    "other": "URL utilisée pour créer des liens dans les e-mails"
   },
   "sites.links.url": {
-    "other": "Forcer l'URL des liens publics"
+    "other": "URL utilisée pour construire les liens publics"
   },
   "sites.no-defaults": {
     "other": "Pas de valeur par défaut"
@@ -1793,8 +1805,8 @@
   "sites.enter-to-save": {
     "other": "(appuyez sur Entrée pour sauvegarder)"
   },
-  "sites.configs.title": {
-    "other": "Sites actuellement définis"
+  "sites.detected.sites": {
+    "other": "Sites actuellement détectés"
   },
   "sites.configs.command": {
     "other": "Utilisez la commande './cells config sites' pour éditer les sites."
