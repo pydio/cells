@@ -29,6 +29,12 @@
   "database.installDetected.retry": {
     "other": "retry with new value"
   },
+  "database.useDefaultsSet": {
+    "other": "A default database is already configured, just click next to validate connection."
+  },
+  "database.forceConfigure": {
+    "other": "Configure another database."
+  },
   "admin.stepLabel": {
     "other": "Admin User"
   },

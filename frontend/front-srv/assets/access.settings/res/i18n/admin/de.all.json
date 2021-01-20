@@ -1779,13 +1779,25 @@
     "other": "Mailer-Bibliothek wird geladen..."
   },
   "sites.title": {
-    "other": "Websites und URLs"
+    "other": "Sites"
+  },
+  "sites.externals": {
+    "other": "Externe URL"
+  },
+  "sites.details": {
+    "other": "<div>\nSites definieren, wie Cells an Netzwerkschnittstellen binden und wie es der Außenwelt ausgesetzt ist.\nVerwenden Sie \"<i>./cells configure sites </i>\", um Ihre Sites über die Befehlszeile zu verwalten.\n<br/> <br/>\nJede Site hat die folgenden Parameter:\n\n<ol>\n<li> 1. <u> Bind(s) </u>: eine oder mehrere [IP/Hostname:Port], an die der interne Webserver angeschlossen werden soll. </li>\n<li> 2. <u> TLS Settings </u>: TLS-Konfiguration für die HTTPS-Unterstützung. </li>\n<li> 3. <u> External URL </u>: Die URL, die Sie Ihren Endbenutzern mitteilen. Sie kann von Ihrer Bindungsadresse abweichen, normalerweise, wenn sich die App hinter einem Reverse-Proxy oder in einem Container mit Portzuordnung befindet. </li>\n<li> 4. <u> Maintenance Mode </u> [Ein | Aus]: Zeigt eine Wartungsseite auf diesem Endpunkt an, obwohl Cells ausgeführt wird. </li>\n</ol></div>"
+  },
+  "sites.details.note": {
+    "other": "<div><i> Zusätzliche Hinweise</i>\n<ol>\n<li>1. Wenn keine Sites definiert sind, verwenden Cells eine Standardkonfiguration (https://0.0.0.0:8080 mit Selbstsignatur).</li>\n<li>2. Sites können zur Laufzeit mit dem Flag \"--bind\" oder der Umgebungsvariablen \"CELLS_BIND\" überschrieben werden.\n</li>\n</ol></div>"
+  },
+  "sites.externals.details": {
+    "other": "<div>\nCells verwendet in einigen Funktionen die erkannte öffentliche URL. Es wird versucht, den für Ihre Konfiguration am besten geeigneten Wert zu verwenden. <br/> <br/> Zum Beispiel:\n<ul>\n<li>&bull; Wenn eine eindeutige Site definiert ist und eine externe URL hat, ist diese wahrscheinlich korrekt. </li>\n<li>&bull; Wenn mehrere Sites definiert sind, möchten Sie möglicherweise eine eindeutige URL erzwingen, die für die gesamte externe Kommunikation verwendet wird. </li>\n<li>&bull; Wenn keine externe URL erkannt wird, wird auf die interne Bindungsadresse zurückgegriffen. In diesem Fall möchten Sie wahrscheinlich keine private IP (oder 0.0.0.0:port...) an die Außenwelt senden. </li></ul>\n\n<br/>\nDie Felder unten zeigen die erkannten Werte. Wählen Sie diese Option, um einen benutzerdefinierten Wert zu bearbeiten oder einzugeben, und drücken Sie zum Speichern die Eingabetaste.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "Externe URL für Links in E-Mails"
+    "other": "URL zum Erstellen von Links in E-Mails"
   },
   "sites.links.url": {
-    "other": "URL für Freigabe-Links erzwingen"
+    "other": "URL zum Erstellen öffentlicher Links"
   },
   "sites.no-defaults": {
     "other": "Keine Standardeinstellungen festgelegt"
@@ -1793,8 +1805,8 @@
   "sites.enter-to-save": {
     "other": "(Drücken Sie die Eingabetaste, um zu speichern)"
   },
-  "sites.configs.title": {
-    "other": "Derzeit definierte Sites"
+  "sites.detected.sites": {
+    "other": "Derzeit erkannte Sites"
   },
   "sites.configs.command": {
     "other": "Verwenden Sie den Befehl './cells config sites', um Sites zu bearbeiten."
