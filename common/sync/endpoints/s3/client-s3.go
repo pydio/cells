@@ -687,15 +687,6 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	doneCh := make(chan struct{})
 	wConn := make(chan model.WatchConnectionInfo)
 
-	// wait for doneChan to close the other channels
-	go func() {
-		<-doneChan
-		close(doneCh)
-		close(eventChan)
-		close(errorChan)
-		close(wConn)
-	}()
-
 	// Start listening on all bucket events.
 	eventsCh := c.Mc.ListenBucketNotification(c.Bucket, c.getFullPath(recursivePath), "", events, doneCh)
 
@@ -708,10 +699,16 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	// wait for events to occur and sent them through the eventChan and errorChan
 	go func() {
-		//defer wo.Close()
+		defer func() {
+			close(doneCh)
+			close(eventChan)
+			close(errorChan)
+			close(wConn)
+		}()
+
 		for {
 			select {
-			case <-doneCh:
+			case <-doneChan:
 				return
 			case notificationInfo := <-eventsCh:
 				if notificationInfo.Err != nil {
