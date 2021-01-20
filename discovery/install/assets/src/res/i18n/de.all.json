@@ -207,7 +207,7 @@
     "other": "S3 API-Schlüssel"
   },
   "form.dsS3ApiKey.legend": {
-    "other": "Schlüssel zum Verbinden mit S3"
+    "other": "Schlüssel zum Verbinden"
   },
   "form.dsS3ApiSecret.label": {
     "other": "S3 Api Secret"

@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "Esta característica avanzada le permite decidir si este enlace es visible para otros usuarios cuando ven este archivo, y si pueden editar sus propiedades. Por defecto, los enlaces que crea sólo son visibles para usted. Puede transferir la propiedad de enlace permitiendo que un otro usuario lo edite."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
   }
 }

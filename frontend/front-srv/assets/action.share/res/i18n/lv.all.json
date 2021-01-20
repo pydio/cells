@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "Šī paplašinātā funkcija ļauj izvēlēties vai saite ir redzama citiem lietotājiem kad tier skatās failu un vai tie var labot tās opcijas. Pēc noklusējuma izveidotās saites ir redzamas tikai Jums. Jūs varat pārcelt saites piederību to ļaujot labot citiem."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "Nav saglabātas visas izmaiņas, vai vēlaties aizvērt?"
   }
 }
