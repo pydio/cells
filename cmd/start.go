@@ -97,11 +97,13 @@ ENVIRONMENT
 
   1. Flag mapping
 
-  All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
+  All the command flags documented below are mapped to their associated ENV var, using upper case and CELLS_ prefix.
   For example :
   $ ` + os.Args[0] + ` start --grpc_external 54545
   is equivalent to 
   $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
+
+  [Note]: the only exception is the --log flag, that is mapped to CELLS_LOG_LEVEL instead.
 
   2. Working Directories 
 
@@ -356,6 +358,7 @@ func init() {
 	StartCmd.Flags().Bool("le_staging", false, "Rather use staging CA entry point")
 	StartCmd.Flags().MarkHidden("le_staging")
 
+	StartCmd.Flags().MarkHidden("fork")
 	StartCmd.Flags().MarkHidden("broker")
 	StartCmd.Flags().MarkHidden("registry")
 
