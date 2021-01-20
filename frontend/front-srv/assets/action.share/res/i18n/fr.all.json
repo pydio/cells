@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si ce lien est visible par les autres utilisateurs qui ont accès à ce fichier, et s'ils peuvent modifier ses propriétés. Par défaut, les liens que vous créez ne sont visibles que par vous. Vous pouvez transférer la propriété d'un lien en donnant le droit à un autre utilisateur de le modifier."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
   }
 }

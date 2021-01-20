@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định xem liên kết này có hiển thị với những người dùng khác khi họ xem tệp này hay không và liệu họ có thể chỉnh sửa các thuộc tính của nó hay không. Theo mặc định, các liên kết mà bạn tạo chỉ hiện thị với bạn. Bạn có thể chuyển quyền sở hữu liên kết bằng cách cho phép người dùng khác chỉnh sửa nó."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
   }
 }
