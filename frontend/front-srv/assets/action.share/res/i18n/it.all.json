@@ -904,5 +904,8 @@
   },
   "link.visibility.advanced": {
     "other": "Questa funzionalità avanzata permette di decidere se il link viene mostrato agli altri utenti che vedono questo file, e se essi possono modificare le sue proprietà. Di default, i link vengono mostrati solo all'utente che li ha creati, ma è possibile trasferire la proprietà di un link per consentire a un altro utente di modificarlo."
+  },
+  "dialog.close.confirm.unsaved": {
+    "other": "Ci sono modifiche non salvate. Sicuro di voler uscire?"
   }
 }
