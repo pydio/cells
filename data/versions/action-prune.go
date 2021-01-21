@@ -54,6 +54,7 @@ func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescr
 		Description:     "Apply versioning policies to keep only a limited number of versions.",
 		SummaryTemplate: "",
 		HasForm:         false,
+		IsInternal:      true,
 	}
 }
 

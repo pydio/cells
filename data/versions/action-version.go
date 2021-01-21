@@ -53,6 +53,7 @@ func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription
 		SummaryTemplate:  "",
 		HasForm:          false,
 		InputDescription: "Single node from event",
+		IsInternal:       true,
 	}
 }
 
