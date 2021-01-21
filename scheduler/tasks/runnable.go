@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -97,9 +98,9 @@ func (r *Runnable) CreateChild(parentPath string, chainIndex int, action *jobs.A
 
 // Dispatch gets next runnable from Action and enqueues it to the Queue
 // Todo - Check that done channel is working correctly with chained actions
-func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, actions []*jobs.Action, Queue chan Runnable) {
+func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, aa []*jobs.Action, Queue chan Runnable) {
 
-	for i, action := range actions {
+	for i, action := range aa {
 		act := action
 		chainIndex := i
 		messagesOutput := make(chan jobs.ActionMessage)
@@ -111,18 +112,26 @@ func (r *Runnable) Dispatch(parentPath string, input jobs.ActionMessage, actions
 				close(done)
 				close(failedFilter)
 			}()
+			enqueued := 0
 			for {
 				select {
 				case message := <-messagesOutput:
 					// Build runnable and enqueue
 					m := proto.Clone(&message).(*jobs.ActionMessage)
+					enqueued++
 					Queue <- r.CreateChild(parentPath, chainIndex, act, *m)
 				case failed := <-failedFilter:
 					// Filter failed
 					if len(act.FailedFilterActions) > 0 {
+						enqueued++
 						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), failed, act.FailedFilterActions, Queue)
 					}
 				case <-done:
+					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
+					if parentPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
+						log.Logger(r.Context).Warn("Nothing has started at root level : spawn a fake action just to update status.")
+						Queue <- r.CreateChild(parentPath, chainIndex, &jobs.Action{ID: actions.IgnoredActionName}, jobs.ActionMessage{})
+					}
 					return
 				}
 			}
