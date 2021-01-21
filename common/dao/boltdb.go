@@ -23,7 +23,7 @@ package dao
 import (
 	"time"
 
-	bolt "github.com/etcd-io/bbolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 type boltdb struct {

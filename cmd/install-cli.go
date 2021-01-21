@@ -32,7 +32,7 @@ import (
 	json "github.com/pydio/cells/x/jsonx"
 
 	p "github.com/manifoldco/promptui"
-	_ "github.com/mholt/caddy/caddyhttp"
+	_ "github.com/caddyserver/caddy/caddyhttp"
 
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/discovery/install/lib"

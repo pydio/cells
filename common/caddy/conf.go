@@ -11,7 +11,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/discovery/install/assets"
 
-	"github.com/mholt/caddy/caddytls"
+	"github.com/caddyserver/caddy/caddytls"
 	"github.com/pydio/cells/common/crypto/providers"
 	"github.com/pydio/cells/common/proto/install"
 )

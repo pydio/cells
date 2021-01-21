@@ -34,7 +34,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/manifoldco/promptui"
-	_ "github.com/mholt/caddy/caddyhttp"
+	_ "github.com/caddyserver/caddy/caddyhttp"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 

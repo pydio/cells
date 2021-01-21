@@ -26,7 +26,7 @@ import (
 	"os"
 	"time"
 
-	bolt "github.com/etcd-io/bbolt"
+	bolt "go.etcd.io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/protobuf/proto"
 	"go.uber.org/zap"

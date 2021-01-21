@@ -30,7 +30,7 @@ import (
 
 	json "github.com/pydio/cells/x/jsonx"
 
-	bolt "github.com/etcd-io/bbolt"
+	bolt "go.etcd.io/bbolt"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/x/configx"

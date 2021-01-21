@@ -27,7 +27,7 @@ import (
 
 	json "github.com/pydio/cells/x/jsonx"
 
-	bolt "github.com/etcd-io/bbolt"
+	bolt "go.etcd.io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 

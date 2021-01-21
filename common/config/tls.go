@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/mholt/caddy/caddytls"
+	"github.com/caddyserver/caddy/caddytls"
 	"github.com/pydio/cells/x/configx"
 )
 

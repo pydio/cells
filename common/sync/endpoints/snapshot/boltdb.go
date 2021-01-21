@@ -39,7 +39,7 @@ import (
 
 	"github.com/pborman/uuid"
 
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 

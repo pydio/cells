@@ -7,7 +7,7 @@ type brokerwrap struct {
 	opts Options
 }
 
-// NewBroker wraps a standard broker but prevents it from disconnecting while there still is a service running
+// NewBroker 包装一个标准的 broker，并当一个服务在运行的时候组织其关闭连接。
 func NewBroker(b broker.Broker, opts ...Option) broker.Broker {
 	return &brokerwrap{b, newOptions(opts...)}
 }

@@ -32,8 +32,8 @@ import (
 	"os/user"
 	"path/filepath"
 
-	caddyutils "github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddytls"
+	caddyutils "github.com/caddyserver/caddy"
+	"github.com/caddyserver/caddy/caddytls"
 	"github.com/micro/go-micro/server"
 
 	"github.com/pborman/uuid"

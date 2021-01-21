@@ -141,7 +141,7 @@ github.com/pydio/cells/vendor/github.com/mattn/go-colorable                     
 github.com/pydio/cells/vendor/github.com/mattn/go-isatty                                         MIT License (95%)
 github.com/pydio/cells/vendor/github.com/mattn/go-runewidth                                      MIT License
 github.com/pydio/cells/vendor/github.com/mattn/go-sqlite3                                        MIT License
-github.com/pydio/cells/vendor/github.com/mholt/caddy                                             Apache License 2.0
+github.com/pydio/cells/vendor/github.com/caddyserver/caddy                                             Apache License 2.0
 github.com/pydio/cells/vendor/github.com/micro/cli                                               MIT License
 github.com/pydio/cells/vendor/github.com/micro/go-api                                            Apache License 2.0 (96%)
 github.com/pydio/cells/vendor/github.com/micro/go-config                                         Apache License 2.0 (96%)
