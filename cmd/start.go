@@ -348,8 +348,8 @@ func init() {
 	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
 
 	// Additional Flags
-	StartCmd.Flags().String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	StartCmd.Flags().String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	StartCmd.Flags().String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	StartCmd.Flags().String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT] exposed to the outside")
 	StartCmd.Flags().Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
 	StartCmd.Flags().String("tls_cert_file", "", "TLS cert file path")
 	StartCmd.Flags().String("tls_key_file", "", "TLS key file path")
