@@ -867,7 +867,7 @@ var LogTable = (function (_React$Component) {
                         );
                     }
                     return dateString;
-                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], hideSmall: true, renderCell: function renderCell(row) {
+                }, style: { width: 130, padding: 12 }, headerStyle: { width: 130, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], hideSmall: true, renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
                 }, style: { width: 130, padding: '12px 0' }, headerStyle: { width: 130, padding: '12px 0' } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'], renderCell: function renderCell(row) {
                     var msg = row.Msg;
