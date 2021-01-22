@@ -137,6 +137,8 @@ ENVIRONMENT
 			viper.BindPFlag(key, flag)
 		})
 
+		initLogLevel()
+
 		nats.Init()
 
 		metrics.Init()

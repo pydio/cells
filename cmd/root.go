@@ -183,7 +183,6 @@ func skipCoreInit() bool {
 func init() {
 	cobra.OnInitialize(
 		initInstallConfig,
-		initLogLevel,
 		initConfig,
 	)
 
