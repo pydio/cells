@@ -136,8 +136,10 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 		return input.WithError(e), e
 	}
 
-	log.TasksLogger(ctx).Info("Sending json+grpc request to " + c.ServiceName + "." + c.MethodName)
-	req := c.Client.NewJsonRequest(jobs.EvaluateFieldStr(ctx, input, c.ServiceName), jobs.EvaluateFieldStr(ctx, input, c.MethodName), &jsonParams)
+	serviceName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
+	methodName := jobs.EvaluateFieldStr(ctx, input, c.MethodName)
+	log.TasksLogger(ctx).Info("Sending json+grpc request to " + serviceName + "." + methodName)
+	req := c.Client.NewJsonRequest(serviceName, methodName, &jsonParams)
 	var response json.RawMessage
 	var opts []client.CallOption
 	if c.Timeout != "" {
