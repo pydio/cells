@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/pydio/cells/discovery/nats"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -30,7 +28,6 @@ DESCRIPTION
 			if replace, ok := replaceKeys[flag.Name]; ok {
 				key = replace
 			}
-			flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
 			viper.BindPFlag(key, flag)
 		})
 

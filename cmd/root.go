@@ -195,16 +195,12 @@ func init() {
 	flags.String("config", "local", "Config")
 	flags.MarkHidden("config")
 
-	replaceKeys := map[string]string{
-		"log":  "logs_level",
-		"fork": "is_fork",
-	}
+	replaceKeys := map[string]string{}
 	flags.VisitAll(func(flag *pflag.Flag) {
 		key := flag.Name
 		if replace, ok := replaceKeys[flag.Name]; ok {
 			key = replace
 		}
-		flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
 		viper.BindPFlag(key, flag)
 	})
 

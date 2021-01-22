@@ -135,7 +135,6 @@ ENVIRONMENT
 			if replace, ok := replaceKeys[flag.Name]; ok {
 				key = replace
 			}
-			//flag.Usage += " [" + strings.ToUpper("$"+EnvPrefixNew+"_"+key) + "]"
 			viper.BindPFlag(key, flag)
 		})
 
