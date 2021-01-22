@@ -40,7 +40,7 @@ var sitesAdd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Add a site for exposing Cells to another address.
+  Add a site for binding Cells to another address.
   See 'sites' command help for more info about Sites management.
 `,
 	Run: func(cmd *cobra.Command, args []string) {

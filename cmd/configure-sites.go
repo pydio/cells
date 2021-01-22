@@ -16,46 +16,46 @@ import (
 
 var sitesCmd = &cobra.Command{
 	Use:   "sites",
-	Short: "Manage sites where application is exposed",
+	Short: "Manage site addresses",
 	Long: `
 DESCRIPTION
   
-  Manage how Cells is binding to network interfaces and how it is exposed to outside world.
-  This is the main tool for listing, editing, adding and removing URLs. Additional sub-commands allow you to directly create/delete sites.
+  Manage how Cells is binding to the local host's network interfaces addresses and accepting traffic coming from external URLs.
+  This is the main tool for listing, editing, adding and removing sites. Additional sub-commands allow you to directly create/delete sites.
   
   Each site has following parameters:
-   1. <Bind Host(s)>: one or more <ip/hostname:port> to hook the internal webserver to. 
+   1. <Bind Addresse(s)>: one or more <ip/hostname:port> to bind Cells to local host's network interfaces addresses. 
    2. <TLS Settings>: TLS configuration for HTTPS support.
-   3. <External URL>: the URL you communicate to your end-users. It can differ from your bind address, 
-      typically if the app is behind a reverse-proxy or inside a container with ports mapping.
+   3. <External URL>: Accept traffic coming from this url and redirect to one of the bind address.
+      Typically if the app is behind a reverse-proxy or inside a container with ports mapping.
    4. <Maintenance Mode> [On|Off]: expose a maintenance page on this endpoint, although Cells is running.
 
 EXAMPLES 
 
   1. Default value (used when no sites is configured)
-    - Bind Host: 0.0.0.0:8080
+    - Bind Address: 0.0.0.0:8080
     - TLS : SelfSigned
     - External URL: [left empty]
   
   2. Provided certificate
-    - Bind Host: 0.0.0.0:8080
+    - Bind Address: 0.0.0.0:8080
     - TLS : Your own key/cert pair
     - External URL: https://share.mydomain.tld
   
   3. Auto-ssl using Let's Encrypt 
-    - Bind Host: share.mydomain.tld:443
+    - Bind Address: share.mydomain.tld:443
     - TLS : LetsEncrypt
-    - External Host: https://share.mydomain.tld
+    - External URL: https://share.mydomain.tld
   
   4. Self Signed
-    - Bind Host: IP:1515         # internal port
+    - Bind Address: IP:1515         # internal port
     - TLS : SelfSigned
-    - External Host: https://IP:8080   # external port mapped by docker
+    - External URL: https://IP:8080   # external port mapped by docker
   
   5. HTTP only
-    - Bind Host: localhost:8080
+    - Bind Address: localhost:8080
     - TLS : Disabled
-    - External Host: http://localhost:8080  # Non-secured local installation
+    - External URL: http://localhost:8080  # Non-secured local installation
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

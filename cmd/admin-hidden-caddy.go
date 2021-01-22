@@ -22,7 +22,7 @@ var sitesCaddy = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Send an event to pydio.gateway.proxy to make it dump the caddy configuration file in the logs.
+  Send an event to pydio.gateway.proxy to make it dump the caddy configuration in the logs.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

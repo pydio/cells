@@ -34,11 +34,11 @@ var userLogin string
 // userDeleteCmd represents the delete command
 var userDeleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Delete a user from the backend",
+	Short: "Delete a user",
 	Long: `
 DESCRIPTION
 
-  Delete a role in backend
+  Delete a user
 
   *WARNING* Policy checks are not yet implemented for the CLI. 
   You might corrupt your existing user and group repository,  

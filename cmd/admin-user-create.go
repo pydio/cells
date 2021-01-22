@@ -47,10 +47,10 @@ DESCRIPTION
 
   Create a user
 
-  Please, note that login are case sensitive: 
+  Please, note that the login is case sensitive: 
   you can create 2 distinct users with login  'User' and 'user'. 
 
-  You can also create a user in a given group by entering a full path to the user
+  You can also create a user in a given group by entering a full path
   (see examples below). 
 
 EXAMPLES
