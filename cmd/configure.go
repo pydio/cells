@@ -374,6 +374,8 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 
 func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
+	initLogLevel()
+
 	// Initialising services
 	nats.Init()
 
