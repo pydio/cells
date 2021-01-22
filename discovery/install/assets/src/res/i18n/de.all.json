@@ -29,6 +29,12 @@
   "database.installDetected.retry": {
     "other": "mit neuem Wert erneut versuchen"
   },
+  "database.useDefaultsSet": {
+    "other": "Eine Standarddatenbank ist bereits konfiguriert. Klicken Sie einfach auf Weiter, um die Verbindung zu überprüfen."
+  },
+  "database.forceConfigure": {
+    "other": "Konfigurieren Sie eine andere Datenbank."
+  },
   "admin.stepLabel": {
     "other": "Admin-Benutzer"
   },

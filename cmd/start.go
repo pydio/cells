@@ -97,11 +97,13 @@ ENVIRONMENT
 
   1. Flag mapping
 
-  All the command flags documented below are mapped to their associated ENV var using upper case and CELLS_ prefix.
+  All the command flags documented below are mapped to their associated ENV var, using upper case and CELLS_ prefix.
   For example :
   $ ` + os.Args[0] + ` start --grpc_external 54545
   is equivalent to 
   $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
+
+  [Note]: the only exception is the --log flag, that is mapped to CELLS_LOG_LEVEL instead.
 
   2. Working Directories 
 
@@ -348,8 +350,8 @@ func init() {
 	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
 
 	// Additional Flags
-	StartCmd.Flags().String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	StartCmd.Flags().String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	StartCmd.Flags().String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	StartCmd.Flags().String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT] exposed to the outside")
 	StartCmd.Flags().Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
 	StartCmd.Flags().String("tls_cert_file", "", "TLS cert file path")
 	StartCmd.Flags().String("tls_key_file", "", "TLS key file path")
@@ -358,6 +360,7 @@ func init() {
 	StartCmd.Flags().Bool("le_staging", false, "Rather use staging CA entry point")
 	StartCmd.Flags().MarkHidden("le_staging")
 
+	StartCmd.Flags().MarkHidden("fork")
 	StartCmd.Flags().MarkHidden("broker")
 	StartCmd.Flags().MarkHidden("registry")
 

@@ -161,13 +161,20 @@ class JobsList extends React.Component {
 
         const userKeys = [...keys];
         // Replace Trigger by Owner
-        userKeys[1] = {
+        userKeys[0] = {
             name:'Owner',
             label:m('job.owner'),
-            style:{width:'15%'},
-            headerStyle:{width:'15%'},
+            style:{width:'10%'},
+            headerStyle:{width:'10%'},
             hideSmall: true
         };
+        userKeys[1] = {
+            name:'Label',
+            label:m('job.label'),
+            style:{width:'45%', fontSize: 15},
+            headerStyle:{width:'45%'},
+            sorter:{type:'string'}
+        }
 
 
         let {system, other} = this.extractRowsInfo(jobs, m);

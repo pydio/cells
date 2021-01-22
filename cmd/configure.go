@@ -530,8 +530,8 @@ func fatalIfError(cmd *cobra.Command, err error) {
 func init() {
 	flags := ConfigureCmd.Flags()
 
-	flags.String("bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.String("external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	flags.String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
 
 	flags.Bool("cli", false, "Do not prompt for install mode, use CLI mode by default")
 

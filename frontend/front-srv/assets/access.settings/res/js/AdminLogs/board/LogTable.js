@@ -199,7 +199,7 @@ class LogTable extends React.Component {
                     return <span style={{display:'flex', alignItems:'center'}}><FontIcon className={"mdi mdi-play-circle-outline"} style={{fontSize: 12, marginRight: 5}}/> {dateString}</span>
                 }
                 return dateString;
-            }, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
+            }, style:{width: 130, padding: 12}, headerStyle:{width: 130, padding: 12}},
             {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 130, padding: '12px 0'}, headerStyle:{width: 130, padding: '12px 0'}},
             {name:'Msg', label:MessageHash['ajxp_admin.logs.message'], renderCell:(row)=>{
                 let msg = row.Msg;

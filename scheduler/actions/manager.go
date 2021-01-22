@@ -21,14 +21,19 @@
 package actions
 
 import (
+	"context"
 	"sync"
 
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+
 	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/proto/jobs"
 )
 
 var (
-	defaultManager *ActionsManager
+	defaultManager    *ActionsManager
+	IgnoredActionName = "$action.internal.ignored$"
 )
 
 // GetActionsManager provides global access to the default action manager.
@@ -53,6 +58,9 @@ func (m *ActionsManager) Register(name string, a Concrete) {
 }
 
 func (m *ActionsManager) ActionById(actionId string) (ConcreteAction, bool) {
+	if actionId == IgnoredActionName {
+		return &ignoredAction{}, true
+	}
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	generator, ok := m.registeredActions[actionId]
@@ -92,4 +100,18 @@ func (m *ActionsManager) LoadActionForm(actionID string) (*forms.Form, error) {
 		}
 	}
 	return nil, errors.NotFound("action.not.found", "cannot find action with ID %s", actionID)
+}
+
+type ignoredAction struct{}
+
+func (i *ignoredAction) GetName() string {
+	return IgnoredActionName
+}
+
+func (i *ignoredAction) Init(_ *jobs.Job, _ client.Client, _ *jobs.Action) error {
+	return nil
+}
+
+func (i *ignoredAction) Run(_ context.Context, _ *RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+	return input, nil
 }

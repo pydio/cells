@@ -95,6 +95,7 @@ func (c *PruneTokensAction) GetDescription(lang ...string) actions.ActionDescrip
 		Description:     "Delete expired and revoked token from internal registry",
 		SummaryTemplate: "",
 		HasForm:         false,
+		IsInternal:      true,
 	}
 }
 

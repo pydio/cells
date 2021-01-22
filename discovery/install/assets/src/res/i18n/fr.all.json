@@ -29,6 +29,12 @@
   "database.installDetected.retry": {
     "other": "réessayer avec une autre base"
   },
+  "database.useDefaultsSet": {
+    "other": "Une base de données par défaut est déjà configurée, cliquez sur \"Suivant\" pour valider la connexion."
+  },
+  "database.forceConfigure": {
+    "other": "Configurer une autre base de données."
+  },
   "admin.stepLabel": {
     "other": "Administrateur"
   },

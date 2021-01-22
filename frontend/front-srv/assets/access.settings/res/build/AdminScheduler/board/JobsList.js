@@ -273,12 +273,19 @@ var JobsList = (function (_React$Component) {
 
             var userKeys = [].concat(keys);
             // Replace Trigger by Owner
-            userKeys[1] = {
+            userKeys[0] = {
                 name: 'Owner',
                 label: m('job.owner'),
-                style: { width: '15%' },
-                headerStyle: { width: '15%' },
+                style: { width: '10%' },
+                headerStyle: { width: '10%' },
                 hideSmall: true
+            };
+            userKeys[1] = {
+                name: 'Label',
+                label: m('job.label'),
+                style: { width: '45%', fontSize: 15 },
+                headerStyle: { width: '45%' },
+                sorter: { type: 'string' }
             };
 
             var _extractRowsInfo = this.extractRowsInfo(jobs, m);

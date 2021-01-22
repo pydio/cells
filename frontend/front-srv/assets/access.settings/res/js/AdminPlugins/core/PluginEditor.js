@@ -245,7 +245,8 @@ let PluginEditor = React.createClass({
         }
         if(pluginId === 'core.pydio'){
             addPanes.bottom.push(
-                <SitesParameters pydio={pydio} m={this.context.getMessage}/>
+                <SitesParameters type={"sites"} pydio={pydio} m={this.context.getMessage}/>,
+                <SitesParameters type={"externals"} pydio={pydio} m={this.context.getMessage}/>
             );
         }
 
