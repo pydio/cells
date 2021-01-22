@@ -325,6 +325,10 @@ func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQ
 		wQ.Uuid = EvaluateFieldStr(ctx, input, wQ.Uuid)
 		wQ.Description = EvaluateFieldStr(ctx, input, wQ.Description)
 		wQ.Slug = EvaluateFieldStr(ctx, input, wQ.Slug)
+		wQ.LastUpdated = EvaluateFieldStr(ctx, input, wQ.LastUpdated)
+		wQ.AttributeName = EvaluateFieldStr(ctx, input, wQ.AttributeName)
+		wQ.AttributeValue = EvaluateFieldStr(ctx, input, wQ.AttributeValue)
+		wQ.HasAttribute = EvaluateFieldStr(ctx, input, wQ.HasAttribute)
 		return wQ
 	} else if aQ, o := singleQuery.(*idm.ACLSingleQuery); o {
 		aQ.NodeIDs = EvaluateFieldStrSlice(ctx, input, aQ.NodeIDs)
