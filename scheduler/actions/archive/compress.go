@@ -174,7 +174,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}
 	// Remove extension
-	base = strings.TrimRight(base, path.Ext(base))
+	base = strings.TrimSuffix(base, "."+format)
 	targetFile := computeTargetName(ctx, c.Router, dir, base, format)
 
 	reader, writer := io.Pipe()
