@@ -45,7 +45,7 @@ var userSetPwdCmd = &cobra.Command{
 	Long: fmt.Sprintf(`
 DESCRIPTION
 
-  Set the password of a given user. 
+  Set a user password. 
   Directly use --password (or -p) to provide a new password, or leave empty to be prompted.
 
 EXAMPLE

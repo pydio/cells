@@ -32,7 +32,7 @@ var DataCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Commands for managing indexed data.
+  Set of commands to manage indexed data.
 
   Data are indexed in the various data sources you may have defined, and aggregated into a unique tree by
   the tree service. This command allows you among others to launch a full re-synchronisation of a given datasource.

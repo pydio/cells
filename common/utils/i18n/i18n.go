@@ -46,6 +46,9 @@ var (
 		"fr":    "Français",
 		"it":    "Italiano",
 		"lv":    "Latv",
+		"ru":    "русский",    // Russian
+		"vi-vn": "Tiếng Việt", // Vietnamese
+		"zh-cn": "简体中文",       // Chinese simplified		
 	}
 
 	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "loading..." message (in English).
@@ -78,10 +81,7 @@ var (
 		"ko":    "한국어",
 		"nl":    "Nederlands",
 		"pt-br": "Português",
-		"ru":    "русский",    // Russian
 		"sv-se": "Svenska",    // Swedish
-		"vi-vn": "Tiếng Việt", // Vietnamese
-		"zh-cn": "简体中文",       // Chinese simplified
 		"zh-tw": "中國傳統的",      // Chinese traditional
 	}
 

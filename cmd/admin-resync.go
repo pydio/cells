@@ -47,7 +47,7 @@ var dataSyncCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Trigger a re-indexation of a given service. 
+  Trigger the re-indexation of a service. 
   This can be currently used for datasource indexes and search engine.
 
 EXAMPLES

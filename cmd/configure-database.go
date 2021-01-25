@@ -31,8 +31,8 @@ var configDatabaseCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Manage database configurations.
-  Each service can be configure to point to its own database. This command provides ways to manage databases.
+  Manage database configuration.
+  Each service can be configured to point to its own database. This command provides ways to manage databases.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

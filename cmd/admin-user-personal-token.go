@@ -26,11 +26,11 @@ var (
 
 var pTokCmd = &cobra.Command{
 	Use:   "token",
-	Short: "Generate a personal token for a given user",
+	Short: "Generate a personal token for a user",
 	Long: `
 DESCRIPTION
 
-  This command generates an authentication token for a specific user. 
+  Generate a personal authentication token for a user. 
 
   Expiration can be either a "hard" limit, by using the -e flag and a golang duration, or a "sliding window" 
   defined in seconds using the -a flag. 

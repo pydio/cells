@@ -41,7 +41,7 @@ DESCRIPTION
 
 SYNTAX
 
-  Configurations are represented by two parameters that you must pass as arguments:
+  Configuration Item is represented by two parameters that you must pass as arguments:
   - serviceName: name of the corresponding service
   - configName: name of the parameter you want to delete
 

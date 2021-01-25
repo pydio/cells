@@ -37,8 +37,8 @@ var listConfigCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Display all configurations registered by the application.
-  Configurations are listed as truple [serviceName, configName, configValue], where config value is json encoded.
+  Display all configuration items registered by the application.
+  Configuration items are listed as truple [serviceName, configName, configValue]. The configuration value is json encoded.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

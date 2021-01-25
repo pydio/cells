@@ -15,7 +15,7 @@ var AdminCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Admin commands allow direct access to Cells data.
+  Set of commands with direct access to Cells data.
 	
   These commands require a running Cells instance. They connect directly to low-level services
   using gRPC connections. They are not authenticated.

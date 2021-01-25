@@ -21,7 +21,7 @@ var sitesDelete = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Remove a site exposing Cells to a given URL, by providing its index.
+  Remove a site binding Cells to an address, by providing its index.
   See 'sites' command help for more info about Sites management.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
