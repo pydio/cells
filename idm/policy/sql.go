@@ -32,10 +32,10 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	manager "github.com/pydio/cells/common/ladon/manager/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/sql/ladon-manager"
 	"github.com/pydio/cells/idm/policy/converter"
 	"github.com/pydio/cells/x/configx"
 )
@@ -43,7 +43,7 @@ import (
 type sqlimpl struct {
 	sql.DAO
 	ladon.Ladon
-	manager.SQLManager
+	ladon_manager.SQLManager
 }
 
 var (
@@ -62,7 +62,7 @@ func (s *sqlimpl) Init(options configx.Values) error {
 
 	// First - Create Ladon package tables
 	db := sqlx.NewDb(s.DB(), s.Driver())
-	manag := manager.NewSQLManager(db, nil)
+	manag := ladon_manager.NewSQLManager(db, nil)
 
 	sql.LockMigratePackage()
 	if _, err := manag.CreateSchemas("", ""); err != nil {
