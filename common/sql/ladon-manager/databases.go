@@ -218,6 +218,6 @@ var Migrations = map[string]Statements{
 		WHERE
 			(subject.has_regex = 0 AND subject.template = ?)
 			OR
-			(subject.has_regex = 1 AND ? REGEXP BINARY CAST(subject.compiled AS binary))`,
+			(subject.has_regex = 1 AND CAST(? AS BINARY) REGEXP BINARY subject.compiled)`,
 	},
 }
