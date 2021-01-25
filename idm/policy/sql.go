@@ -27,12 +27,12 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/ladon"
-	manager "github.com/ory/ladon/manager/sql"
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
+	manager "github.com/pydio/cells/common/ladon/manager/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
