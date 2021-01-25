@@ -21,13 +21,11 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/user"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -43,16 +41,9 @@ import (
 )
 
 var (
-	wg sync.WaitGroup
-
 	FilterStartTags    []string
 	FilterStartExclude []string
 )
-
-type serviceContext struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-}
 
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
@@ -236,7 +227,7 @@ ENVIRONMENT
 			// Bind sites are replaced by flags/env values - warn that it will take precedence
 			if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !IsFork {
 				fmt.Println("*****************************************************************")
-				fmt.Println("* " + promptui.IconWarn + " Dynamic bind flag detected, overriding any configured sites *")
+				fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
 				fmt.Println("*****************************************************************")
 			}
 		}
