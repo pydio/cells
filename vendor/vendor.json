@@ -3944,12 +3944,6 @@
 			"revisionTime": "2018-03-14T09:22:07Z"
 		},
 		{
-			"checksumSHA1": "nkoeuuL7YwsdtvdN0wjYLNE56fc=",
-			"path": "github.com/ory/ladon/manager/sql",
-			"revision": "d963cb9d282b4c5cf55e8da2d5ded91cb1a16eee",
-			"revisionTime": "2018-03-14T09:22:07Z"
-		},
-		{
 			"checksumSHA1": "N3duny+9FrSJJ1hh2hRTq0NsHO8=",
 			"path": "github.com/ory/pagination",
 			"revision": "05947c3e39e20ec964d080560c15368e9a7b9618",
