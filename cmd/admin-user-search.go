@@ -23,7 +23,6 @@ package cmd
 import (
 	"context"
 	"os"
-	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -40,7 +39,7 @@ var userSearchLogin string
 
 var userSearchCmd = &cobra.Command{
 	Use:   "search",
-	Short: "List users",
+	Short: "List all users or search them by login",
 	Long: `
 DESCRIPTION
 
@@ -49,18 +48,12 @@ DESCRIPTION
 EXAMPLES
 
   1. Search a specific user
-  $ ` + os.Args[0] + ` user search -u "user"
+  $ ` + os.Args[0] + ` user search --login "user"
 
-  2. List all users  
-  $ ` + os.Args[0] + ` user search -u "*"	
+  2. List all users (default --login is "*") 
+  $ ` + os.Args[0] + ` user search
 
 `,
-	// PreRunE: func(cmd *cobra.Command, args []string) error {
-	// 	if len(args) == 0 {
-	// 		return fmt.Errorf("Missing argument: please provide at leat one user or group login")
-	// 	}
-	// 	return nil
-	// },
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
@@ -73,7 +66,7 @@ EXAMPLES
 			Login: userSearchLogin,
 		})
 
-		table := tablewriter.NewWriter(os.Stdout)
+		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"Login", "Name", "Is Group", "Profile", "Path", "UUID"}) // "Roles",
 
 		stream, err := client.SearchUser(context.Background(), &idm.SearchUserRequest{
@@ -99,7 +92,6 @@ EXAMPLES
 				continue
 			}
 
-			// isGroup := fmt.Sprintf("%v", response.User.IsGroup)
 			var id, isGroup string
 			if response.User.IsGroup {
 				isGroup = "  X  "
@@ -115,26 +107,11 @@ EXAMPLES
 			}
 			name := response.User.Attributes["displayName"]
 
-			// Useless: most of the role labels are not set
-			// roleLblArr := make([]string, len(response.User.GetRoles()))
-			// for i, role := range response.User.GetRoles() {
-			// 	role.Label == ""{
-			// 		roleLblArr[i] = role.Uuid
-			// 	} else {
-			// 		roleLblArr[i] = role.Label
-			// 	}
-			// }
-			// roles := strings.Join(roleLblArr, ", ")
-
 			table.Append([]string{id, name, isGroup, prof, response.User.GroupPath, response.User.Uuid}) // roles,
 		}
 		cmd.Println(" ")
 
 		table.Render()
-
-		// Workaround the stdout to log wrapper issue to insure the table is correctly rendered
-		xFactor := time.Duration(table.NumLines() * 50)
-		<-time.After(xFactor * time.Millisecond)
 		cmd.Println(" ")
 
 		return nil

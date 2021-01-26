@@ -29,15 +29,12 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/discovery/nats"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -117,16 +114,9 @@ ENVIRONMENT
 			}
 		}
 
-		replaceKeys := map[string]string{
+		bindViperFlags(cmd.Flags(), map[string]string{
 			"log":  "logs_level",
 			"fork": "is_fork",
-		}
-		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-			key := flag.Name
-			if replace, ok := replaceKeys[flag.Name]; ok {
-				key = replace
-			}
-			viper.BindPFlag(key, flag)
 		})
 
 		initLogLevel()
@@ -319,14 +309,9 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
 	// Registry / Broker Flags
-	StartCmd.Flags().String("registry", "nats", "Registry used to manage services (currently nats only)")
-	StartCmd.Flags().String("registry_address", ":4222", "Registry connection address")
-	StartCmd.Flags().String("registry_cluster_address", "", "Registry cluster address")
-	StartCmd.Flags().String("registry_cluster_routes", "", "Registry cluster routes")
-	StartCmd.Flags().String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
-	StartCmd.Flags().String("broker_address", ":4222", "Nats broker port")
-	StartCmd.Flags().String("transport", "grpc", "Transport protocol for RPC")
-	StartCmd.Flags().String("transport_address", ":4222", "Transport protocol port")
+	addRegistryFlags(StartCmd.Flags())
+
+	// Grpc Gateway Flags
 	StartCmd.Flags().String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
 	StartCmd.Flags().String("grpc_cert", "", "Certificates used for communication via grpc")
 	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")

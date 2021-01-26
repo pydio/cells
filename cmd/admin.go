@@ -3,8 +3,6 @@ package cmd
 import (
 	"github.com/pydio/cells/discovery/nats"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 // AdminCmd groups the data manipulation commands
@@ -21,15 +19,8 @@ DESCRIPTION
   using gRPC connections. They are not authenticated.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		replaceKeys := map[string]string{}
 
-		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-			key := flag.Name
-			if replace, ok := replaceKeys[flag.Name]; ok {
-				key = replace
-			}
-			viper.BindPFlag(key, flag)
-		})
+		bindViperFlags(cmd.Flags(), map[string]string{})
 
 		nats.Init()
 
@@ -50,16 +41,6 @@ DESCRIPTION
 }
 
 func init() {
-	AdminCmd.PersistentFlags().String("registry", "nats", "Registry used to manage services (currently nats only)")
-	AdminCmd.PersistentFlags().String("registry_address", ":4222", "Registry connection address")
-	AdminCmd.PersistentFlags().String("registry_cluster_address", "", "Registry cluster address")
-	AdminCmd.PersistentFlags().String("registry_cluster_routes", "", "Registry cluster routes")
-
-	AdminCmd.PersistentFlags().String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
-	AdminCmd.PersistentFlags().String("broker_address", ":4222", "Broker port")
-
-	AdminCmd.PersistentFlags().String("transport", "grpc", "Transport protocol for RPC")
-	AdminCmd.PersistentFlags().String("transport_address", ":4222", "Transport protocol port")
-
+	addRegistryFlags(AdminCmd.PersistentFlags())
 	RootCmd.AddCommand(AdminCmd)
 }

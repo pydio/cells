@@ -28,6 +28,8 @@ import (
 	"text/tabwriter"
 	"text/template"
 
+	"github.com/pydio/cells/discovery/nats"
+
 	micro "github.com/micro/go-micro"
 	"github.com/spf13/cobra"
 
@@ -102,6 +104,12 @@ EXAMPLE
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
+
+		bindViperFlags(cmd.Flags(), map[string]string{})
+
+		nats.Init()
+		// Initialise the default registry
+		handleRegistry()
 
 		plugins.Init(cmd.Context())
 
@@ -210,6 +218,9 @@ func init() {
 	psCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show services description")
 	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
 	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
+
+	addRegistryFlags(psCmd.Flags())
+
 	RootCmd.AddCommand(psCmd)
 }
 

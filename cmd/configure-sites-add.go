@@ -186,7 +186,7 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 		items = append(items, ip.String())
 	}
 	if !hasLocalhost {
-		items = append(items, "localhost", "0.0.0.0")
+		items = append([]string{"0.0.0.0", "localhost"}, items...)
 	}
 	resolveString := "Additional hosts from /etc/hosts..."
 	if !resolveHosts {
@@ -252,23 +252,13 @@ func promptExtURL(site *install.ProxyConfig) error {
 
 func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 
-	/*
-		items := []string{
-			"Provide paths to certificate/key files",
-			"Use Let's Encrypt to automagically generate certificate during installation process",
-			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
-			"Disable TLS (staging environments only, never recommended!)",
-		}
-
-	*/
-
 	selector := p.Select{
-		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
+		Label: "Choose TLS activation mode",
 		Items: []string{
-			"Provide paths to certificate/key files",
-			"Use Let's Encrypt to automagically generate certificate during installation process",
-			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
-			"Disable TLS (staging environments only, never recommended!)",
+			"Self-signed: generate your own locally trusted certificate (recommended behind a reverse proxy)",
+			"Custom Certificate: provide paths to certificate/key files",
+			"Let's Encrypt: automagically generate domain certificates signed by LetsEncrypt Authority",
+			"Disabled: staging environments only (not recommended!)",
 		},
 	}
 	var i int
@@ -280,17 +270,29 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 	enabled = true
 	switch i {
 	case 0:
+
+		site.TLSConfig = &install.ProxyConfig_SelfSigned{
+			SelfSigned: &install.TLSSelfSigned{},
+		}
+
+	case 1:
 		var certFile, keyFile string
 		if site.HasTLS() && site.GetTLSCertificate() != nil {
 			certFile = site.GetTLSCertificate().GetCertFile()
 			keyFile = site.GetTLSCertificate().GetKeyFile()
 		}
-		certPrompt := p.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile}
-		keyPrompt := p.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile}
+		certPrompt := p.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile, Validate: notEmpty}
+		keyPrompt := p.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile, Validate: notEmpty}
 		if certFile, e = certPrompt.Run(); e != nil {
+			if e == p.ErrInterrupt {
+				return promptTLSMode(site)
+			}
 			return
 		}
 		if keyFile, e = keyPrompt.Run(); e != nil {
+			if e == p.ErrInterrupt {
+				return promptTLSMode(site)
+			}
 			return
 		}
 		site.TLSConfig = &install.ProxyConfig_Certificate{
@@ -300,23 +302,27 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 			},
 		}
 
-	case 1:
+	case 2:
 		var certEmail string
 		if site.HasTLS() && site.GetTLSLetsEncrypt() != nil {
 			certEmail = site.GetTLSLetsEncrypt().GetEmail()
 		}
 		mailPrompt := p.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
 		acceptEulaPrompt := p.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
-		useStagingPrompt := p.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
 
 		certMail, e1 := mailPrompt.Run()
 		if e1 != nil {
+			if e1 == p.ErrInterrupt {
+				return promptTLSMode(site)
+			}
 			e = e1
 			return
 		}
-		// TODO validate email
 
 		if val, e1 := acceptEulaPrompt.Run(); e1 != nil {
+			if e1 == p.ErrInterrupt {
+				return promptTLSMode(site)
+			}
 			e = e1
 			return
 		} else if !(val == "Y" || val == "y" || val == "") {
@@ -324,26 +330,27 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 			return
 		}
 
-		useStaging := true
-		if val, e1 := useStagingPrompt.Run(); e1 != nil {
-			e = e1
-			return
-		} else if val == "N" || val == "n" || val == "" {
-			useStaging = false
-		}
+		/*
+			// THIS IS NOT WORKING CURRENTLY
+			useStagingPrompt := p.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
+			useStaging := true
+			if val, e1 := useStagingPrompt.Run(); e1 != nil {
+				if e1 == p.ErrInterrupt {
+					return promptTLSMode(site)
+				}
+				e = e1
+				return
+			} else if val == "N" || val == "n" || val == "" {
+				useStaging = false
+			}
+		*/
 
 		site.TLSConfig = &install.ProxyConfig_LetsEncrypt{
 			LetsEncrypt: &install.TLSLetsEncrypt{
 				Email:      certMail,
 				AcceptEULA: true,
-				StagingCA:  useStaging,
+				StagingCA:  false,
 			},
-		}
-
-	case 2:
-
-		site.TLSConfig = &install.ProxyConfig_SelfSigned{
-			SelfSigned: &install.TLSSelfSigned{},
 		}
 
 	case 3:

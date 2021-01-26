@@ -32,8 +32,6 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/pflag"
-
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
@@ -48,20 +46,12 @@ import (
 	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
-	microregistry "github.com/pydio/cells/common/micro/registry"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/filex"
 	json "github.com/pydio/cells/x/jsonx"
 
-	// All brokers
-	httpbroker "github.com/pydio/cells/common/micro/broker/http"
-	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
-
 	// All registries
-
-	// All transports
-	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 
 	//
 	microconfig "github.com/pydio/go-os/config"
@@ -178,47 +168,6 @@ func skipCoreInit() bool {
 	}
 
 	return false
-}
-
-func init() {
-	cobra.OnInitialize(
-		initInstallConfig,
-		initConfig,
-	)
-
-	initEnvPrefixes()
-	viper.SetEnvPrefix(EnvPrefixNew)
-	viper.AutomaticEnv()
-
-	flags := RootCmd.PersistentFlags()
-
-	flags.String("config", "local", "Config")
-	flags.MarkHidden("config")
-
-	replaceKeys := map[string]string{}
-	flags.VisitAll(func(flag *pflag.Flag) {
-		key := flag.Name
-		if replace, ok := replaceKeys[flag.Name]; ok {
-			key = replace
-		}
-		viper.BindPFlag(key, flag)
-	})
-
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	// Check PrivateIP and setup Advertise
-	initAdvertiseIP()
-
-	ctx, cancel = context.WithCancel(context.Background())
-	defer cancel()
-
-	if err := RootCmd.ExecuteContext(ctx); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
 
 func initInstallConfig() {
@@ -364,14 +313,6 @@ func initLogLevel() {
 	log.Init()
 }
 
-func initServices() {
-	registry.Default.BeforeInit()
-
-	registry.Init()
-
-	registry.Default.AfterInit()
-}
-
 func initAdvertiseIP() {
 	ok, advertise, err := net.DetectHasPrivateIP()
 	if err != nil {
@@ -387,36 +328,6 @@ func initAdvertiseIP() {
 	}
 }
 
-func handleRegistry() {
-
-	switch viper.Get("registry") {
-	case "nats":
-		microregistry.EnableNats()
-	default:
-		log.Fatal("registry not supported - currently only nats is supported")
-	}
-}
-
-func handleBroker() {
-	switch viper.Get("broker") {
-	case "nats":
-		natsbroker.Enable()
-	case "http":
-		httpbroker.Enable()
-	default:
-		log.Fatal("broker not supported")
-	}
-}
-
-func handleTransport() {
-	switch viper.Get("transport") {
-	case "grpc":
-		grpctransport.Enable()
-	default:
-		log.Fatal("transport not supported")
-	}
-}
-
 func initEnvPrefixes() {
 	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
 	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
@@ -428,5 +339,39 @@ func initEnvPrefixes() {
 				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
 			}
 		}
+	}
+}
+
+func init() {
+	cobra.OnInitialize(
+		initInstallConfig,
+		initConfig,
+	)
+
+	initEnvPrefixes()
+	viper.SetEnvPrefix(EnvPrefixNew)
+	viper.AutomaticEnv()
+
+	flags := RootCmd.PersistentFlags()
+
+	flags.String("config", "local", "Config")
+	flags.MarkHidden("config")
+
+	bindViperFlags(flags, map[string]string{})
+
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	// Check PrivateIP and setup Advertise
+	initAdvertiseIP()
+
+	ctx, cancel = context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := RootCmd.ExecuteContext(ctx); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

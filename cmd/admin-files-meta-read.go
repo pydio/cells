@@ -23,8 +23,9 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
+
+	"github.com/manifoldco/promptui"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -74,7 +75,7 @@ EXAMPLE
 
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 
 		response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{
@@ -84,22 +85,21 @@ EXAMPLE
 		})
 
 		if err != nil {
-			log.Fatal("Could not open a stream", err)
+			return err
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
+		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"Name", "Value"})
 
 		for key, value := range response.Node.MetaStore {
-
-			if err != nil {
-				break
-			}
-
 			table.Append([]string{key, value})
 		}
 
+		cmd.Println("")
+		cmd.Println("Listing meta for node " + promptui.Styler(promptui.FGUnderline)(response.GetNode().GetUuid()))
+
 		table.Render()
+		return nil
 	},
 }
 
