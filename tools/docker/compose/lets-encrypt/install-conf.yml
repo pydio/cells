@@ -3,7 +3,7 @@
 
 # WebUI Admin definition
 frontendlogin: admin
-frontendpassword: admin
+frontendpassword: {$CELLS_ADMIN_PWD}
 
 # DB connection
 dbconnectiontype: tcp
@@ -11,4 +11,4 @@ dbtcphostname: mysql
 dbtcpport: 3306
 dbtcpname: cells
 dbtcpuser: pydio
-dbtcppassword: ChangeMe!
+dbtcppassword: {$MYSQL_PYDIO_PWD}

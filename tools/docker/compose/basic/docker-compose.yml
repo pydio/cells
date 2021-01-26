@@ -1,22 +1,20 @@
-version: "3"
+version: '3.7'
 
 services:
 
   cells:
     image: pydio/cells:latest
-    restart: always
+    restart: unless-stopped
     ports: ["8080:8080"]
     environment:
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
     volumes: 
       - cellsdir:/var/cells
       - ./install-conf.yml:/pydio/config/install.yml:ro
-    depends_on:
-      - mysql
 
   mysql:
     image: mysql:5.7
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ChangeMe!
       MYSQL_DATABASE: cells
