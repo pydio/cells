@@ -23,7 +23,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/pydio/cells/common"
@@ -59,23 +58,28 @@ EXAMPLE
 
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
 
-		response, err := client.UpdateNode(context.Background(), &tree.UpdateNodeRequest{
+		_, err := client.UpdateNode(context.Background(), &tree.UpdateNodeRequest{
 			To: &tree.Node{
 				Uuid:      metaPutUUID,
 				MetaStore: map[string]string{metaPutKey: metaPutVal},
 			},
 		})
-		log.Println(response, err)
+		if err == nil {
+			cmd.Println("Successfully updated meta")
+		} else {
+			return err
+		}
+		return nil
 	},
 }
 
 func init() {
 	metaPutCmd.Flags().StringVarP(&metaPutUUID, "uuid", "u", "", "Uuid of the node to update (use 'pydioctl data list' or 'pydioctl data read')")
 	metaPutCmd.Flags().StringVarP(&metaPutKey, "key", "k", "", "Name of the metadata")
-	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "Json-encoded string representing the value")
+	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "*JSON-encoded* string representing the value. Strings must be quoted, eg. '\"custom-value\"'")
 
 	FilesCmd.AddCommand(metaPutCmd)
 }

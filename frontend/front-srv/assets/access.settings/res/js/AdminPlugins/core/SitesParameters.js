@@ -44,12 +44,11 @@ class SitesParameters extends React.Component {
 
     componentDidMount(){
         const {pydio, type} = this.props;
-        if(type === 'sites') {
-            const loader = Loader.getInstance(pydio);
-            loader.loadSites().then(data => data.Sites || []).then(sites => {
-                this.setState({sites})
-            });
-        }
+        const loader = Loader.getInstance(pydio);
+        // Sites must be loaded for both modes
+        loader.loadSites().then(data => data.Sites || []).then(sites => {
+            this.setState({sites})
+        });
         if(type === 'externals'){
             this.loadValues();
         }

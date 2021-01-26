@@ -55960,14 +55960,13 @@ var SitesParameters = (function (_React$Component) {
             var pydio = _props.pydio;
             var type = _props.type;
 
-            if (type === 'sites') {
-                var loader = _Loader2['default'].getInstance(pydio);
-                loader.loadSites().then(function (data) {
-                    return data.Sites || [];
-                }).then(function (sites) {
-                    _this.setState({ sites: sites });
-                });
-            }
+            var loader = _Loader2['default'].getInstance(pydio);
+            // Sites must be loaded for both modes
+            loader.loadSites().then(function (data) {
+                return data.Sites || [];
+            }).then(function (sites) {
+                _this.setState({ sites: sites });
+            });
             if (type === 'externals') {
                 this.loadValues();
             }

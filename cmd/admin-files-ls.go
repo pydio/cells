@@ -22,7 +22,15 @@ package cmd
 
 import (
 	"context"
-	"os"
+	"path"
+	"strings"
+	"time"
+
+	"github.com/manifoldco/promptui"
+
+	"github.com/dustin/go-humanize"
+
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
 
@@ -30,6 +38,13 @@ import (
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	// service "github.com/pydio/cells/common/service/proto"
+)
+
+var (
+	lsPath       string
+	lsRecursive  bool
+	lsShowHidden bool
+	lsShowUuid   bool
 )
 
 var lsCmd = &cobra.Command{
@@ -41,30 +56,68 @@ DESCRIPTION
   List Nodes by querying the tree microservice.
 
  `,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
 		// List all children and move them all
-		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}})
+		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
 		if err != nil {
-			cmd.Println(err)
-			os.Exit(1)
+			return err
 		}
 
-		cmd.Println("Starting to list nodes")
-
+		cmd.Println("")
+		cmd.Println("Listing nodes under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+		table := tablewriter.NewWriter(cmd.OutOrStdout())
+		hh := []string{"Type", "Path", "Size", "Modified"}
+		if lsShowUuid {
+			hh = []string{"Type", "Path", "Uuid", "Size", "Modified"}
+		}
+		table.SetHeader(hh)
+		res := 0
 		defer streamer.Close()
 		for {
-			node, err := streamer.Recv()
+			resp, err := streamer.Recv()
 			if err != nil {
 				break
 			}
-
-			cmd.Println(node)
+			res++
+			node := resp.GetNode()
+			if path.Base(node.GetPath()) == common.PydioSyncHiddenFile && !lsShowHidden {
+				continue
+			}
+			var t, p, s, m string
+			p = strings.TrimLeft(strings.TrimPrefix(node.GetPath(), lsPath), "/")
+			t = "Folder"
+			s = humanize.Bytes(uint64(node.GetSize()))
+			if node.GetSize() == 0 {
+				s = "-"
+			}
+			m = time.Unix(node.GetMTime(), 0).Format("02 Jan 06 15:04")
+			if node.GetMTime() == 0 {
+				m = "-"
+			}
+			if node.IsLeaf() {
+				t = "File"
+			}
+			if lsShowUuid {
+				table.Append([]string{t, p, node.GetUuid(), s, m})
+			} else {
+				table.Append([]string{t, p, s, m})
+			}
 		}
+		if res > 0 {
+			table.Render()
+		} else {
+			cmd.Println("No results")
+		}
+		return nil
 	},
 }
 
 func init() {
+	lsCmd.Flags().StringVarP(&lsPath, "path", "p", "/", "List nodes under given path")
+	lsCmd.Flags().BoolVarP(&lsRecursive, "recursive", "", false, "List nodes recursively")
+	lsCmd.Flags().BoolVarP(&lsShowUuid, "uuid", "", false, "Show UUIDs")
+	lsCmd.Flags().BoolVarP(&lsShowHidden, "hidden", "", false, "Show hidden files (.pydio)")
 	FilesCmd.AddCommand(lsCmd)
 }

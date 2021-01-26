@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"net"
+	"os"
 	"strconv"
 	"strings"
 
@@ -211,6 +213,21 @@ func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyCon
 	if len(args) > 0 && args[0] == "skipConfirm" {
 		return config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
 	}
+	has1024 := false
+	hasLE := false
+	for _, s := range sites {
+		for _, b := range s.Binds {
+			if _, p, e := net.SplitHostPort(b); e == nil {
+				if i, er := strconv.ParseInt(p, 10, 32); er == nil && i < 1024 {
+					has1024 = true
+					break
+				}
+			}
+		}
+		if s.GetLetsEncrypt() != nil {
+			hasLE = true
+		}
+	}
 
 	// Reprint before saving
 	cmd.Println("*************************************************")
@@ -218,6 +235,16 @@ func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyCon
 	cmd.Println("*************************************************")
 	listSites(cmd, sites)
 
+	if has1024 || hasLE {
+		cmd.Println("")
+		cmd.Println(promptui.IconWarn + " WARNING")
+		cmd.Println("Binding to a port below 1024 (typically 80 or 443) requires specific permissions on some OS.")
+		if hasLE {
+			cmd.Println("Note that Let's Encrypt validation protocol requires a temporary access to port 80.")
+		}
+		cmd.Println("On Linux, run (as root user): " + promptui.Styler(promptui.FGBold)("$> setcap 'cap_net_bind_service=+ep' "+os.Args[0]))
+		cmd.Println("")
+	}
 	confirm := promptui.Prompt{Label: "Do you want to save this configuration", IsConfirm: true}
 	if _, e := confirm.Run(); e == nil {
 		e = config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
