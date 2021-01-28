@@ -6,7 +6,6 @@
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
 [![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=3)](https://goreportcard.com/report/github.com/pydio/cells)
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 
@@ -22,7 +21,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following elements are required to compile and run pydio on your machine
 
-- Go language v1.12 or higher (tested with 1.12.x), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
+- Go language v1.13 or higher (tested with latest 1.13, 1.14 & 1.15), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
 - MySQL database 5.6 or higher (or MariaDB equivalent). The new mysql 8 authentication method is supported starting at Cells 1.4.1.
 
 _Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
@@ -46,16 +45,16 @@ To have the environment running, you must also:
 - Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://pydio.com/en/docs/cells/v2/cells-installation) for additional information.
 
 ```sh
-./cells install
+./cells configure
 ```
 
 #### Note on the third party libraries
 
 We still currently manage third party dependencies via the [vendor mechanism](https://github.com/kardianos/govendor): shortly said, we pick up and maintain specific versions of the sources for each dependency we use by copying them in the `vendor/` subfolder. The binary is built using these codes.
 
-When you clone the `github.com/pydio/cells` repository, you then also have an embedded local copy of  all the sources for you to investigate. Yet, you should not try to directly modify code that have been _vendored_.
+When you clone the `github.com/pydio/cells` repository, you then also have an embedded local copy of all the sources for you to investigate. Yet, you should not try to directly modify code that have been _vendored_.
 
-Please also note that we had to fork a few libraries before integrating them as dependencies, most important being dex and minio. If you need to modify this part of the code, please get in touch with us.
+Please also note that we had to fork a few libraries before integrating them as dependencies, most important being `minio`. If you need to modify this part of the code, please get in touch with us.
 
 ## Running the tests
 
@@ -87,7 +86,7 @@ It is really easy to participate: just navigate to [our page in the Crowdin tran
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/pydio/cells/tags).
+We use [Semantic Versioning](http://semver.org/). For all available versions, see the [release list](https://github.com/pydio/cells/releases).
 
 ## Authors
 
