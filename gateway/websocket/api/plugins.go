@@ -58,6 +58,7 @@ func publicationContext(publication broker.Publication) context.Context {
 }
 
 func init() {
+
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
@@ -76,6 +77,22 @@ func init() {
 				chat = websocket.NewChatHandler(ctx)
 
 				ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
+
+				gin.SetMode(gin.ReleaseMode)
+				gin.DisableConsoleColor()
+				Server := gin.New()
+				Server.Use(gin.Recovery())
+				Server.GET("/event", func(c *gin.Context) {
+					ws.Websocket.HandleRequest(c.Writer, c.Request)
+				})
+
+				Server.GET("/chat", func(c *gin.Context) {
+					chat.Websocket.HandleRequest(c.Writer, c.Request)
+				})
+
+				return Server
+			}),
+			service.AfterStart(func(_ service.Service) error {
 				brok := defaults.Broker()
 
 				brok.Subscribe(common.TopicTreeChanges, func(publication broker.Publication) error {
@@ -126,19 +143,7 @@ func init() {
 					return nil
 				})
 
-				gin.SetMode(gin.ReleaseMode)
-				gin.DisableConsoleColor()
-				Server := gin.New()
-				Server.Use(gin.Recovery())
-				Server.GET("/event", func(c *gin.Context) {
-					ws.Websocket.HandleRequest(c.Writer, c.Request)
-				})
-
-				Server.GET("/chat", func(c *gin.Context) {
-					chat.Websocket.HandleRequest(c.Writer, c.Request)
-				})
-
-				return Server
+				return nil
 			}),
 		)
 
