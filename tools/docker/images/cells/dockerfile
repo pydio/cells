@@ -14,8 +14,6 @@ RUN chmod +x /pydio/cells /pydio/jq
 FROM busybox:glibc
 ARG version
 
-ENV CELLS_BIND default
-#ENV CELLS_EXTERNAL https://localhost
 ENV CELLS_WORKING_DIR /var/cells
 ENV CADDYPATH /var/cells/certs 
 
