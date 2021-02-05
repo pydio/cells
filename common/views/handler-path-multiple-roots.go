@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// MultipleRootsHandler handle special case of multiple-roots workspaces.
 type MultipleRootsHandler struct {
 	AbstractBranchFilter
 }

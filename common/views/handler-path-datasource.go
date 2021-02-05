@@ -39,6 +39,7 @@ func NewPathDataSourceHandler() *PathDataSourceHandler {
 	return bt
 }
 
+// PathDataSourceHandler is an AbstractBranchFilter adding/extracting datasource name from the path.
 type PathDataSourceHandler struct {
 	AbstractBranchFilter
 }

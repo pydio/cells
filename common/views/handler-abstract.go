@@ -36,8 +36,8 @@ import (
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
 
-// Abstract Handler implementation simply forwards
-// calls to the next handler
+// AbstractHandler provides the simplest implementation of Handler and forwards
+// all calls to the next handler
 type AbstractHandler struct {
 	next        Handler
 	clientsPool *ClientsPool

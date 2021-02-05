@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// VersionHandler capture ListNodes and GetObject calls to find existing nodes versions and retrieve them.
 type VersionHandler struct {
 	AbstractHandler
 	versionClient tree.NodeVersionerClient

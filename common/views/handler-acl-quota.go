@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AclQuotaFilter applies storage quota limitation on a per-workspace basis.
 type AclQuotaFilter struct {
 	AbstractHandler
 }

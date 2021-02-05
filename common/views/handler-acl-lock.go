@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AclLockFilter filters call by checking internal locks.
 type AclLockFilter struct {
 	AbstractHandler
 }

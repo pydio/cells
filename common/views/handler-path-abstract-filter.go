@@ -39,6 +39,8 @@ import (
 	"github.com/pydio/minio-go"
 )
 
+// AbstractBranchFilter is a ready-made Handler that can be used by all handlers that just modify the path in one way
+// or another before forwarding calls to next handler.
 type AbstractBranchFilter struct {
 	AbstractHandler
 	inputMethod    NodeFilter

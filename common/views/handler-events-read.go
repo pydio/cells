@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// HandlerEventRead publishes events after reading files.
 type HandlerEventRead struct {
 	AbstractHandler
 }

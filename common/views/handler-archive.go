@@ -46,11 +46,13 @@ type selectionProvider interface {
 	deleteSelectionByUuid(ctx context.Context, selectionUuid string)
 }
 
+// ArchiveHandler dynamically create archives when downloading folders and supports archive contents listing.
 type ArchiveHandler struct {
 	AbstractHandler
 	selectionProvider selectionProvider
 }
 
+// NewArchiveHandler creates a new ArchiveHandler
 func NewArchiveHandler() *ArchiveHandler {
 	a := &ArchiveHandler{}
 	a.selectionProvider = a
