@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -260,19 +261,29 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *
 		}
 	}
 
-	listReq := &tree.ListNodesRequest{Node: pNode, Recursive: false}
+	//t := time.Now()
+	searchNode := pNode.Clone()
+	ext := path.Ext(targetNode.Path)
+	noExt := strings.TrimSuffix(targetNode.Path, ext)
+	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
+
+	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case insensitive)
+	searchNode.SetMeta(tree.MetaFilterGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
+	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
 	c.Client.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+		if node.Path == searchNode.Path {
+			return nil
+		}
 		basename := strings.ToLower(path.Base(node.Path))
 		compares[basename] = struct{}{}
 		return nil
 	}, true)
+	//fmt.Println("TOOK", time.Now().Sub(t), compares)
 	exists := func(node *tree.Node) bool {
 		_, ok := compares[strings.ToLower(path.Base(node.Path))]
 		return ok
 	}
 	i := 1
-	ext := path.Ext(targetNode.Path)
-	noExt := strings.TrimSuffix(targetNode.Path, ext)
 	for {
 		if exists(targetNode) {
 			targetNode.Path = fmt.Sprintf("%s-%d%s", noExt, i, ext)
