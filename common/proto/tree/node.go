@@ -23,17 +23,16 @@ package tree
 import (
 	"fmt"
 	"path"
-	"strconv"
 	"strings"
 	"time"
-
-	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/utils/std"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 /* This file provides helpers and shortcuts to ease development of tree.node related features.
@@ -323,17 +322,9 @@ func (m *Query) ParseDurationDate(ref ...time.Time) error {
 	}
 	ds := strings.TrimSpace(m.DurationDate[1:])
 	var d time.Duration
-	if strings.HasSuffix(ds, "d") {
-		// Parse as number of days
-		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
-		if er != nil {
-			return er
-		}
-		d = time.Duration(days) * 24 * time.Hour
-	} else if goD, e := time.ParseDuration(strings.TrimSpace(m.DurationDate[1:])); e != nil {
+	d, e := std.ParseCellsDuration(ds)
+	if e != nil {
 		return e
-	} else {
-		d = goD
 	}
 	now := time.Now()
 	if len(ref) > 0 {
