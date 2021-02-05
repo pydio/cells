@@ -127,7 +127,7 @@ func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
 }
 
 // HttpMetaFromGrpcContext extracts metadata from context that may have been
-// passed along accross services (meta name may be lowered cased)
+// passed along across services (meta name may be lowered cased)
 func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
 	if md, ok := metadata.FromContext(ctx); ok {
 		if v, o := md[name]; o {

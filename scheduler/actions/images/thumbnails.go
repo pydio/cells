@@ -54,13 +54,13 @@ import (
 )
 
 const (
-	METADATA_THUMBNAILS       = "ImageThumbnails"
-	METADATA_IMAGE_DIMENSIONS = "ImageDimensions"
+	MetadataThumbnails      = "ImageThumbnails"
+	MetadataImageDimensions = "ImageDimensions"
 
-	METADATA_COMPAT_IS_IMAGE                  = "is_image"
-	METADATA_COMPAT_IMAGE_WIDTH               = "image_width"
-	METADATA_COMPAT_IMAGE_HEIGHT              = "image_height"
-	METADATA_COMPAT_IMAGE_READABLE_DIMENSIONS = "readable_dimension"
+	MetadataCompatIsImage                 = "is_image"
+	MetadataCompatImageWidth              = "image_width"
+	MetadataCompatImageHeight             = "image_height"
+	MetadataCompatImageReadableDimensions = "readable_dimension"
 )
 
 var (
@@ -85,7 +85,7 @@ type ThumbnailExtractor struct {
 	Client     client.Client
 }
 
-func (t *ThumbnailExtractor) GetDescription(lang ...string) actions.ActionDescription {
+func (t *ThumbnailExtractor) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                thumbnailsActionName,
 		Label:             "Create Thumbs",
@@ -123,7 +123,7 @@ func (t *ThumbnailExtractor) GetName() string {
 }
 
 // Init passes parameters to the action.
-func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (t *ThumbnailExtractor) Init(_ *jobs.Job, cl client.Client, action *jobs.Action) error {
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {
@@ -143,7 +143,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.
 }
 
 // Run the actual action code.
-func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (t *ThumbnailExtractor) Run(ctx context.Context, _ *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 || input.Nodes[0].Size == -1 || input.Nodes[0].Etag == common.NodeFlagEtagTemporary {
 		// Nothing to do
@@ -166,13 +166,11 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 	return output, nil
 }
 
-func displayMemStat(ctx context.Context, position string) {
-	return
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	log.Logger(ctx).Info("---- MEMORY USAGE AT: "+position, zap.Uint64("Alloc", m.Alloc/1024/1024), zap.Uint64("TotalAlloc", m.TotalAlloc/1024/1024), zap.Uint64("Sys", m.Sys/1024/1024), zap.Uint32("NumGC", m.NumGC))
+func displayMemStat(_ context.Context, _ string) {
+	//var m runtime.MemStats
+	//runtime.ReadMemStats(&m)
+	//log.Logger(ctx).Info("---- MEMORY USAGE AT: "+position, zap.Uint64("Alloc", m.Alloc/1024/1024), zap.Uint64("TotalAlloc", m.TotalAlloc/1024/1024), zap.Uint64("Sys", m.Sys/1024/1024), zap.Uint32("NumGC", m.NumGC))
 	//stdlog.Printf("%s : \nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", position, m.Alloc / 1024 / 1024, m.TotalAlloc / 1024 / 1024, m.Sys / 1024, m.NumGC)
-
 }
 
 func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes map[string]int) error {
@@ -213,18 +211,18 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	width := bounds.Max.X
 	height := bounds.Max.Y
 	// Send update event right now
-	node.SetMeta(METADATA_IMAGE_DIMENSIONS, struct {
+	node.SetMeta(MetadataImageDimensions, struct {
 		Width  int
 		Height int
 	}{
 		Width:  width,
 		Height: height,
 	})
-	node.SetMeta(METADATA_COMPAT_IS_IMAGE, true)
-	node.SetMeta(METADATA_THUMBNAILS, &ThumbnailsMeta{Processing: true})
-	node.SetMeta(METADATA_COMPAT_IMAGE_HEIGHT, height)
-	node.SetMeta(METADATA_COMPAT_IMAGE_WIDTH, width)
-	node.SetMeta(METADATA_COMPAT_IMAGE_READABLE_DIMENSIONS, fmt.Sprintf("%dpx X %dpx", width, height))
+	node.SetMeta(MetadataCompatIsImage, true)
+	node.SetMeta(MetadataThumbnails, &ThumbnailsMeta{Processing: true})
+	node.SetMeta(MetadataCompatImageHeight, height)
+	node.SetMeta(MetadataCompatImageWidth, width)
+	node.SetMeta(MetadataCompatImageReadableDimensions, fmt.Sprintf("%dpx X %dpx", width, height))
 
 	if _, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); err != nil {
 		return errors.Wrap(err, errPath)
@@ -244,7 +242,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
 			// Remove processing state from Metadata
-			node.SetMeta(METADATA_THUMBNAILS, nil)
+			node.SetMeta(MetadataThumbnails, nil)
 			t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 			return errors.Wrap(err, errPath)
 		}
@@ -264,9 +262,9 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	displayMemStat(ctx, "AFTER TRIGGERING GC")
 
 	if (meta != &ThumbnailsMeta{}) {
-		node.SetMeta(METADATA_THUMBNAILS, meta)
+		node.SetMeta(MetadataThumbnails, meta)
 	} else {
-		node.SetMeta(METADATA_THUMBNAILS, nil)
+		node.SetMeta(MetadataThumbnails, nil)
 	}
 
 	log.Logger(ctx).Info("Thumbs Generated for", zap.String(common.KEY_NODE_PATH, errPath), zap.Any("meta", meta))

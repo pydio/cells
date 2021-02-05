@@ -54,10 +54,10 @@ func (t *TreeHandler) CreateNodeStream(ctx context.Context, s tree.NodeReceiverS
 			}
 			break
 		}
-		resp, err := router.CreateNode(ctx, r)
-		if err != nil {
-			s.SendMsg(err)
-			err = e
+		resp, er := router.CreateNode(ctx, r)
+		if er != nil {
+			s.SendMsg(er)
+			err = er
 			break
 		}
 		if err = s.Send(resp); err != nil {

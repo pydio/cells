@@ -162,7 +162,7 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 		// Creating a timeout for context
 		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
 		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
-		// Error means the user is unknwown to the system, we contine to the next round
+		// Error means the user is unknwown to the system, we continue to the next round
 		if err != nil {
 			continue
 		}
@@ -270,7 +270,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
 		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
 
-		// Error means the user is unknwown to the system, we contine to the next round
+		// Error means the user is unknwown to the system, we continue to the next round
 		if err != nil {
 			continue
 		}

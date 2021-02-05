@@ -31,7 +31,7 @@ import (
 
 // FilterToTarget tries to detect unnecessary operations based on the target status.
 // If the target implements the CachedBranchProvider interface, instead of stat'ing the nodes
-// one by one, the target will be fully loaded in memory at once to be used as a comparision.
+// one by one, the target will be fully loaded in memory at once to be used as a comparison.
 func (t *TreePatch) FilterToTarget(ctx context.Context) {
 
 	sources := make(map[model.Endpoint]model.PathSyncSource, 2)

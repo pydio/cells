@@ -30,9 +30,9 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 	} else {
 		pFile := path.Join(node.Path, common.PydioSyncHiddenFile)
 		// Now list all children and delete them all
-		stream, err := h.next.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
-		if err != nil {
-			return nil, err
+		stream, er := h.next.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
+		if er != nil {
+			return nil, er
 		}
 		defer stream.Close()
 		for {

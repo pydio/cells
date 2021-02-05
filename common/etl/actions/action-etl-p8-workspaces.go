@@ -291,7 +291,7 @@ func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.Runnab
 	output := input
 	output.AppendOutput(&jobs.ActionOutput{
 		Success:    true,
-		StringBody: "Succesfully synced workspaces",
+		StringBody: "Successfully synced workspaces",
 	})
 
 	var gE error

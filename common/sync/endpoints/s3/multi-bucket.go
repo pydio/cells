@@ -333,7 +333,7 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 	}
 	_, b2, i2, _ := m.getClient(newPath)
 	if b2 != b {
-		err = errors.BadRequest("not.implemented", "cannot move objects accross buckets for the moment")
+		err = errors.BadRequest("not.implemented", "cannot move objects across buckets for the moment")
 	}
 	return c.MoveNode(ctx, i, i2)
 }

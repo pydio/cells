@@ -122,7 +122,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	response = &mailer.SendMailResponse{Success: true}
+	response.Success = true // make sure success is set
 	rsp.WriteEntity(response)
 }
 

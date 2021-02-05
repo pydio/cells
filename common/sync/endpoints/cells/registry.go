@@ -188,7 +188,7 @@ func (d *DynamicRegistry) parseNotFound(e error) error {
 }
 
 // RegistryRefreshClient is an implementation of a Micro Client that tries to refresh the registry if a streamer
-// connection is broken (GRPC port may change accross server restart).
+// connection is broken (GRPC port may change across server restart).
 type RegistryRefreshClient struct {
 	w client.Client
 	r *DynamicRegistry

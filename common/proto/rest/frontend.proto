@@ -110,7 +110,7 @@ message FrontEnrollAuthResponse {
     map<string,string> Info = 1;
 }
 
-// Donwload binary
+// Download binary
 message FrontBinaryRequest {
     // Currently supported values are USER and GLOBAL
     string BinaryType = 1;

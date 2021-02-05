@@ -89,7 +89,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 	t.rescanFoldersIfRequired(ctx, ignores...)
 	n = track("filter:RescanFoldersIfRequired", n)
 
-	// FINALLY PRUNE unecessary operations (like all deleted elements that are below a deleted folder)
+	// FINALLY PRUNE unnecessary operations (like all deleted elements that are below a deleted folder)
 	t.prune(ctx)
 	track("filter:Prune", n)
 

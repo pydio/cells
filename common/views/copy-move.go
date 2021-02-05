@@ -281,7 +281,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 		updateLockerForByteSize(ctx, locker, sourceNode.Size, 1)
 
-		// Prepare Meta for Copy/Delete operations. If Move accross DS or Copy, we send directly the close- session
+		// Prepare Meta for Copy/Delete operations. If Move across DS or Copy, we send directly the close- session
 		// as this will be a one shot operation on each datasource.
 		copyMeta := make(map[string]string)
 		deleteMeta := make(map[string]string)
