@@ -37,6 +37,7 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
+// BinaryStoreHandler captures put/get calls to an internal storage
 type BinaryStoreHandler struct {
 	AbstractHandler
 	StoreName     string

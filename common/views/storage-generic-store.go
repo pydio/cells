@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
+// GetGenericStoreClient creates a *minio.Core client for a given binary store.
 func GetGenericStoreClient(ctx context.Context, storeNamespace string, microClient client.Client) (client *minio.Core, bucket string, e error) {
 
 	var dataSource string
@@ -54,6 +55,7 @@ func GetGenericStoreClient(ctx context.Context, storeNamespace string, microClie
 
 }
 
+// GetGenericStoreClientConfig finds datasource/bucket for a given store.
 func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, bucket string, e error) {
 
 	// TMP - TO BE FIXED

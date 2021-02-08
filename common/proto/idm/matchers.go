@@ -3,13 +3,12 @@ package idm
 import (
 	"fmt"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/std"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 func (m *RoleSingleQuery) Matches(idmObject interface{}) bool {
@@ -110,18 +109,7 @@ func (m *WorkspaceSingleQuery) ParseLastUpdated() (lt bool, d time.Duration, e e
 		return
 	}
 	lt = firstChar == ">" // Duration bigger than => date lower than
-	ds := strings.TrimSpace(m.LastUpdated[1:])
-	if strings.HasSuffix(ds, "d") {
-		// Parse as number of days
-		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
-		if er != nil {
-			e = er
-			return
-		}
-		d = time.Duration(days) * 24 * time.Hour
-		return
-	}
-	d, e = time.ParseDuration(strings.TrimSpace(m.LastUpdated[1:]))
+	d, e = std.ParseCellsDuration(strings.TrimSpace(m.LastUpdated[1:]))
 	return
 }
 
@@ -231,18 +219,7 @@ func (m *UserSingleQuery) ParseLastConnected() (lt bool, d time.Duration, e erro
 		return
 	}
 	lt = firstChar == ">"
-	ds := strings.TrimSpace(m.ConnectedSince[1:])
-	if strings.HasSuffix(ds, "d") {
-		// Parse as number of days
-		days, er := strconv.ParseInt(strings.Trim(ds, "d"), 10, 64)
-		if er != nil {
-			e = er
-			return
-		}
-		d = time.Duration(days) * 24 * time.Hour
-		return
-	}
-	d, e = time.ParseDuration(strings.TrimSpace(m.ConnectedSince[1:]))
+	d, e = std.ParseCellsDuration(strings.TrimSpace(m.ConnectedSince[1:]))
 	return
 }
 

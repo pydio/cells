@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AclContentLockFilter checks for user-defined content locks in the context AccessList.
 type AclContentLockFilter struct {
 	AbstractHandler
 }

@@ -89,7 +89,7 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 
 	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
-	// Use a "Queue" mechanism to make sure events are distributed accross tasks instances
+	// Use a "Queue" mechanism to make sure events are distributed across tasks instances
 	opts := func(o *server.SubscriberOptions) {
 		o.Queue = "tasks"
 	}

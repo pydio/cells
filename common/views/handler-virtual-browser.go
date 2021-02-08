@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// VirtualNodesBrowser is used by admin mode to list virtual nodes instead of their resolved values.
 type VirtualNodesBrowser struct {
 	AbstractHandler
 }

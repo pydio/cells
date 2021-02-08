@@ -48,6 +48,7 @@ var (
 	noSuchKeyString = "The specified key does not exist."
 )
 
+// Executor is the final handler: it does not have a "next" handler, but actually performs all requests.
 type Executor struct {
 	AbstractHandler
 }

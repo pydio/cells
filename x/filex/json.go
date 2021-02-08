@@ -11,6 +11,9 @@ import (
 func Save(filename string, data interface{}) error {
 
 	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
 
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {

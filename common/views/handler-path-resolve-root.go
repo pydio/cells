@@ -38,6 +38,7 @@ func NewWorkspaceRootResolver() *WorkspaceRootResolver {
 	return bt
 }
 
+// WorkspaceRootResolver is an AbstractBranchFilter finding workspace root(s) based on the path.
 type WorkspaceRootResolver struct {
 	AbstractBranchFilter
 }

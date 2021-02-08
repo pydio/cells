@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// PathWorkspaceHandler is an AbstractBranchFilter extracting workspace and managing path inside the workspace.
 type PathWorkspaceHandler struct {
 	AbstractBranchFilter
 }

@@ -61,6 +61,8 @@ func NewCacheDiff() *cacheDiff {
 	return &cacheDiff{Adds: make(map[string]struct{}), Deletes: make(map[string]struct{})}
 }
 
+// SynchronousCacheHandler maintains a cache of the nodes during modifying operations to make listings more reactive.
+// It is used by basic APIs (like WebDAV) for better visual performances and to create pseudo-synchronous APIs.
 type SynchronousCacheHandler struct {
 	AbstractHandler
 }

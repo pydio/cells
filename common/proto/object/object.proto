@@ -117,7 +117,7 @@ message MinioConfig {
 }
 
 // Used to dispatch some specific events
-// accross services
+// across services
 message DataSourceEvent {
     enum DSEventType {
         CREATE = 0;

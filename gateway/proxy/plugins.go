@@ -434,7 +434,7 @@ func insurePathIsWritable(ctx context.Context, parDir string) error {
 		return err
 	}
 
-	// Perform a touch like test to be OS independant
+	// Perform a touch like test to be OS independent
 	fullPath := filepath.Join(parDir, "test-writable.txt")
 	file, err := os.Create(fullPath)
 	if err != nil {

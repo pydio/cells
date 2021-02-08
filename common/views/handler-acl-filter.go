@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AclFilterHandler checks for read/write permissions depending on the call using the context AccessList.
 type AclFilterHandler struct {
 	AbstractHandler
 }

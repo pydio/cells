@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/minio-go"
 )
 
+// UploadLimitFilter restricts atomic uploads by extension and maximum size, based on the front plugins configuration.
 type UploadLimitFilter struct {
 	AbstractHandler
 }

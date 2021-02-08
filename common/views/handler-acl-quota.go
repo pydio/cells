@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AclQuotaFilter applies storage quota limitation on a per-workspace basis.
 type AclQuotaFilter struct {
 	AbstractHandler
 }
@@ -108,7 +109,7 @@ func (a *AclQuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx conte
 		src, o := GetBranchInfo(srcCtx, "from")
 		tgt, o2 := GetBranchInfo(targetCtx, "to")
 		if o && o2 && src.Workspace.UUID != tgt.Workspace.UUID {
-			log.Logger(srcCtx).Info("Move accross workspace, check quota on target!")
+			log.Logger(srcCtx).Info("Move across workspace, check quota on target!")
 			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, &tgt.Workspace); err != nil {
 				return err
 			} else if maxQuota > 0 && currentUsage+operation.GetTarget().Size > maxQuota {

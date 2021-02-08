@@ -41,6 +41,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// PutHandler handles Put requests by creating temporary files in the index before forwarding data to the object service.
+// This temporary entry is updated later on by the sync service, once the object is written. It is deleted if the Put operation fails.
 type PutHandler struct {
 	AbstractHandler
 }

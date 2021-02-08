@@ -36,6 +36,7 @@ func NewUuidDataSourceHandler() *UuidDataSourceHandler {
 	return bt
 }
 
+// UuidDataSourceHandler is an AbstractBranchFilter extracting datasource info based on node UUID.
 type UuidDataSourceHandler struct {
 	AbstractBranchFilter
 }

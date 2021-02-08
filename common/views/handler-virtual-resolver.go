@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// VirtualNodesResolver dynamically resolves virtual nodes to their runtime value.
 type VirtualNodesResolver struct {
 	AbstractBranchFilter
 }

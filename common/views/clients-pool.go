@@ -115,6 +115,7 @@ func (p *ClientsPool) Close() {
 	}
 }
 
+// GetTreeClient returns the internal NodeProviderClient pointing to the TreeService.
 func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	if p.TreeClient != nil {
 		return p.TreeClient
@@ -122,6 +123,7 @@ func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
 	return tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
+// GetTreeClientWrite returns the internal NodeReceiverClient pointing to the TreeService.
 func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 	if p.TreeClientWrite != nil {
 		return p.TreeClientWrite
@@ -129,6 +131,8 @@ func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
 	return tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
+// GetDataSourceInfo tries to find information about a DataSource, eventually retrying as DataSource
+// could be currently starting and not yet registered in the ClientsPool.
 func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error) {
 
 	if dsName == "default" {
@@ -309,7 +313,8 @@ func filterServices(vs []registry.Service, f func(string) bool) []string {
 	return vsf
 }
 
-// BuildAncestorsList uses ListNodes with Ancestors flag set to build the list of parent nodes.
+// BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
+// It uses an internal short-lived cache to throttle calls to the TreeService
 func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
 	/*
 		sT := time.Now()
@@ -369,7 +374,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	return parentUuids, err
 }
 
-// Recursive listing to build ancestors list when the node does not exists yet : try to find all existing parents
+// BuildAncestorsListOrParent builds ancestors list when the node does not exists yet, by trying to find all existing parents.
 func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
 	parents, err := BuildAncestorsList(ctx, treeClient, node)
 	nodePathParts := strings.Split(node.Path, "/")

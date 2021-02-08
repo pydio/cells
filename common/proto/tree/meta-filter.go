@@ -123,7 +123,7 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 		} else if c.field == MetaFilterSize {
 			ref = n.Size
 		}
-		match := false
+		var match bool
 		if c.dir == ">" {
 			if c.eq {
 				match = ref >= c.val

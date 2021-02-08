@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// UuidNodeHandler is an AbstractBranchFilter extracting workspace info based on node UUID.
 type UuidNodeHandler struct {
 	AbstractBranchFilter
 }

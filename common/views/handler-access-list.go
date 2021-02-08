@@ -29,10 +29,12 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AccessListHandler appends permissions.AccessList to the context.
 type AccessListHandler struct {
 	AbstractHandler
 }
 
+// NewAccessListHandler creates a new AccessListHandler
 func NewAccessListHandler(adminView bool) *AccessListHandler {
 	a := &AccessListHandler{}
 	a.CtxWrapper = func(ctx context.Context) (context.Context, error) {

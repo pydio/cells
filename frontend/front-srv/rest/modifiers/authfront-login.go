@@ -25,7 +25,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		password := in.AuthInfo["password"]
 
 		if challenge, ok := in.AuthInfo["challenge"]; ok {
-			// If we do have a challenge, then we're comming from an external source and
+			// If we do have a challenge, then we're coming from an external source and
 			code, err := auth.DefaultJWTVerifier().PasswordCredentialsCode(req.Request.Context(), username, password, auth.SetChallenge(challenge))
 			if err != nil {
 				return err

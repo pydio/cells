@@ -62,7 +62,7 @@ type TreeNode struct {
 }
 
 // TreeNodeFromSource populates a hash tree with leafs and folders by walking a source.
-// When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
+// When it comes across a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
 func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, includeMetas []glob.Glob, status ...chan model.Status) (*TreeNode, error) {

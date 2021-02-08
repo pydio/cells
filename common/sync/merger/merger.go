@@ -125,7 +125,7 @@ type Operation interface {
 	IsTypeData() bool
 	// IsTypePath is a shortcut for non-data operations
 	IsTypePath() bool
-	// IsProcessed tells wether this operation has been succesfully processed or not.
+	// IsProcessed tells wether this operation has been successfully processed or not.
 	IsProcessed() bool
 	// Error returns any error attached to this operation processing
 	Error() error
@@ -144,7 +144,7 @@ type Operation interface {
 	// This path is dynamically computed based on the the parent operations being already processed or not.
 	GetMoveOriginPath() string
 
-	// SetProcessed flags operation as succesfully processed
+	// SetProcessed flags operation as successfully processed
 	SetProcessed()
 	// SetDirection updates the operation direction. This is use for BiDirectionalPatches that can contain operations to be
 	// applied in both directions
