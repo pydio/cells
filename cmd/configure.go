@@ -22,6 +22,8 @@ package cmd
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -47,6 +49,8 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
 	"github.com/pydio/cells/discovery/nats"
+	"github.com/pydio/cells/x/filex"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
@@ -62,6 +66,14 @@ const (
 {{end}}
 	 `
 )
+
+var (
+	startCmd *cobra.Command
+)
+
+func init() {
+	startCmd = StartCmd
+}
 
 var (
 	caddyconf = struct {
@@ -149,9 +161,32 @@ ENVIRONMENT
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+
 		if err := checkFdlimit(); err != nil {
 			return err
 		}
+
+		// Init the config file
+		versionsStore := filex.NewStore(config.PydioConfigDir)
+
+		written, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig)
+		if err != nil {
+			return errors.New("Error while trying to create default config file")
+		}
+
+		if written {
+			var data interface{}
+			if e := json.Unmarshal([]byte(config.SampleConfig), &data); e == nil {
+				versionsStore.Put(&filex.Version{
+					User: "cli",
+					Date: time.Now(),
+					Log:  "Initialize with sample config",
+					Data: data,
+				})
+			}
+		}
+
+		initConfig()
 
 		replaceKeys := map[string]string{
 			"yaml": "install_yaml",
@@ -249,84 +284,20 @@ ENVIRONMENT
 		if niModeCli {
 			_, err := cliInstall(cmd, proxyConf)
 			fatalIfError(cmd, err)
-			return
+		} else {
+			// Run browser install
+			performBrowserInstall(cmd, proxyConf)
 		}
 
-		// Run browser install
-		performBrowserInstall(cmd, proxyConf)
-
-		if niExitAfterInstall {
+		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
 			cmd.Println("")
 			cmd.Println(promptui.IconGood + "\033[1m Installation Finished: installation server will stop\033[0m")
 			cmd.Println("")
 			return
 		}
 
-		cmd.Println("")
-		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
-		cmd.Println("")
-
-		plugins.Init(cmd.Context())
-
-		registry.Default.AfterInit()
-
-		// Re-building allServices list
-		if s, err := registry.Default.ListServices(); err != nil {
-			cmd.Print("Could not retrieve list of services")
-			os.Exit(0)
-		} else {
-			allServices = s
-		}
-
-		// Start all services
-		excludes := []string{
-			common.ServiceMicroApi,
-			common.ServiceRestNamespace_ + common.ServiceInstall,
-		}
-
-		for _, service := range allServices {
-			ignore := false
-			for _, ex := range excludes {
-				if service.Name() == ex {
-					ignore = true
-				}
-			}
-			if service.Regexp() != nil {
-				ignore = true
-			}
-			if !ignore {
-				if service.RequiresFork() {
-					if !service.AutoStart() {
-						continue
-					}
-					go service.ForkStart(cmd.Context())
-				} else {
-					go service.Start(cmd.Context())
-				}
-			}
-		}
-
-		<-cmd.Context().Done()
-
-		// Checking that the processes are done
-		ticker := time.Tick(1 * time.Second)
-		// In any case, we stop after 10 seconds even if a service is still registered somehow
-		timeout := time.After(10 * time.Second)
-
-	loop:
-		for {
-			select {
-			case <-ticker:
-				process := registry.Default.GetCurrentProcess()
-				childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
-				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
-					break loop
-				}
-				continue
-			case <-timeout:
-				break loop
-			}
-		}
+		startCmd.PreRunE(cmd, args)
+		startCmd.Run(cmd, args)
 	},
 }
 
@@ -372,26 +343,31 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 
 func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
-	initLogLevel()
+	ctx, cancel := context.WithCancel(cmd.Context())
+	defer cancel()
 
-	// Initialising services
-	nats.Init()
+	initStartingToolsOnce.Do(func() {
+		initLogLevel()
 
-	metrics.Init()
+		// Initialising services
+		nats.Init()
 
-	// Initialise the default registry
-	handleRegistry()
+		metrics.Init()
 
-	// Initialise the default broker
-	handleBroker()
+		// Initialise the default registry
+		handleRegistry()
 
-	// Initialise the default transport
-	handleTransport()
+		// Initialise the default broker
+		handleBroker()
 
-	// Making sure we capture the signals
-	handleSignals()
+		// Initialise the default transport
+		handleTransport()
 
-	plugins.InstallInit(cmd.Context())
+		// Making sure we capture the signals
+		handleSignals()
+	})
+
+	plugins.InstallInit(ctx)
 
 	initServices()
 
@@ -407,13 +383,13 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// starting the microservice
 	micro := registry.Default.GetServiceByName(common.ServiceMicroApi)
-	micro.Start(cmd.Context())
+	micro.Start(ctx)
 
 	// starting the installation REST service
 	regService := registry.Default.GetServiceByName(common.ServiceInstall)
 
 	// Starting service install
-	regService.Start(cmd.Context())
+	regService.Start(ctx)
 
 	// Creating temporary caddy file
 	sites, err := config.LoadSites()
@@ -473,13 +449,12 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	}()
 
 	defer subscriber.Unsubscribe()
-	defer regService.Stop()
 
 	select {
 	case <-instanceDone:
 		return
 	case <-cmd.Context().Done():
-		os.Exit(0)
+		return
 	}
 }
 

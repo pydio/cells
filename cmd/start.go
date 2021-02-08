@@ -24,17 +24,22 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/discovery/nats"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/x/filex"
 )
 
 var (
@@ -119,23 +124,50 @@ ENVIRONMENT
 			"fork": "is_fork",
 		})
 
-		initLogLevel()
+		if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+			var crtUser string
+			if u, er := user.Current(); er == nil {
+				crtUser = "(currently running as '" + u.Username + "')"
+			}
+			fmt.Println("****************************************************************************************")
+			fmt.Println("# ")
+			fmt.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for Cells !")
+			fmt.Println("# ")
+			fmt.Println("#   If you have already installed, maybe the configuration file is not accessible.")
+			fmt.Println("#   Working Directory is " + config.ApplicationWorkingDir())
+			fmt.Println("#   If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
+			fmt.Println("#   launching the process as the correct OS user " + crtUser + ".")
+			fmt.Println("# ")
+			fmt.Println("****************************************************************************************")
+			fmt.Println("")
 
-		nats.Init()
+			ConfigureCmd.PreRunE(cmd, args)
+			ConfigureCmd.Run(cmd, args)
 
-		metrics.Init()
+			return nil
+		}
 
-		// Initialise the default registry
-		handleRegistry()
+		initConfig()
 
-		// Initialise the default broker
-		handleBroker()
+		initStartingToolsOnce.Do(func() {
+			initLogLevel()
 
-		// Initialise the default transport
-		handleTransport()
+			nats.Init()
 
-		// Making sure we capture the signals
-		handleSignals()
+			metrics.Init()
+
+			// Initialise the default registry
+			handleRegistry()
+
+			// Initialise the default broker
+			handleBroker()
+
+			// Initialise the default transport
+			handleTransport()
+
+			// Making sure we capture the signals
+			handleSignals()
+		})
 
 		plugins.Init(cmd.Context())
 
@@ -295,6 +327,7 @@ ENVIRONMENT
 				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
 					break loop
 				}
+				log.Info("Services are still running ", zap.Any("services", process.Services))
 				continue
 			case <-timeout:
 				break loop

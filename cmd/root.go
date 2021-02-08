@@ -26,12 +26,11 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/manifoldco/promptui"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
@@ -49,7 +48,6 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/filex"
-	json "github.com/pydio/cells/x/jsonx"
 
 	// All registries
 
@@ -71,6 +69,8 @@ var (
 
 	installCommands = []string{"configure", "install"}
 	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
+
+	initStartingToolsOnce = &sync.Once{}
 )
 
 const startTagUnique = "unique"
@@ -170,60 +170,9 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initInstallConfig() {
-
-	if skipInstallInit() {
-		return
-	}
-
-	versionsStore := filex.NewStore(config.PydioConfigDir)
-
-	written, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig)
-	if err != nil {
-		fmt.Println("Error while trying to create default config file")
-		os.Exit(1)
-	}
-
-	if written {
-		var data interface{}
-		if e := json.Unmarshal([]byte(config.SampleConfig), &data); e == nil {
-			versionsStore.Put(&filex.Version{
-				User: "cli",
-				Date: time.Now(),
-				Log:  "Initialize with sample config",
-				Data: data,
-			})
-		}
-	}
-}
-
 func initConfig() {
 
 	if skipCoreInit() {
-		return
-	}
-
-	if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
-		var crtUser string
-		if u, er := user.Current(); er == nil {
-			crtUser = "(currently running as '" + u.Username + "')"
-		}
-		fmt.Println("****************************************************************************************")
-		fmt.Println("# ")
-		fmt.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for Cells !")
-		fmt.Println("# ")
-		fmt.Println("# A - If it is your first start, make sure to first run the configuration steps using:")
-		fmt.Println("#     $> " + os.Args[0] + " configure")
-		fmt.Println("# ")
-		fmt.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
-		fmt.Println("#     Working Directory is " + config.ApplicationWorkingDir())
-		fmt.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
-		fmt.Println("#     launching the process as the correct OS user " + crtUser + ".")
-		fmt.Println("# ")
-		fmt.Println("****************************************************************************************")
-		fmt.Println("")
-		fmt.Println("Exiting now...")
-		os.Exit(0)
 		return
 	}
 
@@ -335,7 +284,6 @@ func initEnvPrefixes() {
 		if strings.HasPrefix(pair, prefOld) {
 			parts := strings.Split(pair, "=")
 			if len(parts) == 2 && parts[1] != "" {
-				//fmt.Println("Setting", pair, prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
 				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
 			}
 		}
@@ -343,11 +291,6 @@ func initEnvPrefixes() {
 }
 
 func init() {
-	cobra.OnInitialize(
-		initInstallConfig,
-		initConfig,
-	)
-
 	initEnvPrefixes()
 	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()

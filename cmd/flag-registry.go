@@ -53,6 +53,8 @@ func handleRegistry() {
 	switch viper.Get("registry") {
 	case "nats":
 		registry.EnableNats()
+	// case "etcd":
+	// 	registry.EnableEtcd()
 	default:
 		log.Fatal("registry not supported - currently only nats is supported")
 	}
