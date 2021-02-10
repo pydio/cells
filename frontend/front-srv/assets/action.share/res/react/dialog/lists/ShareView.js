@@ -6,7 +6,33 @@ import PathUtils from 'pydio/util/path'
 import {ShareServiceApi, RestListSharedResourcesRequest, ListSharedResourcesRequestListShareType} from 'pydio/http/rest-api'
 const {ActionDialogMixin, Loader} = Pydio.requireLib('boot');
 const {ModalAppBar, EmptyStateView} = Pydio.requireLib('components');
-import {List, ListItem, Paper, FontIcon, SelectField, MenuItem} from 'material-ui'
+const {ModernTextField} = Pydio.requireLib("hoc");
+import {List, ListItem, FontIcon, Tabs, Tab} from 'material-ui';
+const {muiThemeable} = require('material-ui/styles');
+
+class Selector extends React.Component {
+    render() {
+        const {value, onChange, muiTheme, m} = this.props;
+        const {palette} = muiTheme;
+        const tabStyle={
+            color: '#616161'
+        }
+        const activeStyle = {
+            color: palette.accent1Color
+        }
+        const spanStyle={
+            marginRight: 5
+        }
+        return (
+            <Tabs style={{width: 360}} onChange={(v) => {onChange(null, 0, v)}} value={value} tabItemContainerStyle={{background:'transparent'}}>
+                <Tab label={<span><span style={spanStyle} className={"mdi mdi-share-variant"}/>{m(243)}</span>} value={"LINKS"} buttonStyle={value==='LINKS'?activeStyle:tabStyle}/>
+                <Tab label={<span><span style={spanStyle} className={"icomoon-cells"}/>{m(254)}</span>} value={"CELLS"} buttonStyle={value==='CELLS'?activeStyle:tabStyle}/>
+            </Tabs>
+        )
+    }
+}
+
+Selector = muiThemeable()(Selector);
 
 class ShareView extends React.Component {
 
@@ -44,6 +70,7 @@ class ShareView extends React.Component {
 
     load(){
 
+        this.setState({filter: ''});
         const api = new ShareServiceApi(PydioApi.getRestClient());
         const request = new RestListSharedResourcesRequest();
         request.ShareType = ListSharedResourcesRequestListShareType.constructFromObject(this.state.shareType);
@@ -93,7 +120,7 @@ class ShareView extends React.Component {
 
     render(){
 
-        const {loading, resources} = this.state;
+        const {loading, resources, filter=''} = this.state;
         const {pydio, style} = this.props;
         const m = id => pydio.MessageHash['share_center.' + id];
         resources.sort((a,b) => {
@@ -103,31 +130,31 @@ class ShareView extends React.Component {
         });
         const extensions = pydio.Registry.getFilesExtensions();
         return (
-            <div style={{...style, display:'flex', flexDirection:'column'}}>
-                <div style={{backgroundColor: '#F5F5F5', borderBottom: '1px solid #EEEEEE', padding: '3px 20px', height: 50}}>
-                    <SelectField
+            <div style={{...style, display:'flex', flexDirection:'column', overflow:'hidden'}}>
+                <div style={{backgroundColor: '#F5F5F5', borderBottom: '1px solid #EEEEEE', display:'flex', paddingRight: 16, paddingTop: 3}}>
+                    <Selector
+                        m={m}
                         value={this.state.shareType}
                         onChange={(e,i,v) => {this.setState({shareType: v}, ()=>{this.load()})}}
-                        underlineStyle={{display:'none'}}
-                        style={{width: 160}}
-                    >
-                        <MenuItem value={"LINKS"} primaryText={m(243)}/>
-                        <MenuItem value={"CELLS"} primaryText={m(250)}/>
-                    </SelectField>
+                    />
+                    <span style={{flex: 1}}/>
+                    <div style={{width: 150}}>
+                        <ModernTextField hintText={m('sharelist.quick-filter')} value={filter} onChange={(e,v)=>{this.setState({filter: v})}} fullWidth={true}/>
+                    </div>
                 </div>
                 {loading &&
-                    <Loader style={{height: 300, flex: 1}}/>
+                    <Loader style={{height: 400}}/>
                 }
                 {!loading && resources.length === 0 &&
                     <EmptyStateView
                         pydio={pydio}
                         iconClassName={"mdi mdi-share-variant"}
                         primaryTextId={m(131)}
-                        style={{flex: 1, height: 200, padding:'100px 0', backgroundColor: 'transparent'}}
+                        style={{flex: 1, height: 400, padding:'90px 0', backgroundColor: 'transparent'}}
                     />
                 }
                 {!loading && resources.length > 0 &&
-                    <List style={{flex: 1, minHeight: 300, overflowY: 'auto', paddingTop: 0}}>
+                    <List style={{flex: 1, minHeight: 400, maxHeight: 400, overflowY: 'auto', paddingTop: 0}}>
                         {resources.map(res => {
                             let {appearsIn, basename} = this.getLongestPath(res.Node);
                             let icon;
@@ -142,12 +169,24 @@ class ShareView extends React.Component {
                                     icon = 'mdi mdi-file';
                                 }
                             }
-                            if(res.Link && res.Link.Label){
+                            if(res.Link && res.Link.Label && res.Link.Label !== basename){
                                 basename = res.Link.Label + ' (' + basename + ')'
                             }
+
+                            return {
+                                primaryText: basename,
+                                secondaryText: res.Link ? m(251) + ': ' + res.Link.Description : m(284).replace('%s', res.Cells.length),
+                                icon,
+                                appearsIn
+                            }
+                        }).filter(props => {
+                            console.log(filter);
+                            return !filter || props.primaryText.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+                        }).map(props => {
+                            const {appearsIn, icon} = props;
                             return <ListItem
-                                primaryText={basename}
-                                secondaryText={res.Link ? m(251) + ': ' + res.Link.Description : m(284).replace('%s', res.Cells.length)}
+                                primaryText={props.primaryText}
+                                secondaryText={props.secondaryText}
                                 onTouchTap={()=>{appearsIn ? this.goTo(appearsIn) : null}}
                                 disabled={!appearsIn}
                                 leftIcon={<FontIcon className={icon}/>}

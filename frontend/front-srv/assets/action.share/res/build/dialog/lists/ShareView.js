@@ -50,8 +50,70 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 var ModalAppBar = _Pydio$requireLib2.ModalAppBar;
 var EmptyStateView = _Pydio$requireLib2.EmptyStateView;
 
-var ShareView = (function (_React$Component) {
-    _inherits(ShareView, _React$Component);
+var _Pydio$requireLib3 = _pydio2['default'].requireLib("hoc");
+
+var ModernTextField = _Pydio$requireLib3.ModernTextField;
+
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
+
+var Selector = (function (_React$Component) {
+    _inherits(Selector, _React$Component);
+
+    function Selector() {
+        _classCallCheck(this, Selector);
+
+        _get(Object.getPrototypeOf(Selector.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Selector, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var value = _props.value;
+            var onChange = _props.onChange;
+            var muiTheme = _props.muiTheme;
+            var m = _props.m;
+            var palette = muiTheme.palette;
+
+            var tabStyle = {
+                color: '#616161'
+            };
+            var activeStyle = {
+                color: palette.accent1Color
+            };
+            var spanStyle = {
+                marginRight: 5
+            };
+            return _react2['default'].createElement(
+                _materialUi.Tabs,
+                { style: { width: 360 }, onChange: function (v) {
+                        onChange(null, 0, v);
+                    }, value: value, tabItemContainerStyle: { background: 'transparent' } },
+                _react2['default'].createElement(_materialUi.Tab, { label: _react2['default'].createElement(
+                        'span',
+                        null,
+                        _react2['default'].createElement('span', { style: spanStyle, className: "mdi mdi-share-variant" }),
+                        m(243)
+                    ), value: "LINKS", buttonStyle: value === 'LINKS' ? activeStyle : tabStyle }),
+                _react2['default'].createElement(_materialUi.Tab, { label: _react2['default'].createElement(
+                        'span',
+                        null,
+                        _react2['default'].createElement('span', { style: spanStyle, className: "icomoon-cells" }),
+                        m(254)
+                    ), value: "CELLS", buttonStyle: value === 'CELLS' ? activeStyle : tabStyle })
+            );
+        }
+    }]);
+
+    return Selector;
+})(_react2['default'].Component);
+
+Selector = muiThemeable()(Selector);
+
+var ShareView = (function (_React$Component2) {
+    _inherits(ShareView, _React$Component2);
 
     _createClass(ShareView, [{
         key: 'getChildContext',
@@ -97,6 +159,7 @@ var ShareView = (function (_React$Component) {
         value: function load() {
             var _this = this;
 
+            this.setState({ filter: '' });
             var api = new _pydioHttpRestApi.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.RestListSharedResourcesRequest();
             request.ShareType = _pydioHttpRestApi.ListSharedResourcesRequestListShareType.constructFromObject(this.state.shareType);
@@ -155,9 +218,11 @@ var ShareView = (function (_React$Component) {
             var _state = this.state;
             var loading = _state.loading;
             var resources = _state.resources;
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var style = _props.style;
+            var _state$filter = _state.filter;
+            var filter = _state$filter === undefined ? '' : _state$filter;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var style = _props2.style;
 
             var m = function m(id) {
                 return pydio.MessageHash['share_center.' + id];
@@ -170,36 +235,38 @@ var ShareView = (function (_React$Component) {
             var extensions = pydio.Registry.getFilesExtensions();
             return _react2['default'].createElement(
                 'div',
-                { style: _extends({}, style, { display: 'flex', flexDirection: 'column' }) },
+                { style: _extends({}, style, { display: 'flex', flexDirection: 'column', overflow: 'hidden' }) },
                 _react2['default'].createElement(
                     'div',
-                    { style: { backgroundColor: '#F5F5F5', borderBottom: '1px solid #EEEEEE', padding: '3px 20px', height: 50 } },
+                    { style: { backgroundColor: '#F5F5F5', borderBottom: '1px solid #EEEEEE', display: 'flex', paddingRight: 16, paddingTop: 3 } },
+                    _react2['default'].createElement(Selector, {
+                        m: m,
+                        value: this.state.shareType,
+                        onChange: function (e, i, v) {
+                            _this2.setState({ shareType: v }, function () {
+                                _this2.load();
+                            });
+                        }
+                    }),
+                    _react2['default'].createElement('span', { style: { flex: 1 } }),
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        {
-                            value: this.state.shareType,
-                            onChange: function (e, i, v) {
-                                _this2.setState({ shareType: v }, function () {
-                                    _this2.load();
-                                });
-                            },
-                            underlineStyle: { display: 'none' },
-                            style: { width: 160 }
-                        },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LINKS", primaryText: m(243) }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "CELLS", primaryText: m(250) })
+                        'div',
+                        { style: { width: 150 } },
+                        _react2['default'].createElement(ModernTextField, { hintText: m('sharelist.quick-filter'), value: filter, onChange: function (e, v) {
+                                _this2.setState({ filter: v });
+                            }, fullWidth: true })
                     )
                 ),
-                loading && _react2['default'].createElement(Loader, { style: { height: 300, flex: 1 } }),
+                loading && _react2['default'].createElement(Loader, { style: { height: 400 } }),
                 !loading && resources.length === 0 && _react2['default'].createElement(EmptyStateView, {
                     pydio: pydio,
                     iconClassName: "mdi mdi-share-variant",
                     primaryTextId: m(131),
-                    style: { flex: 1, height: 200, padding: '100px 0', backgroundColor: 'transparent' }
+                    style: { flex: 1, height: 400, padding: '90px 0', backgroundColor: 'transparent' }
                 }),
                 !loading && resources.length > 0 && _react2['default'].createElement(
                     _materialUi.List,
-                    { style: { flex: 1, minHeight: 300, overflowY: 'auto', paddingTop: 0 } },
+                    { style: { flex: 1, minHeight: 400, maxHeight: 400, overflowY: 'auto', paddingTop: 0 } },
                     resources.map(function (res) {
                         var _getLongestPath = _this2.getLongestPath(res.Node);
 
@@ -221,12 +288,26 @@ var ShareView = (function (_React$Component) {
                                 icon = 'mdi mdi-file';
                             }
                         }
-                        if (res.Link && res.Link.Label) {
+                        if (res.Link && res.Link.Label && res.Link.Label !== basename) {
                             basename = res.Link.Label + ' (' + basename + ')';
                         }
-                        return _react2['default'].createElement(_materialUi.ListItem, {
+
+                        return {
                             primaryText: basename,
                             secondaryText: res.Link ? m(251) + ': ' + res.Link.Description : m(284).replace('%s', res.Cells.length),
+                            icon: icon,
+                            appearsIn: appearsIn
+                        };
+                    }).filter(function (props) {
+                        console.log(filter);
+                        return !filter || props.primaryText.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+                    }).map(function (props) {
+                        var appearsIn = props.appearsIn;
+                        var icon = props.icon;
+
+                        return _react2['default'].createElement(_materialUi.ListItem, {
+                            primaryText: props.primaryText,
+                            secondaryText: props.secondaryText,
                             onTouchTap: function () {
                                 appearsIn ? _this2.goTo(appearsIn) : null;
                             },
