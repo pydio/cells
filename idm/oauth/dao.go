@@ -30,13 +30,19 @@ import (
 // DAO interface
 type DAO interface {
 	dao.DAO
+	// Load finds a corresponding, non-expired PAT based on the AccessToken.
 	Load(accessToken string) (*auth.PersonalAccessToken, error)
+	// Store inserts a PAT in the storage.
 	Store(accessToken string, token *auth.PersonalAccessToken, update bool) error
+	// Delete removes a PAT by its UUID.
 	Delete(patUuid string) error
+	// List lists all known PAT with optional filters.
 	List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error)
+	// PruneExpired removes expired PAT from the storage.
 	PruneExpired() (int, error)
 }
 
+// NewDAO creates a new DAO interface implementation. Only SQL is supported.
 func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case sql.DAO:

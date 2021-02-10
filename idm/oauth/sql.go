@@ -39,15 +39,18 @@ import (
 
 var (
 	queries = map[string]string{
-		"insert":       `INSERT INTO idm_personal_tokens VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		"insert":       `INSERT INTO idm_personal_tokens VALUES (?,CONCAT('sha256:', SHA2(?, 256)),?,?,?,?,?,?,?,?,?,?)`,
 		"updateExpire": `UPDATE idm_personal_tokens SET expire_at=? WHERE uuid=?`,
-		"validToken":   `SELECT * FROM idm_personal_tokens WHERE access_token=? AND expire_at > ? LIMIT 0,1`,
+		"validToken":   `SELECT * FROM idm_personal_tokens WHERE access_token=CONCAT('sha256:', SHA2(?, 256)) AND expire_at > ? LIMIT 0,1`,
 		"listAll":      `SELECT * FROM idm_personal_tokens ORDER BY created_by DESC`,
 		"listByUser":   `SELECT * FROM idm_personal_tokens WHERE user_login LIKE ? ORDER BY created_by DESC`,
 		"listByType":   `SELECT * FROM idm_personal_tokens WHERE pat_type=? ORDER BY created_by DESC`,
 		"listByBoth":   `SELECT * FROM idm_personal_tokens WHERE pat_type=? AND user_login LIKE ? ORDER BY created_by DESC`,
 		"delete":       `DELETE FROM idm_personal_tokens WHERE uuid=?`,
 		"pruneExpired": `DELETE FROM idm_personal_tokens WHERE expire_at < ?`,
+		// Sqlite does not support CONCAT and SHA2 functions
+		"insert-sqlite":     `INSERT INTO idm_personal_tokens VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		"validToken-sqlite": `SELECT * FROM idm_personal_tokens WHERE access_token=? AND expire_at > ? LIMIT 0,1`,
 	}
 )
 
@@ -99,7 +102,12 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	stmt, er := s.GetStmt("validToken")
+	key := "validToken"
+	if s.Driver() == "sqlite3" {
+		key = "validToken-sqlite"
+	}
+
+	stmt, er := s.GetStmt(key)
 	if er != nil {
 		return nil, er
 	}
@@ -126,7 +134,11 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 		_, e := updateStmt.Exec(int32(token.ExpiresAt), token.Uuid)
 		return e
 	} else {
-		insertStmt, er := s.GetStmt("insert")
+		insertKey := "insert"
+		if s.Driver() == "sqlite3" {
+			insertKey = "insert-sqlite"
+		}
+		insertStmt, er := s.GetStmt(insertKey)
 		if er != nil {
 			return er
 		}
