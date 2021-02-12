@@ -69,11 +69,11 @@ const (
 )
 
 var (
-	startCmd *cobra.Command
+	DefaultStartCmd *cobra.Command
 )
 
 func init() {
-	startCmd = StartCmd
+	DefaultStartCmd = StartCmd
 }
 
 var (
@@ -301,28 +301,28 @@ ENVIRONMENT
 		case <-cmd.Context().Done():
 			return
 		default:
-			if startCmd.PreRunE != nil {
-				if err := startCmd.PreRunE(cmd, args); err != nil {
+			if DefaultStartCmd.PreRunE != nil {
+				if err := DefaultStartCmd.PreRunE(cmd, args); err != nil {
 					return
 				}
-			} else if startCmd.PreRun != nil {
-				startCmd.PreRun(cmd, args)
+			} else if DefaultStartCmd.PreRun != nil {
+				DefaultStartCmd.PreRun(cmd, args)
 			}
 
-			if startCmd.RunE != nil {
-				if err := startCmd.RunE(cmd, args); err != nil {
+			if DefaultStartCmd.RunE != nil {
+				if err := DefaultStartCmd.RunE(cmd, args); err != nil {
 					return
 				}
-			} else if startCmd.Run != nil {
-				startCmd.Run(cmd, args)
+			} else if DefaultStartCmd.Run != nil {
+				DefaultStartCmd.Run(cmd, args)
 			}
 
-			if startCmd.PostRunE != nil {
-				if err := startCmd.PostRunE(cmd, args); err != nil {
+			if DefaultStartCmd.PostRunE != nil {
+				if err := DefaultStartCmd.PostRunE(cmd, args); err != nil {
 					return
 				}
-			} else if startCmd.PostRun != nil {
-				startCmd.PostRun(cmd, args)
+			} else if DefaultStartCmd.PostRun != nil {
+				DefaultStartCmd.PostRun(cmd, args)
 			}
 		}
 	},
