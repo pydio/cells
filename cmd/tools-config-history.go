@@ -57,6 +57,9 @@ DESCRIPTION
   A version is created at each call to config.Save() inside the application, along with a log message
   and the user originating this call.
 `,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		initConfig()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var store filex.VersionsStore
