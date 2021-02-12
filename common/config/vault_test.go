@@ -48,6 +48,7 @@ func TestVault(t *testing.T) {
 
 	RegisterVaultKey("protectedValue")
 	RegisterVaultKey("my-protected-map/my-protected-value")
+	RegisterVaultKey("myjson/myprotectedmap/myprotectedvalue")
 
 	Convey("Test Set", t, func() {
 		vault.Val("protectedValue").Set("my-secret-data")
@@ -70,5 +71,38 @@ func TestVault(t *testing.T) {
 		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "")
 
 		So(vault.Val("my-protected-map/my-protected-value").Set("testing the test"), ShouldBeNil)
+	})
+
+	Convey("Test Setting a json byte value", t, func() {
+		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+			"myprotectedvalue":   "test",
+			"myunprotectedvalue": "whatever",
+		})
+
+		So(vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String(), ShouldNotEqual, "test")
+
+		// Trying to reset
+		uuid := vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String()
+
+		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+			"myprotectedvalue": uuid,
+		})
+
+		// uuid should't have changed
+		So(uuid, ShouldEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+
+		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+			"myprotectedvalue": "test",
+		})
+
+		// uuid should't have changed
+		So(uuid, ShouldEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+
+		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+			"myprotectedvalue": "test2",
+		})
+
+		// uuid should have changed
+		So(uuid, ShouldNotEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
 	})
 }

@@ -205,7 +205,8 @@ func (v *vaultvalues) set(val interface{}) error {
 
 	// Get the current value and do nothing it it hasn't change
 	current := v.vault.Val(uuid).Default("").String()
-	if current == val.(string) {
+
+	if current == val.(string) || uuid == val.(string) {
 		// already set
 		return nil
 	}
