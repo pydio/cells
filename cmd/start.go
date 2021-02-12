@@ -23,13 +23,11 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -125,29 +123,15 @@ ENVIRONMENT
 		})
 
 		if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
-			var crtUser string
-			if u, er := user.Current(); er == nil {
-				crtUser = "(currently running as '" + u.Username + "')"
-			}
-			fmt.Println("****************************************************************************************")
-			fmt.Println("# ")
-			fmt.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for Cells !")
-			fmt.Println("# ")
-			fmt.Println("#   If you have already installed, maybe the configuration file is not accessible.")
-			fmt.Println("#   Working Directory is " + config.ApplicationWorkingDir())
-			fmt.Println("#   If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
-			fmt.Println("#   launching the process as the correct OS user " + crtUser + ".")
-			fmt.Println("# ")
-			fmt.Println("****************************************************************************************")
-			fmt.Println("")
-
-			ConfigureCmd.PreRunE(cmd, args)
-			ConfigureCmd.Run(cmd, args)
-
-			return nil
+			return triggerInstall("Oops, cannot find a valid configuration for Cells !", cmd, args)
 		}
 
 		initConfig()
+
+		// Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDatabase("default"); a == "" {
+			return triggerInstall("Oops, could not find a valid database configuration", cmd, args)
+		}
 
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
@@ -259,39 +243,9 @@ ENVIRONMENT
 		return nil
 	},
 
-	Run: func(cmd *cobra.Command, args []string) {
-
-		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
-			var crtUser string
-			if u, er := user.Current(); er == nil {
-				crtUser = "(currently running as '" + u.Username + "')"
-			}
-			cmd.Println("****************************************************************************************")
-			cmd.Println("# ")
-			cmd.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for the database!")
-			cmd.Println("# ")
-			cmd.Println("# A - Before first start, make sure to first run the basic configuration steps:")
-			cmd.Println("#     $> " + os.Args[0] + " configure")
-			cmd.Println("# ")
-			cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
-			cmd.Println("#     Working Directory is " + config.ApplicationWorkingDir())
-			cmd.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
-			cmd.Println("#     launching the process as the correct OS user " + crtUser + ".")
-			cmd.Println("# ")
-			cmd.Println("****************************************************************************************")
-			cmd.Println("")
-			pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
-			if _, e := pr.Run(); e != nil {
-				cmd.Println("Exiting now...")
-			} else {
-				ConfigureCmd.Run(cmd, args)
-			}
-			return
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Start services that have not been deregistered via flags and filtering.
-	loopstart:
 		for _, service := range allServices {
 			if !IsFork && service.RequiresFork() {
 				if !service.AutoStart() {
@@ -304,7 +258,7 @@ ENVIRONMENT
 
 			select {
 			case <-cmd.Context().Done():
-				break loopstart
+				return nil
 			default:
 				continue
 			}
@@ -313,26 +267,31 @@ ENVIRONMENT
 		// When the process is stopped the context is stopped
 		<-cmd.Context().Done()
 
+		return nil
+	},
+
+	PostRunE: func(cmd *cobra.Command, args []string) error {
 		// Checking that the processes are done
 		ticker := time.Tick(1 * time.Second)
 		// In any case, we stop after 10 seconds even if a service is still registered somehow
 		timeout := time.After(10 * time.Second)
 
-	loop:
 		for {
 			select {
 			case <-ticker:
 				process := registry.Default.GetCurrentProcess()
 				childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
 				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
-					break loop
+					return nil
 				}
 				log.Info("Services are still running ", zap.Any("services", process.Services))
 				continue
 			case <-timeout:
-				break loop
+				return nil
 			}
 		}
+
+		return nil
 	},
 }
 

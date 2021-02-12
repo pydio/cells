@@ -160,7 +160,7 @@ func (n *natsRegistry) deregister(s *registry.Service) error {
 	defer n.Unlock()
 
 	// cache leftover service
-	services := addServices(n.services[s.Name], []*registry.Service{s})
+	services := delServices(n.services[s.Name], []*registry.Service{s})
 	if len(services) > 0 {
 		n.services[s.Name] = services
 		return nil
@@ -192,6 +192,7 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 		service = &registry.Service{Name: s}
 	} else {
 		action = "list"
+
 	}
 
 	inbox := nats.NewInbox()
@@ -312,19 +313,6 @@ func (n *natsRegistry) ListServices() ([]*registry.Service, error) {
 	}
 
 	return services, nil
-
-	// var services []*registry.Service
-	// serviceMap := make(map[string]*registry.Service)
-
-	// for _, v := range s {
-	// 	serviceMap[v.Name] = &registry.Service{Name: v.Name}
-	// }
-
-	// for _, v := range serviceMap {
-	// 	services = append(services, v)
-	// }
-
-	// return services, nil
 }
 
 func (n *natsRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {

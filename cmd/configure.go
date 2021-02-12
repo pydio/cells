@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -296,8 +297,34 @@ ENVIRONMENT
 			return
 		}
 
-		startCmd.PreRunE(cmd, args)
-		startCmd.Run(cmd, args)
+		select {
+		case <-cmd.Context().Done():
+			return
+		default:
+			if startCmd.PreRunE != nil {
+				if err := startCmd.PreRunE(cmd, args); err != nil {
+					return
+				}
+			} else if startCmd.PreRun != nil {
+				startCmd.PreRun(cmd, args)
+			}
+
+			if startCmd.RunE != nil {
+				if err := startCmd.RunE(cmd, args); err != nil {
+					return
+				}
+			} else if startCmd.Run != nil {
+				startCmd.Run(cmd, args)
+			}
+
+			if startCmd.PostRunE != nil {
+				if err := startCmd.PostRunE(cmd, args); err != nil {
+					return
+				}
+			} else if startCmd.PostRun != nil {
+				startCmd.PostRun(cmd, args)
+			}
+		}
 	},
 }
 
@@ -526,4 +553,56 @@ func init() {
 	addRegistryFlags(flags, true)
 
 	RootCmd.AddCommand(ConfigureCmd)
+}
+
+func triggerInstall(message string, cmd *cobra.Command, args []string) error {
+	// Pre-check that pydio.json is properly configured
+	var crtUser string
+	if u, er := user.Current(); er == nil {
+		crtUser = "(currently running as '" + u.Username + "')"
+	}
+	cmd.Println("****************************************************************************************")
+	cmd.Println("# ")
+	cmd.Println("# " + promptui.IconBad + " " + message)
+	cmd.Println("# ")
+	cmd.Println("# A - Before first start, make sure to first run the basic configuration steps:")
+	cmd.Println("#     $> " + os.Args[0] + " configure")
+	cmd.Println("# ")
+	cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
+	cmd.Println("#     Working Directory is " + config.ApplicationWorkingDir())
+	cmd.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
+	cmd.Println("#     launching the process as the correct OS user " + crtUser + ".")
+	cmd.Println("# ")
+	cmd.Println("****************************************************************************************")
+	cmd.Println("")
+	pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
+	if _, e := pr.Run(); e != nil {
+		cmd.Println("Exiting now...")
+		os.Exit(0)
+	} else {
+		if ConfigureCmd.PreRunE != nil {
+			if err := ConfigureCmd.PreRunE(cmd, args); err != nil {
+				return err
+			}
+		} else if ConfigureCmd.PreRun != nil {
+			ConfigureCmd.PreRun(cmd, args)
+		}
+
+		if ConfigureCmd.RunE != nil {
+			if err := ConfigureCmd.RunE(cmd, args); err != nil {
+				return err
+			}
+		} else if ConfigureCmd.Run != nil {
+			ConfigureCmd.Run(cmd, args)
+		}
+
+		if ConfigureCmd.PostRunE != nil {
+			if err := ConfigureCmd.PostRunE(cmd, args); err != nil {
+				return err
+			}
+		} else if ConfigureCmd.PostRun != nil {
+			ConfigureCmd.PostRun(cmd, args)
+		}
+	}
+	return nil
 }
