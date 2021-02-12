@@ -34,6 +34,9 @@ DESCRIPTION
   Set of commands providing programmatic access to stored configuration
 
 `,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		initConfig()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

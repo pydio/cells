@@ -80,7 +80,6 @@ DESCRIPTION
 		defer stream.Close()
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetRowLine(true)
 		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 
 		for {
