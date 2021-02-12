@@ -21,19 +21,9 @@
 package config
 
 import (
-	"context"
-	"fmt"
-	"reflect"
 	"sync"
 	"testing"
-	"time"
 
-	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/file"
-	"github.com/pydio/cells/common/config/micro/memory"
-	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/cells/x/filex"
-	"github.com/pydio/go-os/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -62,78 +52,4 @@ func TestConfig(t *testing.T) {
 
 		wg.Wait()
 	})
-}
-
-func TestUpdate(t *testing.T) {
-	Convey("Test updates", t, func() {
-
-		type updateable interface {
-			Update(c *config.ChangeSet)
-		}
-
-		versionsStore := filex.NewStore(PydioConfigDir)
-		vaultConfig := New(
-			micro.New(
-				config.NewConfig(
-					config.WithSource(
-						memory.NewSource(memory.WithJSON([]byte{})),
-					),
-					config.PollInterval(10*time.Second),
-				),
-			))
-
-		source := file.NewSource(config.SourceName("/tmp/config.test"))
-		//source := memory.NewSource(memory.WithJSON([]byte{}))
-		std := NewVault(
-			New(NewVersionStore(versionsStore, micro.New(config.NewConfig(
-				config.WithSource(source),
-				config.PollInterval(1*time.Second),
-			)))),
-			vaultConfig,
-		)
-
-		Register(std)
-
-		ctx := context.WithValue(context.Background(), "config", Get("level1"))
-
-		tick := time.Tick(2 * time.Second)
-		timeout := time.After(10 * time.Second)
-		for {
-			select {
-			case <-tick:
-				// source.(updateable).Update(&config.ChangeSet{
-				// 	Data: []byte(fmt.Sprintf(`{"level1": { "level2": {"timestamp": "%v"}}}`, time.Now())),
-				// })
-
-				cfg := ctx.Value("config").(configx.Values)
-
-				fmt.Println("New val is ", reflect.TypeOf(cfg), cfg.Val())
-				continue
-			case <-timeout:
-				break
-			}
-			break
-		}
-	})
-
-	/*
-		Convey("Test Scan", t, func() {
-			w, err := Watch("watch", "val")
-			So(err, ShouldBeNil)
-
-			wg := &sync.WaitGroup{}
-			wg.Add(1)
-			go func() {
-				for {
-					w.Next()
-
-					wg.Done()
-				}
-			}()
-
-			Set("test", "watch", "val")
-
-			wg.Wait()
-		})
-	*/
 }
