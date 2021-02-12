@@ -1,7 +1,6 @@
 package migrations
 
 import (
-	"fmt"
 	"net/url"
 
 	json "github.com/pydio/cells/x/jsonx"
@@ -99,7 +98,7 @@ func updateSites(config configx.Values) error {
 
 func updateSourceKeys(config configx.Values) error {
 
-	fmt.Println("[Configs] Upgrading source keys")
+	// fmt.Println("[Configs] Upgrading source keys")
 	asSlice := func(s string) (sl []string, er error) {
 		er = json.Unmarshal([]byte(s), &sl)
 		return

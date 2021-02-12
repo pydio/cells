@@ -555,29 +555,30 @@ func init() {
 	RootCmd.AddCommand(ConfigureCmd)
 }
 
-func triggerInstall(message string, cmd *cobra.Command, args []string) error {
-	// Pre-check that pydio.json is properly configured
-	var crtUser string
-	if u, er := user.Current(); er == nil {
-		crtUser = "(currently running as '" + u.Username + "')"
-	}
-	cmd.Println("****************************************************************************************")
-	cmd.Println("# ")
-	cmd.Println("# " + promptui.IconBad + " " + message)
-	cmd.Println("# ")
-	cmd.Println("# A - Before first start, make sure to first run the basic configuration steps:")
-	cmd.Println("#     $> " + os.Args[0] + " configure")
-	cmd.Println("# ")
-	cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
-	cmd.Println("#     Working Directory is " + config.ApplicationWorkingDir())
-	cmd.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
-	cmd.Println("#     launching the process as the correct OS user " + crtUser + ".")
-	cmd.Println("# ")
-	cmd.Println("****************************************************************************************")
+func triggerInstall(message string, prompt string, cmd *cobra.Command, args []string) error {
+
 	cmd.Println("")
-	pr := promptui.Prompt{IsConfirm: true, Label: "Do you want to run '" + os.Args[0] + " configure' now"}
+	cmd.Println(promptui.IconBad + " " + message)
+	cmd.Println("")
+
+	pr := promptui.Prompt{IsConfirm: true, Label: prompt}
+
 	if _, e := pr.Run(); e != nil {
-		cmd.Println("Exiting now...")
+		// Pre-check that pydio.json is properly configured
+		var crtUser string
+		if u, er := user.Current(); er == nil {
+			crtUser = "(currently running as '" + u.Username + "')"
+		}
+		cmd.Println("")
+		cmd.Println("If you have already gone through the basic configuration steps,")
+		cmd.Println("it may be that the configuration file is not accessible. Check the permissions.")
+		cmd.Println("")
+		cmd.Println("The Working Directory is " + config.ApplicationWorkingDir())
+		cmd.Println("")
+		cmd.Println("If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
+		cmd.Println("launching the process as the correct OS user " + crtUser + ".")
+		cmd.Println("")
+		cmd.Println("")
 		os.Exit(0)
 	} else {
 		if ConfigureCmd.PreRunE != nil {

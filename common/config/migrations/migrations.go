@@ -83,7 +83,7 @@ func UpdateKeys(config configx.Values, m map[string]string) error {
 		oldVal := config.Val(oldPath)
 		newVal := config.Val(newPath)
 		if oldVal.Get() != nil {
-			fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
+			// fmt.Printf("[Configs] Upgrading: renaming key %s to %s\n", oldPath, newPath)
 			if err := newVal.Set(oldVal.Get()); err != nil {
 				return err
 			}

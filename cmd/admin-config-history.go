@@ -47,19 +47,16 @@ var (
 
 // configHistoryCmd represents the list command
 var configHistoryCmd = &cobra.Command{
-	Use:   "config-history",
-	Short: "List all configurations revisions",
+	Use:   "history",
+	Short: "Show the history of all configuration changes",
 	Long: `
 DESCRIPTION
 
-  Manage configurations changes history and revert to a given version if necessary.
+  View all changes ever made to the configuration and revert to a given version if necessary.
 
   A version is created at each call to config.Save() inside the application, along with a log message
   and the user originating this call.
 `,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		initConfig()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var store filex.VersionsStore
@@ -195,5 +192,5 @@ func init() {
 	configHistoryCmd.Flags().StringVar(&configVersionShow, "cat", "", "Print the JSON content of the config for this version")
 	configHistoryCmd.Flags().StringVar(&configVersionRestore, "restore", "", "Restore configuration to this specific version")
 	configHistoryCmd.Flags().StringVar(&configVersionDb, "file", "", "Point to a specific DB file instead of default")
-	ToolsCmd.AddCommand(configHistoryCmd)
+	ConfigCmd.AddCommand(configHistoryCmd)
 }

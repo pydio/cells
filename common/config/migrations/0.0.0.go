@@ -1,7 +1,6 @@
 package migrations
 
 import (
-	"fmt"
 	"path"
 	"strings"
 
@@ -91,7 +90,7 @@ func setDefaultConfig(config configx.Values) error {
 		var data interface{}
 
 		if e := val.Scan(&data); e == nil && data == nil {
-			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", p, def)
+			// fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", p, def)
 			d, f := path.Split(p)
 			config.Val(d, f).Set(def)
 		}
@@ -114,7 +113,7 @@ func forceDefaultConfig(config configx.Values) error {
 		val := config.Val(p)
 		var data interface{}
 		if val.Scan(&data); data != def {
-			fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
+			// fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
 			d, f := path.Split(p)
 			config.Val(d, f).Set(def)
 		}
@@ -129,7 +128,7 @@ func forceDefaultConfig(config configx.Values) error {
 
 		var data []string
 		if val.Scan(&data); !stringSliceEqual(data, def) {
-			fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
+			// fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
 			d, f := path.Split(p)
 			config.Val(d, f).Set(def)
 		}
@@ -184,7 +183,7 @@ func forceDefaultConfig(config configx.Values) error {
 			saveStatics = true
 		}
 		if saveStatics {
-			fmt.Println("[Configs] Upgrading: updating staticClients")
+			// fmt.Println("[Configs] Upgrading: updating staticClients")
 			config.Val("services/" + oauthSrv + "/staticClients").Set(data)
 		}
 	}
