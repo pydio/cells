@@ -148,7 +148,7 @@ func TestHandler_CRUD(t *testing.T) {
 			StoreID:    "any-store",
 			DocumentID: "my-doc-id",
 		}, getDocResp2)
-		So(e4, ShouldBeNil)
+		So(e4, ShouldNotBeNil)
 		So(getDocResp2.Document, ShouldBeNil)
 
 	})
