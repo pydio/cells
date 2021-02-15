@@ -312,6 +312,9 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
+	} else if pluginOptions.ShareForcePassword && !putRequest.PasswordEnabled {
+		service.RestError403(req, rsp, fmt.Errorf("password is required"))
+		return
 	}
 
 	ownerUser := h.IdmUserFromClaims(ctx)

@@ -22,6 +22,7 @@ package share
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 
@@ -43,7 +44,7 @@ const PasswordComplexitySuffix = "#$!Az1"
 
 func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, updateHash ...string) error {
 
-	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+	store := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
 
 	hashDoc := &docstore.ShareDocument{
 		OwnerId:       ownerUser.Login,
@@ -77,12 +78,18 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 		}
 	}
 	hashDoc.DownloadDisabled = !DownloadEnabled
-
 	hashDocMarshaled, _ := json.Marshal(hashDoc)
+
+	storeID := common.DocStoreIdShares
 	var removeHash string
-	if len(updateHash) > 0 && len(updateHash[0]) > 0 {
+	if len(updateHash) > 0 && len(updateHash[0]) > 0 && link.LinkHash != updateHash[0] {
+		newHash := updateHash[0]
+		// Check if it already exists
+		if _, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{StoreID: storeID, DocumentID: newHash}); e == nil {
+			return fmt.Errorf("hash is already in use, please use another one")
+		}
 		removeHash = link.LinkHash
-		link.LinkHash = updateHash[0]
+		link.LinkHash = newHash
 	}
 
 	doc := &docstore.Document{
@@ -90,10 +97,10 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 		Data:          string(hashDocMarshaled),
 		IndexableMeta: string(hashDocMarshaled),
 	}
-	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{Document: doc, DocumentID: doc.ID, StoreID: common.DocStoreIdShares})
+	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{StoreID: storeID, Document: doc, DocumentID: doc.ID})
 
 	if removeHash != "" {
-		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DocStoreIdShares, DocumentID: removeHash})
+		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: storeID, DocumentID: removeHash})
 	}
 
 	return e

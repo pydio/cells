@@ -64,7 +64,7 @@ func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentReq
 	log.Logger(ctx).Debug("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
 	doc, e := h.Db.GetDocument(request.StoreID, request.DocumentID)
 	if e != nil {
-		return nil
+		return fmt.Errorf("document not found")
 	}
 	response.Document = doc
 	return nil

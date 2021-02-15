@@ -193,7 +193,7 @@ func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstor
 	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	resp, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{DocumentID: linkUuid, StoreID: common.DocStoreIdShares})
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("cannot find document")
 	}
 	linkDoc := resp.Document
 	if linkDoc == nil {
