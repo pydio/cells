@@ -266,7 +266,9 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 	case tree.NodeChangeEvent_UPDATE_PATH:
 
-		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "from", false, true, true)
+		if rwErr = a.checkPerm(srcCtx, operation.GetSource(), "from", false, true, true); rwErr != nil {
+			return rwErr
+		}
 		// For delete operations, ignore write permissions as recycle can be outside of authorized paths
 		if operation.GetTarget().GetStringMeta(common.RecycleBinName) != "true" {
 			rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "to", true, false, true)
@@ -294,11 +296,11 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	if err != nil {
 		return err
 	}
-	if write && !accessList.CanWrite(ctx, parents...) {
-		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not writeable")
-	}
 	if read && !accessList.CanRead(ctx, parents...) {
-		return errors.Forbidden(VIEWS_LIBRARY_NAME, "path is not readable")
+		return errors.Forbidden("node.not.readable", "path is not readable")
+	}
+	if write && !accessList.CanWrite(ctx, parents...) {
+		return errors.Forbidden("node.not.writeable", "path is not writeable")
 	}
 	return nil
 

@@ -60,10 +60,13 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 		var targetSize int64
 		for i, p := range selectedPathes {
 			node := &tree.Node{Path: p}
-			_, node, nodeErr := inputFilter(ctx, node, "in")
+			srcCtx, node, nodeErr := inputFilter(ctx, node, "in")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
+			}
+			if err := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
+				return err
 			}
 			if resp, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e != nil {
 				return e
@@ -144,6 +147,9 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			return nodeErr
 		}
 		archiveNode := node.Path
+		if err := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
+			return err
+		}
 		var archiveSize int64
 		if resp, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(srcCtx, &tree.ReadNodeRequest{Node: node}); e != nil {
 			return e
@@ -273,6 +279,9 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 					return sErr
 				}
 			} else {
+				if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: r.Node}); rErr != nil {
+					return rErr
+				}
 				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: checkNode}); er != nil {
 					return er
 				}
@@ -405,43 +414,52 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	taskLabel := T("Jobs.User.Wget")
+	router := getRouter()
 
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	var jobUuids []string
 
 	var parentNode, fullPathParentNode *tree.Node
-	if resp, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}}); e != nil {
+	if resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}}); e != nil {
 		return []string{}, e
 	} else {
 		parentNode = resp.Node
 	}
 
 	// Compute node real path, and check that its writeable as well
-	if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-		updateCtx, realParent, e := inputFilter(ctx, parentNode, "sel")
-		if e != nil {
-			return e
-		} else {
-			accessList, e := views.AccessListFromContext(updateCtx)
+	if innerOp, e := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: parentNode}); e == nil {
+		fullPathParentNode = innerOp.GetTarget()
+	} else {
+		return []string{}, errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
+	}
+	/*
+		if err := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+			updateCtx, realParent, e := inputFilter(ctx, parentNode, "sel")
 			if e != nil {
 				return e
+			} else {
+				accessList, e := views.AccessListFromContext(updateCtx)
+				if e != nil {
+					return e
+				}
+				// First load ancestors or grab them from BranchInfo
+				ctx, parents, err := views.AncestorsListFromContext(updateCtx, realParent, "in", getRouter().GetClientsPool(), false)
+				if err != nil {
+					return err
+				}
+				if !accessList.CanWrite(ctx, parents...) {
+					return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
+				}
+				fullPathParentNode = realParent
 			}
-			// First load ancestors or grab them from BranchInfo
-			ctx, parents, err := views.AncestorsListFromContext(updateCtx, realParent, "in", getRouter().GetClientsPool(), false)
-			if err != nil {
-				return err
-			}
-			if !accessList.CanWrite(ctx, parents...) {
-				return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
-			}
-			fullPathParentNode = realParent
-		}
 
-		return nil
-	}); err != nil {
-		return jobUuids, err
-	}
+			return nil
+		}); err != nil {
+			return jobUuids, err
+		}
+	*/
+
 	var whiteList, blackList []string
 	wl := config.Get("frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_WHITELIST").String()
 	bl := config.Get("frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_BLACKLIST").String()
@@ -473,28 +491,33 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 			basename = jobUuid
 		}
 		// Recheck target node for policies
-		if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-			updateCtx, realTarget, e := inputFilter(ctx, &tree.Node{Path: path.Join(parentPath, basename)}, "sel")
-			if e != nil {
-				return e
-			} else {
-				accessList, e := views.AccessListFromContext(updateCtx)
-				if e != nil {
-					return e
-				}
-				// First load ancestors or grab them from BranchInfo
-				ctx, parents, err := views.AncestorsListFromContext(updateCtx, realTarget, "in", getRouter().GetClientsPool(), true)
-				if err != nil {
-					return err
-				}
-				if !accessList.CanWrite(ctx, parents...) {
-					return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
-				}
-			}
-			return nil
-		}); err != nil {
+		if _, err := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: &tree.Node{Path: path.Join(parentPath, basename)}}); err != nil {
 			return jobUuids, err
 		}
+		/*
+			if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+				updateCtx, realTarget, e := inputFilter(ctx, &tree.Node{Path: path.Join(parentPath, basename)}, "sel")
+				if e != nil {
+					return e
+				} else {
+					accessList, e := views.AccessListFromContext(updateCtx)
+					if e != nil {
+						return e
+					}
+					// First load ancestors or grab them from BranchInfo
+					ctx, parents, err := views.AncestorsListFromContext(updateCtx, realTarget, "in", getRouter().GetClientsPool(), true)
+					if err != nil {
+						return err
+					}
+					if !accessList.CanWrite(ctx, parents...) {
+						return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
+					}
+				}
+				return nil
+			}); err != nil {
+				return jobUuids, err
+			}
+		*/
 		if e := disallowTemplate(params); e != nil {
 			return nil, e
 		}

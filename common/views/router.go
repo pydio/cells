@@ -244,6 +244,39 @@ func (v *Router) WrappedCanApply(srcCtx context.Context, targetCtx context.Conte
 	return v.handlers[0].WrappedCanApply(srcCtx, targetCtx, operation)
 }
 
+func (v *Router) CanApply(ctx context.Context, operation *tree.NodeChangeEvent) (*tree.NodeChangeEvent, error) {
+	var innerOperation *tree.NodeChangeEvent
+	e := v.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
+		var sourceNode, targetNode *tree.Node
+		var sourceCtx, targetCtx context.Context
+		switch operation.Type {
+		case tree.NodeChangeEvent_CREATE:
+			targetNode = operation.Target
+		case tree.NodeChangeEvent_READ, tree.NodeChangeEvent_DELETE:
+			sourceNode = operation.Source
+		case tree.NodeChangeEvent_UPDATE_PATH:
+			targetNode = operation.Target
+			sourceNode = operation.Source
+		}
+		var e error
+		if targetNode != nil {
+			targetCtx, targetNode, e = inputFilter(ctx, targetNode, "in")
+			if e != nil {
+				return e
+			}
+		}
+		if sourceNode != nil {
+			sourceCtx, sourceNode, e = inputFilter(ctx, targetNode, "in")
+			if e != nil {
+				return e
+			}
+		}
+		innerOperation = &tree.NodeChangeEvent{Type: operation.Type, Source: sourceNode, Target: targetNode}
+		return v.WrappedCanApply(sourceCtx, targetCtx, &tree.NodeChangeEvent{Type: operation.Type, Source: sourceNode, Target: targetNode})
+	})
+	return innerOperation, e
+}
+
 // To respect Handler interface
 func (v *Router) SetNextHandler(h Handler)      {}
 func (v *Router) SetClientsPool(p *ClientsPool) {}

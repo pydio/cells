@@ -103,6 +103,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 		}
 		break
 	}
+	meta.JsonValue = userName // Override any original value
 	if operation == idm.UpdateUserMetaRequest_PUT {
 		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			NodeID: nodeUuid,
@@ -144,6 +145,10 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: meta.NodeUuid}})
 		if e != nil {
 			service.RestError404(req, rsp, e)
+			return
+		}
+		if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: resp.Node}); er != nil {
+			service.RestError403(req, rsp, er)
 			return
 		}
 		meta.ResolvedNode = resp.Node.Clone()
