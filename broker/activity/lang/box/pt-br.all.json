@@ -1,6 +1,6 @@
 {
   "AccessedBy": {
-    "other": "Acessado por {{.Actor}}"
+    "other": "{{.Actor}} acessado"
   },
   "AccessedObject": {
     "other": "{{.Object}} acessado"
@@ -54,22 +54,22 @@
     "other": "{{.Object}} foi modificado por {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Modificado por {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Metadados modificados em {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} metadados modificados em {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Comentado por {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Comentou {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} publicou um novo comentário em {{.Object}}"
   },
   "MovedBy": {
     "other": "Movido por {{.Actor}}"

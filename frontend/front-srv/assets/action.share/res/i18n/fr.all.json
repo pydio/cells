@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Filtre rapide..."
   }
 }
