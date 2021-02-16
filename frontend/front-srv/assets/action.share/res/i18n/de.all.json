@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Sie haben ungespeicherte Änderungen. Möchten Sie das Fenster wirklich schließen?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Schnellfilter..."
   }
 }

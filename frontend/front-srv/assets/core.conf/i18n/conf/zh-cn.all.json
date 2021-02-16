@@ -42,7 +42,7 @@
     "other": "Core SQL Connection"
   },
   "Country": {
-    "other": "Country"
+    "other": "国家/地区"
   },
   "Create external users": {
     "other": "Create external users"
@@ -51,7 +51,7 @@
     "other": "默认工作区"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "登录后显示的默认工作区。“主页”是带有活动和搜索引擎的欢迎页面。"
   },
   "Display roles and/or groups": {
     "other": "Display roles and/or groups"
@@ -126,7 +126,7 @@
     "other": "Make regexp mandatory"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "每个用户的最大共享用户数"
   },
   "Maximum number of users displayed in the users autocompleter": {
     "other": "Maximum number of users displayed in the users autocompleter"

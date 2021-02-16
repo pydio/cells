@@ -36,7 +36,7 @@
     "other": "已启用"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ 添加角色"
   },
   "21": {
     "other": "reloading..."
@@ -48,7 +48,7 @@
     "other": "Loading parameters cache, please wait, this will be done only once..."
   },
   "24": {
-    "other": "User Information"
+    "other": "用户信息"
   },
   "25": {
     "other": "Access Restrictions"
@@ -72,7 +72,7 @@
     "other": "Profile & Roles"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "用户唯一标识符。 您不能修改此值。"
   },
   "32": {
     "other": "Specific profile. May imply some roles automatically applied."
@@ -123,7 +123,7 @@
     "other": "Parameters and actions"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "为特定的工作空间细化参数值和操作项"
   },
   "49": {
     "other": "Shares"
@@ -144,7 +144,7 @@
     "other": "Shared by %1 from within workspace %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "基本用户信息。 使用右侧的按钮查看更多操作。"
   },
   "55": {
     "other": "Toggle profile and roles to automatically grant permissions to this user."
@@ -162,10 +162,10 @@
     "other": "Read Only"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "管理用户角色"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "从... 添加"
   },
   "parameters.scope.all": {
     "other": "所有工作区"
@@ -180,7 +180,7 @@
     "other": "Add custom parameter or action"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "没有参数或操作"
   },
   "workspace.statics.home.title": {
     "other": "Home Page"

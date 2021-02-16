@@ -327,7 +327,7 @@
     "other": "For files metadata, the following mapping will be used: "
   },
   "action.meta.success": {
-    "other": "Metadata namespaces created"
+    "other": "已创建元数据命名空间"
   },
   "action.meta.fail": {
     "other": "Error while creating metadata namespace : %s"
