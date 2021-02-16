@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Quick filter..."
   }
 }

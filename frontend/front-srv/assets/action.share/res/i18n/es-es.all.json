@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Quick filter..."
   }
 }

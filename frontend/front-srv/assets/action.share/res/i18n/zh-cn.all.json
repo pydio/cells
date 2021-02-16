@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "有未保存的更改，您确定要关闭吗？"
+  },
+  "sharelist.quick-filter": {
+    "other": "Quick filter..."
   }
 }

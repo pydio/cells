@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Nav saglabātas visas izmaiņas, vai vēlaties aizvērt?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Quick filter..."
   }
 }

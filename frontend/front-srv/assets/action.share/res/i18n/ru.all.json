@@ -907,5 +907,8 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Имеются несохранённые изменения, уверены, что хотите закрыть?"
+  },
+  "sharelist.quick-filter": {
+    "other": "Quick filter..."
   }
 }

@@ -18,7 +18,7 @@
     "other": "限制"
   },
   "Maximum size per file allowed to upload.": {
-    "other": "每个文件允许上传的最大尺寸。"
+    "other": "每个文件允许上传的最大大小。"
   },
   "Options shared by all uploaders plugins": {
     "other": "所有上传插件共享的选项"

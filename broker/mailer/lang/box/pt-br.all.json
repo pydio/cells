@@ -42,10 +42,10 @@
     "other": "Abaixo está o resumo de todas as notificações recebidas em {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} enviou uma mensagem para você!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} enviou-lhe uma mensagem usando a aplicação {{.Configs.Title}} : {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
     "other": "Bem-vindo ao {{.Configs.Title}}"
@@ -195,10 +195,10 @@
     "other": "Desabilitar a verificação de certificado caso o certificado de seu servidor SMTP for auto-assinado"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Nome do Discador Local"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "Discador SMTP envia 'localhost' no comando EHLO por padrão, use este campo para definir um nome local personalizado"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "Serviço SendGrid"
@@ -213,7 +213,7 @@
     "other": "Enviar email"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "AVISO: Caminho padrão do executável é /usr/bin/sendmail. Se você precisa alterá-lo, por favor, certifique-se de definir a chave 'padrões > sendmail' no seu arquivo de configuração pydio.json."
   },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Caminho do executável"
