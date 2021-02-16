@@ -65,6 +65,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 	log.Logger(req.Request.Context()).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
 		service2.RestError403(req, rsp, er)
+		return
 	}
 
 	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
@@ -94,6 +95,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	log.Logger(req.Request.Context()).Debug("Received ACL.Delete API request", zap.Any("inputACL", inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
 		service2.RestError403(req, rsp, er)
+		return
 	}
 
 	q := &idm.ACLSingleQuery{}
