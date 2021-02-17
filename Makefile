@@ -1,4 +1,4 @@
-DEV_VERSION=2.2.1-dev
+DEV_VERSION=2.2.2-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -32,7 +32,7 @@ main:
 
 xgo:
 	${GOPATH}/bin/xgo -go 1.15 \
-	 --image  ${XGO_IMAGE}\
+	 --image ${XGO_IMAGE} \
 	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
