@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"os"
 	"strings"
 
 	"github.com/micro/go-micro/registry"
@@ -46,21 +45,24 @@ DESCRIPTION
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"DSN", "Driver", "Services"})
 
-		defaultDatabaseID := config.Get("defaults", "database").String()
-		defaultDatabase, ok := m[defaultDatabaseID].(map[string]interface{})
+		/*
+			defaultDatabaseID := config.Get("defaults", "database").String()
+			defaultDatabase, ok := m[defaultDatabaseID].(map[string]interface{})
 
-		if !ok {
-			cmd.Println("Default database not found")
-			os.Exit(1)
-		}
+			if !ok {
+				cmd.Println("Default database not found")
+				os.Exit(1)
+			}
 
-		table.Append([]string{defaultDatabase["dsn"].(string), defaultDatabase["driver"].(string), "default"})
+			table.Append([]string{defaultDatabase["dsn"].(string), defaultDatabase["driver"].(string), "default"})
+
+		*/
 
 		// List all databases value
 		for id, v := range m {
-			if id == defaultDatabaseID {
-				continue
-			}
+			//if id == defaultDatabaseID {
+			//	continue
+			//}
 
 			db, ok := v.(map[string]interface{})
 			if !ok {

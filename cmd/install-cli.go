@@ -112,9 +112,11 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		fmt.Println(p.Styler(p.FGFaint)("Edit these URLs by running '") + p.Styler(p.FGFaint, p.FGBold)(os.Args[0]+" configure sites") + p.Styler(p.FGFaint)("' command."))
 	}
 
-	fmt.Println("")
-	fmt.Println("Now use '" + p.Styler(p.FGBold)(os.Args[0]+" start") + "' to start the server.")
-	fmt.Println("")
+	if cmd.Name() != "start" {
+		fmt.Println("")
+		fmt.Println("Now use '" + p.Styler(p.FGBold)(os.Args[0]+" start") + "' to start the server.")
+		fmt.Println("")
+	}
 
 	return cliConfig, nil
 

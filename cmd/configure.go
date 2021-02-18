@@ -292,7 +292,7 @@ ENVIRONMENT
 
 		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
 			cmd.Println("")
-			cmd.Println(promptui.IconGood + "\033[1m Installation Finished: installation server will stop\033[0m")
+			cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
 			cmd.Println("")
 			return
 		}
