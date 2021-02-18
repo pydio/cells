@@ -1,6 +1,6 @@
 import React from 'react'
 import LangUtils from 'pydio/util/lang'
-import {IdmWorkspace, TreeNode} from 'pydio/http/rest-api';
+import {IdmWorkspace, TreeNode} from 'cells-sdk';
 import WorkspaceAcl from './WorkspaceAcl'
 
 class PagesAcls extends React.Component{

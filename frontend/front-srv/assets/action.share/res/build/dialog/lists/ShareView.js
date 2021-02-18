@@ -36,7 +36,7 @@ var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -160,9 +160,9 @@ var ShareView = (function (_React$Component2) {
             var _this = this;
 
             this.setState({ filter: '' });
-            var api = new _pydioHttpRestApi.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestListSharedResourcesRequest();
-            request.ShareType = _pydioHttpRestApi.ListSharedResourcesRequestListShareType.constructFromObject(this.state.shareType);
+            var api = new _cellsSdk.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestListSharedResourcesRequest();
+            request.ShareType = _cellsSdk.ListSharedResourcesRequestListShareType.constructFromObject(this.state.shareType);
             if (this.props.subject) {
                 request.Subject = this.props.subject;
             } else {

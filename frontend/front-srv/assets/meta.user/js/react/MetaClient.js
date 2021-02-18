@@ -1,6 +1,6 @@
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUpdateUserMetaRequest, RestPutUserMetaTagRequest, IdmUserMeta, ServiceResourcePolicy} from 'cells-sdk'
 
 class MetaClient{
 

@@ -40,7 +40,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydio = require('pydio');
 
@@ -107,9 +107,9 @@ var UpdaterDashboard = _react2['default'].createClass({
             })['catch'](function () {});
         });
 
-        var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
-        api.updateRequired(new _pydioHttpRestApi.UpdateUpdateRequest()).then(function (res) {
+        api.updateRequired(new _cellsSdk.UpdateUpdateRequest()).then(function (res) {
             _pydio2['default'].endLoading();
             var hasBinary = 0;
             if (res.AvailableBinaries) {
@@ -154,8 +154,8 @@ var UpdaterDashboard = _react2['default'].createClass({
 
             var toApply = packages[check];
             var version = toApply.Version;
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.UpdateApplyUpdateRequest();
             req.TargetVersion = version;
             api.applyUpdate(version, req).then(function (res) {
                 if (res.Success) {

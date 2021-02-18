@@ -44,7 +44,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _utilMessagesMixin = require('../util/MessagesMixin');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilXml = require('pydio/util/xml');
 

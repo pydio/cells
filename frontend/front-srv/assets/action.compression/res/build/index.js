@@ -37,7 +37,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilPath = require('pydio/util/path');
 
@@ -125,7 +125,7 @@ var CompressionDialog = React.createClass({
         var repoSlug = this.props.pydio.user.getActiveRepositoryObject().getSlug();
         var archivePath = repoSlug + this.props.userSelection.getContextNode().getPath() + "/" + this.state.fileName + "." + this.state.compression;
         archivePath = archivePath.replace('//', '/');
-        var job = _pydioHttpRestApi.RestUserJobRequest.constructFromObject({
+        var job = _cellsSdk.RestUserJobRequest.constructFromObject({
             JobName: "compress",
             JsonParameters: JSON.stringify({
                 archiveName: archivePath,
@@ -135,7 +135,7 @@ var CompressionDialog = React.createClass({
                 })
             })
         });
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         console.log('Sending background job', job);
         api.userCreateJob("compress", job).then(function (r) {
             _this.dismiss();
@@ -200,7 +200,7 @@ var Callbacks = (function () {
                     ext = 'tar.gz';
                 }
                 var repoSlug = pydio.user.getActiveRepositoryObject().getSlug();
-                var job = _pydioHttpRestApi.RestUserJobRequest.constructFromObject({
+                var job = _cellsSdk.RestUserJobRequest.constructFromObject({
                     JobName: "extract",
                     JsonParameters: JSON.stringify({
                         node: repoSlug + file,
@@ -208,7 +208,7 @@ var Callbacks = (function () {
                         target: "" })
                 });
                 // will be computed automatically
-                var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
                 api.userCreateJob("extract", job);
             }
         }

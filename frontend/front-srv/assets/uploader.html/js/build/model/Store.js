@@ -53,7 +53,7 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
-var _restApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -214,13 +214,13 @@ var Store = function (_Observable) {
 
             var folders = this.getFolders();
             if (folders.length && !this._pauseRequired) {
-                var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
-                var request = new _restApi.RestCreateNodesRequest();
+                var api = new _cellsSdk.TreeServiceApi(_api2.default.getRestClient());
+                var request = new _cellsSdk.RestCreateNodesRequest();
                 request.Nodes = [];
                 folders.forEach(function (folderItem) {
-                    var node = new _restApi.TreeNode();
+                    var node = new _cellsSdk.TreeNode();
                     node.Path = folderItem.getFullPath();
-                    node.Type = _restApi.TreeNodeType.constructFromObject('COLLECTION');
+                    node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
                     request.Nodes.push(node);
                     folderItem.setStatus(_StatusItem2.default.StatusLoading);
                     _this5.monitorProcessing(folderItem);

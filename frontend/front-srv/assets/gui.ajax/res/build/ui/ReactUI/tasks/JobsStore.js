@@ -31,7 +31,7 @@ var _pydioLangObservable = require('pydio/lang/observable');
 
 var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -65,8 +65,8 @@ var JobsStore = (function (_Observable) {
             var Job = jsonObject.Job;
             var TaskUpdated = jsonObject.TaskUpdated;
 
-            var job = _pydioHttpRestApi.JobsJob.constructFromObject(Job);
-            var task = _pydioHttpRestApi.JobsTask.constructFromObject(TaskUpdated);
+            var job = _cellsSdk.JobsJob.constructFromObject(Job);
+            var task = _cellsSdk.JobsTask.constructFromObject(TaskUpdated);
             if (job.Tasks === undefined) {
                 job.Tasks = [task];
             }
@@ -140,9 +140,9 @@ var JobsStore = (function (_Observable) {
                 _this3.tasksList.set(j.ID, j);
             });
             return new Promise(function (resolve, reject) {
-                var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var request = new _pydioHttpRestApi.JobsListJobsRequest();
-                request.LoadTasks = _pydioHttpRestApi.JobsTaskStatus.constructFromObject('Running');
+                var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var request = new _cellsSdk.JobsListJobsRequest();
+                request.LoadTasks = _cellsSdk.JobsTaskStatus.constructFromObject('Running');
                 api.userListJobs(request).then(function (result) {
                     _this3.loaded = true;
                     if (result.Jobs) {
@@ -174,9 +174,9 @@ var JobsStore = (function (_Observable) {
         var jobId = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
         var maxTasks = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var request = new _pydioHttpRestApi.JobsListJobsRequest();
-        request.LoadTasks = _pydioHttpRestApi.JobsTaskStatus.constructFromObject('Any');
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var request = new _cellsSdk.JobsListJobsRequest();
+        request.LoadTasks = _cellsSdk.JobsTaskStatus.constructFromObject('Any');
         if (owner !== null) {
             request.Owner = owner;
         } else {
@@ -219,9 +219,9 @@ var JobsStore = (function (_Observable) {
     JobsStore.prototype.controlTask = function controlTask(task, status) {
         var _this4 = this;
 
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var cmd = new _pydioHttpRestApi.JobsCtrlCommand();
-        cmd.Cmd = _pydioHttpRestApi.JobsCommand.constructFromObject(status);
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var cmd = new _cellsSdk.JobsCtrlCommand();
+        cmd.Cmd = _cellsSdk.JobsCommand.constructFromObject(status);
         cmd.TaskId = task.ID;
         if (status === 'Delete') {
             cmd.JobId = task.JobID;
@@ -243,8 +243,8 @@ var JobsStore = (function (_Observable) {
     JobsStore.prototype.deleteTasks = function deleteTasks(jobID, tasks) {
         var _this5 = this;
 
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var req = new _pydioHttpRestApi.JobsDeleteTasksRequest();
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _cellsSdk.JobsDeleteTasksRequest();
         req.TaskID = tasks.map(function (t) {
             return t.ID;
         });
@@ -263,10 +263,10 @@ var JobsStore = (function (_Observable) {
     JobsStore.prototype.deleteAllTasksForJob = function deleteAllTasksForJob(jobId) {
         var _this6 = this;
 
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var req = new _pydioHttpRestApi.JobsDeleteTasksRequest();
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _cellsSdk.JobsDeleteTasksRequest();
         req.JobId = jobId;
-        req.Status = [_pydioHttpRestApi.JobsTaskStatus.constructFromObject("Finished"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Interrupted"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Error")];
+        req.Status = [_cellsSdk.JobsTaskStatus.constructFromObject("Finished"), _cellsSdk.JobsTaskStatus.constructFromObject("Interrupted"), _cellsSdk.JobsTaskStatus.constructFromObject("Error")];
         return api.userDeleteTasks(req).then(function () {
             _this6.notify('tasks_updated', jobId);
         });
@@ -282,9 +282,9 @@ var JobsStore = (function (_Observable) {
     JobsStore.prototype.controlJob = function controlJob(job, command) {
         var _this7 = this;
 
-        var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var cmd = new _pydioHttpRestApi.JobsCtrlCommand();
-        cmd.Cmd = _pydioHttpRestApi.JobsCommand.constructFromObject(command);
+        var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var cmd = new _cellsSdk.JobsCtrlCommand();
+        cmd.Cmd = _cellsSdk.JobsCommand.constructFromObject(command);
         cmd.JobId = job.ID;
         return api.userControlJob(cmd).then(function () {
             _this7.notify('tasks_updated', job.ID);
@@ -312,17 +312,17 @@ var JobsStore = (function (_Observable) {
         var id = arguments.length <= 0 || arguments[0] === undefined ? 'local-debug-fake-job' : arguments[0];
 
         var pydio = _pydio2['default'].getInstance();
-        var job = new _pydioHttpRestApi.JobsJob();
+        var job = new _cellsSdk.JobsJob();
         job.ID = id;
         job.Owner = pydio.user.id;
         job.Label = 'Fake job title';
         job.Stoppable = true;
-        var task = new _pydioHttpRestApi.JobsTask();
+        var task = new _cellsSdk.JobsTask();
         job.Tasks = [task];
         task.HasProgress = true;
         task.Progress = 0.7;
         task.ID = "debug-task";
-        task.Status = _pydioHttpRestApi.JobsTaskStatus.constructFromObject('Running');
+        task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Running');
         task.StatusMessage = 'this is my task currently running status... It may be a long text';
         JobsStore.getInstance().enqueueLocalJob(job);
     };

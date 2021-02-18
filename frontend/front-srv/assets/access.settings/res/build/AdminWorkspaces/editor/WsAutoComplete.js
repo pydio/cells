@@ -55,7 +55,7 @@ var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -183,9 +183,9 @@ var WsAutoComplete = (function (_React$Component) {
 
             this.setState({ loading: true });
 
-            var api = new _pydioHttpRestApi.AdminTreeServiceApi(PydioApi.getRestClient());
-            var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
-            var treeNode = new _pydioHttpRestApi.TreeNode();
+            var api = new _cellsSdk.AdminTreeServiceApi(PydioApi.getRestClient());
+            var listRequest = new _cellsSdk.TreeListNodesRequest();
+            var treeNode = new _cellsSdk.TreeNode();
 
             treeNode.Path = basePath + "/";
             listRequest.Node = treeNode;

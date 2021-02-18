@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Observable from 'pydio/lang/observable'
-import {JobsServiceApi, JobsListJobsRequest, JobsDeleteTasksRequest, JobsJob, JobsTask, JobsTaskStatus, JobsCtrlCommand, JobsCommand} from 'pydio/http/rest-api'
+import {JobsServiceApi, JobsListJobsRequest, JobsDeleteTasksRequest, JobsJob, JobsTask, JobsTaskStatus, JobsCtrlCommand, JobsCommand} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 import {debounce} from 'lodash'

@@ -46,7 +46,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -104,7 +104,7 @@ var JobSchedule = (function (_React$Component) {
                 var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var req = new JobsPutJobRequest();
                 // Clone and remove tasks
-                req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                req.Job = _cellsSdk.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
                 if (req.Job.Tasks !== undefined) {
                     delete req.Job.Tasks;
                 }

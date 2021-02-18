@@ -20,7 +20,7 @@
 import XMLUtils from 'pydio/util/xml'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
-import {MailerServiceApi, MailerMail, MailerUser} from 'pydio/http/rest-api'
+import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
 const {moment} = Pydio.requireLib('boot');
 
 class ShareHelper {

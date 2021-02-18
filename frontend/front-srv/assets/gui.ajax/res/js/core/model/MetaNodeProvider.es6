@@ -18,13 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import MetaCacheService from '../http/MetaCacheService'
 import PydioApi from '../http/PydioApi'
 import PathUtils from '../util/PathUtils'
-import Pydio from 'pydio'
 import AjxpNode from './AjxpNode'
-import MetaServiceApi from "../http/gen/api/MetaServiceApi";
-import RestGetBulkMetaRequest from "../http/gen/model/RestGetBulkMetaRequest";
+import {MetaServiceApi, RestGetBulkMetaRequest} from "cells-sdk";
 
 
 /**

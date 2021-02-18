@@ -40,7 +40,7 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _pydioModelDataModel = require("pydio/model/data-model");
 
@@ -136,13 +136,13 @@ var TreeDialog = _react2['default'].createClass({
             var repo = pydio.user.getRepositoriesList().get(this.state.wsId);
             slug = repo.getSlug();
         }
-        var api = new _pydioHttpRestApi.TreeServiceApi(PydioApi.getRestClient());
-        var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+        var api = new _cellsSdk.TreeServiceApi(PydioApi.getRestClient());
+        var request = new _cellsSdk.RestCreateNodesRequest();
 
         var path = slug + _pydioUtilLang2['default'].trimRight(parent.getPath(), '/') + '/' + nodeName;
-        var node = new _pydioHttpRestApi.TreeNode();
+        var node = new _cellsSdk.TreeNode();
         node.Path = path;
-        node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+        node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
         request.Nodes = [node];
         api.createNodes(request).then(function (collection) {
             var fullpath = parent.getPath() + '/' + nodeName;

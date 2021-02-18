@@ -28,7 +28,7 @@ var _ParameterEntry2 = _interopRequireDefault(_ParameterEntry);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var ParametersPanel = (function (_React$Component) {
     _inherits(ParametersPanel, _React$Component);
@@ -40,9 +40,9 @@ var ParametersPanel = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(ParametersPanel.prototype), 'constructor', this).call(this, props);
         this.state = { actions: {}, parameters: {}, workspaces: {} };
-        var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
-        var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
-        request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
+        var api = new _cellsSdk.WorkspaceServiceApi(PydioApi.getRestClient());
+        var request = new _cellsSdk.RestSearchWorkspaceRequest();
+        request.Queries = [_cellsSdk.IdmWorkspaceSingleQuery.constructFromObject({
             scope: 'ADMIN'
         })];
         api.searchWorkspaces(request).then(function (collection) {

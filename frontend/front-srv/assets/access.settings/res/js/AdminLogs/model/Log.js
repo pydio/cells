@@ -1,7 +1,7 @@
 import Observable from "pydio/lang/observable";
 import PydioApi from "pydio/http/api";
 import ResourcesManager from 'pydio/http/resources-manager'
-import {LogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+import {LogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
 
 class Log extends Observable{

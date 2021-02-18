@@ -53,7 +53,7 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var VirtualNode = (function (_Observable) {
     _inherits(VirtualNode, _Observable);
@@ -61,7 +61,7 @@ var VirtualNode = (function (_Observable) {
     _createClass(VirtualNode, null, [{
         key: 'loadNodes',
         value: function loadNodes(callback) {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             _pydio2['default'].startLoading();
             api.listVirtualNodes().then(function (response) {
                 _pydio2['default'].endLoading();
@@ -85,8 +85,8 @@ var VirtualNode = (function (_Observable) {
         if (data) {
             this.data = data;
         } else {
-            this.data = new _pydioHttpRestApi.TreeNode();
-            this.data.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+            this.data = new _cellsSdk.TreeNode();
+            this.data.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
             this.data.MetaStore = {
                 name: "",
                 resolution: "",

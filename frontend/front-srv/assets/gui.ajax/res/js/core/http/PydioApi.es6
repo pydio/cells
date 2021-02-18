@@ -21,12 +21,11 @@ import Pydio from '../Pydio'
 import Connexion from './Connexion'
 import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
-import AWS from 'aws-sdk'
-import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
-import TreeNode from "./gen/model/TreeNode";
-import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
+
+import AWS from 'aws-sdk'
 import lscache from 'lscache'
+import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
 
 // Extend S3 ManagedUpload to get progress info about each part
 class ManagedMultipart extends AWS.S3.ManagedUpload{

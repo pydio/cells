@@ -23,7 +23,7 @@ import {MenuItem} from 'material-ui'
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 import PydioApi from 'pydio/http/api'
-import {ActivityServiceApi, ActivitySubscription, ActivityOwnerType} from 'pydio/http/rest-api'
+import {ActivityServiceApi, ActivitySubscription, ActivityOwnerType} from 'cells-sdk'
 
 
 class WatchSelector extends React.Component{

@@ -22,7 +22,7 @@ import Observable from 'pydio/lang/observable'
 import LinkModel from '../links/LinkModel'
 import ShareHelper from '../main/ShareHelper'
 import CellModel from 'pydio/model/cell'
-import {TreeNode, RestShareLinkAccessType} from 'pydio/http/rest-api'
+import {TreeNode, RestShareLinkAccessType} from 'cells-sdk'
 import Pydio from 'pydio'
 const {moment} = Pydio.requireLib('boot');
 

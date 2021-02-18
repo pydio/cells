@@ -23,7 +23,7 @@ const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} 
 const {ModernTextField} = Pydio.requireLib('hoc');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang';
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 
 
 class Callbacks{

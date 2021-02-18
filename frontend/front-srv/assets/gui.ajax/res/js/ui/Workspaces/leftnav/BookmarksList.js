@@ -25,7 +25,7 @@ import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import FilePreview from '../views/FilePreview'
 import {muiThemeable} from 'material-ui/styles'
 import {RefreshIndicator, IconButton, Popover} from 'material-ui'
-import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'cells-sdk'
 
 const {EmptyStateView} = Pydio.requireLib("components");
 

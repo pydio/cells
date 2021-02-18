@@ -2,7 +2,7 @@ import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
 import LangUtils from 'pydio/util/lang'
 import Observable from "pydio/lang/observable";
-import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery, IdmWorkspaceScope, IdmWorkspace} from 'pydio/http/rest-api';
+import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery, IdmWorkspaceScope, IdmWorkspace} from 'cells-sdk';
 
 class Workspace extends Observable{
 

@@ -6,7 +6,7 @@ import Loader from "./Loader";
 import Ws2TemplatePaths from "./Ws2TemplatePaths";
 import Ws2RootNodes from "./Ws2RootNodes";
 import Pydio8Workspaces from "./Pydio8Workspaces";
-import {ObjectDataSource} from 'pydio/http/rest-api';
+import {ObjectDataSource} from 'cells-sdk';
 import LangUtils from 'pydio/util/lang'
 import PathTree from './PathTree'
 import Connect from './Connect'

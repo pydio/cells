@@ -43,7 +43,7 @@ var _RightsSelector = require('./RightsSelector');
 
 var _RightsSelector2 = _interopRequireDefault(_RightsSelector);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 

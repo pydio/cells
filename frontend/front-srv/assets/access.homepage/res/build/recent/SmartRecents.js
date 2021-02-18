@@ -64,7 +64,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -129,9 +129,9 @@ var Loader = (function () {
         value: function loadBookmarks() {
             var _this3 = this;
 
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
             return new Promise(function (resolve) {
-                api.userBookmarks(new _pydioHttpRestApi.RestUserBookmarksRequest()).then(function (collection) {
+                api.userBookmarks(new _cellsSdk.RestUserBookmarksRequest()).then(function (collection) {
                     var nodes = [];
                     if (!collection.Nodes) {
                         resolve([]);

@@ -20,7 +20,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Pydio from 'pydio'
-import {LogLogMessage} from 'pydio/http/rest-api'
+import {LogLogMessage} from 'cells-sdk'
 import {Divider, FontIcon, Paper, IconButton} from 'material-ui'
 import Clipboard from 'clipboard'
 

@@ -18,7 +18,7 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var MetaClient = (function () {
     function MetaClient() {
@@ -38,27 +38,27 @@ var MetaClient = (function () {
         value: function saveMeta(nodes, values) {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(this.client);
+            var api = new _cellsSdk.UserMetaServiceApi(this.client);
             return new Promise(function (resolve, reject) {
                 _this.loadConfigs().then(function (configs) {
                     var proms = [];
                     nodes.map(function (node) {
-                        var request = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+                        var request = new _cellsSdk.IdmUpdateUserMetaRequest();
                         request.MetaDatas = [];
                         request.Operation = 'PUT';
                         configs.forEach(function (cData, cName) {
                             if (!values.has(cName)) {
                                 return;
                             }
-                            var meta = new _pydioHttpRestApi.IdmUserMeta();
+                            var meta = new _cellsSdk.IdmUserMeta();
                             meta.NodeUuid = node.getMetadata().get("uuid");
                             meta.Namespace = cName;
                             meta.JsonValue = JSON.stringify(values.get(cName));
-                            meta.Policies = [_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({
+                            meta.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({
                                 Action: 'READ',
                                 Subject: '*',
                                 Effect: 'allow'
-                            }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({
+                            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                                 Action: 'WRITE',
                                 Subject: '*',
                                 Effect: 'allow'
@@ -103,7 +103,7 @@ var MetaClient = (function () {
             this.promise = new Promise(function (resolve) {
                 var defs = {};
                 var configMap = new Map();
-                var api = new _pydioHttpRestApi.UserMetaServiceApi(_this2.client);
+                var api = new _cellsSdk.UserMetaServiceApi(_this2.client);
                 api.listUserMetaNamespace().then(function (result) {
                     result.Namespaces.map(function (ns) {
                         var name = ns.Namespace;
@@ -181,7 +181,7 @@ var MetaClient = (function () {
 
             return new Promise(function (resolve) {
 
-                var api = new _pydioHttpRestApi.UserMetaServiceApi(_this3.client);
+                var api = new _cellsSdk.UserMetaServiceApi(_this3.client);
                 api.listUserMetaTags(namespace).then(function (response) {
                     if (response.Tags) {
                         resolve(response.Tags);
@@ -204,8 +204,8 @@ var MetaClient = (function () {
         key: 'createTag',
         value: function createTag(namespace, newTag) {
 
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(this.client);
-            return api.putUserMetaTag(namespace, _pydioHttpRestApi.RestPutUserMetaTagRequest.constructFromObject({
+            var api = new _cellsSdk.UserMetaServiceApi(this.client);
+            return api.putUserMetaTag(namespace, _cellsSdk.RestPutUserMetaTagRequest.constructFromObject({
                 Namespace: namespace,
                 Tag: newTag
             }));

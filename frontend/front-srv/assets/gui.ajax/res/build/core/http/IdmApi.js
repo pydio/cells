@@ -1,77 +1,31 @@
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var _Pydio = require('../Pydio');
 
 var _Pydio2 = _interopRequireDefault(_Pydio);
 
-var _genApiUserServiceApi = require("./gen/api/UserServiceApi");
-
-var _genApiUserServiceApi2 = _interopRequireDefault(_genApiUserServiceApi);
-
-var _genModelRestSearchUserRequest = require("./gen/model/RestSearchUserRequest");
-
-var _genModelRestSearchUserRequest2 = _interopRequireDefault(_genModelRestSearchUserRequest);
-
-var _genModelIdmUserSingleQuery = require("./gen/model/IdmUserSingleQuery");
-
-var _genModelIdmUserSingleQuery2 = _interopRequireDefault(_genModelIdmUserSingleQuery);
-
-var _genModelServiceOperationType = require("./gen/model/ServiceOperationType");
-
-var _genModelServiceOperationType2 = _interopRequireDefault(_genModelServiceOperationType);
-
-var _genModelIdmNodeType = require("./gen/model/IdmNodeType");
-
-var _genModelIdmNodeType2 = _interopRequireDefault(_genModelIdmNodeType);
-
-var _genModelIdmUser = require("./gen/model/IdmUser");
-
-var _genModelIdmUser2 = _interopRequireDefault(_genModelIdmUser);
-
 var _utilLangUtils = require("../util/LangUtils");
 
 var _utilLangUtils2 = _interopRequireDefault(_utilLangUtils);
 
-var _genApiRoleServiceApi = require("./gen/api/RoleServiceApi");
-
-var _genApiRoleServiceApi2 = _interopRequireDefault(_genApiRoleServiceApi);
-
-var _genModelIdmRole = require("./gen/model/IdmRole");
-
-var _genModelIdmRole2 = _interopRequireDefault(_genModelIdmRole);
-
-var _genModelRestSearchRoleRequest = require("./gen/model/RestSearchRoleRequest");
-
-var _genModelRestSearchRoleRequest2 = _interopRequireDefault(_genModelRestSearchRoleRequest);
-
-var _genModelIdmRoleSingleQuery = require("./gen/model/IdmRoleSingleQuery");
-
-var _genModelIdmRoleSingleQuery2 = _interopRequireDefault(_genModelIdmRoleSingleQuery);
+var _cellsSdk = require('cells-sdk');
 
 var _uuid4 = require('uuid4');
 
 var _uuid42 = _interopRequireDefault(_uuid4);
-
-var _genModelServiceResourcePolicy = require("./gen/model/ServiceResourcePolicy");
-
-var _genModelServiceResourcePolicy2 = _interopRequireDefault(_genModelServiceResourcePolicy);
-
-var _genApiGraphServiceApi = require("./gen/api/GraphServiceApi");
-
-var _genApiGraphServiceApi2 = _interopRequireDefault(_genApiGraphServiceApi);
 
 var IdmApi = (function () {
     function IdmApi(restClient) {
         _classCallCheck(this, IdmApi);
 
         this.client = restClient;
-        this.autoWildCard = _Pydio2["default"].getInstance().getPluginConfigs('core.auth').get('USERS_LIST_AUTO_WILDCARD');
+        this.autoWildCard = _Pydio2['default'].getInstance().getPluginConfigs('core.auth').get('USERS_LIST_AUTO_WILDCARD');
     }
 
     /**
@@ -81,13 +35,13 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.loadUser = function loadUser(userLogin) {
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchUserRequest2["default"]();
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchUserRequest();
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
-        var query = new _genModelIdmUserSingleQuery2["default"]();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.Login = userLogin;
-        query.NodeType = _genModelIdmNodeType2["default"].constructFromObject('USER');
+        query.NodeType = _cellsSdk.IdmNodeType.constructFromObject('USER');
         request.Queries.push(query);
         return api.searchUsers(request).then(function (collection) {
             return collection.Users ? collection.Users[0] : null;
@@ -101,9 +55,9 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.loadRole = function loadRole(roleUuid) {
-        var api = new _genApiRoleServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchRoleRequest2["default"]();
-        request.Queries = [_genModelIdmRoleSingleQuery2["default"].constructFromObject({ Uuid: [roleUuid] })];
+        var api = new _cellsSdk.RoleServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchRoleRequest();
+        request.Queries = [_cellsSdk.IdmRoleSingleQuery.constructFromObject({ Uuid: [roleUuid] })];
         return api.searchRoles(request).then(function (collection) {
             return collection.Roles ? collection.Roles[0] : null;
         });
@@ -128,18 +82,18 @@ var IdmApi = (function () {
         var limit = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
         var profile = arguments.length <= 5 || arguments[5] === undefined ? '' : arguments[5];
 
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchUserRequest2["default"]();
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchUserRequest();
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
-        var query = new _genModelIdmUserSingleQuery2["default"]();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.GroupPath = baseGroup || '/';
         query.Recursive = recursive;
-        query.NodeType = _genModelIdmNodeType2["default"].constructFromObject('USER');
+        query.NodeType = _cellsSdk.IdmNodeType.constructFromObject('USER');
         request.Queries.push(query);
 
         if (filterString) {
-            var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            var queryString = new _cellsSdk.IdmUserSingleQuery();
             if (this.autoWildCard) {
                 filterString = '*' + filterString;
             }
@@ -148,7 +102,7 @@ var IdmApi = (function () {
         }
         if (profile) {
             var exclude = profile[0] === '!';
-            var profileQ = new _genModelIdmUserSingleQuery2["default"]();
+            var profileQ = new _cellsSdk.IdmUserSingleQuery();
             profileQ.AttributeName = 'profile';
             profileQ.AttributeValue = exclude ? profile.substring(1) : profile;
             if (exclude) {
@@ -157,7 +111,7 @@ var IdmApi = (function () {
             request.Queries.push(profileQ);
         }
 
-        var query2 = new _genModelIdmUserSingleQuery2["default"]();
+        var query2 = new _cellsSdk.IdmUserSingleQuery();
         query2.AttributeName = 'hidden';
         query2.AttributeValue = 'true';
         query2.not = true;
@@ -221,20 +175,20 @@ var IdmApi = (function () {
         var limit = arguments.length <= 2 || arguments[2] === undefined ? -1 : arguments[2];
         var filterString = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
 
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchUserRequest2["default"]();
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchUserRequest();
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
-        var query = new _genModelIdmUserSingleQuery2["default"]();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.GroupPath = '/';
         query.Recursive = true;
-        query.NodeType = _genModelIdmNodeType2["default"].constructFromObject('USER');
+        query.NodeType = _cellsSdk.IdmNodeType.constructFromObject('USER');
         request.Queries.push(query);
-        var query2 = new _genModelIdmUserSingleQuery2["default"]();
+        var query2 = new _cellsSdk.IdmUserSingleQuery();
         query2.HasRole = roleId;
         request.Queries.push(query2);
         if (filterString) {
-            var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            var queryString = new _cellsSdk.IdmUserSingleQuery();
             if (this.autoWildCard) {
                 filterString = '*' + filterString;
             }
@@ -273,19 +227,19 @@ var IdmApi = (function () {
         var offset = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
         var limit = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
 
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchUserRequest2["default"]();
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchUserRequest();
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
-        var query = new _genModelIdmUserSingleQuery2["default"]();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.GroupPath = baseGroup || '/';
         query.Recursive = recursive;
-        query.NodeType = _genModelIdmNodeType2["default"].constructFromObject('GROUP');
+        query.NodeType = _cellsSdk.IdmNodeType.constructFromObject('GROUP');
         request.Queries.push(query);
 
         if (filterString) {
             // Use Login as for users, it will detect the trailing *
-            var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            var queryString = new _cellsSdk.IdmUserSingleQuery();
             if (this.autoWildCard) {
                 filterString = '*' + filterString;
             }
@@ -318,8 +272,8 @@ var IdmApi = (function () {
         var offset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
         var limit = arguments.length <= 2 || arguments[2] === undefined ? -1 : arguments[2];
 
-        var api = new _genApiRoleServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchRoleRequest2["default"]();
+        var api = new _cellsSdk.RoleServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchRoleRequest();
         if (offset > 0) {
             request.Offset = offset + '';
         }
@@ -335,24 +289,24 @@ var IdmApi = (function () {
         // Exclude tech roles but still load ROOT_GROUP role
         request.Queries = [];
         {
-            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            var q = new _cellsSdk.IdmRoleSingleQuery();
             q.IsGroupRole = true;
             q.not = true;
             request.Queries.push(q);
         }
         {
-            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            var q = new _cellsSdk.IdmRoleSingleQuery();
             q.IsUserRole = true;
             q.not = true;
             request.Queries.push(q);
         }
         {
-            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            var q = new _cellsSdk.IdmRoleSingleQuery();
             q.IsTeam = true;
             q.not = true;
             request.Queries.push(q);
         }
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
 
         var p1 = api.searchRoles(request).then(function (coll) {
             return coll.Roles || [];
@@ -380,8 +334,8 @@ var IdmApi = (function () {
         var offset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
         var limit = arguments.length <= 2 || arguments[2] === undefined ? -1 : arguments[2];
 
-        var api = new _genApiRoleServiceApi2["default"](this.client);
-        var request = new _genModelRestSearchRoleRequest2["default"]();
+        var api = new _cellsSdk.RoleServiceApi(this.client);
+        var request = new _cellsSdk.RestSearchRoleRequest();
         if (offset > 0) {
             request.Offset = offset + '';
         }
@@ -389,18 +343,18 @@ var IdmApi = (function () {
             request.Limit = limit + '';
         }
         request.Queries = [];
-        var q = new _genModelIdmRoleSingleQuery2["default"]();
+        var q = new _cellsSdk.IdmRoleSingleQuery();
         q.IsTeam = true;
         request.Queries.push(q);
         if (filterString) {
-            var q2 = new _genModelIdmRoleSingleQuery2["default"]();
+            var q2 = new _cellsSdk.IdmRoleSingleQuery();
             if (this.autoWildCard) {
                 filterString = '*' + filterString;
             }
             q2.Label = filterString + '*';
             request.Queries.push(q2);
         }
-        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+        request.Operation = _cellsSdk.ServiceOperationType.constructFromObject('AND');
 
         return api.searchRoles(request).then(function (coll) {
             return { Teams: coll.Roles || [], Total: coll.Total, Offset: offset, Limit: limit };
@@ -418,8 +372,8 @@ var IdmApi = (function () {
     IdmApi.prototype.createGroup = function createGroup(baseGroup, groupIdentifier, displayName) {
         if (baseGroup === undefined) baseGroup = '/';
 
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var object = new _genModelIdmUser2["default"]();
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var object = new _cellsSdk.IdmUser();
         object.IsGroup = true;
         object.GroupPath = baseGroup || '/';
         object.GroupLabel = groupIdentifier;
@@ -440,8 +394,8 @@ var IdmApi = (function () {
         if (baseGroup === undefined) baseGroup = '/';
         var profile = arguments.length <= 3 || arguments[3] === undefined ? 'standard' : arguments[3];
 
-        var api = new _genApiUserServiceApi2["default"](this.client);
-        var object = new _genModelIdmUser2["default"]();
+        var api = new _cellsSdk.UserServiceApi(this.client);
+        var object = new _cellsSdk.IdmUser();
         object.GroupPath = baseGroup;
         object.Login = login;
         object.Password = password;
@@ -461,7 +415,7 @@ var IdmApi = (function () {
 
         var existingUser = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-        var idmUser = existingUser || new _genModelIdmUser2["default"]();
+        var idmUser = existingUser || new _cellsSdk.IdmUser();
         idmUser.Attributes = idmUser.Attributes || {};
         idmUser.Roles = idmUser.Roles || [];
         idmUser.Attributes["profile"] = "shared";
@@ -489,7 +443,7 @@ var IdmApi = (function () {
             idmUser.GroupPath = crtUser.GroupPath;
             return _this.policiesForExternalUser(pydio.user, idmUser.Login).then(function (policies) {
                 idmUser.Policies = policies;
-                var api = new _genApiUserServiceApi2["default"](_this.client);
+                var api = new _cellsSdk.UserServiceApi(_this.client);
                 return api.putUser(idmUser.Login, idmUser);
             });
         });
@@ -502,7 +456,7 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.loadUserGraph = function loadUserGraph(userLogin) {
-        var api = new _genApiGraphServiceApi2["default"](this.client);
+        var api = new _cellsSdk.GraphServiceApi(this.client);
         return api.relation(userLogin);
     };
 
@@ -516,12 +470,12 @@ var IdmApi = (function () {
     IdmApi.prototype.createRole = function createRole(roleLabel) {
         var roleUuid = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
 
-        var api = new _genApiRoleServiceApi2["default"](this.client);
-        var idmRole = new _genModelIdmRole2["default"]();
+        var api = new _cellsSdk.RoleServiceApi(this.client);
+        var idmRole = new _cellsSdk.IdmRole();
         if (roleUuid) {
             idmRole.Uuid = roleUuid;
         } else {
-            idmRole.Uuid = _uuid42["default"]();
+            idmRole.Uuid = _uuid42['default']();
         }
         idmRole.Label = roleLabel;
         return api.setRole(idmRole.Uuid, idmRole);
@@ -534,7 +488,7 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.updateIdmUser = function updateIdmUser(idmUser) {
-        var api = new _genApiUserServiceApi2["default"](this.client);
+        var api = new _cellsSdk.UserServiceApi(this.client);
         if (idmUser.IsGroup) {
             return api.putUser(idmUser.GroupLabel, idmUser);
         } else {
@@ -549,13 +503,13 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.deleteIdmUser = function deleteIdmUser(idmUser) {
-        var api = new _genApiUserServiceApi2["default"](this.client);
+        var api = new _cellsSdk.UserServiceApi(this.client);
         if (idmUser.IsGroup) {
-            var gPath = _utilLangUtils2["default"].trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel + '/';
+            var gPath = _utilLangUtils2['default'].trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel + '/';
             if (gPath === '/') {
                 return Promise.reject('cannot delete root group!');
             }
-            return api.deleteUser(_utilLangUtils2["default"].trimLeft(gPath, '/'));
+            return api.deleteUser(_utilLangUtils2['default'].trimLeft(gPath, '/'));
         } else {
             return api.deleteUser(idmUser.Login);
         }
@@ -568,7 +522,7 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.deleteRole = function deleteRole(roleId) {
-        var api = new _genApiRoleServiceApi2["default"](this.client);
+        var api = new _cellsSdk.RoleServiceApi(this.client);
         return api.deleteRole(roleId);
     };
 
@@ -584,9 +538,9 @@ var IdmApi = (function () {
         var _this2 = this;
 
         return this.policiesForUniqueUser(pydio.user).then(function (policies) {
-            var roleApi = new _genApiRoleServiceApi2["default"](_this2.client);
-            var role = new _genModelIdmRole2["default"]();
-            role.Uuid = _utilLangUtils2["default"].computeStringSlug(teamName) + "-" + _uuid42["default"]().substr(0, 4);
+            var roleApi = new _cellsSdk.RoleServiceApi(_this2.client);
+            var role = new _cellsSdk.IdmRole();
+            role.Uuid = _utilLangUtils2['default'].computeStringSlug(teamName) + "-" + _uuid42['default']().substr(0, 4);
             role.Label = teamName;
             role.IsTeam = true;
             role.Policies = policies;
@@ -613,7 +567,7 @@ var IdmApi = (function () {
 
     IdmApi.prototype.addUserToTeam = function addUserToTeam(teamId, userLogin, callback) {
 
-        var userApi = new _genApiUserServiceApi2["default"](this.client);
+        var userApi = new _cellsSdk.UserServiceApi(this.client);
         var p1 = this.loadUser(userLogin);
         var p2 = this.loadRole(teamId);
         return Promise.all([p1, p2]).then(function (result) {
@@ -643,7 +597,7 @@ var IdmApi = (function () {
 
     IdmApi.prototype.removeUserFromTeam = function removeUserFromTeam(teamId, userLogin, callback) {
 
-        var userApi = new _genApiUserServiceApi2["default"](this.client);
+        var userApi = new _cellsSdk.UserServiceApi(this.client);
         return this.loadUser(userLogin).then(function (u) {
             if (!u) {
                 throw new Error('Cannot find user!');
@@ -673,7 +627,7 @@ var IdmApi = (function () {
      */
 
     IdmApi.prototype.updateTeamLabel = function updateTeamLabel(teamId, newLabel, callback) {
-        var roleApi = new _genApiRoleServiceApi2["default"](this.client);
+        var roleApi = new _cellsSdk.RoleServiceApi(this.client);
         return this.loadRole(teamId).then(function (r) {
             if (!r) {
                 throw new Error('Cannot find team!');
@@ -695,23 +649,23 @@ var IdmApi = (function () {
 
     IdmApi.prototype.policiesForUniqueUser = function policiesForUniqueUser(currentUser) {
         return currentUser.getIdmUser().then(function (idmUser) {
-            return [_genModelServiceResourcePolicy2["default"].constructFromObject({
+            return [_cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: idmUser.Uuid,
                 Action: 'OWNER',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + idmUser.Login,
                 Action: 'READ',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + idmUser.Login,
                 Action: 'WRITE',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "profile:admin",
                 Action: 'WRITE',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "profile:admin",
                 Action: 'READ',
                 Effect: 'allow'
@@ -728,31 +682,31 @@ var IdmApi = (function () {
 
     IdmApi.prototype.policiesForExternalUser = function policiesForExternalUser(currentUser, newUserLogin) {
         return currentUser.getIdmUser().then(function (idmUser) {
-            return [_genModelServiceResourcePolicy2["default"].constructFromObject({
+            return [_cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: idmUser.Uuid,
                 Action: 'OWNER',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + idmUser.Login,
                 Action: 'READ',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + idmUser.Login,
                 Action: 'WRITE',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + newUserLogin,
                 Action: 'READ',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "user:" + newUserLogin,
                 Action: 'WRITE',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "profile:admin",
                 Action: 'WRITE',
                 Effect: 'allow'
-            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+            }), _cellsSdk.ServiceResourcePolicy.constructFromObject({
                 Subject: "profile:admin",
                 Action: 'READ',
                 Effect: 'allow'
@@ -763,5 +717,5 @@ var IdmApi = (function () {
     return IdmApi;
 })();
 
-exports["default"] = IdmApi;
-module.exports = exports["default"];
+exports['default'] = IdmApi;
+module.exports = exports['default'];

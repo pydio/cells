@@ -30,7 +30,7 @@ var _pydioLangObservable = require("pydio/lang/observable");
 
 var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Workspace = (function (_Observable) {
     _inherits(Workspace, _Observable);
@@ -84,8 +84,8 @@ var Workspace = (function (_Observable) {
             this.initModel(model);
         } else {
             this.create = true;
-            this.model = new _pydioHttpRestApi.IdmWorkspace();
-            this.model.Scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            this.model = new _cellsSdk.IdmWorkspace();
+            this.model.Scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
             this.internalAttributes = { "DEFAULT_RIGHTS": "" };
             this.model.PoliciesContextEditable = true;
@@ -160,7 +160,7 @@ var Workspace = (function (_Observable) {
 
             // If Policies are not set, REST service will add default policies
             this.model.Attributes = JSON.stringify(this.internalAttributes);
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
                 _this4.initModel(ws);
                 _this4.observableModel = _this4.buildProxy(_this4.model);
@@ -174,7 +174,7 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'remove',
         value: function remove() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteWorkspace(this.model.Slug);
         }
 
@@ -184,7 +184,7 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'revert',
         value: function revert() {
-            var revert = _pydioHttpRestApi.IdmWorkspace.constructFromObject(this.snapshot || {});
+            var revert = _cellsSdk.IdmWorkspace.constructFromObject(this.snapshot || {});
             this.initModel(revert);
             this.observableModel = this.buildProxy(this.model);
         }
@@ -216,10 +216,10 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'listWorkspaces',
         value: function listWorkspaces() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
-            var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
-            single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestSearchWorkspaceRequest();
+            var single = new _cellsSdk.IdmWorkspaceSingleQuery();
+            single.scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
             return api.searchWorkspaces(request);
         }

@@ -23,7 +23,7 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
-var _restApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -70,12 +70,12 @@ var FolderItem = function (_StatusItem) {
                 return;
             }
 
-            var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
-            var request = new _restApi.RestCreateNodesRequest();
-            var node = new _restApi.TreeNode();
+            var api = new _cellsSdk.TreeServiceApi(_api2.default.getRestClient());
+            var request = new _cellsSdk.RestCreateNodesRequest();
+            var node = new _cellsSdk.TreeNode();
 
             node.Path = fullPath;
-            node.Type = _restApi.TreeNodeType.constructFromObject('COLLECTION');
+            node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
 
             api.createNodes(request).then(function (collection) {

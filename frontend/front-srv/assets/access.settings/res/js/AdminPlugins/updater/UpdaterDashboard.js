@@ -22,7 +22,7 @@ import React from 'react'
 import {Paper, List, ListItem, RaisedButton, FlatButton, IconButton, Checkbox, Divider, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
-import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
+import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'cells-sdk'
 import Pydio from 'pydio'
 import UpgraderWizard from './UpgraderWizard'
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');

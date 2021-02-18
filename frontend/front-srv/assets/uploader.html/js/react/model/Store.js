@@ -31,7 +31,7 @@ import Session from './Session'
 import {debounce} from 'lodash'
 
 import PydioApi from 'pydio/http/api'
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 
 class Store extends Observable{

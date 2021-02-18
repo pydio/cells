@@ -26,6 +26,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _httpMetaCacheService = require('../http/MetaCacheService');
 
 var _httpMetaCacheService2 = _interopRequireDefault(_httpMetaCacheService);
@@ -38,21 +42,11 @@ var _utilPathUtils = require('../util/PathUtils');
 
 var _utilPathUtils2 = _interopRequireDefault(_utilPathUtils);
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
 var _AjxpNode = require('./AjxpNode');
 
 var _AjxpNode2 = _interopRequireDefault(_AjxpNode);
 
-var _httpGenApiMetaServiceApi = require("../http/gen/api/MetaServiceApi");
-
-var _httpGenApiMetaServiceApi2 = _interopRequireDefault(_httpGenApiMetaServiceApi);
-
-var _httpGenModelRestGetBulkMetaRequest = require("../http/gen/model/RestGetBulkMetaRequest");
-
-var _httpGenModelRestGetBulkMetaRequest2 = _interopRequireDefault(_httpGenModelRestGetBulkMetaRequest);
+var _cellsSdk = require("cells-sdk");
 
 /**
  * Implementation of the IAjxpNodeProvider interface based on a remote server access.
@@ -121,8 +115,8 @@ var MetaNodeProvider = (function () {
         var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
         var pydio = _pydio2['default'].getInstance();
-        var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
-        var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
+        var api = new _cellsSdk.MetaServiceApi(_httpPydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestGetBulkMetaRequest();
         var slug = '';
         if (pydio.user) {
             if (this.properties.has('tmp_repository_id')) {
@@ -213,8 +207,8 @@ var MetaNodeProvider = (function () {
         var additionalParameters = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
         var errorCallback = arguments.length <= 4 || arguments[4] === undefined ? function () {} : arguments[4];
 
-        var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
-        var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
+        var api = new _cellsSdk.MetaServiceApi(_httpPydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestGetBulkMetaRequest();
         var slug = '';
         var path = node.getPath();
         var pydio = _pydio2['default'].getInstance();
@@ -251,8 +245,8 @@ var MetaNodeProvider = (function () {
     };
 
     MetaNodeProvider.loadRoots = function loadRoots(slugs) {
-        var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
-        var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
+        var api = new _cellsSdk.MetaServiceApi(_httpPydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestGetBulkMetaRequest();
         request.NodePaths = slugs;
         return api.getBulkMeta(request).then(function (res) {
             if (res.Nodes && res.Nodes.length) {

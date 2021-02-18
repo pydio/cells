@@ -32,7 +32,7 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 

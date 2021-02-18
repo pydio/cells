@@ -24,7 +24,7 @@ import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import PydioApi from 'pydio/http/api'
 import Configs from './Configs'
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 
 class UploadItem extends StatusItem {

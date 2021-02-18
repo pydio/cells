@@ -11,6 +11,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _cellsSdk = require('cells-sdk');
+
 var _StatusItem = require('./StatusItem');
 
 var _StatusItem2 = _interopRequireDefault(_StatusItem);
@@ -18,11 +20,6 @@ var _StatusItem2 = _interopRequireDefault(_StatusItem);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var _require = require('pydio/http/rest-api'),
-    JobsJob = _require.JobsJob,
-    JobsTask = _require.JobsTask,
-    JobsTaskStatus = _require.JobsTaskStatus;
 
 var _Pydio$requireLib = _pydio2.default.requireLib("boot"),
     JobsStore = _Pydio$requireLib.JobsStore;
@@ -34,17 +31,17 @@ var Task = function () {
         _classCallCheck(this, Task);
 
         pydio = _pydio2.default.getInstance();
-        this.job = new JobsJob();
+        this.job = new _cellsSdk.JobsJob();
         this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
         this.job.Label = pydio.MessageHash['html_uploader.task.label'];
         this.job.Stoppable = true;
-        var task = new JobsTask();
+        var task = new _cellsSdk.JobsTask();
         this.task = task;
         this.job.Tasks = [this.task];
         this.task.HasProgress = true;
         this.task.ID = "upload";
-        this.task.Status = JobsTaskStatus.constructFromObject('Idle');
+        this.task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Idle');
         this.job.openDetailPane = function () {
             pydio.Controller.fireAction("upload");
         };
@@ -57,20 +54,20 @@ var Task = function () {
                 } else {
                     task.StatusMessage = 'Please wait...';
                 }
-                task.Status = JobsTaskStatus.constructFromObject('Running');
+                task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Running');
             } else if (s === 'ready') {
                 _this.job.Label = pydio.MessageHash['html_uploader.7'];
                 task.StatusMessage = 'Ready to upload';
-                task.Status = JobsTaskStatus.constructFromObject('Idle');
+                task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Idle');
             } else if (s === 'paused') {
                 _this.job.Label = 'Task paused';
-                task.Status = JobsTaskStatus.constructFromObject('Paused');
+                task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Paused');
             }
             _this.notifyMainStore();
         };
         task._progressObserver = function (p) {
             task.Progress = p / 100;
-            task.Status = JobsTaskStatus.constructFromObject('Running');
+            task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Running');
             if (p > 0) {
                 task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
             }
@@ -88,7 +85,7 @@ var Task = function () {
     _createClass(Task, [{
         key: 'setIdle',
         value: function setIdle() {
-            this.task.Status = JobsTaskStatus.constructFromObject('Idle');
+            this.task.Status = _cellsSdk.JobsTaskStatus.constructFromObject('Idle');
             this.task.StatusMessage = '';
             this.notifyMainStore();
         }

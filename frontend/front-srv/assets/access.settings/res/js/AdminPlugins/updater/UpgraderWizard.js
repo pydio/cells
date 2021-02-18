@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
+import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'cells-sdk'
 
 import {muiThemeable} from 'material-ui/styles'
 import {Dialog, FlatButton, RaisedButton, FontIcon, Card, CardHeader, CardMedia, CardTitle, List, ListItem, Divider,

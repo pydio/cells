@@ -19,7 +19,7 @@
  */
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {RestDocumentAccessTokenRequest, TokenServiceApi} from 'pydio/http/rest-api'
+import {RestDocumentAccessTokenRequest, TokenServiceApi} from 'cells-sdk'
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 

@@ -46,7 +46,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUiStyles = require('material-ui/styles');
 
@@ -132,8 +132,8 @@ var UpgraderWizard = (function (_React$Component) {
 
             var currentVersion = this.props.currentVersion;
 
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.UpdateUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.UpdateUpdateRequest();
             request.PackageName = "PydioEnterprise";
             request.LicenseInfo = { Key: licenseKey, Save: "true" };
             _pydio2['default'].startLoading();
@@ -165,8 +165,8 @@ var UpgraderWizard = (function (_React$Component) {
         value: function applyUpgrade(version) {
             var _this3 = this;
 
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.UpdateApplyUpdateRequest();
             req.PackageName = "PydioEnterprise";
             req.TargetVersion = version;
             api.applyUpdate(version, req).then(function (res) {

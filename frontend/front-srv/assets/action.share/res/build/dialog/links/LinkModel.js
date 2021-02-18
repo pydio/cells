@@ -50,7 +50,7 @@ var _mainShareHelper = require('../main/ShareHelper');
 
 var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilPass = require('pydio/util/pass');
 
@@ -63,8 +63,8 @@ var LinkModel = (function (_Observable) {
         _classCallCheck(this, LinkModel);
 
         _get(Object.getPrototypeOf(LinkModel.prototype), 'constructor', this).call(this);
-        this.link = new _pydioHttpRestApi.RestShareLink();
-        this.link.Permissions = [_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject("Preview"), _pydioHttpRestApi.RestShareLinkAccessType.constructFromObject("Download")];
+        this.link = new _cellsSdk.RestShareLink();
+        this.link.Permissions = [_cellsSdk.RestShareLinkAccessType.constructFromObject("Preview"), _cellsSdk.RestShareLinkAccessType.constructFromObject("Download")];
         this.link.Policies = [];
         this.link.PoliciesContextEditable = true;
         this.link.RootNodes = [];
@@ -166,7 +166,7 @@ var LinkModel = (function (_Observable) {
         value: function load(uuid) {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.getShareLink(uuid).then(function (result) {
                 _this.link = result;
                 if (!_this.link.Permissions) {
@@ -236,8 +236,8 @@ var LinkModel = (function (_Observable) {
             if (!this.ValidPassword) {
                 throw new Error(this.ValidPasswordMessage);
             }
-            var api = new _pydioHttpRestApi.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestPutShareLinkRequest();
+            var api = new _cellsSdk.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestPutShareLinkRequest();
             if (this.createPassword) {
                 request.PasswordEnabled = true;
                 request.CreatePassword = this.createPassword;
@@ -290,7 +290,7 @@ var LinkModel = (function (_Observable) {
         value: function deleteLink(emptyLink) {
             var _this5 = this;
 
-            var api = new _pydioHttpRestApi.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ShareServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteShareLink(this.link.Uuid).then(function (result) {
                 _this5.link = emptyLink;
                 _this5.dirty = false;
@@ -309,7 +309,7 @@ var LinkModel = (function (_Observable) {
     }, {
         key: 'clone',
         value: function clone(link) {
-            return _pydioHttpRestApi.RestShareLink.constructFromObject(JSON.parse(JSON.stringify(link)));
+            return _cellsSdk.RestShareLink.constructFromObject(JSON.parse(JSON.stringify(link)));
         }
     }]);
 

@@ -5,7 +5,7 @@ const {muiThemeable} = require('material-ui/styles');
 import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import MetaNamespace from '../editor/MetaNamespace'
-import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'pydio/http/rest-api'
+import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'cells-sdk'
 
 
 class MetadataBoard extends React.Component{

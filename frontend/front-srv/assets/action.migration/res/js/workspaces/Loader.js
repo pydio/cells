@@ -2,7 +2,7 @@ import {ProvisioningApi} from 'pydio-sdk-js'
 import LangUtils from 'pydio/util/lang'
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api';
-import {ConfigServiceApi, ObjectDataSource, WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery, IdmWorkspaceScope} from 'pydio/http/rest-api';
+import {ConfigServiceApi, ObjectDataSource, WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery, IdmWorkspaceScope} from 'cells-sdk';
 
 
 class Loader extends Observable {

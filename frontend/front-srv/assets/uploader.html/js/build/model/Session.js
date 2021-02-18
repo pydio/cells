@@ -27,7 +27,7 @@ var _StatusItem = require('./StatusItem');
 
 var _StatusItem2 = _interopRequireDefault(_StatusItem);
 
-var _restApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -106,7 +106,7 @@ var Session = function (_FolderItem) {
 
             var _loop = function _loop() {
                 nodePaths = nodePaths.slice(sliceSize);
-                var request = new _restApi.RestGetBulkMetaRequest();
+                var request = new _cellsSdk.RestGetBulkMetaRequest();
                 request.NodePaths = slice;
                 p = p.then(function (r) {
                     return api.bulkStatNodes(request).then(function (response) {
@@ -138,8 +138,8 @@ var Session = function (_FolderItem) {
             }
 
             this.setStatus(_StatusItem2.default.StatusAnalyze);
-            var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
-            var request = new _restApi.RestGetBulkMetaRequest();
+            var api = new _cellsSdk.TreeServiceApi(_api2.default.getRestClient());
+            var request = new _cellsSdk.RestGetBulkMetaRequest();
             request.NodePaths = [];
             var walkType = 'both';
             if (overwriteStatus === 'rename') {
@@ -323,8 +323,8 @@ var Session = function (_FolderItem) {
         key: 'nodeExists',
         value: function nodeExists(fullpath) {
             return new Promise(function (resolve) {
-                var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
-                var request = new _restApi.RestGetBulkMetaRequest();
+                var api = new _cellsSdk.TreeServiceApi(_api2.default.getRestClient());
+                var request = new _cellsSdk.RestGetBulkMetaRequest();
                 request.NodePaths = [fullpath];
                 api.bulkStatNodes(request).then(function (response) {
                     if (response.Nodes && response.Nodes[0]) {

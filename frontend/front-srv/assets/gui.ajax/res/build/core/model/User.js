@@ -37,11 +37,7 @@ var _Repository = require('./Repository');
 
 var _Repository2 = _interopRequireDefault(_Repository);
 
-var _CellModel = require('./CellModel');
-
-var _CellModel2 = _interopRequireDefault(_CellModel);
-
-var _httpGenIndex = require('../http/gen/index');
+var _cellsSdk = require('cells-sdk');
 
 var _utilHasherUtils = require("../util/HasherUtils");
 
@@ -337,7 +333,7 @@ var User = (function () {
     this.getIdmUser().then(function (idmUser) {
       idmUser.Attributes['preferences'] = JSON.stringify({ gui_preferences: stringPref });
       // Use a silent client to avoid displaying errors
-      var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient({ silent: true }));
+      var api = new _cellsSdk.UserServiceApi(_httpPydioApi2['default'].getRestClient({ silent: true }));
       api.putUser(idmUser.Login, idmUser).then(function (ok) {
         _this2.idmUser = idmUser;
       });
@@ -357,9 +353,9 @@ var User = (function () {
     } else {
       var _ret = (function () {
 
-        var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient());
-        var request = new _httpGenIndex.RestSearchUserRequest();
-        var query = new _httpGenIndex.IdmUserSingleQuery();
+        var api = new _cellsSdk.UserServiceApi(_httpPydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestSearchUserRequest();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.Login = _this3.id;
         request.Queries = [query];
         return {

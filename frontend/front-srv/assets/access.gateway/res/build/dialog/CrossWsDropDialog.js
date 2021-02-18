@@ -42,7 +42,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _pydioModelCell = require('pydio/model/cell');
 
@@ -85,8 +85,8 @@ var CrossWsContent = (function (_React$Component) {
             // List roots for the cell
             var cellWs = this.props.cellWs;
 
-            var metaService = new _pydioHttpRestApi.MetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestGetBulkMetaRequest();
+            var metaService = new _cellsSdk.MetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestGetBulkMetaRequest();
             var slug = cellWs.getSlug();
             console.log(slug);
             request.NodePaths = [slug, slug + '/*'];

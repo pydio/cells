@@ -36,7 +36,7 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
-var _restApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _react = require('react');
 
@@ -99,8 +99,8 @@ var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class 
             var uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
             var fileSrcUrl = encodeURIComponent(frontUrl.protocol + '//' + frontUrl.host + uri);
 
-            var api = new _restApi.TokenServiceApi(_api2.default.getRestClient());
-            var req = new _restApi.RestDocumentAccessTokenRequest();
+            var api = new _cellsSdk.TokenServiceApi(_api2.default.getRestClient());
+            var req = new _cellsSdk.RestDocumentAccessTokenRequest();
             req.Path = _pydio2.default.getInstance().user.getActiveRepositoryObject().getSlug() + this.props.node.getPath();
             api.generateDocumentAccessToken(req).then(function (response) {
                 _this2.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + response.AccessToken + '&permission=' + permission });

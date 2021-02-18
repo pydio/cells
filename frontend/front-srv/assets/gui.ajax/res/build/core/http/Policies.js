@@ -29,7 +29,7 @@ var _PydioApi = require('./PydioApi');
 
 var _PydioApi2 = _interopRequireDefault(_PydioApi);
 
-var _genIndex = require('./gen/index');
+var _cellsSdk = require('cells-sdk');
 
 var Policies = (function () {
     function Policies() {
@@ -43,9 +43,9 @@ var Policies = (function () {
      */
 
     Policies.workspaceData = function workspaceData(wsId) {
-        var api = new _genIndex.WorkspaceServiceApi(_PydioApi2['default'].getRestClient());
-        var request = new _genIndex.RestSearchWorkspaceRequest();
-        var query = new _genIndex.IdmWorkspaceSingleQuery();
+        var api = new _cellsSdk.WorkspaceServiceApi(_PydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestSearchWorkspaceRequest();
+        var query = new _cellsSdk.IdmWorkspaceSingleQuery();
         query.uuid = wsId;
         request.Queries = [query];
         return { api: api, request: request };
@@ -117,8 +117,8 @@ var Policies = (function () {
             if (result.Total === 0 || !result.Workspaces) {
                 throw new Error('Cannot find share!');
             }
-            var shareApi = new _genIndex.ShareServiceApi(_PydioApi2['default'].getRestClient());
-            var shareRequest = new _genIndex.RestUpdateSharePoliciesRequest();
+            var shareApi = new _cellsSdk.ShareServiceApi(_PydioApi2['default'].getRestClient());
+            var shareRequest = new _cellsSdk.RestUpdateSharePoliciesRequest();
             shareRequest.Uuid = shareId;
             shareRequest.Policies = policies;
             return shareApi.updateSharePolicies(shareRequest).then(function (response) {
@@ -134,9 +134,9 @@ var Policies = (function () {
      */
 
     Policies.roleData = function roleData(roleId) {
-        var api = new _genIndex.RoleServiceApi(_PydioApi2['default'].getRestClient());
-        var request = new _genIndex.RestSearchRoleRequest();
-        var query = new _genIndex.IdmRoleSingleQuery();
+        var api = new _cellsSdk.RoleServiceApi(_PydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestSearchRoleRequest();
+        var query = new _cellsSdk.IdmRoleSingleQuery();
         query.IsTeam = true;
         query.Uuid = [roleId];
         request.Queries = [query];
@@ -206,9 +206,9 @@ var Policies = (function () {
      */
 
     Policies.userData = function userData(userId) {
-        var api = new _genIndex.UserServiceApi(_PydioApi2['default'].getRestClient());
-        var request = new _genIndex.RestSearchUserRequest();
-        var query = new _genIndex.IdmUserSingleQuery();
+        var api = new _cellsSdk.UserServiceApi(_PydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestSearchUserRequest();
+        var query = new _cellsSdk.IdmUserSingleQuery();
         query.Login = userId;
         request.Queries = [query];
         return { api: api, request: request };

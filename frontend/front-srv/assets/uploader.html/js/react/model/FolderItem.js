@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import StatusItem from './StatusItem'
 import PathUtils from 'pydio/util/path'
 import PydioApi from 'pydio/http/api'
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 class FolderItem extends StatusItem{
 

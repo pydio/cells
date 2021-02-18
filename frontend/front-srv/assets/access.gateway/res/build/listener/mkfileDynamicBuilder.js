@@ -38,14 +38,7 @@ var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
-var _require = require('pydio/http/rest-api');
-
-var TreeServiceApi = _require.TreeServiceApi;
-var TemplatesServiceApi = _require.TemplatesServiceApi;
-var RestTemplate = _require.RestTemplate;
-var RestCreateNodesRequest = _require.RestCreateNodesRequest;
-var TreeNode = _require.TreeNode;
-var TreeNodeType = _require.TreeNodeType;
+var _cellsSdk = require('cells-sdk');
 
 var QuickCache = undefined,
     QuickCacheTimer = undefined;
@@ -121,11 +114,11 @@ var Builder = (function () {
                                                         pydio.UI.displayMessage('ERROR', message);
                                                         throw new Error(message);
                                                     }
-                                                    var api = new TreeServiceApi(PydioApi.getRestClient());
-                                                    var request = new RestCreateNodesRequest();
-                                                    var node = new TreeNode();
+                                                    var api = new _cellsSdk.TreeServiceApi(PydioApi.getRestClient());
+                                                    var request = new _cellsSdk.RestCreateNodesRequest();
+                                                    var node = new _cellsSdk.TreeNode();
                                                     node.Path = pathDir + '/' + value;
-                                                    node.Type = TreeNodeType.constructFromObject('LEAF');
+                                                    node.Type = _cellsSdk.TreeNodeType.constructFromObject('LEAF');
                                                     request.Nodes = [node];
                                                     request.TemplateUUID = tpl.UUID;
                                                     api.createNodes(request).then(function (collection) {
@@ -160,11 +153,11 @@ var Builder = (function () {
             if (QuickCacheTimer) {
                 clearTimeout(QuickCacheTimer);
             }
-            var api = new TemplatesServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.TemplatesServiceApi(PydioApi.getRestClient());
             api.listTemplates().then(function (response) {
                 _this.__loadedTemplates = response.Templates;
                 // Add Empty File Template
-                var emptyTemplate = new RestTemplate();
+                var emptyTemplate = new _cellsSdk.RestTemplate();
                 emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
                 emptyTemplate.UUID = "";
                 _this.__loadedTemplates.unshift(emptyTemplate);

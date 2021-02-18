@@ -49,7 +49,7 @@ var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesMana
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -115,9 +115,9 @@ var PoliciesBoard = _react2['default'].createClass({
         var _this = this;
 
         this.setState({ loading: true });
-        var api = new _pydioHttpRestApi.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
-        api.listPolicies(new _pydioHttpRestApi.IdmListPolicyGroupsRequest()).then(function (data) {
+        api.listPolicies(new _cellsSdk.IdmListPolicyGroupsRequest()).then(function (data) {
             _pydio2['default'].endLoading();
             var grouped = _this.groupByResourcesGroups(data);
             _this.setState({ policies: grouped, loading: false });

@@ -34,7 +34,7 @@ var _editorMetaNamespace = require('../editor/MetaNamespace');
 
 var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _require = require('material-ui/styles');
 
@@ -78,8 +78,8 @@ var MetadataBoard = (function (_React$Component) {
     }, {
         key: 'emptyNs',
         value: function emptyNs() {
-            var ns = new _pydioHttpRestApi.IdmUserMetaNamespace();
-            ns.Policies = [_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
+            var ns = new _cellsSdk.IdmUserMetaNamespace();
+            ns.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
             ns.JsonDefinition = JSON.stringify({ type: 'string' });
             return ns;
         }

@@ -25,7 +25,7 @@ const PydioDataModel = require('pydio/model/data-model');
 const {ActionDialogMixin} = Pydio.requireLib('boot');
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import PydioApi from 'pydio/http/api'
-import {MetaServiceApi,RestGetBulkMetaRequest, TreeNode} from "pydio/http/rest-api";
+import {MetaServiceApi,RestGetBulkMetaRequest, TreeNode} from 'cells-sdk';
 import CellModel from 'pydio/model/cell'
 import {muiThemeable} from 'material-ui/styles'
 

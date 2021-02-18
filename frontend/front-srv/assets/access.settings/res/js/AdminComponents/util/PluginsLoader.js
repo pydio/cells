@@ -2,7 +2,7 @@ import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
 import LangUtils from 'pydio/util/lang'
 import Pydio from 'pydio'
-import {ConfigServiceApi, RestConfiguration} from "pydio/http/rest-api";
+import {ConfigServiceApi, RestConfiguration} from 'cells-sdk';
 const {Manager} = Pydio.requireLib('form');
 
 class PluginsLoader {

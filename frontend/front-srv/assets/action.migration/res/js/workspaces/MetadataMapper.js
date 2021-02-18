@@ -5,7 +5,7 @@ import Connect from './Connect'
 import LangUtils from 'pydio/util/lang'
 import Pydio from 'pydio'
 const {ModernTextField} = Pydio.requireLib('hoc');
-import {UserMetaServiceApi, IdmUserMetaNamespace, ServiceResourcePolicy, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUserMetaNamespace, ServiceResourcePolicy, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
 
 class MetadataMapper extends React.Component {
 

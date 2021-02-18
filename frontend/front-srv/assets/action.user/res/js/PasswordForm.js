@@ -21,7 +21,7 @@ import React from "react";
 import Pydio from "pydio";
 
 import PydioApi from 'pydio/http/api'
-import {UserServiceApi, IdmUser} from 'pydio/http/rest-api'
+import {UserServiceApi, IdmUser} from 'cells-sdk'
 const {ValidPassword} = Pydio.requireLib('form');
 const {ModernTextField} = Pydio.requireLib("hoc");
 

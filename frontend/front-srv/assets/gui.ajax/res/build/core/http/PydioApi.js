@@ -45,29 +45,19 @@ var _RestClient = require('./RestClient');
 
 var _RestClient2 = _interopRequireDefault(_RestClient);
 
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-var _genModelRestCreateSelectionRequest = require('./gen/model/RestCreateSelectionRequest');
-
-var _genModelRestCreateSelectionRequest2 = _interopRequireDefault(_genModelRestCreateSelectionRequest);
-
-var _genModelTreeNode = require("./gen/model/TreeNode");
-
-var _genModelTreeNode2 = _interopRequireDefault(_genModelTreeNode);
-
-var _genApiTreeServiceApi = require("./gen/api/TreeServiceApi");
-
-var _genApiTreeServiceApi2 = _interopRequireDefault(_genApiTreeServiceApi);
-
 var _modelAjxpNode = require("../model/AjxpNode");
 
 var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
 
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
 var _lscache = require('lscache');
 
 var _lscache2 = _interopRequireDefault(_lscache);
+
+var _cellsSdk = require('cells-sdk');
 
 // Extend S3 ManagedUpload to get progress info about each part
 
@@ -317,15 +307,15 @@ var PydioApi = (function () {
             });
         } else {
             (function () {
-                var selection = new _genModelRestCreateSelectionRequest2['default']();
+                var selection = new _cellsSdk.RestCreateSelectionRequest();
                 selection.Nodes = [];
                 var slug = _this5.getPydioObject().user.getActiveRepositoryObject().getSlug();
                 selection.Nodes = userSelection.getSelectedNodes().map(function (node) {
-                    var tNode = new _genModelTreeNode2['default']();
+                    var tNode = new _cellsSdk.TreeNode();
                     tNode.Path = slug + node.getPath();
                     return tNode;
                 });
-                var api = new _genApiTreeServiceApi2['default'](PydioApi.getRestClient());
+                var api = new _cellsSdk.TreeServiceApi(PydioApi.getRestClient());
                 api.createSelection(selection).then(function (response) {
                     var SelectionUUID = response.SelectionUUID;
 

@@ -48,7 +48,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 

@@ -396,7 +396,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -499,7 +499,7 @@ exports['default'] = _react2['default'].createClass({
     load: function load() {
         var _this = this;
 
-        var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
         this.setState({ loading: true });
         api.listServices().then(function (servicesCollection) {
@@ -758,7 +758,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"./ServiceCard":2,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],4:[function(require,module,exports){
+},{"./ServiceCard":2,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

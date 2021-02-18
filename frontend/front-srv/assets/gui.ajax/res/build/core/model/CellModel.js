@@ -47,7 +47,7 @@ var _IdmObjectHelper = require('./IdmObjectHelper');
 
 var _IdmObjectHelper2 = _interopRequireDefault(_IdmObjectHelper);
 
-var _httpGenIndex = require('../http/gen/index');
+var _cellsSdk = require('cells-sdk');
 
 var CellModel = (function (_Observable) {
     _inherits(CellModel, _Observable);
@@ -59,7 +59,7 @@ var CellModel = (function (_Observable) {
 
         _Observable.call(this);
         // Create an empty room
-        this.cell = new _httpGenIndex.RestCell();
+        this.cell = new _cellsSdk.RestCell();
         this.cell.Label = '';
         this.cell.Description = '';
         this.cell.ACLs = {};
@@ -154,7 +154,7 @@ var CellModel = (function (_Observable) {
      */
 
     CellModel.prototype.addUser = function addUser(idmObject) {
-        var acl = new _httpGenIndex.RestCellAcl();
+        var acl = new _cellsSdk.RestCellAcl();
         acl.RoleId = idmObject.Uuid;
         if (idmObject.Login !== undefined) {
             acl.IsUserRole = true;
@@ -165,7 +165,7 @@ var CellModel = (function (_Observable) {
             acl.Role = idmObject;
         }
         acl.Actions = [];
-        var action = new _httpGenIndex.IdmACLAction();
+        var action = new _cellsSdk.IdmACLAction();
         action.Name = 'read';
         action.Value = '1';
         acl.Actions.push(action);
@@ -195,7 +195,7 @@ var CellModel = (function (_Observable) {
     CellModel.prototype.updateUserRight = function updateUserRight(roleId, right, value) {
         if (value) {
             var acl = this.cell.ACLs[roleId];
-            var action = new _httpGenIndex.IdmACLAction();
+            var action = new _cellsSdk.IdmACLAction();
             action.Name = right;
             action.Value = '1';
             acl.Actions.push(action);
@@ -225,7 +225,7 @@ var CellModel = (function (_Observable) {
         var repositoryId = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
         var pydio = _pydio2['default'].getInstance();
-        var treeNode = new _httpGenIndex.TreeNode();
+        var treeNode = new _cellsSdk.TreeNode();
         treeNode.Uuid = node.getMetadata().get('uuid');
         var slug = undefined;
         if (repositoryId) {
@@ -345,7 +345,7 @@ var CellModel = (function (_Observable) {
     };
 
     CellModel.prototype.clone = function clone(room) {
-        return _httpGenIndex.RestCell.constructFromObject(JSON.parse(JSON.stringify(room)));
+        return _cellsSdk.RestCell.constructFromObject(JSON.parse(JSON.stringify(room)));
     };
 
     /**
@@ -360,8 +360,8 @@ var CellModel = (function (_Observable) {
             return this.deleteCell('This cell has no more items in it, it will be deleted, are you sure?');
         }
 
-        var api = new _httpGenIndex.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
-        var request = new _httpGenIndex.RestPutCellRequest();
+        var api = new _cellsSdk.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestPutCellRequest();
         if (!this._edit && !this.cell.RootNodes.length) {
             request.CreateEmptyRoot = true;
         }
@@ -398,7 +398,7 @@ var CellModel = (function (_Observable) {
     CellModel.prototype.load = function load(cellId) {
         var _this5 = this;
 
-        var api = new _httpGenIndex.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
+        var api = new _cellsSdk.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
         return api.getCell(cellId).then(function (room) {
             _this5.cell = room;
             if (!_this5.cell.RootNodes) {
@@ -434,7 +434,7 @@ var CellModel = (function (_Observable) {
         }
         if (confirm(confirmMessage)) {
             var _ret = (function () {
-                var api = new _httpGenIndex.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
+                var api = new _cellsSdk.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
                 var pydio = _pydio2['default'].getInstance();
                 if (pydio.user.activeRepository === _this6.cell.Uuid) {
                     (function () {

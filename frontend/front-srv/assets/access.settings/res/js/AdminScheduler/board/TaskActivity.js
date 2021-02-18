@@ -22,7 +22,7 @@ import React from "react"
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
 import {FontIcon, CircularProgress} from 'material-ui'
-import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
 const {MaterialTable} = Pydio.requireLib('components');
 const {JobsStore, moment} = Pydio.requireLib('boot');

@@ -19,7 +19,7 @@
  */
 import {pydio} from "../globals";
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'cells-sdk'
 
 export default function toggleBookmarkNode(node, selection){
 

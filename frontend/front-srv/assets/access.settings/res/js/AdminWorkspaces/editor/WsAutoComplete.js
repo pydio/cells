@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton, Subheader} from 'material-ui'
 import debounce from 'lodash.debounce'
 import PathUtils from 'pydio/util/path'
-import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from "pydio/http/rest-api";
+import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
 const {ModernStyles} = Pydio.requireLib('hoc');
 
 export default class WsAutoComplete extends React.Component{

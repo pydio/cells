@@ -20,7 +20,7 @@
 
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ActivityServiceApi, ActivityStreamActivitiesRequest} from 'pydio/http/rest-api'
+import {ActivityServiceApi, ActivityStreamActivitiesRequest} from 'cells-sdk'
 
 class AS2Client{
 

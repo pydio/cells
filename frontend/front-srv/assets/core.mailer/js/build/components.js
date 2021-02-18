@@ -46,7 +46,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var styles = {
     chip: {
@@ -208,11 +208,11 @@ var Email = (function () {
     }, {
         key: 'postOne',
         value: function postOne(targets, subject, templateId, templateData) {
-            var api = new _pydioHttpRestApi.MailerServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var email = new _pydioHttpRestApi.MailerMail();
+            var api = new _cellsSdk.MailerServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var email = new _cellsSdk.MailerMail();
             email.Subject = subject;
             email.To = targets.map(function (t) {
-                return _pydioHttpRestApi.MailerUser.constructFromObject({ Uuid: t });
+                return _cellsSdk.MailerUser.constructFromObject({ Uuid: t });
             });
             email.TemplateId = templateId;
             email.TemplateData = templateData;

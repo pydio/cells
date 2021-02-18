@@ -32,30 +32,6 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
-
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
-var _genApiJobsServiceApi = require("./gen/api/JobsServiceApi");
-
-var _genApiJobsServiceApi2 = _interopRequireDefault(_genApiJobsServiceApi);
-
-var _genModelRestUserJobRequest = require("./gen/model/RestUserJobRequest");
-
-var _genModelRestUserJobRequest2 = _interopRequireDefault(_genModelRestUserJobRequest);
-
-var _genModelRestFrontSessionRequest = require("./gen/model/RestFrontSessionRequest");
-
-var _genModelRestFrontSessionRequest2 = _interopRequireDefault(_genModelRestFrontSessionRequest);
-
-var _genModelRestFrontSessionResponse = require("./gen/model/RestFrontSessionResponse");
-
-var _genModelRestFrontSessionResponse2 = _interopRequireDefault(_genModelRestFrontSessionResponse);
-
 var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
@@ -64,14 +40,20 @@ var _PydioStorage = require('./PydioStorage');
 
 var _PydioStorage2 = _interopRequireDefault(_PydioStorage);
 
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
+var _cellsSdk = require('cells-sdk');
+
 var _uuid = require('uuid');
 
 // Override parseDate method to support ISO8601 cross-browser
-
-var _require = require('./gen/index');
-
-var ApiClient = _require.ApiClient;
-ApiClient.parseDate = function (str) {
+_cellsSdk.ApiClient.parseDate = function (str) {
     return _moment2['default'](str).toDate();
 };
 
@@ -110,7 +92,7 @@ var RestClient = (function (_ApiClient) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
         }
 
-        return _ApiClient.prototype.callApi.call(this, '/frontend/session', 'POST', null, null, headers, null, request, [], ['application/json'], ['application/json'], _genModelRestFrontSessionResponse2['default']);
+        return _ApiClient.prototype.callApi.call(this, '/frontend/session', 'POST', null, null, headers, null, request, [], ['application/json'], ['application/json'], _cellsSdk.RestFrontSessionResponse);
     };
 
     /**
@@ -164,7 +146,7 @@ var RestClient = (function (_ApiClient) {
     RestClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
         var _this2 = this;
 
-        var request = new _genModelRestFrontSessionRequest2['default']();
+        var request = new _cellsSdk.RestFrontSessionRequest();
         request.AuthInfo = authInfo;
 
         return this.jwtEndpoint(request).then(function (response) {
@@ -322,8 +304,8 @@ var RestClient = (function (_ApiClient) {
      */
 
     RestClient.prototype.userJob = function userJob(name, parameters) {
-        var api = new _genApiJobsServiceApi2['default'](this);
-        var request = new _genModelRestUserJobRequest2['default']();
+        var api = new _cellsSdk.JobsServiceApi(this);
+        var request = new _cellsSdk.RestUserJobRequest();
         request.JobName = name;
         request.JsonParameters = JSON.stringify(parameters);
         return api.userCreateJob(name, request);
@@ -338,7 +320,7 @@ var RestClient = (function (_ApiClient) {
     };
 
     return RestClient;
-})(ApiClient);
+})(_cellsSdk.ApiClient);
 
 exports['default'] = RestClient;
 module.exports = exports['default'];

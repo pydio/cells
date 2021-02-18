@@ -54,7 +54,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('form');
 
@@ -174,7 +174,7 @@ var ProfilePane = _react2['default'].createClass({
                 pydio.user.setPreference('lang', values['lang']);
                 changeLang = true;
             }
-            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putUser(idmUser.Login, idmUser).then(function (response) {
                 if (changeLang) {
                     // Reload form after registry reload

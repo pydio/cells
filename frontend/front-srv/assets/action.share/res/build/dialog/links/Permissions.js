@@ -49,7 +49,7 @@ var _mainShareHelper = require('../main/ShareHelper');
 
 var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var PublicLinkPermissions = _react2['default'].createClass({
     displayName: 'PublicLinkPermissions',
@@ -68,7 +68,7 @@ var PublicLinkPermissions = _react2['default'].createClass({
 
         var link = linkModel.getLink();
         if (checked) {
-            link.Permissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject(name));
+            link.Permissions.push(_cellsSdk.RestShareLinkAccessType.constructFromObject(name));
         } else {
             link.Permissions = link.Permissions.filter(function (perm) {
                 return perm !== name;

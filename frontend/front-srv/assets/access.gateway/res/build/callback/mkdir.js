@@ -18,13 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydioHttpApi = require("pydio/http/api");
 
@@ -34,9 +34,9 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
-exports["default"] = function (pydio) {
+exports['default'] = function (pydio) {
 
     return function () {
 
@@ -48,13 +48,13 @@ exports["default"] = function (pydio) {
                 throw new Error(m);
             }
 
-            var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
-            var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+            var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestCreateNodesRequest();
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
-            var path = slug + _pydioUtilLang2["default"].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
-            var node = new _pydioHttpRestApi.TreeNode();
+            var path = slug + _pydioUtilLang2['default'].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
+            var node = new _cellsSdk.TreeNode();
             node.Path = path;
-            node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+            node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(function (collection) {
                 if (console) console.debug('Created nodes', collection.Children);
@@ -70,4 +70,4 @@ exports["default"] = function (pydio) {
     };
 };
 
-module.exports = exports["default"];
+module.exports = exports['default'];

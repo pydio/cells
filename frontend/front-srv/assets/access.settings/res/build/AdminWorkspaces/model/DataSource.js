@@ -38,7 +38,7 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Observable = require('pydio/lang/observable');
 var PydioApi = require('pydio/http/api');
@@ -124,9 +124,9 @@ var DataSource = (function (_Observable) {
             }
             this.snapshot = JSON.parse(JSON.stringify(model));
         } else {
-            this.model = new _pydioHttpRestApi.ObjectDataSource();
-            this.model.EncryptionMode = _pydioHttpRestApi.ObjectEncryptionMode.constructFromObject('CLEAR');
-            this.model.StorageType = _pydioHttpRestApi.ObjectStorageType.constructFromObject('LOCAL');
+            this.model = new _cellsSdk.ObjectDataSource();
+            this.model.EncryptionMode = _cellsSdk.ObjectEncryptionMode.constructFromObject('CLEAR');
+            this.model.StorageType = _cellsSdk.ObjectStorageType.constructFromObject('LOCAL');
             this.model.StorageConfiguration = { "folder": "", "normalize": "false" };
         }
         this.observableModel = this.buildProxy(this.model);
@@ -173,14 +173,14 @@ var DataSource = (function (_Observable) {
     }, {
         key: 'deleteSource',
         value: function deleteSource() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
             return api.deleteDataSource(this.model.Name);
         }
     }, {
         key: 'resyncSource',
         value: function resyncSource() {
-            var api = new _pydioHttpRestApi.JobsServiceApi(PydioApi.getRestClient());
-            var req = new _pydioHttpRestApi.RestUserJobRequest();
+            var api = new _cellsSdk.JobsServiceApi(PydioApi.getRestClient());
+            var req = new _cellsSdk.RestUserJobRequest();
             req.JobName = "datasource-resync";
             req.JsonParameters = JSON.stringify({ dsName: this.model.Name });
             return api.userCreateJob("datasource-resync", req);
@@ -198,7 +198,7 @@ var DataSource = (function (_Observable) {
         value: function saveSource() {
             var _this2 = this;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
             return api.putDataSource(this.model.Name, this.model).then(function (res) {
                 _this2.snapshot = JSON.parse(JSON.stringify(_this2.model));
                 _this2.notify('update');
@@ -240,34 +240,34 @@ var DataSource = (function (_Observable) {
     }], [{
         key: 'loadDatasources',
         value: function loadDatasources() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
             return api.listDataSources();
         }
     }, {
         key: 'loadVersioningPolicies',
         value: function loadVersioningPolicies() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
             return api.listVersioningPolicies();
         }
     }, {
         key: 'loadStatuses',
         value: function loadStatuses() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
             return api.listServices('STARTED');
         }
     }, {
         key: 'loadEncryptionKeys',
         value: function loadEncryptionKeys() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
-            return api.listEncryptionKeys(new _pydioHttpRestApi.EncryptionAdminListKeysRequest());
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest());
         }
     }, {
         key: 'loadBuckets',
         value: function loadBuckets(model) {
             var regexp = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
-            var request = new _pydioHttpRestApi.RestListStorageBucketsRequest();
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            var request = new _cellsSdk.RestListStorageBucketsRequest();
             request.DataSource = model;
             if (regexp) {
                 request.BucketsRegexp = regexp;

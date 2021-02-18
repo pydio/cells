@@ -52,7 +52,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _lodashDebounce = require('lodash.debounce');
 
@@ -136,13 +136,13 @@ var TaskActivity = (function (_React$Component) {
                 return;
             }
             var operationId = task.JobID + '-' + task.ID.substr(0, 8);
-            var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2["default"].getRestClient());
+            var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2["default"].getRestClient());
 
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
             request.Page = page;
             request.Size = 200;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
                 var ll = response.Logs || [];

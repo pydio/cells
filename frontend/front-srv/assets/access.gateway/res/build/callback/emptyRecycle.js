@@ -30,7 +30,7 @@ var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
@@ -42,9 +42,9 @@ exports['default'] = function (pydio) {
             dialogTitleId: 220,
             validCallback: function validCallback() {
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
-                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var n = new _pydioHttpRestApi.TreeNode();
+                var deleteRequest = new _cellsSdk.RestDeleteNodesRequest();
+                var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var n = new _cellsSdk.TreeNode();
                 n.Path = slug + '/recycle_bin';
                 deleteRequest.Nodes = [n];
                 api.deleteNodes(deleteRequest).then(function (r) {

@@ -20,8 +20,7 @@
 import Logger from '../lang/Logger'
 import PydioApi from '../http/PydioApi'
 import Repository from './Repository'
-import CellModel from './CellModel'
-import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest} from '../http/gen/index';
+import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest} from 'cells-sdk';
 import HasherUtils from "../util/HasherUtils";
 
 /**

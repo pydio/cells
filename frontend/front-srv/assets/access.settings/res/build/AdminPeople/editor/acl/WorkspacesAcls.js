@@ -45,7 +45,7 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
 
@@ -68,9 +68,9 @@ var WorkspacesAcls = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(WorkspacesAcls.prototype), 'constructor', this).call(this, props);
         this.state = { loading: true, workspaces: [] };
-        var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
-        request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
+        var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestSearchWorkspaceRequest();
+        request.Queries = [_cellsSdk.IdmWorkspaceSingleQuery.constructFromObject({
             scope: 'ADMIN'
         })];
         api.searchWorkspaces(request).then(function (collection) {

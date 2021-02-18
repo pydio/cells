@@ -26,7 +26,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('form');
 
@@ -109,7 +109,7 @@ var PluginsLoader = (function () {
         key: 'toggleEnabled',
         value: function toggleEnabled(pluginNode, enabled, callback) {
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
             // Load initial config
 
@@ -120,7 +120,7 @@ var PluginsLoader = (function () {
 
                 var currentData = JSON.parse(data) || {};
                 currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
-                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                var config = _cellsSdk.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
                     Data: JSON.stringify(currentData)
                 });
@@ -132,7 +132,7 @@ var PluginsLoader = (function () {
     }, {
         key: 'loadServiceConfigs',
         value: function loadServiceConfigs(serviceName) {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.getConfig("services/" + serviceName).then(function (data) {
                 return data || {};
             }).then(function (restConfig) {
@@ -146,8 +146,8 @@ var PluginsLoader = (function () {
     }, {
         key: 'saveServiceConfigs',
         value: function saveServiceConfigs(serviceName, data) {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var body = new _pydioHttpRestApi.RestConfiguration();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var body = new _cellsSdk.RestConfiguration();
             body.FullPath = "services/" + serviceName;
             body.Data = JSON.stringify(data);
             return api.putConfig(body.FullPath, body);
@@ -155,7 +155,7 @@ var PluginsLoader = (function () {
     }, {
         key: 'loadPluginConfigs',
         value: function loadPluginConfigs(pluginId) {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var fullPath = "frontend/plugin/" + pluginId;
             return new Promise(function (resolve, reject) {
                 api.getConfig(fullPath).then(function (response) {
@@ -174,7 +174,7 @@ var PluginsLoader = (function () {
         key: 'savePluginConfigs',
         value: function savePluginConfigs(pluginId, values, callback) {
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var fullPath = "frontend/plugin/" + pluginId;
 
             api.getConfig(fullPath).then(function (response) {
@@ -184,7 +184,7 @@ var PluginsLoader = (function () {
 
                 var currentData = JSON.parse(data) || {};
                 var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
-                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                var config = _cellsSdk.RestConfiguration.constructFromObject({
                     FullPath: fullPath,
                     Data: JSON.stringify(newData)
                 });
@@ -261,7 +261,7 @@ var PluginsLoader = (function () {
         value: function loadSites() {
             var filter = arguments.length <= 0 || arguments[0] === undefined ? '*' : arguments[0];
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listSites(filter);
         }
     }]);

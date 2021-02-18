@@ -23,7 +23,7 @@ import ShareContextConsumer from '../ShareContextConsumer'
 import {Checkbox} from 'material-ui'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
-import {RestShareLinkAccessType} from 'pydio/http/rest-api'
+import {RestShareLinkAccessType} from 'cells-sdk'
 
 let PublicLinkPermissions = React.createClass({
 

@@ -26,7 +26,7 @@ var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesMana
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -254,7 +254,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             var nextMax = baseNameMax;
             var index = 0;
             while (values[nextName] !== undefined && values[nextMax] !== undefined) {
-                var period = new _pydioHttpRestApi.TreeVersioningKeepPeriod();
+                var period = new _cellsSdk.TreeVersioningKeepPeriod();
                 period.IntervalStart = values[nextName];
                 period.MaxNumber = values[nextMax];
                 periods.push(period);
@@ -265,7 +265,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                 nextMax = baseNameMax + "_" + index;
             }
             values.KeepPeriods = periods;
-            return _pydioHttpRestApi.TreeVersioningPolicy.constructFromObject(values);
+            return _cellsSdk.TreeVersioningPolicy.constructFromObject(values);
         }
     }, {
         key: 'TreeVersioningPolicyToValues',

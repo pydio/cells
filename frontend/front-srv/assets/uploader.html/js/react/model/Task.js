@@ -19,7 +19,7 @@
  */
 
 import Pydio from 'pydio'
-const {JobsJob, JobsTask, JobsTaskStatus} = require('pydio/http/rest-api');
+import {JobsJob, JobsTask, JobsTaskStatus} from 'cells-sdk'
 const {JobsStore} = Pydio.requireLib("boot");
 import StatusItem from './StatusItem'
 

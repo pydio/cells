@@ -22,7 +22,7 @@ import Pydio from 'pydio';
 import PydioApi from "pydio/http/api";
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu, Toggle} from 'material-ui';
-import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
+import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
 
 const LanguagePicker = (props) => {
     const items = [];

@@ -289,7 +289,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -565,13 +565,13 @@ var LogDetail = (function (_React$Component2) {
 
 LogDetail.PropTypes = {
     pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-    log: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.LogLogMessage)
+    log: _react2['default'].PropTypes.instanceOf(_cellsSdk.LogLogMessage)
 };
 
 exports['default'] = LogDetail;
 module.exports = exports['default'];
 
-},{"clipboard":"clipboard","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],3:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","clipboard":"clipboard","material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],3:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1443,7 +1443,7 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Log = (function (_Observable) {
     _inherits(Log, _Observable);
@@ -1524,13 +1524,13 @@ var Log = (function (_Observable) {
     }, {
         key: "loadLogs",
         value: function loadLogs(serviceName, query, page, size, contentType) {
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = query;
             request.Page = page;
             request.Size = size;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject(contentType);
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject(contentType);
             if (serviceName === 'syslog') {
-                var api = new _pydioHttpRestApi.LogServiceApi(_pydioHttpApi2["default"].getRestClient());
+                var api = new _cellsSdk.LogServiceApi(_pydioHttpApi2["default"].getRestClient());
                 return api.syslog(request);
             } else if (serviceName === 'audit') {
                 return _pydioHttpResourcesManager2["default"].loadClass('EnterpriseSDK').then(function (sdk) {
@@ -1552,11 +1552,11 @@ var Log = (function (_Observable) {
     }, {
         key: "downloadLogs",
         value: function downloadLogs(serviceName, query, format) {
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = query;
             request.Page = 0;
             request.Size = 100000;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject(format);
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject(format);
             return Log.auditExportWithHttpInfo(request, serviceName).then(function (response_and_data) {
                 return response_and_data.response.body;
             });
@@ -1598,4 +1598,4 @@ var Log = (function (_Observable) {
 exports["default"] = Log;
 module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}]},{},[5]);
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/lang/observable":"pydio/lang/observable"}]},{},[5]);

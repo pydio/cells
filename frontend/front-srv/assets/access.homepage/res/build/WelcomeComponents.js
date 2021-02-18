@@ -9029,7 +9029,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -9094,9 +9094,9 @@ var Loader = (function () {
         value: function loadBookmarks() {
             var _this3 = this;
 
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
             return new Promise(function (resolve) {
-                api.userBookmarks(new _pydioHttpRestApi.RestUserBookmarksRequest()).then(function (collection) {
+                api.userBookmarks(new _cellsSdk.RestUserBookmarksRequest()).then(function (collection) {
                     var nodes = [];
                     if (!collection.Nodes) {
                         resolve([]);
@@ -9385,7 +9385,7 @@ exports['default'] = SmartRecents = PydioContextConsumer(SmartRecents);
 exports['default'] = SmartRecents;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react"}],16:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react"}],16:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>

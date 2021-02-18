@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {Divider, FontIcon, IconButton, FlatButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
-import {JobsSchedule} from 'pydio/http/rest-api'
+import {JobsSchedule} from 'cells-sdk'
 const {Stepper} = Pydio.requireLib("components");
 const {Dialog, PanelBigButtons} = Stepper;
 

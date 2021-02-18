@@ -20,7 +20,7 @@
 import Pydio from 'pydio'
 import React from "react";
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi} from 'pydio/http/rest-api'
+import {ConfigServiceApi} from 'cells-sdk'
 import {Paper, List, ListItem, Checkbox, FontIcon, Divider} from 'material-ui'
 import ServiceCard from './ServiceCard'
 const {MaterialTable} = Pydio.requireLib('components');

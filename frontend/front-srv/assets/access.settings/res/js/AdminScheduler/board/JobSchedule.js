@@ -21,7 +21,7 @@
 import React from 'react'
 import ResourcesManager from 'pydio/http/resources-manager'
 import PydioApi from 'pydio/http/api'
-import {JobsJob} from 'pydio/http/rest-api'
+import {JobsJob} from 'cells-sdk'
 import {Dialog, FlatButton, FontIcon} from 'material-ui'
 import ScheduleForm from './ScheduleForm'
 

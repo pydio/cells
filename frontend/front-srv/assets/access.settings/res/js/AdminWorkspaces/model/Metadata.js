@@ -1,7 +1,7 @@
 
 import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
 
 class Metadata {
 

@@ -29,7 +29,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
 
@@ -37,10 +37,10 @@ exports['default'] = function (pydio) {
 
         var nodes = pydio.getContextHolder().getSelectedNodes();
         var slug = pydio.user.getActiveRepositoryObject().getSlug();
-        var restoreRequest = new _pydioHttpRestApi.RestRestoreNodesRequest();
-        var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var restoreRequest = new _cellsSdk.RestRestoreNodesRequest();
+        var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
         restoreRequest.Nodes = nodes.map(function (n) {
-            var t = new _pydioHttpRestApi.TreeNode();
+            var t = new _cellsSdk.TreeNode();
             t.Path = slug + n.getPath();
             return t;
         });

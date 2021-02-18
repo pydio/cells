@@ -1,7 +1,7 @@
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
 import {sync as uuidGen} from "uuid4";
-import {UserMetaServiceApi, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
 
 function T(id) {
     const m = Pydio.getInstance().MessageHash;

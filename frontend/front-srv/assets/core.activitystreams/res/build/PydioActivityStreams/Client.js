@@ -38,7 +38,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var AS2Client = (function () {
     function AS2Client() {
@@ -58,8 +58,8 @@ var AS2Client = (function () {
             if (!contextData) {
                 return Promise.resolve([]);
             }
-            var api = new _pydioHttpRestApi.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.ActivityStreamActivitiesRequest();
+            var api = new _cellsSdk.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.ActivityStreamActivitiesRequest();
             req.Context = context;
             req.ContextData = contextData;
             req.BoxName = boxName;
@@ -80,8 +80,8 @@ var AS2Client = (function () {
         value: function UnreadInbox(userId) {
             var callback = arguments.length <= 1 || arguments[1] === undefined ? function (count) {} : arguments[1];
 
-            var api = new _pydioHttpRestApi.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.ActivityStreamActivitiesRequest();
+            var api = new _cellsSdk.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.ActivityStreamActivitiesRequest();
             req.Context = 'USER_ID';
             req.ContextData = userId;
             req.BoxName = 'inbox';

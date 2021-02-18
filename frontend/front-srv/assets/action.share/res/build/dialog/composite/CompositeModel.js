@@ -50,7 +50,7 @@ var _pydioModelCell = require('pydio/model/cell');
 
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydio = require('pydio');
 
@@ -80,7 +80,7 @@ var CompositeModel = (function (_Observable) {
             var _this = this;
 
             var link = new _linksLinkModel2['default']();
-            var treeNode = new _pydioHttpRestApi.TreeNode();
+            var treeNode = new _cellsSdk.TreeNode();
             var auth = _mainShareHelper2['default'].getAuthorizations();
             treeNode.Uuid = node.getMetadata().get('uuid');
             link.getLink().Label = node.getLabel();
@@ -88,7 +88,7 @@ var CompositeModel = (function (_Observable) {
             link.getLink().RootNodes.push(treeNode);
             // Template / Permissions from node
             var defaultTemplate = undefined;
-            var defaultPermissions = [_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Download')];
+            var defaultPermissions = [_cellsSdk.RestShareLinkAccessType.constructFromObject('Download')];
             if (node.isLeaf()) {
                 defaultTemplate = "pydio_unique_dl";
 
@@ -98,14 +98,14 @@ var CompositeModel = (function (_Observable) {
 
                 if (preview && !auth.max_downloads) {
                     defaultTemplate = "pydio_unique_strip";
-                    defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+                    defaultPermissions.push(_cellsSdk.RestShareLinkAccessType.constructFromObject('Preview'));
                 } else if (auth.max_downloads > 0) {
                     // If DL only and auth has default max download, set it
                     link.getLink().MaxDownloads = auth.max_downloads;
                 }
             } else {
                 defaultTemplate = "pydio_shared_folder";
-                defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+                defaultPermissions.push(_cellsSdk.RestShareLinkAccessType.constructFromObject('Preview'));
             }
             link.getLink().ViewTemplateName = defaultTemplate;
             link.getLink().Permissions = defaultPermissions;

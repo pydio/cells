@@ -212,7 +212,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
@@ -248,10 +248,10 @@ exports['default'] = function (pydio) {
             validCallback: function validCallback() {
                 var nodes = pydio.getContextHolder().getSelectedNodes();
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
-                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var deleteRequest = new _cellsSdk.RestDeleteNodesRequest();
+                var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
                 deleteRequest.Nodes = nodes.map(function (n) {
-                    var t = new _pydioHttpRestApi.TreeNode();
+                    var t = new _cellsSdk.TreeNode();
                     t.Path = slug + n.getPath();
                     return t;
                 });
@@ -274,7 +274,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],5:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -383,7 +383,7 @@ var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
@@ -395,9 +395,9 @@ exports['default'] = function (pydio) {
             dialogTitleId: 220,
             validCallback: function validCallback() {
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
-                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
-                var n = new _pydioHttpRestApi.TreeNode();
+                var deleteRequest = new _cellsSdk.RestDeleteNodesRequest();
+                var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var n = new _cellsSdk.TreeNode();
                 n.Path = slug + '/recycle_bin';
                 deleteRequest.Nodes = [n];
                 api.deleteNodes(deleteRequest).then(function (r) {
@@ -417,7 +417,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],8:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api"}],8:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -502,14 +502,14 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
     return function () {
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var req = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _cellsSdk.IdmUpdateUserMetaRequest();
         var node = pydio.getContextHolder().getUniqueNode();
-        var meta = new _pydioHttpRestApi.IdmUserMeta();
+        var meta = new _cellsSdk.IdmUserMeta();
         meta.NodeUuid = node.getMetadata().get('uuid');
         meta.Namespace = "content_lock";
         meta.JsonValue = pydio.user.id;
@@ -529,7 +529,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],10:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api"}],10:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -586,13 +586,13 @@ module.exports = exports["default"];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydioHttpApi = require("pydio/http/api");
 
@@ -602,9 +602,9 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
-exports["default"] = function (pydio) {
+exports['default'] = function (pydio) {
 
     return function () {
 
@@ -616,13 +616,13 @@ exports["default"] = function (pydio) {
                 throw new Error(m);
             }
 
-            var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
-            var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+            var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestCreateNodesRequest();
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
-            var path = slug + _pydioUtilLang2["default"].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
-            var node = new _pydioHttpRestApi.TreeNode();
+            var path = slug + _pydioUtilLang2['default'].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
+            var node = new _cellsSdk.TreeNode();
             node.Path = path;
-            node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+            node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(function (collection) {
                 if (console) console.debug('Created nodes', collection.Children);
@@ -638,9 +638,9 @@ exports["default"] = function (pydio) {
     };
 };
 
-module.exports = exports["default"];
+module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],12:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang"}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -958,7 +958,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
 
@@ -966,10 +966,10 @@ exports['default'] = function (pydio) {
 
         var nodes = pydio.getContextHolder().getSelectedNodes();
         var slug = pydio.user.getActiveRepositoryObject().getSlug();
-        var restoreRequest = new _pydioHttpRestApi.RestRestoreNodesRequest();
-        var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var restoreRequest = new _cellsSdk.RestRestoreNodesRequest();
+        var api = new _cellsSdk.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
         restoreRequest.Nodes = nodes.map(function (n) {
-            var t = new _pydioHttpRestApi.TreeNode();
+            var t = new _cellsSdk.TreeNode();
             t.Path = slug + n.getPath();
             return t;
         });
@@ -992,7 +992,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],17:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1077,7 +1077,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _pydioModelCell = require('pydio/model/cell');
 
@@ -1120,8 +1120,8 @@ var CrossWsContent = (function (_React$Component) {
             // List roots for the cell
             var cellWs = this.props.cellWs;
 
-            var metaService = new _pydioHttpRestApi.MetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestGetBulkMetaRequest();
+            var metaService = new _cellsSdk.MetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestGetBulkMetaRequest();
             var slug = cellWs.getSlug();
             console.log(slug);
             request.NodePaths = [slug, slug + '/*'];
@@ -1289,7 +1289,7 @@ var CrossWsDropDialog = React.createClass({
 exports['default'] = CrossWsDropDialog;
 module.exports = exports['default'];
 
-},{"../callback/applyCopyOrMove":2,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/cell":"pydio/model/cell","pydio/model/data-model":"pydio/model/data-model","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","react":"react"}],19:[function(require,module,exports){
+},{"../callback/applyCopyOrMove":2,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/cell":"pydio/model/cell","pydio/model/data-model":"pydio/model/data-model","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","react":"react"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1503,7 +1503,7 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var _pydioModelDataModel = require("pydio/model/data-model");
 
@@ -1599,13 +1599,13 @@ var TreeDialog = _react2['default'].createClass({
             var repo = pydio.user.getRepositoriesList().get(this.state.wsId);
             slug = repo.getSlug();
         }
-        var api = new _pydioHttpRestApi.TreeServiceApi(PydioApi.getRestClient());
-        var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+        var api = new _cellsSdk.TreeServiceApi(PydioApi.getRestClient());
+        var request = new _cellsSdk.RestCreateNodesRequest();
 
         var path = slug + _pydioUtilLang2['default'].trimRight(parent.getPath(), '/') + '/' + nodeName;
-        var node = new _pydioHttpRestApi.TreeNode();
+        var node = new _cellsSdk.TreeNode();
         node.Path = path;
-        node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+        node.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
         request.Nodes = [node];
         api.createNodes(request).then(function (collection) {
             var fullpath = parent.getPath() + '/' + nodeName;
@@ -1740,7 +1740,7 @@ var TreeDialog = _react2['default'].createClass({
 exports['default'] = TreeDialog;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2287,14 +2287,7 @@ var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
-var _require = require('pydio/http/rest-api');
-
-var TreeServiceApi = _require.TreeServiceApi;
-var TemplatesServiceApi = _require.TemplatesServiceApi;
-var RestTemplate = _require.RestTemplate;
-var RestCreateNodesRequest = _require.RestCreateNodesRequest;
-var TreeNode = _require.TreeNode;
-var TreeNodeType = _require.TreeNodeType;
+var _cellsSdk = require('cells-sdk');
 
 var QuickCache = undefined,
     QuickCacheTimer = undefined;
@@ -2370,11 +2363,11 @@ var Builder = (function () {
                                                         pydio.UI.displayMessage('ERROR', message);
                                                         throw new Error(message);
                                                     }
-                                                    var api = new TreeServiceApi(PydioApi.getRestClient());
-                                                    var request = new RestCreateNodesRequest();
-                                                    var node = new TreeNode();
+                                                    var api = new _cellsSdk.TreeServiceApi(PydioApi.getRestClient());
+                                                    var request = new _cellsSdk.RestCreateNodesRequest();
+                                                    var node = new _cellsSdk.TreeNode();
                                                     node.Path = pathDir + '/' + value;
-                                                    node.Type = TreeNodeType.constructFromObject('LEAF');
+                                                    node.Type = _cellsSdk.TreeNodeType.constructFromObject('LEAF');
                                                     request.Nodes = [node];
                                                     request.TemplateUUID = tpl.UUID;
                                                     api.createNodes(request).then(function (collection) {
@@ -2409,11 +2402,11 @@ var Builder = (function () {
             if (QuickCacheTimer) {
                 clearTimeout(QuickCacheTimer);
             }
-            var api = new TemplatesServiceApi(PydioApi.getRestClient());
+            var api = new _cellsSdk.TemplatesServiceApi(PydioApi.getRestClient());
             api.listTemplates().then(function (response) {
                 _this.__loadedTemplates = response.Templates;
                 // Add Empty File Template
-                var emptyTemplate = new RestTemplate();
+                var emptyTemplate = new _cellsSdk.RestTemplate();
                 emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
                 emptyTemplate.UUID = "";
                 _this.__loadedTemplates.unshift(emptyTemplate);
@@ -2468,7 +2461,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path"}],30:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/util/path":"pydio/util/path"}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

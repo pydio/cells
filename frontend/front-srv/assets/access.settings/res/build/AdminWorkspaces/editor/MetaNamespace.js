@@ -47,7 +47,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -87,7 +87,7 @@ var MetaNamespace = (function (_React$Component) {
     _createClass(MetaNamespace, [{
         key: 'cloneNs',
         value: function cloneNs(ns) {
-            return _pydioHttpRestApi.IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
+            return _cellsSdk.IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
         }
     }, {
         key: 'componentWillReceiveProps',
@@ -266,7 +266,7 @@ var MetaNamespace = (function (_React$Component) {
             var newPols = pol.filter(function (p) {
                 return p.Action !== right;
             });
-            newPols.push(_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
+            newPols.push(_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
             namespace.Policies = newPols;
             this.setState({ namespace: namespace }, function () {
                 if (right === 'READ' && value) {
@@ -340,7 +340,7 @@ var MetaNamespace = (function (_React$Component) {
                 } })];
             if (type === 'tags' && !readonly) {
                 actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
-                        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
                             pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
                         })['catch'](function (e) {
@@ -453,7 +453,7 @@ var MetaNamespace = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MetaNamespace.PropTypes = {
-    namespace: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.IdmUserMetaNamespace).isRequired,
+    namespace: _react2['default'].PropTypes.instanceOf(_cellsSdk.IdmUserMetaNamespace).isRequired,
     create: _react2['default'].PropTypes.boolean,
     reloadList: _react2['default'].PropTypes.func,
     onRequestClose: _react2['default'].PropTypes.func

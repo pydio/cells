@@ -43,7 +43,7 @@ var _pydioHttpPolicies = require('pydio/http/policies');
 
 var _pydioHttpPolicies2 = _interopRequireDefault(_pydioHttpPolicies);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _LinkModel = require('./LinkModel');
 
@@ -87,7 +87,7 @@ var VisibilityPanel = _react2['default'].createClass({
             }
         });
         Object.keys(_diffPolicies.add).map(function (k) {
-            var newPol = new _pydioHttpRestApi.ServiceResourcePolicy();
+            var newPol = new _cellsSdk.ServiceResourcePolicy();
 
             var _k$split = k.split('///');
 
@@ -97,7 +97,7 @@ var VisibilityPanel = _react2['default'].createClass({
             var subject = _k$split2[1];
 
             newPol.Resource = resourceId;
-            newPol.Effect = _pydioHttpRestApi.ServiceResourcePolicyPolicyEffect.constructFromObject('allow');
+            newPol.Effect = _cellsSdk.ServiceResourcePolicyPolicyEffect.constructFromObject('allow');
             newPol.Subject = subject;
             newPol.Action = action;
             newPols.push(newPol);

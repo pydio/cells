@@ -48,7 +48,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
@@ -107,7 +107,7 @@ var JobBoard = (function (_React$Component) {
 
             this.loader.start();
             // Load descriptions
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this2.setState({ descriptions: data.Actions });
             });

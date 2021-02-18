@@ -20,7 +20,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {Dialog, FlatButton, TextField, SelectField, MenuItem, IconButton, Toggle} from 'material-ui'
-import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'pydio/http/rest-api'
+import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'cells-sdk'
 import LangUtils from 'pydio/util/lang'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'

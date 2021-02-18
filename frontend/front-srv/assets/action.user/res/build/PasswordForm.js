@@ -37,7 +37,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2["default"].requireLib('form');
 
@@ -104,10 +104,10 @@ var PasswordForm = _react2["default"].createClass({
             logoutString = ' ' + this.getMessage(445);
         }
         pydio.user.getIdmUser().then(function (idmUser) {
-            var updateUser = _pydioHttpRestApi.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
+            var updateUser = _cellsSdk.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
             updateUser.OldPassword = oldPass;
             updateUser.Password = newPass;
-            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2["default"].getRestClient());
+            var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2["default"].getRestClient());
             api.putUser(updateUser.Login, updateUser).then(function () {
                 pydio.displayMessage('SUCCESS', _this2.getMessage(197) + logoutString);
                 callback(true);

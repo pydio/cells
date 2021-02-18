@@ -50,7 +50,7 @@ var _materialUiStyles = require('material-ui/styles');
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
+var _cellsSdk = require('cells-sdk');
 
 var LanguagePicker = function LanguagePicker(props) {
     var items = [];
@@ -521,7 +521,7 @@ var ResetPasswordRequire = React.createClass({
             return;
         }
 
-        var api = new _pydioHttpRestApi.TokenServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.TokenServiceApi(_pydioHttpApi2['default'].getRestClient());
         api.resetPasswordToken(value).then(function () {
             _this4.setState({ valueSubmitted: true });
         });
@@ -598,8 +598,8 @@ var ResetPasswordDialog = React.createClass({
         }
 
         var mess = pydio.MessageHash;
-        var api = new _pydioHttpRestApi.TokenServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var request = new _pydioHttpRestApi.RestResetPasswordRequest();
+        var api = new _cellsSdk.TokenServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var request = new _cellsSdk.RestResetPasswordRequest();
         request.UserLogin = this.state.userId;
         request.ResetPasswordToken = pydio.Parameters.get('USER_ACTION_KEY');
         request.NewPassword = this.state.passValue;

@@ -1,7 +1,7 @@
 import React from "react";
 import ResourcesManager from 'pydio/http/resources-manager'
 import {FlatButton, RaisedButton, Paper} from 'material-ui'
-import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'pydio/http/rest-api'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
 import Pydio from 'pydio'

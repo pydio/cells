@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {ConfigServiceApi, RestConfiguration} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
 import {RaisedButton, FlatButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'

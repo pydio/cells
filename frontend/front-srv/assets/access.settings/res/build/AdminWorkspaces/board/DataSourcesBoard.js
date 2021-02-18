@@ -82,7 +82,7 @@ var _modelWs = require('../model/Ws');
 
 var _modelWs2 = _interopRequireDefault(_modelWs);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _uuid = require('uuid');
 
@@ -138,7 +138,7 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function componentDidMount() {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var pydio = this.props.pydio;
 
             this.statusPoller = setInterval(function () {
@@ -384,11 +384,11 @@ var DataSourcesBoard = (function (_React$Component) {
             var create = false;
             if (versionPolicies === undefined) {
                 create = true;
-                versionPolicy = new _pydioHttpRestApi.TreeVersioningPolicy();
+                versionPolicy = new _cellsSdk.TreeVersioningPolicy();
                 versionPolicy.Uuid = (0, _uuid.v4)();
                 versionPolicy.VersionsDataSourceName = "default";
                 versionPolicy.VersionsDataSourceBucket = "versions";
-                var period = new _pydioHttpRestApi.TreeVersioningKeepPeriod();
+                var period = new _cellsSdk.TreeVersioningKeepPeriod();
                 period.IntervalStart = "0";
                 period.MaxNumber = -1;
                 versionPolicy.KeepPeriods = [period];

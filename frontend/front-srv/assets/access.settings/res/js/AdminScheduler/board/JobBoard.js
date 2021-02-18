@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi} from 'pydio/http/rest-api'
+import {ConfigServiceApi} from 'cells-sdk'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
 import TasksList from './TasksList'

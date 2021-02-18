@@ -21,7 +21,7 @@ import React from 'react'
 import ResourcesManager from 'pydio/http/resources-manager'
 import ShareHelper from '../main/ShareHelper'
 import {Toggle} from 'material-ui'
-import {RestShareLinkTargetUser} from 'pydio/http/rest-api'
+import {RestShareLinkTargetUser} from 'cells-sdk'
 
 class Mailer extends React.Component {
 

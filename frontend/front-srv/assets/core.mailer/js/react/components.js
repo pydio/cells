@@ -21,7 +21,7 @@
 import React from 'react'
 import PydioApi from 'pydio/http/api'
 import {FontIcon, Chip, Avatar, Style, Paper, Divider, TextField, FlatButton} from 'material-ui'
-import {MailerServiceApi, MailerMail, MailerUser} from 'pydio/http/rest-api'
+import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
 
 const styles = {
     chip: {

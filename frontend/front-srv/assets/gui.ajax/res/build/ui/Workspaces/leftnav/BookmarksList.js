@@ -57,7 +57,7 @@ var _materialUiStyles = require('material-ui/styles');
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
@@ -83,8 +83,8 @@ var BookmarksList = (function (_React$Component) {
         var _this = this;
 
         this.setState({ loading: true });
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-        return api.userBookmarks(new _pydioHttpRestApi.RestUserBookmarksRequest()).then(function (collection) {
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        return api.userBookmarks(new _cellsSdk.RestUserBookmarksRequest()).then(function (collection) {
             _this.setState({ bookmarks: collection.Nodes, loading: false });
         })['catch'](function (reason) {
             _this.setState({ loading: false });
@@ -116,14 +116,14 @@ var BookmarksList = (function (_React$Component) {
         var _this2 = this;
 
         var nodeUuid = node.getMetadata().get("uuid");
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var searchRequest = new _pydioHttpRestApi.IdmSearchUserMetaRequest();
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var searchRequest = new _cellsSdk.IdmSearchUserMetaRequest();
         searchRequest.NodeUuids = [nodeUuid];
         searchRequest.Namespace = "bookmark";
-        var request = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+        var request = new _cellsSdk.IdmUpdateUserMetaRequest();
         return api.searchUserMeta(searchRequest).then(function (res) {
             if (res.Metadatas && res.Metadatas.length) {
-                request.Operation = _pydioHttpRestApi.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
+                request.Operation = _cellsSdk.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(function () {
                     _this2.load();

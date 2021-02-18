@@ -20,7 +20,7 @@
 import React from 'react'
 import {withRoleMessages} from '../util/MessagesMixin'
 import RightsSelector from './RightsSelector'
-import {IdmWorkspace} from 'pydio/http/rest-api';
+import {IdmWorkspace} from 'cells-sdk';
 import {FontIcon, Paper} from 'material-ui'
 
 class WorkspaceAcl extends React.Component{

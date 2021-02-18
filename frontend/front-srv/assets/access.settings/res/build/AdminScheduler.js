@@ -213,7 +213,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
@@ -550,7 +550,7 @@ var Events = (function (_React$Component) {
 exports['default'] = Events;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],3:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","react":"react"}],3:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -601,7 +601,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
@@ -660,7 +660,7 @@ var JobBoard = (function (_React$Component) {
 
             this.loader.start();
             // Load descriptions
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this2.setState({ descriptions: data.Actions });
             });
@@ -768,7 +768,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobSchedule":4,"./Loader":6,"./TasksList":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],4:[function(require,module,exports){
+},{"./JobSchedule":4,"./Loader":6,"./TasksList":9,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -817,7 +817,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -875,7 +875,7 @@ var JobSchedule = (function (_React$Component) {
                 var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var req = new JobsPutJobRequest();
                 // Clone and remove tasks
-                req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                req.Job = _cellsSdk.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
                 if (req.Job.Tasks !== undefined) {
                     delete req.Job.Tasks;
                 }
@@ -932,7 +932,7 @@ var JobSchedule = (function (_React$Component) {
 exports['default'] = JobSchedule;
 module.exports = exports['default'];
 
-},{"./ScheduleForm":7,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
+},{"./ScheduleForm":7,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1469,7 +1469,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -1812,7 +1812,7 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],8:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1867,7 +1867,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _lodashDebounce = require('lodash.debounce');
 
@@ -1951,13 +1951,13 @@ var TaskActivity = (function (_React$Component) {
                 return;
             }
             var operationId = task.JobID + '-' + task.ID.substr(0, 8);
-            var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2["default"].getRestClient());
+            var api = new _cellsSdk.JobsServiceApi(_pydioHttpApi2["default"].getRestClient());
 
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = "+OperationUuid:\"" + operationId + "\"";
             request.Page = page;
             request.Size = 200;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
                 var ll = response.Logs || [];
@@ -2133,7 +2133,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],9:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

@@ -31,7 +31,7 @@ var _Configs = require('./Configs');
 
 var _Configs2 = _interopRequireDefault(_Configs);
 
-var _restApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 

@@ -47,7 +47,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -99,8 +99,8 @@ var WatchSelector = (function (_React$Component) {
             var proms = nodes.map(function (node) {
                 var nodeUuid = node.getMetadata().get('uuid');
                 var userId = pydio.user.id;
-                var subscription = new _pydioHttpRestApi.ActivitySubscription();
-                var type = new _pydioHttpRestApi.ActivityOwnerType();
+                var subscription = new _cellsSdk.ActivitySubscription();
+                var type = new _cellsSdk.ActivityOwnerType();
                 subscription.UserId = userId;
                 subscription.ObjectId = nodeUuid;
                 subscription.ObjectType = type.NODE;
@@ -112,7 +112,7 @@ var WatchSelector = (function (_React$Component) {
                     events.push('read');
                 }
                 subscription.Events = events;
-                var api = new _pydioHttpRestApi.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var api = new _cellsSdk.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
                 return api.subscribe(subscription).then(function (outSub) {
                     var overlay = node.getMetadata().get('overlay_class') || '';
                     if (value === '') {

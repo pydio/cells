@@ -47,7 +47,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -323,7 +323,7 @@ var LogDetail = (function (_React$Component2) {
 
 LogDetail.PropTypes = {
     pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-    log: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.LogLogMessage)
+    log: _react2['default'].PropTypes.instanceOf(_cellsSdk.LogLogMessage)
 };
 
 exports['default'] = LogDetail;

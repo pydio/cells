@@ -22,7 +22,7 @@ const Observable = require('pydio/lang/observable');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang'
 import {ConfigServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
-    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'pydio/http/rest-api';
+    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'cells-sdk';
 
 class DataSource extends Observable {
 

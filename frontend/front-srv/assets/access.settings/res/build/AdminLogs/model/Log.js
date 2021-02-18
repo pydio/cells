@@ -26,7 +26,7 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Log = (function (_Observable) {
     _inherits(Log, _Observable);
@@ -107,13 +107,13 @@ var Log = (function (_Observable) {
     }, {
         key: "loadLogs",
         value: function loadLogs(serviceName, query, page, size, contentType) {
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = query;
             request.Page = page;
             request.Size = size;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject(contentType);
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject(contentType);
             if (serviceName === 'syslog') {
-                var api = new _pydioHttpRestApi.LogServiceApi(_pydioHttpApi2["default"].getRestClient());
+                var api = new _cellsSdk.LogServiceApi(_pydioHttpApi2["default"].getRestClient());
                 return api.syslog(request);
             } else if (serviceName === 'audit') {
                 return _pydioHttpResourcesManager2["default"].loadClass('EnterpriseSDK').then(function (sdk) {
@@ -135,11 +135,11 @@ var Log = (function (_Observable) {
     }, {
         key: "downloadLogs",
         value: function downloadLogs(serviceName, query, format) {
-            var request = new _pydioHttpRestApi.LogListLogRequest();
+            var request = new _cellsSdk.LogListLogRequest();
             request.Query = query;
             request.Page = 0;
             request.Size = 100000;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject(format);
+            request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject(format);
             return Log.auditExportWithHttpInfo(request, serviceName).then(function (response_and_data) {
                 return response_and_data.response.body;
             });

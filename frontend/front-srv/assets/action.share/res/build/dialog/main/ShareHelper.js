@@ -41,7 +41,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -203,13 +203,13 @@ var ShareHelper = (function () {
             var templateId = _ShareHelper$prepareEmail.templateId;
             var templateData = _ShareHelper$prepareEmail.templateData;
 
-            var mail = new _pydioHttpRestApi.MailerMail();
-            var api = new _pydioHttpRestApi.MailerServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var mail = new _cellsSdk.MailerMail();
+            var api = new _cellsSdk.MailerServiceApi(_pydioHttpApi2['default'].getRestClient());
             mail.To = [];
             var ignored = 0;
             Object.keys(targetUsers).map(function (k) {
                 var u = targetUsers[k];
-                var to = new _pydioHttpRestApi.MailerUser();
+                var to = new _cellsSdk.MailerUser();
                 if (u.IdmUser && u.IdmUser.Login && u.IdmUser.Attributes && (u.IdmUser.Attributes['hasEmail'] || u.IdmUser.Attributes['email'])) {
                     to.Uuid = u.IdmUser.Login;
                     mail.To.push(to);

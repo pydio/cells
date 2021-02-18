@@ -3,7 +3,7 @@ import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
 import PathUtils from 'pydio/util/path'
-import {ShareServiceApi, RestListSharedResourcesRequest, ListSharedResourcesRequestListShareType} from 'pydio/http/rest-api'
+import {ShareServiceApi, RestListSharedResourcesRequest, ListSharedResourcesRequestListShareType} from 'cells-sdk'
 const {ActionDialogMixin, Loader} = Pydio.requireLib('boot');
 const {ModalAppBar, EmptyStateView} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib("hoc");

@@ -21,7 +21,7 @@ import React from 'react'
 import ShareContextConsumer from '../ShareContextConsumer'
 import Pydio from 'pydio'
 import Policies from 'pydio/http/policies'
-import {ServiceResourcePolicy, ServiceResourcePolicyPolicyEffect} from 'pydio/http/rest-api'
+import {ServiceResourcePolicy, ServiceResourcePolicyPolicyEffect} from 'cells-sdk'
 const {ResourcePoliciesPanel} = Pydio.requireLib('components');
 import LinkModel from './LinkModel'
 

@@ -25,7 +25,7 @@ import LangUtils from "pydio/util/lang";
 import {Divider, FlatButton} from "material-ui";
 import Pydio from "pydio";
 import PydioApi from 'pydio/http/api';
-import {UserServiceApi} from 'pydio/http/rest-api';
+import {UserServiceApi} from 'cells-sdk';
 
 const {Manager, FormPanel} = Pydio.requireLib('form');
 

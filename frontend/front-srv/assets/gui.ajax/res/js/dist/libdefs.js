@@ -49,7 +49,6 @@ const PydioCoreRequires = {
     'http/PydioApi.js'          :'pydio/http/api',
     'http/SearchApi.js'         :'pydio/http/search-api',
     'http/PydioUsersApi.js'     :'pydio/http/users-api',
-    'http/gen/index.js'         :'pydio/http/rest-api',
     'http/MetaCacheService.js'  :'pydio/http/meta-cache-service',
     'http/PydioWebSocket.js'    :'pydio/http/websocket',
     'http/Policies.js'          :'pydio/http/policies',
@@ -85,7 +84,8 @@ const LibRequires = [ // modules we want to require and export
     'whatwg-fetch',
     'systemjs',
     'redux',
-    'react-markdown'
+    'react-markdown',
+    'cells-sdk'
 ];
 
 const Externals = Object.keys(PydioCoreRequires).map(function(key){

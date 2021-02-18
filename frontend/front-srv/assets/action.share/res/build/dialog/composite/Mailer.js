@@ -49,7 +49,7 @@ var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Mailer = (function (_React$Component) {
     _inherits(Mailer, _React$Component);
@@ -120,7 +120,7 @@ var Mailer = (function (_React$Component) {
             var shareMails = {};
             Object.keys(users).forEach(function (u) {
                 var k = crippleIdentificationKeys ? Math.random().toString(36).substring(7) : u;
-                linkObject.TargetUsers[k] = _pydioHttpRestApi.RestShareLinkTargetUser.constructFromObject({ Display: users[u].getLabel(), DownloadCount: 0 });
+                linkObject.TargetUsers[k] = _cellsSdk.RestShareLinkTargetUser.constructFromObject({ Display: users[u].getLabel(), DownloadCount: 0 });
                 shareMails[k] = u;
             });
             linkModel.updateLink(linkObject);

@@ -23,7 +23,7 @@ import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 import {Paper, RaisedButton, FlatButton, IconButton, Dialog} from 'material-ui'
 import {ConfigServiceApi, EncryptionAdminExportKeyRequest, EncryptionAdminImportKeyRequest,
-    EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'pydio/http/rest-api'
+    EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'cells-sdk'
 import Workspace from "../model/Ws";
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');

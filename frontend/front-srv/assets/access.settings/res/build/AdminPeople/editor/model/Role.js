@@ -24,7 +24,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _uuid = require('uuid');
 
@@ -51,7 +51,7 @@ var Role = (function (_Observable) {
         if (idmRole) {
             this.idmRole = idmRole;
         } else {
-            this.idmRole = new _pydioHttpRestApi.IdmRole();
+            this.idmRole = new _cellsSdk.IdmRole();
             this.idmRole.Uuid = (0, _uuid.v4)();
         }
         this.makeSnapshot();
@@ -81,10 +81,10 @@ var Role = (function (_Observable) {
         value: function makeSnapshot() {
             var _this = this;
 
-            this.snapshot = _pydioHttpRestApi.IdmRole.constructFromObject(JSON.parse(JSON.stringify(this.idmRole)));
+            this.snapshot = _cellsSdk.IdmRole.constructFromObject(JSON.parse(JSON.stringify(this.idmRole)));
             this.aclSnapshot = [];
             this.acls.forEach(function (acl) {
-                _this.aclSnapshot.push(_pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl))));
+                _this.aclSnapshot.push(_cellsSdk.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl))));
             });
         }
     }, {
@@ -115,10 +115,10 @@ var Role = (function (_Observable) {
 
             var parentsOnly = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 
-            var api = new _pydioHttpRestApi.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestSearchACLRequest();
+            var api = new _cellsSdk.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestSearchACLRequest();
             request.Queries = [];
-            var q = new _pydioHttpRestApi.IdmACLSingleQuery();
+            var q = new _cellsSdk.IdmACLSingleQuery();
             q.RoleIDs = [];
             if (!parentsOnly) {
                 q.RoleIDs = [this.idmRole.Uuid];
@@ -171,14 +171,14 @@ var Role = (function (_Observable) {
         value: function save() {
             var _this4 = this;
 
-            var rApi = new _pydioHttpRestApi.RoleServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var aclApi = new _pydioHttpRestApi.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var rApi = new _cellsSdk.RoleServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var aclApi = new _cellsSdk.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
             return rApi.setRole(this.idmRole.Uuid, this.idmRole).then(function (newRole) {
                 _this4.idmRole = newRole;
                 // Remove previous acls
-                var request = new _pydioHttpRestApi.RestSearchACLRequest();
+                var request = new _cellsSdk.RestSearchACLRequest();
                 request.Queries = [];
-                var q = new _pydioHttpRestApi.IdmACLSingleQuery();
+                var q = new _cellsSdk.IdmACLSingleQuery();
                 q.RoleIDs = [_this4.idmRole.Uuid];
                 request.Queries.push(q);
                 return aclApi.searchAcls(request).then(function (collection) {
@@ -241,10 +241,10 @@ var Role = (function (_Observable) {
                         }
                 })();
             } else {
-                var acl = new _pydioHttpRestApi.IdmACL();
+                var acl = new _cellsSdk.IdmACL();
                 acl.RoleID = this.idmRole.Uuid;
                 acl.WorkspaceID = scope;
-                acl.Action = new _pydioHttpRestApi.IdmACLAction();
+                acl.Action = new _cellsSdk.IdmACLAction();
                 acl.Action.Name = aclKey;
                 acl.Action.Value = JSON.stringify(paramValue);
                 this.acls.push(acl);
@@ -309,7 +309,7 @@ var Role = (function (_Observable) {
                         return f.Action.Name === a.Action.Name;
                     }).length; // add only if not already set in main role
                 }).map(function (a) {
-                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(a)));
+                    var copy = _cellsSdk.IdmACL.constructFromObject(JSON.parse(JSON.stringify(a)));
                     copy.INHERITED = true;
                     return copy;
                 });
@@ -443,7 +443,7 @@ var Role = (function (_Observable) {
             if (value !== '') {
                 value.split(',').forEach(function (r) {
                     nodeIds.forEach(function (n) {
-                        var acl = new _pydioHttpRestApi.IdmACL();
+                        var acl = new _cellsSdk.IdmACL();
                         acl.NodeID = n;
                         if (workspace) {
                             acl.WorkspaceID = workspace.UUID;
@@ -451,7 +451,7 @@ var Role = (function (_Observable) {
                             acl.WorkspaceID = nodeWs.UUID;
                         }
                         acl.RoleID = _this9.idmRole.Uuid;
-                        acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
+                        acl.Action = _cellsSdk.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
                         _this9.acls.push(acl);
                     });
                 });
@@ -510,7 +510,7 @@ var Role = (function (_Observable) {
         value: function FormatPolicyAclToStore(acls) {
             return acls.map(function (acl) {
                 if (acl.Action && acl.Action.Name.indexOf('policy:') === 0) {
-                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl)));
+                    var copy = _cellsSdk.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl)));
                     copy.Action.Name = 'policy';
                     copy.Action.Value = acl.Action.Name.split(':')[1];
                     return copy;

@@ -28,7 +28,7 @@ const { PydioContextConsumer, moment } = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 const {ASClient} = Pydio.requireLib('PydioActivityStreams');
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, RestUserBookmarksRequest} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, RestUserBookmarksRequest} from 'cells-sdk'
 
 class Loader {
     constructor(pydio, stater) {

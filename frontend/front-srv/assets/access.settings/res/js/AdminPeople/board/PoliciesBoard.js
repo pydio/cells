@@ -23,7 +23,7 @@ import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconMenu, MenuItem, Popover, SelectField, TextField} from 'material-ui'
-import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
+import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
 import {v4 as uuid} from 'uuid'

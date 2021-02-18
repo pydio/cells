@@ -22,7 +22,7 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
 
@@ -40,20 +40,20 @@ var PagesAcls = (function (_React$Component) {
         };
 
         var workspaces = [];
-        var homepageWorkspace = new _pydioHttpRestApi.IdmWorkspace();
+        var homepageWorkspace = new _cellsSdk.IdmWorkspace();
         homepageWorkspace.UUID = "homepage";
         homepageWorkspace.Label = m('workspace.statics.home.title');
         homepageWorkspace.Description = m('workspace.statics.home.description');
         homepageWorkspace.Slug = "homepage";
-        homepageWorkspace.RootNodes = { "homepage-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "homepage-ROOT" }) };
+        homepageWorkspace.RootNodes = { "homepage-ROOT": _cellsSdk.TreeNode.constructFromObject({ Uuid: "homepage-ROOT" }) };
         workspaces.push(homepageWorkspace);
         if (props.showSettings) {
-            var settingsWorkspace = new _pydioHttpRestApi.IdmWorkspace();
+            var settingsWorkspace = new _cellsSdk.IdmWorkspace();
             settingsWorkspace.UUID = "settings";
             settingsWorkspace.Label = m('workspace.statics.settings.title');
             settingsWorkspace.Description = m('workspace.statics.settings.description');
             settingsWorkspace.Slug = "settings";
-            settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
+            settingsWorkspace.RootNodes = { "settings-ROOT": _cellsSdk.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);
         }
         workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));

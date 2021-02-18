@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Observable from 'pydio/lang/observable'
 import ShareHelper from '../main/ShareHelper'
-import {ShareServiceApi, RestPutShareLinkRequest, RestShareLink, RestShareLinkAccessType} from 'pydio/http/rest-api'
+import {ShareServiceApi, RestPutShareLinkRequest, RestShareLink, RestShareLinkAccessType} from 'cells-sdk'
 import PassUtils from 'pydio/util/pass'
 
 class LinkModel extends Observable {

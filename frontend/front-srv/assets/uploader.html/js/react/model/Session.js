@@ -22,7 +22,7 @@ import PydioApi from 'pydio/http/api'
 import PathUtils from 'pydio/util/path'
 import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
-import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 class Session extends FolderItem {
 

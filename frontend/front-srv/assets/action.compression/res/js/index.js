@@ -19,7 +19,7 @@
  */
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {JobsServiceApi, RestUserJobRequest} from 'pydio/http/rest-api'
+import {JobsServiceApi, RestUserJobRequest} from 'cells-sdk'
 import PathUtils from 'pydio/util/path'
 import {MenuItem, TextField, SelectField} from 'material-ui'
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");

@@ -31,7 +31,7 @@ import ResourcesManager from 'pydio/http/resources-manager'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
 import Workspace from '../model/Ws'
-import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'cells-sdk'
 import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'

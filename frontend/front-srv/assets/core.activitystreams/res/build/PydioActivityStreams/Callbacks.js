@@ -33,7 +33,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Callbacks = (function () {
     function Callbacks() {
@@ -50,8 +50,8 @@ var Callbacks = (function () {
                     var node = pydio.getUserSelection().getUniqueNode();
                     var nodeUuid = node.getMetadata().get('uuid');
                     var userId = pydio.user.id;
-                    var subscription = new _pydioHttpRestApi.ActivitySubscription();
-                    var type = new _pydioHttpRestApi.ActivityOwnerType();
+                    var subscription = new _cellsSdk.ActivitySubscription();
+                    var type = new _cellsSdk.ActivityOwnerType();
                     subscription.UserId = userId;
                     subscription.ObjectId = nodeUuid;
                     subscription.ObjectType = type.NODE;
@@ -63,7 +63,7 @@ var Callbacks = (function () {
                         events.push('read');
                     }
                     subscription.Events = events;
-                    var api = new _pydioHttpRestApi.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var api = new _cellsSdk.ActivityServiceApi(_pydioHttpApi2['default'].getRestClient());
                     api.subscribe(subscription).then(function (outSub) {
                         var overlay = node.getMetadata().get('overlay_class') || '';
                         if (args === 'watch_stop') {

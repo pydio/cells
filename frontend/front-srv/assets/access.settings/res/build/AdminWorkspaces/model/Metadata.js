@@ -18,7 +18,7 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Metadata = (function () {
     function Metadata() {
@@ -28,7 +28,7 @@ var Metadata = (function () {
     _createClass(Metadata, null, [{
         key: 'loadNamespaces',
         value: function loadNamespaces() {
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listUserMetaNamespace();
         }
 
@@ -39,9 +39,9 @@ var Metadata = (function () {
     }, {
         key: 'putNS',
         value: function putNS(namespace) {
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
-            request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
             request.Namespaces = [namespace];
             Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);
@@ -54,9 +54,9 @@ var Metadata = (function () {
     }, {
         key: 'deleteNS',
         value: function deleteNS(namespace) {
-            var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
-            request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
             request.Namespaces = [namespace];
             Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);

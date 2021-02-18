@@ -21,7 +21,7 @@
 import React from "react";
 import Pydio from 'pydio';
 import LangUtils from 'pydio/util/lang';
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
 import {IconButton, MenuItem, Paper} from "material-ui";
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");

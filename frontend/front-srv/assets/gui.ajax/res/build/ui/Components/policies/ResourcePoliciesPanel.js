@@ -42,9 +42,7 @@ var _pydioHttpPolicies = require('pydio/http/policies');
 
 var _pydioHttpPolicies2 = _interopRequireDefault(_pydioHttpPolicies);
 
-var _pydioHttpUsersApi = require('pydio/http/users-api');
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydio2 = require('pydio');
 
@@ -179,7 +177,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         var diffPolicies = _state3.diffPolicies;
 
         var newPolicies = dirtyPolicies ? [].concat(dirtyPolicies) : [].concat(policies);
-        var newPol = new _pydioHttpRestApi.ServiceResourcePolicy();
+        var newPol = new _cellsSdk.ServiceResourcePolicy();
         newPol.Resource = resourceUuid;
         newPol.Effect = 'allow';
         newPol.Subject = subject;

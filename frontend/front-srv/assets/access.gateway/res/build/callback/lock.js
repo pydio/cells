@@ -30,14 +30,14 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 exports['default'] = function (pydio) {
     return function () {
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var req = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _cellsSdk.IdmUpdateUserMetaRequest();
         var node = pydio.getContextHolder().getUniqueNode();
-        var meta = new _pydioHttpRestApi.IdmUserMeta();
+        var meta = new _cellsSdk.IdmUserMeta();
         meta.NodeUuid = node.getMetadata().get('uuid');
         meta.Namespace = "content_lock";
         meta.JsonValue = pydio.user.id;

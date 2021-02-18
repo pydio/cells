@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'cells-sdk'
 import {SelectField, TextField, MenuItem, FontIcon, IconButton, AutoComplete, RefreshIndicator} from 'material-ui'
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'

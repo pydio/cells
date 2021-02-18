@@ -20,7 +20,7 @@ var _pydioLangObservable = require('pydio/lang/observable');
 
 var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _uuid = require('uuid');
 
@@ -60,9 +60,9 @@ var User = (function (_Observable) {
                 this.idmUser.Attributes = {};
             }
         } else {
-            this.idmUser = new _pydioHttpRestApi.IdmUser();
+            this.idmUser = new _cellsSdk.IdmUser();
             this.idmUser.Uuid = (0, _uuid.v4)();
-            this.idmRole = _pydioHttpRestApi.IdmRole.constructFromObject({ Uuid: this.idmUser.Uuid });
+            this.idmRole = _cellsSdk.IdmRole.constructFromObject({ Uuid: this.idmUser.Uuid });
             this.idmUser.Roles = [this.idmRole];
             this.idmUser.Attributes = {};
         }
@@ -121,7 +121,7 @@ var User = (function (_Observable) {
     }, {
         key: 'makeSnapshot',
         value: function makeSnapshot() {
-            this.snapshot = _pydioHttpRestApi.IdmUser.constructFromObject(JSON.parse(JSON.stringify(this.idmUser)));
+            this.snapshot = _cellsSdk.IdmUser.constructFromObject(JSON.parse(JSON.stringify(this.idmUser)));
         }
 
         /**

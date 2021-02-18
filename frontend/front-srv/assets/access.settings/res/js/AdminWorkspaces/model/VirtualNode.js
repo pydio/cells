@@ -22,7 +22,7 @@ import LangUtils from 'pydio/util/lang'
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {ConfigServiceApi, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import {ConfigServiceApi, TreeNode, TreeNodeType} from 'cells-sdk'
 
 class VirtualNode extends Observable {
 

@@ -20,7 +20,7 @@
 import PydioApi from './PydioApi'
 import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest,
     RoleServiceApi, IdmRoleSingleQuery, RestSearchRoleRequest,
-    WorkspaceServiceApi, IdmWorkspaceSingleQuery, RestSearchWorkspaceRequest, ShareServiceApi, RestUpdateSharePoliciesRequest} from './gen/index';
+    WorkspaceServiceApi, IdmWorkspaceSingleQuery, RestSearchWorkspaceRequest, ShareServiceApi, RestUpdateSharePoliciesRequest} from 'cells-sdk';
 
 class Policies {
 

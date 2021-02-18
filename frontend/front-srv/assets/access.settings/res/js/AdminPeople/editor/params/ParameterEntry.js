@@ -20,7 +20,7 @@
 
 import React from 'react';
 import {RoleMessagesConsumerMixin, withRoleMessages} from '../util/MessagesMixin';
-import {IdmACL} from 'pydio/http/rest-api';
+import {IdmACL} from 'cells-sdk';
 import XMLUtils from 'pydio/util/xml';
 import {Role} from '../model/Role';
 import {IconButton, Toggle} from 'material-ui';

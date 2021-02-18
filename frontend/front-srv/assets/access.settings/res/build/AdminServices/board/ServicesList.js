@@ -39,7 +39,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -142,7 +142,7 @@ exports['default'] = _react2['default'].createClass({
     load: function load() {
         var _this = this;
 
-        var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
         this.setState({ loading: true });
         api.listServices().then(function (servicesCollection) {

@@ -20,7 +20,7 @@
 import PydioApi from './PydioApi'
 import Observable from '../lang/Observable'
 import MetaCacheService from './MetaCacheService'
-import {RoleServiceApi, IdmRoleSingleQuery, RestSearchRoleRequest, IdmUser, IdmRole} from './gen/index';
+import {IdmUser} from 'cells-sdk';
 import debounce from 'lodash.debounce'
 import md5 from 'md5'
 

@@ -39,7 +39,7 @@ var _MetaCacheService = require('./MetaCacheService');
 
 var _MetaCacheService2 = _interopRequireDefault(_MetaCacheService);
 
-var _genIndex = require('./gen/index');
+var _cellsSdk = require('cells-sdk');
 
 var _lodashDebounce = require('lodash.debounce');
 

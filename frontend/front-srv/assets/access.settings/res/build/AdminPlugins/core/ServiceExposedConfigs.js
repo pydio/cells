@@ -44,7 +44,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var ServiceExposedConfigs = (function (_React$Component) {
     _inherits(ServiceExposedConfigs, _React$Component);
@@ -119,7 +119,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
                 });
             });
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.getConfig("services/" + serviceId).then(function (restConfig) {
                 if (restConfig.Data) {
                     var values = JSON.parse(restConfig.Data) || {};
@@ -145,8 +145,8 @@ var ServiceExposedConfigs = (function (_React$Component) {
             if (onBeforeSave) {
                 onBeforeSave(jsonValues);
             }
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var body = new _pydioHttpRestApi.RestConfiguration();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var body = new _cellsSdk.RestConfiguration();
             body.FullPath = "services/" + serviceName;
             body.Data = JSON.stringify(jsonValues);
             return api.putConfig(body.FullPath, body).then(function (res) {

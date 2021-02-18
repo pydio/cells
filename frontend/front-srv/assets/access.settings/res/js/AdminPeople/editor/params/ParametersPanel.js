@@ -1,7 +1,7 @@
 import React from 'react'
 import ParameterEntry from './ParameterEntry'
 import {IconButton, SelectField, MenuItem, Divider} from 'material-ui'
-import {WorkspaceServiceApi,RestSearchWorkspaceRequest,IdmWorkspaceSingleQuery} from 'pydio/http/rest-api';
+import {WorkspaceServiceApi,RestSearchWorkspaceRequest,IdmWorkspaceSingleQuery} from 'cells-sdk';
 
 export default class ParametersPanel extends React.Component {
 

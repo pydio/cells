@@ -50,7 +50,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -151,8 +151,8 @@ var AutocompleteTree = (function (_React$Component) {
                 return Promise.resolve();
             }
             this.lastSearch = basePath;
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var listRequest = new _pydioHttpRestApi.RestListPeerFoldersRequest();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var listRequest = new _cellsSdk.RestListPeerFoldersRequest();
             listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             listRequest.Path = basePath;
             this.setState({ loading: true });
@@ -179,8 +179,8 @@ var AutocompleteTree = (function (_React$Component) {
             var pydio = _props.pydio;
             var value = this.state.value;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var createRequest = new _pydioHttpRestApi.RestCreatePeerFolderRequest();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var createRequest = new _cellsSdk.RestCreatePeerFolderRequest();
             createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
             createRequest.Path = value + '/' + newName;
             api.createPeerFolder(peerAddress, createRequest).then(function (result) {
@@ -377,7 +377,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
 
             var model = this.props.model;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listPeersAddresses().then(function (res) {
                 var aa = res.PeerAddresses || [];
                 if (aa === 1 && !model.PeerAddress) {

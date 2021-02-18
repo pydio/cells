@@ -30,7 +30,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function toggleBookmarkNode(node, selection) {
 
@@ -38,15 +38,15 @@ function toggleBookmarkNode(node, selection) {
     var nodeUuid = node.getMetadata().get('uuid');
     var userId = _globals.pydio.user.id;
 
-    var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-    var request = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
+    var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+    var request = new _cellsSdk.IdmUpdateUserMetaRequest();
     if (isBookmarked) {
-        var searchRequest = new _pydioHttpRestApi.IdmSearchUserMetaRequest();
+        var searchRequest = new _cellsSdk.IdmSearchUserMetaRequest();
         searchRequest.NodeUuids = [nodeUuid];
         searchRequest.Namespace = "bookmark";
         return api.searchUserMeta(searchRequest).then(function (res) {
             if (res.Metadatas && res.Metadatas.length) {
-                request.Operation = _pydioHttpRestApi.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
+                request.Operation = _cellsSdk.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(function () {
                     if (selection) {
@@ -57,12 +57,12 @@ function toggleBookmarkNode(node, selection) {
             }
         });
     } else {
-        request.Operation = _pydioHttpRestApi.UpdateUserMetaRequestUserMetaOp.constructFromObject('PUT');
-        var userMeta = new _pydioHttpRestApi.IdmUserMeta();
+        request.Operation = _cellsSdk.UpdateUserMetaRequestUserMetaOp.constructFromObject('PUT');
+        var userMeta = new _cellsSdk.IdmUserMeta();
         userMeta.NodeUuid = nodeUuid;
         userMeta.Namespace = "bookmark";
         userMeta.JsonValue = "\"true\"";
-        userMeta.Policies = [_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'OWNER', Subject: 'user:' + userId, Effect: 'allow' }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'READ', Subject: 'user:' + userId, Effect: 'allow' }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'WRITE', Subject: 'user:' + userId, Effect: 'allow' })];
+        userMeta.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'OWNER', Subject: 'user:' + userId, Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'READ', Subject: 'user:' + userId, Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Resource: nodeUuid, Action: 'WRITE', Subject: 'user:' + userId, Effect: 'allow' })];
         request.MetaDatas = [userMeta];
         return api.updateUserMeta(request).then(function () {
             if (selection) {

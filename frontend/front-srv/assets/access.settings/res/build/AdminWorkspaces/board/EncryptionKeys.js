@@ -50,7 +50,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _modelWs = require("../model/Ws");
 
@@ -92,8 +92,8 @@ var EncryptionKeys = (function (_React$Component) {
         value: function load() {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.listEncryptionKeys(new _pydioHttpRestApi.EncryptionAdminListKeysRequest()).then(function (result) {
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest()).then(function (result) {
                 _this.setState({ keys: result.Keys || [] });
             });
         }
@@ -110,8 +110,8 @@ var EncryptionKeys = (function (_React$Component) {
             var pydio = this.props.pydio;
             var m = this.state.m;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.EncryptionAdminExportKeyRequest();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.EncryptionAdminExportKeyRequest();
             request.KeyID = this.state.showExportKey;
             request.StrPassword = this.refs['key-password-field'].getValue();
             var confirm = this.refs['key-password-confirm'].getValue();
@@ -136,8 +136,8 @@ var EncryptionKeys = (function (_React$Component) {
         value: function createKey() {
             var _this3 = this;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.EncryptionAdminCreateKeyRequest();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.EncryptionAdminCreateKeyRequest();
             req.KeyID = this.refs['createKeyId'].getValue();
             req.Label = this.refs['createKeyLabel'].getValue();
             api.createEncryptionKey(req).then(function (result) {
@@ -159,8 +159,8 @@ var EncryptionKeys = (function (_React$Component) {
                 message: m('key.delete.warning'),
                 destructive: [keyId],
                 validCallback: function validCallback() {
-                    var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();
+                    var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var req = new _cellsSdk.EncryptionAdminDeleteKeyRequest();
                     req.KeyID = keyId;
                     api.deleteEncryptionKey(req).then(function (result) {
                         _this4.load();
@@ -176,19 +176,19 @@ var EncryptionKeys = (function (_React$Component) {
             var pydio = this.props.pydio;
             var m = this.state.m;
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
 
             var importKey = this.state.showImportKey;
             var importExisting = true;
             if (!importKey.ID) {
-                importKey = new _pydioHttpRestApi.EncryptionKey();
+                importKey = new _cellsSdk.EncryptionKey();
                 importKey.ID = this.refs['key-import-id'].getValue();
                 importKey.Label = this.refs['key-import-label'].getValue();
                 importExisting = false;
             }
             importKey.Content = this.refs['key-imported-field'].getValue();
 
-            var request = new _pydioHttpRestApi.EncryptionAdminImportKeyRequest();
+            var request = new _cellsSdk.EncryptionAdminImportKeyRequest();
             request.StrPassword = this.refs['key-password-field'].getValue();
             request.Key = importKey;
             request.Override = importExisting;

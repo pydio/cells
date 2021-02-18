@@ -20,7 +20,7 @@
 
 import React from 'react'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestConfiguration} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
 
 class ServiceExposedConfigs extends React.Component{
 

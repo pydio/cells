@@ -55429,7 +55429,7 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUi = require('material-ui');
 
@@ -55662,7 +55662,7 @@ exports['default'] = PluginEditor = (0, _materialUiStyles.muiThemeable)()(Plugin
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"./MailerTest":650,"./ServiceExposedConfigs":655,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],655:[function(require,module,exports){
+},{"./MailerTest":650,"./ServiceExposedConfigs":655,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],655:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -55709,7 +55709,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var ServiceExposedConfigs = (function (_React$Component) {
     _inherits(ServiceExposedConfigs, _React$Component);
@@ -55784,7 +55784,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
                 });
             });
 
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.getConfig("services/" + serviceId).then(function (restConfig) {
                 if (restConfig.Data) {
                     var values = JSON.parse(restConfig.Data) || {};
@@ -55810,8 +55810,8 @@ var ServiceExposedConfigs = (function (_React$Component) {
             if (onBeforeSave) {
                 onBeforeSave(jsonValues);
             }
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var body = new _pydioHttpRestApi.RestConfiguration();
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var body = new _cellsSdk.RestConfiguration();
             body.FullPath = "services/" + serviceName;
             body.Data = JSON.stringify(jsonValues);
             return api.putConfig(body.FullPath, body).then(function (res) {
@@ -55872,7 +55872,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
 exports['default'] = ServiceExposedConfigs;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],656:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","react":"react"}],656:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -56944,7 +56944,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydio = require('pydio');
 
@@ -57011,9 +57011,9 @@ var UpdaterDashboard = _react2['default'].createClass({
             })['catch'](function () {});
         });
 
-        var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
-        api.updateRequired(new _pydioHttpRestApi.UpdateUpdateRequest()).then(function (res) {
+        api.updateRequired(new _cellsSdk.UpdateUpdateRequest()).then(function (res) {
             _pydio2['default'].endLoading();
             var hasBinary = 0;
             if (res.AvailableBinaries) {
@@ -57058,8 +57058,8 @@ var UpdaterDashboard = _react2['default'].createClass({
 
             var toApply = packages[check];
             var version = toApply.Version;
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.UpdateApplyUpdateRequest();
             req.TargetVersion = version;
             api.applyUpdate(version, req).then(function (res) {
                 if (res.Success) {
@@ -57316,7 +57316,7 @@ exports['default'] = UpdaterDashboard = (0, _materialUiStyles.muiThemeable)()(Up
 exports['default'] = UpdaterDashboard;
 module.exports = exports['default'];
 
-},{"../core/ServiceExposedConfigs":655,"./UpgraderWizard":663,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],662:[function(require,module,exports){
+},{"../core/ServiceExposedConfigs":655,"./UpgraderWizard":663,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],662:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57376,7 +57376,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _materialUiStyles = require('material-ui/styles');
 
@@ -57462,8 +57462,8 @@ var UpgraderWizard = (function (_React$Component) {
 
             var currentVersion = this.props.currentVersion;
 
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.UpdateUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.UpdateUpdateRequest();
             request.PackageName = "PydioEnterprise";
             request.LicenseInfo = { Key: licenseKey, Save: "true" };
             _pydio2['default'].startLoading();
@@ -57495,8 +57495,8 @@ var UpgraderWizard = (function (_React$Component) {
         value: function applyUpgrade(version) {
             var _this3 = this;
 
-            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            var api = new _cellsSdk.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.UpdateApplyUpdateRequest();
             req.PackageName = "PydioEnterprise";
             req.TargetVersion = version;
             api.applyUpdate(version, req).then(function (res) {
@@ -57818,4 +57818,4 @@ exports['default'] = UpgraderWizard = (0, _materialUiStyles.muiThemeable)()(Upgr
 exports['default'] = UpgraderWizard;
 module.exports = exports['default'];
 
-},{"./UpgraderResources":662,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-markdown":"react-markdown"}]},{},[660]);
+},{"./UpgraderResources":662,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react","react-markdown":"react-markdown"}]},{},[660]);
